@@ -110,6 +110,8 @@ class UsStrategy:
             df = pd.DataFrame(list1)
             df.to_csv(wpath, mode='w', index=True, header=True)
             return df
+        else:
+            return None
 
     # 分时波动频繁
     def get_usstrategy4(self, rpath, wpath, trade_date):
@@ -139,4 +141,7 @@ class UsStrategy:
             df = pd.DataFrame(list1)
             df.to_csv(wpath, mode='w', index=True, header=True)
             return df
+        else:
+            return None
+
 
