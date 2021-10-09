@@ -6,11 +6,11 @@ import requests
 import re
 import json
 import pandas as pd
-import datetime
+from datetime import datetime, timedelta, timezone
 import threading
 import os
 from pandas.errors import EmptyDataError
-from ToolKit import *
+from ToolKit import ToolKit
 from MyThread import MyThread
 from UsStrategy import *
 
@@ -121,7 +121,7 @@ class SinaWebCrawler:
     @classmethod
     def set_realtime_tick_into_to_csv(cls, trade_date, rpath, wpath):
         # url里需要传递unix time当前时间戳
-        current_timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
+        current_timestamp = int(time.mktime(datetime.now().timetuple()))
         # 读取daily ticker文件，获取股票列表
         df = pd.read_csv(rpath, usecols=[i for i in range(1, 13)])
         ticker = str()
@@ -182,7 +182,7 @@ class SinaWebCrawler:
         # 获取股票列表
         tickers = UsStrategy().get_5min_tick_list(trade_date, rpath)
         # 获取unix time 时间戳
-        current_timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
+        current_timestamp = int(time.mktime(datetime.now().timetuple()))
         # 每日一个文件
         if os.path.exists(wpath):
             os.remove(wpath)

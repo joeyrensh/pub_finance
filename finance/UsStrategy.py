@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 import pandas as pd
-from ToolKit import *
+from ToolKit import ToolKit
 from UsTicker import UsTicker
 import talib as tl
 
@@ -115,7 +115,11 @@ class UsStrategy:
 
     # 分时波动频繁
     def get_usstrategy4(self, rpath, wpath, trade_date):
-        df = pd.read_csv(rpath, usecols=[i for i in range(1, 9)])
+        try:
+            df = pd.read_csv(rpath, usecols=[i for i in range(1, 9)])
+        except Exception as e:
+            print('分时数据读取错误：', e)
+            return pd.DataFrame()
         us_uniquelist = df['symbol'].unique().tolist()
         dic1 = {}
         list1 = []

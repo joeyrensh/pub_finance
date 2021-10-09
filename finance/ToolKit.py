@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 import sys
-import datetime
+from datetime import datetime, timedelta, timezone
 import time
 import requests
 import re
 
 
 class ToolKit(object):
-
-    _url = 'https://hq.sinajs.cn/?rn=unix_time&list=gb_ixic'
 
     def __init__(self, val):
         self.val = val
@@ -21,11 +19,26 @@ class ToolKit(object):
 
     # check今日是否交易日
     def is_us_trade_date(self):
-        current_timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
-        url = self._url.replace('unix_time', str(current_timestamp))
-        res = requests.get(url).text
-        res_p = re.sub('"', '', re.sub('="', ',', re.sub('.*gb_', '', res))).split(',')
-        if str(res_p[4])[0: 10] == str(datetime.datetime.now())[0: 10]:
-            return True
+        # 当前北京时间 UTC+8
+        utc_loc = datetime.now()
+        # 当前美国时间 UTC-4
+        utc_us = datetime.now() - timedelta(hours=12)
+        # utc_us = datetime.fromisoformat('2021-01-18 01:00:00')
+        # 美股休市日，https://www.nyse.com/markets/hours-calendars
+        # USStockMarketClosed.config 是2021和2022两年的美股法定休市配置文件
+        f = open('./USStockMarketClosed.config').readlines()
+        x = []
+        for i in f:
+            x.append(re.sub(',.*\n', '', i))
+        # 周末正常休市
+        if utc_us.isoweekday() in [1, 2, 3, 4, 5]:
+            if str(utc_us)[0: 10] in x:
+                print('今日非美国交易日')
+                return False
+            else:
+                return True
+        else:
+            print('今日非美国交易日')
+            return False
 
 
