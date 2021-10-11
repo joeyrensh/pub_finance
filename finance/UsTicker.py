@@ -23,11 +23,11 @@ class UsTicker:
         self.final = pd.concat(list(dic.values()), ignore_index=True)
         self.final.sort_values(by=['symbol', 'date'], ascending=True, inplace=True)
 
-    def get_usstock_list(self, trade_date):
-
+    @staticmethod
+    def get_usstock_list(trade_date):
         rpath = './usstockinfo/SinaTicker_' + trade_date + '.csv'
         tickers = list()
-        df = pd.read_csv(rpath, usecols=[i for i in range(1,13)])
+        df = pd.read_csv(rpath, usecols=[i for i in range(1, 13)])
         for index, i in df.iterrows():
             if float(i['volume']) > 0 and float(i['amplitude'].replace('%', '')) > 1 \
                     and float(i['mktcap']) > 0 \
@@ -39,5 +39,4 @@ class UsTicker:
 
     def get_dataframe(self):
         return self.final
-
 

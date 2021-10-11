@@ -8,7 +8,7 @@ from ToolKit import ToolKit
 from DingDing import DingDing
 from MyEmail import MyEmail
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import pandas as pd
 import sys
 
@@ -25,10 +25,10 @@ def send_msg_to_dd(symbol, chg):
 
 
 # 执行策略
-def exec_strategy(trade_date, daily_path, min5_path):
+def exec_strategy(date, dpath, m5path):
     # 小市值大波动策略-策略1
-    wpath = './usstrategy/usstrategy1_' + trade_date + '.csv'
-    df1 = UsStrategy().get_usstrategy1(daily_path, wpath)
+    wpath = './usstrategy/usstrategy1_' + date + '.csv'
+    df1 = UsStrategy().get_usstrategy1(dpath, wpath)
     print(tabulate(df1, headers='keys', tablefmt='pretty'))
     # 发送TOP1振幅股票到钉钉
     if not df1.empty:
@@ -38,18 +38,18 @@ def exec_strategy(trade_date, daily_path, min5_path):
         send_msg_to_dd(symbol1, max_chg)
 
     # 昨日振幅大，且今天开盘涨，且超过10亿市值
-    wpath = './usstrategy/usstrategy2_' + trade_date + '.csv'
-    df2 = UsStrategy().get_usstrategy2(daily_path, wpath)
+    wpath = './usstrategy/usstrategy2_' + date + '.csv'
+    df2 = UsStrategy().get_usstrategy2(dpath, wpath)
     print(tabulate(df2, headers='keys', tablefmt='pretty'))
 
     # 三重滤网
-    wpath = './usstrategy/usstrategy3_' + trade_date + '.csv'
-    df3 = UsStrategy().get_usstrategy3(wpath, trade_date)
+    wpath = './usstrategy/usstrategy3_' + date + '.csv'
+    df3 = UsStrategy().get_usstrategy3(wpath, date)
     print(tabulate(df3, headers='keys', tablefmt='pretty'))
 
     # 分时波动频繁
-    wpath = './usstrategy/usstrategy4_' + trade_date + '.csv'
-    df4 = UsStrategy().get_usstrategy4(min5_path, wpath, trade_date)
+    wpath = './usstrategy/usstrategy4_' + date + '.csv'
+    df4 = UsStrategy().get_usstrategy4(m5path, wpath)
     print(tabulate(df4, headers='keys', tablefmt='pretty'))
 
     # 发送邮件
@@ -95,11 +95,11 @@ if __name__ == '__main__':
     SinaWebCrawler.set_5min_tick_info_to_csv(trade_date, daily_path, min5_path)
 
     # 获取实时股票数据
-    # SinaWebCrawler.set_realtime_tick_into_to_csv(trade_date, daily_path, realtime_path)
+    # SinaWebCrawler.set_realtime_tick_into_to_csv(daily_path, realtime_path)
 
     # 执行策略function
     df = exec_strategy(trade_date, daily_path, min5_path)
-    # 发送哟件
+    # 发送邮件
     if not df.empty:
         subject = '今日美股行情'
         body = df.to_html()

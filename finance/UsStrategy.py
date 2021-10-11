@@ -9,11 +9,13 @@ import talib as tl
 class UsStrategy:
 
     # 5分钟数据获取的股票清单
-    def get_5min_tick_list(self, trade_date, rpath):
+    @staticmethod
+    def get_5min_tick_list(rpath):
         tickers = list()
         df = pd.read_csv(rpath, usecols=[i for i in range(1, 13)])
         for index, i in df.iterrows():
-            if float(i['volume']) > 0 and float(i['amplitude'].replace('%', '')) > 5 \
+            if float(i['volume']) > 0 \
+                    and float(i['amplitude'].replace('%', '')) > 5 \
                     and float(i['mktcap']) > 0 \
                     and float(i['close']) > 0 \
                     and float(i['preclose']) > 0 \
@@ -23,7 +25,8 @@ class UsStrategy:
         return tickers1
 
     # 小市值大波动
-    def get_usstrategy1(self, rpath, wpath):
+    @staticmethod
+    def get_usstrategy1(rpath, wpath):
         df = pd.read_csv(rpath, usecols=[i for i in range(1, 13)])
         lenth = len(df)
         tool = ToolKit('策略1')
@@ -35,11 +38,14 @@ class UsStrategy:
             elif float(row['mktcap']) > 500000000:
                 df.drop(index=index, inplace=True)
             # 日换手金额超过市值10%
-            elif float(row['mktcap']) != 0 and (float(row['volume']) * float(row['close'])) * 100 * 10 \
-                    / float(row['mktcap']) < 100:
+            elif float(row['mktcap']) != 0 \
+                    and (float(row['volume']) * float(row['close'])) * 100 * 10 / float(row['mktcap']) < 100:
                 df.drop(index=index, inplace=True)
             # 成交量>0 且市值>0
             elif float(row['volume']) <= 0 or float(row['mktcap']) <= 0:
+                df.drop(index=index, inplace=True)
+            # 正向波动
+            elif float(row['chg']) < 0:
                 df.drop(index=index, inplace=True)
             tool.progress_bar(lenth, index)
 
@@ -48,8 +54,8 @@ class UsStrategy:
         return df
 
     # 昨日振幅大，且今天开盘涨，且超过10亿市值
-    def get_usstrategy2(self, rpath, wpath):
-        # name,cname,category,symbol,price,diff,chg,preclose,open_price,high,low,amplitude,volume,mktcap,pe,market,category_id
+    @staticmethod
+    def get_usstrategy2(rpath, wpath):
         df = pd.read_csv(rpath, usecols=[i for i in range(1, 13)])
         lenth = len(df)
         tool = ToolKit('策略2')
@@ -66,18 +72,21 @@ class UsStrategy:
             # 成交量和市值均大于0
             elif float(row['volume']) <= 0 or float(row['mktcap']) <= 0:
                 df.drop(index=index, inplace=True)
+            # 正向波动
+            elif float(row['chg']) < 0:
+                df.drop(index=index, inplace=True)
             tool.progress_bar(lenth, index)
         # 存取T+1股票行情
         df.to_csv(wpath, index=False, header=True)
         return df
 
     # 三重滤网，当日股价在MA20上方，MACD在0轴上方，今日收盘价高于昨日
-    def get_usstrategy3(self, wpath, trade_date):
+    @staticmethod
+    def get_usstrategy3(wpath, trade_date):
         # 获取美股多日分组数据
         us = UsTicker().get_dataframe()
         uslist = UsTicker().get_usstock_list(trade_date)
         # symbol, close, ma20, dif, dea, macd
-        dic1 = {}
         list1 = []
         tool = ToolKit('策略3')
         for usl in uslist:
@@ -114,17 +123,17 @@ class UsStrategy:
             return pd.DataFrame()
 
     # 分时波动频繁
-    def get_usstrategy4(self, rpath, wpath, trade_date):
+    @staticmethod
+    def get_usstrategy4(rpath, wpath):
         try:
             df = pd.read_csv(rpath, usecols=[i for i in range(1, 9)])
         except Exception as e:
             print('分时数据读取错误：', e)
             return pd.DataFrame()
-        us_uniquelist = df['symbol'].unique().tolist()
-        dic1 = {}
+        tickers = df['symbol'].unique().tolist()
         list1 = []
         tool = ToolKit('策略4')
-        for i in us_uniquelist:
+        for i in tickers:
             group_obj = df.groupby(by='symbol').get_group(i)
             close = group_obj['close'].values
             open_alias = group_obj['open_alias'].values
@@ -139,7 +148,7 @@ class UsStrategy:
                     list1.append(dic1)
                 except KeyError:
                     print('no key definition: ', i)
-            tool.progress_bar(len(us_uniquelist), us_uniquelist.index(i))
+            tool.progress_bar(len(tickers), tickers.index(i))
         if len(list1) > 0:
             # 将list转化为dataframe，并且存储为csv文件，带index和header
             df = pd.DataFrame(list1)
@@ -147,5 +156,4 @@ class UsStrategy:
             return df
         else:
             return pd.DataFrame()
-
 

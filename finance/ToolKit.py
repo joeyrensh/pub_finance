@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-import sys
-from datetime import datetime, timedelta, timezone
-import time
-import requests
+from datetime import datetime, timedelta
 import re
 
 
@@ -18,9 +15,10 @@ class ToolKit(object):
         print("\r{}处理进度: {}%: ".format(self.val, int(i * 100 / var)), "▋" * (i * 100 // var), end="", flush=True)
 
     # check今日是否交易日
-    def is_us_trade_date(self):
+    @staticmethod
+    def is_us_trade_date():
         # 当前北京时间 UTC+8
-        utc_loc = datetime.now()
+        # utc_loc = datetime.now()
         # 当前美国时间 UTC-4
         utc_us = datetime.now() - timedelta(hours=12)
         # utc_us = datetime.fromisoformat('2021-01-18 01:00:00')
@@ -40,5 +38,4 @@ class ToolKit(object):
         else:
             print('今日非美国交易日')
             return False
-
 

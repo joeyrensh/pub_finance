@@ -1,10 +1,11 @@
 import requests
 import json
-import sys
 
 
 # 发送钉钉信息
 class DingDing(object):
+
+    # 钉钉webhook地址，自定义标签模式
     __url = 'https://oapi.dingtalk.com/robot/send?access_token=' \
             '831aeb38519de912882b1a972023e21355efdbe95c36153af206d37b050ea347'
 
@@ -26,5 +27,4 @@ class DingDing(object):
         data = json.dumps(data)
         result = requests.post(self.api_url, data=data, headers=headers)
         return result.text
-
 

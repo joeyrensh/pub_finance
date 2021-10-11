@@ -9,6 +9,7 @@ class MyThread(threading.Thread):
         super(MyThread, self).__init__()
         self.func = func
         self.args = args
+        self.result = None
 
     def run(self):
         self.result = self.func(*self.args)

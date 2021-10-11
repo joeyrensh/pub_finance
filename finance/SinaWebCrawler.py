@@ -6,13 +6,12 @@ import requests
 import re
 import json
 import pandas as pd
-from datetime import datetime, timedelta, timezone
-import threading
+from ToolKit import ToolKit
+from datetime import datetime
 import os
 from pandas.errors import EmptyDataError
-from ToolKit import ToolKit
 from MyThread import MyThread
-from UsStrategy import *
+from UsStrategy import UsStrategy
 
 
 # 新浪爬虫，获取每日及5分钟股票数据
@@ -42,7 +41,6 @@ class SinaWebCrawler:
             return None
         # 将每页数据解析为dataframe返回处理
         json_object = json.loads(res_p)
-        dic1 = {}
         list1 = []
         for i in range(len(json_object)):
             try:
@@ -69,7 +67,6 @@ class SinaWebCrawler:
         total_pages = 250
         # 新浪财经美股信息获取
         # 多线程获取
-        df = pd.DataFrame()
         list_new = []
         # 循环遍历250页全美行情中心，步长为3
         tool = ToolKit('日数据下载')
@@ -94,7 +91,7 @@ class SinaWebCrawler:
         df.to_csv(wpath, mode='w', index=True, header=True)
 
     @classmethod
-    def get_realtime_tick_info(cls, url, tickerstring, trade_date, wpath):
+    def get_realtime_tick_info(cls, url):
         # 字典结构
         # 股票代码：symbol，今日开盘价：open_alias，今日收盘价：close，今日最高价：high
         # 今日最低价：low，昨日收盘价：preclose，涨跌额：change，涨跌幅：chg
@@ -104,7 +101,6 @@ class SinaWebCrawler:
         res = requests.get(url).text
         res_p = re.sub('"', '', re.sub('="', ',', re.sub('.*gb_', '', res))).split(';\n')
         list1 = list()
-        dic1 = {}
         for i in range(len(res_p)):
             if len(res_p[i].split(',')) < 10:
                 continue
@@ -119,7 +115,7 @@ class SinaWebCrawler:
         return list1
 
     @classmethod
-    def set_realtime_tick_into_to_csv(cls, trade_date, rpath, wpath):
+    def set_realtime_tick_into_to_csv(cls, rpath, wpath):
         # url里需要传递unix time当前时间戳
         current_timestamp = int(time.mktime(datetime.now().timetuple()))
         # 读取daily ticker文件，获取股票列表
@@ -133,14 +129,13 @@ class SinaWebCrawler:
             if i['volume'] > 0 and i['symbol'].find('.') <= 0:
                 ticker = ','.join([ticker, 'gb_' + str(i['symbol']).lower()])
         ticker_p = ticker.replace(',', '', 1).split(',')
-        list1 = []
         list_new = []
         # 股票代码以100个为一组，避免请求时参数过长越界
         for i in range(0, len(ticker_p), 100):
             tickerlist = re.sub('\\s', '',
                                 str(ticker_p[i: i + 100]).replace('[', '').replace(']', '').replace("'", '').strip())
             url = str(SinaWebCrawler.__url2).replace('unix_time', str(current_timestamp)).replace('gb_list', tickerlist)
-            list1 = SinaWebCrawler.get_realtime_tick_info(url, tickerlist, trade_date, wpath)
+            list1 = SinaWebCrawler.get_realtime_tick_info(url)
             list_new.extend(list1)
         # 将list转化为dataframe，并且存储为csv文件，带index和header
         df = pd.DataFrame(list_new)
@@ -159,7 +154,6 @@ class SinaWebCrawler:
         if res_p is None or len(res_p) <= 10:
             return None
         json_object = json.loads(res_p)
-        dic1 = {}
         list1 = []
         for i in range(len(json_object)):
             # 新浪返回的5min数据包括前几日的数据，只取当天
@@ -180,7 +174,7 @@ class SinaWebCrawler:
     @classmethod
     def set_5min_tick_info_to_csv(cls, trade_date, rpath, wpath):
         # 获取股票列表
-        tickers = UsStrategy().get_5min_tick_list(trade_date, rpath)
+        tickers = UsStrategy().get_5min_tick_list(rpath)
         # 获取unix time 时间戳
         current_timestamp = int(time.mktime(datetime.now().timetuple()))
         # 每日一个文件
