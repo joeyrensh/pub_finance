@@ -4,88 +4,92 @@ import pandas as pd
 from ToolKit import ToolKit
 from UsTicker import UsTicker
 import talib as tl
+from DingDing import DingDing
 
 
+# 策略类
 class UsStrategy:
 
-    # 5分钟数据获取的股票清单
-    @staticmethod
-    def get_5min_tick_list(rpath):
-        tickers = list()
-        df = pd.read_csv(rpath, usecols=[i for i in range(1, 13)])
-        for index, i in df.iterrows():
-            if float(i['volume']) > 0 \
-                    and float(i['amplitude'].replace('%', '')) > 5 \
-                    and float(i['mktcap']) > 0 \
-                    and float(i['close']) > 0 \
-                    and float(i['preclose']) > 0 \
-                    and (float(i['volume']) * float(i['close'])) > float(i['mktcap']) * 0.01:
-                tickers.append(str(i['symbol']))
-        tickers1 = list(set(tickers))
-        return tickers1
-
+    def __init__(self, trade_date):
+        self.trade_date = trade_date
     # 小市值大波动
-    @staticmethod
-    def get_usstrategy1(rpath, wpath):
-        df = pd.read_csv(rpath, usecols=[i for i in range(1, 13)])
-        lenth = len(df)
+
+    def get_usstrategy1(self):
+        # 获取日数据
+        df1 = UsTicker(self.trade_date).get_usstock_data_for_day()
+        lenth = len(df1)
         tool = ToolKit('策略1')
-        for index, row in df.iterrows():
+        for index, row in df1.iterrows():
             # 振幅超过10%
             if float(row['amplitude'].replace('%', '')) < 10:
-                df.drop(index=index, inplace=True)
+                df1.drop(index=index, inplace=True)
             # 市值低于5亿
             elif float(row['mktcap']) > 500000000:
-                df.drop(index=index, inplace=True)
+                df1.drop(index=index, inplace=True)
             # 日换手金额超过市值10%
             elif float(row['mktcap']) != 0 \
                     and (float(row['volume']) * float(row['close'])) * 100 * 10 / float(row['mktcap']) < 100:
-                df.drop(index=index, inplace=True)
+                df1.drop(index=index, inplace=True)
             # 成交量>0 且市值>0
             elif float(row['volume']) <= 0 or float(row['mktcap']) <= 0:
-                df.drop(index=index, inplace=True)
+                df1.drop(index=index, inplace=True)
             # 正向波动
             elif float(row['chg']) < 0:
-                df.drop(index=index, inplace=True)
+                df1.drop(index=index, inplace=True)
             tool.progress_bar(lenth, index)
 
-        # 存取T+1股票行情
-        df.to_csv(wpath, index=False, header=True)
-        return df
+        # 返回T+1股票行情
+        if not df1.empty:
+            df1['tag'] = '策略1'
+
+        # 发送钉钉消息
+        dd = DingDing()
+        image_address = 'http://x0.ifengimg.com/res/2021/4D88D64CA6D2902D26E15EC99921990596077F0A_size69_w1080_h938.jpeg'
+        # 发送TOP1振幅股票到钉钉
+        max_chg = df1['amplitude'].max()
+        df_max = df1.loc[df1['amplitude'] == df1['amplitude'].max()]
+        symbol1 = df_max.iloc[0]['symbol']
+        dd.send_markdown(title='Do It!!!',
+                         content='## 今日仙股\n'
+                         '#### ' + symbol1 + '振幅' + max_chg + '\n\n'
+                         '> ![美景](' + image_address + ')\n'
+                         '> ## Just Do It!!!\n')
+        return df1
 
     # 昨日振幅大，且今天开盘涨，且超过10亿市值
-    @staticmethod
-    def get_usstrategy2(rpath, wpath):
-        df = pd.read_csv(rpath, usecols=[i for i in range(1, 13)])
-        lenth = len(df)
+    def get_usstrategy2(self):
+        # 获取日数据
+        df2 = UsTicker(self.trade_date).get_usstock_data_for_day()
+        lenth = len(df2)
+        print('策略2 lenth: ', lenth)
         tool = ToolKit('策略2')
-        for index, row in df.iterrows():
+        for index, row in df2.iterrows():
             # 振幅超过10%
             if float(row['amplitude'].replace('%', '')) < 10:
-                df.drop(index=index, inplace=True)
+                df2.drop(index=index, inplace=True)
             # 今日开盘价高于昨日收盘价
             elif float(row['open_alias']) < float(row['preclose']):
-                df.drop(index=index, inplace=True)
+                df2.drop(index=index, inplace=True)
             # 市值超过10亿
             elif float(row['mktcap']) < 1000000000:
-                df.drop(index=index, inplace=True)
+                df2.drop(index=index, inplace=True)
             # 成交量和市值均大于0
             elif float(row['volume']) <= 0 or float(row['mktcap']) <= 0:
-                df.drop(index=index, inplace=True)
+                df2.drop(index=index, inplace=True)
             # 正向波动
             elif float(row['chg']) < 0:
-                df.drop(index=index, inplace=True)
+                df2.drop(index=index, inplace=True)
             tool.progress_bar(lenth, index)
-        # 存取T+1股票行情
-        df.to_csv(wpath, index=False, header=True)
-        return df
+        # 返回T+1股票行情
+        if not df2.empty:
+            df2['tag'] = '策略2'
+        return df2
 
     # 三重滤网，当日股价在MA20上方，MACD在0轴上方，今日收盘价高于昨日
-    @staticmethod
-    def get_usstrategy3(wpath, trade_date):
+    def get_usstrategy3(self):
         # 获取美股多日分组数据
-        us = UsTicker().get_dataframe()
-        uslist = UsTicker().get_usstock_list(trade_date)
+        us = UsTicker(self.trade_date).get_history_data()
+        uslist = UsTicker(self.trade_date).get_usstock_list()
         # symbol, close, ma20, dif, dea, macd
         list1 = []
         tool = ToolKit('策略3')
@@ -117,16 +121,16 @@ class UsStrategy:
         if len(list1) > 0:
             # 将list转化为dataframe，并且存储为csv文件，带index和header
             df = pd.DataFrame(list1)
-            df.to_csv(wpath, mode='w', index=True, header=True)
+            df['tag'] = '策略3'
             return df
         else:
             return pd.DataFrame()
 
     # 分时波动频繁
-    @staticmethod
-    def get_usstrategy4(rpath, wpath):
+    def get_usstrategy4(self):
+        # 初始化5分钟数据
         try:
-            df = pd.read_csv(rpath, usecols=[i for i in range(1, 9)])
+            df = UsTicker(self.trade_date).get_usstock_data_for_5mi()
         except Exception as e:
             print('分时数据读取错误：', e)
             return pd.DataFrame()
@@ -152,8 +156,7 @@ class UsStrategy:
         if len(list1) > 0:
             # 将list转化为dataframe，并且存储为csv文件，带index和header
             df = pd.DataFrame(list1)
-            df.to_csv(wpath, mode='w', index=True, header=True)
+            df['tag'] = '策略4'
             return df
         else:
             return pd.DataFrame()
-

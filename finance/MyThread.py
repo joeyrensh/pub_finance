@@ -20,4 +20,3 @@ class MyThread(threading.Thread):
             return self.result
         except Exception:
             return None
-
