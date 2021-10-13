@@ -44,7 +44,7 @@ class UsStrategy:
 
         # 发送钉钉消息
         dd = DingDing()
-        image_address = 'http://x0.ifengimg.com/res/2021/4D88D64CA6D2902D26E15EC99921990596077F0A_size69_w1080_h938.jpeg'
+        image_address = 'http://imgs.jushuo.com/editor/2016-11-21/5832b9d2ac8e0.gif'
         # 发送TOP1振幅股票到钉钉
         max_chg = df1['amplitude'].max()
         df_max = df1.loc[df1['amplitude'] == df1['amplitude'].max()]
@@ -61,7 +61,6 @@ class UsStrategy:
         # 获取日数据
         df2 = UsTicker(self.trade_date).get_usstock_data_for_day()
         lenth = len(df2)
-        print('策略2 lenth: ', lenth)
         tool = ToolKit('策略2')
         for index, row in df2.iterrows():
             # 振幅超过10%

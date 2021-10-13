@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
+
 from FileInfo import FileInfo
 from SinaWebCrawler import SinaWebCrawler
 from UsStrategy import UsStrategy
@@ -13,6 +14,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import sys
 from UsTicker import UsTicker
+from matplotlib import pyplot as plt
 
 
 # 执行策略
@@ -79,3 +81,5 @@ if __name__ == '__main__':
 
     # 结束进度条
     pbar.finish()
+
+    

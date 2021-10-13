@@ -1,3 +1,9 @@
 {
-    "search.useGlobalIgnoreFiles": true
+    "jupyter.jupyterServerType": "remote",
+    "python.autoComplete.extraPaths": [
+        "./finance"
+    ],
+    "python.analysis.extraPaths": [
+        "./finance"
+    ]
 }
