@@ -15,12 +15,14 @@ import pandas as pd
 import sys
 from UsTicker import UsTicker
 from matplotlib import pyplot as plt
+from IPython.display import HTML
+from jupyter import jupyter
 
 # 小市值大波动策略-策略1
 date = '20211012'
 us_strate = UsStrategy(date)
 df2 = us_strate.get_usstrategy2()
-df2.style.bar(subset=['close', 'chg'], color='#d65f5f')
+df_style = df2.style.apply(subset=['close', 'chg'], color='#d65f5f')
 subject = '今日美股行情'
-body = df2.to_html()
-MyEmail(subject, body).send_email()
+body = df_style.render()
+MyEmail(subject, df_style).send_email()

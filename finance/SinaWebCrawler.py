@@ -31,6 +31,9 @@ class SinaWebCrawler:
         self.__url3 = "https://stock.finance.sina.com.cn/usstock/api/jsonp_v2.php/var%20_ticker_5_unix_time=" \
             "/US_MinKService.getMinK?symbol=ticker&type=5"
 
+        # 历史数据url
+        self.__url4 = "https://stock.finance.sina.com.cn/usstock/api/json_v2.php/US_MinKService.getDailyK?symbol=ticker"
+
     # 获取日交易最新数据
     def get_daily_tick_info(self, url):
         # 字典结构

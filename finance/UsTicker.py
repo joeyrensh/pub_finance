@@ -24,7 +24,7 @@ class UsTicker:
     # 获取股票代码列表
     def get_usstock_list(self):
         tickers = list()
-        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 13)])
+        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 14)])
         for index, i in df.iterrows():
             if float(i['volume']) > 0 \
                     and float(i['amplitude'].replace('%', '')) > 0 \
@@ -37,15 +37,15 @@ class UsTicker:
 
     # 获取最新一天股票数据
     def get_usstock_data_for_day(self):
-        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 13)])
+        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 14)])
         return df
 
     # 获取历史数据股票合集
     def get_history_data(self):
         dic = {}
         for j in range(len(self.files)):
-            df = pd.read_csv(self.files[j], usecols=[i for i in range(1, 13)])
-            df['date'] = re.findall(r'\d+', self.files[j])[0]
+            df = pd.read_csv(self.files[j], usecols=[i for i in range(1, 14)])
+            # df['date'] = re.findall(r'\d+', self.files[j])[0]
             dic[j] = df
         df = pd.concat(list(dic.values()), ignore_index=True)
         df.sort_values(by=['symbol', 'date'], ascending=True, inplace=True)
@@ -54,7 +54,7 @@ class UsTicker:
     # 5分钟数据获取的股票列表，需要更大振幅做Filter
     def get_usstock_list_for_5mi(self):
         tickers = list()
-        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 13)])
+        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 14)])
         for index, i in df.iterrows():
             if float(i['volume']) > 0 \
                     and float(i['amplitude'].replace('%', '')) > 10 \

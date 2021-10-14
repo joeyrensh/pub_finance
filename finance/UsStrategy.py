@@ -41,19 +41,18 @@ class UsStrategy:
         # 返回T+1股票行情
         if not df1.empty:
             df1['tag'] = '策略1'
-
-        # 发送钉钉消息
-        dd = DingDing()
-        image_address = 'http://imgs.jushuo.com/editor/2016-11-21/5832b9d2ac8e0.gif'
-        # 发送TOP1振幅股票到钉钉
-        max_chg = df1['amplitude'].max()
-        df_max = df1.loc[df1['amplitude'] == df1['amplitude'].max()]
-        symbol1 = df_max.iloc[0]['symbol']
-        dd.send_markdown(title='Do It!!!',
-                         content='## 今日仙股\n'
-                         '#### ' + symbol1 + '振幅' + max_chg + '\n\n'
-                         '> ![美景](' + image_address + ')\n'
-                         '> ## Just Do It!!!\n')
+            # 发送钉钉消息
+            dd = DingDing()
+            image_address = 'http://imgs.jushuo.com/editor/2016-11-21/5832b9d2ac8e0.gif'
+            # 发送TOP1振幅股票到钉钉
+            max_chg = df1['amplitude'].max()
+            df_max = df1.loc[df1['amplitude'] == df1['amplitude'].max()]
+            symbol1 = df_max.iloc[0]['symbol']
+            dd.send_markdown(title='Do It!!!',
+                            content='## 今日仙股\n'
+                            '#### ' + symbol1 + '振幅' + max_chg + '\n\n'
+                            '> ![美景](' + image_address + ')\n'
+                            '> ## Just Do It!!!\n')
         return df1
 
     # 昨日振幅大，且今天开盘涨，且超过10亿市值
