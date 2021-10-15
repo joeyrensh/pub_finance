@@ -26,7 +26,7 @@ def exec_strategy(date):
     print(tabulate(df1, headers='keys', tablefmt='pretty'))
 
     # 破线拐头交叉-策略2
-    df2 = us_strate.get_usstrategy2()
+    df2 = us_strate.exec_strategy_with_multiprocessing()
     print(tabulate(df2, headers='keys', tablefmt='pretty'))
 
     # 合并数据
