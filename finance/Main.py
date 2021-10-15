@@ -25,23 +25,13 @@ def exec_strategy(date):
     df1 = us_strate.get_usstrategy1()
     print(tabulate(df1, headers='keys', tablefmt='pretty'))
 
-    # 昨日振幅大，且今天开盘涨，且超过10亿市值
+    # 破线拐头交叉-策略2
     df2 = us_strate.get_usstrategy2()
     print(tabulate(df2, headers='keys', tablefmt='pretty'))
-
-    # 三重滤网
-    df3 = us_strate.get_usstrategy3()
-    print(tabulate(df3, headers='keys', tablefmt='pretty'))
-
-    # 分时波动频繁
-    df4 = us_strate.get_usstrategy4()
-    print(tabulate(df4, headers='keys', tablefmt='pretty'))
 
     # 合并数据
     file_name_sta = FileInfo(date).get_file_name_sta
     df_new = pd.concat([df1, df2])
-    df_new = pd.concat([df_new, df3])
-    df_new = pd.concat([df_new, df4])
     df_new.to_csv(file_name_sta, index=True, header=True)
     return df_new
 
@@ -51,6 +41,8 @@ if __name__ == '__main__':
     # 美股交易日期 utc-4
     trade_date = re.sub(' .*', '', str(datetime.now() -
                         timedelta(hours=12)).replace('-', ''))
+
+    # trade_date = '20211014'
 
     # 非交易日程序终止运行
     if ToolKit('判断当天是否交易日').is_us_trade_date():
