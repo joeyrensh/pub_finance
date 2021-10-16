@@ -4,8 +4,8 @@ import pandas as pd
 from ToolKit import ToolKit
 from UsTicker import UsTicker
 import talib as tl
-from DingDing import DingDing
 import multiprocessing
+from DingDing import DingDing
 
 
 # 策略类
@@ -21,19 +21,22 @@ class UsStrategy:
         lenth = len(df1)
         tool = ToolKit('策略1')
         # 以字典和列表形式来存储
-        dict = {}
         list = []
         for index, row in df1.iterrows():
             # 计算进度
             tool.progress_bar(lenth, index)
-            # 振幅超过10%
-            if float(row['amplitude'].replace('%', '')) > 20:
+            # 振幅超过20%
+            if float(row['preclose']) > 0 \
+                    and (float(row['high']) - float(row['low'])) \
+                    / float(row['preclose']) > 0.2:
                 pass
             else:
                 continue
             # 日换手金额超过市值10%
-            if float(row['mktcap']) > 0 and float(row['volume']) > 0 and float(row['close']) > 0 \
-                    and (float(row['volume']) * float(row['close'])) * 110 > float(row['mktcap']):
+            if float(row['mktcap']) > 0 and float(row['volume']) > 0 \
+                and float(row['close']) > 0 \
+                and (float(row['volume']) * float(row['close'])) * 110 \
+                    > float(row['mktcap']):
                 pass
             else:
                 continue
@@ -42,32 +45,37 @@ class UsStrategy:
                 pass
             else:
                 continue
-            dic = {'symbol': row['symbol'], 'close': row['close'], 'amplitude': row['amplitude'],
-                    'tag': '振幅剧烈策略'}
+            dic = {'symbol': row['symbol'],
+                   'close': row['close'],
+                   'chg': float(row['chg']),
+                   'volume': row['volume'],
+                   'amplitude': (row['high'] - row['low']) * 100
+                   / row['preclose'],
+                   'tag': '振幅剧烈'}
             list.append(dic)
 
-        
         # 返回T+1股票行情
         if len(list) > 0:
             df = pd.DataFrame(list)
             # 发送钉钉消息
             dd = DingDing()
-            image_address = 'http://5b0988e595225.cdn.sohucs.com/images/20180208/fee9b75f1bf544388867cf0391b52dfa.gif'
+            image_address = 'http://5b0988e595225.cdn.sohucs.com/images/\
+                            20180208/fee9b75f1bf544388867cf0391b52dfa.gif'
             # 发送TOP1振幅股票到钉钉
             max_chg = df['amplitude'].max()
             df_max = df.loc[df['amplitude'] == df['amplitude'].max()]
             symbol = df_max.iloc[0]['symbol']
             dd.send_markdown(title='Do It!!!',
-                            content='## 今日仙股\n'
-                            '#### ' + symbol + '振幅' + max_chg + '\n\n'
-                            '> ![美景](' + image_address + ')\n'
-                            '> ## Just Do It!!!\n')
+                             content='## 今日仙股\n'
+                             '#### ' + symbol + '振幅' + max_chg + '\n\n'
+                             '> ![美景](' + image_address + ')\n'
+                             '> ## Just Do It!!!\n')
             return df
         else:
             return pd.DataFrame()
 
-
     # 破线拐头交叉
+
     def get_usstrategy2(self, group_obj, ticker):
 
         # 收盘价
@@ -76,6 +84,10 @@ class UsStrategy:
         volume = group_obj['volume'].values
         # 涨跌幅
         chg = group_obj['chg'].values
+        # 高
+        high = group_obj['high'].values
+        # 低
+        low = group_obj['low'].values
         # MA20
         ma20 = tl.MA(close, timeperiod=20)
         # MA60
@@ -88,27 +100,31 @@ class UsStrategy:
         dif, dea, macd = tl.MACD(close, 12, 26, 9)
         # MACD多头
         if macd.size > 3 \
-            and macd[-1] != 'nan' and macd[-2] != 'nan' and macd[-3] != 'nan' \
-            and macd[-1] > macd[-2] > macd[-3] > 0:
+                and macd[-1] != 'nan' and macd[-2] != 'nan' \
+                and macd[-3] != 'nan' \
+                and macd[-1] > macd[-2] > macd[-3] > 0:
             pass
         else:
             return
         # dif刚刚向上穿越DEA
         if dif.size > 1 and dea.size > 1 \
-            and dif[-1] != 'nan' and dea[-1] != 'nan' and dif[-1] > dea[-1] :
+                and dif[-1] != 'nan' and dea[-1] != 'nan' \
+                and dif[-1] > dea[-1]:
             pass
         else:
             return
         # 收盘价占上20均线，20站上60
         if ema20.size > 2 and ema60.size > 2 \
-            and ema20[-1] != 'nan' and ema20[-2] != 'nan' and ema60[-1] != 'nan' and ema60[-2] != 'nan' \
-            and close[-1] > ema20[-1] and ema20[-1] > ema60[-1]:
+                and ema20[-1] != 'nan' and ema20[-2] != 'nan' \
+                and ema60[-1] != 'nan' and ema60[-2] != 'nan' \
+                and close[-1] > ema20[-1] and ema20[-1] > ema60[-1]:
             pass
         else:
             return
         if ma20.size > 2 and ma60.size > 2 \
-            and ma20[-1] != 'nan' and ma20[-2] != 'nan' and ma60[-1] != 'nan' and ma60[-2] != 'nan' \
-            and close[-1] > ma20[-1] and ma20[-1] > ma60[-1]:
+                and ma20[-1] != 'nan' and ma20[-2] != 'nan' \
+                and ma60[-1] != 'nan' and ma60[-2] != 'nan' \
+                and close[-1] > ma20[-1] and ma20[-1] > ma60[-1]:
             pass
         else:
             return
@@ -119,19 +135,28 @@ class UsStrategy:
             return
         # 今日收盘价高于昨日收盘价
         if len(close) > 2 and close[-1] > close[-2] \
-            and len(volume) > 2 and volume[-1] > volume.max(axis=0) * 0.5 :
+                and len(volume) > 2 and volume[-1] > volume.max(axis=0) * 0.5:
             pass
         else:
             return
         # 乖离率，短期/中期都低于0.01
         if (close[-1] - ema20[-1]) / ema20[-1] < 0.1 \
-            and (ema20[-1] - ema60[-1]) / ema60[-1] < 0.1:
+                and (ema20[-1] - ema60[-1]) / ema60[-1] < 0.1:
+            pass
+        else:
+            return
+        # 昨日收盘价不能为0用来计算振幅
+        if close[-2] > 0:
             pass
         else:
             return
         # 每组策略返回结果为字典
-        dic = {'symbol': ticker, 'close': close[-1], 'chg': chg[-1],
-                'tag': '破线拐头交叉'}
+        dic = {'symbol': ticker,
+               'close': close[-1],
+               'chg': float(chg[-1]),
+               'volume': volume[-1],
+               'amplitude': (high[-1] - low[-1]) * 100 / close[-2],
+               'tag': '破线拐头交叉'}
         return dic
 
     # # 分时波动频繁
@@ -155,7 +180,8 @@ class UsStrategy:
     #         # macd为正次数高于为负，收盘价高于开盘价10%
     #         if macdp > macdn and close[-1] > open_alias[0] * 1.1:
     #             try:
-    #                 dic1 = {'symbol': i, 'close': close[-1], 'open_alias': open_alias[0],
+    #                 dic1 = {'symbol': i, 'close': close[-1],
+    #                           'open_alias': open_alias[0],
     #                         'macdp': macdp, 'macdn': macdn}
     #                 list1.append(dic1)
     #             except KeyError:
@@ -177,18 +203,26 @@ class UsStrategy:
         # 关键指标 symbol, close, ma20, ma60, ema20, ema60, dif, dea, macd
         # 存放策略结果
         list = []
+        results = []
         tool = ToolKit('多进程执行策略')
-        pool = multiprocessing.Pool(processes=2) # 创建2个进程
+        pool = multiprocessing.Pool(processes=2)  # 创建2个进程
         # 循环股票列表，并行执行策略
         for ticker in tickers:
             # 按股票分组
             group_obj = his_data.groupby(by='symbol').get_group(ticker)
-            dic = pool.apply_async(self.get_usstrategy2, (group_obj, ticker)).get()
-            if dic:
-                list.append(dic)
+            result = pool.apply_async(self.get_usstrategy2,
+                                      (group_obj, ticker))
+            results.append(result)
             tool.progress_bar(len(tickers), tickers.index(ticker))
+
         pool.close()    # 关闭进程池，表示不能再往进程池中添加进程，需要在join之前调用
         pool.join()     # 等待进程池中的所有进程执行完毕
+
+        # 获取进程内数据
+        for dic in results:
+            if dic.get():
+                list.append(dic.get())
+
         # 结果数据返回
         if len(list) > 0:
             df = pd.DataFrame(list)

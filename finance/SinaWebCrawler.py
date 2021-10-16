@@ -21,18 +21,21 @@ class SinaWebCrawler:
     def __init__(self):
 
         # NYSE:N，NASDAQ:O，AMEX:A
-        self.__url1 = "https://stock.finance.sina.com.cn/usstock/api/jsonp.php/IO.XSRV2.CallbackList" \
-            "/US_CategoryService.getList?page=page_num&num=60&sort=&asc=0"
+        self.__url1 = "https://stock.finance.sina.com.cn/usstock/api/"\
+            "jsonp.php/IO.XSRV2.CallbackList/US_CategoryService.getList?"\
+            "page=page_num&num=60&sort=&asc=0"
 
         # 分时股票url
         self.__url2 = "https://hq.sinajs.cn/?rn=unix_time&list=gb_list"
 
         # 5min趋势url
-        self.__url3 = "https://stock.finance.sina.com.cn/usstock/api/jsonp_v2.php/var%20_ticker_5_unix_time=" \
+        self.__url3 = "https://stock.finance.sina.com.cn/usstock/api/"\
+            "jsonp_v2.php/var%20_ticker_5_unix_time="\
             "/US_MinKService.getMinK?symbol=ticker&type=5"
 
         # 历史数据url
-        self.__url4 = "https://stock.finance.sina.com.cn/usstock/api/json_v2.php/US_MinKService.getDailyK?symbol=ticker"
+        self.__url4 = "https://stock.finance.sina.com.cn/usstock/api/"\
+            "json_v2.php/US_MinKService.getDailyK?symbol=ticker"
 
     # 获取日交易最新数据
     def get_daily_tick_info(self, url):
@@ -53,12 +56,18 @@ class SinaWebCrawler:
         for i in range(len(json_object)):
             try:
                 # 给字典的所有key重新命名
-                dic1 = {'symbol': json_object[i]['symbol'], 'open_alias': json_object[i]['open'],
-                        'close': json_object[i]['price'], 'high': json_object[i]['high'],
-                        'low': json_object[i]['low'], 'preclose': json_object[i]['preclose'],
-                        'change': json_object[i]['diff'], 'chg':  json_object[i]['chg'],
-                        'volume': json_object[i]['volume'], 'amplitude': json_object[i]['amplitude'],
-                        'mktcap': json_object[i]['mktcap'], 'market': json_object[i]['market']}
+                dic1 = {'symbol': json_object[i]['symbol'],
+                        'open_alias': json_object[i]['open'],
+                        'close': json_object[i]['price'],
+                        'high': json_object[i]['high'],
+                        'low': json_object[i]['low'],
+                        'preclose': json_object[i]['preclose'],
+                        'change': json_object[i]['diff'],
+                        'chg':  json_object[i]['chg'],
+                        'volume': json_object[i]['volume'],
+                        'amplitude': json_object[i]['amplitude'],
+                        'mktcap': json_object[i]['mktcap'],
+                        'market': json_object[i]['market']}
                 # 数据结构为，list内嵌套dict数据类型，每一行代表一支股票所有数据
                 list1.append(dic1)
             except KeyError:
@@ -114,10 +123,14 @@ class SinaWebCrawler:
             if len(res_p[i].split(',')) < 10:
                 continue
             # 重新定义字典结构，与daily tick info一致
-            dic1 = {'symbol': res_p[i].split(',')[0], 'open_alias': res_p[i].split(',')[6],
-                    'close': res_p[i].split(',')[2], 'high': res_p[i].split(',')[7],
-                    'low': res_p[i].split(',')[8], 'change': res_p[i].split(',')[3],
-                    'chg': res_p[i].split(',')[5], 'volume': res_p[i].split(',')[11],
+            dic1 = {'symbol': res_p[i].split(',')[0],
+                    'open_alias': res_p[i].split(',')[6],
+                    'close': res_p[i].split(',')[2],
+                    'high': res_p[i].split(',')[7],
+                    'low': res_p[i].split(',')[8],
+                    'change': res_p[i].split(',')[3],
+                    'chg': res_p[i].split(',')[5],
+                    'volume': res_p[i].split(',')[11],
                     'mktcap': res_p[i].split(',')[13]}
             # 数据结构为，list内嵌套dict数据类型，每一行代表一支股票所有数据
             list1.append(dic1)
@@ -143,7 +156,8 @@ class SinaWebCrawler:
         # 股票代码以100个为一组，避免请求时参数过长越界
         for i in range(0, len(ticker_p), 100):
             tickerlist = re.sub('\\s', '',
-                                str(ticker_p[i: i + 100]).replace('[', '').replace(']', '').replace("'", '').strip())
+                                str(ticker_p[i: i + 100]).replace('[', '')
+                                .replace(']', '').replace("'", '').strip())
             url = str(self.__url2).replace('unix_time', str(
                 current_timestamp)).replace('gb_list', tickerlist)
             list1 = self.get_realtime_tick_info(url)
@@ -168,14 +182,19 @@ class SinaWebCrawler:
         list1 = []
         for i in range(len(json_object)):
             # 新浪返回的5min数据包括前几日的数据，只取当天
-            if str(json_object[i]['d'])[0:10].replace('-', '').strip() != str(trade_date):
+            if str(json_object[i]['d'])[0:10].replace('-', '').strip()\
+                    != str(trade_date):
                 continue
             # 给字典的所有key重新命名
             try:
-                dic1 = {'symbol': ticker, 'event_time': json_object[i]['d'],
-                        'open_alias': json_object[i]['o'], 'close': json_object[i]['c'],
-                        'high': json_object[i]['h'], 'low': json_object[i]['l'],
-                        'volume': json_object[i]['v'], 'turnover': json_object[i]['a']}
+                dic1 = {'symbol': ticker,
+                        'event_time': json_object[i]['d'],
+                        'open_alias': json_object[i]['o'],
+                        'close': json_object[i]['c'],
+                        'high': json_object[i]['h'],
+                        'low': json_object[i]['l'],
+                        'volume': json_object[i]['v'],
+                        'turnover': json_object[i]['a']}
                 list1.append(dic1)
             except KeyError:
                 print('no key definition: ' + ticker)
@@ -203,11 +222,13 @@ class SinaWebCrawler:
             for t in range(1, 4):
                 if (h+t) <= len(tickers):
                     # 解析URL，传递股票及当前unix time
-                    url1 = str(self.__url3).replace('unix_time', str(current_timestamp)).\
-                        replace('ticker', tickers[h+t-1])
+                    url1 = str(self.__url3)\
+                        .replace('unix_time', str(current_timestamp))\
+                        .replace('ticker', tickers[h+t-1])
                     # 启动多线程获取
                     my_thread = MyThread(
-                        self.get_5min_tick_info, (trade_date, url1, tickers[h+t-1]))
+                        self.get_5min_tick_info,
+                        (trade_date, url1, tickers[h+t-1]))
                     my_thread.setDaemon(True)
                     my_thread.start()
                     list1 = my_thread.get_result()

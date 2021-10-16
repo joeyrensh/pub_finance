@@ -1,20 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-
 from FileInfo import FileInfo
 from SinaWebCrawler import SinaWebCrawler
 from UsStrategy import UsStrategy
 from tabulate import tabulate
 import progressbar
 from ToolKit import ToolKit
-from DingDing import DingDing
 from MyEmail import MyEmail
 import re
 from datetime import datetime, timedelta
 import pandas as pd
 import sys
-from UsTicker import UsTicker
-from matplotlib import pyplot as plt
+import seaborn as sns
 
 
 # 执行策略
@@ -31,7 +28,7 @@ def exec_strategy(date):
 
     # 合并数据
     file_name_sta = FileInfo(date).get_file_name_sta
-    df_new = pd.concat([df1, df2])
+    df_new = pd.concat([df1, df2], ignore_index=True)
     df_new.to_csv(file_name_sta, index=True, header=True)
     return df_new
 
@@ -41,8 +38,6 @@ if __name__ == '__main__':
     # 美股交易日期 utc-4
     trade_date = re.sub(' .*', '', str(datetime.now() -
                         timedelta(hours=12)).replace('-', ''))
-
-    # trade_date = '20211014'
 
     # 非交易日程序终止运行
     if ToolKit('判断当天是否交易日').is_us_trade_date():
@@ -67,11 +62,27 @@ if __name__ == '__main__':
     df = exec_strategy(trade_date)
     # 发送邮件
     if not df.empty:
+        df.reset_index(inplace=True)
+        cm = sns.light_palette("green", as_cmap=True)
+        html = (
+            df.style.hide_index()
+                    .format({"close": "{:.2f}",
+                             "chg": "{:.2f}%",
+                             "amplitude": "{:.2f}%"}) \
+            # .bar(subset=["close"], color='#FFA07A') \
+            # .bar(subset=["chg"], color='#FFA07A') \
+                    .background_gradient(cmap=cm) \
+            # .set_properties(**{'background-color': 'black', \
+            #                     'color': 'cyan', \
+            #                     'border-color': 'white'}) \
+            .set_table_styles([{ \
+                "selector": "thead", \
+                "props": "background-color:green; \
+                                 color:black;" \
+                                }]) \
+            .render()
+        )
         subject = '今日美股行情'
-        body = df.to_html()
-        MyEmail(subject, body).send_email()
-
+        MyEmail(subject, html).send_email()
     # 结束进度条
     pbar.finish()
-
-    

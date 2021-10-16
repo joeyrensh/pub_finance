@@ -1,32 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-from FileInfo import FileInfo
-from SinaWebCrawler import SinaWebCrawler
-from UsStrategy import UsStrategy
-from tabulate import tabulate
-import progressbar
 from ToolKit import ToolKit
-from DingDing import DingDing
-from MyEmail import MyEmail
 import re
 from datetime import datetime, timedelta
 import time
 import pandas as pd
-import sys
 from UsTicker import UsTicker
-from matplotlib import pyplot as plt
 import requests
 import json
 from MyThread import MyThread
 from pandas.errors import EmptyDataError
 
 
-url = "https://stock.finance.sina.com.cn/usstock/api/json_v2.php/US_MinKService.getDailyK?symbol=ticker"
+url = "https://stock.finance.sina.com.cn/usstock/api/json_v2.php/\
+    US_MinKService.getDailyK?symbol=ticker"
 
 # 美股交易日期 utc-4
 trade_date = re.sub(' .*', '', str(datetime.now() -
                     timedelta(hours=12)).replace('-', ''))
+
 
 def get_his_tick_info(trade_date, url, ticker):
     # 字典结构
@@ -45,9 +38,9 @@ def get_his_tick_info(trade_date, url, ticker):
             continue
         # 给字典的所有key重新命名
         try:
-            dic1 = {'symbol': ticker, 'open_alias': json_object[i]['o'], 
-                    'close': json_object[i]['c'],'high': json_object[i]['h'], 
-                    'low': json_object[i]['l'],'preclose': None,
+            dic1 = {'symbol': ticker, 'open_alias': json_object[i]['o'],
+                    'close': json_object[i]['c'], 'high': json_object[i]['h'],
+                    'low': json_object[i]['l'], 'preclose': None,
                     'change': None, 'chg':  None,
                     'volume': json_object[i]['v'], 'amplitude': None,
                     'mktcap': None, 'market': None,
@@ -58,6 +51,7 @@ def get_his_tick_info(trade_date, url, ticker):
             print('no key definition: ' + ticker)
     # 以每个股票代码，返回当前股票所有的历史数据
     return list1
+
 
 def set_his_tick_info_to_csv(trade_date):
     # 获取实时文件路径
@@ -92,5 +86,6 @@ def set_his_tick_info_to_csv(trade_date):
         df.to_csv(file_name_his, mode='w', index=True, header=True)
     except EmptyDataError:
         pass
+
 
 set_his_tick_info_to_csv('20211013')

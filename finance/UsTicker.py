@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 import pandas as pd
-import os
-import re
 from FileInfo import FileInfo
 
 

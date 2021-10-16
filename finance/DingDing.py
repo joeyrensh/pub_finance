@@ -27,4 +27,3 @@ class DingDing(object):
         data = json.dumps(data)
         result = requests.post(self.api_url, data=data, headers=headers)
         return result.text
-

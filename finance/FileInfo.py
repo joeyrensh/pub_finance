@@ -9,9 +9,12 @@ import re
 class FileInfo:
 
     def __init__(self, trade_date):
-        self.file_name_day = './usstockinfo/SinaTicker_' + trade_date + '.csv'
-        self.file_name_mi = './usstockinfo/SinaTicker5Min_' + trade_date + '.csv'
-        self.file_name_rt = './usstockinfo/SinaTickerRealTime_' + trade_date + '.csv'
+        self.file_name_day = './usstockinfo/SinaTicker_' \
+            + trade_date + '.csv'
+        self.file_name_mi = './usstockinfo/SinaTicker5Min_' \
+            + trade_date + '.csv'
+        self.file_name_rt = './usstockinfo/SinaTickerRealTime_' \
+            + trade_date + '.csv'
         self.file_name_sta = './usstrategy/UsStrategy_' + trade_date + '.csv'
         self.files_path = './usstockinfo/'
         self.trade_date = trade_date
@@ -48,7 +51,9 @@ class FileInfo:
         file_list = []
         for file in path_list:
             # 返回小于等于当前交易日期的文件列表
-            if re.search('SinaTicker_', file) and str(file).replace('SinaTicker_', '').replace('.csv', '') <= self.trade_date:
+            if re.search('SinaTicker_', file) and str(file)\
+                    .replace('SinaTicker_', '')\
+                    .replace('.csv', '') <= self.trade_date:
                 file_list.append(self.files_path + file)
         file_list.sort()
         return file_list

@@ -1,21 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-import sys
-import os
-import re
-from datetime import datetime, timedelta, timezone
 import pandas as pd
-import requests as rc
-import requests_cache
-import yfinance as yf
-import time
 from matplotlib import pyplot as plt
 import matplotlib.ticker as ticker
-from UsStrategy import UsStrategy
 import talib as tl
-import mpld3
-
 
 
 # trade_date = '20211012'
@@ -41,14 +30,14 @@ for index, row in df.iterrows():
 
 for usl in ['LAC']:
     # 数据分组
-    fig, ax = plt.subplots(num= 2, figsize=(15,10))
+    fig, ax = plt.subplots(num=2, figsize=(15, 10))
     group_obj = df.groupby(by='symbol').get_group(usl)
     close = group_obj['close'].values
     event_time = group_obj['event_time'].values
     ma = tl.MA(close, timeperiod=20)
-    ax.plot(event_time, close, linestyle='-', color='g'
-        , marker='o', markersize=10)
-    ax.plot(event_time, ma, linestyle='-', color='r')        
+    ax.plot(event_time, close, linestyle='-',
+            color='g', marker='o', markersize=10)
+    ax.plot(event_time, ma, linestyle='-', color='r')
     ax.xaxis.set_major_locator(ticker.MultipleLocator(base=15))
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
@@ -59,5 +48,3 @@ for usl in ['LAC']:
 
 
 # df.groupby('symbol').plot(x='event_time', y='close', ax=ax, legend=False)
-
-

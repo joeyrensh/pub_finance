@@ -12,7 +12,8 @@ class ToolKit(object):
 
     # 执行进度显示
     def progress_bar(self, var, i):
-        print("\r{}处理进度: {}%: ".format(self.val, int(i * 100 / var)), "▋" * (i * 100 // var), end="", flush=True)
+        print("\r{}处理进度: {}%: ".format(self.val, int(i * 100 / var)),
+              "▋" * (i * 100 // var), end="", flush=True)
 
     # check今日是否交易日
     @staticmethod
@@ -38,4 +39,3 @@ class ToolKit(object):
         else:
             print('今日非美国交易日')
             return False
-

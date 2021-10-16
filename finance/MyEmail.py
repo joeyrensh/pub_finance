@@ -28,4 +28,3 @@ class MyEmail(object):
             print("Email sent successfully!")
         except Exception as ex:
             print("Something went wrong….", ex)
-
