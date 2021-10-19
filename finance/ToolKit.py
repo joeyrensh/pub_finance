@@ -39,3 +39,26 @@ class ToolKit(object):
         else:
             print('今日非美国交易日')
             return False
+
+    @staticmethod
+    def get_latest_trade_date(offset):
+        # utc_us = datetime.fromisoformat('2021-01-18 01:00:00')
+        # 美股休市日，https://www.nyse.com/markets/hours-calendars
+        # USStockMarketClosed.config 是2021和2022两年的美股法定休市配置文件
+        f = open('./USStockMarketClosed.config').readlines()
+        x = []
+        for i in f:
+            x.append(re.sub(',.*\n', '', i))
+        # 循环遍历最近一个交易日期
+        for h in range(offset, 365):
+            # 当前美国时间 UTC-4
+            utc_us = datetime.now() - timedelta(hours=12) - timedelta(days=h)
+            # 周末正常休市
+            if utc_us.isoweekday() in [1, 2, 3, 4, 5]:
+                if str(utc_us)[0: 10] in x:
+                    continue
+                else:
+                    # 返回日期字符串格式20200101
+                    return str(utc_us)[0: 10].replace('-', '')
+            else:
+                continue

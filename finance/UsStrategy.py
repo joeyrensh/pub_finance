@@ -59,15 +59,16 @@ class UsStrategy:
             df = pd.DataFrame(list)
             # 发送钉钉消息
             dd = DingDing()
-            image_address = 'http://5b0988e595225.cdn.sohucs.com/images/\
-                            20180208/fee9b75f1bf544388867cf0391b52dfa.gif'
+            image_address = 'http://5b0988e595225.cdn.sohucs.com/images/'\
+                            '20180208/fee9b75f1bf544388867cf0391b52dfa.gif'
             # 发送TOP1振幅股票到钉钉
             max_chg = df['amplitude'].max()
             df_max = df.loc[df['amplitude'] == df['amplitude'].max()]
             symbol = df_max.iloc[0]['symbol']
             dd.send_markdown(title='Do It!!!',
                              content='## 今日仙股\n'
-                             '#### ' + symbol + '振幅' + max_chg + '\n\n'
+                             '#### ' + str(symbol) + '振幅' +
+                             str(max_chg) + '\n\n'
                              '> ![美景](' + image_address + ')\n'
                              '> ## Just Do It!!!\n')
             return df
@@ -205,7 +206,7 @@ class UsStrategy:
         list = []
         results = []
         tool = ToolKit('多进程执行策略')
-        pool = multiprocessing.Pool(processes=2)  # 创建2个进程
+        pool = multiprocessing.Pool(processes=4)  # 创建2个进程
         # 循环股票列表，并行执行策略
         for ticker in tickers:
             # 按股票分组

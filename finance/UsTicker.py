@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 import pandas as pd
 from FileInfo import FileInfo
+from ToolKit import ToolKit
 
 
 # 组合每日股票数据为一个dataframe
