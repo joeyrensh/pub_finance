@@ -32,11 +32,11 @@ class UsStrategy:
                 pass
             else:
                 continue
-            # 日换手金额超过市值10%
+            # 日换手金额超过市值20%
             if float(row['mktcap']) > 0 and float(row['volume']) > 0 \
                 and float(row['close']) > 0 \
-                and (float(row['volume']) * float(row['close'])) * 110 \
-                    > float(row['mktcap']):
+                and (float(row['volume']) * float(row['close'])) \
+                    > float(row['mktcap']) * 0.2:
                 pass
             else:
                 continue
@@ -57,20 +57,20 @@ class UsStrategy:
         # 返回T+1股票行情
         if len(list) > 0:
             df = pd.DataFrame(list)
-            # 发送钉钉消息
-            dd = DingDing()
-            image_address = 'http://5b0988e595225.cdn.sohucs.com/images/'\
-                            '20180208/fee9b75f1bf544388867cf0391b52dfa.gif'
-            # 发送TOP1振幅股票到钉钉
-            max_chg = df['amplitude'].max()
-            df_max = df.loc[df['amplitude'] == df['amplitude'].max()]
-            symbol = df_max.iloc[0]['symbol']
-            dd.send_markdown(title='Do It!!!',
-                             content='## 今日仙股\n'
-                             '#### ' + str(symbol) + '振幅' +
-                             str(max_chg) + '\n\n'
-                             '> ![美景](' + image_address + ')\n'
-                             '> ## Just Do It!!!\n')
+            # # 发送钉钉消息
+            # dd = DingDing()
+            # image_address = 'http://5b0988e595225.cdn.sohucs.com/images/'\
+            #                 '20180208/fee9b75f1bf544388867cf0391b52dfa.gif'
+            # # 发送TOP1振幅股票到钉钉
+            # max_chg = df['amplitude'].max()
+            # df_max = df.loc[df['amplitude'] == df['amplitude'].max()]
+            # symbol = df_max.iloc[0]['symbol']
+            # dd.send_markdown(title='Do It!!!',
+            #                  content='## 今日仙股\n'
+            #                  '#### ' + str(symbol) + '振幅' +
+            #                  str(max_chg) + '\n\n'
+            #                  '> ![美景](' + image_address + ')\n'
+            #                  '> ## Just Do It!!!\n')
             return df
         else:
             return pd.DataFrame()
@@ -103,38 +103,39 @@ class UsStrategy:
         if macd.size > 3 \
                 and macd[-1] != 'nan' and macd[-2] != 'nan' \
                 and macd[-3] != 'nan' \
-                and macd[-1] > macd[-2] > macd[-3] > 0:
+                and macd[-1] > macd[-2] > macd[-3]:
             pass
         else:
             return
         # dif刚刚向上穿越DEA
-        if dif.size > 1 and dea.size > 1 \
+        if dif.size > 2 and dea.size > 2 \
                 and dif[-1] != 'nan' and dea[-1] != 'nan' \
-                and dif[-1] > dea[-1]:
+                and dif[-2] != 'nan' and dea[-2] != 'nan' \
+                and dif[-1] >= dea[-1] and dif[2] < dea[-2]:
             pass
         else:
             return
-        # 收盘价占上20均线，20站上60
-        if ema20.size > 2 and ema60.size > 2 \
+        # 收盘价站上20均线，20站上60
+        if ema20.size > 3 and ema60.size > 2 \
                 and ema20[-1] != 'nan' and ema20[-2] != 'nan' \
                 and ema60[-1] != 'nan' and ema60[-2] != 'nan' \
-                and close[-1] > ema20[-1] and ema20[-1] > ema60[-1]:
+                and close[-1] >= ema20[-1] and ema20[-1] >= ema60[-1]:
             pass
         else:
             return
         if ma20.size > 2 and ma60.size > 2 \
                 and ma20[-1] != 'nan' and ma20[-2] != 'nan' \
                 and ma60[-1] != 'nan' and ma60[-2] != 'nan' \
-                and close[-1] > ma20[-1] and ma20[-1] > ma60[-1]:
+                and close[-1] >= ma20[-1] and ma20[-1] >= ma60[-1]:
             pass
         else:
             return
         # EMA斜率大于0
-        if ema20[-1] > ema20[-2]:
+        if ema20[-1] > ema20[-2] > ema20[-3]:
             pass
         else:
             return
-        # 今日收盘价高于昨日收盘价
+        # 今日收盘价高于昨日收盘价, 且成交量超过历史成交最大量的50%
         if len(close) > 2 and close[-1] > close[-2] \
                 and len(volume) > 2 and volume[-1] > volume.max(axis=0) * 0.5:
             pass

@@ -68,3 +68,25 @@ class UsTicker:
     def get_usstock_data_for_5mi(self):
         df = pd.read_csv(self.file_mi, usecols=[i for i in range(1, 9)])
         return df
+
+    # 获取BackTrader对应的DataFeed
+    def get_backtrader_data_feed(self):
+        tickers = self.get_usstock_list()
+        his_data = self.get_history_data()
+
+        list = []
+        t = ToolKit('历史数据重构进度')
+        for i in tickers:
+        # for i in ['BABA', 'MSFT', 'TSLA']:
+            t.progress_bar(len(tickers), tickers.index(i))
+            df = his_data.groupby(by='symbol').get_group(i)
+            # 适配BackTrader数据结构
+            df_copy = pd.DataFrame({'open': df['open_alias'].values,
+                                   'close': df['close'].values,
+                                    'high': df['high'].values,
+                                    'low': df['low'].values,
+                                    'volume': df['volume'].values,
+                                    'symbol': df['symbol'].values
+                                    }, index=pd.to_datetime(df['date'], format='%Y%m%d'))
+            list.append(df_copy)
+        return list

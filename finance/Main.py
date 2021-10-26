@@ -39,8 +39,7 @@ def exec_strategy(date):
 # 主程序入口
 if __name__ == '__main__':
     # 美股交易日期 utc-4
-    trade_date = re.sub(' .*', '', str(datetime.now() -
-                        timedelta(hours=12)).replace('-', ''))
+    trade_date = ToolKit('获取最新美股交易日期').get_latest_trade_date(0)
 
     # 非交易日程序终止运行
     if ToolKit('判断当天是否交易日').is_us_trade_date():

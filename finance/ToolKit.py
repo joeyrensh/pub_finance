@@ -59,6 +59,7 @@ class ToolKit(object):
                     continue
                 else:
                     # 返回日期字符串格式20200101
+                    print('当前获取的美股日期是：', str(utc_us)[0: 10].replace('-', ''))
                     return str(utc_us)[0: 10].replace('-', '')
             else:
                 continue
