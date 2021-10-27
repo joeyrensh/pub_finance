@@ -3,6 +3,7 @@
 import pandas as pd
 from FileInfo import FileInfo
 from ToolKit import ToolKit
+from datetime import datetime, timedelta
 
 
 # 组合每日股票数据为一个dataframe
@@ -30,7 +31,10 @@ class UsTicker:
                     and float(i['mktcap']) > 0 \
                     and float(i['close']) > 0 \
                     and float(i['preclose']) > 0 \
-                    and float(i['mktcap']) > 0:
+                    and float(i['chg']) > 0 \
+                    and float(i['open_alias']) > 0 \
+                    and float(i['high']) > 0 \
+                    and float(i['low']) > 0:
                 tickers.append(str(i['symbol']))
         return tickers
 
@@ -60,7 +64,7 @@ class UsTicker:
                     and float(i['mktcap']) > 0 \
                     and float(i['close']) > 0 \
                     and float(i['preclose']) > 0 \
-                    and float(i['mktcap']) > 0:
+                    and float(i['chg']) > 0:
                 tickers.append(str(i['symbol']))
         return tickers
 
@@ -73,13 +77,16 @@ class UsTicker:
     def get_backtrader_data_feed(self):
         tickers = self.get_usstock_list()
         his_data = self.get_history_data()
-
+        t = ToolKit('加载历史数据')
         list = []
-        t = ToolKit('历史数据重构进度')
         for i in tickers:
-        # for i in ['BABA', 'MSFT', 'TSLA']:
+        # for i in ['BABA', 'ATER', 'WISH', 'LAZR', 'GTLB']:
+        # for i in ['BABA']:
             t.progress_bar(len(tickers), tickers.index(i))
             df = his_data.groupby(by='symbol').get_group(i)
+            # 过滤历史数据不完整的股票
+            if len(df) < 90:
+                continue
             # 适配BackTrader数据结构
             df_copy = pd.DataFrame({'open': df['open_alias'].values,
                                    'close': df['close'].values,
