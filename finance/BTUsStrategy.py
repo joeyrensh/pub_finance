@@ -177,5 +177,5 @@ class BTUstrategy(bt.Strategy):
                 }])
                 .render()
             )
-            subject = '今日美股行情'
+            subject = 'BT策略全美模拟盘'
             MyEmail(subject, html).send_email()
