@@ -17,7 +17,7 @@ from MyEmail import MyEmail
 import seaborn as sns
 
 
-class StrategyOne(bt.Strategy):
+class BTUstrategy(bt.Strategy):
     # 自定义均线的实践间隔，默认是5天
     params = (
         ('fastperiod', 12),
@@ -169,7 +169,7 @@ class StrategyOne(bt.Strategy):
                 df.style.hide_index()
                 .format({"price": "{:.2f}",
                         "adjbase": "{:.2f}",
-                        "p&l": "{:.2f}"})
+                         "p&l": "{:.2f}"})
                 .background_gradient(cmap=cm)
                 .set_table_styles([{
                     "selector": "thead",
@@ -179,32 +179,3 @@ class StrategyOne(bt.Strategy):
             )
             subject = '今日美股行情'
             MyEmail(subject, html).send_email()
-
-
-if __name__ == '__main__':
-
-    cerebro = bt.Cerebro()
-    # Add a strategy
-    cerebro.addstrategy(StrategyOne)
-    cerebro.broker.setcash(1000000.0)
-    cerebro.addsizer(bt.sizers.FixedSize, stake=10)
-    cerebro.broker.setcommission(commission=0.001)
-
-    # Add Data
-    trade_date = ToolKit('获取最新美股交易日期').get_latest_trade_date(1)
-    list = UsTicker(trade_date).get_backtrader_data_feed()
-    for h in list:
-        data = bt.feeds.PandasData(
-            dataname=h, name=h['symbol'][0], fromdate=datetime(2021, 1, 1))
-        # Add a data
-        cerebro.adddata(data)
-        # 周数据
-        # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
-
-    print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
-
-    cerebro.run()
-
-    print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
-
-    # cerebro.plot(iplot=True, subplot=True)

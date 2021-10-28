@@ -15,6 +15,11 @@ import seaborn as sns
 import dataframe_image as dfi
 from DingDing import DingDing
 import matplotlib
+from backtrader.cerebro import OptReturn
+from backtrader.feeds import PandasData
+from BTUsStrategy import BTUstrategy
+import backtrader as bt
+from UsTicker import UsTicker
 
 
 # 执行策略
@@ -34,6 +39,37 @@ def exec_strategy(date):
     df_new = pd.concat([df1, df2], ignore_index=True)
     df_new.to_csv(file_name_sta, index=True, header=True)
     return df_new
+
+# backtrader策略
+def exec_btstrategy(date):
+
+    # 创建cerebro对象
+    cerebro = bt.Cerebro()
+    # 添加bt相关的策略
+    cerebro.addstrategy(BTUstrategy)
+    # 初始资金100M
+    cerebro.broker.setcash(1000000.0)
+    # 每手10股
+    cerebro.addsizer(bt.sizers.FixedSize, stake=10)
+    # 费率千分之一
+    cerebro.broker.setcommission(commission=0.001)
+    # 添加股票当日即历史数据
+    list = UsTicker(date).get_backtrader_data_feed()
+    # 循环初始化数据进入cerebro
+    for h in list:
+        data = bt.feeds.PandasData(
+            dataname=h, name=h['symbol'][0], fromdate=datetime(2021, 1, 1)) #历史数据最早不超过2021-01-01
+        cerebro.adddata(data)
+        # 周数据
+        # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
+    # 起始资金池
+    print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
+    # 运行cerebro
+    cerebro.run()
+    # 最终资金池
+    print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
+    # 画图相关
+    # cerebro.plot(iplot=True, subplot=True)
 
 
 # 主程序入口
@@ -102,6 +138,7 @@ if __name__ == '__main__':
         #                  '#### Oh Yeath\n\n'
         #                  '> ![美景](' + image_address + ')\n'
         #                  '> ## Just Do It!!!\n')
-
+    # 执行bt相关策略
+    exec_btstrategy(trade_date)
     # 结束进度条
     pbar.finish()

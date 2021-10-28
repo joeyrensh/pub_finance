@@ -80,12 +80,12 @@ class UsTicker:
         t = ToolKit('加载历史数据')
         list = []
         for i in tickers:
-        # for i in ['BABA', 'ATER', 'WISH', 'LAZR', 'GTLB']:
-        # for i in ['BABA']:
+        # for i in ['SCHJ', 'MSFT', 'ATER', 'BABA', 'WISH']:
+        # for i in ['MCMJW', 'AVGOP', 'BABA']:
             t.progress_bar(len(tickers), tickers.index(i))
             df = his_data.groupby(by='symbol').get_group(i)
             # 过滤历史数据不完整的股票
-            if len(df) < 90:
+            if len(df) < 200:
                 continue
             # 适配BackTrader数据结构
             df_copy = pd.DataFrame({'open': df['open_alias'].values,
