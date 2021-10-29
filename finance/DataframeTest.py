@@ -15,6 +15,8 @@ import time
 from datetime import datetime, timedelta
 from MyEmail import MyEmail
 import seaborn as sns
+from backtrader_plotting import Bokeh
+from backtrader_plotting.schemes import Tradimo
 
 
 class StrategyOne(bt.Strategy):
@@ -161,24 +163,6 @@ class StrategyOne(bt.Strategy):
                 list.append(dict)
         df = pd.DataFrame(list)
         df.to_csv('./position_log.txt')
-        # 发送邮件
-        if not df.empty:
-            df.reset_index(inplace=True)
-            cm = sns.light_palette("green", as_cmap=True)
-            html = (
-                df.style.hide_index()
-                .format({"price": "{:.2f}",
-                        "adjbase": "{:.2f}",
-                        "p&l": "{:.2f}"})
-                .background_gradient(cmap=cm)
-                .set_table_styles([{
-                    "selector": "thead",
-                    "props": "background-color:green;color:black;"
-                }])
-                .render()
-            )
-            subject = '今日美股行情'
-            MyEmail(subject, html).send_email()
 
 
 if __name__ == '__main__':
@@ -191,7 +175,7 @@ if __name__ == '__main__':
     cerebro.broker.setcommission(commission=0.001)
 
     # Add Data
-    trade_date = ToolKit('获取最新美股交易日期').get_latest_trade_date(1)
+    trade_date = ToolKit('获取最新美股交易日期').get_latest_trade_date(2)
     list = UsTicker(trade_date).get_backtrader_data_feed()
     for h in list:
         data = bt.feeds.PandasData(
@@ -207,4 +191,5 @@ if __name__ == '__main__':
 
     print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
-    # cerebro.plot(iplot=True, subplot=True)
+    b = Bokeh(style='bar', plot_mode='single', scheme=Tradimo())
+    cerebro.plot(b)

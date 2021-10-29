@@ -81,7 +81,7 @@ class UsTicker:
         list = []
         for i in tickers:
         # for i in ['SCHJ', 'MSFT', 'ATER', 'BABA', 'WISH']:
-        # for i in ['MCMJW', 'AVGOP', 'BABA']:
+        # for i in ['MSFT']:
             t.progress_bar(len(tickers), tickers.index(i))
             df = his_data.groupby(by='symbol').get_group(i)
             # 过滤历史数据不完整的股票
