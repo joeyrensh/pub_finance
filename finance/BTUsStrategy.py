@@ -148,7 +148,10 @@ class BTUstrategy(bt.Strategy):
         list = []
         for i, d in enumerate(self.datas):
             pos = self.getposition(d)
-            if len(pos) and pos.size > 0:
+            if len(pos) \
+                    and pos.size > 0 \
+                    and pos.size <= 10 \
+                    and self.last_deal_date[d._name] != None:
                 # print('{}, 持仓:{}, 成本价:{}, 当前价:{}, 盈亏:{:.2f}'.format(
                 #     d._name, pos.size, pos.price, pos.adjbase, pos.size * (pos.adjbase - pos.price)),
                 #     file=self.log_file)
@@ -160,6 +163,7 @@ class BTUstrategy(bt.Strategy):
                         'p&l': pos.size * (pos.adjbase - pos.price)}
                 list.append(dict)
         df = pd.DataFrame(list)
+        df.sort_values(by=['buy_date', 'p&l'], ascending=False, inplace=True)
         df.to_csv('./position_log.txt')
         # 发送邮件
         if not df.empty:

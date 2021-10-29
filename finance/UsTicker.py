@@ -80,7 +80,7 @@ class UsTicker:
         t = ToolKit('加载历史数据')
         list = []
         for i in tickers:
-        # for i in ['SCHJ', 'MSFT', 'ATER', 'BABA', 'WISH']:
+        # for i in ['AAPL', 'TSLA', 'ATER', 'BABA', 'WISH', 'PEP']:
         # for i in ['MSFT']:
             t.progress_bar(len(tickers), tickers.index(i))
             df = his_data.groupby(by='symbol').get_group(i)

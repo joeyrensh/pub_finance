@@ -150,7 +150,10 @@ class StrategyOne(bt.Strategy):
         list = []
         for i, d in enumerate(self.datas):
             pos = self.getposition(d)
-            if len(pos) and pos.size > 0:
+            if len(pos) \
+                    and pos.size > 0 \
+                    and pos.size <= 10 \
+                    and self.last_deal_date[d._name] != None:
                 # print('{}, 持仓:{}, 成本价:{}, 当前价:{}, 盈亏:{:.2f}'.format(
                 #     d._name, pos.size, pos.price, pos.adjbase, pos.size * (pos.adjbase - pos.price)),
                 #     file=self.log_file)
@@ -162,6 +165,7 @@ class StrategyOne(bt.Strategy):
                         'p&l': pos.size * (pos.adjbase - pos.price)}
                 list.append(dict)
         df = pd.DataFrame(list)
+        df.sort_values(by=['buy_date', 'p&l'], ascending=False, inplace=True)
         df.to_csv('./position_log.txt')
 
 
@@ -175,7 +179,7 @@ if __name__ == '__main__':
     cerebro.broker.setcommission(commission=0.001)
 
     # Add Data
-    trade_date = ToolKit('获取最新美股交易日期').get_latest_trade_date(2)
+    trade_date = ToolKit('获取最新美股交易日期').get_latest_trade_date(0)
     list = UsTicker(trade_date).get_backtrader_data_feed()
     for h in list:
         data = bt.feeds.PandasData(
@@ -191,5 +195,5 @@ if __name__ == '__main__':
 
     print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
-    b = Bokeh(style='bar', plot_mode='single', scheme=Tradimo())
-    cerebro.plot(b)
+    # b = Bokeh(style='bar', plot_mode='single', scheme=Tradimo())
+    # cerebro.plot(b)
