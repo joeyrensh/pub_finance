@@ -103,8 +103,8 @@ class UsTicker:
         his_data = self.get_history_data()
         t = ToolKit('加载历史数据')
         list = []
-        for i in tickers:
-        # for i in ['QS']:
+        # for i in tickers:
+        for i in ['MARA']:
             t.progress_bar(len(tickers), tickers.index(i))
             df = his_data.groupby(by='symbol').get_group(i)
             # 过滤历史数据不完整的股票
