@@ -17,7 +17,7 @@ from MyEmail import MyEmail
 import seaborn as sns
 
 
-class BTUstrategy(bt.Strategy):
+class BTUsStrategy(bt.Strategy):
     # 自定义均线的实践间隔，默认是5天
     params = (
         ('fastperiod', 12),
@@ -34,8 +34,10 @@ class BTUstrategy(bt.Strategy):
 
     def __init__(self):
         self.log_file = open('position_log.txt', 'w')  # 用于输出仓位信息
-        # 存储特定股票的订单，key为股票代码
-        self.orders = dict()
+        # To keep track of pending orders and buy price/commission
+        self.order = None
+        self.buyprice = None
+        self.buycomm = None
         # 存储不同的技术指标
         self.inds = dict()
         self.signals = dict()
@@ -43,7 +45,6 @@ class BTUstrategy(bt.Strategy):
         t = ToolKit('策略初始化')
         for i, d in enumerate(self.datas):
             t.progress_bar(len(self.datas), i)
-            self.orders[d._name] = None
             self.last_deal_date[d._name] = None
             # 为每个股票初始化技术指标
             self.inds[d] = dict()
@@ -96,6 +97,17 @@ class BTUstrategy(bt.Strategy):
                                                    self.signals[d]['close_over_ma20'],
                                                    bt.indicators.CrossUp(self.inds[d]['dif'], self.inds[d]['dea']) == 1)
 
+            # ma20均线在ma60均线上方，ema20在ema60上方，且收盘价上穿ema20
+            self.signals[d]['ema20_over_ema60'] = self.inds[d]['ema20'] > self.inds[d]['ema60']
+            self.signals[d]['ma20_over_ma60'] = self.inds[d]['ma20'] > self.inds[d]['ma60']
+            self.signals[d]['close_crossup_ema20_signal'] = bt.And(self.signals[d]['ema20_over_ema60'],
+                                                                   self.signals[d]['ma20_over_ma60'],
+                                                                   bt.indicators.CrossUp(d.close, self.inds[d]['ema20']) == 1)
+
+            # 上涨力度
+            self.signals[d]['chg_ratio_signal'] = (
+                d.close(0) - d.close(-1)) / d.close(-1)
+
             # 看跌信号
             # 收盘价跌破ma20均线
             self.signals[d]['close_crossdown_ma20'] = bt.indicators.CrossDown(
@@ -106,16 +118,23 @@ class BTUstrategy(bt.Strategy):
 
     # 订单状态改变回调方法 be notified through notify_order(order) of any status change in an order
     def notify_order(self, order):
+        if order.status in [order.Submitted, order.Accepted]:
+            # Buy/Sell order submitted/accepted to/by broker - Nothing to do
+            return
         if order.status in [order.Completed]:
             if order.isbuy():
                 print('{} BUY {} EXECUTED, Price: {:.2f}'.format(
                     self.datetime.date(), order.data._name, order.executed.price))
                 self.last_deal_date[order.data._name] = self.datetime.date()
             else:  # Sell
-                self.orders[order.data._name] = None
                 print('{} SELL {} EXECUTED, Price: {:.2f}'.format(
                     self.datetime.date(), order.data._name, order.executed.price))
                 self.last_deal_date[order.data._name] = None
+            self.bar_executed = len(self)
+        elif order.status in [order.Canceled, order.Margin, order.Rejected]:
+            self.log('Order Canceled/Margin/Rejected')
+
+        self.order = None
 
     # 交易状态改变回调方法 be notified through notify_trade(trade) of any opening/updating/closing trade
     def notify_trade(self, trade):
@@ -130,28 +149,36 @@ class BTUstrategy(bt.Strategy):
             # self.log('当前代码: %s, 当前持仓:, %s' % (d._name,
             #          self.getposition(d).size))
             # 有持仓就不再买入
+            # self.log('ema_signal: %f, dif_signal: %f, close_cross_ema20: %f, ma20: %f, ma60: %f, chg_ratio: %f, close_crossdown_ma20: %f macd_crossdown_axis: %f'
+            #             % (self.signals[d]['ema_signal'][0], self.signals[d]['dif_signal'][0],
+            #             self.signals[d]['close_crossup_ema20_signal'][0], self.inds[d]['ma20'][0], self.inds[d]['ma60'][0],
+            #             self.signals[d]['chg_ratio_signal'][0],
+            #             self.signals[d]['close_crossdown_ma20'][0], self.signals[d]['macd_crossdown_axis'][0]
+            #             ))
             pos = self.getposition(d)
             if not len(pos):
                 # 收盘价站上MA20均线和EMA20均线
-                if self.signals[d]['ema_signal'][0] \
-                        or self.signals[d]['dif_signal'][0]:
+                # dif上穿dea
+                # 收盘价上穿MA20
+                # 上涨力度超过5%
+                if (self.signals[d]['ema_signal'][0]
+                    or self.signals[d]['dif_signal'][0]
+                    or self.signals[d]['close_crossup_ema20_signal'][0]) \
+                        and self.signals[d]['chg_ratio_signal'][0] > 0.05:
                     # 买入对应仓位
-                    self.orders[d._name] = self.buy(data=d)
+                    self.order = self.buy(data=d, exectype=bt.Order.Close)
             else:
                 # 跌破均线即卖出, macd下穿0轴即卖出
-                if self.signals[d]['close_crossdown_ma20'] == 1 \
-                        or self.signals[d]['macd_crossdown_axis'] == 1:
-                    self.orders[d._name] = self.sell(data=d)
+                if self.signals[d]['close_crossdown_ma20'][0] == 1 \
+                        or self.signals[d]['macd_crossdown_axis'][0] == 1:
+                    self.order = self.close(data=d, exectype=bt.Order.Close)
 
     def stop(self):
         # 打印持仓
         list = []
         for i, d in enumerate(self.datas):
             pos = self.getposition(d)
-            if len(pos) \
-                    and pos.size > 0 \
-                    and pos.size <= 10 \
-                    and self.last_deal_date[d._name] != None:
+            if len(pos) and pos.size > 0:
                 # print('{}, 持仓:{}, 成本价:{}, 当前价:{}, 盈亏:{:.2f}'.format(
                 #     d._name, pos.size, pos.price, pos.adjbase, pos.size * (pos.adjbase - pos.price)),
                 #     file=self.log_file)
@@ -160,25 +187,31 @@ class BTUstrategy(bt.Strategy):
                         'buy_date': self.last_deal_date[d._name],
                         'price': pos.price,
                         'adjbase': pos.adjbase,
-                        'p&l': pos.size * (pos.adjbase - pos.price)}
+                        'p&l': pos.size * (pos.adjbase - pos.price),
+                        'p&l_ratio': (pos.adjbase - pos.price) / pos.price
+                        }
                 list.append(dict)
         df = pd.DataFrame(list)
-        df.sort_values(by=['buy_date', 'p&l'], ascending=False, inplace=True)
+        df.sort_values(by=['buy_date', 'p&l_ratio'],
+                       ascending=False, inplace=True)
+        df.reset_index(drop=True, inplace=True)
         df.to_csv('./position_log.txt')
         # 发送邮件
         if not df.empty:
-            df.reset_index(inplace=True)
-            cm = sns.light_palette("green", as_cmap=True)
+            cm = sns.color_palette("Blues", as_cmap=True)
             html = (
                 df.style.hide_index()
                 .format({"price": "{:.2f}",
-                        "adjbase": "{:.2f}",
-                         "p&l": "{:.2f}"})
-                .background_gradient(cmap=cm)
+                         "adjbase": "{:.2f}",
+                         "p&l": "{:.2f}",
+                         "p&l_ratio": "{:.2f}%"})
+                .background_gradient(subset=['price', 'adjbase', 'p&l'], cmap=cm)
+                .bar(subset=['p&l_ratio'], align='mid', color=['#5fba7d', '#d65f5f'])
                 .set_table_styles([{
                     "selector": "thead",
-                    "props": "background-color:green;color:black;"
+                    "props": "background-color:purple;color:white;"
                 }])
+                .set_properties(subset=['price', 'adjbase', 'p&l', 'p&l_ratio'], **{'width': '15px'})
                 .render()
             )
             subject = 'BT策略全美模拟盘'

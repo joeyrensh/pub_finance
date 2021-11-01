@@ -17,7 +17,7 @@ from DingDing import DingDing
 import matplotlib
 from backtrader.cerebro import OptReturn
 from backtrader.feeds import PandasData
-from BTUsStrategy import BTUstrategy
+from BTUsStrategy import BTUsStrategy
 import backtrader as bt
 from UsTicker import UsTicker
 
@@ -31,22 +31,24 @@ def exec_strategy(date):
     print(tabulate(df1, headers='keys', tablefmt='pretty'))
 
     # 破线拐头交叉-策略2
-    df2 = us_strate.exec_strategy_with_multiprocessing()
-    print(tabulate(df2, headers='keys', tablefmt='pretty'))
+    # df2 = us_strate.exec_strategy_with_multiprocessing()
+    # print(tabulate(df2, headers='keys', tablefmt='pretty'))
 
     # 合并数据
     file_name_sta = FileInfo(date).get_file_name_sta
-    df_new = pd.concat([df1, df2], ignore_index=True)
-    df_new.to_csv(file_name_sta, index=True, header=True)
-    return df_new
+    # df_new = pd.concat([df1, df2], ignore_index=True)
+    df1.to_csv(file_name_sta, index=True, header=True)
+    return df1
 
 # backtrader策略
+
+
 def exec_btstrategy(date):
 
     # 创建cerebro对象
     cerebro = bt.Cerebro()
     # 添加bt相关的策略
-    cerebro.addstrategy(BTUstrategy)
+    cerebro.addstrategy(BTUsStrategy)
     # 初始资金100M
     cerebro.broker.setcash(1000000.0)
     # 每手10股
@@ -58,7 +60,7 @@ def exec_btstrategy(date):
     # 循环初始化数据进入cerebro
     for h in list:
         data = bt.feeds.PandasData(
-            dataname=h, name=h['symbol'][0], fromdate=datetime(2021, 1, 1)) #历史数据最早不超过2021-01-01
+            dataname=h, name=h['symbol'][0], fromdate=datetime(2021, 1, 1))  # 历史数据最早不超过2021-01-01
         cerebro.adddata(data)
         # 周数据
         # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
@@ -100,18 +102,20 @@ if __name__ == '__main__':
     df = exec_strategy(trade_date)
     # 发送邮件
     if not df.empty:
-        df.reset_index(inplace=True)
-        cm = sns.light_palette("green", as_cmap=True)
+        df.reset_index(drop=True, inplace=True)
+        cm = sns.color_palette("Blues", as_cmap=True)
         html = (
             df.style.hide_index()
             .format({"close": "{:.2f}",
                      "chg": "{:.2f}%",
                      "amplitude": "{:.2f}%"})
-            .background_gradient(cmap=cm)
+            .background_gradient(subset=['close', 'chg', 'amplitude'], cmap=cm)
+            .bar(subset=['chg'], align='mid', color=['#5fba7d', '#d65f5f'])
             .set_table_styles([{
                 "selector": "thead",
-                "props": "background-color:green;color:black;"
+                "props": "background-color:purple;color:white;"
             }])
+            .set_properties(subset=['close', 'chg', 'amplitude'], **{'width': '15px'})
             .render()
         )
         subject = '今日美股行情'
