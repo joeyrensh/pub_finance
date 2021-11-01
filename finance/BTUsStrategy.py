@@ -188,7 +188,7 @@ class BTUsStrategy(bt.Strategy):
                         'price': pos.price,
                         'adjbase': pos.adjbase,
                         'p&l': pos.size * (pos.adjbase - pos.price),
-                        'p&l_ratio': (pos.adjbase - pos.price) / pos.price
+                        'p&l_ratio': (pos.adjbase - pos.price) * 100 / pos.price
                         }
                 list.append(dict)
         df = pd.DataFrame(list)
