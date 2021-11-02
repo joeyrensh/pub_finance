@@ -2,10 +2,10 @@
 # -*- coding: UTF-8 -*-
 import pandas as pd
 from ToolKit import ToolKit
-from UsTicker import UsTicker
 import talib as tl
 import multiprocessing
 from DingDing import DingDing
+from UsTickerInfo import UsTickerInfo
 
 
 # 策略类
@@ -17,7 +17,7 @@ class UsStrategy:
 
     def get_usstrategy1(self):
         # 获取日数据
-        df1 = UsTicker(self.trade_date).get_usstock_data_for_day()
+        df1 = UsTickerInfo(self.trade_date).get_usstock_data_for_day()
         lenth = len(df1)
         tool = ToolKit('策略1')
         # 以字典和列表形式来存储
@@ -25,23 +25,15 @@ class UsStrategy:
         for index, row in df1.iterrows():
             # 计算进度
             tool.progress_bar(lenth, index)
-            # 振幅超过20%
+            # 振幅超过40%
             if float(row['preclose']) > 0 \
                     and (float(row['high']) - float(row['low'])) \
-                    / float(row['preclose']) > 0.2:
+                    / float(row['preclose']) > 0.4:
                 pass
             else:
                 continue
-            # 日换手金额超过市值20%
-            if float(row['mktcap']) > 0 and float(row['volume']) > 0 \
-                and float(row['close']) > 0 \
-                and (float(row['volume']) * float(row['close'])) \
-                    > float(row['mktcap']) * 0.2:
-                pass
-            else:
-                continue
-            # 正向波动
-            if float(row['chg']) > 0:
+            # 涨幅超过20%
+            if float(row['chg']) > 0.2:
                 pass
             else:
                 continue
@@ -199,8 +191,8 @@ class UsStrategy:
 
     def exec_strategy_with_multiprocessing(self):
         # 获取历史数据
-        his_data = UsTicker(self.trade_date).get_history_data()     # 历史数据
-        tickers = UsTicker(self.trade_date).get_usstock_list()      # 历史股票列表
+        his_data = UsTickerInfo(self.trade_date).get_history_data()     # 历史数据
+        tickers = UsTickerInfo(self.trade_date).get_usstock_list()      # 历史股票列表
 
         # 关键指标 symbol, close, ma20, ma60, ema20, ema60, dif, dea, macd
         # 存放策略结果

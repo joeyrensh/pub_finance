@@ -27,11 +27,7 @@ class UsTicker:
         df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 14)])
         for index, i in df.iterrows():
             if float(i['volume']) > 0 \
-                    and float(i['amplitude'].replace('%', '')) > 0 \
-                    and float(i['mktcap']) > 0 \
                     and float(i['close']) > 0 \
-                    and float(i['preclose']) > 0 \
-                    and float(i['chg']) > 0 \
                     and float(i['open_alias']) > 0 \
                     and float(i['high']) > 0 \
                     and float(i['low']) > 0:
@@ -104,8 +100,8 @@ class UsTicker:
         t = ToolKit('加载历史数据')
         list = []
         # for i in tickers:
-        for i in ['MARA']:
-            t.progress_bar(len(tickers), tickers.index(i))
+        for i in ['IQ']:
+            # t.progress_bar(len(tickers), tickers.index(i))
             df = his_data.groupby(by='symbol').get_group(i)
             # 过滤历史数据不完整的股票
             if len(df) < 200:

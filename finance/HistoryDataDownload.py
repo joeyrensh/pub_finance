@@ -6,15 +6,15 @@ import re
 from datetime import datetime, timedelta
 import time
 import pandas as pd
-from UsTicker import UsTicker
+from UsTickerInfo import UsTickerInfo
 import requests
 import json
 from MyThread import MyThread
 from pandas.errors import EmptyDataError
 
 
-url = "https://stock.finance.sina.com.cn/usstock/api/json_v2.php/\
-    US_MinKService.getDailyK?symbol=ticker"
+url = "https://stock.finance.sina.com.cn/usstock/api/json_v2.php/"\
+    "US_MinKService.getDailyK?symbol=ticker"
 
 # 美股交易日期 utc-4
 trade_date = re.sub(' .*', '', str(datetime.now() -
@@ -34,16 +34,21 @@ def get_his_tick_info(trade_date, url, ticker):
     for i in range(len(json_object)):
         date = json_object[i]['d'].replace('-', '')
         # 获取小于等于20210929之前的数据
-        if date > '20210929' or date < '20210101':
+        if date >= '20211101' or date < '20210101':
             continue
         # 给字典的所有key重新命名
         try:
-            dic1 = {'symbol': ticker, 'open_alias': json_object[i]['o'],
-                    'close': json_object[i]['c'], 'high': json_object[i]['h'],
-                    'low': json_object[i]['l'], 'preclose': None,
-                    'change': None, 'chg':  None,
-                    'volume': json_object[i]['v'], 'amplitude': None,
-                    'mktcap': None, 'market': None,
+            dic1 = {'symbol': ticker,
+                    'open': json_object[i]['o'],
+                    'close': json_object[i]['c'],
+                    'high': json_object[i]['h'],
+                    'low': json_object[i]['l'],
+                    'volume': json_object[i]['v'],
+                    'turnover': None,
+                    'chg':  None,
+                    'change': None,
+                    'amplitude': None,
+                    'preclose': None,
                     'date': date
                     }
             list1.append(dic1)
@@ -55,9 +60,9 @@ def get_his_tick_info(trade_date, url, ticker):
 
 def set_his_tick_info_to_csv(trade_date):
     # 获取实时文件路径
-    file_name_his = './usstockinfo/SinaTicker_20210929.csv'
+    file_name_his = './usstockinfo/usstock_20211029.csv'
     # 获取股票列表
-    tickers = UsTicker(trade_date).get_usstock_list()
+    tickers = UsTickerInfo(trade_date).get_usstock_list()
     # 新浪财经美股信息获取
     # 多线程获取，每次步长为3，为3线程
     list_new = []
@@ -88,4 +93,4 @@ def set_his_tick_info_to_csv(trade_date):
         pass
 
 
-set_his_tick_info_to_csv('20211013')
+set_his_tick_info_to_csv('20211101')

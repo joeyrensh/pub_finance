@@ -19,7 +19,8 @@ from backtrader.cerebro import OptReturn
 from backtrader.feeds import PandasData
 from BTUsStrategy import BTUsStrategy
 import backtrader as bt
-from UsTicker import UsTicker
+from UsTickerInfo import UsTickerInfo
+from EMWebCrawler import EMWebCrawler
 
 
 # 执行策略
@@ -56,7 +57,7 @@ def exec_btstrategy(date):
     # 费率千分之一
     cerebro.broker.setcommission(commission=0.001)
     # 添加股票当日即历史数据
-    list = UsTicker(date).get_backtrader_data_feed()
+    list = UsTickerInfo(date).get_backtrader_data_feed()
     # 循环初始化数据进入cerebro
     for h in list:
         data = bt.feeds.PandasData(
@@ -91,12 +92,17 @@ if __name__ == '__main__':
     # 创建进度条并开始运行
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
-    # 获取日股票数据
-    sinaweb = SinaWebCrawler()
-    sinaweb.set_daily_tick_info_to_csv(trade_date)
+    # # 新浪财经爬虫
+    # # 获取日股票数据
+    # sinaweb = SinaWebCrawler()
+    # sinaweb.set_daily_tick_info_to_csv(trade_date)
 
-    # 获取5分钟股票数据
-    sinaweb.set_5min_tick_info_to_csv(trade_date)
+    # # 获取5分钟股票数据
+    # sinaweb.set_5min_tick_info_to_csv(trade_date)
+
+    # 东方财经爬虫
+    em = EMWebCrawler()
+    em.get_us_daily_stock_info(trade_date)
 
     # 执行策略function
     df = exec_strategy(trade_date)
