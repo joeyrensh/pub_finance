@@ -113,9 +113,9 @@ class BTUsStrategy(bt.Strategy):
             # 收盘价跌破ma20均线
             self.signals[d]['close_crossdown_ma20'] = bt.indicators.CrossDown(
                 d.close, self.inds[d]['ma20'])
-            # MACD下穿0轴
-            self.signals[d]['macd_crossdown_axis'] = bt.indicators.CrossDown(
-                self.inds[d]['macd'], 0)
+            # dif下穿0轴
+            self.signals[d]['dif_crossdown_axis'] = bt.indicators.CrossDown(
+                self.inds[d]['dif'], 0)
 
     # 订单状态改变回调方法 be notified through notify_order(order) of any status change in an order
     def notify_order(self, order):
@@ -171,7 +171,7 @@ class BTUsStrategy(bt.Strategy):
             else:
                 # 跌破均线即卖出, macd下穿0轴即卖出
                 if self.signals[d]['close_crossdown_ma20'][0] == 1 \
-                        or self.signals[d]['macd_crossdown_axis'][0] == 1:
+                        or self.signals[d]['dif_crossdown_axis'][0] == 1:
                     if not self.order[d._name]:
                         self.cancel(self.order[d._name])
                     self.order[d._name] = self.sell(data=d, exectype=bt.Order.Close)

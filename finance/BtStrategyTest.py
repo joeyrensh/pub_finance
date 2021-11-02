@@ -56,5 +56,8 @@ if __name__ == '__main__':
     # em = EMWebCrawler()
     # em.get_us_daily_stock_info('20211101')
     # tickers = UsTickerInfo('20211101').get_usstock_list()
-    files = UsFileInfo('20211101').get_files_day_list
+    # files = UsFileInfo('20211101').get_files_day_list
+    # print(files)
+    file = UsFileInfo('20211102')
+    files = file.get_files_day_list
     print(files)

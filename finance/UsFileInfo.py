@@ -12,7 +12,7 @@ class UsFileInfo:
         self.file_name_day = './usstockinfo/usstock_' + trade_date + '.csv'
         self.files_path = './usstockinfo/'
         self.trade_date = trade_date
-
+        self.file_name_sta = './usstrategy/UsStrategy_' + trade_date + '.csv'
     # 返回美股日数据文件路径
     @property
     def get_file_name_day(self):
@@ -36,3 +36,8 @@ class UsFileInfo:
                 file_list.append(self.files_path + file)
         file_list.sort()
         return file_list
+
+    # 返回新浪财经策略数据文件路径
+    @property
+    def get_file_name_sta(self):
+        return self.file_name_sta

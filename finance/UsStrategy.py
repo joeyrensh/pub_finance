@@ -40,7 +40,7 @@ class UsStrategy:
             dic = {'symbol': row['symbol'],
                    'close': row['close'],
                    'chg': float(row['chg']),
-                   'volume': row['volume'],
+                   'volume': float(row['volume']),
                    'amplitude': (row['high'] - row['low']) * 100
                    / row['preclose'],
                    'tag': '振幅剧烈'}

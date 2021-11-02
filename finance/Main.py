@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-from FileInfo import FileInfo
+from UsFileInfo import UsFileInfo
 from SinaWebCrawler import SinaWebCrawler
 from UsStrategy import UsStrategy
 from tabulate import tabulate
@@ -36,7 +36,7 @@ def exec_strategy(date):
     # print(tabulate(df2, headers='keys', tablefmt='pretty'))
 
     # 合并数据
-    file_name_sta = FileInfo(date).get_file_name_sta
+    file_name_sta = UsFileInfo(date).get_file_name_sta
     # df_new = pd.concat([df1, df2], ignore_index=True)
     df1.to_csv(file_name_sta, index=True, header=True)
     return df1
@@ -121,7 +121,7 @@ if __name__ == '__main__':
                 "selector": "thead",
                 "props": "background-color:purple;color:white;"
             }])
-            .set_properties(subset=['close', 'chg', 'amplitude'], **{'width': '15px'})
+            .set_properties(subset=['close', 'chg', 'amplitude'], **{'width': '18px'})
             .render()
         )
         subject = '今日美股行情'
