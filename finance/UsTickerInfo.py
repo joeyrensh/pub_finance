@@ -70,3 +70,27 @@ class UsTickerInfo:
                                     }, index=pd.to_datetime(df['date'], format='%Y%m%d'))
             list.append(df_copy)
         return list
+
+    # 测试用途
+    def get_backtrader_data_feed_test(self):
+        tickers = self.get_usstock_list()
+        his_data = self.get_history_data()
+        t = ToolKit('加载历史数据')
+        list = []
+        # for i in tickers:
+        for i in ['LUB']:
+            # t.progress_bar(len(tickers), tickers.index(i))
+            df = his_data.groupby(by='symbol').get_group(i)
+            # 过滤历史数据不完整的股票
+            if len(df) < 200:
+                continue
+            # 适配BackTrader数据结构
+            df_copy = pd.DataFrame({'open': df['open'].values,
+                                    'close': df['close'].values,
+                                    'high': df['high'].values,
+                                    'low': df['low'].values,
+                                    'volume': df['volume'].values,
+                                    'symbol': df['symbol'].values
+                                    }, index=pd.to_datetime(df['date'], format='%Y%m%d'))
+            list.append(df_copy)
+        return list

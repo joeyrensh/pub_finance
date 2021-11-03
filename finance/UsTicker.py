@@ -100,7 +100,7 @@ class UsTicker:
         t = ToolKit('加载历史数据')
         list = []
         # for i in tickers:
-        for i in ['IQ']:
+        for i in ['LAZR']:
             # t.progress_bar(len(tickers), tickers.index(i))
             df = his_data.groupby(by='symbol').get_group(i)
             # 过滤历史数据不完整的股票

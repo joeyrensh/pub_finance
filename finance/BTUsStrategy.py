@@ -102,8 +102,8 @@ class BTUsStrategy(bt.Strategy):
             self.signals[d]['ema20_over_ema60'] = self.inds[d]['ema20'] > self.inds[d]['ema60']
             self.signals[d]['ma20_over_ma60'] = self.inds[d]['ma20'] > self.inds[d]['ma60']
             self.signals[d]['close_crossup_ma20_signal'] = bt.And(self.signals[d]['ema20_over_ema60'],
-                                                                   self.signals[d]['ma20_over_ma60'],
-                                                                   bt.indicators.CrossUp(d.close, self.inds[d]['ma20']) == 1)
+                                                                  self.signals[d]['ma20_over_ma60'],
+                                                                  bt.indicators.CrossUp(d.close, self.inds[d]['ma20']) == 1)
 
             # 上涨力度
             self.signals[d]['chg_ratio_signal'] = (
@@ -157,7 +157,7 @@ class BTUsStrategy(bt.Strategy):
             #             self.signals[d]['close_crossdown_ma20'][0], self.signals[d]['macd_crossdown_axis'][0]
             #             ))
             pos = self.getposition(d)
-            if not len(pos) and not self.order[d._name]:
+            if not len(pos):
                 # 收盘价站上MA20均线和EMA20均线
                 # dif上穿dea
                 # 收盘价上穿MA20
@@ -166,15 +166,21 @@ class BTUsStrategy(bt.Strategy):
                     or self.signals[d]['dif_signal'][0]
                     or self.signals[d]['close_crossup_ma20_signal'][0]) \
                         and self.signals[d]['chg_ratio_signal'][0] > 0.05:
-                    # 买入对应仓位
-                    self.order[d._name] = self.buy(data=d, exectype=bt.Order.Close)
-            else:
-                # 跌破均线即卖出, macd下穿0轴即卖出
-                if self.signals[d]['close_crossdown_ma20'][0] == 1 \
-                        or self.signals[d]['dif_crossdown_axis'][0] == 1:
                     if not self.order[d._name]:
                         self.cancel(self.order[d._name])
-                    self.order[d._name] = self.sell(data=d, exectype=bt.Order.Close)
+                    # 买入对应仓位
+                    self.order[d._name] = self.buy(
+                        data=d, exectype=bt.Order.Close)
+            else:
+                # 跌破均线即卖出, macd下穿0轴即卖出
+                # 下跌10%止损
+                if self.signals[d]['close_crossdown_ma20'][0] == 1 \
+                        or self.signals[d]['dif_crossdown_axis'][0] == 1\
+                        or (d.close[0] - pos.price) / pos.price < -0.1:
+                    if not self.order[d._name]:
+                        self.cancel(self.order[d._name])
+                    self.order[d._name] = self.sell(
+                        data=d, exectype=bt.Order.Close)
 
     def stop(self):
         # 打印持仓
@@ -193,6 +199,15 @@ class BTUsStrategy(bt.Strategy):
                         'p&l': pos.size * (pos.adjbase - pos.price),
                         'p&l_ratio': (pos.adjbase - pos.price) * 100 / pos.price
                         }
+                intervals = datetime.now() - datetime.strptime(str(dict['buy_date']), '%Y-%m-%d')
+                if intervals.days > 5 and dict['p&l_ratio'] > 10:
+                    pass
+                else:
+                    continue
+                if intervals.days < 5 and dict['p&l_ratio'] > 5:
+                    pass
+                else:
+                    continue                
                 list.append(dict)
         df = pd.DataFrame(list)
         df.sort_values(by=['buy_date', 'p&l_ratio'],
