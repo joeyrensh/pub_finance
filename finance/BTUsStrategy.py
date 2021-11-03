@@ -199,6 +199,9 @@ class BTUsStrategy(bt.Strategy):
                         'p&l': pos.size * (pos.adjbase - pos.price),
                         'p&l_ratio': (pos.adjbase - pos.price) * 100 / pos.price
                         }
+                # 过滤展示的东西
+                if dict['buy_date'] == None:
+                    continue
                 intervals = datetime.now() - datetime.strptime(str(dict['buy_date']), '%Y-%m-%d')
                 if intervals.days > 5 and dict['p&l_ratio'] > 10:
                     pass
@@ -207,7 +210,7 @@ class BTUsStrategy(bt.Strategy):
                 if intervals.days < 5 and dict['p&l_ratio'] > 5:
                     pass
                 else:
-                    continue                
+                    continue
                 list.append(dict)
         df = pd.DataFrame(list)
         df.sort_values(by=['buy_date', 'p&l_ratio'],

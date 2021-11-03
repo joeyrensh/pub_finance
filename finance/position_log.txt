@@ -1,2 +1,0 @@
-,symbol,pos_size,buy_date,price,adjbase,p&l,p&l_ratio
-0,LUB,10,2021-10-04,4.65,2.94,-17.100000000000005,-36.7741935483871
