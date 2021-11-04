@@ -67,7 +67,7 @@ class UsTickerInfo:
                                     'low': df['low'].values,
                                     'volume': df['volume'].values,
                                     'symbol': df['symbol'].values
-                                    }, index=pd.to_datetime(df['date'], format='%Y%m%d'))
+                                    }, index=pd.to_datetime(df['date'], format='%Y-%m-%d'))
             list.append(df_copy)
         return list
 
@@ -78,8 +78,8 @@ class UsTickerInfo:
         t = ToolKit('加载历史数据')
         list = []
         # for i in tickers:
-        for i in ['LUB']:
-            # t.progress_bar(len(tickers), tickers.index(i))
+        for i in ['GUSH']:
+            t.progress_bar(len(tickers), tickers.index(i))
             df = his_data.groupby(by='symbol').get_group(i)
             # 过滤历史数据不完整的股票
             if len(df) < 200:
@@ -91,6 +91,6 @@ class UsTickerInfo:
                                     'low': df['low'].values,
                                     'volume': df['volume'].values,
                                     'symbol': df['symbol'].values
-                                    }, index=pd.to_datetime(df['date'], format='%Y%m%d'))
+                                    }, index=pd.to_datetime(df['date'], format='%Y-%m-%d'))
             list.append(df_copy)
         return list

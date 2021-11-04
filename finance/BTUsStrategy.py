@@ -192,22 +192,20 @@ class BTUsStrategy(bt.Strategy):
                 #     d._name, pos.size, pos.price, pos.adjbase, pos.size * (pos.adjbase - pos.price)),
                 #     file=self.log_file)
                 dict = {'symbol': d._name,
-                        'pos_size': pos.size,
                         'buy_date': self.last_deal_date[d._name],
                         'price': pos.price,
                         'adjbase': pos.adjbase,
+                        'ma20': self.inds[d]['ma20'][0],
                         'p&l': pos.size * (pos.adjbase - pos.price),
                         'p&l_ratio': (pos.adjbase - pos.price) * 100 / pos.price
                         }
-                # 过滤展示的东西
+                # 5天以上累计涨幅超过10个点，5天以内，累计涨幅超过5个点
                 if dict['buy_date'] == None:
                     continue
                 intervals = datetime.now() - datetime.strptime(str(dict['buy_date']), '%Y-%m-%d')
                 if intervals.days > 5 and dict['p&l_ratio'] > 10:
                     pass
-                else:
-                    continue
-                if intervals.days < 5 and dict['p&l_ratio'] > 5:
+                elif intervals.days < 5 and dict['p&l_ratio'] > 5:
                     pass
                 else:
                     continue
@@ -224,15 +222,16 @@ class BTUsStrategy(bt.Strategy):
                 df.style.hide_index()
                 .format({"price": "{:.2f}",
                          "adjbase": "{:.2f}",
+                         "ma20": "{:.2f}",
                          "p&l": "{:.2f}",
                          "p&l_ratio": "{:.2f}%"})
-                .background_gradient(subset=['price', 'adjbase', 'p&l'], cmap=cm)
+                .background_gradient(subset=['price', 'adjbase', 'ma20', 'p&l'], cmap=cm)
                 .bar(subset=['p&l_ratio'], align='mid', color=['#5fba7d', '#d65f5f'])
                 .set_table_styles([{
                     "selector": "thead",
                     "props": "background-color:purple;color:white;"
                 }])
-                .set_properties(subset=['price', 'adjbase', 'p&l', 'p&l_ratio'], **{'width': '15px'})
+                .set_properties(subset=['price', 'adjbase', 'ma20', 'p&l', 'p&l_ratio'], **{'width': '15px'})
                 .render()
             )
             subject = 'BT策略全美模拟盘'

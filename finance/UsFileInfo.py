@@ -37,7 +37,7 @@ class UsFileInfo:
         file_list.sort()
         return file_list
 
-    # 返回新浪财经策略数据文件路径
+    # 返回策略数据文件路径
     @property
     def get_file_name_sta(self):
         return self.file_name_sta

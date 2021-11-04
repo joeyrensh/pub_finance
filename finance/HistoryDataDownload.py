@@ -12,7 +12,11 @@ import json
 from MyThread import MyThread
 from pandas.errors import EmptyDataError
 
+""" 东财历史数据
+按股票代码遍历
+https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery&secid=106.BABA&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20210101&end=20500101&smplmt=755&lmt=1000000&_=1636002112627 """
 
+# 新浪财经
 url = "https://stock.finance.sina.com.cn/usstock/api/json_v2.php/"\
     "US_MinKService.getDailyK?symbol=ticker"
 
@@ -22,12 +26,12 @@ trade_date = re.sub(' .*', '', str(datetime.now() -
 
 
 def get_his_tick_info(trade_date, url, ticker):
-    # 字典结构
-    # 股票代码：symbol，今日开盘价：open_alias，今日收盘价：close，今日最高价：high
-    # 今日最低价：low，昨日收盘价：preclose，涨跌额：change，涨跌幅：chg
-    # 今日成交量：volume，今日振幅：amplitude，
-    # 市值：mktcap，所属交易所：market-纽交所、纳斯达克、美国交易所
-    # 附加： 事件时间：event_time，成交额：turnover
+    """     字典结构
+        股票代码：symbol，今日开盘价：open_alias，今日收盘价：close，今日最高价：high
+        今日最低价：low，昨日收盘价：preclose，涨跌额：change，涨跌幅：chg
+        今日成交量：volume，今日振幅：amplitude，
+        市值：mktcap，所属交易所：market-纽交所、纳斯达克、美国交易所
+        附加： 事件时间：event_time，成交额：turnover """
     res = requests.get(url).text
     json_object = json.loads(res)
     list1 = []

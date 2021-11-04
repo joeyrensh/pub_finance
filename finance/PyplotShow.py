@@ -23,26 +23,28 @@ import talib as tl
 # df.to_csv('./test.csv', index=False)
 
 
-df = pd.read_csv('./test.csv')
-for index, row in df.iterrows():
-    df.loc[index, ['event_time']] = str(row['event_time'])[11:16]
+df = pd.read_csv('./position_log.txt')
+df.plot.bar()
+print(df)
+# for index, row in df.iterrows():
+#     df.loc[index, ['event_time']] = str(row['event_time'])[11:16]
 
 
-for usl in ['LAC']:
-    # 数据分组
-    fig, ax = plt.subplots(num=2, figsize=(15, 10))
-    group_obj = df.groupby(by='symbol').get_group(usl)
-    close = group_obj['close'].values
-    event_time = group_obj['event_time'].values
-    ma = tl.MA(close, timeperiod=20)
-    ax.plot(event_time, close, linestyle='-',
-            color='g', marker='o', markersize=10)
-    ax.plot(event_time, ma, linestyle='-', color='r')
-    ax.xaxis.set_major_locator(ticker.MultipleLocator(base=15))
-    plt.xticks(fontsize=20)
-    plt.yticks(fontsize=20)
-    plt.title(usl)
-    plt.show()
+# for usl in ['LAC']:
+#     # 数据分组
+#     fig, ax = plt.subplots(num=2, figsize=(15, 10))
+#     group_obj = df.groupby(by='symbol').get_group(usl)
+#     close = group_obj['close'].values
+#     event_time = group_obj['event_time'].values
+#     ma = tl.MA(close, timeperiod=20)
+#     ax.plot(event_time, close, linestyle='-',
+#             color='g', marker='o', markersize=10)
+#     ax.plot(event_time, ma, linestyle='-', color='r')
+#     ax.xaxis.set_major_locator(ticker.MultipleLocator(base=15))
+#     plt.xticks(fontsize=20)
+#     plt.yticks(fontsize=20)
+#     plt.title(usl)
+#     plt.show()
 
 # print(tt)
 

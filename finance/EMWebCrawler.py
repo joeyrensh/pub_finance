@@ -68,5 +68,6 @@ class EMWebCrawler:
             os.remove(file_name_d)
         # 将list转化为dataframe，并且存储为csv文件，带index和header
         df = pd.DataFrame(list)
-        df['date'] = trade_date
+        date = datetime.strptime(trade_date, '%Y%m%d')
+        df['date'] = date
         df.to_csv(file_name_d, mode='w', index=True, header=True)
