@@ -227,11 +227,12 @@ class BTUsStrategy(bt.Strategy):
                          "p&l_ratio": "{:.2f}%"})
                 .background_gradient(subset=['price', 'adjbase', 'ma20', 'p&l'], cmap=cm)
                 .bar(subset=['p&l_ratio'], align='mid', color=['#5fba7d', '#d65f5f'])
-                .set_table_styles([{
-                    "selector": "thead",
-                    "props": "background-color:purple;color:white;"
-                }])
-                .set_properties(subset=['price', 'adjbase', 'ma20', 'p&l', 'p&l_ratio'], **{'width': '15px'})
+                # .set_table_styles([{
+                #     "selector": "thead",
+                #     "props": "background-color:purple;color:white;"
+                # }])
+                # .set_properties(subset=['price', 'adjbase', 'ma20', 'p&l', 'p&l_ratio'], **{'width': '15px'})
+                # .set_properties(**{'max-width': '15px'})
                 .render()
             )
             subject = 'BT策略全美模拟盘'

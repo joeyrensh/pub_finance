@@ -60,6 +60,7 @@ def exec_btstrategy(date):
     list = UsTickerInfo(date).get_backtrader_data_feed()
     # 循环初始化数据进入cerebro
     for h in list:
+        print("正在初始化: ", h['symbol'][0])
         data = bt.feeds.PandasData(
             dataname=h, name=h['symbol'][0], fromdate=datetime(2021, 1, 1))  # 历史数据最早不超过2021-01-01
         cerebro.adddata(data)
@@ -68,7 +69,7 @@ def exec_btstrategy(date):
     # 起始资金池
     print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
     # 运行cerebro
-    cerebro.run()
+    cerebro.run(exactbars=False, stdstats=False)
     # 最终资金池
     print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
     # 画图相关
@@ -114,14 +115,15 @@ if __name__ == '__main__':
             df.style.hide_index()
             .format({"close": "{:.2f}",
                      "chg": "{:.2f}%",
+                     "volume": "{:.0f}",
                      "amplitude": "{:.2f}%"})
-            .background_gradient(subset=['close', 'chg', 'amplitude'], cmap=cm)
+            .background_gradient(subset=['close', 'chg', 'volume', 'amplitude'], cmap=cm)
             .bar(subset=['chg'], align='mid', color=['#5fba7d', '#d65f5f'])
-            .set_table_styles([{
-                "selector": "thead",
-                "props": "background-color:purple;color:white;"
-            }])
-            .set_properties(subset=['close', 'chg', 'amplitude'], **{'width': '18px'})
+            # .set_table_styles([{
+            #     "selector": "thead",
+            #     "props": "background-color:purple;color:white;"
+            # }])
+            # .set_properties(subset=['close', 'chg', 'volume', 'amplitude'], **{'width': '15px'})
             .render()
         )
         subject = '今日美股行情'
