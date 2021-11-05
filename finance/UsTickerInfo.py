@@ -99,7 +99,7 @@ class UsTickerInfo:
         results = []
         tool = ToolKit('多进程执行')
         pool = multiprocessing.Pool(processes=8)  # 创建2个进程
-        for i in ['VMEO']:
+        for i in ['IFRX']:
             # 适配BackTrader数据结构
             group_obj = his_data.get_group(i)
             result = pool.apply_async(self.reconstruct_dataframe, (group_obj, i))

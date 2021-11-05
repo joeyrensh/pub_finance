@@ -202,7 +202,8 @@ class BTUsStrategy(bt.Strategy):
                 # 5天以上累计涨幅超过10个点，5天以内，累计涨幅超过5个点
                 if dict['buy_date'] == None:
                     continue
-                intervals = datetime.now() - datetime.strptime(str(dict['buy_date']), '%Y-%m-%d')
+                intervals = datetime.now() - \
+                    datetime.strptime(str(dict['buy_date']), '%Y-%m-%d')
                 if intervals.days > 5 and dict['p&l_ratio'] > 10:
                     pass
                 elif intervals.days < 5 and dict['p&l_ratio'] > 5:
@@ -211,15 +212,19 @@ class BTUsStrategy(bt.Strategy):
                     continue
                 list.append(dict)
         df = pd.DataFrame(list)
-        df.sort_values(by=['buy_date', 'p&l_ratio'],
-                       ascending=False, inplace=True)
-        df.reset_index(drop=True, inplace=True)
-        df.to_csv('./position_log.txt')
+        # 获取行业信息
+        df_o = pd.read_csv('./usstockinfo/usindustry.csv',
+                           usecols=[i for i in range(1, 3)])
+        df_n = pd.merge(df, df_o, how='left', on='symbol')
+        df_n.sort_values(by=['buy_date', 'p&l_ratio'],
+                         ascending=False, inplace=True)
+        df_n.reset_index(drop=True, inplace=True)
+        df_n.to_csv('./position_log.txt')
         # 发送邮件
-        if not df.empty:
+        if not df_n.empty:
             cm = sns.color_palette("Blues", as_cmap=True)
             html = (
-                df.style.hide_index()
+                df_n.style.hide_index()
                 .format({"price": "{:.2f}",
                          "adjbase": "{:.2f}",
                          "ma20": "{:.2f}",
@@ -236,4 +241,20 @@ class BTUsStrategy(bt.Strategy):
                 .render()
             )
             subject = 'BT策略全美模拟盘'
+            MyEmail(subject, html).send_email()
+        # 获取每日行业统计
+        df_s = df_n.groupby(by='industry').size().reset_index(name='count')
+        df_s.sort_values(by=['count'],
+                         ascending=False, inplace=True)
+        df_s.reset_index(drop=True, inplace=True)
+        # 发送邮件
+        if not df_s.empty:
+            cm = sns.color_palette("Blues", as_cmap=True)
+            html = (
+                df_s.style.hide_index()
+                .format({"count": "{:.0f}"})
+                .background_gradient(subset=['count'], cmap=cm)
+                .render()
+            )
+            subject = 'BT策略全美模拟盘统计'
             MyEmail(subject, html).send_email()

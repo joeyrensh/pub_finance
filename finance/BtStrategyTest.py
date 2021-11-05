@@ -34,7 +34,7 @@ if __name__ == '__main__':
     cerebro.broker.setcommission(commission=0.001)
 
     # Add Data
-    trade_date = ToolKit('获取最新美股交易日期').get_latest_trade_date(0)
+    trade_date = ToolKit('获取最新美股交易日期').get_latest_trade_date(1)
     list = UsTickerInfo(trade_date).get_backtrader_data_feed_test()
     for h in list:
         data = bt.feeds.PandasData(
