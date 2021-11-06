@@ -109,10 +109,16 @@ if __name__ == '__main__':
     df = exec_strategy(trade_date)
     # 发送邮件
     if not df.empty:
-        df.reset_index(drop=True, inplace=True)
+        # 获取行业信息
+        df_o = pd.read_csv('./usstockinfo/usindustry_em.csv',
+                           usecols=[i for i in range(1, 3)])
+        df_n = pd.merge(df, df_o, how='left', on='symbol')
+        df_n.sort_values(by=['chg', 'amplitude'],
+                         ascending=False, inplace=True)
+        df_n.reset_index(drop=True, inplace=True)
         cm = sns.color_palette("Blues", as_cmap=True)
         html = (
-            df.style.hide_index()
+            df_n.style.hide_index()
             .format({"close": "{:.2f}",
                      "chg": "{:.2f}%",
                      "volume": "{:.0f}",

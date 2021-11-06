@@ -23,8 +23,9 @@ from UsTickerInfo import UsTickerInfo
 from EMWebCrawler import EMWebCrawler
 
 
-df = pd.read_csv('./position_log.txt', usecols=[i for i in range(1, 9)])
+df = pd.read_csv('./usstockinfo/usindustry.csv', usecols=[i for i in range(1, 3)])
 df_n = df.groupby(by='industry').size().reset_index(name='counts')
+df_n.sort_values(by=['counts'], ascending=False, inplace=True)
 print(df_n)
 
 

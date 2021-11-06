@@ -57,4 +57,4 @@ def get_us_ticker_category(date):
 
 # 主程序入口
 if __name__ == '__main__':
-    get_us_ticker_category('20211104')
+    get_us_ticker_category('20211105')

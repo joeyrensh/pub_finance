@@ -150,12 +150,13 @@ class BTUsStrategy(bt.Strategy):
             # self.log('当前代码: %s, 当前持仓:, %s' % (d._name,
             #          self.getposition(d).size))
             # 有持仓就不再买入
-            # self.log('ema_signal: %f, dif_signal: %f, close_cross_ma20: %f, ma20: %f, ma60: %f, ema20: %f,ema60: %f,close: %f,chg_ratio: %f, close_crossdown_ma20: %f macd_crossdown_axis: %f'
-            #             % (self.signals[d]['ema_signal'][0], self.signals[d]['dif_signal'][0],
-            #             self.signals[d]['close_crossup_ma20_signal'][0], self.inds[d]['ma20'][0], self.inds[d]['ma60'][0], self.inds[d]['ema20'][0], self.inds[d]['ema60'][0], d.close[0],
-            #             self.signals[d]['chg_ratio_signal'][0],
-            #             self.signals[d]['close_crossdown_ma20'][0], self.signals[d]['macd_crossdown_axis'][0]
-            #             ))
+            self.log('symbol: %s, ema_signal: %f, dif_signal: %f, close_cross_ma20: %f, ma20: %f, ma60: %f, ema20: %f,ema60: %f,close: %f,chg_ratio: %f, close_crossdown_ma20: %f macd_crossdown_axis: %f'
+                     % (d._name, self.signals[d]['ema_signal'][0], self.signals[d]['dif_signal'][0],
+                        self.signals[d]['close_crossup_ma20_signal'][0], self.inds[d]['ma20'][0], self.inds[
+                            d]['ma60'][0], self.inds[d]['ema20'][0], self.inds[d]['ema60'][0], d.close[0],
+                        self.signals[d]['chg_ratio_signal'][0],
+                        self.signals[d]['close_crossdown_ma20'][0], self.signals[d]['dif_crossdown_axis'][0]
+                        ))
             pos = self.getposition(d)
             if not len(pos):
                 # 收盘价站上MA20均线和EMA20均线
@@ -213,7 +214,7 @@ class BTUsStrategy(bt.Strategy):
                 list.append(dict)
         df = pd.DataFrame(list)
         # 获取行业信息
-        df_o = pd.read_csv('./usstockinfo/usindustry.csv',
+        df_o = pd.read_csv('./usstockinfo/usindustry_em.csv',
                            usecols=[i for i in range(1, 3)])
         df_n = pd.merge(df, df_o, how='left', on='symbol')
         df_n.sort_values(by=['buy_date', 'p&l_ratio'],
