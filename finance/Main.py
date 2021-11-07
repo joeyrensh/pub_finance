@@ -51,9 +51,9 @@ def exec_btstrategy(date):
     # 添加bt相关的策略
     cerebro.addstrategy(BTUsStrategy)
     # 初始资金100M
-    cerebro.broker.setcash(1000000.0)
+    cerebro.broker.setcash(100000.0)
     # 每手10股
-    cerebro.addsizer(bt.sizers.FixedSize, stake=10)
+    cerebro.addsizer(bt.sizers.FixedSize, stake=1)
     # 费率千分之一
     cerebro.broker.setcommission(commission=0.001)
     # 添加股票当日即历史数据
@@ -69,8 +69,9 @@ def exec_btstrategy(date):
     # 起始资金池
     print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
     # 运行cerebro
-    cerebro.run(exactbars=False, stdstats=False)
+    cerebro.run()
     # 最终资金池
+    print('当前现金持有: ', cerebro.broker.get_cash())
     print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
     # 画图相关
     # cerebro.plot(iplot=True, subplot=True)

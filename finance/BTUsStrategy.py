@@ -105,9 +105,8 @@ class BTUsStrategy(bt.Strategy):
                                                                   self.signals[d]['ma20_over_ma60'],
                                                                   bt.indicators.CrossUp(d.close, self.inds[d]['ma20']) == 1)
 
-            # 上涨力度
-            self.signals[d]['chg_ratio_signal'] = (
-                d.close(0) - d.close(-1)) / d.close(-1)
+            # 上涨信号
+            self.signals[d]['close_over_preclose'] = d.close(0) > d.close(-1)
 
             # 看跌信号
             # 收盘价跌破ma20均线
@@ -133,8 +132,7 @@ class BTUsStrategy(bt.Strategy):
                 self.last_deal_date[order.data._name] = None
             self.bar_executed = len(self)
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
-            self.log('Order Canceled/Margin/Rejected')
-
+            self.log('%s Order Canceled/Margin/Rejected' % (order.data._name))
         self.order[order.data._name] = None
 
     # 交易状态改变回调方法 be notified through notify_trade(trade) of any opening/updating/closing trade
@@ -150,38 +148,34 @@ class BTUsStrategy(bt.Strategy):
             # self.log('当前代码: %s, 当前持仓:, %s' % (d._name,
             #          self.getposition(d).size))
             # 有持仓就不再买入
-            self.log('symbol: %s, ema_signal: %f, dif_signal: %f, close_cross_ma20: %f, ma20: %f, ma60: %f, ema20: %f,ema60: %f,close: %f,chg_ratio: %f, close_crossdown_ma20: %f macd_crossdown_axis: %f'
-                     % (d._name, self.signals[d]['ema_signal'][0], self.signals[d]['dif_signal'][0],
-                        self.signals[d]['close_crossup_ma20_signal'][0], self.inds[d]['ma20'][0], self.inds[
-                            d]['ma60'][0], self.inds[d]['ema20'][0], self.inds[d]['ema60'][0], d.close[0],
-                        self.signals[d]['chg_ratio_signal'][0],
-                        self.signals[d]['close_crossdown_ma20'][0], self.signals[d]['dif_crossdown_axis'][0]
-                        ))
+            # self.log('symbol: %s, ema_signal: %f, dif_signal: %f, close_cross_ma20: %f, ma20: %f, ma60: %f, ema20: %f,ema60: %f,close: %f,chg_ratio: %f, close_crossdown_ma20: %f macd_crossdown_axis: %f'
+            #          % (d._name, self.signals[d]['ema_signal'][0], self.signals[d]['dif_signal'][0],
+            #             self.signals[d]['close_crossup_ma20_signal'][0], self.inds[d]['ma20'][0], self.inds[
+            #                 d]['ma60'][0], self.inds[d]['ema20'][0], self.inds[d]['ema60'][0], d.close[0],
+            #             self.signals[d]['chg_ratio_signal'][0],
+            #             self.signals[d]['close_crossdown_ma20'][0], self.signals[d]['dif_crossdown_axis'][0]
+            #             ))
             pos = self.getposition(d)
             if not len(pos):
                 # 收盘价站上MA20均线和EMA20均线
                 # dif上穿dea
                 # 收盘价上穿MA20
                 # 上涨力度超过5%
-                if (self.signals[d]['ema_signal'][0]
-                    or self.signals[d]['dif_signal'][0]
-                    or self.signals[d]['close_crossup_ma20_signal'][0]) \
-                        and self.signals[d]['chg_ratio_signal'][0] > 0.05:
-                    if not self.order[d._name]:
-                        self.cancel(self.order[d._name])
+                if (self.signals[d]['ema_signal'][-1]
+                    or self.signals[d]['dif_signal'][-1]
+                    or self.signals[d]['close_crossup_ma20_signal'][-1])\
+                        and self.signals[d]['close_over_preclose'][0]:
                     # 买入对应仓位
-                    self.order[d._name] = self.buy(
-                        data=d, exectype=bt.Order.Close)
+                    self.order[d._name] = self.buy(data=d)
             else:
                 # 跌破均线即卖出, macd下穿0轴即卖出
                 # 下跌10%止损
                 if self.signals[d]['close_crossdown_ma20'][0] == 1 \
                         or self.signals[d]['dif_crossdown_axis'][0] == 1\
                         or (d.close[0] - pos.price) / pos.price < -0.1:
-                    if not self.order[d._name]:
-                        self.cancel(self.order[d._name])
-                    self.order[d._name] = self.sell(
-                        data=d, exectype=bt.Order.Close)
+                    # if not self.order[d._name]:
+                    #     self.cancel(self.order[d._name])
+                    self.order[d._name] = self.sell(data=d)
 
     def stop(self):
         # 打印持仓

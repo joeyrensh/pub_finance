@@ -29,14 +29,15 @@ if __name__ == '__main__':
     # Add a strategy
     # cerebro.addstrategy(StrategyOne)
     cerebro.addstrategy(BTUsStrategy)
-    cerebro.broker.setcash(1000000.0)
-    cerebro.addsizer(bt.sizers.FixedSize, stake=10)
+    cerebro.broker.setcash(100000.0)
+    cerebro.addsizer(bt.sizers.FixedSize, stake=1)
     cerebro.broker.setcommission(commission=0.001)
 
     # Add Data
-    trade_date = ToolKit('获取最新美股交易日期').get_latest_trade_date(0)
+    trade_date = ToolKit('获取最新美股交易日期').get_latest_trade_date(1)
     list = UsTickerInfo(trade_date).get_backtrader_data_feed_test()
     for h in list:
+        print("正在初始化: ", h['symbol'][0])
         data = bt.feeds.PandasData(
             dataname=h, name=h['symbol'][0], fromdate=datetime(2021, 1, 1))
         # Add a data
@@ -48,6 +49,7 @@ if __name__ == '__main__':
 
     cerebro.run()
 
+    print('当前现金持有: ', cerebro.broker.get_cash())
     print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
     # b = Bokeh(style='bar', plot_mode='single', scheme=Tradimo())
