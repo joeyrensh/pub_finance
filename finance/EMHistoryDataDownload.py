@@ -6,13 +6,14 @@ import re
 from datetime import datetime, timedelta
 import time
 import pandas as pd
-from UsTickerInfo import UsTickerInfo
 import requests
 import json
 from MyThread import MyThread
 from pandas.errors import EmptyDataError
 
 """ 
+东方财经的美股日K数据获取接口：
+
 样例：
 MSFT 纳斯达克
 BABA 纽交所
@@ -38,27 +39,26 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 
 
 def get_us_stock_list():
-
-    # url里需要传递unixtime当前时间戳
+    """ url里需要传递unixtime当前时间戳 """
     current_timestamp = int(time.mktime(datetime.now().timetuple()))
 
     """     
     市场代码：
     105:纳斯达克 NASDAQ
     106:纽交所 NYSE
-    107:美国交易所 AMEX    """
-    # 重构数据
+    107:美国交易所 AMEX    
+    """
     dict = {}
     list = []
     for mkt_code in ['105', '106', '107']:
-        # url定义
+        """ url定义 """
         url = "https://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery"\
-            "&pn=1&pz=20000&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:mkt_code&fields=f12&_=unix_time"        
-        # 请求url，获取数据response
+            "&pn=1&pz=20000&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:mkt_code&fields=f12&_=unix_time"
+        """ 请求url，获取数据response """
         url_re = url.replace('unix_time', str(current_timestamp)).replace(
             'mkt_code', mkt_code)
         res = requests.get(url_re).text
-        # 替换成valid json格式
+        """ 替换成valid json格式 """
         res_p = re.sub('\\].*', ']', re.sub('.*:\\[', '[', res, 1), 1)
         json_object = json.loads(res_p)
         for i in json_object:
@@ -71,12 +71,14 @@ def get_us_stock_list():
 
 
 def get_his_tick_info(mkt_code, symbol, start_date, end_date):
-    """ 历史数据URL：
+    """ 
+    历史数据URL：
     https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery&secid=106.BABA&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20210101&end=20500101&smplmt=755&lmt=1000000&_=1636002112627
 
     历史数据返回字段列表：
-    date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率 """
-    # url里需要传递unixtime当前时间戳
+    date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率 
+    """
+    """ url里需要传递unixtime当前时间戳 """
     current_timestamp = int(time.mktime(datetime.now().timetuple()))
 
     url = "https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"\
@@ -91,15 +93,16 @@ def get_his_tick_info(mkt_code, symbol, start_date, end_date):
         .replace('unix_time', str(current_timestamp))
 
     res = requests.get(url_re).text
-    # 替换成valid json格式
+    """ 替换成valid json格式 """
     res_p = re.sub('\\].*', ']', re.sub('.*:\\[', '[', res, 1), 1)
     json_object = json.loads(res_p)
-    # 重构数据
     dict = {}
     list = []
     for i in json_object:
-        """ 历史数据返回字段列表：
-        date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率 """
+        """ 
+        历史数据返回字段列表：
+        date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率 
+        """
         if i.split(',')[1] == '-' or i.split(',')[2] == '-'\
             or i.split(',')[3] == '-' or i.split(',')[4] == '-'\
                 or i.split(',')[5] == '-':
@@ -122,19 +125,16 @@ def get_his_tick_info(mkt_code, symbol, start_date, end_date):
 
 
 def set_his_tick_info_to_csv(start_date, end_date, file_path):
-    # 获取股票列表
+    """ 获取股票列表 """
     tickinfo = get_us_stock_list()
-    # get_his_tick_info('105', 'MSFT', '20210101', '20211103')
-    # 多线程获取，每次步长为3，为3线程
+    """ 多线程获取，每次步长为3，为3线程 """
     list_new = []
     tool = ToolKit('历史数据下载')
     for h in range(0, len(tickinfo), 3):
-        # 休眠1秒，避免IP Block
+        """ 休眠, 避免IP Block """
         time.sleep(0.5)
-        # 3线程同时获取
         for t in range(1, 4):
             if (h+t) <= len(tickinfo):
-                # 启动多线程获取
                 my_thread = MyThread(
                     get_his_tick_info, (tickinfo[h+t-1]['mkt_code'], tickinfo[h+t-1]['symbol'], start_date, end_date))
                 my_thread.setDaemon(True)
@@ -145,7 +145,7 @@ def set_his_tick_info_to_csv(start_date, end_date, file_path):
                 list_new.extend(list1)
         tool.progress_bar(len(tickinfo), h)
     try:
-        # 将list转化为dataframe，并且存储为csv文件，带index和header
+        """ 将list转化为dataframe，并且存储为csv文件，带index和header """
         df = pd.DataFrame(list_new)
         df.to_csv(file_path, mode='w', index=True, header=True)
     except EmptyDataError:
@@ -154,6 +154,10 @@ def set_his_tick_info_to_csv(start_date, end_date, file_path):
 
 if __name__ == '__main__':
 
+    """ 
+    历史数据起始时间，结束时间
+    文件名称定义 
+    """
     start_date = '20210101'
     end_date = '20211103'
     file_path = './usstockinfo/usstock_20211103.csv'

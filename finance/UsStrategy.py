@@ -8,31 +8,34 @@ from DingDing import DingDing
 from UsTickerInfo import UsTickerInfo
 
 
-# 策略类
+""" 策略类 """
+
+
 class UsStrategy:
 
     def __init__(self, trade_date):
         self.trade_date = trade_date
-    # 小市值大波动
+
+    """ 小市值大波动 """
 
     def get_usstrategy1(self):
-        # 获取日数据
+        """ 获取日数据 """
         df1 = UsTickerInfo(self.trade_date).get_usstock_data_for_day()
         lenth = len(df1)
         tool = ToolKit('策略1')
-        # 以字典和列表形式来存储
+        """ 以字典和列表形式来存储 """
         list = []
         for index, row in df1.iterrows():
-            # 计算进度
+            """ 计算进度 """
             tool.progress_bar(lenth, index)
-            # 振幅超过40%
+            """ 振幅超过40% """
             if float(row['preclose']) > 0 \
                     and (float(row['high']) - float(row['low'])) \
                     / float(row['preclose']) > 0.4:
                 pass
             else:
                 continue
-            # 涨幅超过20%
+            """ 涨幅超过20% """
             if float(row['chg']) > 0.2:
                 pass
             else:
@@ -46,7 +49,7 @@ class UsStrategy:
                    'tag': '振幅剧烈'}
             list.append(dic)
 
-        # 返回T+1股票行情
+        """ 返回T+1股票行情 """
         if len(list) > 0:
             df = pd.DataFrame(list)
             # # 发送钉钉消息
@@ -67,31 +70,30 @@ class UsStrategy:
         else:
             return pd.DataFrame()
 
-    # 破线拐头交叉
+    """ 破线拐头交叉 """
 
     def get_usstrategy2(self, group_obj, ticker):
-
-        # 收盘价
+        """ 收盘价 """
         close = group_obj['close'].values
-        # 成交量
+        """ 成交量 """
         volume = group_obj['volume'].values
-        # 涨跌幅
+        """ 涨跌幅 """
         chg = group_obj['chg'].values
-        # 高
+        """ 高 """
         high = group_obj['high'].values
-        # 低
+        """ 低 """
         low = group_obj['low'].values
-        # MA20
+        """ MA20 """
         ma20 = tl.MA(close, timeperiod=20)
-        # MA60
+        """ MA60 """
         ma60 = tl.MA(close, timeperiod=60)
-        # EMA20
+        """ EMA20 """
         ema20 = tl.EMA(close, timeperiod=20)
-        # EMA60
+        """ EMA60 """
         ema60 = tl.EMA(close, timeperiod=60)
-        # MACD
+        """ MACD """
         dif, dea, macd = tl.MACD(close, 12, 26, 9)
-        # MACD多头
+        """ MACD多头 """
         if macd.size > 3 \
                 and macd[-1] != 'nan' and macd[-2] != 'nan' \
                 and macd[-3] != 'nan' \
@@ -99,7 +101,7 @@ class UsStrategy:
             pass
         else:
             return
-        # dif刚刚向上穿越DEA
+        """ dif刚刚向上穿越DEA """
         if dif.size > 2 and dea.size > 2 \
                 and dif[-1] != 'nan' and dea[-1] != 'nan' \
                 and dif[-2] != 'nan' and dea[-2] != 'nan' \
@@ -107,7 +109,7 @@ class UsStrategy:
             pass
         else:
             return
-        # 收盘价站上20均线，20站上60
+        """ 收盘价站上20均线，20站上60 """
         if ema20.size > 3 and ema60.size > 2 \
                 and ema20[-1] != 'nan' and ema20[-2] != 'nan' \
                 and ema60[-1] != 'nan' and ema60[-2] != 'nan' \
@@ -122,29 +124,29 @@ class UsStrategy:
             pass
         else:
             return
-        # EMA斜率大于0
+        """ EMA斜率大于0 """
         if ema20[-1] > ema20[-2] > ema20[-3]:
             pass
         else:
             return
-        # 今日收盘价高于昨日收盘价, 且成交量超过历史成交最大量的50%
+        """ 今日收盘价高于昨日收盘价, 且成交量超过历史成交最大量的50% """
         if len(close) > 2 and close[-1] > close[-2] \
                 and len(volume) > 2 and volume[-1] > volume.max(axis=0) * 0.5:
             pass
         else:
             return
-        # 乖离率，短期/中期都低于0.01
+        """ 乖离率，短期/中期都低于0.01 """
         if (close[-1] - ema20[-1]) / ema20[-1] < 0.1 \
                 and (ema20[-1] - ema60[-1]) / ema60[-1] < 0.1:
             pass
         else:
             return
-        # 昨日收盘价不能为0用来计算振幅
+        """ 昨日收盘价不能为0用来计算振幅 """
         if close[-2] > 0:
             pass
         else:
             return
-        # 每组策略返回结果为字典
+        """ 每组策略返回结果为字典 """
         dic = {'symbol': ticker,
                'close': close[-1],
                'chg': float(chg[-1]),
@@ -190,34 +192,39 @@ class UsStrategy:
     #         return pd.DataFrame()
 
     def exec_strategy_with_multiprocessing(self):
-        # 获取历史数据
-        his_data = UsTickerInfo(self.trade_date).get_history_data()     # 历史数据
-        tickers = UsTickerInfo(self.trade_date).get_usstock_list()      # 历史股票列表
+        """ 获取历史数据 """
+        his_data = UsTickerInfo(self.trade_date).get_history_data()
+        tickers = UsTickerInfo(
+            self.trade_date).get_usstock_list()
 
-        # 关键指标 symbol, close, ma20, ma60, ema20, ema60, dif, dea, macd
-        # 存放策略结果
+        """ 
+        关键指标 symbol, close, ma20, ma60, ema20, ema60, dif, dea, macd
+        存放策略结果 
+        """
         list = []
         results = []
         tool = ToolKit('多进程执行策略')
-        pool = multiprocessing.Pool(processes=4)  # 创建2个进程
-        # 循环股票列表，并行执行策略
+        pool = multiprocessing.Pool(processes=4)
+        """ 循环股票列表，并行执行策略 """
+        group_data = his_data.groupby(by='symbol')
         for ticker in tickers:
-            # 按股票分组
-            group_obj = his_data.groupby(by='symbol').get_group(ticker)
+            """ 按股票分组 """
+            group_obj = group_data.get_group(ticker)
             result = pool.apply_async(self.get_usstrategy2,
                                       (group_obj, ticker))
             results.append(result)
             tool.progress_bar(len(tickers), tickers.index(ticker))
+        """ 关闭进程池，表示不能再往进程池中添加进程，需要在join之前调用 """
+        pool.close()
+        """ 等待进程池中的所有进程执行完毕 """
+        pool.join()
 
-        pool.close()    # 关闭进程池，表示不能再往进程池中添加进程，需要在join之前调用
-        pool.join()     # 等待进程池中的所有进程执行完毕
-
-        # 获取进程内数据
+        """ 获取进程内数据 """
         for dic in results:
             if dic.get():
                 list.append(dic.get())
 
-        # 结果数据返回
+        """ 结果数据返回 """
         if len(list) > 0:
             df = pd.DataFrame(list)
             return df

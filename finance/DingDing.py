@@ -1,13 +1,18 @@
+#!/usr/bin/env python3
+# -*- coding: UTF-8 -*-
 import requests
 import json
+import os
 
 
-# 发送钉钉信息
+""" 发送钉钉信息 """
+
+
 class DingDing(object):
 
-    # 钉钉webhook地址，自定义标签模式
-    __url = 'https://oapi.dingtalk.com/robot/send?access_token=' \
-            '831aeb38519de912882b1a972023e21355efdbe95c36153af206d37b050ea347'
+    """ 钉钉webhook地址，自定义标签模式 """
+    dd_ak = os.environ.get('dd_ak')
+    __url = 'https://oapi.dingtalk.com/robot/send?access_token=' + dd_ak
 
     def __init__(self):
         self.api_url = self.__url
