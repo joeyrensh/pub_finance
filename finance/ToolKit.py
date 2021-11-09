@@ -70,3 +70,27 @@ class ToolKit(object):
                     return str(utc_us)[0: 10].replace('-', '')
             else:
                 continue
+
+    @staticmethod
+    def get_trade_off_days(cur, before):
+        """ 
+        取两个交易日起之间的交易天数，用来过滤塞选滞胀的股票
+        cur, before都需是datetime类型
+        """
+        f = open('./USStockMarketClosed.config').readlines()
+        x = []
+        for i in f:
+            x.append(re.sub(',.*\n', '', i))
+        """ 循环遍历最近一个交易日期 """
+        timer = 0
+        for h in range(0, 365):
+            """ 周末正常休市 """
+            utc_us = cur - timedelta(days=h)
+            if utc_us.isoweekday() in [1, 2, 3, 4, 5]\
+                    and str(utc_us)[0: 10] not in x:
+                timer = timer + 1
+            else:
+                continue
+            """ 当前美国时间 UTC-4 """
+            if utc_us == before:
+                return timer

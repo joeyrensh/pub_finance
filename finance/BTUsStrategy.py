@@ -251,7 +251,6 @@ class BTUsStrategy(bt.Strategy):
                 最后买入日期
                 买入价
                 当前价
-                MA20价
                 盈亏额
                 盈亏比 
                 """
@@ -259,7 +258,6 @@ class BTUsStrategy(bt.Strategy):
                         'buy_date': self.last_deal_date[d._name],
                         'price': pos.price,
                         'adjbase': pos.adjbase,
-                        'ma20': self.inds[d]['ma20'][0],
                         'p&l': pos.size * (pos.adjbase - pos.price),
                         'p&l_ratio': (pos.adjbase - pos.price) * 100 / pos.price
                         }
@@ -270,16 +268,26 @@ class BTUsStrategy(bt.Strategy):
                 """
                 if dict['buy_date'] == None:
                     continue
-                intervals = datetime.now() - \
-                    datetime.strptime(str(dict['buy_date']), '%Y-%m-%d')
-                if intervals.days > 5 and dict['p&l_ratio'] > 10:
+                """ 取交易天数，过滤滞涨的股票 """
+                lst_trade_date_str = ToolKit(
+                    '获取最近交易日').get_latest_trade_date(0)
+                lst_trade_date = datetime.strptime(
+                    lst_trade_date_str, '%Y%m%d')
+                lst_buy_date = datetime.strptime(
+                    str(dict['buy_date']), '%Y-%m-%d')
+                intervals = ToolKit('获取交易天数').get_trade_off_days(
+                    lst_trade_date, lst_buy_date)
+                print('当前交易天数：', intervals)
+                if intervals > 5 and dict['p&l_ratio'] > 10:
                     pass
-                elif intervals.days < 5 and dict['p&l_ratio'] > 5:
+                elif intervals < 5 and dict['p&l_ratio'] > 5:
                     pass
                 else:
                     continue
                 list.append(dict)
         df = pd.DataFrame(list)
+        if df.empty:
+            return
         """ 匹配行业信息 """
         df_o = pd.read_csv('./usstockinfo/usindustry_em.csv',
                            usecols=[i for i in range(1, 3)])
@@ -296,10 +304,9 @@ class BTUsStrategy(bt.Strategy):
                 df_n.style.hide_index()
                 .format({"price": "{:.2f}",
                          "adjbase": "{:.2f}",
-                         "ma20": "{:.2f}",
                          "p&l": "{:.2f}",
                          "p&l_ratio": "{:.2f}%"})
-                .background_gradient(subset=['price', 'adjbase', 'ma20', 'p&l'], cmap=cm)
+                .background_gradient(subset=['price', 'adjbase', 'p&l'], cmap=cm)
                 .bar(subset=['p&l_ratio'], align='mid', color=['#5fba7d', '#d65f5f'])
                 # .set_table_styles([{
                 #     "selector": "thead",

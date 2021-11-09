@@ -1,2 +1,2 @@
-,symbol,buy_date,price,adjbase,ma20,p&l,p&l_ratio,industry
-0,AAL,2021-11-04,20.73,21.82,19.815,1.0899999999999999,5.258080077182826,航空公司
+,symbol,buy_date,price,adjbase,p&l,p&l_ratio,industry
+0,AAL,2021-11-04,20.73,21.82,1.0899999999999999,5.258080077182826,航空公司
