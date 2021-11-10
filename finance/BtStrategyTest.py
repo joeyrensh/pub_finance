@@ -20,7 +20,7 @@ if __name__ == '__main__':
     cerebro.addsizer(bt.sizers.FixedSize, stake=1)
     cerebro.broker.setcommission(commission=0.001)
 
-    trade_date = ToolKit('获取最新美股交易日期').get_latest_trade_date(1)
+    trade_date = ToolKit('获取最新美股交易日期').get_latest_trade_date(0)
     list = UsTickerInfo(trade_date).get_backtrader_data_feed_test()
     for h in list:
         print("正在初始化: ", h['symbol'][0])

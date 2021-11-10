@@ -27,7 +27,11 @@ class UsTickerInfo:
     def get_usstock_list(self):
         tickers = list()
         df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 13)])
-        for index, i in df.iterrows():
+        """ 匹配行业信息 """
+        df_o = pd.read_csv('./usstockinfo/usindustry_em.csv',
+                           usecols=[i for i in range(1, 3)])
+        df_n = pd.merge(df, df_o, how='inner', on='symbol')
+        for index, i in df_n.iterrows():
             """ 
             单价超过2美金
             日成交量过50W 
@@ -44,7 +48,11 @@ class UsTickerInfo:
 
     def get_usstock_data_for_day(self):
         df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 13)])
-        return df
+        """ 匹配行业信息 """
+        df_o = pd.read_csv('./usstockinfo/usindustry_em.csv',
+                           usecols=[i for i in range(1, 3)])
+        df_n = pd.merge(df, df_o, how='inner', on='symbol')        
+        return df_n
 
     """ 获取历史数据 """
 
@@ -126,7 +134,7 @@ class UsTickerInfo:
         results = []
         """ 创建多进程 """
         pool = multiprocessing.Pool(processes=8)
-        for i in ['AAL']:
+        for i in ['UAL']:
             """
             适配BackTrader数据结构
             每个股票数据为一组
