@@ -112,7 +112,7 @@ class BTUsStrategy(bt.Strategy):
             """
             self.signals[d]['close_over_ema20'] = d.close > self.inds[d]['ema20']
             self.signals[d]['close_over_ma20'] = d.close > self.inds[d]['ma20']
-            self.signals[d]['ema_signal'] = bt.And(self.signals[d]['close_over_ema20'],
+            self.signals[d]['ema20_crossup_ema60'] = bt.And(self.signals[d]['close_over_ema20'],
                                                    self.signals[d]['close_over_ma20'],
                                                    bt.indicators.CrossUp(self.inds[d]['ema20'], self.inds[d]['ema60']) == 1)
 
@@ -121,7 +121,7 @@ class BTUsStrategy(bt.Strategy):
             收盘价在ma20均线和ema20均线上方
             dif上穿dea 
             """
-            self.signals[d]['dif_signal'] = bt.And(self.signals[d]['close_over_ema20'],
+            self.signals[d]['dif_crossup_dea'] = bt.And(self.signals[d]['close_over_ema20'],
                                                    self.signals[d]['close_over_ma20'],
                                                    bt.indicators.CrossUp(self.inds[d]['dif'], self.inds[d]['dea']) == 1)
 
@@ -134,7 +134,7 @@ class BTUsStrategy(bt.Strategy):
             """
             self.signals[d]['ema20_over_ema60'] = self.inds[d]['ema20'] > self.inds[d]['ema60']
             self.signals[d]['ma20_over_ma60'] = self.inds[d]['ma20'] > self.inds[d]['ma60']
-            self.signals[d]['close_crossup_ma20_signal'] = bt.And(self.signals[d]['ema20_over_ema60'],
+            self.signals[d]['close_crossup_ma20'] = bt.And(self.signals[d]['ema20_over_ema60'],
                                                                   self.signals[d]['ma20_over_ma60'],
                                                                   bt.indicators.CrossUp(d.close, self.inds[d]['ma20']) == 1)
 
@@ -215,18 +215,6 @@ class BTUsStrategy(bt.Strategy):
             self.log('当前代码: %s, 当前持仓:, %s' % 
             (d._name, self.getposition(d).size)) 
             """
-
-            """         
-            self.log('symbol: %s, ema_signal: %f, dif_signal: %f, close_cross_ma20: %f,'
-                     'ma20: %f, ma60: %f, ema20: %f,ema60: %f,close: %f,chg_ratio: %f,'
-                     'close_crossdown_ma20: %f macd_crossdown_axis: %f'
-                     % (d._name, self.signals[d]['ema_signal'][0], self.signals[d]['dif_signal'][0],
-                        self.signals[d]['close_crossup_ma20_signal'][0], self.inds[d]['ma20'][0],
-                        self.inds[d]['ma60'][0], self.inds[d]['ema20'][0],
-                        self.inds[d]['ema60'][0], d.close[0], self.signals[d]['chg_ratio_signal'][0],
-                        self.signals[d]['close_crossdown_ma20'][0], self.signals[d]['dif_crossdown_axis'][0]
-                        ))
-            """
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
             if not len(pos):
@@ -237,9 +225,9 @@ class BTUsStrategy(bt.Strategy):
                 信号3: ema20/60 以及ma20/60呈多头排列，收盘价上穿ma20
                 同时: 所有信号满足情况下，次日收盘价持续上涨 
                 """
-                if (self.signals[d]['ema_signal'][-1]
-                        or self.signals[d]['dif_signal'][-1]
-                        or self.signals[d]['close_crossup_ma20_signal'][-1])\
+                if (self.signals[d]['ema20_crossup_ema60'][-1]
+                        or self.signals[d]['dif_crossup_dea'][-1]
+                        or self.signals[d]['close_crossup_ma20'][-1])\
                         and self.signals[d]['close_over_preclose'][0]:
                     """ 买入对应仓位 """
                     self.order[d._name] = self.buy(data=d)
