@@ -144,6 +144,13 @@ class BTUsStrategy(bt.Strategy):
             """
             self.signals[d]['close_over_preclose'] = d.close(0) > d.close(-1)
 
+            """ 
+            最近5个交易日，收盘价频繁穿越ma20均线
+            震荡过大的股票进行过滤 
+            """
+            self.signals[d]['close_crossover_ma20'] = bt.indicators.CrossOver(
+                d.close, self.inds[d]['ma20'])
+
             """
             生成交易信号
             看跌信号
@@ -195,6 +202,14 @@ class BTUsStrategy(bt.Strategy):
 
     def next(self):
         for i, d in enumerate(self.datas):
+
+            """ 最近5个交易日收盘价频繁穿越ma20均线，不进行交易 """
+            if self.signals[d]['close_crossover_ma20'][0] in [1, -1] \
+                    and self.signals[d]['close_crossover_ma20'][-1] in [1, -1] \
+                    and self.signals[d]['close_crossover_ma20'][-2] in [1, -1] \
+                    and self.signals[d]['close_crossover_ma20'][-3] in [1, -1] \
+                    and self.signals[d]['close_crossover_ma20'][-4] in [1, -1]:
+                continue
 
             """
             self.log('当前代码: %s, 当前持仓:, %s' % 

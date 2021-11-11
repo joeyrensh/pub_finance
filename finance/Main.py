@@ -28,7 +28,7 @@ def exec_strategy(date):
 
     file_name_sta = UsFileInfo(date).get_file_name_sta
     # df_new = pd.concat([df1, df2], ignore_index=True)
-    df1.to_csv(file_name_sta, index=True, header=True)
+    # df1.to_csv(file_name_sta, index=True, header=True)
     return df1
 
 
