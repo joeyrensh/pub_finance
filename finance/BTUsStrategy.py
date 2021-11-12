@@ -101,31 +101,46 @@ class BTUsStrategy(bt.Strategy):
             """ 取60日内最高价 """
             self.inds[d]['highest60'] = bt.indicators.Highest(
                 d.close, period=self.params.longperiod)
+            """ 取5日平均成交量 """
+            self.inds[d]['mean_volume5'] = bt.indicators.Average(
+                d.volume, period=5)
+            """ 20均线乖离率 """
+            self.inds[d]['bias_ma20'] = abs(
+                (self.inds[d]['ema20'] - self.inds[d]['ma20']) / self.inds[d]['ma20'])
             """ 
             生成交易信号
             看涨信号 
             """
             """         
             双均线看涨信号：
+            信号1:
             收盘价在ma20均线和ema20均线之上
             ema20上穿ema60均线
             """
             self.signals[d]['close_over_ema20'] = d.close > self.inds[d]['ema20']
             self.signals[d]['close_over_ma20'] = d.close > self.inds[d]['ma20']
-            self.signals[d]['ema20_crossup_ema60'] = bt.And(self.signals[d]['close_over_ema20'],
-                                                   self.signals[d]['close_over_ma20'],
-                                                   bt.indicators.CrossUp(self.inds[d]['ema20'], self.inds[d]['ema60']) == 1)
+            self.signals[d]['ema20_crossup_ema60'] = bt.And(
+                self.signals[d]['close_over_ema20'],
+                self.signals[d]['close_over_ma20'],
+                bt.indicators.CrossUp(self.inds[d]['ema20'], self.inds[d]['ema60']) == 1)
 
             """ 
+            信号2:
             dif上穿dea看涨信号：
             收盘价在ma20均线和ema20均线上方
             dif上穿dea 
             """
-            self.signals[d]['dif_crossup_dea'] = bt.And(self.signals[d]['close_over_ema20'],
-                                                   self.signals[d]['close_over_ma20'],
-                                                   bt.indicators.CrossUp(self.inds[d]['dif'], self.inds[d]['dea']) == 1)
+            self.signals[d]['high_over_ema20'] = d.high > self.inds[d]['ema20']
+            self.signals[d]['high_over_ma20'] = d.high > self.inds[d]['ma20']
+            self.signals[d]['dif_crossup_dea'] = bt.And(
+                bt.Or(self.signals[d]['close_over_ema20'],
+                      self.signals[d]['high_over_ema20']),
+                bt.Or(self.signals[d]['close_over_ma20'],
+                      self.signals[d]['high_over_ma20']),
+                bt.indicators.CrossUp(self.inds[d]['dif'], self.inds[d]['dea']) == 1)
 
             """
+            信号3：
             收盘价看涨信号：
             近期收盘价跌破了ma20均线，再次上穿ma20信号：
             ma20均线在ma60均线上方
@@ -134,9 +149,29 @@ class BTUsStrategy(bt.Strategy):
             """
             self.signals[d]['ema20_over_ema60'] = self.inds[d]['ema20'] > self.inds[d]['ema60']
             self.signals[d]['ma20_over_ma60'] = self.inds[d]['ma20'] > self.inds[d]['ma60']
-            self.signals[d]['close_crossup_ma20'] = bt.And(self.signals[d]['ema20_over_ema60'],
-                                                                  self.signals[d]['ma20_over_ma60'],
-                                                                  bt.indicators.CrossUp(d.close, self.inds[d]['ma20']) == 1)
+            self.signals[d]['close_crossup_ma20'] = bt.And(
+                self.signals[d]['ema20_over_ema60'],
+                self.signals[d]['ma20_over_ma60'],
+                bt.indicators.CrossUp(d.close, self.inds[d]['ma20']) == 1)
+
+            """ 
+            信号4:
+            近5日均线密集，成交量突然放大，收盘价高于昨日 
+            """
+            self.signals[d]['bias_ma20'] = bt.And(
+                self.inds[d]['bias_ma20'](0) < 0.1,
+                self.inds[d]['bias_ma20'](-1) < 0.1,
+                self.inds[d]['bias_ma20'](-2) < 0.1,
+                self.inds[d]['bias_ma20'](-3) < 0.1,
+                self.inds[d]['bias_ma20'](-4) < 0.1
+            )
+            self.signals[d]['volume_up2times'] = d.volume > self.inds[d]['mean_volume5'] * 3
+            self.signals[d]['close_up'] = d.close(0) > d.close(-1) * 1.1
+            self.signals[d]['volume_break_thr'] = bt.And(
+                self.signals[d]['bias_ma20'],
+                self.signals[d]['volume_up2times'],
+                self.signals[d]['close_up']
+            )
 
             """
             看涨信号滞后一天
@@ -147,10 +182,11 @@ class BTUsStrategy(bt.Strategy):
             """ 
             最近5个交易日，收盘价频繁穿越ma20均线
             震荡过大的股票进行过滤 
+            成交量超过过去5天成交量均值
             """
             self.signals[d]['close_crossover_ma20'] = bt.indicators.CrossOver(
                 d.close, self.inds[d]['ma20'])
-
+            self.signals[d]['volume_over5'] = d.volume > self.inds[d]['mean_volume5']
             """
             生成交易信号
             看跌信号
@@ -202,7 +238,6 @@ class BTUsStrategy(bt.Strategy):
 
     def next(self):
         for i, d in enumerate(self.datas):
-
             """ 最近5个交易日收盘价频繁穿越ma20均线，不进行交易 """
             if self.signals[d]['close_crossover_ma20'][0] in [1, -1] \
                     and self.signals[d]['close_crossover_ma20'][-1] in [1, -1] \
@@ -223,12 +258,13 @@ class BTUsStrategy(bt.Strategy):
                 信号1: close > ema20 and close > ma20，ema20上穿ema60
                 信号2: close > ema20 and close > ma20，dif上穿dea
                 信号3: ema20/60 以及ma20/60呈多头排列，收盘价上穿ma20
-                同时: 所有信号满足情况下，次日收盘价持续上涨 
+                同时: 所有信号满足情况下，成交量放大
                 """
-                if (self.signals[d]['ema20_crossup_ema60'][-1]
-                        or self.signals[d]['dif_crossup_dea'][-1]
-                        or self.signals[d]['close_crossup_ma20'][-1])\
-                        and self.signals[d]['close_over_preclose'][0]:
+                if (self.signals[d]['ema20_crossup_ema60'][0]
+                        or self.signals[d]['dif_crossup_dea'][0]
+                        or self.signals[d]['close_crossup_ma20'][0]
+                        or self.signals[d]['volume_break_thr'])\
+                        and self.signals[d]['volume_over5'][0]:
                     """ 买入对应仓位 """
                     self.order[d._name] = self.buy(data=d)
             else:
@@ -310,7 +346,7 @@ class BTUsStrategy(bt.Strategy):
                          "p&l": "{:.2f}",
                          "p&l_ratio": "{:.2f}%"})
                 .background_gradient(subset=['price', 'adjbase', 'p&l'], cmap=cm)
-                .bar(subset=['p&l_ratio'], align='mid', color=['#5fba7d', '#d65f5f'])
+                .bar(subset=['p&l_ratio'], align='mid', color=['#5fba7d', '#d65f5f'], width=100)
                 # .set_table_styles([{
                 #     "selector": "thead",
                 #     "props": "background-color:purple;color:white;"

@@ -116,7 +116,7 @@ if __name__ == '__main__':
                      "volume": "{:.0f}",
                      "amplitude": "{:.2f}%"})
             .background_gradient(subset=['close', 'chg', 'volume', 'amplitude'], cmap=cm)
-            .bar(subset=['chg'], align='mid', color=['#5fba7d', '#d65f5f'])
+            .bar(subset=['chg'], align='mid', color=['#5fba7d', '#d65f5f'], width=100)
             # .set_table_styles([{
             #     "selector": "thead",
             #     "props": "background-color:purple;color:white;"

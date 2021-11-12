@@ -81,8 +81,22 @@ def get_his_tick_info(mkt_code, symbol, start_date, end_date):
     """ url里需要传递unixtime当前时间戳 """
     current_timestamp = int(time.mktime(datetime.now().timetuple()))
 
+    """     
+    beg: 开始日期 例如 20200101
+    end: 结束日期 例如 20200201
+    klt: k线间距 默认为 101 即日k
+            klt:1 1 分钟
+            klt:5 5 分钟
+            klt:101 日
+            klt:102 周
+        fqt: 复权方式
+            不复权 : 0
+            前复权 : 1
+            后复权 : 2
+    """
+
     url = "https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"\
-        "&secid=mkt_code.symbol&ut=fa5fd1943c7b386f172d6893dbfba10b"\
+        "&secid=mkt_code.symbol&ut="\
         "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61"\
         "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000000&_=unix_time"
 

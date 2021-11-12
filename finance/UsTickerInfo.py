@@ -134,7 +134,7 @@ class UsTickerInfo:
         results = []
         """ 创建多进程 """
         pool = multiprocessing.Pool(processes=8)
-        for i in ['UAL']:
+        for i in ['PETZ']:
             """
             适配BackTrader数据结构
             每个股票数据为一组
