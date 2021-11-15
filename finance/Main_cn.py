@@ -71,13 +71,13 @@ if __name__ == '__main__':
     """ 创建进度条并开始运行 """
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
-    # """ 东方财经爬虫 """
-    # """ 爬取每日最新股票数据 """
-    # em = EMCNWebCrawler()
-    # em.get_cn_daily_stock_info(trade_date)
-    # """ 爬取每日最新股票对应行业数据 """
-    # emi = EMCNTickerCategoryCrawler()
-    # emi.get_cn_ticker_category(trade_date)
+    """ 东方财经爬虫 """
+    """ 爬取每日最新股票数据 """
+    em = EMCNWebCrawler()
+    em.get_cn_daily_stock_info(trade_date)
+    """ 爬取每日最新股票对应行业数据 """
+    emi = EMCNTickerCategoryCrawler()
+    emi.get_cn_ticker_category(trade_date)
 
     """ 执行bt相关策略 """
     exec_btstrategy(trade_date)
@@ -109,7 +109,7 @@ if __name__ == '__main__':
         """ 按照行业板块聚合，统计最近成交率最高的行业 """
         df_s = df_n.groupby(by='industry').size().reset_index(name='count')
         df_s.sort_values(by=['count'],
-                        ascending=False, inplace=True)
+                         ascending=False, inplace=True)
         df_s.reset_index(drop=True, inplace=True)
         """ 发送邮件 """
         if not df_s.empty:
@@ -121,6 +121,6 @@ if __name__ == '__main__':
                 .render()
             )
             subject = 'BT策略A股模拟盘行业统计'
-            MyEmail(subject, html).send_email()    
+            MyEmail(subject, html).send_email()
     """ 结束进度条 """
     pbar.finish()

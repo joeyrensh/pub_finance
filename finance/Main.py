@@ -91,9 +91,9 @@ if __name__ == '__main__':
     """ 爬取每日最新股票数据 """
     em = EMWebCrawler()
     em.get_us_daily_stock_info(trade_date)
-    # """ 爬取每日最新股票对应行业数据 """
-    # emi = EMUsTickerCategoryCrawler()
-    # emi.get_us_ticker_category(trade_date)
+    """ 爬取每日最新股票对应行业数据 """
+    emi = EMUsTickerCategoryCrawler()
+    emi.get_us_ticker_category(trade_date)
 
     """ 执行策略 """
     df = exec_strategy(trade_date)
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     df_p = pd.read_csv(file_name_position,
                        usecols=[i for i in range(1, 8)])
     if not df_p.empty:
-        df_n = pd.merge(df_p, df_d, how='left', on='symbol')
+        df_n = pd.merge(df_p, df_d, how='inner', on='symbol')
         cm = sns.color_palette("Blues", as_cmap=True)
         html = (
             df_n.style.hide_index()
@@ -174,7 +174,7 @@ if __name__ == '__main__':
         """ 按照行业板块聚合，统计最近成交率最高的行业 """
         df_s = df_n.groupby(by='industry').size().reset_index(name='count')
         df_s.sort_values(by=['count'],
-                        ascending=False, inplace=True)
+                         ascending=False, inplace=True)
         df_s.reset_index(drop=True, inplace=True)
         """ 发送邮件 """
         if not df_s.empty:
