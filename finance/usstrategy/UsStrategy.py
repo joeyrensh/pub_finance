@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 import pandas as pd
-from ToolKit import ToolKit
+from utility.ToolKit import ToolKit
 import talib as tl
 import multiprocessing
-from DingDing import DingDing
-from UsTickerInfo import UsTickerInfo
+from utility.DingDing import DingDing
+from utility.TickerInfo import TickerInfo
 
 
 """ 策略类 """
@@ -15,12 +15,13 @@ class UsStrategy:
 
     def __init__(self, trade_date):
         self.trade_date = trade_date
+        self.market = 'us'
 
     """ 小市值大波动 """
 
     def get_usstrategy1(self):
         """ 获取日数据 """
-        df1 = UsTickerInfo(self.trade_date).get_usstock_data_for_day()
+        df1 = TickerInfo(self.trade_date, self.market).get_stock_data_for_day()
         lenth = len(df1)
         tool = ToolKit('策略1')
         """ 以字典和列表形式来存储 """
@@ -193,9 +194,9 @@ class UsStrategy:
 
     def exec_strategy_with_multiprocessing(self):
         """ 获取历史数据 """
-        his_data = UsTickerInfo(self.trade_date).get_history_data()
-        tickers = UsTickerInfo(
-            self.trade_date).get_usstock_list()
+        his_data = TickerInfo(self.trade_date, self.market).get_history_data()
+        tickers = TickerInfo(
+            self.trade_date, self.market).get_usstock_list()
 
         """ 
         关键指标 symbol, close, ma20, ma60, ema20, ema60, dif, dea, macd

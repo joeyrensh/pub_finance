@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+# -*- coding: UTF-8 -*-
+
+import time
+import requests
+import re
+import json
+import pandas as pd
+from datetime import datetime
+import os
+from utility.FileInfo import FileInfo
+
+
+class EMCNWebCrawler:
+
+    def __init__(self):
+        """ A股日数据url, 东方财经
+        市场代码：
+        0: 深证/创业板/新三板/ SZ
+        1: 上证/科创板		SH
+        """
+        self.__url0 = "http://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery&pn=1&pz=20000"\
+            "&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:0"\
+            "&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18&_=unix_time"
+
+        self.__url1 = "http://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery&pn=1&pz=20000"\
+            "&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:1"\
+            "&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18&_=unix_time"
+
+    """ 获取数据列表 """
+
+    def get_cn_daily_stock_info(self, trade_date):
+        """ url里需要传递unixtime当前时间戳 """
+        current_timestamp = int(time.mktime(datetime.now().timetuple()))
+        """ 深证 """
+        url = self.__url0.replace('unix_time', str(current_timestamp))
+        res = requests.get(url).text
+        """ 替换成valid json格式 """
+        res_p = re.sub('\\].*', ']', re.sub('.*:\\[', '[', res, 1), 1)
+        """         
+        f12: 股票代码, f14: 公司名称, f2: 最新报价, f3: 涨跌幅, f4: 涨跌额, f5: 成交量, f6: 成交额
+        f7: 振幅, f15: 最高, f16: 最低, f17: 今开, f18: 昨收
+        f12: symbol, f14: name, f2: close, f3: chg, f4: change, f5: volume, f6: turnover
+        f7: amplitude, f15: high, f16: low, f17: open, f18: preclose
+        """
+        json_object = json.loads(res_p)
+        list = []
+        dict_a = dict()
+        """ 重构数据字典 """
+        for i in json_object:
+            if i['f12'] == '-' or i['f17'] == '-'\
+                or i['f2'] == '-' or i['f15'] == '-'\
+                    or i['f16'] == '-' or i['f5'] == '-':
+                continue
+            dic_a = {'symbol': 'SZ'+i['f12'],
+                     'name': i['f14'],
+                     'open': i['f17'],
+                     'close': i['f2'],
+                     'high': i['f15'],
+                     'low': i['f16'],
+                     'volume': i['f5'],
+                     'turnover': i['f6'],
+                     'chg': i['f3'],
+                     'change': i['f4'],
+                     'amplitude': i['f7'],
+                     'preclose': i['f18']}
+            list.append(dic_a)
+        """ 上证 """
+        url = self.__url1.replace('unix_time', str(current_timestamp))
+        res = requests.get(url).text
+        """ 替换成valid json格式 """
+        res_p = re.sub('\\].*', ']', re.sub('.*:\\[', '[', res, 1), 1)
+        json_object = json.loads(res_p)
+        """ 重构数据字典 """
+        for i in json_object:
+            if i['f12'] == '-' or i['f17'] == '-'\
+                or i['f2'] == '-' or i['f15'] == '-'\
+                    or i['f16'] == '-' or i['f5'] == '-':
+                continue
+            dic_a = {'symbol': 'SH'+i['f12'],
+                     'name': i['f14'],
+                     'open': i['f17'],
+                     'close': i['f2'],
+                     'high': i['f15'],
+                     'low': i['f16'],
+                     'volume': i['f5'],
+                     'turnover': i['f6'],
+                     'chg': i['f3'],
+                     'change': i['f4'],
+                     'amplitude': i['f7'],
+                     'preclose': i['f18']}
+            list.append(dic_a)
+        """ 获取A股数据文件地址 """
+        file_name_d = FileInfo(trade_date, 'cn').get_file_name_day
+        """ 每日一个文件，根据交易日期创建 """
+        if os.path.exists(file_name_d):
+            os.remove(file_name_d)
+        """ 将list转化为dataframe，并且存储为csv文件，带index和header """
+        df = pd.DataFrame(list)
+        date = datetime.strptime(trade_date, '%Y%m%d')
+        df['date'] = date
+        df.to_csv(file_name_d, mode='w', index=True, header=True)

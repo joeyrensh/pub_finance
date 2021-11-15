@@ -1,39 +1,62 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
+from utility.FileInfo import FileInfo
+from tabulate import tabulate
+import progressbar
+from utility.ToolKit import ToolKit
+from utility.MyEmail import MyEmail
+import re
+from datetime import datetime, timedelta
 import pandas as pd
-from UsFileInfo import UsFileInfo
-from ToolKit import ToolKit
-import multiprocessing
-import gc
+import sys
+import seaborn as sns
+from backtraderref.BTStrategy import BTStrategy
+import backtrader as bt
+from utility.TickerInfo import TickerInfo
+from uscrawler.EMWebCrawler import EMWebCrawler
+from uscrawler.EMUsTickerCategoryCrawler import EMUsTickerCategoryCrawler
+from backtraderref.BTPandasDataExt import BTPandasDataExt
+
+""" backtrader策略 """
+
+def exec_btstrategy(date):
+    """ 创建cerebro对象 """
+    cerebro = bt.Cerebro()
+    """ 添加bt相关的策略 """
+    cerebro.addstrategy(BTStrategy)
+    """ 初始资金100M """
+    cerebro.broker.setcash(100000.0)
+    """ 每手10股 """
+    cerebro.addsizer(bt.sizers.FixedSize, stake=1)
+    """ 费率千分之一 """
+    cerebro.broker.setcommission(commission=0.001)
+    """ 添加股票当日即历史数据 """
+    list = TickerInfo(date, 'us').get_backtrader_data_feed_test()
+    """ 循环初始化数据进入cerebro """
+    for h in list:
+        print("正在初始化: ", h['symbol'][0])
+        """ 历史数据最早不超过2021-01-01 """
+        data = BTPandasDataExt(
+            dataname=h, name=h['symbol'][0], fromdate=datetime(2021, 1, 1))
+        cerebro.adddata(data)
+        # 周数据
+        # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
+    """ 起始资金池 """
+    print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
+    """ 运行cerebro """
+    cerebro.run()
+    """ 最终资金池 """
+    print('当前现金持有: ', cerebro.broker.get_cash())
+    print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
+    """ 画图相关 """
+    # cerebro.plot(iplot=True, subplot=True)
 
 
-# tickers = list()
-df = pd.read_csv('./usstockinfo/usstock_20211109.csv',
-                 usecols=[i for i in range(1, 13)])
-""" 匹配行业信息 """
-df_o = pd.read_csv('./usstockinfo/usindustry_em.csv',
-                   usecols=[i for i in range(1, 3)])
-df_n = pd.merge(df, df_o, how='inner', on='symbol')
-df_n.groupby(by='symbol').count().plot()
-# df_n.to_csv('./right_test.csv')
-# for index, i in df.iterrows():
-#     """
-#     单价超过2美金
-#     日成交量过50W
-#     """
-#     if float(i['volume']) > 500000 \
-#             and float(i['close']) > 2 \
-#             and float(i['open']) > 0 \
-#             and float(i['high']) > 0 \
-#             and float(i['low']) > 0:
-#         tickers.append(str(i['symbol']))
+# 主程序入口
+if __name__ == '__main__':
+    """ 美股交易日期 utc-4 """
+    trade_date = ToolKit('获取最新美股交易日期').get_us_latest_trade_date(0)
 
-# df_right = pd.read_csv('./right_test.csv',
-#                        usecols=[i for i in range(1, 14)])
-# df_inner = pd.read_csv('./inner_test.csv',
-#                        usecols=[i for i in range(1, 14)])                       
+    """ 执行bt相关策略 """
+    exec_btstrategy(trade_date)
 
-
-# for index, i in df_right.iterrows():
-#     if i['symbol'] not in df_inner['symbol'].values:
-#         print(i['symbol'])

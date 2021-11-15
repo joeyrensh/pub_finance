@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 import pandas as pd
-from UsFileInfo import UsFileInfo
-from ToolKit import ToolKit
+from utility.FileInfo import FileInfo
+from utility.ToolKit import ToolKit
 import multiprocessing
 import gc
 
@@ -10,48 +10,64 @@ import gc
 """ 组合每日股票数据为一个dataframe """
 
 
-class UsTickerInfo:
+class TickerInfo:
 
-    def __init__(self, trade_date):
+    def __init__(self, trade_date, market):
+        """ 获取市场代码 """
+        self.market = market
         """ 获取交易日期 """
         self.trade_date = trade_date
         """ 获取文件列表 """
-        file = UsFileInfo(trade_date)
+        file = FileInfo(trade_date, market)
         """ 获取交易日当天日数据文件 """
         self.file_day = file.get_file_name_day
         """ 获取截止交易日当天历史日数据文件列表 """
         self.files = file.get_files_day_list
+        """ 获取行业板块文件路径 """
+        self.file_industry = file.get_file_name_industry
 
     """ 获取股票代码列表 """
 
-    def get_usstock_list(self):
+    def get_stock_list(self):
         tickers = list()
-        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 13)])
+        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 14)])
         """ 匹配行业信息 """
-        df_o = pd.read_csv('./usstockinfo/usindustry_em.csv',
-                           usecols=[i for i in range(1, 3)])
+        df_o = pd.read_csv(self.file_industry, usecols=[
+                           i for i in range(1, 3)])
         df_n = pd.merge(df, df_o, how='inner', on='symbol')
         for index, i in df_n.iterrows():
             """ 
+            美股：
             单价超过2美金
-            日成交量过50W 
+            日成交量过50W股
+            A股：
+            单价超过2块
+            日成交量过1W手
             """
-            if float(i['volume']) > 500000 \
-                    and float(i['close']) > 2 \
-                    and float(i['open']) > 0 \
-                    and float(i['high']) > 0 \
-                    and float(i['low']) > 0:
-                tickers.append(str(i['symbol']))
+            if self.market == 'us':
+                if float(i['volume']) > 500000 \
+                        and float(i['close']) > 2 \
+                        and float(i['open']) > 0 \
+                        and float(i['high']) > 0 \
+                        and float(i['low']) > 0:
+                    tickers.append(i['symbol'])
+            elif self.market == 'cn':
+                if float(i['volume']) > 10000 \
+                        and float(i['close']) > 2 \
+                        and float(i['open']) > 0 \
+                        and float(i['high']) > 0 \
+                        and float(i['low']) > 0:
+                    tickers.append(i['symbol'])
         return tickers
 
     """ 获取最新一天股票数据 """
 
-    def get_usstock_data_for_day(self):
-        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 13)])
+    def get_stock_data_for_day(self):
+        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 14)])
         """ 匹配行业信息 """
-        df_o = pd.read_csv('./usstockinfo/usindustry_em.csv',
+        df_o = pd.read_csv(self.file_industry,
                            usecols=[i for i in range(1, 3)])
-        df_n = pd.merge(df, df_o, how='inner', on='symbol')        
+        df_n = pd.merge(df, df_o, how='inner', on='symbol')
         return df_n
 
     """ 获取历史数据 """
@@ -59,7 +75,7 @@ class UsTickerInfo:
     def get_history_data(self):
         dic = {}
         for j in range(len(self.files)):
-            df = pd.read_csv(self.files[j], usecols=[i for i in range(1, 13)])
+            df = pd.read_csv(self.files[j], usecols=[i for i in range(1, 14)])
             dic[j] = df
         df = pd.concat(list(dic.values()), ignore_index=True)
         df.sort_values(by=['symbol', 'date'], ascending=True, inplace=True)
@@ -71,7 +87,7 @@ class UsTickerInfo:
     """
 
     def get_backtrader_data_feed(self):
-        tickers = self.get_usstock_list()
+        tickers = self.get_stock_list()
         his_data = self.get_history_data().groupby(by='symbol')
         t = ToolKit('加载历史数据')
         """ 存放策略结果 """
@@ -114,19 +130,24 @@ class UsTickerInfo:
         if len(group_obj) < 200:
             return pd.DataFrame()
         """ 适配BackTrader数据结构 """
+        if self.market == 'us':
+            market = 1
+        elif self.market == 'cn':
+            market = 2
         df_copy = pd.DataFrame({'open': group_obj['open'].values,
                                 'close': group_obj['close'].values,
                                 'high': group_obj['high'].values,
                                 'low': group_obj['low'].values,
                                 'volume': group_obj['volume'].values,
-                                'symbol': group_obj['symbol'].values
+                                'symbol': group_obj['symbol'].values,
+                                'market': market
                                 }, index=pd.to_datetime(group_obj['date'], format='%Y-%m-%d')).copy()
         return df_copy
 
     """ 测试用途 """
 
     def get_backtrader_data_feed_test(self):
-        tickers = self.get_usstock_list()
+        tickers = self.get_stock_list()
         his_data = self.get_history_data().groupby(by='symbol')
         t = ToolKit('加载历史数据')
         """ 存放策略结果 """
@@ -134,7 +155,7 @@ class UsTickerInfo:
         results = []
         """ 创建多进程 """
         pool = multiprocessing.Pool(processes=8)
-        for i in ['PETZ']:
+        for i in ['AEHR']:
             """
             适配BackTrader数据结构
             每个股票数据为一组

@@ -2,15 +2,16 @@
 # -*- coding: UTF-8 -*-
 from os import close
 import backtrader as bt
-from ToolKit import ToolKit
+from utility.ToolKit import ToolKit
 from datetime import datetime
 import pandas as pd
 from datetime import datetime, timedelta
-from MyEmail import MyEmail
+from utility.MyEmail import MyEmail
 import seaborn as sns
+from utility.FileInfo import FileInfo
 
 
-class BTUsStrategy(bt.Strategy):
+class BTStrategy(bt.Strategy):
     """ 
     自定义均线的时间间隔
     目前定义了MA/EMA/MACD三类指标的时间区间
@@ -36,7 +37,22 @@ class BTUsStrategy(bt.Strategy):
         将每日回测完的持仓数据存储文件
         方便后面打印输出
         """
-        self.log_file = open('position_log.txt', 'w')
+        if self.datas[0].market[0] == 1:
+            trade_date = ToolKit('获取最新交易日期').get_us_latest_trade_date(0)
+            file = FileInfo(trade_date, 'us')
+            """ 仓位文件地址 """
+            file_position = file.get_file_name_position
+            self.log_file = open(file_position, 'w')
+            """ 板块文件地址 """
+            self.file_industry = file.get_file_name_industry
+        elif self.datas[0].market[0] == 2:
+            trade_date = ToolKit('获取最新交易日期').get_cn_latest_trade_date(0)
+            file = FileInfo(trade_date, 'cn')
+            """ 仓位文件地址 """
+            file_position = file.get_file_name_position
+            self.log_file = open(file_position, 'w')
+            """ 板块文件地址 """
+            self.file_industry = file.get_file_name_industry    
         """ backtrader一些常用属性的初始化 """
         self.order = dict()
         self.buyprice = None
@@ -301,25 +317,11 @@ class BTUsStrategy(bt.Strategy):
                         'p&l_ratio': (pos.adjbase - pos.price) * 100 / pos.price
                         }
                 """ 
-                5天以上累计涨幅超过10个点
-                5天以内累计涨幅超过5个点
-                发送对应仓位到邮箱 
+                过滤累计涨幅超过10个点的股票
                 """
                 if dict['buy_date'] == None:
                     continue
-                """ 取交易天数，过滤滞涨的股票 """
-                lst_trade_date_str = ToolKit(
-                    '获取最近交易日').get_latest_trade_date(0)
-                lst_trade_date = datetime.strptime(
-                    lst_trade_date_str, '%Y%m%d')
-                lst_buy_date = datetime.strptime(
-                    str(dict['buy_date']), '%Y-%m-%d')
-                intervals = ToolKit('获取交易天数').get_trade_off_days(
-                    lst_trade_date, lst_buy_date)
-                print('当前交易天数：', intervals)
-                if intervals > 5 and dict['p&l_ratio'] > 10:
-                    pass
-                elif intervals < 5 and dict['p&l_ratio'] > 5:
+                if dict['p&l_ratio'] > 10:
                     pass
                 else:
                     continue
@@ -328,48 +330,11 @@ class BTUsStrategy(bt.Strategy):
         if df.empty:
             return
         """ 匹配行业信息 """
-        df_o = pd.read_csv('./usstockinfo/usindustry_em.csv',
+        df_o = pd.read_csv(self.file_industry,
                            usecols=[i for i in range(1, 3)])
         df_n = pd.merge(df, df_o, how='left', on='symbol')
         """ 按照买入日期以及盈亏比倒排 """
         df_n.sort_values(by=['buy_date', 'p&l_ratio'],
                          ascending=False, inplace=True)
         df_n.reset_index(drop=True, inplace=True)
-        df_n.to_csv('./position_log.txt')
-        """ 发送邮件 """
-        if not df_n.empty:
-            cm = sns.color_palette("Blues", as_cmap=True)
-            html = (
-                df_n.style.hide_index()
-                .format({"price": "{:.2f}",
-                         "adjbase": "{:.2f}",
-                         "p&l": "{:.2f}",
-                         "p&l_ratio": "{:.2f}%"})
-                .background_gradient(subset=['price', 'adjbase', 'p&l'], cmap=cm)
-                .bar(subset=['p&l_ratio'], align='mid', color=['#5fba7d', '#d65f5f'], width=100)
-                # .set_table_styles([{
-                #     "selector": "thead",
-                #     "props": "background-color:purple;color:white;"
-                # }])
-                # .set_properties(subset=['price', 'adjbase', 'ma20', 'p&l', 'p&l_ratio'], **{'width': '15px'})
-                # .set_properties(**{'max-width': '15px'})
-                .render()
-            )
-            subject = 'BT策略全美模拟盘'
-            MyEmail(subject, html).send_email()
-        """ 按照行业板块聚合，统计最近成交率最高的行业 """
-        df_s = df_n.groupby(by='industry').size().reset_index(name='count')
-        df_s.sort_values(by=['count'],
-                         ascending=False, inplace=True)
-        df_s.reset_index(drop=True, inplace=True)
-        """ 发送邮件 """
-        if not df_s.empty:
-            cm = sns.color_palette("Blues", as_cmap=True)
-            html = (
-                df_s.style.hide_index()
-                .format({"count": "{:.0f}"})
-                .background_gradient(subset=['count'], cmap=cm)
-                .render()
-            )
-            subject = 'BT策略全美模拟盘统计'
-            MyEmail(subject, html).send_email()
+        df_n.to_csv(self.log_file)

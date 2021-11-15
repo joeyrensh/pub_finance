@@ -8,7 +8,7 @@ import json
 import pandas as pd
 from datetime import datetime
 import os
-from UsFileInfo import UsFileInfo
+from utility.FileInfo import FileInfo
 
 
 class EMWebCrawler:
@@ -22,7 +22,7 @@ class EMWebCrawler:
         """
         self.__url = "http://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery&pn=1&pz=20000"\
             "&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:105,m:106,m:107"\
-            "&fields=f2,f3,f4,f5,f6,f7,f12,f15,f16,f17,f18&_=unix_time"
+            "&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18&_=unix_time"
 
     """ 获取数据列表 """
 
@@ -35,10 +35,10 @@ class EMWebCrawler:
         """ 替换成valid json格式 """
         res_p = re.sub('\\].*', ']', re.sub('.*:\\[', '[', res, 1), 1)
         """         
-        f12: 股票代码, f2: 最新报价, f3: 涨跌幅, f4: 涨跌额, f5: 成交量, f6: 成交额
+        f12: 股票代码, f14: 公司名称, f2: 最新报价, f3: 涨跌幅, f4: 涨跌额, f5: 成交量, f6: 成交额
         f7: 振幅, f15: 最高, f16: 最低, f17: 今开, f18: 昨收
-        f12: symbol, f2: close, f3: chg, f4: change, f5: volume, f6: turnover
-        f7: amplitude, f15: high, f16: low, f17: open, f18: preclose 
+        f12: symbol, f14: name, f2: close, f3: chg, f4: change, f5: volume, f6: turnover
+        f7: amplitude, f15: high, f16: low, f17: open, f18: preclose
         """
         json_object = json.loads(res_p)
         list = []
@@ -46,10 +46,11 @@ class EMWebCrawler:
         """ 重构数据字典 """
         for i in json_object:
             if i['f12'] == '-' or i['f17'] == '-'\
-                or i['f2'] == '-' or i['f2'] == '-'\
+                or i['f2'] == '-' or i['f15'] == '-'\
                     or i['f16'] == '-' or i['f5'] == '-':
                 continue
             dic_a = {'symbol': i['f12'],
+                     'name': i['f14'],
                      'open': i['f17'],
                      'close': i['f2'],
                      'high': i['f15'],
@@ -62,7 +63,7 @@ class EMWebCrawler:
                      'preclose': i['f18']}
             list.append(dic_a)
         """ 获取美股数据文件地址 """
-        file_name_d = UsFileInfo(trade_date).get_file_name_day
+        file_name_d = FileInfo(trade_date, 'us').get_file_name_day
         """ 每日一个文件，根据交易日期创建 """
         if os.path.exists(file_name_d):
             os.remove(file_name_d)

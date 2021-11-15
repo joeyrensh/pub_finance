@@ -3,25 +3,25 @@
 
 from os import close
 import backtrader as bt
-from ToolKit import ToolKit
+from utility.ToolKit import ToolKit
 from datetime import datetime
 from datetime import datetime, timedelta
 from backtrader_plotting import Bokeh
 from backtrader_plotting.schemes import Tradimo
-from BTUsStrategy import BTUsStrategy
-from UsTickerInfo import UsTickerInfo
+from BTStrategy import BTStrategy
+from utility.TickerInfo import TickerInfo
 
 
 if __name__ == '__main__':
 
     cerebro = bt.Cerebro()
-    cerebro.addstrategy(BTUsStrategy)
+    cerebro.addstrategy(BTStrategy)
     cerebro.broker.setcash(100000.0)
     cerebro.addsizer(bt.sizers.FixedSize, stake=1)
     cerebro.broker.setcommission(commission=0.001)
 
     trade_date = ToolKit('获取最新美股交易日期').get_latest_trade_date(1)
-    list = UsTickerInfo(trade_date).get_backtrader_data_feed_test()
+    list = TickerInfo(trade_date, 'cn').get_backtrader_data_feed_test()
     for h in list:
         print("正在初始化: ", h['symbol'][0])
         data = bt.feeds.PandasData(
