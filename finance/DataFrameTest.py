@@ -8,12 +8,13 @@ import gc
 
 
 # tickers = list()
-# df = pd.read_csv('./usstockinfo/usstock_20211109.csv',
-#                  usecols=[i for i in range(1, 13)])
-# """ 匹配行业信息 """
-# df_o = pd.read_csv('./usstockinfo/usindustry_em.csv',
-#                    usecols=[i for i in range(1, 3)])
-# df_n = pd.merge(df, df_o, how='right', on='symbol')
+df = pd.read_csv('./usstockinfo/usstock_20211109.csv',
+                 usecols=[i for i in range(1, 13)])
+""" 匹配行业信息 """
+df_o = pd.read_csv('./usstockinfo/usindustry_em.csv',
+                   usecols=[i for i in range(1, 3)])
+df_n = pd.merge(df, df_o, how='inner', on='symbol')
+df_n.groupby(by='symbol').count().plot()
 # df_n.to_csv('./right_test.csv')
 # for index, i in df.iterrows():
 #     """
@@ -27,12 +28,12 @@ import gc
 #             and float(i['low']) > 0:
 #         tickers.append(str(i['symbol']))
 
-df_right = pd.read_csv('./right_test.csv',
-                       usecols=[i for i in range(1, 14)])
-df_inner = pd.read_csv('./inner_test.csv',
-                       usecols=[i for i in range(1, 14)])                       
+# df_right = pd.read_csv('./right_test.csv',
+#                        usecols=[i for i in range(1, 14)])
+# df_inner = pd.read_csv('./inner_test.csv',
+#                        usecols=[i for i in range(1, 14)])                       
 
 
-for index, i in df_right.iterrows():
-    if i['symbol'] not in df_inner['symbol'].values:
-        print(i['symbol'])
+# for index, i in df_right.iterrows():
+#     if i['symbol'] not in df_inner['symbol'].values:
+#         print(i['symbol'])
