@@ -52,7 +52,7 @@ class BTStrategy(bt.Strategy):
             file_position = file.get_file_name_position
             self.log_file = open(file_position, 'w')
             """ 板块文件地址 """
-            self.file_industry = file.get_file_name_industry    
+            self.file_industry = file.get_file_name_industry
         """ backtrader一些常用属性的初始化 """
         self.order = dict()
         self.buyprice = None
@@ -226,18 +226,27 @@ class BTStrategy(bt.Strategy):
         if order.status in [order.Completed]:
             if order.isbuy():
                 """ 订单购入成功 """
-                print('{} BUY {} EXECUTED, Price: {:.2f}'.format(
+                print('{}, Buy {} Executed, Price: {:.2f}'.format(
                     self.datetime.date(), order.data._name, order.executed.price))
                 self.last_deal_date[order.data._name] = self.datetime.date()
-            else:
+            elif order.issell():
                 """ 订单卖出成功 """
-                print('{} SELL {} EXECUTED, Price: {:.2f}'.format(
+                print('{} Sell {} Executed, Price: {:.2f}'.format(
                     self.datetime.date(), order.data._name, order.executed.price))
                 self.last_deal_date[order.data._name] = None
-            self.bar_executed = len(self)
+            elif order.alive():
+                """ returns bool if order is in status Partial or Accepted """
+                print('{} Partial {} Executed, Price: {:.2f}'.format(
+                    self.datetime.date(), order.data._name, order.executed.price))
+                self.last_deal_date[order.data._name] = None
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
             """ 由于仓位不足或者执行限价单等因素造成订单未成交 """
-            self.log('%s Order Canceled/Margin/Rejected' % (order.data._name))
+            if order.isbuy():
+                self.log('Buy %s Order Canceled/Margin/Rejected' %
+                         (order.data._name))
+            else:
+                self.log('Sell %s Order Canceled/Margin/Rejected' %
+                         (order.data._name))
         self.order[order.data._name] = None
 
     """ 
@@ -249,19 +258,17 @@ class BTStrategy(bt.Strategy):
         if not trade.isclosed:
             return
         """ 每笔交易收益 毛利和净利 """
-        self.log('OPERATION PROFIT, GROSS %.2f, NET %.2f' %
+        self.log('Operation Profit, Gross %.2f, Net %.2f' %
                  (trade.pnl, trade.pnlcomm))
+
+    def prenext(self):
+        # call next() even when data is not available for all tickers
+        self.next()
 
     def next(self):
         for i, d in enumerate(self.datas):
-            """ 最近5个交易日收盘价频繁穿越ma20均线，不进行交易 """
-            if self.signals[d]['close_crossover_ma20'][0] in [1, -1] \
-                    and self.signals[d]['close_crossover_ma20'][-1] in [1, -1] \
-                    and self.signals[d]['close_crossover_ma20'][-2] in [1, -1] \
-                    and self.signals[d]['close_crossover_ma20'][-3] in [1, -1] \
-                    and self.signals[d]['close_crossover_ma20'][-4] in [1, -1]:
+            if self.order[d._name]:
                 continue
-
             """
             self.log('当前代码: %s, 当前持仓:, %s' % 
             (d._name, self.getposition(d).size)) 
@@ -269,6 +276,13 @@ class BTStrategy(bt.Strategy):
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
             if not len(pos):
+                """ 最近5个交易日收盘价频繁穿越ma20均线，不进行交易 """
+                if self.signals[d]['close_crossover_ma20'][0] in [1, -1] \
+                        and self.signals[d]['close_crossover_ma20'][-1] in [1, -1] \
+                        and self.signals[d]['close_crossover_ma20'][-2] in [1, -1] \
+                        and self.signals[d]['close_crossover_ma20'][-3] in [1, -1] \
+                        and self.signals[d]['close_crossover_ma20'][-4] in [1, -1]:
+                    continue
                 """ 
                 双均线交易信号:
                 信号1: close > ema20 and close > ma20，ema20上穿ema60
@@ -279,21 +293,26 @@ class BTStrategy(bt.Strategy):
                 if (self.signals[d]['ema20_crossup_ema60'][0]
                         or self.signals[d]['dif_crossup_dea'][0]
                         or self.signals[d]['close_crossup_ma20'][0]
-                        or self.signals[d]['volume_break_thr'])\
+                        or self.signals[d]['volume_break_thr'][0])\
                         and self.signals[d]['volume_over5'][0]:
                     """ 买入对应仓位 """
-                    self.order[d._name] = self.buy(data=d)
+                    self.order[d._name] = self.buy(
+                        data=d, exectype=bt.Order.Market)
+                    self.log('Buy %s Created %.2f' %
+                             (d._name, d.close[0]))
             else:
                 """ 
                 均线止损/止盈信号：
                 信号1: 收盘价跌破ma20
                 信号2: 日dif下穿0轴
-                信号3: 已经亏损10% 
+                信号3: 已经亏损20%
                 """
                 if self.signals[d]['close_crossdown_ma20'][0] == 1 \
                         or self.signals[d]['dif_crossdown_axis'][0] == 1\
-                        or (d.close[0] - pos.price) / pos.price < -0.1:
-                    self.order[d._name] = self.sell(data=d)
+                        or (d.close[0] - pos.price) / pos.price < -0.2:
+                    self.order[d._name] = self.close(data=d)
+                    self.log('Sell %s Created %.2f' %
+                             (d._name, d.close[0]))
 
     def stop(self):
         list = []
@@ -317,14 +336,31 @@ class BTStrategy(bt.Strategy):
                         'p&l_ratio': (pos.adjbase - pos.price) * 100 / pos.price
                         }
                 """ 
-                过滤累计涨幅超过10个点的股票
+                过滤累计涨幅不满足条件的
+                5天内累计上涨10个点以上
+                5天以上累计上15个点以上
                 """
                 if dict['buy_date'] == None:
                     continue
-                if dict['p&l_ratio'] > 10:
-                    pass
-                else:
-                    continue
+                t = ToolKit('最新交易日')
+                if self.datas[0].market[0] == 1:
+                    cur = datetime.strptime(
+                        t.get_us_latest_trade_date(0), '%Y%m%d')
+                    bef = datetime.strptime(str(dict['buy_date']), '%Y-%m-%d')
+                    interval = t.get_us_trade_off_days(cur, bef)
+                elif self.datas[0].market[0] == 2:
+                    cur = datetime.strptime(
+                        t.get_cn_latest_trade_date(0), '%Y%m%d')
+                    bef = datetime.strptime(str(dict['buy_date']), '%Y-%m-%d')
+                    interval = t.get_cn_trade_off_days(cur, bef)
+                print('当前股票: %s, 交易天数: %s, 累计涨幅: %s' %
+                      (dict['symbol'], interval, dict['p&l_ratio']))
+                if interval <= 5:
+                    if dict['p&l_ratio'] < 10:
+                        continue
+                elif interval > 5:
+                    if dict['p&l_ratio'] < 15:
+                        continue
                 list.append(dict)
         df = pd.DataFrame(list)
         if df.empty:
@@ -338,3 +374,4 @@ class BTStrategy(bt.Strategy):
                          ascending=False, inplace=True)
         df_n.reset_index(drop=True, inplace=True)
         df_n.to_csv(self.log_file)
+        self.log_file.close()

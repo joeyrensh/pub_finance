@@ -21,7 +21,7 @@ class FileInfo:
         self.trade_date = trade_date
         self.file_name_sta = './' + market + 'strategy/strategy_' + trade_date + '.csv'
         self.file_name_industry = './' + market + 'stockinfo/industry.csv'
-        self.file_name_position = './' + market + 'stockinfo/position.txt'
+        self.file_name_position = './' + market + 'stockinfo/position.csv'
 
     """ 返回某日数据文件路径 """
     @property

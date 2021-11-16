@@ -27,11 +27,11 @@ def exec_btstrategy(date):
     """ 添加bt相关的策略 """
     cerebro.addstrategy(BTStrategy)
     """ 初始资金100M """
-    cerebro.broker.setcash(100000.0)
+    cerebro.broker.setcash(1000000.0)
     """ 每手10股 """
-    cerebro.addsizer(bt.sizers.FixedSize, stake=1)
+    cerebro.addsizer(bt.sizers.FixedSize, stake=10)
     """ 费率千分之一 """
-    cerebro.broker.setcommission(commission=0.001)
+    cerebro.broker.setcommission(commission=0.001, stocklike=True)
     """ 添加股票当日即历史数据 """
     list = TickerInfo(date, 'cn').get_backtrader_data_feed()
     """ 循环初始化数据进入cerebro """
@@ -81,21 +81,22 @@ if __name__ == '__main__':
 
     """ 执行bt相关策略 """
     exec_btstrategy(trade_date)
+
     """ 发送邮件 """
     file = FileInfo(trade_date, 'cn')
     """ 取最新一天数据，获取股票名称 """
     file_name_day = file.get_file_name_day
-    df_d = pd.read_csv(file_name_day,
-                       usecols=[i for i in range(1, 3)])
+    df_lst_d = pd.read_csv(file_name_day,
+                           usecols=[i for i in range(1, 3)])
     """ 取仓位数据 """
     file_name_position = file.get_file_name_position
-    df_p = pd.read_csv(file_name_position,
-                       usecols=[i for i in range(1, 8)])
-    if not df_p.empty:
-        df_n = pd.merge(df_p, df_d, how='inner', on='symbol')
+    df_lst_p = pd.read_csv(file_name_position, usecols=[
+                           i for i in range(1, 8)])
+    if not df_lst_p.empty:
+        df_np = pd.merge(df_lst_p, df_lst_d, how='inner', on='symbol')
         cm = sns.color_palette("Blues", as_cmap=True)
         html = (
-            df_n.style.hide_index()
+            df_np.style.hide_index()
             .format({"price": "{:.2f}",
                      "adjbase": "{:.2f}",
                      "p&l": "{:.2f}",
@@ -107,15 +108,15 @@ if __name__ == '__main__':
         subject = 'BT策略A股模拟盘'
         MyEmail(subject, html).send_email()
         """ 按照行业板块聚合，统计最近成交率最高的行业 """
-        df_s = df_n.groupby(by='industry').size().reset_index(name='count')
-        df_s.sort_values(by=['count'],
-                         ascending=False, inplace=True)
-        df_s.reset_index(drop=True, inplace=True)
+        df_sum = df_np.groupby(by='industry').size().reset_index(name='count')
+        df_sum.sort_values(by=['count'],
+                           ascending=False, inplace=True)
+        df_sum.reset_index(drop=True, inplace=True)
         """ 发送邮件 """
-        if not df_s.empty:
+        if not df_sum.empty:
             cm = sns.color_palette("Blues", as_cmap=True)
             html = (
-                df_s.style.hide_index()
+                df_sum.style.hide_index()
                 .format({"count": "{:.0f}"})
                 .background_gradient(subset=['count'], cmap=cm)
                 .render()

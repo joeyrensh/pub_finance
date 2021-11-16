@@ -27,7 +27,7 @@ def exec_btstrategy(date):
     """ 初始资金100M """
     cerebro.broker.setcash(100000.0)
     """ 每手10股 """
-    cerebro.addsizer(bt.sizers.FixedSize, stake=1)
+    cerebro.addsizer(bt.sizers.FixedSize, stake=10)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0.001)
     """ 添加股票当日即历史数据 """
@@ -57,6 +57,4 @@ if __name__ == '__main__':
     """ 美股交易日期 utc-4 """
     trade_date = ToolKit('获取最新美股交易日期').get_us_latest_trade_date(0)
 
-    """ 执行bt相关策略 """
     exec_btstrategy(trade_date)
-
