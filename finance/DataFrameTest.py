@@ -19,13 +19,14 @@ from backtraderref.BTPandasDataExt import BTPandasDataExt
 
 """ backtrader策略 """
 
+
 def exec_btstrategy(date):
     """ 创建cerebro对象 """
     cerebro = bt.Cerebro()
     """ 添加bt相关的策略 """
     cerebro.addstrategy(BTStrategy)
     """ 初始资金100M """
-    cerebro.broker.setcash(100000.0)
+    cerebro.broker.setcash(1000000.0)
     """ 每手10股 """
     cerebro.addsizer(bt.sizers.FixedSize, stake=10)
     """ 费率千分之一 """
@@ -55,6 +56,34 @@ def exec_btstrategy(date):
 # 主程序入口
 if __name__ == '__main__':
     """ 美股交易日期 utc-4 """
-    trade_date = ToolKit('获取最新美股交易日期').get_us_latest_trade_date(0)
-
+    trade_date = ToolKit('获取最新美股交易日期').get_us_latest_trade_date(1)
+    """ 执行bt相关策略 """
     exec_btstrategy(trade_date)
+    file = FileInfo(trade_date, 'us')
+    """ 发送邮件 """
+    """ 取最新一天数据，获取股票名称 """
+    file_name_day = file.get_file_name_day
+    df_lst_d = pd.read_csv(file_name_day, usecols=[i for i in range(1, 3)])
+    """ 取仓位数据 """
+    file_name_position = file.get_file_name_position
+    df_lst_p = pd.read_csv(file_name_position, usecols=[
+                           i for i in range(1, 8)])
+    if not df_lst_p.empty:
+        df_np = pd.merge(df_lst_p, df_lst_d, how='inner', on='symbol')
+        max_len = "{:.2f}".format(round(df_np['p&l_ratio'].max(), 2))
+        min_len = "{:.2f}".format(round(df_np['p&l_ratio'].min(), 2))
+        cm = sns.color_palette("Blues", as_cmap=True)
+        html = (
+            df_np.style.hide_index()
+            .format({"price": "{:.2f}",
+                     "adjbase": "{:.2f}",
+                     "p&l": "{:.2f}",
+                     "p&l_ratio": "{:.2f}"})
+            .background_gradient(subset=['price', 'adjbase', 'p&l'], cmap=cm)
+            .bar(subset=['p&l_ratio'], align='mid', color=['#5fba7d', '#d65f5f'], vmin=0, vmax=1)
+            .set_properties(**{'text-align': 'left'})
+            .set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
+            .render()
+        )
+        subject = 'BT策略美股模拟盘'
+        MyEmail(subject, html).send_email()

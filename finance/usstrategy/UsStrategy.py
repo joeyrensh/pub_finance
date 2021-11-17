@@ -43,7 +43,7 @@ class UsStrategy:
                 continue
             dic = {'symbol': row['symbol'],
                    'close': row['close'],
-                   'chg': float(row['chg']),
+                   'chg': float(row['chg']) / 100,
                    'volume': float(row['volume']),
                    'amplitude': (row['high'] - row['low']) * 100
                    / row['preclose'],

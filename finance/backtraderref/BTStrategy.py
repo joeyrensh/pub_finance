@@ -333,7 +333,7 @@ class BTStrategy(bt.Strategy):
                         'price': pos.price,
                         'adjbase': pos.adjbase,
                         'p&l': pos.size * (pos.adjbase - pos.price),
-                        'p&l_ratio': (pos.adjbase - pos.price) * 100 / pos.price
+                        'p&l_ratio': (pos.adjbase - pos.price) / pos.price
                         }
                 """ 
                 过滤累计涨幅不满足条件的
@@ -356,10 +356,10 @@ class BTStrategy(bt.Strategy):
                 print('当前股票: %s, 交易天数: %s, 累计涨幅: %s' %
                       (dict['symbol'], interval, dict['p&l_ratio']))
                 if interval <= 5:
-                    if dict['p&l_ratio'] < 10:
+                    if dict['p&l_ratio'] < 0.1:
                         continue
                 elif interval > 5:
-                    if dict['p&l_ratio'] < 15:
+                    if dict['p&l_ratio'] < 0.15:
                         continue
                 list.append(dict)
         df = pd.DataFrame(list)

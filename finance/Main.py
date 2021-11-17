@@ -108,11 +108,13 @@ if __name__ == '__main__':
         html = (
             df_n.style.hide_index()
             .format({"close": "{:.2f}",
-                     "chg": "{:.2f}%",
+                     "chg": "{:.2f}",
                      "volume": "{:.0f}",
                      "amplitude": "{:.2f}%"})
             .background_gradient(subset=['close', 'chg', 'volume', 'amplitude'], cmap=cm)
-            .bar(subset=['chg'], align='mid', color=['#5fba7d', '#d65f5f'], width=100)
+            .bar(subset=['chg'], align='mid', color=['#5fba7d', '#d65f5f'], vmin=0, vmax=1)
+            .set_properties(**{'text-align': 'left'})
+            .set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
             .render()
         )
         subject = '今日美股行情'
@@ -158,9 +160,11 @@ if __name__ == '__main__':
             .format({"price": "{:.2f}",
                      "adjbase": "{:.2f}",
                      "p&l": "{:.2f}",
-                     "p&l_ratio": "{:.2f}%"})
+                     "p&l_ratio": "{:.2f}"})
             .background_gradient(subset=['price', 'adjbase', 'p&l'], cmap=cm)
-            .bar(subset=['p&l_ratio'], align='mid', color=['#5fba7d', '#d65f5f'], width=100)
+            .bar(subset=['p&l_ratio'], align='mid', color=['#5fba7d', '#d65f5f'], vmin=0, vmax=1)
+            .set_properties(**{'text-align': 'left'})
+            .set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
             .render()
         )
         subject = 'BT策略美股模拟盘'
@@ -177,6 +181,8 @@ if __name__ == '__main__':
                 df_sum.style.hide_index()
                 .format({"count": "{:.0f}"})
                 .background_gradient(subset=['count'], cmap=cm)
+                .set_properties(**{'text-align': 'left'})
+                .set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
                 .render()
             )
             subject = 'BT策略美股模拟盘行业统计'
