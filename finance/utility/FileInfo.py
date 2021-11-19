@@ -3,6 +3,8 @@
 import os
 import re
 
+from utility.ToolKit import ToolKit
+
 """ 获取文件相关信息 """
 
 
@@ -21,7 +23,9 @@ class FileInfo:
         self.trade_date = trade_date
         self.file_name_sta = './' + market + 'strategy/strategy_' + trade_date + '.csv'
         self.file_name_industry = './' + market + 'stockinfo/industry.csv'
-        self.file_name_position = './' + market + 'stockinfo/position.csv'
+        self.file_name_position = './' + market + 'stockinfo/position_' + trade_date + '.csv'
+        pre_trade_date = ToolKit('获取上一个交易日').get_us_latest_trade_date(1)
+        self.pre_file_name_position = './' + market + 'stockinfo/position_' + pre_trade_date + '.csv'
 
     """ 返回某日数据文件路径 """
     @property
@@ -61,3 +65,8 @@ class FileInfo:
     @property
     def get_file_name_position(self):
         return self.file_name_position
+
+    """ 返回股票仓位文件路径 """
+    @property
+    def get_pre_file_name_position(self):
+        return self.pre_file_name_position  
