@@ -84,7 +84,8 @@ if __name__ == '__main__':
 
     """ 发送邮件 """
     file = FileInfo(trade_date, 'cn')
-   
+
+    """ 发送邮件 """
     """ 取最新一天数据，获取股票名称 """
     file_name_day = file.get_file_name_day
     df_d = pd.read_csv(file_name_day, usecols=[i for i in range(1, 3)])
@@ -106,21 +107,21 @@ if __name__ == '__main__':
         cm = sns.color_palette("Blues", as_cmap=True)
         html = (
             df_np.style.hide_index()
+            .hide_columns(['收益金额'])
             .format({"买入价": "{:.2f}",
                      "当前价": "{:.2f}",
-                     "收益金额": "{:.2f}",
                      "收益率": "{:.2f}"})
-            .background_gradient(subset=['买入价', '当前价', '收益金额'], cmap=cm)
+            .background_gradient(subset=['买入价', '当前价'], cmap=cm)
             .bar(subset=['收益率'], align='mid', color=['#5fba7d', '#d65f5f'], vmin=0, vmax=1)
-            .set_properties(**{'text-align': 'left'})
-            .set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
+            .set_properties(**{'text-align': 'left', 'width': 'auto'})
+            .set_table_styles([dict(selector='th', props=[('text-align', 'left')], width='auto')])
             .render()
         )
-        subject = '美股行情'
+        subject = 'A股行情'
         MyEmail(subject, html).send_email()
         """ 按照行业板块聚合，统计最近成交率最高的行业 """
-        df_sum = df_np.groupby(by='所属行业').size().reset_index(name='今日策略命中')
-        df_sum.sort_values(by=['今日策略命中'],
+        df_sum = df_np.groupby(by='所属行业').size().reset_index(name='今日策略')
+        df_sum.sort_values(by=['今日策略'],
                            ascending=False, inplace=True)
         df_sum.reset_index(drop=True, inplace=True)
         """ 取上一交易日的行业板块聚合 """
@@ -130,25 +131,25 @@ if __name__ == '__main__':
                                ascending=False, inplace=True)
         df_sum_pre.reset_index(drop=True, inplace=True)
         df_sum_pre.rename(columns={'industry': '所属行业',
-                                   'pre_count': '昨日策略命中'}, inplace=True)
+                                   'pre_count': '昨日策略'}, inplace=True)
         df_sum_np = pd.merge(df_sum, df_sum_pre, how='left', on='所属行业')
-        df_sum_np['变化比'] = (df_sum_np['今日策略命中'] -
-                            df_sum_np['昨日策略命中']) / df_sum_np['昨日策略命中']
+        df_sum_np['变化比'] = (df_sum_np['今日策略'] -
+                            df_sum_np['昨日策略']) / df_sum_np['昨日策略']
         """ 发送邮件 """
         if not df_sum_np.empty:
             cm = sns.color_palette("Blues", as_cmap=True)
             html = (
                 df_sum_np.style.hide_index()
-                .format({"今日策略命中": "{:.0f}",
-                        "昨日策略命中": "{:.0f}",
+                .format({"今日策略": "{:.0f}",
+                        "昨日策略": "{:.0f}",
                          "变化比": "{:.2f}"})
-                .background_gradient(subset=['今日策略命中', '昨日策略命中'], cmap=cm)
+                .background_gradient(subset=['今日策略', '昨日策略'], cmap=cm)
                 .bar(subset=['变化比'], align='mid', color=['#5fba7d', '#d65f5f'], vmin=0, vmax=1)
-                .set_properties(**{'text-align': 'left'})
-                .set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
+                .set_properties(**{'text-align': 'left', 'width': 'auto'})
+                .set_table_styles([dict(selector='th', props=[('text-align', 'left')], width='auto')])
                 .render()
             )
-            subject = '美股行业行情'
+            subject = 'A股行业行情'
             MyEmail(subject, html).send_email()
     """ 结束进度条 """
     pbar.finish()
