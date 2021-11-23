@@ -40,7 +40,7 @@ class StockProposal:
                      "成交量": "{:.0f}",
                      "振幅": "{:.2f}%"})
             .background_gradient(subset=['收盘价', '涨幅', '成交量', '振幅'], cmap=cm)
-            .bar(subset=['涨幅'], align='left', color=['#5fba7d', '#d65f5f'], vmin=-1, vmax=1)
+            .bar(subset=['涨幅'], align='left', color=['#5fba7d', '#d65f5f'], vmin=0, vmax=1)
             .set_properties(**{'text-align': 'left', 'width': 'auto'})
             .set_table_styles([dict(selector='th', props=[('text-align', 'left')], width='auto')])
             .render()
@@ -78,7 +78,7 @@ class StockProposal:
                         "当前价": "{:.2f}",
                          "收益率": "{:.2f}"})
                 .background_gradient(subset=['买入价', '当前价'], cmap=cm)
-                .bar(subset=['收益率'], align='left', color=['#5fba7d', '#d65f5f'], vmin=-1, vmax=1)
+                .bar(subset=['收益率'], align='left', color=['#5fba7d', '#d65f5f'], vmin=0, vmax=1)
                 .set_properties(**{'text-align': 'left', 'width': 'auto'})
                 .set_table_styles([dict(selector='th', props=[('text-align', 'left')], width='auto')])
                 .render()
