@@ -202,7 +202,7 @@ class BTStrategy(bt.Strategy):
             """
             self.signals[d]['close_crossover_ma20'] = bt.indicators.CrossOver(
                 d.close, self.inds[d]['ma20'])
-            self.signals[d]['volume_over5'] = d.volume > self.inds[d]['mean_volume5']
+            self.signals[d]['volume_over5'] = d.volume > self.inds[d]['mean_volume5'] * 2
             """
             生成交易信号
             看跌信号
