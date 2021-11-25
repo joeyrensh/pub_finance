@@ -12,7 +12,7 @@ from utility.FileInfo import FileInfo
 
 
 class BTStrategy(bt.Strategy):
-    """ 
+    """
     自定义均线的时间间隔
     目前定义了MA/EMA/MACD三类指标的时间区间
     """
@@ -57,7 +57,7 @@ class BTStrategy(bt.Strategy):
         self.order = dict()
         self.buyprice = None
         self.buycomm = None
-        """ 
+        """
         技术指标的初始化，每个指标的key值是每个datafeed
         买入以及卖出信号的初始化，每个指标的key值是每个datafeed
         存储每一笔股票最后一笔订单的购买日期，方便追踪股票后期走势
@@ -91,7 +91,7 @@ class BTStrategy(bt.Strategy):
             """ 日线EMA60指标 """
             self.inds[d]['ema60'] = bt.indicators.EMA(
                 d.close, period=self.params.longperiod)
-            """ 
+            """
             日线DIF值
             日线DEA值
             日线MACD值
@@ -123,11 +123,11 @@ class BTStrategy(bt.Strategy):
             """ 20均线乖离率 """
             self.inds[d]['bias_ma20'] = abs(
                 (self.inds[d]['ema20'] - self.inds[d]['ma20']) / self.inds[d]['ma20'])
-            """ 
-            生成交易信号
-            看涨信号 
             """
-            """         
+            生成交易信号
+            看涨信号
+            """
+            """
             双均线看涨信号：
             信号1:
             收盘价在ma20均线和ema20均线之上
@@ -140,11 +140,11 @@ class BTStrategy(bt.Strategy):
                 self.signals[d]['close_over_ma20'],
                 bt.indicators.CrossUp(self.inds[d]['ema20'], self.inds[d]['ema60']) == 1)
 
-            """ 
+            """
             信号2:
             dif上穿dea看涨信号：
             收盘价在ma20均线和ema20均线上方
-            dif上穿dea 
+            dif上穿dea
             """
             self.signals[d]['high_over_ema20'] = d.high > self.inds[d]['ema20']
             self.signals[d]['high_over_ma20'] = d.high > self.inds[d]['ma20']
@@ -170,9 +170,9 @@ class BTStrategy(bt.Strategy):
                 self.signals[d]['ma20_over_ma60'],
                 bt.indicators.CrossUp(d.close, self.inds[d]['ma20']) == 1)
 
-            """ 
+            """
             信号4:
-            近5日均线密集，成交量突然放大，收盘价高于昨日 
+            近5日均线密集，成交量突然放大，收盘价高于昨日
             """
             self.signals[d]['bias_ma20'] = bt.And(
                 self.inds[d]['bias_ma20'](0) < 0.1,
@@ -191,18 +191,18 @@ class BTStrategy(bt.Strategy):
 
             """
             看涨信号滞后一天
-            满足看涨信号后，次日收盘价依然上涨，即买 
+            满足看涨信号后，次日收盘价依然上涨，即买
             """
             self.signals[d]['close_over_preclose'] = d.close(0) > d.close(-1)
 
-            """ 
+            """
             最近5个交易日，收盘价频繁穿越ma20均线
-            震荡过大的股票进行过滤 
+            震荡过大的股票进行过滤
             成交量超过过去5天成交量均值
             """
             self.signals[d]['close_crossover_ma20'] = bt.indicators.CrossOver(
                 d.close, self.inds[d]['ma20'])
-            self.signals[d]['volume_over5'] = d.volume > self.inds[d]['mean_volume5'] * 2
+            self.signals[d]['volume_over5'] = d.volume > self.inds[d]['mean_volume5']
             """
             生成交易信号
             看跌信号
@@ -249,9 +249,9 @@ class BTStrategy(bt.Strategy):
                          (order.data._name))
         self.order[order.data._name] = None
 
-    """ 
-    交易状态改变回调方法 
-    be notified through notify_trade(trade) of any opening/updating/closing trade 
+    """
+    交易状态改变回调方法
+    be notified through notify_trade(trade) of any opening/updating/closing trade
     """
 
     def notify_trade(self, trade):
@@ -270,8 +270,8 @@ class BTStrategy(bt.Strategy):
             if self.order[d._name]:
                 continue
             """
-            self.log('当前代码: %s, 当前持仓:, %s' % 
-            (d._name, self.getposition(d).size)) 
+            self.log('当前代码: %s, 当前持仓:, %s' %
+            (d._name, self.getposition(d).size))
             """
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
@@ -283,18 +283,18 @@ class BTStrategy(bt.Strategy):
                         and self.signals[d]['close_crossover_ma20'][-3] in [1, -1] \
                         and self.signals[d]['close_crossover_ma20'][-4] in [1, -1]:
                     continue
-                """ 
+                """
                 双均线交易信号:
                 信号1: close > ema20 and close > ma20，ema20上穿ema60
                 信号2: close > ema20 and close > ma20，dif上穿dea
                 信号3: ema20/60 以及ma20/60呈多头排列，收盘价上穿ma20
                 同时: 所有信号满足情况下，成交量放大
                 """
-                if (self.signals[d]['ema20_crossup_ema60'][0]
-                        or self.signals[d]['dif_crossup_dea'][0]
-                        or self.signals[d]['close_crossup_ma20'][0]
-                        or self.signals[d]['volume_break_thr'][0])\
-                        and self.signals[d]['volume_over5'][0]:
+                if self.signals[d]['ema20_crossup_ema60'][0]\
+                        or self.signals[d]['dif_crossup_dea'][0]\
+                        or self.signals[d]['close_crossup_ma20'][0]\
+                        or self.signals[d]['volume_break_thr'][0]:
+                        # and self.signals[d]['volume_over5'][0]:
                     """ 买入对应仓位 """
                     self.order[d._name] = self.buy(
                         data=d, exectype=bt.Order.Market)
