@@ -24,7 +24,10 @@ class FileInfo:
         self.file_name_sta = './' + market + 'strategy/strategy_' + trade_date + '.csv'
         self.file_name_industry = './' + market + 'stockinfo/industry.csv'
         self.file_name_position = './' + market + 'stockinfo/position_' + trade_date + '.csv'
-        pre_trade_date = ToolKit('获取上一个交易日').get_us_latest_trade_date(1)
+        if market == 'us':
+            pre_trade_date = ToolKit('获取上一个交易日').get_us_latest_trade_date(1)
+        else:
+            pre_trade_date = ToolKit('获取上一个交易日').get_cn_latest_trade_date(1)
         self.pre_file_name_position = './' + market + 'stockinfo/position_' + pre_trade_date + '.csv'
 
     """ 返回某日数据文件路径 """
