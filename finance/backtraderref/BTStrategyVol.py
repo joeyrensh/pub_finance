@@ -11,17 +11,21 @@ import seaborn as sns
 from utility.FileInfo import FileInfo
 
 
-class BTStrategy(bt.Strategy):
+class BTStrategyVol(bt.Strategy):
     """
     自定义均线的时间间隔
     目前定义了MA/EMA/MACD三类指标的时间区间
+    自定义MAVOL三个指标区间
     """
     params = (
         ('fastperiod', 12),
         ('slowperiod', 26),
         ('signalperiod', 9),
         ('shortperiod', 20),
-        ('longperiod', 60)
+        ('longperiod', 60),
+        ('volshortperiod', 10),
+        ('volmidperiod', 20),
+        ('vollongperiod', 60)
     )
 
     def log(self, txt, dt=None):
@@ -80,139 +84,60 @@ class BTStrategy(bt.Strategy):
             self.inds[d] = dict()
             self.signals[d] = dict()
             """ 日线MA20指标 """
-            self.inds[d]['ma20'] = bt.indicators.SMA(
+            self.inds[d]['mashort'] = bt.indicators.SMA(
                 d.close, period=self.params.shortperiod)
             """ 日线MA60指标 """
-            self.inds[d]['ma60'] = bt.indicators.SMA(
+            self.inds[d]['malong'] = bt.indicators.SMA(
                 d.close, period=self.params.longperiod)
             """ 日线EMA20指标 """
-            self.inds[d]['ema20'] = bt.indicators.EMA(
+            self.inds[d]['emashort'] = bt.indicators.EMA(
                 d.close, period=self.params.shortperiod)
             """ 日线EMA60指标 """
-            self.inds[d]['ema60'] = bt.indicators.EMA(
+            self.inds[d]['emalong'] = bt.indicators.EMA(
                 d.close, period=self.params.longperiod)
             """
-            日线DIF值
-            日线DEA值
-            日线MACD值
+            MAVOL10、20、60成交量均线
             """
-            self.inds[d]['dif'] = bt.indicators.MACDHisto(
-                d.close,
-                period_me1=self.params.fastperiod,
-                period_me2=self.params.slowperiod,
-                period_signal=self.params.signalperiod).macd
-            self.inds[d]['dea'] = bt.indicators.MACDHisto(
-                d.close,
-                period_me1=self.params.fastperiod,
-                period_me2=self.params.slowperiod,
-                period_signal=self.params.signalperiod).signal
-            self.inds[d]['macd'] = bt.indicators.MACDHisto(
-                d.close,
-                period_me1=self.params.fastperiod,
-                period_me2=self.params.slowperiod,
-                period_signal=self.params.signalperiod).histo * 2
-            """ 取60日内最低价 """
-            self.inds[d]['lowest60'] = bt.indicators.Lowest(
-                d.close, period=self.params.longperiod)
-            """ 取60日内最高价 """
-            self.inds[d]['highest60'] = bt.indicators.Highest(
-                d.close, period=self.params.longperiod)
-            """ 取5日平均成交量 """
-            self.inds[d]['mean_volume5'] = bt.indicators.Average(
-                d.volume, period=5)
-            """ 20均线乖离率 """
-            self.inds[d]['bias_ma20'] = abs(
-                (self.inds[d]['ema20'] - self.inds[d]['ma20']) / self.inds[d]['ma20'])
+            self.inds[d]['mavolshort'] = bt.indicators.SMA(
+                d.volume, period=self.params.volshortperiod)
+            self.inds[d]['mavolmid'] = bt.indicators.SMA(
+                d.volume, period=self.params.volmidperiod)
+            self.inds[d]['mavollong'] = bt.indicators.SMA(
+                d.volume, period=self.params.vollongperiod)
             """
             生成交易信号
             看涨信号
             """
             """
-            双均线看涨信号：
             信号1:
-            收盘价在ma20均线和ema20均线之上
-            ema20上穿ema60均线
+            成交量均线多头排列
+            ema20上穿ema60或者ema20和ema60多头排列或者成交价上穿ema20
             """
-            self.signals[d]['close_over_ema20'] = d.close > self.inds[d]['ema20']
-            self.signals[d]['close_over_ma20'] = d.close > self.inds[d]['ma20']
-            self.signals[d]['ema20_crossup_ema60'] = bt.And(
-                self.signals[d]['close_over_ema20'],
-                self.signals[d]['close_over_ma20'],
-                bt.indicators.CrossUp(self.inds[d]['ema20'], self.inds[d]['ema60']) == 1)
+            self.signals[d]['mavol_long_position'] = bt.And(self.inds[d]['mavolshort'] > self.inds[d]['mavolmid'],
+                                                            self.inds[d]['mavolmid'] > self.inds[d]['mavollong'])
 
-            """
-            信号2:
-            dif上穿dea看涨信号：
-            收盘价在ma20均线和ema20均线上方
-            dif上穿dea
-            """
-            self.signals[d]['high_over_ema20'] = d.high > self.inds[d]['ema20']
-            self.signals[d]['high_over_ma20'] = d.high > self.inds[d]['ma20']
-            self.signals[d]['dif_crossup_dea'] = bt.And(
-                bt.Or(self.signals[d]['close_over_ema20'],
-                      self.signals[d]['high_over_ema20']),
-                bt.Or(self.signals[d]['close_over_ma20'],
-                      self.signals[d]['high_over_ma20']),
-                bt.indicators.CrossUp(self.inds[d]['dif'], self.inds[d]['dea']) == 1)
+            self.signals[d]['close_over_ema'] = bt.And(d.close > self.inds[d]['emashort'],
+                                                       self.inds[d]['emashort'] > self.inds[d]['emalong'])
 
-            """
-            信号3：
-            收盘价看涨信号：
-            近期收盘价跌破了ma20均线，再次上穿ma20信号：
-            ma20均线在ma60均线上方
-            ema20在ema60上方
-            收盘价上穿ma20
-            """
-            self.signals[d]['ema20_over_ema60'] = self.inds[d]['ema20'] > self.inds[d]['ema60']
-            self.signals[d]['ma20_over_ma60'] = self.inds[d]['ma20'] > self.inds[d]['ma60']
-            self.signals[d]['close_crossup_ma20'] = bt.And(
-                self.signals[d]['ema20_over_ema60'],
-                self.signals[d]['ma20_over_ma60'],
-                bt.indicators.CrossUp(d.close, self.inds[d]['ma20']) == 1)
+            self.signals[d]['emashort_cross_emalong'] = bt.indicators.CrossUp(
+                self.inds[d]['emashort'], self.inds[d]['emalong'])
 
-            """
-            信号4:
-            近5日均线密集，成交量突然放大，收盘价高于昨日
-            """
-            self.signals[d]['bias_ma20'] = bt.And(
-                self.inds[d]['bias_ma20'](0) < 0.1,
-                self.inds[d]['bias_ma20'](-1) < 0.1,
-                self.inds[d]['bias_ma20'](-2) < 0.1,
-                self.inds[d]['bias_ma20'](-3) < 0.1,
-                self.inds[d]['bias_ma20'](-4) < 0.1
+            self.signals[d]['close_cross_emashort'] = bt.indicators.CrossUp(
+                d.close, self.inds[d]['emashort'])
+
+            self.signals[d]['signal1'] = bt.And(
+                self.signals[d]['mavol_long_position'],
+                bt.Or(self.signals[d]['close_over_ema'],
+                      self.signals[d]['emashort_cross_emalong'] == 1,
+                      self.signals[d]['close_cross_emashort'] == 1)
             )
-            self.signals[d]['volume_up2times'] = d.volume > self.inds[d]['mean_volume5'] * 3
-            self.signals[d]['close_up'] = d.close(0) > d.close(-1) * 1.1
-            self.signals[d]['volume_break_thr'] = bt.And(
-                self.signals[d]['bias_ma20'],
-                self.signals[d]['volume_up2times'],
-                self.signals[d]['close_up']
-            )
-
-            """
-            看涨信号滞后一天
-            满足看涨信号后，次日收盘价依然上涨，即买
-            """
-            self.signals[d]['close_over_preclose'] = d.close(0) > d.close(-1)
-
-            """
-            最近5个交易日，收盘价频繁穿越ma20均线
-            震荡过大的股票进行过滤
-            成交量超过过去5天成交量均值
-            """
-            self.signals[d]['close_crossover_ma20'] = bt.indicators.CrossOver(
-                d.close, self.inds[d]['ma20'])
-            self.signals[d]['volume_over5'] = d.volume > self.inds[d]['mean_volume5']
             """
             生成交易信号
             看跌信号
             """
             """ 收盘价跌破ma20均线 """
-            self.signals[d]['close_crossdown_ma20'] = bt.indicators.CrossDown(
-                d.close, self.inds[d]['ma20'])
-            """ dif下穿0轴 """
-            self.signals[d]['dif_crossdown_axis'] = bt.indicators.CrossDown(
-                self.inds[d]['dif'], 0)
+            self.signals[d]['close_crossdown_malong'] = bt.indicators.CrossDown(
+                d.close, self.inds[d]['malong'])
 
             """ indicators以及signals初始化进度打印 """
             t.progress_bar(len(self.datas), i)
@@ -276,25 +201,8 @@ class BTStrategy(bt.Strategy):
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
             if not len(pos):
-                """ 最近5个交易日收盘价频繁穿越ma20均线，不进行交易 """
-                if self.signals[d]['close_crossover_ma20'][0] in [1, -1] \
-                        and self.signals[d]['close_crossover_ma20'][-1] in [1, -1] \
-                        and self.signals[d]['close_crossover_ma20'][-2] in [1, -1] \
-                        and self.signals[d]['close_crossover_ma20'][-3] in [1, -1] \
-                        and self.signals[d]['close_crossover_ma20'][-4] in [1, -1]:
-                    continue
-                """
-                双均线交易信号:
-                信号1: close > ema20 and close > ma20，ema20上穿ema60
-                信号2: close > ema20 and close > ma20，dif上穿dea
-                信号3: ema20/60 以及ma20/60呈多头排列，收盘价上穿ma20
-                同时: 所有信号满足情况下，成交量放大
-                """
-                if self.signals[d]['ema20_crossup_ema60'][0]\
-                        or self.signals[d]['dif_crossup_dea'][0]\
-                        or self.signals[d]['close_crossup_ma20'][0]\
-                        or self.signals[d]['volume_break_thr'][0]:
-                        # and self.signals[d]['volume_over5'][0]:
+                """ 成交量均线和K均线均多头 """
+                if self.signals[d]['signal1']:
                     """ 买入对应仓位 """
                     self.order[d._name] = self.buy(
                         data=d, exectype=bt.Order.Market)
@@ -304,11 +212,9 @@ class BTStrategy(bt.Strategy):
                 """ 
                 均线止损/止盈信号：
                 信号1: 收盘价跌破ma20
-                信号2: 日dif下穿0轴
-                信号3: 已经亏损20%
+                信号2: 已经亏损20%
                 """
-                if self.signals[d]['close_crossdown_ma20'][0] == 1 \
-                        or self.signals[d]['dif_crossdown_axis'][0] == 1\
+                if self.signals[d]['close_crossdown_malong'][0] == 1 \
                         or (d.close[0] - pos.price) / pos.price < -0.2:
                     self.order[d._name] = self.close(data=d)
                     self.log('Sell %s Created %.2f' %

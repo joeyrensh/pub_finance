@@ -2,21 +2,15 @@
 # -*- coding: UTF-8 -*-
 from utility.FileInfo import FileInfo
 from tabulate import tabulate
-import progressbar
 from utility.ToolKit import ToolKit
 from utility.MyEmail import MyEmail
-import re
 from datetime import datetime, timedelta
 import pandas as pd
-import sys
 import seaborn as sns
 from backtraderref.BTStrategy import BTStrategy
 import backtrader as bt
 from utility.TickerInfo import TickerInfo
-from uscrawler.EMWebCrawler import EMWebCrawler
-from uscrawler.EMUsTickerCategoryCrawler import EMUsTickerCategoryCrawler
 from backtraderref.BTPandasDataExt import BTPandasDataExt
-from cncrawler.EMCNWebCrawler import EMCNWebCrawler
 
 """ backtrader策略 """
 
@@ -51,11 +45,11 @@ def exec_btstrategy(date):
     print('当前现金持有: ', cerebro.broker.get_cash())
     print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
     """ 画图相关 """
-    # cerebro.plot(iplot=True, subplot=True)
+    cerebro.plot()
 
 
 # 主程序入口
 if __name__ == '__main__':
 
-    trade_date = ToolKit('获取最新A股交易日期').get_cn_latest_trade_date(0)
-    EMCNWebCrawler().get_cn_daily_stock_info(trade_date)
+    trade_date = ToolKit('获取最新A股交易日期').get_cn_latest_trade_date(1)
+    exec_btstrategy(trade_date)

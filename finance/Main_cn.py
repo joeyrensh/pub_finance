@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import sys
 import seaborn as sns
-from backtraderref.BTStrategy import BTStrategy
+from backtraderref.BTStrategyVol import BTStrategyVol
 import backtrader as bt
 from utility.TickerInfo import TickerInfo
 from cncrawler.EMCNWebCrawler import EMCNWebCrawler
@@ -26,7 +26,7 @@ def exec_btstrategy(date):
     """ 创建cerebro对象 """
     cerebro = bt.Cerebro()
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(BTStrategy)
+    cerebro.addstrategy(BTStrategyVol)
     """ 初始资金100M """
     cerebro.broker.setcash(1000000.0)
     """ 每手10股 """
@@ -85,6 +85,6 @@ if __name__ == '__main__':
 
     """ 发送邮件 """
     StockProposal('cn', trade_date).send_btstrategy_by_email()
-    
+
     """ 结束进度条 """
     pbar.finish()
