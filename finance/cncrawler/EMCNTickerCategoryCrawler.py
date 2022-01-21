@@ -14,9 +14,8 @@ from utility.FileInfo import FileInfo
 
 
 class EMCNTickerCategoryCrawler:
-
     def get_cn_stock_list(self):
-        """ url里需要传递unixtime当前时间戳 """
+        """url里需要传递unixtime当前时间戳"""
         current_timestamp = int(time.mktime(datetime.now().timetuple()))
 
         """ 
@@ -27,29 +26,34 @@ class EMCNTickerCategoryCrawler:
         """
         dict = {}
         list = []
-        for mkt_code in ['0', '1']:
-            url = "https://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery"\
+        for mkt_code in ["0", "1"]:
+            url = (
+                "https://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
                 "&pn=1&pz=20000&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:mkt_code&fields=f2,f5,f12,f14,f15,f16,f17&_=unix_time"
+            )
             """ 请求url，获取数据response """
-            url_re = url.replace('unix_time', str(current_timestamp)).replace(
-                'mkt_code', mkt_code)
+            url_re = url.replace("unix_time", str(current_timestamp)).replace(
+                "mkt_code", mkt_code
+            )
             res = requests.get(url_re).text
             """ 替换成valid json格式 """
-            res_p = re.sub('\\].*', ']', re.sub('.*:\\[', '[', res, 1), 1)
+            res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
             json_object = json.loads(res_p)
-            if mkt_code == '0':
-                market = 'SZ'
+            if mkt_code == "0":
+                market = "SZ"
             else:
-                market = 'SH'
+                market = "SH"
             for i in json_object:
-                if i['f12'] == '-' or i['f17'] == '-'\
-                    or i['f2'] == '-' or i['f15'] == '-'\
-                        or i['f16'] == '-' or i['f5'] == '-':
+                if (
+                    i["f12"] == "-"
+                    or i["f17"] == "-"
+                    or i["f2"] == "-"
+                    or i["f15"] == "-"
+                    or i["f16"] == "-"
+                    or i["f5"] == "-"
+                ):
                     continue
-                dict = {
-                    'symbol': market+i['f12'],
-                    'mkt_code': mkt_code
-                }
+                dict = {"symbol": market + i["f12"], "mkt_code": mkt_code}
                 list.append(dict)
         return list
 
@@ -59,34 +63,28 @@ class EMCNTickerCategoryCrawler:
         0: 深证/创业板/新三板/ SZ
         1: 上证/科创板		SH
 
-        https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax?code=SH688798 
+        https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax?code=SH688798
         """
         list = []
         dict = {}
-        tool = ToolKit('行业下载进度')
+        tool = ToolKit("行业下载进度")
         """ 遍历股票列表获取对应行业板块信息 """
         tick_list = self.get_cn_stock_list()
         for i in tick_list:
             url = "https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax?code=mkt_codesymbol"
-            url_re = url.replace('mkt_codesymbol', i['symbol'])
+            url_re = url.replace("mkt_codesymbol", i["symbol"])
             res = requests.get(url_re).text.lower()
             json_object = json.loads(res)
-            if 'jbzl' in json_object\
-                    and 'sshy' in json_object['jbzl']:
-                if json_object['jbzl']['sshy'] == '--':
+            if "jbzl" in json_object and "sshy" in json_object["jbzl"]:
+                if json_object["jbzl"]["sshy"] == "--":
                     continue
-                dict = {
-                    'symbol': i['symbol'],
-                    'industry': json_object['jbzl']['sshy']
-                }
+                dict = {"symbol": i["symbol"], "industry": json_object["jbzl"]["sshy"]}
                 list.append(dict)
                 print(dict)
             tool.progress_bar(len(tick_list), tick_list.index(i))
         df = pd.DataFrame(list)
-        df.drop_duplicates(subset=['symbol', 'industry'],
-                           keep='last', inplace=True)
+        df.drop_duplicates(subset=["symbol", "industry"], keep="last", inplace=True)
         """ 获取板块文件信息 """
-        file = FileInfo(trade_date, 'cn')
+        file = FileInfo(trade_date, "cn")
         file_name_industry = file.get_file_name_industry
-        df.to_csv(file_name_industry,
-                  mode='w', index=True, header=True)
+        df.to_csv(file_name_industry, mode="w", index=True, header=True)

@@ -10,9 +10,10 @@ import os
 
 class DingDing(object):
 
-    """ 钉钉webhook地址，自定义标签模式 """
-    dd_ak = os.environ.get('dd_ak')
-    __url = 'https://oapi.dingtalk.com/robot/send?access_token=' + dd_ak
+    """钉钉webhook地址，自定义标签模式"""
+
+    dd_ak = os.environ.get("dd_ak")
+    __url = "https://oapi.dingtalk.com/robot/send?access_token=" + dd_ak
 
     def __init__(self):
         self.api_url = self.__url
@@ -23,12 +24,12 @@ class DingDing(object):
             "markdown": {
                 "text": content,
                 "title": title,
-            }
+            },
         }
         return self._send_request(data)
 
     def _send_request(self, data):
-        headers = {'Content-Type': 'application/json; charset=utf-8'}
+        headers = {"Content-Type": "application/json; charset=utf-8"}
         data = json.dumps(data)
         result = requests.post(self.api_url, data=data, headers=headers)
         return result.text

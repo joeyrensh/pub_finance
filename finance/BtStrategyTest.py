@@ -13,7 +13,7 @@ from utility.TickerInfo import TickerInfo
 from backtraderref.BTPandasDataExt import BTPandasDataExt
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     cerebro = bt.Cerebro()
     cerebro.addstrategy(BTStrategyVol)
@@ -21,22 +21,23 @@ if __name__ == '__main__':
     cerebro.addsizer(bt.sizers.FixedSize, stake=1)
     cerebro.broker.setcommission(commission=0.001)
 
-    trade_date = ToolKit('获取最新A股交易日期').get_cn_latest_trade_date(0)
-    list = TickerInfo(trade_date, 'cn').get_backtrader_data_feed_test()
+    trade_date = ToolKit("获取最新A股交易日期").get_cn_latest_trade_date(1)
+    list = TickerInfo(trade_date, "cn").get_backtrader_data_feed_test()
     for h in list:
-        print("正在初始化: ", h['symbol'][0])
+        print("正在初始化: ", h["symbol"][0])
         data = BTPandasDataExt(
-            dataname=h, name=h['symbol'][0], fromdate=datetime(2021, 1, 1))
+            dataname=h, name=h["symbol"][0], fromdate=datetime(2021, 1, 1)
+        )
         cerebro.adddata(data)
         # 周数据
         # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
 
-    print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
+    print("Starting Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
     cerebro.run()
 
-    print('当前现金持有: ', cerebro.broker.get_cash())
-    print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
+    print("当前现金持有: ", cerebro.broker.get_cash())
+    print("Final Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
     # b = Bokeh(style='bar', plot_mode='single', scheme=Tradimo())
     # cerebro.plot(b)

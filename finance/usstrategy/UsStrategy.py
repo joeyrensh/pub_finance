@@ -12,42 +12,44 @@ from utility.TickerInfo import TickerInfo
 
 
 class UsStrategy:
-
     def __init__(self, trade_date):
         self.trade_date = trade_date
-        self.market = 'us'
+        self.market = "us"
 
     """ 小市值大波动 """
 
     def get_usstrategy1(self):
-        """ 获取日数据 """
+        """获取日数据"""
         df1 = TickerInfo(self.trade_date, self.market).get_stock_data_for_day()
         lenth = len(df1)
-        tool = ToolKit('策略1')
+        tool = ToolKit("策略1")
         """ 以字典和列表形式来存储 """
         list = []
         for index, row in df1.iterrows():
-            """ 计算进度 """
+            """计算进度"""
             tool.progress_bar(lenth, index)
             """ 振幅超过40% """
-            if float(row['preclose']) > 0 \
-                    and (float(row['high']) - float(row['low'])) \
-                    / float(row['preclose']) > 0.4:
+            if (
+                float(row["preclose"]) > 0
+                and (float(row["high"]) - float(row["low"])) / float(row["preclose"])
+                > 0.4
+            ):
                 pass
             else:
                 continue
             """ 涨幅超过20% """
-            if float(row['chg']) > 0.2:
+            if float(row["chg"]) > 0.2:
                 pass
             else:
                 continue
-            dic = {'symbol': row['symbol'],
-                   'close': row['close'],
-                   'chg': float(row['chg']) / 100,
-                   'volume': float(row['volume']),
-                   'amplitude': (row['high'] - row['low']) * 100
-                   / row['preclose'],
-                   'tag': '振幅剧烈'}
+            dic = {
+                "symbol": row["symbol"],
+                "close": row["close"],
+                "chg": float(row["chg"]) / 100,
+                "volume": float(row["volume"]),
+                "amplitude": (row["high"] - row["low"]) * 100 / row["preclose"],
+                "tag": "振幅剧烈",
+            }
             list.append(dic)
 
         """ 返回T+1股票行情 """
@@ -74,16 +76,16 @@ class UsStrategy:
     """ 破线拐头交叉 """
 
     def get_usstrategy2(self, group_obj, ticker):
-        """ 收盘价 """
-        close = group_obj['close'].values
+        """收盘价"""
+        close = group_obj["close"].values
         """ 成交量 """
-        volume = group_obj['volume'].values
+        volume = group_obj["volume"].values
         """ 涨跌幅 """
-        chg = group_obj['chg'].values
+        chg = group_obj["chg"].values
         """ 高 """
-        high = group_obj['high'].values
+        high = group_obj["high"].values
         """ 低 """
-        low = group_obj['low'].values
+        low = group_obj["low"].values
         """ MA20 """
         ma20 = tl.MA(close, timeperiod=20)
         """ MA60 """
@@ -95,33 +97,54 @@ class UsStrategy:
         """ MACD """
         dif, dea, macd = tl.MACD(close, 12, 26, 9)
         """ MACD多头 """
-        if macd.size > 3 \
-                and macd[-1] != 'nan' and macd[-2] != 'nan' \
-                and macd[-3] != 'nan' \
-                and macd[-1] > macd[-2] > macd[-3]:
+        if (
+            macd.size > 3
+            and macd[-1] != "nan"
+            and macd[-2] != "nan"
+            and macd[-3] != "nan"
+            and macd[-1] > macd[-2] > macd[-3]
+        ):
             pass
         else:
             return
         """ dif刚刚向上穿越DEA """
-        if dif.size > 2 and dea.size > 2 \
-                and dif[-1] != 'nan' and dea[-1] != 'nan' \
-                and dif[-2] != 'nan' and dea[-2] != 'nan' \
-                and dif[-1] >= dea[-1] and dif[2] < dea[-2]:
+        if (
+            dif.size > 2
+            and dea.size > 2
+            and dif[-1] != "nan"
+            and dea[-1] != "nan"
+            and dif[-2] != "nan"
+            and dea[-2] != "nan"
+            and dif[-1] >= dea[-1]
+            and dif[2] < dea[-2]
+        ):
             pass
         else:
             return
         """ 收盘价站上20均线，20站上60 """
-        if ema20.size > 3 and ema60.size > 2 \
-                and ema20[-1] != 'nan' and ema20[-2] != 'nan' \
-                and ema60[-1] != 'nan' and ema60[-2] != 'nan' \
-                and close[-1] >= ema20[-1] and ema20[-1] >= ema60[-1]:
+        if (
+            ema20.size > 3
+            and ema60.size > 2
+            and ema20[-1] != "nan"
+            and ema20[-2] != "nan"
+            and ema60[-1] != "nan"
+            and ema60[-2] != "nan"
+            and close[-1] >= ema20[-1]
+            and ema20[-1] >= ema60[-1]
+        ):
             pass
         else:
             return
-        if ma20.size > 2 and ma60.size > 2 \
-                and ma20[-1] != 'nan' and ma20[-2] != 'nan' \
-                and ma60[-1] != 'nan' and ma60[-2] != 'nan' \
-                and close[-1] >= ma20[-1] and ma20[-1] >= ma60[-1]:
+        if (
+            ma20.size > 2
+            and ma60.size > 2
+            and ma20[-1] != "nan"
+            and ma20[-2] != "nan"
+            and ma60[-1] != "nan"
+            and ma60[-2] != "nan"
+            and close[-1] >= ma20[-1]
+            and ma20[-1] >= ma60[-1]
+        ):
             pass
         else:
             return
@@ -131,14 +154,19 @@ class UsStrategy:
         else:
             return
         """ 今日收盘价高于昨日收盘价, 且成交量超过历史成交最大量的50% """
-        if len(close) > 2 and close[-1] > close[-2] \
-                and len(volume) > 2 and volume[-1] > volume.max(axis=0) * 0.5:
+        if (
+            len(close) > 2
+            and close[-1] > close[-2]
+            and len(volume) > 2
+            and volume[-1] > volume.max(axis=0) * 0.5
+        ):
             pass
         else:
             return
         """ 乖离率，短期/中期都低于0.01 """
-        if (close[-1] - ema20[-1]) / ema20[-1] < 0.1 \
-                and (ema20[-1] - ema60[-1]) / ema60[-1] < 0.1:
+        if (close[-1] - ema20[-1]) / ema20[-1] < 0.1 and (
+            ema20[-1] - ema60[-1]
+        ) / ema60[-1] < 0.1:
             pass
         else:
             return
@@ -148,12 +176,14 @@ class UsStrategy:
         else:
             return
         """ 每组策略返回结果为字典 """
-        dic = {'symbol': ticker,
-               'close': close[-1],
-               'chg': float(chg[-1]),
-               'volume': volume[-1],
-               'amplitude': (high[-1] - low[-1]) * 100 / close[-2],
-               'tag': '破线拐头交叉'}
+        dic = {
+            "symbol": ticker,
+            "close": close[-1],
+            "chg": float(chg[-1]),
+            "volume": volume[-1],
+            "amplitude": (high[-1] - low[-1]) * 100 / close[-2],
+            "tag": "破线拐头交叉",
+        }
         return dic
 
     # # 分时波动频繁
@@ -193,10 +223,9 @@ class UsStrategy:
     #         return pd.DataFrame()
 
     def exec_strategy_with_multiprocessing(self):
-        """ 获取历史数据 """
+        """获取历史数据"""
         his_data = TickerInfo(self.trade_date, self.market).get_history_data()
-        tickers = TickerInfo(
-            self.trade_date, self.market).get_usstock_list()
+        tickers = TickerInfo(self.trade_date, self.market).get_usstock_list()
 
         """ 
         关键指标 symbol, close, ma20, ma60, ema20, ema60, dif, dea, macd
@@ -204,15 +233,14 @@ class UsStrategy:
         """
         list = []
         results = []
-        tool = ToolKit('多进程执行策略')
+        tool = ToolKit("多进程执行策略")
         pool = multiprocessing.Pool(processes=4)
         """ 循环股票列表，并行执行策略 """
-        group_data = his_data.groupby(by='symbol')
+        group_data = his_data.groupby(by="symbol")
         for ticker in tickers:
-            """ 按股票分组 """
+            """按股票分组"""
             group_obj = group_data.get_group(ticker)
-            result = pool.apply_async(self.get_usstrategy2,
-                                      (group_obj, ticker))
+            result = pool.apply_async(self.get_usstrategy2, (group_obj, ticker))
             results.append(result)
             tool.progress_bar(len(tickers), tickers.index(ticker))
         """ 关闭进程池，表示不能再往进程池中添加进程，需要在join之前调用 """

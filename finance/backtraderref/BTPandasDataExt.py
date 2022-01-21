@@ -10,10 +10,11 @@ from utility.MyEmail import MyEmail
 import seaborn as sns
 from utility.FileInfo import FileInfo
 
+
 class BTPandasDataExt(bt.feeds.PandasData):
     # Add a 'pe' line to the inherited ones from the base class
-    lines = ('market', )
+    lines = ("market",)
 
     # openinterest in GenericCSVData has index 7 ... add 1
     # add the parameter to the parameters inherited from the base class
-    params = (('market', -1), )
+    params = (("market", -1),)
