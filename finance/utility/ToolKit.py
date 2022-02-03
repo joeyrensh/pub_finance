@@ -13,7 +13,7 @@ class ToolKit(object):
 
     def progress_bar(self, var, i):
         print(
-            "\r{}进度: {}%: ".format(self.val, int(i * 100 / var)),
+            "\r{}: {}%: ".format(self.val, int(i * 100 / var)),
             "▋" * (i * 100 // var),
             end="",
             flush=True,
