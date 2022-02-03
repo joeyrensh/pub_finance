@@ -7,13 +7,13 @@ import re
 class ToolKit(object):
     def __init__(self, val):
         self.val = val
-        print("\n" + val + "开始处理...")
+        print("\n" + val + "...")
 
     """ 执行进度显示 """
 
     def progress_bar(self, var, i):
         print(
-            "\r{}处理进度: {}%: ".format(self.val, int(i * 100 / var)),
+            "\r{}进度: {}%: ".format(self.val, int(i * 100 / var)),
             "▋" * (i * 100 // var),
             end="",
             flush=True,
