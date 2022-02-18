@@ -37,14 +37,14 @@ class TickerInfo:
             """
             美股：
             单价超过2美金
-            日成交量过50W股
+            日成交额超过5000W美金
             A股：
             单价超过2块
-            日成交量过1W手
+            日成交量过10W手
             """
             if self.market == "us":
                 if (
-                    float(i["volume"]) > 500000
+                    float(i["volume"])*float(i["close"]) >= 50000000
                     and float(i["close"]) > 2
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
@@ -53,7 +53,7 @@ class TickerInfo:
                     tickers.append(i["symbol"])
             elif self.market == "cn":
                 if (
-                    float(i["volume"]) > 10000
+                    float(i["volume"]) > 100000
                     and float(i["close"]) > 2
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
