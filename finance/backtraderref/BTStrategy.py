@@ -395,9 +395,9 @@ class BTStrategy(bt.Strategy):
                     "当前股票: %s, 交易天数: %s, 累计涨幅: %s"
                     % (dict["symbol"], interval, dict["p&l_ratio"])
                 )
-                """ 少于10%收益的股票不展示 """
-                if dict["p&l_ratio"] < 0.10:
-                    continue
+                # """ 少于10%收益的股票不展示 """
+                # if dict["p&l_ratio"] < 0.10:
+                #     continue
                 list.append(dict)
         df = pd.DataFrame(list)
         if df.empty:
