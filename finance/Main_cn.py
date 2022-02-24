@@ -30,7 +30,7 @@ def exec_btstrategy(date):
     """ 初始资金100M """
     cerebro.broker.setcash(1000000.0)
     """ 每手10股 """
-    cerebro.addsizer(bt.sizers.FixedSize, stake=10)
+    cerebro.addsizer(bt.sizers.FixedSize, stake=100)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0.001, stocklike=True)
     """ 添加股票当日即历史数据 """
@@ -53,6 +53,13 @@ def exec_btstrategy(date):
     print("当前现金持有: ", cerebro.broker.get_cash())
     print("Final Portfolio Value: %.2f" % cerebro.broker.getvalue())
     """ 画图相关 """
+    # plt.rcParams['font.sans-serif']=['SimHei']
+    # plt.rcParams['axes.unicode_minus']=False
+    # plt.rcParams['figure.figsize']=[18, 16]
+    # plt.rcParams['figure.dpi']=200
+    # plt.rcParams['figure.facecolor']='w'
+    # plt.rcParams['figure.edgecolor']='k'
+    # cerebro.plot(iplot=False)    
     # cerebro.plot(iplot=True, subplot=True)
 
 
