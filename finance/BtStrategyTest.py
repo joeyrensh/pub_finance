@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     # 导入设置坐标轴的模块
     plt.style.use("seaborn")
-    # plt.style.use('dark_background')
+    plt.style.use('dark_background')
 
     fig, (ax0, ax1) = plt.subplots(
         2, 1, gridspec_kw={"height_ratios": [1.5, 4]}, figsize=(20, 8)
@@ -162,7 +162,6 @@ if __name__ == "__main__":
     h2, l2 = ax2.get_legend_handles_labels()
 
     plt.legend(h1 + h2, l1 + l2, fontsize=12, loc="upper left", ncol=1)
-
 
     fig.tight_layout()
     # 规整排版
