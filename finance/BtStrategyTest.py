@@ -50,9 +50,6 @@ if __name__ == "__main__":
     print("当前现金持有: ", cerebro.broker.get_cash())
     print("Final Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
-    # 回测时需要添加 TimeReturn 分析器
-    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
-
     # 提取收益序列
     pnl = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
 
