@@ -74,7 +74,10 @@ class EMCNTickerCategoryCrawler:
             url = "https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax?code=mkt_codesymbol"
             url_re = url.replace("mkt_codesymbol", i["symbol"])
             res = requests.get(url_re).text.lower()
-            json_object = json.loads(res)
+            try:
+                json_object = json.loads(res)
+            except ValueError:
+                continue
             if "jbzl" in json_object and "sshy" in json_object["jbzl"]:
                 if json_object["jbzl"]["sshy"] == "--":
                     continue

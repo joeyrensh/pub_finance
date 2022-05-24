@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+from distutils import errors
+
+from sklearn import exceptions
 from utility.ToolKit import ToolKit
 import re
 from datetime import datetime, timedelta
@@ -76,7 +79,10 @@ class EMUsTickerCategoryCrawler:
                 mkt_code = "A"
             url_re = url.replace("symbol", i["symbol"]).replace("mkt_code", mkt_code)
             res = requests.get(url_re).text.lower()
-            json_object = json.loads(res)
+            try: 
+                json_object = json.loads(res)
+            except ValueError:
+                continue
             if "data" in json_object and "gszl" in json_object["data"]:
                 for h in json_object["data"]["gszl"]:
                     dict = {"symbol": i["symbol"], "industry": h["industry"]}
