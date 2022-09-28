@@ -12,18 +12,39 @@ import backtrader as bt
 from utility.TickerInfo import TickerInfo
 from backtraderref.BTPandasDataExt import BTPandasDataExt
 import numpy as np
+import os
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+import sys
+from utility.StockProposal import StockProposal
 
 # 主程序入口
 if __name__ == "__main__":
-    file = './cnstockinfo/stock_20220927.csv'
-    df = pd.read_csv(file)
-    # np1 = np.loadtxt(fname = file, dtype= str, delimiter= ",")
-    # df = pd.DataFrame(np1)
-    print('内存占用情况'.ljust(20,'='))
-    print(df.memory_usage())
+    _mail_user = os.environ.get("email_addr")
+    _mail_password = os.environ.get("email_key")
 
-    print('内存占用总额情况'.ljust(20,'='))
-    print(df.memory_usage().sum())
+    send_from = _mail_user
+    to = _mail_user
+    subject = 'this is a test'
+    message = 'this is body text'
+    msg = MIMEMultipart('alternative')
+    text = MIMEText('<img src="cid:image1">', 'html')
+    msg.attach(MIMEText(text, "html"))
+    image = MIMEImage(open('TRdraw.png', 'rb').read())
+    image.add_header('Content-ID', '<image1>')
+    msg.attach(image)
+    msg["Subject"] = subject
+    msg["To"] = to
+    msg["From"] = send_from
 
-    print('使用df.info()查看内存占用情况'.ljust(20,'='))
-    df.info()
+    smtp_server = smtplib.SMTP_SSL("smtp.163.com", 465)
+    smtp_server.ehlo()
+    smtp_server.login(_mail_user, _mail_password)
+    smtp_server.sendmail(send_from, to, msg.as_string())
+    smtp_server.close()
+    print("Email sent successfully!")
+    """ 发送邮件 """
+    # StockProposal("us", '20220927').send_btstrategy_by_email()  
+    # print(os.path.abspath(sys.argv[0]))

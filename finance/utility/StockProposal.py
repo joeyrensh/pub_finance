@@ -5,6 +5,8 @@ from utility.MyEmail import MyEmail
 from utility.FileInfo import FileInfo
 import pandas as pd
 import seaborn as sns
+import os
+import sys
 
 
 class StockProposal:
@@ -53,7 +55,7 @@ class StockProposal:
             .render()
         )
         subject = "美股波动"
-        MyEmail(subject, html).send_email()
+        MyEmail().send_email(subject, html)
 
     def send_btstrategy_by_email(self):
         """发送邮件"""
@@ -104,7 +106,7 @@ class StockProposal:
                 subject = "美股行情"
             elif self.market == "cn":
                 subject = "A股行情"
-            MyEmail(subject, html).send_email()
+            MyEmail().send_email(subject, html)
             """ 按照行业板块聚合，统计最近成交率最高的行业 """
             df_sum = df_np.groupby(by="所属行业").size().reset_index(name="今日策略")
             df_sum.sort_values(by=["今日策略"], ascending=False, inplace=True)
@@ -143,6 +145,10 @@ class StockProposal:
             )
             if self.market == "us":
                 subject = "美股行业行情"
+                image_path = './TRdraw.png'
             elif self.market == "cn":
                 subject = "A股行业行情"
-            MyEmail(subject, html).send_email()
+                image_path = './CNTRdraw.png'
+            MyEmail().send_email(subject, html)
+            MyEmail().send_email_embedded_image(subject, html, image_path)
+            
