@@ -95,7 +95,7 @@ def exec_btstrategy(date):
 
     # 导入设置坐标轴的模块
     plt.style.use("seaborn")
-    plt.style.use('dark_background')
+    # plt.style.use('dark_background')
 
     fig, (ax0, ax1) = plt.subplots(
         2, 1, gridspec_kw={"height_ratios": [1.5, 4]}, figsize=(20, 8)
