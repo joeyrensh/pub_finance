@@ -16,7 +16,7 @@ class MyEmail(object):
     def __init__(self):
         self.send_from = self._mail_user
         self.to = self._mail_user
-        self.msg = MIMEMultipart('alternative')
+        self.msg = MIMEMultipart('mixed')
         self.msg["To"] = self.to
         self.msg["From"] = self.send_from
         
@@ -42,7 +42,7 @@ class MyEmail(object):
         try:
             self.subject = subject
             self.msg["Subject"] = subject
-            self.msg.attach(MIMEText(message, "html"))              
+            self.msg.attach(MIMEText(message, "html"))         
             image = MIMEImage(open(image_path, 'rb').read())
             self.msg.attach(image)
             smtp_server = smtplib.SMTP_SSL("smtp.163.com", 465)

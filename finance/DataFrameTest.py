@@ -29,11 +29,9 @@ if __name__ == "__main__":
     to = _mail_user
     subject = 'this is a test'
     message = 'this is body text'
-    msg = MIMEMultipart('alternative')
-    text = MIMEText('<img src="cid:image1">', 'html')
-    msg.attach(MIMEText(text, "html"))
+    msg = MIMEMultipart('mixed')
+    msg.attach(MIMEText(message, "html"))
     image = MIMEImage(open('TRdraw.png', 'rb').read())
-    image.add_header('Content-ID', '<image1>')
     msg.attach(image)
     msg["Subject"] = subject
     msg["To"] = to

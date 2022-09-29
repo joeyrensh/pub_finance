@@ -149,6 +149,6 @@ class StockProposal:
             elif self.market == "cn":
                 subject = "A股行业行情"
                 image_path = './CNTRdraw.png'
-            MyEmail().send_email(subject, html)
+            # MyEmail().send_email(subject, html)
             MyEmail().send_email_embedded_image(subject, html, image_path)
             
