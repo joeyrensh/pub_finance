@@ -37,7 +37,7 @@ class StockProposal:
         )
         cm = sns.color_palette("Blues", as_cmap=True)
         html = (
-            df_n.style.hide(axis='index')
+            df_n.style.hide(axis="index")
             .hide_columns(["标记", "成交量"])
             .format({"收盘价": "{:.2f}", "涨幅": "{:.2f}", "成交量": "{:.0f}", "振幅": "{:.2f}%"})
             .background_gradient(subset=["收盘价", "涨幅", "成交量", "振幅"], cmap=cm)
@@ -52,7 +52,7 @@ class StockProposal:
             .set_table_styles(
                 [dict(selector="th", props=[("text-align", "left")], width="auto")]
             )
-            .to_html()
+            .to_html(doctype_html=True)
         )
         subject = "美股波动"
         MyEmail().send_email(subject, html)
@@ -85,7 +85,7 @@ class StockProposal:
             )
             cm = sns.color_palette("Blues", as_cmap=True)
             html = (
-                df_np.style.hide(axis='index')
+                df_np.style.hide(axis="index")
                 .hide_columns(["收益金额"])
                 .format({"买入价": "{:.2f}", "当前价": "{:.2f}", "收益率": "{:.2f}"})
                 .background_gradient(subset=["买入价", "当前价"], cmap=cm)
@@ -96,11 +96,12 @@ class StockProposal:
                     vmin=0,
                     vmax=1,
                 )
-                .set_properties(**{"text-align": "left", "width": "auto"})
+                .set_properties(**{"text-align": "left", "width": "auto", "border": "1px solid", "cellspacing": "0px", "style": "border-collapse:collapse"})
                 .set_table_styles(
-                    [dict(selector="th", props=[("text-align", "left")], width="auto")]
+                    [dict(selector="th", props=[("text-align", "left"), ("width", "auto"), ("white-space", "nowrap"), ("position", "fixed")])]
                 )
-                .to_html()
+                .set_sticky(axis="columns")
+                .to_html(doctype_html=True)
             )
             if self.market == "us":
                 subject = "美股行情"
@@ -127,7 +128,7 @@ class StockProposal:
             """ 发送邮件 """
             cm = sns.color_palette("Blues", as_cmap=True)
             html = (
-                df_sum_np.style.hide(axis='index')
+                df_sum_np.style.hide(axis="index")
                 .format({"今日策略": "{:.0f}", "昨日策略": "{:.0f}", "变化比": "{:.2f}"})
                 .background_gradient(subset=["今日策略", "昨日策略"], cmap=cm)
                 .bar(
@@ -137,10 +138,11 @@ class StockProposal:
                     vmin=-1,
                     vmax=1,
                 )
-                .set_properties(**{"text-align": "left", "width": "auto"})
+                .set_properties(**{"text-align": "left", "width": "auto", "border": "1px solid", "cellspacing": "0px", "style": "border-collapse:collapse"})
                 .set_table_styles(
-                    [dict(selector="th", props=[("text-align", "left")], width="auto")]
+                    [dict(selector="th", props=[("text-align", "left"), ("width", "auto"), ("white-space", "nowrap"), ("position", "fixed")])]
                 )
+                .set_sticky(axis="columns")
                 .to_html()
             )
             if self.market == "us":
