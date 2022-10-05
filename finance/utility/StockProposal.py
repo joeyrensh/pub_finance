@@ -48,10 +48,11 @@ class StockProposal:
                 vmin=0,
                 vmax=1,
             )
-            .set_properties(**{"text-align": "left", "width": "auto"})
+            .set_properties(**{"text-align": "left", "width": "auto", "border": "1px solid", "cellspacing": "0px", "style": "border-collapse:collapse"})
             .set_table_styles(
-                [dict(selector="th", props=[("text-align", "left")], width="auto")]
+                [dict(selector="th", props=[("text-align", "left"), ("width", "auto"), ("white-space", "nowrap"), ("position", "fixed")])]
             )
+            .set_sticky(axis="columns")
             .to_html(doctype_html=True)
         )
         subject = "美股波动"
