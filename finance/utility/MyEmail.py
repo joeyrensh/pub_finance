@@ -4,6 +4,8 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
+from email.utils import parseaddr, formataddr
+from email.header import Header
 import os
 
 
@@ -18,7 +20,7 @@ class MyEmail(object):
         self.to = self._mail_user
         self.msg = MIMEMultipart('mixed')
         self.msg["To"] = self.to
-        self.msg["From"] = self.send_from
+        self.msg["From"] = self.format_addr('Quantitative trading <%s>' % self._mail_user)
         
 
     def send_email(self, subject, message):
@@ -53,3 +55,7 @@ class MyEmail(object):
             print("Email sent successfully!")
         except Exception as ex:
             print("Something went wrong….", ex)
+
+    def format_addr(self, s):
+        name, addr = parseaddr(s)
+        return formataddr((Header(name, 'utf-8').encode(), addr))            
