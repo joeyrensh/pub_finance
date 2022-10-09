@@ -23,6 +23,7 @@ from utility.StockProposal import StockProposal
 import sparklines
 import base64
 import pygal
+import re
 
 def sparkline_dist(data):
     hist = np.histogram(data, bins=10)[0]
@@ -31,22 +32,26 @@ def sparkline_dist(data):
 
 # 主程序入口
 if __name__ == "__main__":
-    data = [
-    [10,'Direct Sales','01-01-2019'],
-    [12,'Direct Sales','02-01-2019'],
-    [11,'Direct Sales','03-01-2019'],
-    [15,'Direct Sales','04-01-2019'],
-    [12,'Direct Sales','05-01-2019'],
-    [20,'Online Sales','01-01-2019'],
-    [25,'Online Sales','02-01-2019'],
-    [22,'Online Sales','03-01-2019'],
-    [30,'Online Sales','04-01-2019'],
-    [23,'Online Sales','05-01-2019'],
-    ]
-    df = pd.DataFrame(data, columns=['Revenue','Department','Date'])
-    lis = sparkline_dist(df['Revenue'])
-    print(lis)
-    # pvt = df.pivot(index='Department', columns='Date', values='Revenue')
-    # pvt['Trend'] = pvt.apply(sparkline, axis=1)
-    # html = pvt.to_html()
-    # MyEmail().send_email('this is test', html)
+    trade_date = ToolKit("获取最新美股交易日期").get_us_latest_trade_date(1)
+    path_list = os.listdir('./usstockinfo')
+    file_list = []
+    for file in path_list:
+        """返回小于等于当前交易日期的文件列表"""
+        if (
+            re.search("position_", file)
+            and str(file).replace("position_", "").replace(".csv", "")
+            <= trade_date
+        ):
+            file_list.append(file)
+    file_list.sort(reverse=True)
+    df_latest = pd.read_csv('./usstockinfo/' + file_list[0], usecols=[i for i in range(1, 8)])
+    date_index = str(file_list[0]).replace("position_", "").replace(".csv", "")
+    df_latest_n = df_latest.groupby(by="industry").size().reset_index(name=date_index)
+    df_nn = df_latest_n[df_latest_n[date_index] > 10]
+    for file in file_list[1: -2]:
+        df = pd.read_csv('./usstockinfo/' + file, usecols=[i for i in range(1, 8)])
+        date_index = str(file).replace("position_", "").replace(".csv", "")
+        df_n = df.groupby(by="industry").size().reset_index(name=date_index)
+        df_nn = pd.merge(df_nn, df_n, how='left', on='industry')
+        
+    print(df_nn)
