@@ -32,11 +32,10 @@ def sparkline_dist(data):
 
 # 主程序入口
 if __name__ == "__main__":
-    trade_date = ToolKit("获取最新美股交易日期").get_us_latest_trade_date(1)
+    trade_date = ToolKit("test").get_us_latest_trade_date(1)
     path_list = os.listdir('./usstockinfo')
     file_list = []
     for file in path_list:
-        """返回小于等于当前交易日期的文件列表"""
         if (
             re.search("position_", file)
             and str(file).replace("position_", "").replace(".csv", "")
@@ -53,5 +52,5 @@ if __name__ == "__main__":
         date_index = str(file).replace("position_", "").replace(".csv", "")
         df_n = df.groupby(by="industry").size().reset_index(name=date_index)
         df_nn = pd.merge(df_nn, df_n, how='left', on='industry')
-        
-    print(df_nn)
+
+
