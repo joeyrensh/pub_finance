@@ -5,5 +5,9 @@
     ],
     "python.analysis.extraPaths": [
         "./finance"
-    ]
+    ],
+    "python.linting.flake8Enabled": false,
+    "python.linting.enabled": false,
+    "python.linting.pylintEnabled": false,
+    "python.linting.pycodestyleEnabled": true
 }

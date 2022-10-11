@@ -88,7 +88,6 @@ def exec_btstrategy(date):
 
     perf_stats_ = round(perf_stats, 4).reset_index()
 
-
     # 绘制图形
 
     plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
@@ -118,7 +117,6 @@ def exec_btstrategy(date):
         "Daily value\nat risk",
     ]
 
-
     # 绘制表格
     ax0.set_axis_off()
     # 除去坐标轴
@@ -137,7 +135,6 @@ def exec_btstrategy(date):
     )
 
     table.set_fontsize(13)
-
 
     # 绘制累计收益曲线
     ax2 = ax1.twinx()
@@ -174,7 +171,6 @@ def exec_btstrategy(date):
     h2, l2 = ax2.get_legend_handles_labels()
 
     plt.legend(h1 + h2, l1 + l2, fontsize=12, loc="upper left", ncol=1)
-
 
     fig.tight_layout()
     plt.savefig('CNTRdraw.png')
