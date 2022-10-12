@@ -15,6 +15,7 @@ import matplotlib.font_manager as fm
 from utility.MyEmail import MyEmail
 import plotly.graph_objects as go
 import plotly.express as px
+from datetime import datetime, timedelta
 
 mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
 
@@ -168,10 +169,10 @@ class StockProposal:
                     order by cnt desc limit 10"
             )
             df_display = sqlDF.toPandas()
+            # recent 1 month
             sqlDF_bydate = spark.sql(
-                " select buy_date, cnt from ( \
-                    select buy_date, count(*) as cnt from temp group by buy_date) \
-                    order by cnt desc limit 10"
+                "select buy_date, count(*) as cnt from temp where buy_date >= date_add(current_date(), -30) \
+                    group by buy_date order by buy_date "
             )
             df_displaybydate = sqlDF_bydate.toPandas()
             fig = px.pie(
@@ -185,15 +186,14 @@ class StockProposal:
             fig.update_traces(textposition="inside", textinfo="percent")
             fig.write_image("./postion_byindustry.png")
 
-            fig = px.pie(
+            fig = px.bar(
                 df_displaybydate,
-                values="cnt",
-                names="buy_date",
+                x="buy_date",
+                y="cnt",
                 title="Stock Positions by Purchase Date",
-                hover_data=["cnt"],
-                labels={"Purchase Date": "cnt"},
+                labels={"buy_date": "Purchase Date", "cnt": "Stock Sum"},
+                color="cnt",
             )
-            fig.update_traces(textposition="inside", textinfo="percent")
             fig.write_image("./postion_bydate.png")
 
             if self.market == "us":
