@@ -54,7 +54,7 @@ def exec_btstrategy(date):
     print("Starting Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
     # 回测时需要添加 TimeReturn 分析器
-    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='_TimeReturn')
+    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
 
     """ 运行cerebro """
     result = cerebro.run()
@@ -62,7 +62,7 @@ def exec_btstrategy(date):
     print("当前现金持有: ", cerebro.broker.get_cash())
     print("Final Portfolio Value: %.2f" % cerebro.broker.getvalue())
     """ 画图相关 """
-   # 提取收益序列
+    # 提取收益序列
     pnl = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
 
     # 计算累计收益
@@ -173,7 +173,7 @@ def exec_btstrategy(date):
     plt.legend(h1 + h2, l1 + l2, fontsize=12, loc="upper left", ncol=1)
 
     fig.tight_layout()
-    plt.savefig('CNTRdraw.png')
+    plt.savefig("CNTRdraw.png")
 
 
 # 主程序入口

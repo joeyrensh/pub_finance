@@ -9,7 +9,6 @@ from email.header import Header
 import os
 
 
-
 class MyEmail(object):
 
     _mail_user = os.environ.get("email_addr")
@@ -18,17 +17,18 @@ class MyEmail(object):
     def __init__(self):
         self.send_from = self._mail_user
         self.to = self._mail_user
-        self.msg = MIMEMultipart('mixed')
+        self.msg = MIMEMultipart("mixed")
         self.msg["To"] = self.to
-        self.msg["From"] = self.format_addr('Quantitative trading <%s>' % self._mail_user)
-        
+        self.msg["From"] = self.format_addr(
+            "Quantitative trading <%s>" % self._mail_user
+        )
 
     def send_email(self, subject, message):
 
         try:
             self.subject = subject
             self.msg["Subject"] = subject
-            self.msg.attach(MIMEText(message, "html"))            
+            self.msg.attach(MIMEText(message, "html"))
             smtp_server = smtplib.SMTP_SSL("smtp.163.com", 465)
             smtp_server.ehlo()
             smtp_server.login(self._mail_user, self._mail_password)
@@ -38,15 +38,15 @@ class MyEmail(object):
         except Exception as ex:
             print("Something went wrong….", ex)
 
-
     def send_email_embedded_image(self, subject, message, image_path):
 
         try:
             self.subject = subject
             self.msg["Subject"] = subject
-            self.msg.attach(MIMEText(message, "html"))         
-            image = MIMEImage(open(image_path, 'rb').read())
-            self.msg.attach(image)
+            self.msg.attach(MIMEText(message, "html"))
+            for image_path_s in image_path:
+                image = MIMEImage(open(image_path_s, "rb").read())
+                self.msg.attach(image)
             smtp_server = smtplib.SMTP_SSL("smtp.163.com", 465)
             smtp_server.ehlo()
             smtp_server.login(self._mail_user, self._mail_password)
@@ -58,4 +58,4 @@ class MyEmail(object):
 
     def format_addr(self, s):
         name, addr = parseaddr(s)
-        return formataddr((Header(name, 'utf-8').encode(), addr))            
+        return formataddr((Header(name, "utf-8").encode(), addr))

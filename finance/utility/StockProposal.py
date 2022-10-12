@@ -7,6 +7,16 @@ import pandas as pd
 import seaborn as sns
 import os
 import sys
+from numpy import size
+from pyspark.sql import SparkSession
+import matplotlib.pyplot as plt
+from matplotlib.pylab import mpl
+import matplotlib.font_manager as fm
+from utility.MyEmail import MyEmail
+import plotly.graph_objects as go
+import plotly.express as px
+
+mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
 
 
 class StockProposal:
@@ -48,9 +58,27 @@ class StockProposal:
                 vmin=0,
                 vmax=1,
             )
-            .set_properties(**{"text-align": "left", "width": "auto", "border": "1px solid", "cellspacing": "0px", "style": "border-collapse:collapse"})
+            .set_properties(
+                **{
+                    "text-align": "left",
+                    "width": "auto",
+                    "border": "1px solid",
+                    "cellspacing": "0px",
+                    "style": "border-collapse:collapse",
+                }
+            )
             .set_table_styles(
-                [dict(selector="th", props=[("text-align", "left"), ("width", "auto"), ("white-space", "nowrap"), ("position", "fixed")])]
+                [
+                    dict(
+                        selector="th",
+                        props=[
+                            ("text-align", "left"),
+                            ("width", "auto"),
+                            ("white-space", "nowrap"),
+                            ("position", "fixed"),
+                        ],
+                    )
+                ]
             )
             .set_sticky(axis="columns")
             .to_html(doctype_html=True)
@@ -67,8 +95,6 @@ class StockProposal:
         """ 取仓位数据 """
         file_cur_p = file.get_file_name_position
         df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 8)])
-        pre_file_cur_p = file.get_pre_file_name_position
-        df_pre_p = pd.read_csv(pre_file_cur_p, usecols=[i for i in range(1, 8)])
         if not df_cur_p.empty:
             df_np = pd.merge(df_cur_p, df_d, how="inner", on="symbol")
             df_np.rename(
@@ -97,9 +123,27 @@ class StockProposal:
                     vmin=0,
                     vmax=1,
                 )
-                .set_properties(**{"text-align": "left", "width": "auto", "border": "1px solid", "cellspacing": "0px", "style": "border-collapse:collapse"})
+                .set_properties(
+                    **{
+                        "text-align": "left",
+                        "width": "auto",
+                        "border": "1px solid",
+                        "cellspacing": "0px",
+                        "style": "border-collapse:collapse",
+                    }
+                )
                 .set_table_styles(
-                    [dict(selector="th", props=[("text-align", "left"), ("width", "auto"), ("white-space", "nowrap"), ("position", "fixed")])]
+                    [
+                        dict(
+                            selector="th",
+                            props=[
+                                ("text-align", "left"),
+                                ("width", "auto"),
+                                ("white-space", "nowrap"),
+                                ("position", "fixed"),
+                            ],
+                        )
+                    ]
                 )
                 .set_sticky(axis="columns")
                 .to_html(doctype_html=True)
@@ -109,49 +153,59 @@ class StockProposal:
             elif self.market == "cn":
                 subject = "A股行情"
             MyEmail().send_email(subject, html)
+
             """ 按照行业板块聚合，统计最近成交率最高的行业 """
-            df_sum = df_np.groupby(by="所属行业").size().reset_index(name="今日策略")
-            df_sum.sort_values(by=["今日策略"], ascending=False, inplace=True)
-            df_sum.reset_index(drop=True, inplace=True)
-            """ 取上一交易日的行业板块聚合 """
-            df_sum_pre = (
-                df_pre_p.groupby(by="industry").size().reset_index(name="pre_count")
+            spark = (
+                SparkSession.builder.master("local[1]")
+                .appName("SparkTest")
+                .getOrCreate()
             )
-            df_sum_pre.sort_values(by=["pre_count"], ascending=False, inplace=True)
-            df_sum_pre.reset_index(drop=True, inplace=True)
-            df_sum_pre.rename(
-                columns={"industry": "所属行业", "pre_count": "昨日策略"}, inplace=True
+            df = spark.read.csv(file_cur_p, header=True)
+            df.createOrReplaceTempView("temp")
+            sqlDF = spark.sql(
+                " select industry, cnt from ( \
+                    select industry, count(*) as cnt from temp group by industry) \
+                    order by cnt desc limit 10"
             )
-            df_sum_np = pd.merge(df_sum, df_sum_pre, how="left", on="所属行业")
-            df_sum_np["变化比"] = (df_sum_np["今日策略"] - df_sum_np["昨日策略"]) / df_sum_np[
-                "昨日策略"
-            ]
-            """ 发送邮件 """
-            cm = sns.color_palette("Blues", as_cmap=True)
-            html = (
-                df_sum_np.style.hide(axis="index")
-                .format({"今日策略": "{:.0f}", "昨日策略": "{:.0f}", "变化比": "{:.2f}"})
-                .background_gradient(subset=["今日策略", "昨日策略"], cmap=cm)
-                .bar(
-                    subset=["变化比"],
-                    align="left",
-                    color=["#5fba7d", "#d65f5f"],
-                    vmin=-1,
-                    vmax=1,
-                )
-                .set_properties(**{"text-align": "left", "width": "auto", "border": "1px solid", "cellspacing": "0px", "style": "border-collapse:collapse"})
-                .set_table_styles(
-                    [dict(selector="th", props=[("text-align", "left"), ("width", "auto"), ("white-space", "nowrap"), ("position", "fixed")])]
-                )
-                .set_sticky(axis="columns")
-                .to_html()
+            df_display = sqlDF.toPandas()
+            sqlDF_bydate = spark.sql(
+                " select buy_date, cnt from ( \
+                    select buy_date, count(*) as cnt from temp group by buy_date) \
+                    order by cnt desc limit 10"
             )
+            df_displaybydate = sqlDF_bydate.toPandas()
+            fig = px.pie(
+                df_display,
+                values="cnt",
+                names="industry",
+                title="Stock Positions by Industry",
+                hover_data=["cnt"],
+                labels={"Industry": "cnt"},
+            )
+            fig.update_traces(textposition="inside", textinfo="percent")
+            fig.write_image("./postion_byindustry.png")
+
+            fig = px.pie(
+                df_displaybydate,
+                values="cnt",
+                names="buy_date",
+                title="Stock Positions by Purchase Date",
+                hover_data=["cnt"],
+                labels={"Purchase Date": "cnt"},
+            )
+            fig.update_traces(textposition="inside", textinfo="percent")
+            fig.write_image("./postion_bydate.png")
+
             if self.market == "us":
                 subject = "美股行业行情"
-                image_path = './TRdraw.png'
+                image_path = "./TRdraw.png"
             elif self.market == "cn":
                 subject = "A股行业行情"
-                image_path = './CNTRdraw.png'
-            # MyEmail().send_email(subject, html)
+                image_path = "./CNTRdraw.png"
+            image_path = [
+                "./postion_byindustry.png",
+                "./postion_bydate.png",
+                "./CNTRdraw.png",
+            ]
+            html = ""
             MyEmail().send_email_embedded_image(subject, html, image_path)
-            
