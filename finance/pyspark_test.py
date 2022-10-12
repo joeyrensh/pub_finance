@@ -106,4 +106,4 @@ from utility.StockProposal import StockProposal
 # html = ""
 # image_path = ["./pyspark_test.png", "./pyspark_test1.png"]
 # MyEmail().send_email_embedded_image(subject, html, image_path)
-StockProposal("cn", "20221012").send_btstrategy_by_email()
+StockProposal("us", "20221011").send_btstrategy_by_email()
