@@ -192,11 +192,11 @@ class EMCNHistoryDataDownload:
             pass
 
 
-#历史数据起始时间，结束时间
-#文件名称定义 
+# 历史数据起始时间，结束时间
+# 文件名称定义
 
 emc = EMCNHistoryDataDownload()
-start_date = '20220101'
-end_date = '20220926'
-file_path = './cnstockinfo/stock_20220926.csv'
-emc.set_his_tick_info_to_csv(start_date, end_date, file_path) 
+start_date = "20220101"
+end_date = "20220926"
+file_path = "./cnstockinfo/stock_20220926.csv"
+emc.set_his_tick_info_to_csv(start_date, end_date, file_path)

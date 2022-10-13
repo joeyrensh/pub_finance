@@ -66,7 +66,7 @@ def exec_btstrategy(date):
     print("Starting Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
     # 回测时需要添加 TimeReturn 分析器
-    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name='_TimeReturn')
+    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
 
     """ 运行cerebro """
     result = cerebro.run()
@@ -101,7 +101,6 @@ def exec_btstrategy(date):
 
     perf_stats_ = round(perf_stats, 4).reset_index()
 
-
     # 绘制图形
 
     plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
@@ -131,7 +130,6 @@ def exec_btstrategy(date):
         "Daily value\nat risk",
     ]
 
-
     # 绘制表格
     ax0.set_axis_off()
     # 除去坐标轴
@@ -150,7 +148,6 @@ def exec_btstrategy(date):
     )
 
     table.set_fontsize(13)
-
 
     # 绘制累计收益曲线
     ax2 = ax1.twinx()
@@ -188,9 +185,8 @@ def exec_btstrategy(date):
 
     plt.legend(h1 + h2, l1 + l2, fontsize=12, loc="upper left", ncol=1)
 
-
     fig.tight_layout()
-    plt.savefig('TRdraw.png')    
+    plt.savefig("TRdraw.png")
 
 
 # 主程序入口
@@ -229,28 +225,6 @@ if __name__ == "__main__":
     """ 发送邮件 """
     if not df.empty:
         StockProposal("us", trade_date).send_strategy_df_by_email(df)
-
-    # 发送钉钉消息
-    # df_style = df.style.hide_columns(['tag', 'index'])\
-    #     .hide_index() \
-    #     .format({"close": "{:.2f}",
-    #              "chg": "{:.2f}%",
-    #              "amplitude": "{:.2f}%"}) \
-    #     .background_gradient(cmap=cm) \
-    #     .set_table_styles([{
-    #         "selector": "thead",
-    #         "props": "background-color:green;color:black;"
-    #     }])
-    # dfi.export(df, './images/us_strategy.png',
-    #            table_conversion='matplotlib')
-    # dd = DingDing()
-    # image_address = 'http://81.68.229.169:80/images/us_strategy.png'
-    # # 发送TOP1振幅股票到钉钉
-    # dd.send_markdown(title='Do It!!!',
-    #                  content='## 美股市场行情\n'
-    #                  '#### Oh Yeath\n\n'
-    #                  '> ![美景](' + image_address + ')\n'
-    #                  '> ## Just Do It!!!\n')
 
     """ 执行bt相关策略 """
     exec_btstrategy(trade_date)
