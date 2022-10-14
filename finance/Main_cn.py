@@ -203,9 +203,6 @@ if __name__ == "__main__":
     """ 爬取每日最新股票数据 """
     em = EMCNWebCrawler()
     em.get_cn_daily_stock_info(trade_date)
-    """ 爬取每日最新股票对应行业数据 """
-    emi = EMCNTickerCategoryCrawler()
-    emi.get_cn_ticker_category(trade_date)
 
     """ 执行bt相关策略 """
     exec_btstrategy(trade_date)

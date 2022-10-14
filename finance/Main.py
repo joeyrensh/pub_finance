@@ -216,9 +216,6 @@ if __name__ == "__main__":
     """ 爬取每日最新股票数据 """
     em = EMWebCrawler()
     em.get_us_daily_stock_info(trade_date)
-    """ 爬取每日最新股票对应行业数据 """
-    emi = EMUsTickerCategoryCrawler()
-    emi.get_us_ticker_category(trade_date)
 
     """ 执行策略 """
     df = exec_strategy(trade_date)
