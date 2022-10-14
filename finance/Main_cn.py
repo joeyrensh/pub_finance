@@ -22,6 +22,7 @@ from utility.StockProposal import StockProposal
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pyfolio as pf
+import gc
 
 
 """ backtrader策略 """
@@ -55,6 +56,10 @@ def exec_btstrategy(date):
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
+
+    # 节约内存
+    del list
+    gc.collect()
 
     """ 运行cerebro """
     result = cerebro.run()
@@ -206,6 +211,10 @@ if __name__ == "__main__":
 
     """ 执行bt相关策略 """
     exec_btstrategy(trade_date)
+
+    collected = gc.collect()
+
+    print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
     StockProposal("cn", trade_date).send_btstrategy_by_email()
