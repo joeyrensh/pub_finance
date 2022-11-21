@@ -44,7 +44,7 @@ class TickerInfo:
             """
             if self.market == "us":
                 if (
-                    float(i["volume"])*float(i["close"]) >= 50000000
+                    float(i["volume"]) * float(i["close"]) >= 50000000
                     and float(i["close"]) > 2
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
@@ -95,7 +95,7 @@ class TickerInfo:
         list = []
         results = []
         """ 创建多进程 """
-        pool = multiprocessing.Pool(processes=8)
+        pool = multiprocessing.Pool(processes=2)
         for i in tickers:
             """
             适配BackTrader数据结构
