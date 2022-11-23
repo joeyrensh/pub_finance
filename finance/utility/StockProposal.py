@@ -166,12 +166,13 @@ class StockProposal:
             sqlDF = spark.sql(
                 " select industry, cnt from ( \
                     select industry, count(*) as cnt from temp group by industry) \
-                    order by cnt desc limit 10"
+                    order by cnt desc limit 20"
             )
             df_display = sqlDF.toPandas()
             # recent 1 month
             sqlDF_bydate = spark.sql(
-                "select buy_date, count(*) as cnt from temp where buy_date >= date_add(current_date(), -30) \
+                "select buy_date, count(*) as cnt from temp \
+                    where buy_date >= date_add(current_date(), -100) \
                     group by buy_date order by buy_date "
             )
             df_displaybydate = sqlDF_bydate.toPandas()
