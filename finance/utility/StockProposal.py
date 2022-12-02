@@ -199,14 +199,14 @@ class StockProposal:
 
             if self.market == "us":
                 subject = "美股行业行情"
-                image_path = "./TRdraw.png"
+                image_path_return = "./TRdraw.png"
             elif self.market == "cn":
                 subject = "A股行业行情"
-                image_path = "./CNTRdraw.png"
+                image_path_return = "./CNTRdraw.png"
             image_path = [
                 "./postion_byindustry.png",
                 "./postion_bydate.png",
-                "./CNTRdraw.png",
+                image_path_return,
             ]
             html = ""
             MyEmail().send_email_embedded_image(subject, html, image_path)

@@ -57,7 +57,7 @@ def exec_btstrategy(date):
         print("正在初始化: ", h["symbol"][0])
         """ 历史数据最早不超过2021-01-01 """
         data = BTPandasDataExt(
-            dataname=h, name=h["symbol"][0], fromdate=datetime(2021, 1, 1)
+            dataname=h, name=h["symbol"][0], fromdate=datetime(2022, 1, 1)
         )
         cerebro.adddata(data)
         # 周数据
