@@ -40,6 +40,7 @@ class MyEmail(object):
                     "45124142@qq.com",
                     "77538801@qq.com",
                     "854043506@qq.com",
+                    "781540803@qq.com",
                 ],
                 self.msg.as_string(),
             )
@@ -68,6 +69,7 @@ class MyEmail(object):
                     "45124142@qq.com",
                     "77538801@qq.com",
                     "854043506@qq.com",
+                    "781540803@qq.com",
                     "moxingxing.lei@gmail.com",
                 ],
                 self.msg.as_string(),
