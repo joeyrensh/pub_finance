@@ -48,6 +48,8 @@ class BTStrategyVol(bt.Strategy):
             """ 仓位文件地址 """
             file_position = file.get_file_name_position
             self.log_file = open(file_position, "w")
+            file_position_overall = file.get_file_name_position_overall
+            self.log_file_overall = open(file_position_overall, "w")
             """ 板块文件地址 """
             self.file_industry = file.get_file_name_industry
         elif self.datas[0].market[0] == 2:
@@ -56,6 +58,8 @@ class BTStrategyVol(bt.Strategy):
             """ 仓位文件地址 """
             file_position = file.get_file_name_position
             self.log_file = open(file_position, "w")
+            file_position_overall = file.get_file_name_position_overall
+            self.log_file_overall = open(file_position_overall, "w")
             """ 板块文件地址 """
             self.file_industry = file.get_file_name_industry
         """ backtrader一些常用属性的初始化 """

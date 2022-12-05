@@ -26,6 +26,9 @@ class FileInfo:
         self.file_name_position = (
             "./" + market + "stockinfo/position_" + trade_date + ".csv"
         )
+        self.file_name_position_overall = (
+            "./" + market + "stockinfo/position_overall" + trade_date + ".csv"
+        )
         if market == "us":
             pre_trade_date = ToolKit("获取上一个交易日").get_us_latest_trade_date(1)
         else:
@@ -80,6 +83,10 @@ class FileInfo:
     @property
     def get_file_name_position(self):
         return self.file_name_position
+
+    @property
+    def get_file_name_position_overall(self):
+        return self.file_name_position_overall
 
     """ 返回股票仓位文件路径 """
 

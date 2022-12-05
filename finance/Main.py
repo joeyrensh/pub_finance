@@ -77,6 +77,7 @@ def exec_btstrategy(date):
     """ 最终资金池 """
     print("当前现金持有: ", cerebro.broker.get_cash())
     print("Final Portfolio Value: %.2f" % cerebro.broker.getvalue())
+
     """ 画图相关 """
     # cerebro.plot(iplot=True, subplot=True)
     # 提取收益序列
