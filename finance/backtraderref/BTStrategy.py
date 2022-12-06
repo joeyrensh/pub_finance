@@ -355,6 +355,10 @@ class BTStrategy(bt.Strategy):
 
     def stop(self):
         list = []
+        # 记录仓位情况，并打印明细
+        pos_share = 0
+        pos_loss = 0
+        pos_earn = 0
         for i, d in enumerate(self.datas):
             pos = self.getposition(d)
             """ 截止当前，持仓仓位打印 """
@@ -399,6 +403,12 @@ class BTStrategy(bt.Strategy):
                 # if dict["p&l_ratio"] < 0.10:
                 #     continue
                 list.append(dict)
+                pos_share = pos_share + pos.size * pos.adjbase
+                if pos.adjbase - pos.price >= 0:
+                    pos_earn = pos_earn + pos.size * (pos.adjbase - pos.price)
+                else:
+                    pos_loss = pos_loss + pos.size * (pos.adjbase - pos.price)
+        print("总持仓：%s, 浮盈：%s, 浮亏：%s" % (pos_share, pos_earn, pos_loss))
         df = pd.DataFrame(list)
         if df.empty:
             return
