@@ -34,7 +34,7 @@ def exec_btstrategy(date):
     """ 添加bt相关的策略 """
     cerebro.addstrategy(BTStrategyVol)
     """ 初始资金100M """
-    cerebro.broker.setcash(1000000.0)
+    cerebro.broker.setcash(2000000.0)
     """ 每手10股 """
     cerebro.addsizer(bt.sizers.FixedSize, stake=100)
     """ 费率千分之一 """
