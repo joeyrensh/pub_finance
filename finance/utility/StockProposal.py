@@ -166,7 +166,7 @@ class StockProposal:
             sqlDF = spark.sql(
                 " select industry, cnt from ( \
                     select industry, count(*) as cnt from temp group by industry) \
-                    order by cnt desc limit 20"
+                    order by cnt desc limit 15"
             )
             df_display = sqlDF.toPandas()
             # recent 1 month
