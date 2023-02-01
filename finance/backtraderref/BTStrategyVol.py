@@ -117,6 +117,32 @@ class BTStrategyVol(bt.Strategy):
                 d.volume, period=self.params.vollongperiod
             )
             """
+            日线DIF值
+            日线DEA值
+            日线MACD值
+            """
+            self.inds[d]["dif"] = bt.indicators.MACDHisto(
+                d.close,
+                period_me1=self.params.fastperiod,
+                period_me2=self.params.slowperiod,
+                period_signal=self.params.signalperiod,
+            ).macd
+            self.inds[d]["dea"] = bt.indicators.MACDHisto(
+                d.close,
+                period_me1=self.params.fastperiod,
+                period_me2=self.params.slowperiod,
+                period_signal=self.params.signalperiod,
+            ).signal
+            self.inds[d]["macd"] = (
+                bt.indicators.MACDHisto(
+                    d.close,
+                    period_me1=self.params.fastperiod,
+                    period_me2=self.params.slowperiod,
+                    period_signal=self.params.signalperiod,
+                ).histo
+                * 2
+            )
+            """
             生成交易信号
             看涨信号
             """
@@ -158,6 +184,10 @@ class BTStrategyVol(bt.Strategy):
             """ 收盘价跌破ma20均线 """
             self.signals[d]["close_crossdown_malong"] = bt.indicators.CrossDown(
                 d.close, self.inds[d]["malong"]
+            )
+            """ dif下穿0轴 """
+            self.signals[d]["dif_crossdown_axis"] = bt.indicators.CrossDown(
+                self.inds[d]["dif"], 0
             )
 
             """ indicators以及signals初始化进度打印 """
@@ -237,10 +267,12 @@ class BTStrategyVol(bt.Strategy):
                 """
                 均线止损/止盈信号：
                 信号1: 收盘价跌破ma20
-                信号2: 已经亏损20%
+                信号2: 日dif下穿0轴
+                信号3: 已经亏损20%
                 """
                 if (
                     self.signals[d]["close_crossdown_malong"][0] == 1
+                    or self.signals[d]["dif_crossdown_axis"][0] == 1
                     or (d.close[0] - pos.price) / pos.price < -0.2
                 ):
                     self.order[d._name] = self.close(data=d)
