@@ -416,7 +416,9 @@ class BTStrategy(bt.Strategy):
         df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
         df_n = pd.merge(df, df_o, how="left", on="symbol")
         """ 按照买入日期以及盈亏比倒排 """
-        df_n.sort_values(by=["buy_date", "p&l_ratio"], ascending=False, inplace=True)
+        df_n.sort_values(
+            by=["industry", "buy_date", "p&l_ratio"], ascending=False, inplace=True
+        )
         df_n.reset_index(drop=True, inplace=True)
         df_n.to_csv(self.log_file)
         self.log_file.close()
