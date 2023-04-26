@@ -169,6 +169,34 @@ class StockProposal:
                     order by cnt desc limit 15"
             )
             df_display = sqlDF.toPandas()
+            fig = px.pie(
+                df_display,
+                values="cnt",
+                names="industry",
+                title="Stock Positions by Industry Desc",
+                hover_data=["cnt"],
+                labels={"Industry": "cnt"},
+            )
+            fig.update_traces(textposition="inside", textinfo="percent")
+            fig.write_image("./postion_byindustry.png")
+
+            # 取最冷门的TOP 10 行业
+            sqlDF_asc = spark.sql(
+                " select industry, cnt from ( \
+                    select industry, count(*) as cnt from temp group by industry) \
+                    order by cnt asc limit 15"
+            )
+            df_display_asc = sqlDF_asc.toPandas()
+            fig = px.pie(
+                df_display_asc,
+                values="cnt",
+                names="industry",
+                title="Stock Positions by Industry Asc",
+                hover_data=["cnt"],
+                labels={"Industry": "cnt"},
+            )
+            fig.update_traces(textposition="inside", textinfo="percent")
+            fig.write_image("./postion_byindustry_asc.png")
             # recent 1 month
             sqlDF_bydate = spark.sql(
                 "select buy_date, count(*) as cnt from temp \
@@ -176,17 +204,6 @@ class StockProposal:
                     group by buy_date order by buy_date "
             )
             df_displaybydate = sqlDF_bydate.toPandas()
-            fig = px.pie(
-                df_display,
-                values="cnt",
-                names="industry",
-                title="Stock Positions by Industry",
-                hover_data=["cnt"],
-                labels={"Industry": "cnt"},
-            )
-            fig.update_traces(textposition="inside", textinfo="percent")
-            fig.write_image("./postion_byindustry.png")
-
             fig = px.bar(
                 df_displaybydate,
                 x="buy_date",
@@ -205,6 +222,7 @@ class StockProposal:
                 image_path_return = "./CNTRdraw.png"
             image_path = [
                 "./postion_byindustry.png",
+                "./postion_byindustry_asc.png",
                 "./postion_bydate.png",
                 image_path_return,
             ]
