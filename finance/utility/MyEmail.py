@@ -10,7 +10,6 @@ import os
 
 
 class MyEmail(object):
-
     _mail_user = os.environ.get("email_addr")
     _mail_password = os.environ.get("email_key")
 
@@ -24,7 +23,6 @@ class MyEmail(object):
         )
 
     def send_email(self, subject, message):
-
         try:
             self.subject = subject
             self.msg["Subject"] = subject
@@ -34,14 +32,7 @@ class MyEmail(object):
             smtp_server.login(self._mail_user, self._mail_password)
             smtp_server.sendmail(
                 self.send_from,
-                [
-                    self.to,
-                    "24491350@qq.com",
-                    "45124142@qq.com",
-                    "77538801@qq.com",
-                    "854043506@qq.com",
-                    "781540803@qq.com",
-                ],
+                [self.to],
                 self.msg.as_string(),
             )
             smtp_server.close()
@@ -50,7 +41,6 @@ class MyEmail(object):
             print("Something went wrong….", ex)
 
     def send_email_embedded_image(self, subject, message, image_path):
-
         try:
             self.subject = subject
             self.msg["Subject"] = subject
@@ -65,11 +55,6 @@ class MyEmail(object):
                 self.send_from,
                 [
                     self.to,
-                    "24491350@qq.com",
-                    "45124142@qq.com",
-                    "77538801@qq.com",
-                    "854043506@qq.com",
-                    "781540803@qq.com",
                     "moxingxing.lei@gmail.com",
                 ],
                 self.msg.as_string(),

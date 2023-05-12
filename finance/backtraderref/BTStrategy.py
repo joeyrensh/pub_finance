@@ -303,7 +303,7 @@ class BTStrategy(bt.Strategy):
 
     def next(self):
         for i, d in enumerate(self.datas):
-            if self.order[d._name]:
+            if self.order[d._name] or d._name == "BRK_A":
                 continue
             """
             self.log('当前代码: %s, 当前持仓:, %s' %
