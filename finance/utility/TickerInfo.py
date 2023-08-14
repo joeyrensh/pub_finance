@@ -125,9 +125,9 @@ class TickerInfo:
         print("正在处理股票：", i)
         """ 
         过滤历史数据不完整的股票
-        小于200天的股票暂时不进入回测列表
+        小于100天的股票暂时不进入回测列表
         """
-        if len(group_obj) < 200:
+        if len(group_obj) < 100:
             return pd.DataFrame()
         """ 适配BackTrader数据结构 """
         if self.market == "us":
