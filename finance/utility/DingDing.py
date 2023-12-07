@@ -12,8 +12,8 @@ class DingDing(object):
 
     """钉钉webhook地址，自定义标签模式"""
 
-    dd_ak = os.environ.get("dd_ak")
-    __url = "https://oapi.dingtalk.com/robot/send?access_token=" + dd_ak
+    # dd_ak = os.environ.get("dd_ak")
+    # __url = "https://oapi.dingtalk.com/robot/send?access_token=" + dd_ak
 
     def __init__(self):
         self.api_url = self.__url

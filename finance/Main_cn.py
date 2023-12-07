@@ -12,8 +12,6 @@ import sys
 import seaborn as sns
 from backtraderref.BTStrategyVol import BTStrategyVol
 import backtrader as bt
-from backtrader_plotting import Bokeh
-from backtrader_plotting.schemes import Tradimo
 from utility.TickerInfo import TickerInfo
 from cncrawler.EMCNWebCrawler import EMCNWebCrawler
 from cncrawler.EMCNTickerCategoryCrawler import EMCNTickerCategoryCrawler
@@ -99,7 +97,8 @@ def exec_btstrategy(date):
     plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
 
     # 导入设置坐标轴的模块
-    plt.style.use("seaborn")
+    sns.set()
+    # plt.style.use("seaborn")
     # plt.style.use('dark_background')
 
     fig, (ax0, ax1) = plt.subplots(

@@ -48,8 +48,8 @@ class StockProposal:
         )
         cm = sns.color_palette("Blues", as_cmap=True)
         html = (
-            df_n.style.hide(axis="index")
-            .hide_columns(["标记", "成交量"])
+            df_n.style
+            .hide(axis=1, subset=["标记", "成交量"])
             .format({"收盘价": "{:.2f}", "涨幅": "{:.2f}", "成交量": "{:.0f}", "振幅": "{:.2f}%"})
             .background_gradient(subset=["收盘价", "涨幅", "成交量", "振幅"], cmap=cm)
             .bar(
@@ -113,8 +113,8 @@ class StockProposal:
             )
             cm = sns.color_palette("Blues", as_cmap=True)
             html = (
-                df_np.style.hide(axis="index")
-                .hide_columns(["收益金额"])
+                df_np.style
+                .hide(axis=1, subset=["收益金额"])
                 .format({"买入价": "{:.2f}", "当前价": "{:.2f}", "收益率": "{:.2f}"})
                 .background_gradient(subset=["买入价", "当前价"], cmap=cm)
                 .bar(

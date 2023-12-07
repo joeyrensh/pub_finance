@@ -13,8 +13,6 @@ import sys
 import seaborn as sns
 from backtraderref.BTStrategy import BTStrategy
 import backtrader as bt
-from backtrader_plotting import Bokeh
-from backtrader_plotting.schemes import Tradimo
 from utility.TickerInfo import TickerInfo
 from uscrawler.EMWebCrawler import EMWebCrawler
 from uscrawler.EMUsTickerCategoryCrawler import EMUsTickerCategoryCrawler
@@ -111,7 +109,8 @@ def exec_btstrategy(date):
     plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
 
     # 导入设置坐标轴的模块
-    plt.style.use("seaborn")
+    sns.set()
+    # plt.style.use("seaborn")
     # plt.style.use('dark_background')
 
     fig, (ax0, ax1) = plt.subplots(
@@ -222,11 +221,11 @@ if __name__ == "__main__":
     em = EMWebCrawler()
     em.get_us_daily_stock_info(trade_date)
 
-    """ 执行策略 """
-    df = exec_strategy(trade_date)
-    """ 发送邮件 """
-    if not df.empty:
-        StockProposal("us", trade_date).send_strategy_df_by_email(df)
+    # """ 执行策略 """
+    # df = exec_strategy(trade_date)
+    # """ 发送邮件 """
+    # if not df.empty:
+    #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
 
     """ 执行bt相关策略 """
     exec_btstrategy(trade_date)
