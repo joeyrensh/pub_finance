@@ -13,8 +13,8 @@ import sys
 import seaborn as sns
 from backtraderref.BTStrategy import BTStrategy
 import backtrader as bt
-#from backtrader_plotting import Bokeh
-#from backtrader_plotting.schemes import Tradimo
+from backtrader_plotting import Bokeh
+from backtrader_plotting.schemes import Tradimo
 from utility.TickerInfo import TickerInfo
 from uscrawler.EMWebCrawler import EMWebCrawler
 from uscrawler.EMUsTickerCategoryCrawler import EMUsTickerCategoryCrawler
@@ -28,12 +28,12 @@ import gc
 """ 执行策略 """
 
 
-#def exec_strategy(date):
-#    """小市值大波动策略-策略1"""
-#    us_strate = UsStrategy(date)
-#    df1 = us_strate.get_usstrategy1()
-#    print(tabulate(df1, headers="keys", tablefmt="pretty"))
-#    return df1
+def exec_strategy(date):
+    """小市值大波动策略-策略1"""
+    us_strate = UsStrategy(date)
+    df1 = us_strate.get_usstrategy1()
+    print(tabulate(df1, headers="keys", tablefmt="pretty"))
+    return df1
 
 
 """ backtrader策略 """
@@ -57,7 +57,7 @@ def exec_btstrategy(date):
         print("正在初始化: ", h["symbol"][0])
         """ 历史数据最早不超过2021-01-01 """
         data = BTPandasDataExt(
-            dataname=h, name=h["symbol"][0], fromdate=datetime(2023, 1, 1)
+            dataname=h, name=h["symbol"][0], fromdate=datetime(2022, 1, 1)
         )
         cerebro.adddata(data)
         # 周数据
@@ -111,8 +111,7 @@ def exec_btstrategy(date):
     plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
 
     # 导入设置坐标轴的模块
-    sns.set()
-    #plt.style.use("seaborn")
+    plt.style.use("seaborn")
     # plt.style.use('dark_background')
 
     fig, (ax0, ax1) = plt.subplots(
@@ -224,10 +223,10 @@ if __name__ == "__main__":
     em.get_us_daily_stock_info(trade_date)
 
     """ 执行策略 """
-#    df = exec_strategy(trade_date)
+    df = exec_strategy(trade_date)
     """ 发送邮件 """
-#    if not df.empty:
-#        StockProposal("us", trade_date).send_strategy_df_by_email(df)
+    if not df.empty:
+        StockProposal("us", trade_date).send_strategy_df_by_email(df)
 
     """ 执行bt相关策略 """
     exec_btstrategy(trade_date)

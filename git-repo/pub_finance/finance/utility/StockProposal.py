@@ -113,10 +113,8 @@ class StockProposal:
             )
             cm = sns.color_palette("Blues", as_cmap=True)
             html = (
-                df_np.style
-                #.hide_index()
-                #.hide(columns=["收益金额"])
-                .hide(axis=1, subset=["收益金额"])
+                df_np.style.hide(axis="index")
+                .hide_columns(["收益金额"])
                 .format({"买入价": "{:.2f}", "当前价": "{:.2f}", "收益率": "{:.2f}"})
                 .background_gradient(subset=["买入价", "当前价"], cmap=cm)
                 .bar(

@@ -12,8 +12,8 @@ import sys
 import seaborn as sns
 from backtraderref.BTStrategyVol import BTStrategyVol
 import backtrader as bt
-#from backtrader_plotting import Bokeh
-#from backtrader_plotting.schemes import Tradimo
+from backtrader_plotting import Bokeh
+from backtrader_plotting.schemes import Tradimo
 from utility.TickerInfo import TickerInfo
 from cncrawler.EMCNWebCrawler import EMCNWebCrawler
 from cncrawler.EMCNTickerCategoryCrawler import EMCNTickerCategoryCrawler
@@ -46,7 +46,7 @@ def exec_btstrategy(date):
         print("正在初始化: ", h["symbol"][0])
         """ 历史数据最早不超过2021-01-01 """
         data = BTPandasDataExt(
-            dataname=h, name=h["symbol"][0], fromdate=datetime(2023, 1, 1)
+            dataname=h, name=h["symbol"][0], fromdate=datetime(2022, 1, 1)
         )
         cerebro.adddata(data)
         # 周数据
@@ -99,9 +99,7 @@ def exec_btstrategy(date):
     plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
 
     # 导入设置坐标轴的模块
-
-    sns.set()
-    #plt.style.use("seaborn")
+    plt.style.use("seaborn")
     # plt.style.use('dark_background')
 
     fig, (ax0, ax1) = plt.subplots(
