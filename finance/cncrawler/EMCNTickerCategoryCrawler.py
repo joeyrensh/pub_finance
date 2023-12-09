@@ -29,7 +29,7 @@ class EMCNTickerCategoryCrawler:
         for mkt_code in ["0", "1"]:
             url = (
                 "https://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
-                "&pn=1&pz=20000&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:mkt_code&fields=f2,f5,f12,f14,f15,f16,f17&_=unix_time"
+                "&pn=1&pz=100000&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:mkt_code&fields=f2,f5,f12,f14,f15,f16,f17&_=unix_time"
             )
             """ 请求url，获取数据response """
             url_re = url.replace("unix_time", str(current_timestamp)).replace(
@@ -75,7 +75,7 @@ class EMCNTickerCategoryCrawler:
             # if i["symbol"] == '600444':
             #     print(i)
             url = "https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax?code=mkt_codesymbol"
-            url_re = url.replace("mkt_codesymbol", i["mkt_code"]+i["symbol"])
+            url_re = url.replace("mkt_codesymbol", i["symbol"])
             res = requests.get(url_re).text.lower()
             # print(res)
             try:

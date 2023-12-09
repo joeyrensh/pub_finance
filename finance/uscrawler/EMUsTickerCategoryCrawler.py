@@ -32,7 +32,7 @@ class EMUsTickerCategoryCrawler:
         for mkt_code in ["105", "106", "107"]:
             url = (
                 "https://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
-                "&pn=1&pz=20000&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:mkt_code&fields=f2,f5,f12,f14,f15,f16,f17&_=unix_time"
+                "&pn=1&pz=100000&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:mkt_code&fields=f2,f5,f12,f14,f15,f16,f17&_=unix_time"
             )
             """ 请求url，获取数据response """
             url_re = url.replace("unix_time", str(current_timestamp)).replace(
