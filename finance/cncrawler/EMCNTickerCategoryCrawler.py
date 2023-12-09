@@ -70,10 +70,14 @@ class EMCNTickerCategoryCrawler:
         tool = ToolKit("行业下载进度")
         """ 遍历股票列表获取对应行业板块信息 """
         tick_list = self.get_cn_stock_list()
+        # tick_list = [{"symbol":"600444", "mkt_code":"SH"}]
         for i in tick_list:
+            # if i["symbol"] == '600444':
+            #     print(i)
             url = "https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax?code=mkt_codesymbol"
-            url_re = url.replace("mkt_codesymbol", i["symbol"])
+            url_re = url.replace("mkt_codesymbol", i["mkt_code"]+i["symbol"])
             res = requests.get(url_re).text.lower()
+            # print(res)
             try:
                 json_object = json.loads(res)
             except ValueError:
@@ -81,6 +85,7 @@ class EMCNTickerCategoryCrawler:
             if "jbzl" in json_object and "sshy" in json_object["jbzl"]:
                 if json_object["jbzl"]["sshy"] == "--":
                     continue
+                # print(json_object["jbzl"]["sshy"])
                 dict = {"symbol": i["symbol"], "industry": json_object["jbzl"]["sshy"]}
                 list.append(dict)
                 print(dict)
