@@ -171,6 +171,7 @@ class StockProposal:
             df_display = sqlDF.toPandas()
             fig = px.pie(
                 df_display,
+                color_discrete_sequence=px.colors.sequential.RdBu,
                 values="cnt",
                 names="industry",
                 title="Stock Positions by Industry Desc",
@@ -189,6 +190,7 @@ class StockProposal:
             df_display_asc = sqlDF_asc.toPandas()
             fig = px.pie(
                 df_display_asc,
+                color_discrete_sequence=px.colors.sequential.RdBu,
                 values="cnt",
                 names="industry",
                 title="Stock Positions by Industry Asc",
@@ -206,6 +208,7 @@ class StockProposal:
             df_displaybydate = sqlDF_bydate.toPandas()
             fig = px.bar(
                 df_displaybydate,
+                barmode = 'group',
                 x="buy_date",
                 y="cnt",
                 title="Stock Positions by Purchase Date",
