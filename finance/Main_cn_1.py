@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import sys
 import seaborn as sns
-from backtraderref.BTStrategyVol import BTStrategyVol
+from backtraderref.BTStrategyVol_1 import BTStrategyVol_1
 import backtrader as bt
 from utility.TickerInfo import TickerInfo
 from cncrawler.EMCNWebCrawler import EMCNWebCrawler
@@ -30,7 +30,7 @@ def exec_btstrategy(date):
     """创建cerebro对象"""
     cerebro = bt.Cerebro(stdstats=False)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(BTStrategyVol)
+    cerebro.addstrategy(BTStrategyVol_1)
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")

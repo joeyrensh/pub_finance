@@ -13,7 +13,7 @@ from utility.FileInfo import FileInfo
 
 
 
-class BTStrategyVol(bt.Strategy):
+class BTStrategyVol_1(bt.Strategy):
     """
     自定义均线的时间间隔
     目前定义了MA/EMA/MACD三类指标的时间区间

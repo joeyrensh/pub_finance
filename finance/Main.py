@@ -39,9 +39,13 @@ def exec_strategy(date):
 
 def exec_btstrategy(date):
     """创建cerebro对象"""
-    cerebro = bt.Cerebro()
+    cerebro = bt.Cerebro(stdstats=False)
     """ 添加bt相关的策略 """
     cerebro.addstrategy(BTStrategy)
+
+    # 回测时需要添加 TimeReturn 分析器
+    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
+    cerebro.addobserver(bt.observers.BuySell)    
     """ 初始资金100M """
     cerebro.broker.setcash(2000000.0)
     """ 每手10股 """
@@ -62,9 +66,6 @@ def exec_btstrategy(date):
         # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
     """ 起始资金池 """
     print("Starting Portfolio Value: %.2f" % cerebro.broker.getvalue())
-
-    # 回测时需要添加 TimeReturn 分析器
-    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
 
     # 节约内存
     del list

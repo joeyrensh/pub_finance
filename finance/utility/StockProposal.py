@@ -161,6 +161,11 @@ class StockProposal:
                 .appName("SparkTest")
                 .getOrCreate()
             )
+            file_position_overall = file.get_file_name_position_overall
+            cols = ["idx", "symbol", "date", "trade_type"]
+            df1 = spark.read.csv(file_position_overall, header=None, inferSchema=True)
+            df1 = df1.toDF(*cols)
+            df1.createOrReplaceTempView("temp1")
             df = spark.read.csv(file_cur_p, header=True)
             df.createOrReplaceTempView("temp")
             sqlDF = spark.sql(
@@ -217,6 +222,24 @@ class StockProposal:
             )
             fig.write_image("./postion_bydate.png")
 
+            sqlDF1 = spark.sql(
+                " select date, trade_type, count(symbol) as cnt from temp1  \
+                    where date >= date_add(current_date(), -100) \
+                    group by date, trade_type order by date"
+            )
+            df1_display = sqlDF1.toPandas()
+            fig = px.bar(
+                df1_display,
+                barmode = 'group',
+                x="date",
+                y="cnt",
+                facet_col="trade_type",
+                title="BuySell by Date",
+                labels={"date": "Date", "cnt": "Purchase Cnt"},
+                color="cnt",
+            )
+            fig.write_image("./BuySell.png")
+
             if self.market == "us":
                 subject = "美股行业行情"
                 image_path_return = "./TRdraw.png"
@@ -227,6 +250,7 @@ class StockProposal:
                 "./postion_byindustry.png",
                 "./postion_byindustry_asc.png",
                 "./postion_bydate.png",
+                "./BuySell.png",
                 image_path_return,
             ]
             html = ""

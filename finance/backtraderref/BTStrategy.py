@@ -33,27 +33,24 @@ class BTStrategy(bt.Strategy):
         dt = dt or self.datas[0].datetime.date(0)
         print("%s, %s" % (dt.isoformat(), txt))
 
+    def start(self):
+
+        trade_date = ToolKit("获取最新交易日期").get_us_latest_trade_date(0)
+        file = FileInfo(trade_date, "us")
+        """ 仓位文件地址 """
+        file_position = file.get_file_name_position
+        self.log_file = open(file_position, "w")
+        file_position_overall = file.get_file_name_position_overall
+        self.log_file_overall = open(file_position_overall, "w")
+        """ 板块文件地址 """
+        self.file_industry = file.get_file_name_industry  
+
     def __init__(self):
         """
         将每日回测完的持仓数据存储文件
         方便后面打印输出
         """
-        if self.datas[0].market[0] == 1:
-            trade_date = ToolKit("获取最新交易日期").get_us_latest_trade_date(0)
-            file = FileInfo(trade_date, "us")
-            """ 仓位文件地址 """
-            file_position = file.get_file_name_position
-            self.log_file = open(file_position, "w")
-            """ 板块文件地址 """
-            self.file_industry = file.get_file_name_industry
-        elif self.datas[0].market[0] == 2:
-            trade_date = ToolKit("获取最新交易日期").get_cn_latest_trade_date(0)
-            file = FileInfo(trade_date, "cn")
-            """ 仓位文件地址 """
-            file_position = file.get_file_name_position
-            self.log_file = open(file_position, "w")
-            """ 板块文件地址 """
-            self.file_industry = file.get_file_name_industry
+
         """ backtrader一些常用属性的初始化 """
         self.order = dict()
         self.buyprice = None
@@ -250,6 +247,7 @@ class BTStrategy(bt.Strategy):
     """ 订单状态改变回调方法 """
 
     def notify_order(self, order):
+        list = []
         if order.status in [order.Submitted, order.Accepted]:
             """Buy/Sell order submitted/accepted to/by broker - Nothing to do"""
             return
@@ -262,6 +260,11 @@ class BTStrategy(bt.Strategy):
                     )
                 )
                 self.last_deal_date[order.data._name] = self.datetime.date()
+                dict = {
+                        "symbol": order.data._name,
+                        "trade_date": self.datetime.date(),
+                        "trade_type":'buy'
+                     }                
             elif order.issell():
                 """订单卖出成功"""
                 print(
@@ -270,6 +273,11 @@ class BTStrategy(bt.Strategy):
                     )
                 )
                 self.last_deal_date[order.data._name] = None
+                dict = {
+                        "symbol": order.data._name,
+                        "trade_date": self.datetime.date(),
+                        "trade_type":'sell'
+                     }                   
             elif order.alive():
                 """returns bool if order is in status Partial or Accepted"""
                 print(
@@ -285,6 +293,9 @@ class BTStrategy(bt.Strategy):
             else:
                 self.log("Sell %s Order Canceled/Margin/Rejected" % (order.data._name))
         self.order[order.data._name] = None
+        list.append(dict)
+        df = pd.DataFrame(list)
+        df.to_csv(self.log_file_overall, header=False)        
 
     """
     交易状态改变回调方法
