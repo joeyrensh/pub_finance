@@ -211,14 +211,13 @@ class StockProposal:
                     group by buy_date order by buy_date "
             )
             df_displaybydate = sqlDF_bydate.toPandas()
-            fig = px.bar(
+            fig = px.line(
                 df_displaybydate,
-                barmode = 'group',
+                # color_discrete_sequence=px.colors.sequential.RdBu,
                 x="buy_date",
                 y="cnt",
                 title="Stock Positions by Purchase Date",
-                labels={"buy_date": "Purchase Date", "cnt": "Stock Sum"},
-                color="cnt",
+                labels={"buy_date": "Purchase Date", "cnt": "Stock Sum"}
             )
             fig.write_image("./postion_bydate.png")
 
@@ -230,13 +229,12 @@ class StockProposal:
             df1_display = sqlDF1.toPandas()
             fig = px.bar(
                 df1_display,
-                barmode = 'group',
+                # color_discrete_sequence=px.colors.sequential.RdBu,
+                color='trade_type',
                 x="date",
                 y="cnt",
-                facet_col="trade_type",
                 title="BuySell by Date",
-                labels={"date": "Date", "cnt": "Purchase Cnt"},
-                color="cnt",
+                labels={"date": "Date", "cnt": "Purchase Cnt"}
             )
             fig.write_image("./BuySell.png")
 
