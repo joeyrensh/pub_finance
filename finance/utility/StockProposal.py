@@ -188,19 +188,19 @@ class StockProposal:
 
             # 取最冷门的TOP 10 行业
             sqlDF_asc = spark.sql(
-                " select industry, cnt from ( \
-                    select industry, count(*) as cnt from temp group by industry) \
-                    order by cnt asc limit 15"
+                " select industry, pl from ( \
+                    select industry, sum(`p&l`) as pl from temp group by industry) \
+                    order by pl desc limit 15"
             )
             df_display_asc = sqlDF_asc.toPandas()
             fig = px.pie(
                 df_display_asc,
                 color_discrete_sequence=px.colors.sequential.RdBu,
-                values="cnt",
+                values="pl",
                 names="industry",
-                title="Stock Positions by Industry Asc",
-                hover_data=["cnt"],
-                labels={"Industry": "cnt"},
+                title="P&L by Industry Asc",
+                hover_data=["pl"],
+                labels={"Industry": "pl"},
             )
             fig.update_traces(textposition="inside", textinfo="percent")
             fig.write_image("./postion_byindustry_asc.png")
@@ -213,7 +213,7 @@ class StockProposal:
             df_displaybydate = sqlDF_bydate.toPandas()
             fig = px.line(
                 df_displaybydate,
-                # color_discrete_sequence=px.colors.sequential.RdBu,
+                # color_discrete_sequence=px.colors.sequential.RdBu, 'po988u
                 x="buy_date",
                 y="cnt",
                 title="Stock Positions by Purchase Date",
