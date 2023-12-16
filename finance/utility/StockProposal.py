@@ -90,6 +90,11 @@ class StockProposal:
     def send_btstrategy_by_email(self):
         """发送邮件"""
         """ 取最新一天数据，获取股票名称 """
+        spark = (
+            SparkSession.builder.master("local[1]")
+            .appName("SparkTest")
+            .getOrCreate()
+        )        
         file = FileInfo(self.trade_date, self.market)
         file_name_day = file.get_file_name_day
         df_d = pd.read_csv(file_name_day, usecols=[i for i in range(1, 3)])
@@ -98,6 +103,7 @@ class StockProposal:
         df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 8)])
         if not df_cur_p.empty:
             df_np = pd.merge(df_cur_p, df_d, how="inner", on="symbol")
+            df_np = df_np[df_np['p&l_ratio'] > 0]
             df_np.rename(
                 columns={
                     "symbol": "股票代码",
@@ -156,11 +162,6 @@ class StockProposal:
             MyEmail().send_email(subject, html)
 
             """ 按照行业板块聚合，统计最近成交率最高的行业 """
-            spark = (
-                SparkSession.builder.master("local[1]")
-                .appName("SparkTest")
-                .getOrCreate()
-            )
             file_position_overall = file.get_file_name_position_overall
             cols = ["idx", "symbol", "date", "trade_type"]
             df1 = spark.read.csv(file_position_overall, header=None, inferSchema=True)
