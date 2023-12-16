@@ -103,7 +103,7 @@ class StockProposal:
         df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 8)])
         if not df_cur_p.empty:
             df_np = pd.merge(df_cur_p, df_d, how="inner", on="symbol")
-            df_np = df_np[df_np['p&l_ratio'] > 0]
+            df_np = df_np[df_np['p&l_ratio'] > 0].reset_index(drop=True)
             df_np.rename(
                 columns={
                     "symbol": "股票代码",
@@ -180,7 +180,7 @@ class StockProposal:
                 color_discrete_sequence=px.colors.sequential.RdBu,
                 values="cnt",
                 names="industry",
-                title="Stock Positions by Industry Desc",
+                title="Stock Positions by Industry",
                 hover_data=["cnt"],
                 labels={"Industry": "cnt"},
             )
@@ -199,7 +199,7 @@ class StockProposal:
                 color_discrete_sequence=px.colors.sequential.RdBu,
                 values="pl",
                 names="industry",
-                title="P&L by Industry Asc",
+                title="P&L by Industry",
                 hover_data=["pl"],
                 labels={"Industry": "pl"},
             )
