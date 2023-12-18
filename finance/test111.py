@@ -4,12 +4,25 @@
 from uscrawler.EMUsTickerCategoryCrawler import EMUsTickerCategoryCrawler
 from cncrawler.EMCNTickerCategoryCrawler import EMCNTickerCategoryCrawler
 from utility.ToolKit import ToolKit
+from pathlib import Path
+import os
+
+class test:
+    def test(self, c=None, **kwargs) -> int:
+        self.a = kwargs.get('a', 0)
+        self.b = kwargs.get('b', 0)
+        print('a:', self.a, 'b:', self.b, 'c:' ,c)
 
 # 主程序入口
 if __name__ == "__main__":
+    # t = test()
+    # t.test(b=2, a=3, c=1)
 
-    """ 爬取每日最新股票对应行业数据 """
-    trade_date_cn = ToolKit("获取最新A股交易日期").get_cn_latest_trade_date(0)
-    emi_cn = EMCNTickerCategoryCrawler()
-    emi_cn.get_cn_ticker_category(trade_date_cn)
+
+
+    # Define file paths
+    data_dir = Path("data")
+    print(data_dir)
+    current_path = os.getcwd()
+    print("Current path:", current_path)
 

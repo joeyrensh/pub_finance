@@ -11,7 +11,7 @@ import gc
 
 
 class TickerInfo:
-    def __init__(self, trade_date, market):
+    def __init__(self, trade_date, market) -> None:
         """获取市场代码"""
         self.market = market
         """ 获取交易日期 """

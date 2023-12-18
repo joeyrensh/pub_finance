@@ -4,14 +4,14 @@ from datetime import datetime, timedelta
 import re
 
 
-class ToolKit(object):
+class ToolKit():
     def __init__(self, val):
         self.val = val
         print("\n" + val + "...")
 
     """ 执行进度显示 """
 
-    def progress_bar(self, var, i):
+    def progress_bar(self, var, i) -> None:
         print(
             "\r{}: {}%: ".format(self.val, int(i * 100 / var)),
             "▋" * (i * 100 // var),
@@ -22,7 +22,7 @@ class ToolKit(object):
     """ 判断今日是否美股交易日 """
 
     @staticmethod
-    def is_us_trade_date():
+    def is_us_trade_date() -> bool:
         """
         当前北京时间 UTC+8
         utc_loc = datetime.now()
@@ -52,7 +52,7 @@ class ToolKit(object):
     """ 获取美股最新交易日期 """
 
     @staticmethod
-    def get_us_latest_trade_date(offset):
+    def get_us_latest_trade_date(offset)  -> (str | None):
         """
         utc_us = datetime.fromisoformat('2021-01-18 01:00:00')
         美股休市日，https://www.nyse.com/markets/hours-calendars
@@ -80,7 +80,7 @@ class ToolKit(object):
     """ 获取美股两个日期间的交易天数 """
 
     @staticmethod
-    def get_us_trade_off_days(cur, before):
+    def get_us_trade_off_days(cur, before) -> (int | None):
         """
         取两个交易日起之间的交易天数，用来过滤塞选滞胀的股票
         cur, before都需是datetime类型
@@ -105,7 +105,7 @@ class ToolKit(object):
     """ 判断今日是否A股交易日 """
 
     @staticmethod
-    def is_cn_trade_date():
+    def is_cn_trade_date() -> bool:
         utc_cn = datetime.now()
         """
         utc_cn = datetime.fromisoformat('2021-01-18 01:00:00')
@@ -130,7 +130,7 @@ class ToolKit(object):
     """ 获取A股最新交易日期 """
 
     @staticmethod
-    def get_cn_latest_trade_date(offset):
+    def get_cn_latest_trade_date(offset) -> (str | None):
         f = open("./cnstockinfo/CNStockMarketClosed.config").readlines()
         x = []
         for i in f:
@@ -153,7 +153,7 @@ class ToolKit(object):
     """ 获取A股两个日期间的交易天数 """
 
     @staticmethod
-    def get_cn_trade_off_days(cur, before):
+    def get_cn_trade_off_days(cur, before) -> (int | None):
         """
         取两个交易日起之间的交易天数，用来过滤塞选滞胀的股票
         cur, before都需是datetime类型
