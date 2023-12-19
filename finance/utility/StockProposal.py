@@ -95,6 +95,7 @@ class StockProposal:
             .appName("SparkTest")
             .getOrCreate()
         )        
+        """输出仓位表格"""
         file = FileInfo(self.trade_date, self.market)
         file_name_day = file.get_file_name_day
         df_d = pd.read_csv(file_name_day, usecols=[i for i in range(1, 3)])
@@ -172,19 +173,12 @@ class StockProposal:
             sqlDF = spark.sql(
                 " select industry, cnt from ( \
                     select industry, count(*) as cnt from temp group by industry) \
-                    order by cnt desc limit 15"
+                    order by cnt desc limit 15 "
             )
             df_display = sqlDF.toPandas()
-            fig = px.pie(
-                df_display,
-                color_discrete_sequence=px.colors.sequential.RdBu,
-                values="cnt",
-                names="industry",
-                title="Stock Positions by Industry",
-                hover_data=["cnt"],
-                labels={"Industry": "cnt"},
-            )
-            fig.update_traces(textposition="inside", textinfo="percent")
+            fig = go.Figure(data=[go.Pie(labels=df_display['industry'], values=df_display['cnt'], pull=0.1)])
+            colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
+            fig.update_traces(marker = dict(colors = colors, line=dict(color='#000000', width=2)))
             fig.write_image("./postion_byindustry.png")
 
             # 取最冷门的TOP 10 行业
@@ -194,32 +188,26 @@ class StockProposal:
                     order by pl desc limit 15"
             )
             df_display_asc = sqlDF_asc.toPandas()
-            fig = px.pie(
-                df_display_asc,
-                color_discrete_sequence=px.colors.sequential.RdBu,
-                values="pl",
-                names="industry",
-                title="P&L by Industry",
-                hover_data=["pl"],
-                labels={"Industry": "pl"},
-            )
-            fig.update_traces(textposition="inside", textinfo="percent")
+            fig = go.Figure(data=[go.Pie(labels=df_display_asc['industry'], values=df_display_asc['pl'], pull=0.1)])
+            colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
+            fig.update_traces(marker = dict(colors = colors, line=dict(color='#000000', width=2)))
             fig.write_image("./postion_byindustry_asc.png")
             # recent 1 month
             sqlDF_bydate = spark.sql(
-                "select buy_date, count(*) as cnt from temp \
+                "select buy_date, count(*) as cnt, \
+                    count(*) over (order by buy_date) as total_cnt \
+                    from temp \
                     where buy_date >= date_add(current_date(), -100) \
                     group by buy_date order by buy_date "
             )
             df_displaybydate = sqlDF_bydate.toPandas()
-            fig = px.line(
-                df_displaybydate,
-                # color_discrete_sequence=px.colors.sequential.RdBu, 'po988u
-                x="buy_date",
-                y="cnt",
-                title="Stock Positions by Purchase Date",
-                labels={"buy_date": "Purchase Date", "cnt": "Stock Sum"}
-            )
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=df_displaybydate['buy_date'], y=df_displaybydate['total_cnt'],
+                    mode='lines',
+                    name='total stock'))
+            fig.add_trace(go.Scatter(x=df_displaybydate['buy_date'], y=df_displaybydate['cnt'],
+                    mode='lines+markers',
+                    name='stock per day'))
             fig.write_image("./postion_bydate.png")
 
             sqlDF1 = spark.sql(
