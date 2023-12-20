@@ -197,7 +197,7 @@ class StockProposal:
             # recent 1 month
             sqlDF_bydate = spark.sql(
                 "select buy_date, count(*) as cnt, \
-                    count(*) over (order by buy_date) as total_cnt \
+                    SUM(COUNT(*)) OVER (ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt \
                     from temp \
                     where buy_date >= date_add(current_date(), -100) \
                     group by buy_date order by buy_date "
