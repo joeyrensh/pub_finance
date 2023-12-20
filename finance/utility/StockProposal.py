@@ -179,6 +179,7 @@ class StockProposal:
             fig = go.Figure(data=[go.Pie(labels=df_display['industry'], values=df_display['cnt'], pull=0.1)])
             colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
             fig.update_traces(marker = dict(colors = colors, line=dict(color='#000000', width=2)))
+            fig.update_layout(title='Top 15 Stock Position Industry')
             fig.write_image("./postion_byindustry.png")
 
             # 取最冷门的TOP 10 行业
@@ -191,6 +192,7 @@ class StockProposal:
             fig = go.Figure(data=[go.Pie(labels=df_display_asc['industry'], values=df_display_asc['pl'], pull=0.1)])
             colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
             fig.update_traces(marker = dict(colors = colors, line=dict(color='#000000', width=2)))
+            fig.update_layout(title='Top 15 Profit Industry')
             fig.write_image("./postion_byindustry_asc.png")
             # recent 1 month
             sqlDF_bydate = spark.sql(
@@ -203,11 +205,16 @@ class StockProposal:
             df_displaybydate = sqlDF_bydate.toPandas()
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=df_displaybydate['buy_date'], y=df_displaybydate['total_cnt'],
-                    mode='lines',
-                    name='total stock'))
+                    mode='lines+markers',
+                    name='total stock',
+                    line = dict(color='blueviolet', width=2)))
             fig.add_trace(go.Scatter(x=df_displaybydate['buy_date'], y=df_displaybydate['cnt'],
                     mode='lines+markers',
-                    name='stock per day'))
+                    name='stock per day',
+                    line = dict(color='firebrick', width=2)))
+            fig.update_layout(title='Last 100 days Stock Position Distribution',
+                                    xaxis_title='Trade Date',
+                                    yaxis_title='Stock Positions')
             fig.write_image("./postion_bydate.png")
 
             sqlDF1 = spark.sql(
@@ -222,9 +229,9 @@ class StockProposal:
                 color='trade_type',
                 x="date",
                 y="cnt",
-                title="BuySell by Date",
-                labels={"date": "Date", "cnt": "Purchase Cnt"}
-            )
+                title="Last 100 days trade details",
+                labels={"date": "Trade Date", "cnt": "Trade Sum"}
+            )         
             fig.write_image("./BuySell.png")
 
             if self.market == "us":
