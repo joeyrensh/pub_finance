@@ -157,19 +157,20 @@ def exec_btstrategy(date):
     # 将累计收益曲线的 y 轴移至左侧
     # 绘制回撤曲线
     drawdown.plot.area(
-        ax=ax1, label="drawdown (right)", rot=0, alpha=0.3, fontsize=13, grid=False
+        ax=ax1, label="drawdown (right)", rot=0, alpha=0.3, fontsize=13, grid=False, color='red'
     )
 
     # 绘制累计收益曲线
-    (cumulative).plot(
+    cumulative_line = (cumulative).plot(
         ax=ax2,
-        color="#F1C40F",
-        lw=3.0,
+        lw=2.0,
         label="cumret (left)",
         rot=0,
         fontsize=13,
-        grid=False,
+        grid=True,
+        color='blue'
     )
+    ax2.set_facecolor('lightgray')
 
     # 不然 x 轴留有空白
     ax2.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
