@@ -45,7 +45,7 @@ def exec_btstrategy(date):
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
-    cerebro.addobserver(bt.observers.BuySell)    
+    cerebro.addobserver(bt.observers.BuySell)
     """ 初始资金100M """
     cerebro.broker.setcash(2000000.0)
     """ 每手10股 """
@@ -192,7 +192,7 @@ def exec_btstrategy(date):
     plt.legend(h1 + h2, l1 + l2, fontsize=12, loc="upper left", ncol=1)
 
     fig.tight_layout()
-    plt.savefig("TRdraw.png")
+    plt.savefig("./images/TRdraw.png")
 
 
 # 主程序入口

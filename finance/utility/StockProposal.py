@@ -173,6 +173,7 @@ class StockProposal:
             df1.createOrReplaceTempView("temp1")
             df = spark.read.csv(file_cur_p, header=True)
             df.createOrReplaceTempView("temp")
+            # TOP15热门行业
             sqlDF = spark.sql(
                 " select industry, cnt from ( \
                     select industry, count(*) as cnt from temp group by industry) \
@@ -185,9 +186,9 @@ class StockProposal:
             fig.update_traces(marker=dict(
                 colors=colors, line=dict(color='#000000', width=2)))
             fig.update_layout(title='Top 15 Stock Position Industry')
-            fig.write_image("./postion_byindustry.png")
+            fig.write_image("./images/postion_byindustry.png")
 
-            # 取最冷门的TOP 10 行业
+            # TOP15盈利行业
             sqlDF_asc = spark.sql(
                 " select industry, pl from ( \
                     select industry, sum(`p&l`) as pl from temp group by industry) \
@@ -200,8 +201,8 @@ class StockProposal:
             fig.update_traces(marker=dict(
                 colors=colors, line=dict(color='#000000', width=2)))
             fig.update_layout(title='Top 15 Profit Industry')
-            fig.write_image("./postion_byindustry_asc.png")
-            # recent 1 month
+            fig.write_image("./images/postion_byp&l.png")
+            # recent 100 days
             sqlDF_bydate = spark.sql(
                 "select buy_date, count(*) as cnt, \
                     SUM(COUNT(*)) OVER (ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt \
@@ -222,7 +223,7 @@ class StockProposal:
             fig.update_layout(title='Last 100 days Stock Position Distribution',
                                     xaxis_title='Trade Date',
                                     yaxis_title='Stock Positions')
-            fig.write_image("./postion_bydate.png")
+            fig.write_image("./images/postion_bydate.png")
 
             sqlDF1 = spark.sql(
                 " select date, trade_type, count(symbol) as cnt from temp1  \
@@ -239,19 +240,19 @@ class StockProposal:
                 title="Last 100 days trade details",
                 labels={"date": "Trade Date", "cnt": "Trade Sum"}
             )
-            fig.write_image("./BuySell.png")
+            fig.write_image("./images/BuySell.png")
 
             if self.market == "us":
                 subject = "美股行业行情"
-                image_path_return = "./TRdraw.png"
+                image_path_return = "./images/TRdraw.png"
             elif self.market == "cn":
                 subject = "A股行业行情"
-                image_path_return = "./CNTRdraw.png"
+                image_path_return = "./images/CNTRdraw.png"
             image_path = [
-                "./postion_byindustry.png",
-                "./postion_byindustry_asc.png",
-                "./postion_bydate.png",
-                "./BuySell.png",
+                "./images/postion_byindustry.png",
+                "./images/postion_byp&l.png",
+                "./images/postion_bydate.png",
+                "./images/BuySell.png",
                 image_path_return,
             ]
             html = ""

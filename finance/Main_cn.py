@@ -182,7 +182,7 @@ def exec_btstrategy(date):
     plt.legend(h1 + h2, l1 + l2, fontsize=12, loc="upper left", ncol=1)
 
     fig.tight_layout()
-    plt.savefig("CNTRdraw.png")
+    plt.savefig("./images/CNTRdraw.png")
 
 
 # 主程序入口
