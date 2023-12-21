@@ -7,11 +7,17 @@ from email.mime.image import MIMEImage
 from email.utils import parseaddr, formataddr
 from email.header import Header
 import os
+import base64
 
 
 class MyEmail(object):
-    _mail_user = os.environ.get("email_addr")
-    _mail_password = os.environ.get("email_key")
+    """ string_to_encode = xxx
+        encoded_string = base64.b64encode(
+            string_to_encode.encode("utf-8")).decode("utf-8") """
+    _mail_user = base64.b64decode(
+        os.environ.get("email_addr")).decode("utf-8")
+    _mail_password = base64.b64decode(
+        os.environ.get("email_key")).decode("utf-8")
 
     def __init__(self):
         self.send_from = self._mail_user
