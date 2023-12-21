@@ -38,12 +38,12 @@ class BTStrategy(bt.Strategy):
         trade_date = ToolKit("获取最新交易日期").get_us_latest_trade_date(0)
         file = FileInfo(trade_date, "us")
         """ 仓位文件地址 """
-        file_position = file.get_file_name_position
-        self.log_file = open(file_position, "w")
-        file_position_overall = file.get_file_name_position_overall
-        self.log_file_overall = open(file_position_overall, "w")
+        file_path_position = file.get_file_path_position
+        self.file_path_position = open(file_path_position, "w")
+        file_path_trade = file.get_file_path_trade
+        self.file_path_trade = open(file_path_trade, "w")
         """ 板块文件地址 """
-        self.file_industry = file.get_file_name_industry  
+        self.file_industry = file.get_file_path_industry
 
     def __init__(self):
         """
@@ -128,10 +128,12 @@ class BTStrategy(bt.Strategy):
                 d.close, period=self.params.longperiod
             )
             """ 取5日平均成交量 """
-            self.inds[d]["mean_volume5"] = bt.indicators.Average(d.volume, period=5)
+            self.inds[d]["mean_volume5"] = bt.indicators.Average(
+                d.volume, period=5)
             """ 20均线乖离率 """
             self.inds[d]["bias_ma20"] = abs(
-                (self.inds[d]["ema20"] - self.inds[d]["ma20"]) / self.inds[d]["ma20"]
+                (self.inds[d]["ema20"] - self.inds[d]
+                 ["ma20"]) / self.inds[d]["ma20"]
             )
             """
             生成交易信号
@@ -148,7 +150,8 @@ class BTStrategy(bt.Strategy):
             self.signals[d]["ema20_crossup_ema60"] = bt.And(
                 self.signals[d]["close_over_ema20"],
                 self.signals[d]["close_over_ma20"],
-                bt.indicators.CrossUp(self.inds[d]["ema20"], self.inds[d]["ema60"])
+                bt.indicators.CrossUp(
+                    self.inds[d]["ema20"], self.inds[d]["ema60"])
                 == 1,
             )
 
@@ -169,7 +172,8 @@ class BTStrategy(bt.Strategy):
                     self.signals[d]["close_over_ma20"],
                     self.signals[d]["high_over_ma20"],
                 ),
-                bt.indicators.CrossUp(self.inds[d]["dif"], self.inds[d]["dea"]) == 1,
+                bt.indicators.CrossUp(
+                    self.inds[d]["dif"], self.inds[d]["dea"]) == 1,
             )
 
             """
@@ -261,10 +265,10 @@ class BTStrategy(bt.Strategy):
                 )
                 self.last_deal_date[order.data._name] = self.datetime.date()
                 dict = {
-                        "symbol": order.data._name,
-                        "trade_date": self.datetime.date(),
-                        "trade_type":'buy'
-                     }                
+                    "symbol": order.data._name,
+                    "trade_date": self.datetime.date(),
+                    "trade_type": 'buy'
+                }
             elif order.issell():
                 """订单卖出成功"""
                 print(
@@ -274,10 +278,10 @@ class BTStrategy(bt.Strategy):
                 )
                 self.last_deal_date[order.data._name] = None
                 dict = {
-                        "symbol": order.data._name,
-                        "trade_date": self.datetime.date(),
-                        "trade_type":'sell'
-                     }                   
+                    "symbol": order.data._name,
+                    "trade_date": self.datetime.date(),
+                    "trade_type": 'sell'
+                }
             elif order.alive():
                 """returns bool if order is in status Partial or Accepted"""
                 print(
@@ -289,13 +293,15 @@ class BTStrategy(bt.Strategy):
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
             """由于仓位不足或者执行限价单等因素造成订单未成交"""
             if order.isbuy():
-                self.log("Buy %s Order Canceled/Margin/Rejected" % (order.data._name))
+                self.log("Buy %s Order Canceled/Margin/Rejected" %
+                         (order.data._name))
             else:
-                self.log("Sell %s Order Canceled/Margin/Rejected" % (order.data._name))
+                self.log("Sell %s Order Canceled/Margin/Rejected" %
+                         (order.data._name))
         self.order[order.data._name] = None
         list.append(dict)
         df = pd.DataFrame(list)
-        df.to_csv(self.log_file_overall, header=False)        
+        df.to_csv(self.file_path_trade, header=False)
 
     """
     交易状态改变回调方法
@@ -306,7 +312,8 @@ class BTStrategy(bt.Strategy):
         if not trade.isclosed:
             return
         """ 每笔交易收益 毛利和净利 """
-        self.log("Operation Profit, Gross %.2f, Net %.2f" % (trade.pnl, trade.pnlcomm))
+        self.log("Operation Profit, Gross %.2f, Net %.2f" %
+                 (trade.pnl, trade.pnlcomm))
 
     def prenext(self):
         # call next() even when data is not available for all tickers
@@ -347,7 +354,8 @@ class BTStrategy(bt.Strategy):
                 ):
                     # and self.signals[d]['volume_over5'][0]:
                     """买入对应仓位"""
-                    self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
+                    self.order[d._name] = self.buy(
+                        data=d, exectype=bt.Order.Market)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
             else:
                 """
@@ -399,11 +407,13 @@ class BTStrategy(bt.Strategy):
                     continue
                 t = ToolKit("最新交易日")
                 if self.datas[0].market[0] == 1:
-                    cur = datetime.strptime(t.get_us_latest_trade_date(0), "%Y%m%d")
+                    cur = datetime.strptime(
+                        t.get_us_latest_trade_date(0), "%Y%m%d")
                     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
                     interval = t.get_us_trade_off_days(cur, bef)
                 elif self.datas[0].market[0] == 2:
-                    cur = datetime.strptime(t.get_cn_latest_trade_date(0), "%Y%m%d")
+                    cur = datetime.strptime(
+                        t.get_cn_latest_trade_date(0), "%Y%m%d")
                     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
                     interval = t.get_cn_trade_off_days(cur, bef)
                 print(
@@ -424,12 +434,13 @@ class BTStrategy(bt.Strategy):
         if df.empty:
             return
         """ 匹配行业信息 """
-        df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
+        df_o = pd.read_csv(self.file_industry, usecols=[
+                           i for i in range(1, 3)])
         df_n = pd.merge(df, df_o, how="left", on="symbol")
         """ 按照买入日期以及盈亏比倒排 """
         df_n.sort_values(
             by=["industry", "buy_date", "p&l_ratio"], ascending=False, inplace=True
         )
         df_n.reset_index(drop=True, inplace=True)
-        df_n.to_csv(self.log_file)
-        self.log_file.close()
+        df_n.to_csv(self.file_path_position)
+        self.file_path_position.close()

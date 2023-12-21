@@ -62,5 +62,6 @@ class MyEmail(object):
             print("Something went wrong….", ex)
 
     def format_addr(self, s):
+
         name, addr = parseaddr(s)
         return formataddr((Header(name, "utf-8").encode(), addr))

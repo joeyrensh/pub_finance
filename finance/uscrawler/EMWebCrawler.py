@@ -71,7 +71,7 @@ class EMWebCrawler:
             }
             list.append(dic_a)
         """ 获取美股数据文件地址 """
-        file_name_d = FileInfo(trade_date, "us").get_file_name_day
+        file_name_d = FileInfo(trade_date, "us").get_file_path_latest
         """ 每日一个文件，根据交易日期创建 """
         if os.path.exists(file_name_d):
             os.remove(file_name_d)

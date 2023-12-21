@@ -86,13 +86,15 @@ class EMCNTickerCategoryCrawler:
                 if json_object["jbzl"]["sshy"] == "--":
                     continue
                 # print(json_object["jbzl"]["sshy"])
-                dict = {"symbol": i["symbol"], "industry": json_object["jbzl"]["sshy"]}
+                dict = {"symbol": i["symbol"],
+                        "industry": json_object["jbzl"]["sshy"]}
                 list.append(dict)
                 print(dict)
             tool.progress_bar(len(tick_list), tick_list.index(i))
         df = pd.DataFrame(list)
-        df.drop_duplicates(subset=["symbol", "industry"], keep="last", inplace=True)
+        df.drop_duplicates(
+            subset=["symbol", "industry"], keep="last", inplace=True)
         """ 获取板块文件信息 """
         file = FileInfo(trade_date, "cn")
-        file_name_industry = file.get_file_name_industry
-        df.to_csv(file_name_industry, mode="w", index=True, header=True)
+        file_path_industry = file.get_file_path_industry
+        df.to_csv(file_path_industry, mode="w", index=True, header=True)

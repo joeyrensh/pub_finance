@@ -19,20 +19,22 @@ class FileInfo:
     def __init__(self, trade_date=None, market=None):
         self.market = market
         self.trade_date = trade_date
-        self._file_path_lastest_stock = "./" + market + "stockinfo/stock_" + trade_date + ".csv"
-        self._file_path_stock_folder  = "./" + market + "stockinfo/"
-        self._file_path_sta      = "./" + market + "strategy/strategy_" + trade_date + ".csv"
+        self._file_path_latest = "./" + market + \
+            "stockinfo/stock_" + trade_date + ".csv"
+        self._file_path_dir = "./" + market + "stockinfo/"
+        self._file_path_sta = "./" + market + "strategy/strategy_" + trade_date + ".csv"
         self._file_path_industry = "./" + market + "stockinfo/industry.csv"
         self._file_path_position = (
             "./" + market + "stockinfo/position_" + trade_date + ".csv"
         )
-        self._file_path_position_overall = (
-            "./" + market + "stockinfo/position_overall" + trade_date + ".csv"
+        self._file_path_trade = (
+            "./" + market + "stockinfo/trade_" + trade_date + ".csv"
         )
         if market == "us":
             pre_trade_date = ToolKit("获取上一个交易日").get_us_latest_trade_date(1)
         else:
             pre_trade_date = ToolKit("获取上一个交易日").get_cn_latest_trade_date(1)
+
         self._file_path_pre_position = (
             "./" + market + "stockinfo/position_" + pre_trade_date + ".csv"
         )
@@ -40,20 +42,20 @@ class FileInfo:
     """ 返回某日数据文件路径 """
 
     @property
-    def get_file_name_day(self):
-        return self._file_path_lastest_stock
+    def get_file_path_latest(self):
+        return self._file_path_latest
 
     """ 返回数据文件路径，用来查找数据文件列表 """
 
     @property
-    def get_files_path(self):
-        return self._file_path_stock_folder
+    def get_file_path(self):
+        return self._file_path_dir
 
     """ 返回日数据文件列表，返回List """
 
     @property
-    def get_files_day_list(self):
-        path_list = os.listdir(self._file_path_stock_folder)
+    def get_file_list(self):
+        path_list = os.listdir(self._file_path_dir)
         file_list = []
         for file in path_list:
             """返回小于等于当前交易日期的文件列表"""
@@ -62,34 +64,34 @@ class FileInfo:
                 and str(file).replace("stock_", "").replace(".csv", "")
                 <= self.trade_date
             ):
-                file_list.append(self._file_path_stock_folder + file)
+                file_list.append(self._file_path_dir + file)
         file_list.sort()
         return file_list
 
     """ 返回策略数据文件路径 """
 
     @property
-    def get_file_name_sta(self):
+    def get_file_path_sta(self):
         return self._file_path_sta
 
     """ 返回股票板块文件路径 """
 
     @property
-    def get_file_name_industry(self):
+    def get_file_path_industry(self):
         return self._file_path_industry
 
     """ 返回股票仓位文件路径 """
 
     @property
-    def get_file_name_position(self):
+    def get_file_path_position(self):
         return self._file_path_position
 
     @property
-    def get_file_name_position_overall(self):
-        return self._file_path_position_overall
+    def get_file_path_trade(self):
+        return self._file_path_trade
 
     """ 返回股票仓位文件路径 """
 
     @property
-    def get_pre_file_name_position(self):
+    def get_file_path_pre_position(self):
         return self._file_path_pre_position

@@ -35,7 +35,7 @@ def exec_btstrategy(date):
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
     cerebro.addobserver(bt.observers.BuySell)
-        
+
     """ 初始资金100M """
     cerebro.broker.setcash(2000000.0)
     """ 每手10股 """
@@ -57,16 +57,12 @@ def exec_btstrategy(date):
     """ 起始资金池 """
     print("Starting Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
-
-
     # 节约内存
     del list
     gc.collect()
 
     """ 运行cerebro """
     result = cerebro.run()
-    
-
 
     """ 最终资金池 """
     print("当前现金持有: ", cerebro.broker.get_cash())

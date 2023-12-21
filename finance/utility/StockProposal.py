@@ -27,12 +27,14 @@ class StockProposal:
 
     def send_strategy_df_by_email(self, dataframe):
         file = FileInfo(self.trade_date, self.market)
-        file_name_industry = file.get_file_name_industry
+        file_name_industry = file.get_file_path_industry
 
         """ 匹配行业信息 """
-        df_ind = pd.read_csv(file_name_industry, usecols=[i for i in range(1, 3)])
+        df_ind = pd.read_csv(file_name_industry, usecols=[
+                             i for i in range(1, 3)])
         df_n = pd.merge(dataframe, df_ind, how="left", on="symbol")
-        df_n.sort_values(by=["chg", "amplitude"], ascending=False, inplace=True)
+        df_n.sort_values(by=["chg", "amplitude"],
+                         ascending=False, inplace=True)
         df_n.reset_index(drop=True, inplace=True)
         df_n.rename(
             columns={
@@ -94,13 +96,13 @@ class StockProposal:
             SparkSession.builder.master("local[1]")
             .appName("SparkTest")
             .getOrCreate()
-        )        
+        )
         """输出仓位表格"""
         file = FileInfo(self.trade_date, self.market)
-        file_name_day = file.get_file_name_day
+        file_name_day = file.get_file_path_latest
         df_d = pd.read_csv(file_name_day, usecols=[i for i in range(1, 3)])
         """ 取仓位数据 """
-        file_cur_p = file.get_file_name_position
+        file_cur_p = file.get_file_path_position
         df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 8)])
         if not df_cur_p.empty:
             df_np = pd.merge(df_cur_p, df_d, how="inner", on="symbol")
@@ -163,9 +165,10 @@ class StockProposal:
             MyEmail().send_email(subject, html)
 
             """ 按照行业板块聚合，统计最近成交率最高的行业 """
-            file_position_overall = file.get_file_name_position_overall
+            file_path_trade = file.get_file_path_trade
             cols = ["idx", "symbol", "date", "trade_type"]
-            df1 = spark.read.csv(file_position_overall, header=None, inferSchema=True)
+            df1 = spark.read.csv(file_path_trade,
+                                 header=None, inferSchema=True)
             df1 = df1.toDF(*cols)
             df1.createOrReplaceTempView("temp1")
             df = spark.read.csv(file_cur_p, header=True)
@@ -176,9 +179,11 @@ class StockProposal:
                     order by cnt desc limit 15 "
             )
             df_display = sqlDF.toPandas()
-            fig = go.Figure(data=[go.Pie(labels=df_display['industry'], values=df_display['cnt'], pull=0.1)])
+            fig = go.Figure(
+                data=[go.Pie(labels=df_display['industry'], values=df_display['cnt'], pull=0.1)])
             colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
-            fig.update_traces(marker = dict(colors = colors, line=dict(color='#000000', width=2)))
+            fig.update_traces(marker=dict(
+                colors=colors, line=dict(color='#000000', width=2)))
             fig.update_layout(title='Top 15 Stock Position Industry')
             fig.write_image("./postion_byindustry.png")
 
@@ -189,9 +194,11 @@ class StockProposal:
                     order by pl desc limit 15"
             )
             df_display_asc = sqlDF_asc.toPandas()
-            fig = go.Figure(data=[go.Pie(labels=df_display_asc['industry'], values=df_display_asc['pl'], pull=0.1)])
+            fig = go.Figure(data=[go.Pie(
+                labels=df_display_asc['industry'], values=df_display_asc['pl'], pull=0.1)])
             colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
-            fig.update_traces(marker = dict(colors = colors, line=dict(color='#000000', width=2)))
+            fig.update_traces(marker=dict(
+                colors=colors, line=dict(color='#000000', width=2)))
             fig.update_layout(title='Top 15 Profit Industry')
             fig.write_image("./postion_byindustry_asc.png")
             # recent 1 month
@@ -205,13 +212,13 @@ class StockProposal:
             df_displaybydate = sqlDF_bydate.toPandas()
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=df_displaybydate['buy_date'], y=df_displaybydate['total_cnt'],
-                    mode='lines+markers',
-                    name='total stock',
-                    line = dict(color='blueviolet', width=2)))
+                                     mode='lines+markers',
+                                     name='total stock',
+                                     line=dict(color='blueviolet', width=2)))
             fig.add_trace(go.Scatter(x=df_displaybydate['buy_date'], y=df_displaybydate['cnt'],
-                    mode='lines+markers',
-                    name='stock per day',
-                    line = dict(color='firebrick', width=2)))
+                                     mode='lines+markers',
+                                     name='stock per day',
+                                     line=dict(color='firebrick', width=2)))
             fig.update_layout(title='Last 100 days Stock Position Distribution',
                                     xaxis_title='Trade Date',
                                     yaxis_title='Stock Positions')
@@ -231,7 +238,7 @@ class StockProposal:
                 y="cnt",
                 title="Last 100 days trade details",
                 labels={"date": "Trade Date", "cnt": "Trade Sum"}
-            )         
+            )
             fig.write_image("./BuySell.png")
 
             if self.market == "us":
