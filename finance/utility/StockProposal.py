@@ -160,11 +160,6 @@ class StockProposal:
                 .set_sticky(axis="columns")
                 .to_html(doctype_html=True)
             )
-            if self.market == "us":
-                subject = "美股行情"
-            elif self.market == "cn":
-                subject = "A股行情"
-            # MyEmail().send_email(subject, html)
 
             """ 按照行业板块聚合，统计最近成交率最高的行业 """
             file_path_trade = file.get_file_path_trade
@@ -188,7 +183,8 @@ class StockProposal:
             fig.update_traces(marker=dict(
                 colors=colors, line=dict(color='#000000', width=2)))
             fig.update_layout(title='Top 15 Stock Position Industry')
-            fig.write_image("./images/postion_byindustry.png")
+            fig.write_image("./images/postion_byindustry.png",
+                            engine='kaleido')
 
             # TOP15盈利行业
             sqlDF_asc = spark.sql(
@@ -203,7 +199,7 @@ class StockProposal:
             fig.update_traces(marker=dict(
                 colors=colors, line=dict(color='#000000', width=2)))
             fig.update_layout(title='Top 15 Profit Industry')
-            fig.write_image("./images/postion_byp&l.png")
+            fig.write_image("./images/postion_byp&l.png", engine='kaleido')
             # recent 100 days
             sqlDF_bydate = spark.sql(
                 "select buy_date, count(*) as cnt, \
@@ -224,7 +220,7 @@ class StockProposal:
             fig.update_layout(title='Last 100 days Stock Position Distribution',
                                     xaxis_title='Trade Date',
                                     yaxis_title='Stock Positions')
-            fig.write_image("./images/postion_bydate.png")
+            fig.write_image("./images/postion_bydate.png", engine='kaleido')
 
             sqlDF1 = spark.sql(
                 " select date, trade_type, count(symbol) as cnt from temp1  \
@@ -241,7 +237,7 @@ class StockProposal:
                 title="Last 100 days trade details",
                 labels={"date": "Trade Date", "cnt": "Trade Sum"}
             )
-            fig.write_image("./images/BuySell.png")
+            fig.write_image("./images/BuySell.png", engine='kaleido')
             if self.market == "us":
                 subject = "美股行情分析"
                 image_path_return = "./images/TRdraw.png"
@@ -255,5 +251,4 @@ class StockProposal:
                 "./images/BuySell.png",
                 image_path_return,
             ]
-            # html = ""
             MyEmail().send_email_embedded_image(subject, html, image_path)
