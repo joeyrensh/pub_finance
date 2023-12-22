@@ -164,7 +164,7 @@ class StockProposal:
                 subject = "美股行情"
             elif self.market == "cn":
                 subject = "A股行情"
-            MyEmail().send_email(subject, html)
+            # MyEmail().send_email(subject, html)
 
             """ 按照行业板块聚合，统计最近成交率最高的行业 """
             file_path_trade = file.get_file_path_trade
@@ -220,7 +220,7 @@ class StockProposal:
                                      line=dict(color='blueviolet', width=2)))
             fig.add_trace(go.Bar(x=df_displaybydate['buy_date'], y=df_displaybydate['cnt'],
                                  name='stock per day',
-                                 marker_color='green'))
+                                 marker_color='red'))
             fig.update_layout(title='Last 100 days Stock Position Distribution',
                                     xaxis_title='Trade Date',
                                     yaxis_title='Stock Positions')
@@ -242,13 +242,11 @@ class StockProposal:
                 labels={"date": "Trade Date", "cnt": "Trade Sum"}
             )
             fig.write_image("./images/BuySell.png")
-            # fig_html = fig.to_html(full_html=False)
-
             if self.market == "us":
-                subject = "美股行业行情"
+                subject = "美股行情分析"
                 image_path_return = "./images/TRdraw.png"
             elif self.market == "cn":
-                subject = "A股行业行情"
+                subject = "A股行情分析"
                 image_path_return = "./images/CNTRdraw.png"
             image_path = [
                 "./images/postion_byindustry.png",
@@ -257,14 +255,5 @@ class StockProposal:
                 "./images/BuySell.png",
                 image_path_return,
             ]
-            # 创建 HTML 正文
-            # html = MIMEText(f"""
-            #     <html>
-            #         <body>
-            #             <p>Please see the stock position distribution below:</p>
-            #             {fig_html}
-            #         </body>
-            #     </html>
-            # """, "html")
-            html = ""
+            # html = ""
             MyEmail().send_email_embedded_image(subject, html, image_path)
