@@ -16,6 +16,8 @@ from utility.MyEmail import MyEmail
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime, timedelta
+from email.mime.text import MIMEText
+
 
 mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
 
@@ -216,10 +218,9 @@ class StockProposal:
                                      mode='lines+markers',
                                      name='total stock',
                                      line=dict(color='blueviolet', width=2)))
-            fig.add_trace(go.Scatter(x=df_displaybydate['buy_date'], y=df_displaybydate['cnt'],
-                                     mode='lines+markers',
-                                     name='stock per day',
-                                     line=dict(color='firebrick', width=2)))
+            fig.add_trace(go.Bar(x=df_displaybydate['buy_date'], y=df_displaybydate['cnt'],
+                                 name='stock per day',
+                                 marker_color='green'))
             fig.update_layout(title='Last 100 days Stock Position Distribution',
                                     xaxis_title='Trade Date',
                                     yaxis_title='Stock Positions')
@@ -241,6 +242,7 @@ class StockProposal:
                 labels={"date": "Trade Date", "cnt": "Trade Sum"}
             )
             fig.write_image("./images/BuySell.png")
+            # fig_html = fig.to_html(full_html=False)
 
             if self.market == "us":
                 subject = "美股行业行情"
@@ -255,5 +257,14 @@ class StockProposal:
                 "./images/BuySell.png",
                 image_path_return,
             ]
+            # 创建 HTML 正文
+            # html = MIMEText(f"""
+            #     <html>
+            #         <body>
+            #             <p>Please see the stock position distribution below:</p>
+            #             {fig_html}
+            #         </body>
+            #     </html>
+            # """, "html")
             html = ""
             MyEmail().send_email_embedded_image(subject, html, image_path)

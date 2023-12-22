@@ -13,7 +13,8 @@ import base64
 class MyEmail(object):
     """ string_to_encode = xxx
         encoded_string = base64.b64encode(
-            string_to_encode.encode("utf-8")).decode("utf-8") """
+            string_to_encode.encode("utf-8")).decode("utf-8") 
+    """
     _mail_user = base64.b64decode(
         os.environ.get("email_addr")).decode("utf-8")
     _mail_password = base64.b64decode(
