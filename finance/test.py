@@ -20,109 +20,125 @@ import plotly.io as pio
 
 
 file = FileInfo('20231225', 'cn')
-file_name_day = file.get_file_path_latest
-df_d = pd.read_csv(file_name_day, usecols=[i for i in range(1, 3)])
-""" 取仓位数据 """
+spark = (
+    SparkSession.builder.master("local[1]")
+    .appName("SparkTest")
+    .getOrCreate()
+)
+""" 按照行业板块聚合，统计最近成交率最高的行业 """
+file_path_trade = file.get_file_path_trade
+cols = ["idx", "symbol", "date", "trade_type"]
+df1 = spark.read.csv(file_path_trade,
+                     header=None, inferSchema=True)
+df1 = df1.toDF(*cols)
+df1.createOrReplaceTempView("temp1")
 file_cur_p = file.get_file_path_position
 df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 8)])
-df_np = pd.merge(df_cur_p, df_d, how="inner", on="symbol")
-df_np = df_np[df_np['p&l_ratio'] > 0].reset_index(drop=True)
-df_np.rename(
-    columns={
-        "symbol": "股票代码",
-        "buy_date": "策略命中时间",
-        "price": "买入价",
-        "adjbase": "当前价",
-        "p&l": "收益金额",
-        "p&l_ratio": "收益率",
-        "industry": "所属行业",
-        "name": "公司名称",
-    },
-    inplace=True,
+df = spark.read.csv(file_cur_p, header=True)
+df.createOrReplaceTempView("temp")
+# TOP15热门行业
+sqlDF = spark.sql(
+    " select industry, cnt from ( \
+        select industry, count(*) as cnt from temp group by industry) \
+        order by cnt desc limit 15 "
 )
-cm = sns.color_palette("Blues", as_cmap=True)
-html = (
-    df_np.style
-    .hide(axis=1, subset=["收益金额"])
-    .format({"买入价": "{:.2f}", "当前价": "{:.2f}", "收益率": "{:.2f}"})
-    .background_gradient(subset=["买入价", "当前价"], cmap=cm)
-    .bar(
-        subset=["收益率"],
-        align="left",
-        color=["#5fba7d", "#d65f5f"],
-        vmin=0,
-        vmax=1,
-    )
-    .set_properties(
-        **{
-            "text-align": "left",
-            "border": "1px solid",
-            "cellspacing": "0px",
-            "style": "border-collapse:collapse;",
-            # "width": "auto"
-        }
-    )
-    .set_table_styles(
-        [
-            dict(selector="th", props=[
-                ("border", "5px solid #eee"),
-                ("border-collapse", "collapse"),
-                ("white-space", "nowrap"),
-                ("color", "black")
-                # ("width", "auto")
-            ]),
-            dict(selector="td", props=[
-                ("border", "5px solid #eee"),
-                ("border-collapse", "collapse"),
-                ("white-space", "nowrap"),
-                ("color", "black")
-                # ("width", "auto")
-            ]),
-        ],
-    )
-    .set_sticky(axis="columns")
-    .to_html(doctype_html=True)
-)
-css = """
-<style>
-    :root {
-        color-scheme: light;
-        supported-color-schemes: light;
-        bgcolor: "#000000" !important;
-        color: black;
-        display: table !important;        
-    }
-    @media (prefers-color-scheme: light) {
-        /* Your light mode (default) styles: */
-        body {
-            bgcolor: "#000000" !important;
-            color: black;
-            display: table !important;
-        }
-        table {
-            bgcolor: "#000000" !important;
-            color: black;
-        }
-    }
+df_display = sqlDF.toPandas()
+fig = go.Figure(
+    data=[go.Pie(labels=df_display['industry'], values=df_display['cnt'], pull=0.2)])
+colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
+fig.update_traces(marker=dict(
+    colors=colors, line=dict(color='#000000', width=1)))
+fig.update_layout(title='Top 15 Stock Position Industry',
+                  legend=dict(
+                      orientation="h",
+                      yanchor="bottom",
+                      y=-0.3,
+                      xanchor="center",
+                      x=0.5
+                  ))
+fig.write_image("./images/postion_byindustry.png",
+                engine='kaleido')
 
-	@media (prefers-color-scheme: dark) {
-        /* Your dark mode styles: */
-        body {
-            bgcolor: "#000000" !important;
-            color: black;
-            display: table !important;
-        }
-        table {
-            bgcolor: "#000000" !important;
-            color: black;
-        }
-    }
-</style>
-"""
-html = css + html
+# TOP15盈利行业
+sqlDF_asc = spark.sql(
+    " select industry, pl from ( \
+        select industry, sum(`p&l`) as pl from temp group by industry) \
+        order by pl desc limit 15"
+)
+df_display_asc = sqlDF_asc.toPandas()
+fig = go.Figure(data=[go.Pie(
+    labels=df_display_asc['industry'], values=df_display_asc['pl'], pull=0.2)])
+colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
+fig.update_traces(marker=dict(
+    colors=colors, line=dict(color='#000000', width=2)))
+fig.update_layout(title='Top 15 Profit Industry',
+                  legend=dict(
+                      orientation="h",
+                      yanchor="bottom",
+                      y=-0.3,
+                      xanchor="center",
+                      x=0.5
+                  ))
+fig.write_image("./images/postion_byp&l.png", engine='kaleido')
+# recent 100 days
+sqlDF_bydate = spark.sql(
+    "select buy_date, count(*) as cnt, \
+        SUM(COUNT(*)) OVER (ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt \
+        from temp \
+        where buy_date >= date_add(current_date(), -100) \
+        group by buy_date order by buy_date "
+)
+df_displaybydate = sqlDF_bydate.toPandas()
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=df_displaybydate['buy_date'], y=df_displaybydate['total_cnt'],
+                         mode='lines+markers',
+                         name='total stock',
+                         line=dict(color='blueviolet', width=2)))
+fig.add_trace(go.Bar(x=df_displaybydate['buy_date'], y=df_displaybydate['cnt'],
+                     name='stock per day',
+                     marker_color='red'))
+fig.update_layout(title='Last 100 days Stock Position Distribution',
+                        xaxis_title='Trade Date',
+                        yaxis_title='Stock Positions',
+                        legend=dict(
+                            orientation="h",
+                            yanchor="bottom",
+                            y=-0.3,
+                            xanchor="center",
+                            x=0.5
+                        )
+                  )
+fig.write_image("./images/postion_bydate.png", engine='kaleido')
+
+sqlDF1 = spark.sql(
+    " select date, trade_type, count(symbol) as cnt from temp1  \
+        where date >= date_add(current_date(), -100) \
+        group by date, trade_type order by date"
+)
+df1_display = sqlDF1.toPandas()
+fig = px.bar(
+    df1_display,
+    # color_discrete_sequence=px.colors.sequential.RdBu,
+    color='trade_type',
+    x="date",
+    y="cnt",
+    title="Last 100 days trade details",
+    labels={"date": "Trade Date", "cnt": "Trade Sum"}
+)
+fig.update_layout(legend=dict(
+    orientation="h",
+    yanchor="bottom",
+    y=-0.3,
+    xanchor="center",
+    x=0.5)
+)
+fig.write_image("./images/BuySell.png", engine='kaleido')
 image_path = [
-    "./images/postion_byindustry.png"
+    "./images/postion_byindustry.png",
+    "./images/postion_byp&l.png",
+    "./images/postion_bydate.png",
+    "./images/BuySell.png",
 ]
-
-subject = "testing"
+subject = "test"
+html = ""
 MyEmail().send_email_embedded_image(subject, html, image_path)

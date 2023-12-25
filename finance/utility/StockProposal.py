@@ -220,11 +220,18 @@ class StockProposal:
             )
             df_display = sqlDF.toPandas()
             fig = go.Figure(
-                data=[go.Pie(labels=df_display['industry'], values=df_display['cnt'], pull=0.1)])
+                data=[go.Pie(labels=df_display['industry'], values=df_display['cnt'], pull=0.2)])
             colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
             fig.update_traces(marker=dict(
-                colors=colors, line=dict(color='#000000', width=2)))
-            fig.update_layout(title='Top 15 Stock Position Industry')
+                colors=colors, line=dict(color='#000000', width=1)))
+            fig.update_layout(title='Top 15 Stock Position Industry',
+                              legend=dict(
+                                  orientation="h",
+                                  yanchor="bottom",
+                                  y=-0.3,
+                                  xanchor="center",
+                                  x=0.5
+                              ))
             fig.write_image("./images/postion_byindustry.png",
                             engine='kaleido')
 
@@ -236,11 +243,18 @@ class StockProposal:
             )
             df_display_asc = sqlDF_asc.toPandas()
             fig = go.Figure(data=[go.Pie(
-                labels=df_display_asc['industry'], values=df_display_asc['pl'], pull=0.1)])
+                labels=df_display_asc['industry'], values=df_display_asc['pl'], pull=0.2)])
             colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
             fig.update_traces(marker=dict(
-                colors=colors, line=dict(color='#000000', width=2)))
-            fig.update_layout(title='Top 15 Profit Industry')
+                colors=colors, line=dict(color='#000000', width=1)))
+            fig.update_layout(title='Top 15 Profit Industry',
+                              legend=dict(
+                                  orientation="h",
+                                  yanchor="bottom",
+                                  y=-0.3,
+                                  xanchor="center",
+                                  x=0.5
+                              ))
             fig.write_image("./images/postion_byp&l.png", engine='kaleido')
             # recent 100 days
             sqlDF_bydate = spark.sql(
@@ -261,7 +275,14 @@ class StockProposal:
                                  marker_color='red'))
             fig.update_layout(title='Last 100 days Stock Position Distribution',
                                     xaxis_title='Trade Date',
-                                    yaxis_title='Stock Positions')
+                                    yaxis_title='Stock Positions',
+                                    legend=dict(
+                                        orientation="h",
+                                        yanchor="bottom",
+                                        y=-0.3,
+                                        xanchor="center",
+                                        x=0.5
+                                    ))
             fig.write_image("./images/postion_bydate.png", engine='kaleido')
 
             sqlDF1 = spark.sql(
@@ -278,6 +299,13 @@ class StockProposal:
                 y="cnt",
                 title="Last 100 days trade details",
                 labels={"date": "Trade Date", "cnt": "Trade Sum"}
+            )
+            fig.update_layout(legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=-0.3,
+                xanchor="center",
+                x=0.5)
             )
             fig.write_image("./images/BuySell.png", engine='kaleido')
             if self.market == "us":
