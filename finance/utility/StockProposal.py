@@ -138,28 +138,70 @@ class StockProposal:
                 .set_properties(
                     **{
                         "text-align": "left",
-                        "width": "auto",
                         "border": "1px solid",
                         "cellspacing": "0px",
-                        "style": "border-collapse:collapse",
+                        "style": "border-collapse:collapse;",
+                        # "width": "auto"
                     }
                 )
                 .set_table_styles(
                     [
-                        dict(
-                            selector="th",
-                            props=[
-                                ("text-align", "left"),
-                                ("width", "auto"),
-                                ("white-space", "nowrap"),
-                                ("position", "fixed"),
-                            ],
-                        )
-                    ]
+                        dict(selector="th", props=[
+                            ("border", "5px solid #eee"),
+                            ("border-collapse", "collapse"),
+                            ("white-space", "nowrap"),
+                            ("color", "black")
+                            # ("width", "auto")
+                        ]),
+                        dict(selector="td", props=[
+                            ("border", "5px solid #eee"),
+                            ("border-collapse", "collapse"),
+                            ("white-space", "nowrap"),
+                            ("color", "black")
+                            # ("width", "auto")
+                        ]),
+                    ],
                 )
                 .set_sticky(axis="columns")
                 .to_html(doctype_html=True)
             )
+            css = """
+            <style>
+                :root {
+                    color-scheme: light;
+                    supported-color-schemes: light;
+                    bgcolor: "#000000" !important;
+                    color: black;
+                    display: table !important;        
+                }
+                @media (prefers-color-scheme: light) {
+                    /* Your light mode (default) styles: */
+                    body {
+                        bgcolor: "#000000" !important;
+                        color: black;
+                        display: table !important;
+                    }
+                    table {
+                        bgcolor: "#000000" !important;
+                        color: black;
+                    }
+                }
+
+                @media (prefers-color-scheme: dark) {
+                    /* Your dark mode styles: */
+                    body {
+                        bgcolor: "#000000" !important;
+                        color: black;
+                        display: table !important;
+                    }
+                    table {
+                        bgcolor: "#000000" !important;
+                        color: black;
+                    }
+                }
+            </style>
+            """
+            html = css + html
 
             """ 按照行业板块聚合，统计最近成交率最高的行业 """
             file_path_trade = file.get_file_path_trade

@@ -100,7 +100,7 @@ def exec_btstrategy(date):
     plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
 
     # 导入设置坐标轴的模块
-    sns.set()
+    # sns.set()
     # plt.style.use("seaborn")
     # plt.style.use('dark_background')
 
@@ -182,6 +182,7 @@ def exec_btstrategy(date):
     plt.legend(h1 + h2, l1 + l2, fontsize=12, loc="upper left", ncol=1)
 
     fig.tight_layout()
+
     plt.savefig("./images/CNTRdraw.png")
 
 

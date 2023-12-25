@@ -19,47 +19,110 @@ import plotly.io as pio
 # 读取图像文件并转换为 Base64 编码
 
 
-def read_image_file(image_path):
-    with open(image_path, 'rb') as f:
-        image_data = f.read()
-    return base64.b64encode(image_data).decode('utf-8')
-
-
-spark = (
-    SparkSession.builder.master("local[1]")
-    .appName("SparkTest")
-    .getOrCreate()
+file = FileInfo('20231225', 'cn')
+file_name_day = file.get_file_path_latest
+df_d = pd.read_csv(file_name_day, usecols=[i for i in range(1, 3)])
+""" 取仓位数据 """
+file_cur_p = file.get_file_path_position
+df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 8)])
+df_np = pd.merge(df_cur_p, df_d, how="inner", on="symbol")
+df_np = df_np[df_np['p&l_ratio'] > 0].reset_index(drop=True)
+df_np.rename(
+    columns={
+        "symbol": "股票代码",
+        "buy_date": "策略命中时间",
+        "price": "买入价",
+        "adjbase": "当前价",
+        "p&l": "收益金额",
+        "p&l_ratio": "收益率",
+        "industry": "所属行业",
+        "name": "公司名称",
+    },
+    inplace=True,
 )
-file = FileInfo('20231222', 'cn')
-file_path_trade = file.get_file_path_trade
-cols = ["idx", "symbol", "date", "trade_type"]
-df1 = spark.read.csv(file_path_trade,
-                     header=None, inferSchema=True)
-df1 = df1.toDF(*cols)
-df1.createOrReplaceTempView("temp1")
-
-sqlDF1 = spark.sql(
-    " select date, trade_type, count(symbol) as cnt from temp1  \
-        where date >= date_add(current_date(), -100) \
-        group by date, trade_type order by date"
+cm = sns.color_palette("Blues", as_cmap=True)
+html = (
+    df_np.style
+    .hide(axis=1, subset=["收益金额"])
+    .format({"买入价": "{:.2f}", "当前价": "{:.2f}", "收益率": "{:.2f}"})
+    .background_gradient(subset=["买入价", "当前价"], cmap=cm)
+    .bar(
+        subset=["收益率"],
+        align="left",
+        color=["#5fba7d", "#d65f5f"],
+        vmin=0,
+        vmax=1,
+    )
+    .set_properties(
+        **{
+            "text-align": "left",
+            "border": "1px solid",
+            "cellspacing": "0px",
+            "style": "border-collapse:collapse;",
+            # "width": "auto"
+        }
+    )
+    .set_table_styles(
+        [
+            dict(selector="th", props=[
+                ("border", "5px solid #eee"),
+                ("border-collapse", "collapse"),
+                ("white-space", "nowrap"),
+                ("color", "black")
+                # ("width", "auto")
+            ]),
+            dict(selector="td", props=[
+                ("border", "5px solid #eee"),
+                ("border-collapse", "collapse"),
+                ("white-space", "nowrap"),
+                ("color", "black")
+                # ("width", "auto")
+            ]),
+        ],
+    )
+    .set_sticky(axis="columns")
+    .to_html(doctype_html=True)
 )
-df1_display = sqlDF1.toPandas()
-fig = px.bar(
-    df1_display,
-    color='trade_type',
-    x="date",
-    y="cnt",
-    title="Last 100 days trade details",
-    labels={"date": "Trade Date", "cnt": "Trade Sum"}
-)
-# fig.write_image("./images/BuySell.png")
-fig_html = pio.to_html(fig, full_html=False, include_plotlyjs='cdn')
+css = """
+<style>
+    :root {
+        color-scheme: light;
+        supported-color-schemes: light;
+        bgcolor: "#000000" !important;
+        color: black;
+        display: table !important;        
+    }
+    @media (prefers-color-scheme: light) {
+        /* Your light mode (default) styles: */
+        body {
+            bgcolor: "#000000" !important;
+            color: black;
+            display: table !important;
+        }
+        table {
+            bgcolor: "#000000" !important;
+            color: black;
+        }
+    }
 
-# 创建 HTML 正文
-html = fig_html
-print(html)
+	@media (prefers-color-scheme: dark) {
+        /* Your dark mode styles: */
+        body {
+            bgcolor: "#000000" !important;
+            color: black;
+            display: table !important;
+        }
+        table {
+            bgcolor: "#000000" !important;
+            color: black;
+        }
+    }
+</style>
+"""
+html = css + html
+image_path = [
+    "./images/postion_byindustry.png"
+]
 
-subject = "test111"
-# image_path = ["./images/BuySell.png"]
-# 发送电子邮件
-MyEmail().send_email(subject, html)
+subject = "testing"
+MyEmail().send_email_embedded_image(subject, html, image_path)
