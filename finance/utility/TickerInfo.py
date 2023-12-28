@@ -30,6 +30,7 @@ class TickerInfo:
     def get_stock_list(self):
         tickers = list()
         df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 14)])
+        df.sort_values(by=["symbol"], ascending=True, inplace=True)
         """ 匹配行业信息 """
         df_o = pd.read_csv(self.file_industry, usecols=[
                            i for i in range(1, 3)])
