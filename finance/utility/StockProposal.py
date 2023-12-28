@@ -141,7 +141,6 @@ class StockProposal:
                         "border": "1px solid",
                         "cellspacing": "0px",
                         "style": "border-collapse:collapse;",
-                        # "width": "auto"
                     }
                 )
                 .set_table_styles(
@@ -151,14 +150,12 @@ class StockProposal:
                             ("border-collapse", "collapse"),
                             ("white-space", "nowrap"),
                             ("color", "black")
-                            # ("width", "auto")
                         ]),
                         dict(selector="td", props=[
                             ("border", "5px solid #eee"),
                             ("border-collapse", "collapse"),
                             ("white-space", "nowrap"),
                             ("color", "black")
-                            # ("width", "auto")
                         ]),
                     ],
                 )
@@ -212,26 +209,32 @@ class StockProposal:
             df1.createOrReplaceTempView("temp1")
             df = spark.read.csv(file_cur_p, header=True)
             df.createOrReplaceTempView("temp")
-            # TOP15热门行业
+            # TOP10热门行业
             sqlDF = spark.sql(
                 " select industry, cnt from ( \
                     select industry, count(*) as cnt from temp group by industry) \
-                    order by cnt desc limit 15 "
+                    order by cnt desc limit 10 "
             )
             df_display = sqlDF.toPandas()
-            fig = go.Figure(
-                data=[go.Pie(labels=df_display['industry'], values=df_display['cnt'], pull=0.2)])
+            fig = go.Figure(data=[go.Pie(labels=df_display['industry'],
+                                         values=df_display['cnt'],
+                                         pull=0.2)]
+                            )
             colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
-            fig.update_traces(marker=dict(
-                colors=colors, line=dict(color='#000000', width=1)))
-            fig.update_layout(title='Top 15 Stock Position Industry',
+            fig.update_traces(marker=dict(colors=colors,
+                                          line=dict(color='#000000', width=1)),
+                              textinfo='value+percent'
+                              )
+            fig.update_layout(title='Top 10 Stock Position Industry',
                               legend=dict(
                                   orientation="h",
                                   yanchor="bottom",
-                                  y=-0.3,
                                   xanchor="center",
-                                  x=0.5
-                              ))
+                                  x=0.5,
+                                  y=-0.5
+                              ),
+                              margin=dict(t=50, b=0.2, l=0.2, r=0.2)
+                              )
             fig.write_image("./images/postion_byindustry.png",
                             engine='kaleido')
 
@@ -239,22 +242,25 @@ class StockProposal:
             sqlDF_asc = spark.sql(
                 " select industry, pl from ( \
                     select industry, sum(`p&l`) as pl from temp group by industry) \
-                    order by pl desc limit 15"
+                    order by pl desc limit 10"
             )
             df_display_asc = sqlDF_asc.toPandas()
             fig = go.Figure(data=[go.Pie(
                 labels=df_display_asc['industry'], values=df_display_asc['pl'], pull=0.2)])
             colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
-            fig.update_traces(marker=dict(
-                colors=colors, line=dict(color='#000000', width=1)))
-            fig.update_layout(title='Top 15 Profit Industry',
+            fig.update_traces(marker=dict(colors=colors,
+                                          line=dict(color='#000000', width=1)
+                                          ),
+                              textinfo='value+percent')
+            fig.update_layout(title='Top 10 Profit Industry',
                               legend=dict(
                                   orientation="h",
                                   yanchor="bottom",
-                                  y=-0.3,
                                   xanchor="center",
-                                  x=0.5
-                              ))
+                                  x=0.5,
+                                  y=-0.5
+                              ),
+                              margin=dict(t=50, b=0.2, l=0.2, r=0.2))
             fig.write_image("./images/postion_byp&l.png", engine='kaleido')
             # recent 100 days
             sqlDF_bydate = spark.sql(
@@ -274,15 +280,30 @@ class StockProposal:
                                  name='stock per day',
                                  marker_color='red'))
             fig.update_layout(title='Last 100 days Stock Position Distribution',
-                                    xaxis_title='Trade Date',
-                                    yaxis_title='Stock Positions',
-                                    legend=dict(
-                                        orientation="h",
-                                        yanchor="bottom",
-                                        y=-0.3,
-                                        xanchor="center",
-                                        x=0.5
-                                    ))
+                              xaxis_title='Trade Date',
+                              yaxis_title='Stock Positions',
+                              legend=dict(
+                                    orientation="h",
+                                    yanchor="bottom",
+                                    y=-0.3,
+                                    xanchor="center",
+                                    x=0.5
+                              ),
+                              plot_bgcolor='white')
+            fig.update_xaxes(
+                mirror=True,
+                ticks='outside',
+                showline=True,
+                linecolor='black',
+                gridcolor='lightgrey'
+            )
+            fig.update_yaxes(
+                mirror=True,
+                ticks='outside',
+                showline=True,
+                linecolor='black',
+                gridcolor='lightgrey'
+            )
             fig.write_image("./images/postion_bydate.png", engine='kaleido')
 
             sqlDF1 = spark.sql(
@@ -305,7 +326,22 @@ class StockProposal:
                 yanchor="bottom",
                 y=-0.3,
                 xanchor="center",
-                x=0.5)
+                x=0.5),
+                plot_bgcolor='white'
+            )
+            fig.update_xaxes(
+                mirror=True,
+                ticks='outside',
+                showline=True,
+                linecolor='black',
+                gridcolor='lightgrey'
+            )
+            fig.update_yaxes(
+                mirror=True,
+                ticks='outside',
+                showline=True,
+                linecolor='black',
+                gridcolor='lightgrey'
             )
             fig.write_image("./images/BuySell.png", engine='kaleido')
             if self.market == "us":
