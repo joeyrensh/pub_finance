@@ -401,6 +401,57 @@ class StockProposal:
                               )
             fig.write_image(
                 "./images/postion_byindustry&date.png", engine='kaleido')
+            # P&L分析
+            sqlDF_bydate2 = spark.sql(
+                "with tmp as ( \
+                    select industry, pl from ( \
+                        select industry, sum(`p&l`) as pl from temp group by industry) \
+                        order by pl desc limit 5 \
+                ), tmp1 as ( select buy_date, industry, total_cnt \
+                            from ( \
+                                select buy_date, industry, \
+                                SUM(COUNT(*)) OVER (partition by industry ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt \
+                                from temp \
+                                group by buy_date, industry order by buy_date ) t \
+                            where buy_date >= date_add(current_date(), -60) \
+                )  select tmp.industry, tmp1.buy_date, tmp1.total_cnt\
+                from tmp left join tmp1 \
+                on tmp.industry = tmp1.industry \
+                "
+            )
+            df_displaybydate2 = sqlDF_bydate2.toPandas()
+            fig = px.line(df_displaybydate2,
+                          x='buy_date',
+                          y='total_cnt',
+                          color='industry',
+                          color_discrete_sequence=px.colors.qualitative.Plotly)
+            fig.update_traces(line=dict(width=2))
+            fig.update_xaxes(
+                mirror=True,
+                ticks='outside',
+                showline=True,
+                linecolor='black',
+                gridcolor='lightgrey'
+            )
+            fig.update_yaxes(
+                mirror=True,
+                ticks='outside',
+                showline=True,
+                linecolor='black',
+                gridcolor='lightgrey'
+            )
+            fig.update_layout(title='Last 60 days Industry Position Distribution',
+                              legend=dict(
+                                    orientation="h",
+                                    yanchor="bottom",
+                                    y=-0.5,
+                                    xanchor="left",
+                                    x=0
+                              ),
+                              plot_bgcolor='white',
+                              )
+            fig.write_image(
+                "./images/postion_byindustry&p&l.png", engine='kaleido')
             if self.market == "us":
                 subject = "美股行情分析"
                 image_path_return = "./images/TRdraw.png"
@@ -413,6 +464,7 @@ class StockProposal:
                 "./images/postion_bydate.png",
                 "./images/BuySell.png",
                 "./images/postion_byindustry&date.png",
+                "./images/postion_byindustry&p&l.png",
                 image_path_return,
             ]
             MyEmail().send_email_embedded_image(subject, html, image_path)

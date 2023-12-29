@@ -105,9 +105,9 @@ sqlDF_bydate = spark.sql(
 df_displaybydate = sqlDF_bydate.toPandas()
 sqlDF_bydate1 = spark.sql(
     "with tmp as ( \
-        select industry, cnt from ( \
-            select industry, count(*) as cnt from temp group by industry) t \
-            order by cnt desc limit 5 \
+        select industry, pl from ( \
+            select industry, sum(`p&l`) as pl from temp group by industry) \
+            order by pl desc limit 5 \
     ), tmp1 as ( select buy_date, industry, total_cnt \
                 from ( \
                     select buy_date, industry, \
