@@ -389,7 +389,7 @@ class StockProposal:
                 linecolor='black',
                 gridcolor='lightgrey'
             )
-            fig.update_layout(title='Last 60 days Industry Position Distribution',
+            fig.update_layout(title='Last 60 days Industry Position Distribution No',
                               legend=dict(
                                     orientation="h",
                                     yanchor="bottom",
@@ -440,7 +440,7 @@ class StockProposal:
                 linecolor='black',
                 gridcolor='lightgrey'
             )
-            fig.update_layout(title='Last 60 days Industry Position Distribution',
+            fig.update_layout(title='Last 60 days Industry Position Distribution P&L',
                               legend=dict(
                                     orientation="h",
                                     yanchor="bottom",
