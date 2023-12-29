@@ -238,7 +238,7 @@ class StockProposal:
             fig.write_image("./images/postion_byindustry.png",
                             engine='kaleido')
 
-            # TOP15盈利行业
+            # TOP10盈利行业
             sqlDF_asc = spark.sql(
                 " select industry, pl from ( \
                     select industry, sum(`p&l`) as pl from temp group by industry) \
@@ -262,24 +262,30 @@ class StockProposal:
                               ),
                               margin=dict(t=50, b=0.2, l=0.2, r=0.2))
             fig.write_image("./images/postion_byp&l.png", engine='kaleido')
-            # recent 100 days
+            # recent 60 days
             sqlDF_bydate = spark.sql(
-                "select buy_date, count(*) as cnt, \
+                "select buy_date, cnt, total_cnt \
+                from ( \
+                    select buy_date, count(*) as cnt, \
                     SUM(COUNT(*)) OVER (ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt \
                     from temp \
-                    where buy_date >= date_add(current_date(), -100) \
-                    group by buy_date order by buy_date "
+                    group by buy_date order by buy_date ) t \
+                where buy_date >= date_add(current_date(), -60) \
+                "
             )
             df_displaybydate = sqlDF_bydate.toPandas()
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=df_displaybydate['buy_date'], y=df_displaybydate['total_cnt'],
                                      mode='lines+markers',
                                      name='total stock',
-                                     line=dict(color='blueviolet', width=2)))
+                                     line=dict(color='darkslateblue',
+                                               width=2),
+                                     yaxis='y'))
             fig.add_trace(go.Bar(x=df_displaybydate['buy_date'], y=df_displaybydate['cnt'],
                                  name='stock per day',
-                                 marker_color='red'))
-            fig.update_layout(title='Last 100 days Stock Position Distribution',
+                                 marker_color='darkorange',
+                                 yaxis='y2'))
+            fig.update_layout(title='Last 60 days Stock Position Distribution',
                               xaxis_title='Trade Date',
                               yaxis_title='Stock Positions',
                               legend=dict(
@@ -289,7 +295,9 @@ class StockProposal:
                                     xanchor="center",
                                     x=0.5
                               ),
-                              plot_bgcolor='white')
+                              plot_bgcolor='white',
+                              yaxis=dict(title='Total Positions', side='left'),
+                              yaxis2=dict(title='Positions per day', side='right', overlaying='y', showgrid=False))
             fig.update_xaxes(
                 mirror=True,
                 ticks='outside',
@@ -308,17 +316,16 @@ class StockProposal:
 
             sqlDF1 = spark.sql(
                 " select date, trade_type, count(symbol) as cnt from temp1  \
-                    where date >= date_add(current_date(), -100) \
+                    where date >= date_add(current_date(), -60) \
                     group by date, trade_type order by date"
             )
             df1_display = sqlDF1.toPandas()
             fig = px.bar(
                 df1_display,
-                # color_discrete_sequence=px.colors.sequential.RdBu,
                 color='trade_type',
                 x="date",
                 y="cnt",
-                title="Last 100 days trade details",
+                title="Last 60 days trade details",
                 labels={"date": "Trade Date", "cnt": "Trade Sum"}
             )
             fig.update_layout(legend=dict(
@@ -344,6 +351,56 @@ class StockProposal:
                 gridcolor='lightgrey'
             )
             fig.write_image("./images/BuySell.png", engine='kaleido')
+            sqlDF_bydate1 = spark.sql(
+                "with tmp as ( \
+                    select industry, cnt from ( \
+                        select industry, count(*) as cnt from temp group by industry) t \
+                        order by cnt desc limit 5 \
+                ), tmp1 as ( select buy_date, industry, total_cnt \
+                            from ( \
+                                select buy_date, industry, \
+                                SUM(COUNT(*)) OVER (partition by industry ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt \
+                                from temp \
+                                group by buy_date, industry order by buy_date ) t \
+                            where buy_date >= date_add(current_date(), -60) \
+                )  select tmp.industry, tmp1.buy_date, tmp1.total_cnt\
+                from tmp left join tmp1 \
+                on tmp.industry = tmp1.industry \
+                "
+            )
+            df_displaybydate1 = sqlDF_bydate1.toPandas()
+            fig = px.line(df_displaybydate1,
+                          x='buy_date',
+                          y='total_cnt',
+                          color='industry',
+                          color_discrete_sequence=px.colors.qualitative.Plotly)
+            fig.update_traces(line=dict(width=2))
+            fig.update_xaxes(
+                mirror=True,
+                ticks='outside',
+                showline=True,
+                linecolor='black',
+                gridcolor='lightgrey'
+            )
+            fig.update_yaxes(
+                mirror=True,
+                ticks='outside',
+                showline=True,
+                linecolor='black',
+                gridcolor='lightgrey'
+            )
+            fig.update_layout(title='Last 60 days Industry Position Distribution',
+                              legend=dict(
+                                    orientation="h",
+                                    yanchor="bottom",
+                                    y=-0.5,
+                                    xanchor="left",
+                                    x=0
+                              ),
+                              plot_bgcolor='white',
+                              )
+            fig.write_image(
+                "./images/postion_byindustry&date.png", engine='kaleido')
             if self.market == "us":
                 subject = "美股行情分析"
                 image_path_return = "./images/TRdraw.png"
@@ -355,6 +412,7 @@ class StockProposal:
                 "./images/postion_byp&l.png",
                 "./images/postion_bydate.png",
                 "./images/BuySell.png",
+                "./images/postion_byindustry&date.png",
                 image_path_return,
             ]
             MyEmail().send_email_embedded_image(subject, html, image_path)

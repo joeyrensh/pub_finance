@@ -48,6 +48,7 @@ class TickerInfo:
                 if (
                     float(i["volume"]) * float(i["close"]) >= 50000000
                     and float(i["close"]) > 2
+                    and float(i["close"]) < 50000
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
                     and float(i["low"]) > 0
@@ -57,6 +58,7 @@ class TickerInfo:
                 if (
                     float(i["volume"]) > 100000
                     and float(i["close"]) > 2
+                    and float(i["close"]) < 50000
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
                     and float(i["low"]) > 0

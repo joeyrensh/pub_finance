@@ -19,7 +19,7 @@ import plotly.io as pio
 # 读取图像文件并转换为 Base64 编码
 
 
-file = FileInfo('20231227', 'cn')
+file = FileInfo('20231228', 'us')
 
 spark = (
     SparkSession.builder.master("local[1]")
@@ -98,31 +98,90 @@ sqlDF_bydate = spark.sql(
     "select buy_date, count(*) as cnt, \
         SUM(COUNT(*)) OVER (ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt \
         from temp \
-        where buy_date >= date_add(current_date(), -100) \
-        group by buy_date order by buy_date "
+        where buy_date >= date_add(current_date(), -30) \
+        group by buy_date order by buy_date \
+    "
 )
 df_displaybydate = sqlDF_bydate.toPandas()
+sqlDF_bydate1 = spark.sql(
+    "with tmp as ( \
+        select industry, cnt from ( \
+            select industry, count(*) as cnt from temp group by industry) t \
+            order by cnt desc limit 5 \
+    ), tmp1 as ( select buy_date, industry, total_cnt \
+                from ( \
+                    select buy_date, industry, \
+                    SUM(COUNT(*)) OVER (partition by industry ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt \
+                    from temp \
+                    group by buy_date, industry order by buy_date ) t \
+                where buy_date >= date_add(current_date(), -60) \
+    )  select tmp.industry, tmp1.buy_date, tmp1.total_cnt\
+    from tmp left join tmp1 \
+    on tmp.industry = tmp1.industry \
+    "
+)
+df_displaybydate1 = sqlDF_bydate1.toPandas()
+fig = px.line(df_displaybydate1,
+              x='buy_date',
+              y='total_cnt',
+              color='industry',
+              color_discrete_sequence=px.colors.qualitative.Plotly)
+fig.update_traces(line=dict(width=2))
+fig.update_xaxes(
+    mirror=True,
+    ticks='outside',
+    showline=True,
+    linecolor='black',
+    gridcolor='lightgrey'
+)
+fig.update_yaxes(
+    mirror=True,
+    ticks='outside',
+    showline=True,
+    linecolor='black',
+    gridcolor='lightgrey'
+)
+fig.update_layout(title='Last 60 days Industry Position Distribution',
+                  legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=-0.5,
+                        xanchor="left",
+                        x=0
+                  ),
+                  plot_bgcolor='white',
+                  )
+fig.write_image("./images/postion_byindustry&date.png", engine='kaleido')
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=df_displaybydate['buy_date'],
                          y=df_displaybydate['total_cnt'],
                          mode='lines+markers',
                          name='total stock',
-                         line=dict(color='blueviolet', width=2)))
+                         line=dict(color='blueviolet', width=2),
+                         yaxis='y',
+                         showlegend=False)
+              )
 fig.add_trace(go.Bar(x=df_displaybydate['buy_date'],
                      y=df_displaybydate['cnt'],
                      name='stock per day',
-                     marker_color='red'))
-fig.update_layout(title='Last 100 days Stock Position Distribution',
+                     marker_color='red',
+                     yaxis='y2',
+                     showlegend=False)
+              )
+fig.update_layout(title='Last 30 days Stock Position Distribution',
                   xaxis_title='Trade Date',
                   yaxis_title='Stock Positions',
                   legend=dict(
-                      orientation="h",
-                      yanchor="bottom",
-                      y=-0.3,
-                      xanchor="center",
-                      x=0.5
+                        orientation="h",
+                        yanchor="bottom",
+                        y=-0.1,
+                        xanchor="left",
+                        x=0
                   ),
-                  plot_bgcolor='white')
+                  plot_bgcolor='white',
+                  barmode='group',
+                  yaxis=dict(title='Total Positions', side='left'),
+                  yaxis2=dict(title='Positions per day', side='right', overlaying='y', showgrid=False))
 fig.update_xaxes(
     mirror=True,
     ticks='outside',
@@ -141,7 +200,7 @@ fig.write_image("./images/postion_bydate.png", engine='kaleido')
 
 sqlDF1 = spark.sql(
     " select date, trade_type, count(symbol) as cnt from temp1  \
-        where date >= date_add(current_date(), -100) \
+        where date >= date_add(current_date(), -30) \
         group by date, trade_type order by date"
 )
 df1_display = sqlDF1.toPandas()
@@ -151,7 +210,7 @@ fig = px.bar(
     color='trade_type',
     x="date",
     y="cnt",
-    title="Last 100 days trade details",
+    title="Last 30 days trade details",
     labels={"date": "Trade Date", "cnt": "Trade Sum"}
 )
 fig.update_layout(legend=dict(
@@ -183,5 +242,6 @@ image_path = [
     "./images/postion_byp&l.png",
     "./images/postion_bydate.png",
     "./images/BuySell.png",
+    "./images/postion_byindustry&date.png"
 ]
 MyEmail().send_email_embedded_image(subject, html, image_path)
