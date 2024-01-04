@@ -211,9 +211,9 @@ class StockProposal:
             df.createOrReplaceTempView("temp")
             # TOP10热门行业
             sqlDF = spark.sql(
-                " select industry, cnt from ( \
-                    select industry, count(*) as cnt from temp group by industry) \
-                    order by cnt desc limit 10 "
+                """ select industry, cnt from (
+                    select industry, count(*) as cnt from temp group by industry)
+                    order by cnt desc limit 10 """
             )
             df_display = sqlDF.toPandas()
             fig = go.Figure(data=[go.Pie(labels=df_display['industry'],
@@ -240,9 +240,9 @@ class StockProposal:
 
             # TOP10盈利行业
             sqlDF_asc = spark.sql(
-                " select industry, pl from ( \
-                    select industry, sum(`p&l`) as pl from temp group by industry) \
-                    order by pl desc limit 10"
+                """ select industry, pl from ( 
+                    select industry, sum(`p&l`) as pl from temp group by industry)
+                    order by pl desc limit 10"""
             )
             df_display_asc = sqlDF_asc.toPandas()
             fig = go.Figure(data=[go.Pie(
@@ -264,14 +264,14 @@ class StockProposal:
             fig.write_image("./images/postion_byp&l.png", engine='kaleido')
             # recent 60 days
             sqlDF_bydate = spark.sql(
-                "select buy_date, cnt, total_cnt \
-                from ( \
-                    select buy_date, count(*) as cnt, \
-                    SUM(COUNT(*)) OVER (ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt \
-                    from temp \
-                    group by buy_date order by buy_date ) t \
-                where buy_date >= date_add(current_date(), -60) \
-                "
+                """select buy_date, cnt, total_cnt 
+                from ( 
+                    select buy_date, count(*) as cnt,
+                    SUM(COUNT(*)) OVER (ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt
+                    from temp
+                    group by buy_date order by buy_date ) t
+                where buy_date >= date_add(current_date(), -60)
+                """
             )
             df_displaybydate = sqlDF_bydate.toPandas()
             fig = go.Figure()
@@ -315,9 +315,9 @@ class StockProposal:
             fig.write_image("./images/postion_bydate.png", engine='kaleido')
 
             sqlDF1 = spark.sql(
-                " select date, trade_type, count(symbol) as cnt from temp1  \
-                    where date >= date_add(current_date(), -60) \
-                    group by date, trade_type order by date"
+                """ select date, trade_type, count(symbol) as cnt from temp1 
+                    where date >= date_add(current_date(), -60)
+                    group by date, trade_type order by date"""
             )
             df1_display = sqlDF1.toPandas()
             fig = px.bar(
@@ -351,22 +351,41 @@ class StockProposal:
                 gridcolor='lightgrey'
             )
             fig.write_image("./images/BuySell.png", engine='kaleido')
+            # Top5行业仓位变化
+            date_range = pd.date_range(
+                start='2023-01-01', end=pd.to_datetime('today').strftime("%Y-%m-%d"), freq='D')
+            df_timeseries = pd.DataFrame({'buy_date': date_range})
+            df_timeseries_spark = spark.createDataFrame(
+                df_timeseries.astype({'buy_date': 'string'}))
+            df_timeseries_spark.createOrReplaceTempView("temp_timeseries")
             sqlDF_bydate1 = spark.sql(
-                "with tmp as ( \
-                    select industry, cnt from ( \
-                        select industry, count(*) as cnt from temp group by industry) t \
-                        order by cnt desc limit 5 \
-                ), tmp1 as ( select buy_date, industry, total_cnt \
-                            from ( \
-                                select buy_date, industry, \
-                                SUM(COUNT(*)) OVER (partition by industry ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt \
-                                from temp \
-                                group by buy_date, industry order by buy_date ) t \
-                            where buy_date >= date_add(current_date(), -60) \
-                )  select tmp.industry, tmp1.buy_date, tmp1.total_cnt\
-                from tmp left join tmp1 \
-                on tmp.industry = tmp1.industry \
-                "
+                """with tmp as (
+                    select industry, cnt from (
+                        select industry, count(*) as cnt from temp group by industry) t
+                        order by cnt desc limit 5
+                ), tmp1 as ( select buy_date, industry, total_cnt
+                from (
+                    select buy_date, industry,
+                            SUM(COUNT(*)) OVER (partition by industry ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt
+                    from temp
+                    group by buy_date, industry order by buy_date ) t
+                    where buy_date >= date_add(current_date(), -60) 
+                ), tmp2 as (select tmp.industry, tmp1.buy_date, tmp1.total_cnt 
+                            from tmp left join tmp1 
+                            on tmp.industry = tmp1.industry
+                ), tmp3 as (select temp_timeseries.buy_date, t1.industry
+                            from temp_timeseries left join (select industry from tmp) t1
+                            on 1=1
+                )  select tmp3.buy_date, tmp3.industry, 
+                        case when tmp2.total_cnt > 0 then tmp2.total_cnt
+                            else last_value(tmp2.total_cnt) ignore nulls over (partition by tmp3.industry order by tmp3.buy_date)
+                        end as total_cnt
+                    from tmp3 left join tmp2
+                    on tmp3.buy_date = tmp2.buy_date
+                    and tmp3.industry = tmp2.industry
+                    where tmp3.buy_date >= date_add(current_date(), -60)
+                    order by tmp3.industry, tmp3.buy_date
+                """
             )
             df_displaybydate1 = sqlDF_bydate1.toPandas()
             fig = px.line(df_displaybydate1,
@@ -403,21 +422,33 @@ class StockProposal:
                 "./images/postion_byindustry&date.png", engine='kaleido')
             # P&L分析
             sqlDF_bydate2 = spark.sql(
-                "with tmp as ( \
+                """with tmp as ( \
                     select industry, pl from ( \
                         select industry, sum(`p&l`) as pl from temp group by industry) \
                         order by pl desc limit 5 \
-                ), tmp1 as ( select buy_date, industry, total_cnt \
-                            from ( \
-                                select buy_date, industry, \
-                                SUM(COUNT(*)) OVER (partition by industry ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt \
-                                from temp \
-                                group by buy_date, industry order by buy_date ) t \
-                            where buy_date >= date_add(current_date(), -60) \
-                )  select tmp.industry, tmp1.buy_date, tmp1.total_cnt\
-                from tmp left join tmp1 \
-                on tmp.industry = tmp1.industry \
-                "
+                ), tmp1 as ( select buy_date, industry, total_cnt
+                from (
+                    select buy_date, industry,
+                            SUM(COUNT(*)) OVER (partition by industry ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt
+                    from temp
+                    group by buy_date, industry order by buy_date ) t
+                    where buy_date >= date_add(current_date(), -60) 
+                ), tmp2 as (select tmp.industry, tmp1.buy_date, tmp1.total_cnt 
+                            from tmp left join tmp1 
+                            on tmp.industry = tmp1.industry
+                ), tmp3 as (select temp_timeseries.buy_date, t1.industry
+                            from temp_timeseries left join (select industry from tmp) t1
+                            on 1=1
+                )  select tmp3.buy_date, tmp3.industry, 
+                        case when tmp2.total_cnt > 0 then tmp2.total_cnt
+                            else last_value(tmp2.total_cnt) ignore nulls over (partition by tmp3.industry order by tmp3.buy_date)
+                        end as total_cnt
+                    from tmp3 left join tmp2
+                    on tmp3.buy_date = tmp2.buy_date
+                    and tmp3.industry = tmp2.industry
+                    where tmp3.buy_date >= date_add(current_date(), -60)
+                    order by tmp3.industry, tmp3.buy_date
+                """
             )
             df_displaybydate2 = sqlDF_bydate2.toPandas()
             fig = px.line(df_displaybydate2,
