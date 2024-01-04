@@ -199,7 +199,7 @@ class EMCNHistoryDataDownload:
 # 文件名称定义
 
 emc = EMCNHistoryDataDownload()
-start_date = "20230101"
-end_date = "20240103"
-file_path = "./cnstockinfo/stock_20240103.csv"
+start_date = "20230701"
+end_date = "20240104"
+file_path = "./cnstockinfo/stock_20240104.csv"
 emc.set_his_tick_info_to_csv(start_date, end_date, file_path)

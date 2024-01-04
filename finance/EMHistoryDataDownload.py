@@ -200,7 +200,7 @@ class EMHistoryDataDownload:
 # 历史数据起始时间，结束时间
 # 文件名称定义
 em = EMHistoryDataDownload()
-start_date = "20230101"
+start_date = "20230701"
 end_date = "20240103"
 file_path = "./usstockinfo/stock_20240103.csv"
 em.set_his_tick_info_to_csv(start_date, end_date, file_path)
