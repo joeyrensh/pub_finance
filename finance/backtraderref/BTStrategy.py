@@ -23,6 +23,9 @@ class BTStrategy(bt.Strategy):
         ("signalperiod", 9),
         ("shortperiod", 20),
         ("longperiod", 60),
+        ("volshortperiod", 5),
+        ("volmidperiod", 10),
+        ("vollongperiod", 30),
     )
 
     def log(self, txt, dt=None):
@@ -127,9 +130,18 @@ class BTStrategy(bt.Strategy):
             self.inds[d]["highest60"] = bt.indicators.Highest(
                 d.close, period=self.params.longperiod
             )
-            """ 取5日平均成交量 """
-            self.inds[d]["mean_volume5"] = bt.indicators.Average(
-                d.volume, period=5)
+            """
+            MAVOL5、10、30成交量均线
+            """
+            self.inds[d]["mavolshort"] = bt.indicators.SMA(
+                d.volume, period=self.params.volshortperiod
+            )
+            self.inds[d]["mavolmid"] = bt.indicators.SMA(
+                d.volume, period=self.params.volmidperiod
+            )
+            self.inds[d]["mavollong"] = bt.indicators.SMA(
+                d.volume, period=self.params.vollongperiod
+            )
             """ 20均线乖离率 """
             self.inds[d]["bias_ma20"] = abs(
                 (self.inds[d]["ema20"] - self.inds[d]
@@ -207,13 +219,28 @@ class BTStrategy(bt.Strategy):
                 self.inds[d]["bias_ma20"](-3) < 0.1,
                 self.inds[d]["bias_ma20"](-4) < 0.1,
             )
-            self.signals[d]["volume_up2times"] = (
-                d.volume > self.inds[d]["mean_volume5"] * 3
+            self.signals[d]["close_crossover_ma20"] = bt.indicators.CrossOver(
+                d.close, self.inds[d]["ma20"]
+            )
+            """
+            信号5:
+            多头排列
+            """
+            self.signals[d]["close_over_ema"] = bt.And(
+                d.close > self.inds[d]["ema20"],
+                self.inds[d]["ema20"] > self.inds[d]["ema60"],
+                self.inds[d]["ma20"] > self.inds[d]["ma60"],
+            )
+            """
+            成交量均线多头排列 (短期成交量均线在中期均线上方或者中期成交量在长期均线上方)
+            """
+            self.signals[d]["mavol_long_position"] = bt.Or(
+                self.inds[d]["mavolshort"] > self.inds[d]["mavolmid"],
+                self.inds[d]["mavolmid"] > self.inds[d]["mavollong"],
             )
             self.signals[d]["close_up"] = d.close(0) > d.close(-1) * 1.1
             self.signals[d]["volume_break_thr"] = bt.And(
-                self.signals[d]["bias_ma20"],
-                self.signals[d]["volume_up2times"],
+                self.signals[d]["mavol_long_position"],
                 self.signals[d]["close_up"],
             )
 
@@ -228,10 +255,7 @@ class BTStrategy(bt.Strategy):
             震荡过大的股票进行过滤
             成交量超过过去5天成交量均值
             """
-            self.signals[d]["close_crossover_ma20"] = bt.indicators.CrossOver(
-                d.close, self.inds[d]["ma20"]
-            )
-            self.signals[d]["volume_over5"] = d.volume > self.inds[d]["mean_volume5"]
+
             """
             生成交易信号
             看跌信号
@@ -340,17 +364,14 @@ class BTStrategy(bt.Strategy):
                 ):
                     continue
                 """
-                双均线交易信号:
-                信号1: close > ema20 and close > ma20，ema20上穿ema60
-                信号2: close > ema20 and close > ma20，dif上穿dea
-                信号3: ema20/60 以及ma20/60呈多头排列，收盘价上穿ma20
-                同时: 所有信号满足情况下，成交量放大
+                交易信号:
                 """
                 if (
                     self.signals[d]["ema20_crossup_ema60"][0]
                     or self.signals[d]["dif_crossup_dea"][0]
                     or self.signals[d]["close_crossup_ma20"][0]
                     or self.signals[d]["volume_break_thr"][0]
+                    or self.signals[d]["close_over_ema"][0]
                 ):
                     # and self.signals[d]['volume_over5'][0]:
                     """买入对应仓位"""

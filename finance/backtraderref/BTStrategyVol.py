@@ -24,9 +24,9 @@ class BTStrategyVol(bt.Strategy):
         ("signalperiod", 9),
         ("shortperiod", 20),
         ("longperiod", 60),
-        ("volshortperiod", 10),
-        ("volmidperiod", 20),
-        ("vollongperiod", 60),
+        ("volshortperiod", 5),
+        ("volmidperiod", 10),
+        ("vollongperiod", 30),
     )
 
     def log(self, txt, dt=None):
@@ -98,7 +98,7 @@ class BTStrategyVol(bt.Strategy):
                 d.close, period=self.params.longperiod
             )
             """
-            MAVOL10、20、60成交量均线
+            MAVOL5、10、30成交量均线
             """
             self.inds[d]["mavolshort"] = bt.indicators.SMA(
                 d.volume, period=self.params.volshortperiod
@@ -140,24 +140,28 @@ class BTStrategyVol(bt.Strategy):
             看涨信号
             """
             """
-            信号1:
-            成交量均线多头排列
-            ema20上穿ema60或者ema20和ema60多头排列或者成交价上穿ema20
+            成交量均线多头排列 (短期成交量均线在中期均线上方或者中期成交量在长期均线上方)
             """
-            self.signals[d]["mavol_long_position"] = bt.And(
+            self.signals[d]["mavol_long_position"] = bt.Or(
                 self.inds[d]["mavolshort"] > self.inds[d]["mavolmid"],
                 self.inds[d]["mavolmid"] > self.inds[d]["mavollong"],
             )
-
+            """ 
+            多头排列
+            """
             self.signals[d]["close_over_ema"] = bt.And(
                 d.close > self.inds[d]["emashort"],
                 self.inds[d]["emashort"] > self.inds[d]["emalong"],
             )
-
+            """
+            短期EMA上穿长期EMA
+            """
             self.signals[d]["emashort_cross_emalong"] = bt.indicators.CrossUp(
                 self.inds[d]["emashort"], self.inds[d]["emalong"]
             )
-
+            """
+            收盘价上穿短期EMA
+            """
             self.signals[d]["close_cross_emashort"] = bt.indicators.CrossUp(
                 d.close, self.inds[d]["emashort"]
             )

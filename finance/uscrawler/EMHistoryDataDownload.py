@@ -51,32 +51,35 @@ class EMHistoryDataDownload:
         """
         dict = {}
         list = []
+        """url定义"""
+        url = (
+            "https://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
+            "&pn=i&pz=20000&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:mkt_code&fields=f2,f5,f12,f14,f15,f16,f17&_=unix_time"
+        )
         for mkt_code in ["105", "106", "107"]:
-            """url定义"""
-            url = (
-                "https://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
-                "&pn=1&pz=20000&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:mkt_code&fields=f2,f5,f12,f14,f15,f16,f17&_=unix_time"
-            )
             """ 请求url，获取数据response """
-            url_re = url.replace("unix_time", str(current_timestamp)).replace(
-                "mkt_code", mkt_code
-            )
-            res = requests.get(url_re).text
-            """ 替换成valid json格式 """
-            res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
-            json_object = json.loads(res_p)
-            for i in json_object:
-                if (
-                    i["f12"] == "-"
-                    or i["f17"] == "-"
-                    or i["f2"] == "-"
-                    or i["f15"] == "-"
-                    or i["f16"] == "-"
-                    or i["f5"] == "-"
-                ):
-                    continue
-                dict = {"symbol": i["f12"], "mkt_code": mkt_code}
-                list.append(dict)
+            for i in range(1, 100):
+                url_re = url.replace("unix_time", str(current_timestamp)).replace(
+                    "mkt_code", mkt_code).replace("pn=i", "pn="+str(i))
+                res = requests.get(url_re).text
+                """ 替换成valid json格式 """
+                res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
+                try:
+                    json_object = json.loads(res_p)
+                except ValueError as e:
+                    break
+                for i in json_object:
+                    if (
+                        i["f12"] == "-"
+                        or i["f17"] == "-"
+                        or i["f2"] == "-"
+                        or i["f15"] == "-"
+                        or i["f16"] == "-"
+                        or i["f5"] == "-"
+                    ):
+                        continue
+                    dict = {"symbol": i["f12"], "mkt_code": mkt_code}
+                    list.append(dict)
         return list
 
     def get_his_tick_info(self, mkt_code, symbol, start_date, end_date):
