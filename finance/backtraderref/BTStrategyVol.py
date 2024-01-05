@@ -184,8 +184,8 @@ class BTStrategyVol(bt.Strategy):
             看跌信号
             """
             """ 收盘价跌破ma20均线 """
-            self.signals[d]["close_crossdown_malong"] = bt.indicators.CrossDown(
-                d.close, self.inds[d]["malong"]
+            self.signals[d]["close_crossdown_mashort"] = bt.indicators.CrossDown(
+                d.close, self.inds[d]["mashort"]
             )
             """ dif下穿0轴 """
             self.signals[d]["dif_crossdown_axis"] = bt.indicators.CrossDown(
@@ -291,7 +291,7 @@ class BTStrategyVol(bt.Strategy):
                 信号3: 已经亏损20%
                 """
                 if (
-                    (self.signals[d]["close_crossdown_malong"][0] == 1
+                    (self.signals[d]["close_crossdown_mashort"][0] == 1
                      and self.signals[d]["close_over_malong"][0] == 0)
                     or self.signals[d]["dif_crossdown_axis"][0] == 1
                     or (d.close[0] - pos.price) / pos.price < -0.2
