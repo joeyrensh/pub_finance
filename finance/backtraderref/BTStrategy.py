@@ -226,7 +226,7 @@ class BTStrategy(bt.Strategy):
             信号5:
             多头排列
             """
-            self.signals[d]["close_over_ema"] = bt.And(
+            self.signals[d]["close_over_ema"] = bt.Or(
                 d.close > self.inds[d]["ema20"],
                 self.inds[d]["ema20"] > self.inds[d]["ema60"],
                 self.inds[d]["ma20"] > self.inds[d]["ma60"],
@@ -234,9 +234,9 @@ class BTStrategy(bt.Strategy):
             """
             成交量均线多头排列 (短期成交量均线在中期均线上方或者中期成交量在长期均线上方)
             """
-            self.signals[d]["mavol_long_position"] = bt.Or(
+            self.signals[d]["mavol_long_position"] = bt.And(
                 self.inds[d]["mavolshort"] > self.inds[d]["mavolmid"],
-                self.inds[d]["mavolmid"] > self.inds[d]["mavollong"],
+                self.inds[d]["mavolshort"] > self.inds[d]["mavollong"],
             )
             self.signals[d]["close_up"] = d.close(0) > d.close(-1) * 1.1
             self.signals[d]["volume_break_thr"] = bt.And(
@@ -249,6 +249,8 @@ class BTStrategy(bt.Strategy):
             满足看涨信号后，次日收盘价依然上涨，即买
             """
             self.signals[d]["close_over_preclose"] = d.close(0) > d.close(-1)
+            self.signals[d]["close_over_ma60"] = d.close(
+                0) >= self.inds[d]["ma60"]
 
             """
             最近5个交易日，收盘价频繁穿越ma20均线
@@ -353,7 +355,7 @@ class BTStrategy(bt.Strategy):
             """
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
-            if not len(pos):
+            if len(pos) == 0:
                 """最近5个交易日收盘价频繁穿越ma20均线，不进行交易"""
                 if (
                     self.signals[d]["close_crossover_ma20"][0] in [1, -1]
@@ -367,13 +369,12 @@ class BTStrategy(bt.Strategy):
                 交易信号:
                 """
                 if (
-                    self.signals[d]["ema20_crossup_ema60"][0]
-                    or self.signals[d]["dif_crossup_dea"][0]
-                    or self.signals[d]["close_crossup_ma20"][0]
-                    or self.signals[d]["volume_break_thr"][0]
-                    or self.signals[d]["close_over_ema"][0]
-                ):
-                    # and self.signals[d]['volume_over5'][0]:
+                        (
+                            self.signals[d]["ema20_crossup_ema60"][0]
+                            or self.signals[d]["dif_crossup_dea"][0]
+                            or self.signals[d]["close_crossup_ma20"][0]
+                            or self.signals[d]["close_over_ema"][0]
+                        ) and self.signals[d]["mavol_long_position"][0]):
                     """买入对应仓位"""
                     self.order[d._name] = self.buy(
                         data=d, exectype=bt.Order.Market)
@@ -386,7 +387,8 @@ class BTStrategy(bt.Strategy):
                 信号3: 已经亏损20%
                 """
                 if (
-                    self.signals[d]["close_crossdown_ma20"][0] == 1
+                    (self.signals[d]["close_crossdown_ma20"][0] == 1
+                     and self.signals[d]["close_over_ma60"][0] == 0)
                     or self.signals[d]["dif_crossdown_axis"][0] == 1
                     or (d.close[0] - pos.price) / pos.price < -0.2
                 ):

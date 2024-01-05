@@ -142,9 +142,9 @@ class BTStrategyVol(bt.Strategy):
             """
             成交量均线多头排列 (短期成交量均线在中期均线上方或者中期成交量在长期均线上方)
             """
-            self.signals[d]["mavol_long_position"] = bt.Or(
+            self.signals[d]["mavol_long_position"] = bt.And(
                 self.inds[d]["mavolshort"] > self.inds[d]["mavolmid"],
-                self.inds[d]["mavolmid"] > self.inds[d]["mavollong"],
+                self.inds[d]["mavolshort"] > self.inds[d]["mavollong"],
             )
             """ 
             多头排列
@@ -174,6 +174,11 @@ class BTStrategyVol(bt.Strategy):
                     self.signals[d]["close_cross_emashort"] == 1,
                 ),
             )
+            """
+            close未跌破MA60  
+            """
+            self.signals[d]["close_over_malong"] = d.close(
+                0) >= self.inds[d]["malong"]
             """
             生成交易信号
             看跌信号
@@ -271,7 +276,7 @@ class BTStrategyVol(bt.Strategy):
             """
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
-            if not len(pos):
+            if len(pos) == 0:
                 """成交量均线和K均线均多头"""
                 if self.signals[d]["signal1"]:
                     """买入对应仓位"""
@@ -286,7 +291,8 @@ class BTStrategyVol(bt.Strategy):
                 信号3: 已经亏损20%
                 """
                 if (
-                    self.signals[d]["close_crossdown_malong"][0] == 1
+                    (self.signals[d]["close_crossdown_malong"][0] == 1
+                     and self.signals[d]["close_over_malong"][0] == 0)
                     or self.signals[d]["dif_crossdown_axis"][0] == 1
                     or (d.close[0] - pos.price) / pos.price < -0.2
                 ):
