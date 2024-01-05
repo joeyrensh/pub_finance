@@ -175,7 +175,7 @@ class BTStrategyVol(bt.Strategy):
                 ),
             )
             """
-            close未跌破MA60  
+            close未跌破MA60
             """
             self.signals[d]["close_over_malong"] = d.close(
                 0) >= self.inds[d]["malong"]
@@ -292,7 +292,7 @@ class BTStrategyVol(bt.Strategy):
                 """
                 if (
                     (self.signals[d]["close_crossdown_mashort"][0] == 1
-                     and self.signals[d]["close_over_malong"][0] == 0)
+                     and not self.signals[d]["close_over_malong"][0])
                     or self.signals[d]["dif_crossdown_axis"][0] == 1
                     or (d.close[0] - pos.price) / pos.price < -0.2
                 ):

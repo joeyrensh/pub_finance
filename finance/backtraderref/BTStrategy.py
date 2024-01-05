@@ -388,7 +388,7 @@ class BTStrategy(bt.Strategy):
                 """
                 if (
                     (self.signals[d]["close_crossdown_ma20"][0] == 1
-                     and self.signals[d]["close_over_ma60"][0] == 0)
+                     and not self.signals[d]["close_over_ma60"][0])
                     or self.signals[d]["dif_crossdown_axis"][0] == 1
                     or (d.close[0] - pos.price) / pos.price < -0.2
                 ):
