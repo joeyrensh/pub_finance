@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 import pandas as pd
+import numpy as np
 from utility.FileInfo import FileInfo
 from utility.ToolKit import ToolKit
 import multiprocessing
@@ -100,7 +101,7 @@ class TickerInfo:
         list = []
         results = []
         """ 创建多进程 """
-        pool = multiprocessing.Pool(processes=2)
+        pool = multiprocessing.Pool(processes=4)
         for i in tickers:
             """
             适配BackTrader数据结构
@@ -142,12 +143,12 @@ class TickerInfo:
             market = 2
         df_copy = pd.DataFrame(
             {
-                "open": group_obj["open"].values,
-                "close": group_obj["close"].values,
-                "high": group_obj["high"].values,
-                "low": group_obj["low"].values,
-                "volume": group_obj["volume"].values,
-                "symbol": group_obj["symbol"].values,
+                "open": group_obj["open"].values.astype(float),
+                "close": group_obj["close"].values.astype(float),
+                "high": group_obj["high"].values.astype(float),
+                "low": group_obj["low"].values.astype(float),
+                "volume": group_obj["volume"].values.astype(int),
+                "symbol": group_obj["symbol"].values.astype(str),
                 "market": market,
             },
             index=pd.to_datetime(group_obj["date"], format="%Y-%m-%d"),
