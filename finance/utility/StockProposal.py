@@ -383,8 +383,10 @@ class StockProposal:
                     from tmp3 left join tmp2
                     on tmp3.buy_date = tmp2.buy_date
                     and tmp3.industry = tmp2.industry
+                    left join tmp
+                    on tmp3.industry = tmp.industry
                     where tmp3.buy_date >= date_add(current_date(), -60)
-                    order by tmp3.industry, tmp3.buy_date
+                    order by tmp.cnt desc
                 """
             )
             df_displaybydate1 = sqlDF_bydate1.toPandas()
@@ -446,8 +448,10 @@ class StockProposal:
                     from tmp3 left join tmp2
                     on tmp3.buy_date = tmp2.buy_date
                     and tmp3.industry = tmp2.industry
+                    left join tmp
+                    on tmp3.industry = tmp.industry
                     where tmp3.buy_date >= date_add(current_date(), -60)
-                    order by tmp3.industry, tmp3.buy_date
+                    order by tmp.pl desc
                 """
             )
             df_displaybydate2 = sqlDF_bydate2.toPandas()
