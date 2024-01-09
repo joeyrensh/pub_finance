@@ -149,10 +149,10 @@ class TickerInfo:
             market = 2
         df_copy = pd.DataFrame(
             {
-                "open": group_obj["open"].values.astype("float32"),
-                "close": group_obj["close"].values.astype("float32"),
-                "high": group_obj["high"].values.astype("float32"),
-                "low": group_obj["low"].values.astype("float32"),
+                "open": group_obj["open"].values.astype("float32").round(decimals=2),
+                "close": group_obj["close"].values.astype("float32").round(decimals=2),
+                "high": group_obj["high"].values.astype("float32").round(decimals=2),
+                "low": group_obj["low"].values.astype("float32").round(decimals=2),
                 "volume": group_obj["volume"].values.astype("int32"),
                 "symbol": group_obj["symbol"].values.astype(str),
                 "market": market,

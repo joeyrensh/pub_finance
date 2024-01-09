@@ -68,6 +68,10 @@ def exec_btstrategy(date):
     print("当前现金持有: ", cerebro.broker.get_cash())
     print("Final Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
+    # 节约内存
+    del data
+    gc.collect()
+
     """ 画图相关 """
     # 提取收益序列
     pnl = pd.Series(result[0].analyzers._TimeReturn.get_analysis())

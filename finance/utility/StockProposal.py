@@ -242,7 +242,7 @@ class StockProposal:
 
             # TOP10盈利行业
             sqlDF_asc = spark.sql(
-                """ select industry, pl from ( 
+                """ select industry, round(pl,2) as pl from ( 
                     select industry, sum(`p&l`) as pl from temp group by industry)
                     order by pl desc limit 10"""
             )
