@@ -180,7 +180,7 @@ class EMCNHistoryDataDownload:
                             end_date,
                         ),
                     )
-                    my_thread.setDaemon(True)
+                    my_thread.daemon = True
                     my_thread.start()
                     list1 = my_thread.get_result()
                     if list1 is None:

@@ -31,6 +31,8 @@ class TickerInfo:
     def get_stock_list(self):
         tickers = list()
         df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 14)])
+        df.drop_duplicates(subset=['symbol', 'date'],
+                           keep='first', inplace=True)
         df.sort_values(by=["symbol"], ascending=True, inplace=True)
         """ 匹配行业信息 """
         df_o = pd.read_csv(self.file_industry, usecols=[
@@ -71,6 +73,8 @@ class TickerInfo:
 
     def get_stock_data_for_day(self):
         df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 14)])
+        df.drop_duplicates(subset=['symbol', 'date'],
+                           keep='first', inplace=True)
         """ 匹配行业信息 """
         df_o = pd.read_csv(self.file_industry, usecols=[
                            i for i in range(1, 3)])
@@ -83,6 +87,8 @@ class TickerInfo:
         dic = {}
         for j in range(len(self.files)):
             df = pd.read_csv(self.files[j], usecols=[i for i in range(1, 14)])
+            df.drop_duplicates(subset=['symbol', 'date'],
+                               keep='first', inplace=True)
             dic[j] = df
         df = pd.concat(list(dic.values()), ignore_index=True)
         df.sort_values(by=["symbol", "date"], ascending=True, inplace=True)
@@ -143,11 +149,11 @@ class TickerInfo:
             market = 2
         df_copy = pd.DataFrame(
             {
-                "open": group_obj["open"].values.astype(float),
-                "close": group_obj["close"].values.astype(float),
-                "high": group_obj["high"].values.astype(float),
-                "low": group_obj["low"].values.astype(float),
-                "volume": group_obj["volume"].values.astype(int),
+                "open": group_obj["open"].values.astype("float32"),
+                "close": group_obj["close"].values.astype("float32"),
+                "high": group_obj["high"].values.astype("float32"),
+                "low": group_obj["low"].values.astype("float32"),
+                "volume": group_obj["volume"].values.astype("int32"),
                 "symbol": group_obj["symbol"].values.astype(str),
                 "market": market,
             },

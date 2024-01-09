@@ -182,7 +182,8 @@ class EMHistoryDataDownload:
                             end_date,
                         ),
                     )
-                    my_thread.setDaemon(True)
+                    # my_thread.setDaemon(True)
+                    my_thread.daemon = True
                     my_thread.start()
                     list1 = my_thread.get_result()
                     if list1 is None:
@@ -200,7 +201,7 @@ class EMHistoryDataDownload:
 # 历史数据起始时间，结束时间
 # 文件名称定义
 em = EMHistoryDataDownload()
-start_date = "20230701"
-end_date = "20240103"
-file_path = "./usstockinfo/stock_20240103.csv"
+start_date = "20230101"
+end_date = "20230630"
+file_path = "./usstockinfo/stock_20230630.csv"
 em.set_his_tick_info_to_csv(start_date, end_date, file_path)

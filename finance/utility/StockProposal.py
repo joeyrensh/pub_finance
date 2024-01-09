@@ -97,6 +97,8 @@ class StockProposal:
         spark = (
             SparkSession.builder.master("local[1]")
             .appName("SparkTest")
+            .config("spark.driver.memory", "512m")
+            .config("spark.executor.memory", "512m")
             .getOrCreate()
         )
         """输出仓位表格"""
