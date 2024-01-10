@@ -59,7 +59,7 @@ def exec_btstrategy(date):
         print("正在初始化: ", h["symbol"][0])
         """ 历史数据最早不超过2021-01-01 """
         data = BTPandasDataExt(
-            dataname=h, name=h["symbol"][0], fromdate=datetime(2022, 1, 1)
+            dataname=h, name=h["symbol"][0], fromdate=datetime(2023, 1, 1)
         )
         cerebro.adddata(data)
         # 周数据
@@ -76,6 +76,10 @@ def exec_btstrategy(date):
     """ 最终资金池 """
     print("当前现金持有: ", cerebro.broker.get_cash())
     print("Final Portfolio Value: %.2f" % cerebro.broker.getvalue())
+
+    # 节约内存
+    del data
+    gc.collect()
 
     """ 画图相关 """
     # cerebro.plot(iplot=True, subplot=True)

@@ -278,6 +278,7 @@ class BTStrategy(bt.Strategy):
 
     def notify_order(self, order):
         list = []
+        dict = {}
         if order.status in [order.Submitted, order.Accepted]:
             """Buy/Sell order submitted/accepted to/by broker - Nothing to do"""
             return
@@ -325,9 +326,10 @@ class BTStrategy(bt.Strategy):
                 self.log("Sell %s Order Canceled/Margin/Rejected" %
                          (order.data._name))
         self.order[order.data._name] = None
-        list.append(dict)
-        df = pd.DataFrame(list)
-        df.to_csv(self.file_path_trade, header=False)
+        if dict:
+            list.append(dict)
+            df = pd.DataFrame(list)
+            df.to_csv(self.file_path_trade, header=False)
 
     """
     交易状态改变回调方法
