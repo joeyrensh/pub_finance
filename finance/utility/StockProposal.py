@@ -99,7 +99,8 @@ class StockProposal:
         print("启动spark....")
         spark = SparkSession.builder.master(
             "local").appName("SparkTest").config("spark.driver.memory", "512m").config("spark.executor.memory", "512m").getOrCreate()
-        spark.conf.set("spark.sql.execution.arrow.enabled", "true")
+        # spark.conf.set("spark.sql.execution.arrow.enabled", "true")
+        spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
 
         """输出仓位表格"""
         file = FileInfo(self.trade_date, self.market)

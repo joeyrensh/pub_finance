@@ -160,8 +160,8 @@ class BTStrategy(bt.Strategy):
             self.signals[d]["close_over_ema20"] = d.close > self.inds[d]["ema20"]
             self.signals[d]["close_over_ma20"] = d.close > self.inds[d]["ma20"]
             self.signals[d]["ema20_crossup_ema60"] = bt.And(
-                self.signals[d]["close_over_ema20"],
-                self.signals[d]["close_over_ma20"],
+                self.signals[d]["close_over_ema20"] == 1,
+                self.signals[d]["close_over_ma20"] == 1,
                 bt.indicators.CrossUp(
                     self.inds[d]["ema20"], self.inds[d]["ema60"])
                 == 1,
@@ -177,12 +177,12 @@ class BTStrategy(bt.Strategy):
             self.signals[d]["high_over_ma20"] = d.high > self.inds[d]["ma20"]
             self.signals[d]["dif_crossup_dea"] = bt.And(
                 bt.Or(
-                    self.signals[d]["close_over_ema20"],
-                    self.signals[d]["high_over_ema20"],
+                    self.signals[d]["close_over_ema20"] == 1,
+                    self.signals[d]["high_over_ema20"] == 1,
                 ),
                 bt.Or(
-                    self.signals[d]["close_over_ma20"],
-                    self.signals[d]["high_over_ma20"],
+                    self.signals[d]["close_over_ma20"] == 1,
+                    self.signals[d]["high_over_ma20"] == 1,
                 ),
                 bt.indicators.CrossUp(
                     self.inds[d]["dif"], self.inds[d]["dea"]) == 1,
@@ -203,8 +203,8 @@ class BTStrategy(bt.Strategy):
                 self.inds[d]["ma20"] > self.inds[d]["ma60"]
             )
             self.signals[d]["close_crossup_ma20"] = bt.And(
-                self.signals[d]["ema20_over_ema60"],
-                self.signals[d]["ma20_over_ma60"],
+                self.signals[d]["ema20_over_ema60"] == 1,
+                self.signals[d]["ma20_over_ma60"] == 1,
                 bt.indicators.CrossUp(d.close, self.inds[d]["ma20"]) == 1,
             )
 
@@ -240,8 +240,8 @@ class BTStrategy(bt.Strategy):
             )
             self.signals[d]["close_up"] = d.close(0) > d.close(-1) * 1.1
             self.signals[d]["volume_break_thr"] = bt.And(
-                self.signals[d]["mavol_long_position"],
-                self.signals[d]["close_up"],
+                self.signals[d]["mavol_long_position"] == 1,
+                self.signals[d]["close_up"] == 1,
             )
 
             """
@@ -372,11 +372,11 @@ class BTStrategy(bt.Strategy):
                 """
                 if (
                         (
-                            self.signals[d]["ema20_crossup_ema60"][0]
-                            or self.signals[d]["dif_crossup_dea"][0]
-                            or self.signals[d]["close_crossup_ma20"][0]
-                            or self.signals[d]["close_over_ema"][0]
-                        ) and self.signals[d]["mavol_long_position"][0]):
+                            self.signals[d]["ema20_crossup_ema60"][0] == 1
+                            or self.signals[d]["dif_crossup_dea"][0] == 1
+                            or self.signals[d]["close_crossup_ma20"][0] == 1
+                            or self.signals[d]["close_over_ema"][0] == 1
+                        ) and self.signals[d]["mavol_long_position"][0] == 1):
                     """买入对应仓位"""
                     self.order[d._name] = self.buy(
                         data=d, exectype=bt.Order.Market)
@@ -390,7 +390,7 @@ class BTStrategy(bt.Strategy):
                 """
                 if (
                     (self.signals[d]["close_crossdown_ma20"][0] == 1
-                     and not self.signals[d]["close_over_ma60"][0])
+                     and self.signals[d]["close_over_ma60"][0] == 0)
                     or self.signals[d]["dif_crossdown_axis"][0] == 1
                     or (d.close[0] - pos.price) / pos.price < -0.2
                 ):

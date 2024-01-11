@@ -167,13 +167,14 @@ class BTStrategyVol(bt.Strategy):
             )
 
             self.signals[d]["signal1"] = bt.And(
-                self.signals[d]["mavol_long_position"],
+                self.signals[d]["mavol_long_position"] == 1,
                 bt.Or(
-                    self.signals[d]["close_over_ema"],
+                    self.signals[d]["close_over_ema"] == 1,
                     self.signals[d]["emashort_cross_emalong"] == 1,
                     self.signals[d]["close_cross_emashort"] == 1,
                 ),
             )
+
             """
             close未跌破MA60
             """
@@ -272,7 +273,7 @@ class BTStrategyVol(bt.Strategy):
         for i, d in enumerate(self.datas):
             if self.order[d._name]:
                 continue
-            """
+            """            
             self.log('当前代码: %s, 当前持仓:, %s' %
             (d._name, self.getposition(d).size))
             """
@@ -280,10 +281,10 @@ class BTStrategyVol(bt.Strategy):
             """ 如果没有仓位就判断是否买卖 """
             if len(pos) == 0:
                 """成交量均线和K均线均多头"""
-                if self.signals[d]["signal1"]:
+                if self.signals[d]["signal1"][0] == 1:
                     """买入对应仓位"""
                     self.order[d._name] = self.buy(
-                        data=d, exectype=bt.Order.Market)
+                        data=d, exectype=bt.Order.Close)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
             else:
                 """
@@ -294,7 +295,7 @@ class BTStrategyVol(bt.Strategy):
                 """
                 if (
                     (self.signals[d]["close_crossdown_mashort"][0] == 1
-                     and not self.signals[d]["close_over_malong"][0])
+                     and self.signals[d]["close_over_malong"][0] == 0)
                     or self.signals[d]["dif_crossdown_axis"][0] == 1
                     or (d.close[0] - pos.price) / pos.price < -0.2
                 ):
