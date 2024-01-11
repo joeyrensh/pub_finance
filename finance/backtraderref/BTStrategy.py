@@ -379,7 +379,7 @@ class BTStrategy(bt.Strategy):
                         ) and self.signals[d]["mavol_long_position"][0] == 1):
                     """买入对应仓位"""
                     self.order[d._name] = self.buy(
-                        data=d, exectype=bt.Order.Market)
+                        data=d, exectype=bt.Order.Close)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
             else:
                 """

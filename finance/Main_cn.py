@@ -29,6 +29,7 @@ import gc
 def exec_btstrategy(date):
     """创建cerebro对象"""
     cerebro = bt.Cerebro(stdstats=False)
+    cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
     cerebro.addstrategy(BTStrategyVol)
 
