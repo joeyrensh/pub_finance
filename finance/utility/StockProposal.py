@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+from pyspark import StorageLevel
 from utility.MyEmail import MyEmail
 from utility.FileInfo import FileInfo
 import pandas as pd
@@ -17,6 +18,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
+import gc
 
 
 mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
@@ -94,13 +96,11 @@ class StockProposal:
     def send_btstrategy_by_email(self):
         """发送邮件"""
         """ 取最新一天数据，获取股票名称 """
-        spark = (
-            SparkSession.builder.master("local[1]")
-            .appName("SparkTest")
-            .config("spark.driver.memory", "512m")
-            .config("spark.executor.memory", "512m")
-            .getOrCreate()
-        )
+        print("启动spark....")
+        spark = SparkSession.builder.master(
+            "local").appName("SparkTest").config("spark.driver.memory", "512m").config("spark.executor.memory", "512m").getOrCreate()
+        spark.conf.set("spark.sql.execution.arrow.enabled", "true")
+
         """输出仓位表格"""
         file = FileInfo(self.trade_date, self.market)
         file_name_day = file.get_file_path_latest
@@ -202,24 +202,31 @@ class StockProposal:
             """
             html = css + html
 
+            del df_np
+            gc.collect()
+
             """ 按照行业板块聚合，统计最近成交率最高的行业 """
             file_path_trade = file.get_file_path_trade
             cols = ["idx", "symbol", "date", "trade_type"]
+
             df1 = spark.read.csv(file_path_trade,
                                  header=None, inferSchema=True)
+            df1.coalesce(2)
             df1 = df1.toDF(*cols)
             df1.createOrReplaceTempView("temp1")
             df = spark.read.csv(file_cur_p, header=True)
+            df.coalesce(2)
             df.createOrReplaceTempView("temp")
             # TOP10热门行业
-            sqlDF = spark.sql(
+            sparkdata1 = spark.sql(
                 """ select industry, cnt from (
                     select industry, count(*) as cnt from temp group by industry)
                     order by cnt desc limit 10 """
             )
-            df_display = sqlDF.toPandas()
-            fig = go.Figure(data=[go.Pie(labels=df_display['industry'],
-                                         values=df_display['cnt'],
+            # sqlDF.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
+            dfdata1 = sparkdata1.toPandas()
+            fig = go.Figure(data=[go.Pie(labels=dfdata1['industry'],
+                                         values=dfdata1['cnt'],
                                          pull=0.2)]
                             )
             colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
@@ -239,16 +246,19 @@ class StockProposal:
                               )
             fig.write_image("./images/postion_byindustry.png",
                             engine='kaleido')
+            del dfdata1
+            gc.collect()
 
             # TOP10盈利行业
-            sqlDF_asc = spark.sql(
+            sparkdata2 = spark.sql(
                 """ select industry, round(pl,2) as pl from ( 
                     select industry, sum(`p&l`) as pl from temp group by industry)
                     order by pl desc limit 10"""
             )
-            df_display_asc = sqlDF_asc.toPandas()
+            # sparkdata2.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
+            dfdata2 = sparkdata2.toPandas()
             fig = go.Figure(data=[go.Pie(
-                labels=df_display_asc['industry'], values=df_display_asc['pl'], pull=0.2)])
+                labels=dfdata2['industry'], values=dfdata2['pl'], pull=0.2)])
             colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
             fig.update_traces(marker=dict(colors=colors,
                                           line=dict(color='#000000', width=1)
@@ -264,8 +274,12 @@ class StockProposal:
                               ),
                               margin=dict(t=50, b=0.2, l=0.2, r=0.2))
             fig.write_image("./images/postion_byp&l.png", engine='kaleido')
+
+            del dfdata2
+            gc.collect()
+
             # recent 60 days
-            sqlDF_bydate = spark.sql(
+            sparkdata3 = spark.sql(
                 """select buy_date, cnt, total_cnt 
                 from ( 
                     select buy_date, count(*) as cnt,
@@ -275,15 +289,16 @@ class StockProposal:
                 where buy_date >= date_add(current_date(), -60)
                 """
             )
-            df_displaybydate = sqlDF_bydate.toPandas()
+            # sparkdata3.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
+            dfdata3 = sparkdata3.toPandas()
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df_displaybydate['buy_date'], y=df_displaybydate['total_cnt'],
+            fig.add_trace(go.Scatter(x=dfdata3['buy_date'], y=dfdata3['total_cnt'],
                                      mode='lines+markers',
                                      name='total stock',
                                      line=dict(color='darkslateblue',
                                                width=2),
                                      yaxis='y'))
-            fig.add_trace(go.Bar(x=df_displaybydate['buy_date'], y=df_displaybydate['cnt'],
+            fig.add_trace(go.Bar(x=dfdata3['buy_date'], y=dfdata3['cnt'],
                                  name='stock per day',
                                  marker_color='darkorange',
                                  yaxis='y2'))
@@ -316,14 +331,18 @@ class StockProposal:
             )
             fig.write_image("./images/postion_bydate.png", engine='kaleido')
 
-            sqlDF1 = spark.sql(
+            del dfdata3
+            gc.collect()
+
+            sparkdata4 = spark.sql(
                 """ select date, trade_type, count(symbol) as cnt from temp1 
                     where date >= date_add(current_date(), -60)
                     group by date, trade_type order by date"""
             )
-            df1_display = sqlDF1.toPandas()
+            # sparkdata4.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
+            dfdata4 = sparkdata4.toPandas()
             fig = px.bar(
-                df1_display,
+                dfdata4,
                 color='trade_type',
                 x="date",
                 y="cnt",
@@ -353,14 +372,21 @@ class StockProposal:
                 gridcolor='lightgrey'
             )
             fig.write_image("./images/BuySell.png", engine='kaleido')
+
+            del dfdata4
+            gc.collect()
+
             # Top5行业仓位变化
+            end_date = pd.to_datetime('today').strftime("%Y-%m-%d")
+            start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
             date_range = pd.date_range(
-                start='2023-01-01', end=pd.to_datetime('today').strftime("%Y-%m-%d"), freq='D')
+                start=start_date.strftime("%Y-%m-%d"), end=end_date, freq='D')
             df_timeseries = pd.DataFrame({'buy_date': date_range})
             df_timeseries_spark = spark.createDataFrame(
                 df_timeseries.astype({'buy_date': 'string'}))
             df_timeseries_spark.createOrReplaceTempView("temp_timeseries")
-            sqlDF_bydate1 = spark.sql(
+            print("SQL5 spark sql exec....")
+            sparkdata5 = spark.sql(
                 """with tmp as (
                     select industry, cnt from (
                         select industry, count(*) as cnt from temp group by industry) t
@@ -375,8 +401,8 @@ class StockProposal:
                 ), tmp2 as (select tmp.industry, tmp1.buy_date, tmp1.total_cnt 
                             from tmp left join tmp1 
                             on tmp.industry = tmp1.industry
-                ), tmp3 as (select temp_timeseries.buy_date, t1.industry
-                            from temp_timeseries left join (select industry from tmp) t1
+                ), tmp3 as (select temp_timeseries.buy_date, tmp.industry, tmp.cnt
+                            from temp_timeseries left join tmp
                             on 1=1
                 )  select tmp3.buy_date, tmp3.industry, 
                         case when tmp2.total_cnt > 0 then tmp2.total_cnt
@@ -385,19 +411,19 @@ class StockProposal:
                     from tmp3 left join tmp2
                     on tmp3.buy_date = tmp2.buy_date
                     and tmp3.industry = tmp2.industry
-                    left join tmp
-                    on tmp3.industry = tmp.industry
-                    where tmp3.buy_date >= date_add(current_date(), -60)
-                    order by tmp.cnt desc
+                    order by tmp3.cnt desc
                 """
             )
-            df_displaybydate1 = sqlDF_bydate1.toPandas()
-            fig = px.line(df_displaybydate1,
+            sparkdata5.show()
+            # sparkdata5.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
+            dfdata5 = sparkdata5.toPandas()
+            print("SQL5 to pandas done....")
+            fig = px.line(dfdata5,
                           x='buy_date',
                           y='total_cnt',
                           color='industry',
                           color_discrete_sequence=px.colors.qualitative.Plotly)
-            fig.update_traces(line=dict(width=2))
+            fig.update_traces(line=dict(width=3))
             fig.update_xaxes(
                 mirror=True,
                 ticks='outside',
@@ -424,12 +450,15 @@ class StockProposal:
                               )
             fig.write_image(
                 "./images/postion_byindustry&date.png", engine='kaleido')
+
+            del dfdata5
+            gc.collect()
             # P&L分析
-            sqlDF_bydate2 = spark.sql(
-                """with tmp as ( \
-                    select industry, pl from ( \
-                        select industry, sum(`p&l`) as pl from temp group by industry) \
-                        order by pl desc limit 5 \
+            sparkdata6 = spark.sql(
+                """with tmp as ( 
+                    select industry, pl from ( 
+                        select industry, sum(`p&l`) as pl from temp group by industry) 
+                        order by pl desc limit 5 
                 ), tmp1 as ( select buy_date, industry, total_cnt
                 from (
                     select buy_date, industry,
@@ -440,8 +469,8 @@ class StockProposal:
                 ), tmp2 as (select tmp.industry, tmp1.buy_date, tmp1.total_cnt 
                             from tmp left join tmp1 
                             on tmp.industry = tmp1.industry
-                ), tmp3 as (select temp_timeseries.buy_date, t1.industry
-                            from temp_timeseries left join (select industry from tmp) t1
+                ), tmp3 as (select temp_timeseries.buy_date, tmp.industry, tmp.pl
+                            from temp_timeseries left join tmp
                             on 1=1
                 )  select tmp3.buy_date, tmp3.industry, 
                         case when tmp2.total_cnt > 0 then tmp2.total_cnt
@@ -450,19 +479,17 @@ class StockProposal:
                     from tmp3 left join tmp2
                     on tmp3.buy_date = tmp2.buy_date
                     and tmp3.industry = tmp2.industry
-                    left join tmp
-                    on tmp3.industry = tmp.industry
-                    where tmp3.buy_date >= date_add(current_date(), -60)
-                    order by tmp.pl desc
+                    order by tmp3.pl desc
                 """
             )
-            df_displaybydate2 = sqlDF_bydate2.toPandas()
-            fig = px.line(df_displaybydate2,
+            # sparkdata6.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
+            dfdata6 = sparkdata6.toPandas()
+            fig = px.line(dfdata6,
                           x='buy_date',
                           y='total_cnt',
                           color='industry',
                           color_discrete_sequence=px.colors.qualitative.Plotly)
-            fig.update_traces(line=dict(width=2))
+            fig.update_traces(line=dict(width=3))
             fig.update_xaxes(
                 mirror=True,
                 ticks='outside',
@@ -489,6 +516,9 @@ class StockProposal:
                               )
             fig.write_image(
                 "./images/postion_byindustry&p&l.png", engine='kaleido')
+
+            spark.stop()
+
             if self.market == "us":
                 subject = "美股行情分析"
                 image_path_return = "./images/TRdraw.png"

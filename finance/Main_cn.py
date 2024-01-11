@@ -68,10 +68,6 @@ def exec_btstrategy(date):
     print("当前现金持有: ", cerebro.broker.get_cash())
     print("Final Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
-    # 节约内存
-    del data
-    gc.collect()
-
     """ 画图相关 """
     # 提取收益序列
     pnl = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
@@ -254,6 +250,8 @@ if __name__ == "__main__":
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
+
+    print("发送邮件....")
 
     """ 发送邮件 """
     StockProposal("cn", trade_date).send_btstrategy_by_email()

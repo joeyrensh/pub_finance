@@ -153,7 +153,7 @@ class TickerInfo:
                 "close": group_obj["close"].values.astype("float32").round(decimals=2),
                 "high": group_obj["high"].values.astype("float32").round(decimals=2),
                 "low": group_obj["low"].values.astype("float32").round(decimals=2),
-                "volume": group_obj["volume"].values.astype("int32"),
+                "volume": group_obj["volume"].values.astype("int64"),
                 "symbol": group_obj["symbol"].values.astype(str),
                 "market": market,
             },
