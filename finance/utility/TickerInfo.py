@@ -51,7 +51,7 @@ class TickerInfo:
                 if (
                     float(i["turnover"]) >= 100000000
                     and float(i["close"]) > 2
-                    and float(i["close"]) < 50000
+                    and float(i["close"]) < 10000
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
                     and float(i["low"]) > 0
@@ -61,7 +61,7 @@ class TickerInfo:
                 if (
                     float(i["turnover"]) >= 100000000
                     and float(i["close"]) > 2
-                    and float(i["close"]) < 50000
+                    and float(i["close"]) < 10000
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
                     and float(i["low"]) > 0
@@ -135,7 +135,6 @@ class TickerInfo:
     """ 重构dataframe封装 """
 
     def reconstruct_dataframe(self, group_obj, i):
-        print("正在处理股票：", i)
         """ 
         过滤历史数据不完整的股票
         小于100天的股票暂时不进入回测列表
@@ -156,7 +155,8 @@ class TickerInfo:
                 "volume": group_obj["volume"].values.astype("int64"),
                 "symbol": group_obj["symbol"].values.astype(str),
                 "market": market,
+                # "datetime": pd.to_datetime(group_obj["date"].values, format="%Y-%m-%d")
             },
-            index=pd.to_datetime(group_obj["date"], format="%Y-%m-%d"),
+            index=pd.to_datetime(group_obj["date"].values, format="%Y-%m-%d"),
         ).copy()
         return df_copy

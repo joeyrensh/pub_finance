@@ -47,7 +47,6 @@ def exec_btstrategy(date):
     list = TickerInfo(date, "cn").get_backtrader_data_feed()
     """ 循环初始化数据进入cerebro """
     for h in list:
-        print("正在初始化: ", h["symbol"][0])
         """ 历史数据最早不超过2021-01-01 """
         data = BTPandasDataExt(
             dataname=h, name=h["symbol"][0], fromdate=datetime(2023, 1, 1)
