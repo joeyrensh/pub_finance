@@ -418,7 +418,6 @@ class StockProposal:
             sparkdata5.show()
             # sparkdata5.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
             dfdata5 = sparkdata5.toPandas()
-            print("SQL5 to pandas done....")
             fig = px.line(dfdata5,
                           x='buy_date',
                           y='total_cnt',

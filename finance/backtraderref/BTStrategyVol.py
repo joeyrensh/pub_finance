@@ -273,6 +273,9 @@ class BTStrategyVol(bt.Strategy):
         for i, d in enumerate(self.datas):
             if self.order[d._name]:
                 continue
+            """ 头部index不计算，有bug """
+            if len(d) == 0:
+                continue
             """            
             self.log('当前代码: %s, 当前持仓:, %s' %
             (d._name, self.getposition(d).size))
@@ -283,8 +286,9 @@ class BTStrategyVol(bt.Strategy):
                 """成交量均线和K均线均多头"""
                 if self.signals[d._name]["signal1"][0] == 1:
                     """买入对应仓位"""
+                    self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(
-                        data=d, exectype=bt.Order.Close)
+                        data=d, exectype=bt.Order.Market)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
             else:
                 """

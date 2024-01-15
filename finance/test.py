@@ -54,19 +54,14 @@ def exec_btstrategy(date):
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0.001, stocklike=True)
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "us").get_backtrader_data_feed()
+    stocklist = ["GEHC", "LNG"]
+    list = TickerInfo(date, "us").get_backtrader_data_feed_testonly(stocklist)
     """ 循环初始化数据进入cerebro """
     for h in list:
-        # if h["symbol"][0] not in ["LAES", "CNP"]:
-        if h["symbol"][0] not in ["LAES"]:
-            continue
-        # print("index is:", h.index)
-        # dd = h["close"]
-        # for j, value in enumerate(dd):
-        #     print("h[close][", j, "]:", h["close"][j])
         """ 历史数据最早不超过2021-01-01 """
+        # fromdate=datetime(2023, 1, 1)
         data = BTPandasDataExt(
-            dataname=h, name=h["symbol"][0], fromdate=datetime(2023, 1, 1)
+            dataname=h, name=h["symbol"][0], fromdate=datetime(2023, 1, 1), datetime=-1, timeframe=bt.TimeFrame.Days
         )
         cerebro.adddata(data, name=h["symbol"][0])
         # 周数据

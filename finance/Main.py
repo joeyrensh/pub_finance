@@ -40,7 +40,7 @@ def exec_strategy(date):
 def exec_btstrategy(date):
     """创建cerebro对象"""
     cerebro = bt.Cerebro(stdstats=False)
-    cerebro.broker.set_coc(True)
+    # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
     cerebro.addstrategy(BTStrategy)
 
@@ -59,7 +59,7 @@ def exec_btstrategy(date):
     for h in list:
         """ 历史数据最早不超过2021-01-01 """
         data = BTPandasDataExt(
-            dataname=h, name=h["symbol"][0], fromdate=datetime(2023, 1, 1)
+            dataname=h, name=h["symbol"][0], fromdate=datetime(2023, 1, 1), datetime=-1, timeframe=bt.TimeFrame.Days
         )
         cerebro.adddata(data, name=h["symbol"][0])
         # 周数据

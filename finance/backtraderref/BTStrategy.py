@@ -94,12 +94,12 @@ class BTStrategy(bt.Strategy):
                 d.close, period=self.params.shortperiod
             )
 
-            if d._name in ["LAES", "CNP"]:
-                print('d._name:', d._name)
-                print('ema20:', self.inds[d._name]["ema20"].lines[0])
-                buffer = self.inds[d._name]["ema20"].lines
-                for j, value in enumerate(buffer):
-                    print("Value at index", j, "of data source", i, ":", value)
+            # if d._name in ["LAES", "CNP"]:
+            #     print('d._name:', d._name)
+            #     print('ema20:', self.inds[d._name]["ema20"].lines[0].array)
+            #     buffer = self.inds[d._name]["ema20"].lines[0]
+            #     for j, value in enumerate(buffer):
+            #         print("Value at index", j, "of data source", i, ":", value)
 
             """ 日线EMA60指标 """
             self.inds[d._name]["ema60"] = bt.indicators.EMA(
@@ -362,21 +362,9 @@ class BTStrategy(bt.Strategy):
         for i, d in enumerate(self.datas):
             if self.order[d._name]:
                 continue
-            # if d._name == 'NXT':
-            #     print("self.datetime:",
-            #           self.datetime.date())
-            #     print("self.signals[d][ema20_crossup_ema60][0]:",
-            #           self.signals[d._name]["ema20_crossup_ema60"][0])
-            #     print("self.signals[d][dif_crossup_dea][0]:",
-            #           self.signals[d._name]["dif_crossup_dea"][0])
-            #     print("self.signals[d][close_crossup_ma20][0]:",
-            #           self.signals[d._name]["close_crossup_ma20"][0])
-            #     print("self.signals[][close_over_ema][0]:",
-            #           self.signals[d._name]["close_over_ema"][0])
-            #     print("self.signals[d][mavol_long_position][0]:",
-            #           self.signals[d._name]["mavol_long_position"][0])
-            #     print("self.inds[d][ema20]: ", self.inds[d._name]["ema20"][0])
-            #     print("d.close: ", d.close[0])
+            """ 头部index不计算，有bug """
+            if len(d) == 0:
+                continue
             """
             self.log('当前代码: %s, 当前持仓:, %s' %
             (d._name, self.getposition(d).size))
@@ -384,6 +372,7 @@ class BTStrategy(bt.Strategy):
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
             if len(pos) == 0:
+
                 """最近5个交易日收盘价频繁穿越ma20均线，不进行交易"""
                 if (
                     self.signals[d._name]["close_crossover_ma20"][0] in [1, -1]
@@ -404,8 +393,9 @@ class BTStrategy(bt.Strategy):
                             or self.signals[d._name]["close_over_ema"][0] == 1
                         ) and self.signals[d._name]["mavol_long_position"][0] == 1):
                     """买入对应仓位"""
+                    self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(
-                        data=d, exectype=bt.Order.Close)
+                        data=d, exectype=bt.Order.Market)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
             else:
                 """
