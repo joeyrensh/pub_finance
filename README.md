@@ -1,3 +1,2 @@
 # pub_finance
-test
-test2
+Scan the stock market and get the protential stock list.
