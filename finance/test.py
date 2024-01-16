@@ -169,6 +169,7 @@ sparkdata7 = spark.sql(
         ,tmp2 as (
                 select t1.industry
                 ,count(t2.symbol) as his_trade_cnt
+                ,count(distinct t2.symbol) as his_symbol_cnt
                 ,sum(datediff(t3.date, t3.l_date)) as his_days
                 ,sum(case when t2.l_date is null then datediff(current_date(), t2.date) else 0 end) as lastest_days
                 ,sum(case when t3.price - t3.l_price >=0 then 1 else 0 end) as pos_cnt
@@ -182,12 +183,12 @@ sparkdata7 = spark.sql(
                 group by t1.industry
                 )                
         select t1.industry, t2.p_cnt, t2.p_pnl+t1.his_pnl as pnl
-        ,t1.his_trade_cnt
+        ,t1.his_trade_cnt/t1.his_symbol_cnt as avg_his_trade_cnt
         ,(t1.his_days + t1.lastest_days) / t1.his_trade_cnt as avg_days
         ,t1.pos_cnt / (t1.pos_cnt + t1.neg_cnt) as pnl_ratio
         from tmp2 t1 left join tmp t2
         on t1.industry = t2.industry
-        order by t2.p_cnt desc
+        order by t2.p_pnl+t1.his_pnl desc
     """
 )
 dfdata7 = sparkdata7.toPandas()
@@ -197,21 +198,17 @@ dfdata7.rename(
         "industry": "行业",
         "p_cnt": "当前持仓量",
         "pnl": "盈亏金额",
-        "his_trade_cnt": "历史交易次数",
+        "avg_his_trade_cnt": "平均交易次数",
         "avg_days": "平均持仓天数",
         "pnl_ratio": "盈亏比"
     },
     inplace=True,
 )
-# cm = sns.color_palette("Blues", as_cmap=True)
-# 创建稍微调暗的浅色系 colormap
-colors = ["#FFD700", "#FFA500", "#FF8C00", "#FF4500"]  # 自定义颜色列表
-darkened_colors = mcolors.LinearSegmentedColormap.from_list(
-    "darkened_colors", colors, N=256)  # 调暗颜色
+cm1 = sns.color_palette("Wistia", as_cmap=True)
 html1 = (
     dfdata7.style
-    .format({"当前持仓量": "{:.2f}", "盈亏金额": "{:.2f}", "平均持仓天数": "{:.2f}", "盈亏比": "{:.2f}"})
-    .background_gradient(subset=["盈亏金额", "当前持仓量"], cmap=darkened_colors)
+    .format({"当前持仓量": "{:.2f}", "盈亏金额": "{:.2f}", "平均交易次数": "{:.2f}", "平均持仓天数": "{:.2f}", "盈亏比": "{:.2f}"})
+    .background_gradient(subset=["当前持仓量", "盈亏金额"], cmap=cm1)
     .bar(
         subset=["盈亏比"],
         align="left",
