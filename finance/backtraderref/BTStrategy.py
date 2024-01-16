@@ -55,6 +55,7 @@ class BTStrategy(bt.Strategy):
         """
 
         """ backtrader一些常用属性的初始化 """
+        self.trade = None
         self.order = dict()
         self.buyprice = None
         self.buycomm = None
@@ -305,7 +306,9 @@ class BTStrategy(bt.Strategy):
                 dict = {
                     "symbol": order.data._name,
                     "trade_date": self.datetime.date(),
-                    "trade_type": 'buy'
+                    "trade_type": 'buy',
+                    "price": order.executed.price,
+                    "size": order.executed.size
                 }
             elif order.issell():
                 """订单卖出成功"""
@@ -318,7 +321,9 @@ class BTStrategy(bt.Strategy):
                 dict = {
                     "symbol": order.data._name,
                     "trade_date": self.datetime.date(),
-                    "trade_type": 'sell'
+                    "trade_type": 'sell',
+                    "price": order.executed.price,
+                    "size": order.executed.size
                 }
             elif order.alive():
                 """returns bool if order is in status Partial or Accepted"""
@@ -348,6 +353,7 @@ class BTStrategy(bt.Strategy):
     """
 
     def notify_trade(self, trade):
+        self.trade = trade
         if not trade.isclosed:
             return
         """ 每笔交易收益 毛利和净利 """
