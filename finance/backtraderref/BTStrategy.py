@@ -142,13 +142,13 @@ class BTStrategy(bt.Strategy):
             """
             MAVOL5、10、30成交量均线
             """
-            self.inds[d._name]["mavolshort"] = bt.indicators.SMA(
+            self.inds[d._name]["mavolshort"] = bt.indicators.EMA(
                 d.volume, period=self.params.volshortperiod
             )
-            self.inds[d._name]["mavolmid"] = bt.indicators.SMA(
+            self.inds[d._name]["mavolmid"] = bt.indicators.EMA(
                 d.volume, period=self.params.volmidperiod
             )
-            self.inds[d._name]["mavollong"] = bt.indicators.SMA(
+            self.inds[d._name]["mavollong"] = bt.indicators.EMA(
                 d.volume, period=self.params.vollongperiod
             )
             """ 20均线乖离率 """
@@ -386,12 +386,13 @@ class BTStrategy(bt.Strategy):
                 交易信号:
                 """
                 if (
-                        (
-                            self.signals[d._name]["ema20_crossup_ema60"][0] == 1
-                            or self.signals[d._name]["dif_crossup_dea"][0] == 1
-                            or self.signals[d._name]["close_crossup_ma20"][0] == 1
-                            or self.signals[d._name]["close_over_ema"][0] == 1
-                        ) and self.signals[d._name]["mavol_long_position"][0] == 1):
+                    (
+                        self.signals[d._name]["ema20_crossup_ema60"][0] == 1
+                        or self.signals[d._name]["dif_crossup_dea"][0] == 1
+                        or self.signals[d._name]["close_crossup_ma20"][0] == 1
+                        or self.signals[d._name]["close_over_ema"][0] == 1
+                    ) and self.signals[d._name]["mavol_long_position"][0] == 1
+                ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(

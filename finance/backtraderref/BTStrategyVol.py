@@ -56,6 +56,7 @@ class BTStrategyVol(bt.Strategy):
         """
 
         """ backtrader一些常用属性的初始化 """
+        self.trade = None
         self.order = dict()
         self.buyprice = None
         self.buycomm = None
@@ -100,13 +101,13 @@ class BTStrategyVol(bt.Strategy):
             """
             MAVOL5、10、30成交量均线
             """
-            self.inds[d._name]["mavolshort"] = bt.indicators.SMA(
+            self.inds[d._name]["mavolshort"] = bt.indicators.EMA(
                 d.volume, period=self.params.volshortperiod
             )
-            self.inds[d._name]["mavolmid"] = bt.indicators.SMA(
+            self.inds[d._name]["mavolmid"] = bt.indicators.EMA(
                 d.volume, period=self.params.volmidperiod
             )
-            self.inds[d._name]["mavollong"] = bt.indicators.SMA(
+            self.inds[d._name]["mavollong"] = bt.indicators.EMA(
                 d.volume, period=self.params.vollongperiod
             )
             """
@@ -173,6 +174,8 @@ class BTStrategyVol(bt.Strategy):
                     self.signals[d._name]["emashort_cross_emalong"] == 1,
                     self.signals[d._name]["close_cross_emashort"] == 1,
                 ),
+                self.inds[d._name]["malong"](
+                    0) > self.inds[d._name]["malong"](-1)
             )
 
             """
@@ -216,7 +219,9 @@ class BTStrategyVol(bt.Strategy):
                 dict = {
                     "symbol": order.data._name,
                     "trade_date": self.datetime.date(),
-                    "trade_type": 'buy'
+                    "trade_type": 'buy',
+                    "price": order.executed.price,
+                    "size": order.executed.size
                 }
             elif order.issell():
                 """订单卖出成功"""
@@ -229,7 +234,9 @@ class BTStrategyVol(bt.Strategy):
                 dict = {
                     "symbol": order.data._name,
                     "trade_date": self.datetime.date(),
-                    "trade_type": 'sell'
+                    "trade_type": 'sell',
+                    "price": order.executed.price,
+                    "size": order.executed.size
                 }
             elif order.alive():
                 """returns bool if order is in status Partial or Accepted"""
@@ -259,6 +266,7 @@ class BTStrategyVol(bt.Strategy):
     """
 
     def notify_trade(self, trade):
+        self.trade = trade
         if not trade.isclosed:
             return
         """ 每笔交易收益 毛利和净利 """
