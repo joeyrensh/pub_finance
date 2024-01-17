@@ -52,7 +52,7 @@ class ToolKit():
     """ 获取美股最新交易日期 """
 
     @staticmethod
-    def get_us_latest_trade_date(offset)  -> (str | None):
+    def get_us_latest_trade_date(offset) -> (str | None):
         """
         utc_us = datetime.fromisoformat('2021-01-18 01:00:00')
         美股休市日，https://www.nyse.com/markets/hours-calendars
@@ -72,7 +72,7 @@ class ToolKit():
                     continue
                 else:
                     """返回日期字符串格式20200101"""
-                    print("当前获取的美股日期是：", str(utc_us)[0:10].replace("-", ""))
+                    # print("当前获取的美股日期是：", str(utc_us)[0:10].replace("-", ""))
                     return str(utc_us)[0:10].replace("-", "")
             else:
                 continue
@@ -145,7 +145,7 @@ class ToolKit():
                     continue
                 else:
                     """返回日期字符串格式20200101"""
-                    print("当前获取的A股日期是：", str(utc_cn)[0:10].replace("-", ""))
+                    # print("当前获取的A股日期是：", str(utc_cn)[0:10].replace("-", ""))
                     return str(utc_cn)[0:10].replace("-", "")
             else:
                 continue

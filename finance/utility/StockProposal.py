@@ -417,8 +417,6 @@ class StockProposal:
                     order by tmp3.cnt desc
                 """
             )
-            sparkdata5.show()
-            # sparkdata5.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
             dfdata5 = sparkdata5.toPandas()
             fig = px.line(dfdata5,
                           x='buy_date',
