@@ -251,8 +251,6 @@ if __name__ == "__main__":
 
     print("Garbage collector: collected %d objects." % (collected))
 
-    print("发送邮件....")
-
     """ 发送邮件 """
     StockProposal("cn", trade_date).send_btstrategy_by_email()
 

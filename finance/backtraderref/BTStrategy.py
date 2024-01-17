@@ -18,9 +18,9 @@ class BTStrategy(bt.Strategy):
     """
 
     params = (
-        ("fastperiod", 12),
-        ("slowperiod", 26),
-        ("signalperiod", 9),
+        ("fastperiod", 10),
+        ("slowperiod", 20),
+        ("signalperiod", 7),
         ("shortperiod", 20),
         ("longperiod", 60),
         ("volshortperiod", 5),
@@ -157,6 +157,15 @@ class BTStrategy(bt.Strategy):
                 (self.inds[d._name]["ema20"] - self.inds[d._name]
                  ["ma20"]) / self.inds[d._name]["ma20"]
             )
+            """ 波动率检查 """
+            self.inds[d._name]["lowest_close"] = bt.indicators.Lowest(
+                d.close, period=self.params.shortperiod)
+            self.inds[d._name]["highest_close"] = bt.indicators.Highest(
+                d.close, period=self.params.shortperiod)
+            self.inds[d._name]["lowest_close_index"] = bt.indicators.FindLastIndexLowest(
+                d.close, period=self.params.shortperiod)
+            self.inds[d._name]["highest_close_index"] = bt.indicators.FindLastIndexHighest(
+                d.close, period=self.params.shortperiod)
             """
             生成交易信号
             看涨信号
@@ -254,6 +263,17 @@ class BTStrategy(bt.Strategy):
                 self.signals[d._name]["mavol_long_position"] == 1,
                 self.signals[d._name]["close_up"] == 1,
             )
+
+            """ higher higher/ higher lower """
+            self.signals[d._name]["higher"] = bt.Or(
+                self.inds[d._name]["lowest_close"](
+                    0) > self.inds[d._name]["lowest_close"](-1),
+                self.inds[d._name]["highest_close"](
+                    0) > self.inds[d._name]["highest_close"](-1)
+            )
+            """ 波动率 """
+            self.inds[d._name]["ATR"] = bt.indicators.ATR(
+                d, period=self.params.shortperiod)
 
             """
             看涨信号滞后一天
@@ -398,6 +418,9 @@ class BTStrategy(bt.Strategy):
                         or self.signals[d._name]["close_crossup_ma20"][0] == 1
                         or self.signals[d._name]["close_over_ema"][0] == 1
                     ) and self.signals[d._name]["mavol_long_position"][0] == 1
+                    and d.close[0] > d.open[0]
+                    and self.signals[d._name]["higher"][0] == 1
+                    and self.inds[d._name]["ATR"][0] < 0.1 * d.close[0]
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])

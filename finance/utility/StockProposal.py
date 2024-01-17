@@ -97,7 +97,6 @@ class StockProposal:
     def send_btstrategy_by_email(self):
         """发送邮件"""
         """ 取最新一天数据，获取股票名称 """
-        print("启动spark....")
         spark = SparkSession.builder.master(
             "local").appName("SparkTest").config("spark.driver.memory", "512m").config("spark.executor.memory", "512m").getOrCreate()
         # spark.conf.set("spark.sql.execution.arrow.enabled", "true")
@@ -389,7 +388,7 @@ class StockProposal:
             df_timeseries_spark = spark.createDataFrame(
                 df_timeseries.astype({'buy_date': 'string'}))
             df_timeseries_spark.createOrReplaceTempView("temp_timeseries")
-            print("SQL5 spark sql exec....")
+
             sparkdata5 = spark.sql(
                 """with tmp as (
                     select industry, cnt from (

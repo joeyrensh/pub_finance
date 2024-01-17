@@ -19,9 +19,9 @@ class BTStrategyVol(bt.Strategy):
     """
 
     params = (
-        ("fastperiod", 12),
-        ("slowperiod", 26),
-        ("signalperiod", 9),
+        ("fastperiod", 10),
+        ("slowperiod", 20),
+        ("signalperiod", 7),
         ("shortperiod", 20),
         ("longperiod", 60),
         ("volshortperiod", 5),
@@ -136,6 +136,20 @@ class BTStrategyVol(bt.Strategy):
                 ).histo
                 * 2
             )
+            """ higher """
+            self.inds[d._name]["lowest_close"] = bt.indicators.Lowest(
+                d.close, period=self.params.shortperiod)
+            self.inds[d._name]["highest_close"] = bt.indicators.Highest(
+                d.close, period=self.params.shortperiod)
+            self.inds[d._name]["lowest_close_index"] = bt.indicators.FindLastIndexLowest(
+                d.close, period=self.params.shortperiod)
+            self.inds[d._name]["highest_close_index"] = bt.indicators.FindLastIndexHighest(
+                d.close, period=self.params.shortperiod)
+
+            """ 波动率 """
+            self.inds[d._name]["ATR"] = bt.indicators.ATR(
+                d, period=self.params.shortperiod)
+
             """
             生成交易信号
             看涨信号
@@ -175,7 +189,15 @@ class BTStrategyVol(bt.Strategy):
                     self.signals[d._name]["close_cross_emashort"] == 1,
                 ),
                 self.inds[d._name]["malong"](
-                    0) > self.inds[d._name]["malong"](-1)
+                    0) > self.inds[d._name]["malong"](-1),
+                d.close > d.open,
+                bt.Or(
+                    self.inds[d._name]["lowest_close"](
+                        0) > self.inds[d._name]["lowest_close"](-1),
+                    self.inds[d._name]["highest_close"](
+                        0) > self.inds[d._name]["highest_close"](-1)
+                ),
+                self.inds[d._name]["ATR"] < 0.1 * d.close
             )
 
             """
@@ -284,6 +306,7 @@ class BTStrategyVol(bt.Strategy):
             """ 头部index不计算，有bug """
             if len(d) == 0:
                 continue
+
             """            
             self.log('当前代码: %s, 当前持仓:, %s' %
             (d._name, self.getposition(d).size))
