@@ -202,11 +202,6 @@ class BTStrategyVol(bt.Strategy):
             )
 
             """
-            close未跌破MA60
-            """
-            self.signals[d._name]["close_over_malong"] = d.close(
-                0) >= self.inds[d._name]["malong"]
-            """
             生成交易信号
             看跌信号
             """
@@ -214,6 +209,11 @@ class BTStrategyVol(bt.Strategy):
             self.signals[d._name]["close_crossdown_mashort"] = bt.indicators.CrossDown(
                 d.close, self.inds[d._name]["mashort"]
             )
+            """
+            close未跌破MA60
+            """
+            self.signals[d._name]["close_over_malong"] = d.close(
+                0) >= self.inds[d._name]["malong"]
             """ dif下穿0轴 """
             self.signals[d._name]["dif_crossdown_axis"] = bt.indicators.CrossDown(
                 self.inds[d._name]["dif"], 0
@@ -331,8 +331,12 @@ class BTStrategyVol(bt.Strategy):
                 """
                 if (
                     (self.signals[d._name]["close_crossdown_mashort"][0] == 1
-                     and self.signals[d._name]["close_over_malong"][0] == 0)
-                    or self.signals[d._name]["dif_crossdown_axis"][0] == 1
+                     and self.signals[d._name]["close_over_malong"][0] == 0
+                     )
+                    or
+                    (self.signals[d._name]["dif_crossdown_axis"][0] == 1
+                     and self.signals[d._name]["close_over_malong"][0] == 0
+                     )
                     or (d.close[0] - pos.price) / pos.price < -0.2
                 ):
                     self.order[d._name] = self.close(data=d)
@@ -386,9 +390,6 @@ class BTStrategyVol(bt.Strategy):
                     "当前股票: %s, 交易天数: %s, 累计涨幅: %s"
                     % (dict["symbol"], interval, dict["p&l_ratio"])
                 )
-                # """ 少于10%的股票不展示 """
-                # if dict["p&l_ratio"] < 0.10:
-                #     continue
                 pos_share = pos_share + pos.size * pos.adjbase
                 if pos.adjbase - pos.price >= 0:
                     pos_earn = pos_earn + pos.size * (pos.adjbase - pos.price)

@@ -38,7 +38,8 @@ class BTStrategy(bt.Strategy):
 
     def start(self):
 
-        trade_date = ToolKit("获取最新交易日期").get_us_latest_trade_date(0)
+        trade_date = ToolKit(
+            "get latest trade date").get_us_latest_trade_date(0)
         file = FileInfo(trade_date, "us")
         """ 仓位文件地址 """
         file_path_position = file.get_file_path_position
@@ -95,13 +96,6 @@ class BTStrategy(bt.Strategy):
                 d.close, period=self.params.shortperiod
             )
 
-            # if d._name in ["LAES", "CNP"]:
-            #     print('d._name:', d._name)
-            #     print('ema20:', self.inds[d._name]["ema20"].lines[0].array)
-            #     buffer = self.inds[d._name]["ema20"].lines[0]
-            #     for j, value in enumerate(buffer):
-            #         print("Value at index", j, "of data source", i, ":", value)
-
             """ 日线EMA60指标 """
             self.inds[d._name]["ema60"] = bt.indicators.EMA(
                 d.close, period=self.params.longperiod
@@ -132,14 +126,7 @@ class BTStrategy(bt.Strategy):
                 ).histo
                 * 2
             )
-            """ 取60日内最低价 """
-            self.inds[d._name]["lowest60"] = bt.indicators.Lowest(
-                d.close, period=self.params.longperiod
-            )
-            """ 取60日内最高价 """
-            self.inds[d._name]["highest60"] = bt.indicators.Highest(
-                d.close, period=self.params.longperiod
-            )
+
             """
             MAVOL5、10、30成交量均线
             """
@@ -230,7 +217,7 @@ class BTStrategy(bt.Strategy):
 
             """
             信号4:
-            近5日均线密集，成交量突然放大，收盘价高于昨日
+            近5日均线密集
             """
             self.signals[d._name]["bias_ma20"] = bt.And(
                 self.inds[d._name]["bias_ma20"](0) < 0.1,
@@ -258,11 +245,6 @@ class BTStrategy(bt.Strategy):
                 self.inds[d._name]["mavolshort"] > self.inds[d._name]["mavolmid"],
                 self.inds[d._name]["mavolshort"] > self.inds[d._name]["mavollong"],
             )
-            self.signals[d._name]["close_up"] = d.close(0) > d.close(-1) * 1.1
-            self.signals[d._name]["volume_break_thr"] = bt.And(
-                self.signals[d._name]["mavol_long_position"] == 1,
-                self.signals[d._name]["close_up"] == 1,
-            )
 
             """ higher higher/ higher lower """
             self.signals[d._name]["higher"] = bt.Or(
@@ -274,15 +256,6 @@ class BTStrategy(bt.Strategy):
             """ 波动率 """
             self.inds[d._name]["ATR"] = bt.indicators.ATR(
                 d, period=self.params.shortperiod)
-
-            """
-            看涨信号滞后一天
-            满足看涨信号后，次日收盘价依然上涨，即买
-            """
-            self.signals[d._name]["close_over_preclose"] = d.close(
-                0) > d.close(-1)
-            self.signals[d._name]["close_over_ma60"] = d.close(
-                0) >= self.inds[d._name]["ma60"]
 
             """
             最近5个交易日，收盘价频繁穿越ma20均线
@@ -298,6 +271,8 @@ class BTStrategy(bt.Strategy):
             self.signals[d._name]["close_crossdown_ma20"] = bt.indicators.CrossDown(
                 d.close, self.inds[d._name]["ma20"]
             )
+            self.signals[d._name]["close_over_ma60"] = d.close(
+                0) >= self.inds[d._name]["ma60"]
             """ dif下穿0轴 """
             self.signals[d._name]["dif_crossdown_axis"] = bt.indicators.CrossDown(
                 self.inds[d._name]["dif"], 0
@@ -417,7 +392,8 @@ class BTStrategy(bt.Strategy):
                         or self.signals[d._name]["dif_crossup_dea"][0] == 1
                         or self.signals[d._name]["close_crossup_ma20"][0] == 1
                         or self.signals[d._name]["close_over_ema"][0] == 1
-                    ) and self.signals[d._name]["mavol_long_position"][0] == 1
+                    )
+                    and self.signals[d._name]["mavol_long_position"][0] == 1
                     and d.close[0] > d.open[0]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.inds[d._name]["highest_close"][0] -
@@ -437,8 +413,12 @@ class BTStrategy(bt.Strategy):
                 """
                 if (
                     (self.signals[d._name]["close_crossdown_ma20"][0] == 1
-                     and self.signals[d._name]["close_over_ma60"][0] == 0)
-                    or self.signals[d._name]["dif_crossdown_axis"][0] == 1
+                     and self.signals[d._name]["close_over_ma60"][0] == 0
+                     )
+                    or
+                    (self.signals[d._name]["dif_crossdown_axis"][0] == 1
+                        and self.signals[d._name]["close_over_ma60"][0] == 0
+                     )
                     or (d.close[0] - pos.price) / pos.price < -0.2
                 ):
                     self.order[d._name] = self.close(data=d)
@@ -492,9 +472,6 @@ class BTStrategy(bt.Strategy):
                     "当前股票: %s, 交易天数: %s, 累计涨幅: %s"
                     % (dict["symbol"], interval, dict["p&l_ratio"])
                 )
-                # """ 少于10%收益的股票不展示 """
-                # if dict["p&l_ratio"] < 0.10:
-                #     continue
                 list.append(dict)
                 pos_share = pos_share + pos.size * pos.adjbase
                 if pos.adjbase - pos.price >= 0:
