@@ -526,24 +526,27 @@ class StockProposal:
             df2.createOrReplaceTempView("temp2")
             """ 行业盈亏统计分析 """
             sparkdata7 = spark.sql(
-                """ with tmp as (select industry
-                                ,sum(case when `p&l` >= 0 then 1 else 0 end) as pos_cnt
-                                ,sum(case when `p&l` < 0 then 1 else 0 end) as neg_cnt
-                                ,count(*) as p_cnt, sum(`p&l`) as p_pnl from temp 
+                """ with tmp as (select 
+                                    industry
+                                    ,sum(case when `p&l` >= 0 then 1 else 0 end) as pos_cnt
+                                    ,sum(case when `p&l` < 0 then 1 else 0 end) as neg_cnt
+                                    ,count(*) as p_cnt
+                                    ,sum(`p&l`) as p_pnl
+                                from temp 
                                 where buy_date >= date_add(current_date(), -365)
                                 group by industry)
                     ,tmp1 as (
                             select symbol, date, trade_type, price, size, l_date, l_trade_type, l_price, l_size
                             from (
                                 select symbol, date, trade_type, price, size
-                                ,case when trade_type = 'sell' then lag(date) over (partition by symbol order by date)  
-                                        else lead(date) over (partition by symbol order by date) end as l_date
-                                ,case when trade_type = 'sell' then lag(trade_type) over (partition by symbol order by date) 
-                                        else lead(trade_type) over (partition by symbol order by date) end as l_trade_type
-                                ,case when trade_type = 'sell' then lag(price) over (partition by symbol order by date)
-                                        else lead(price) over (partition by symbol order by date) end as l_price
-                                ,case when trade_type = 'sell' then lag(size) over (partition by symbol order by date) 
-                                        else lead(size) over (partition by symbol order by date) end as l_size
+                                    ,case when trade_type = 'sell' then lag(date) over (partition by symbol order by date)  
+                                            else lead(date) over (partition by symbol order by date) end as l_date
+                                    ,case when trade_type = 'sell' then lag(trade_type) over (partition by symbol order by date) 
+                                            else lead(trade_type) over (partition by symbol order by date) end as l_trade_type
+                                    ,case when trade_type = 'sell' then lag(price) over (partition by symbol order by date)
+                                            else lead(price) over (partition by symbol order by date) end as l_price
+                                    ,case when trade_type = 'sell' then lag(size) over (partition by symbol order by date) 
+                                            else lead(size) over (partition by symbol order by date) end as l_size
                                 from temp1
                                 where date >= date_add(current_date(), -365)
                                 order by symbol, date, trade_type
@@ -551,13 +554,13 @@ class StockProposal:
                             )
                     ,tmp2 as (
                             select t1.industry
-                            ,count(t2.symbol) as his_trade_cnt
-                            ,count(distinct t2.symbol) as his_symbol_cnt
-                            ,sum(datediff(t3.date, t3.l_date)) as his_days
-                            ,sum(case when t2.l_date is null then datediff(current_date(), t2.date) else 0 end) as lastest_days
-                            ,sum(case when t3.price - t3.l_price >=0 then 1 else 0 end) as pos_cnt
-                            ,sum(case when t3.price - t3.l_price < 0 then 1 else 0 end) as neg_cnt
-                            ,sum(t3.price * (-t3.size) - t3.l_price * t3.l_size) as his_pnl
+                                ,count(t2.symbol) as his_trade_cnt
+                                ,count(distinct t2.symbol) as his_symbol_cnt
+                                ,sum(datediff(t3.date, t3.l_date)) as his_days
+                                ,sum(case when t2.l_date is null then datediff(current_date(), t2.date) else 0 end) as lastest_days
+                                ,sum(case when t3.price - t3.l_price >=0 then 1 else 0 end) as pos_cnt
+                                ,sum(case when t3.price - t3.l_price < 0 then 1 else 0 end) as neg_cnt
+                                ,sum(t3.price * (-t3.size) - t3.l_price * t3.l_size) as his_pnl
                             from temp2 as t1
                             join (select * from tmp1 where trade_type = 'buy' ) as t2
                             on t1.symbol = t2.symbol
@@ -565,10 +568,13 @@ class StockProposal:
                             on t1.symbol = t3.symbol
                             group by t1.industry
                             )                
-                    select t1.industry, t2.p_cnt, t2.p_pnl+t1.his_pnl as pnl
-                    ,t1.his_trade_cnt/t1.his_symbol_cnt as avg_his_trade_cnt
+                    select 
+                    t1.industry
+                    ,t2.p_cnt
+                    ,t2.p_pnl + t1.his_pnl as pnl
+                    ,t1.his_trade_cnt / t1.his_symbol_cnt as avg_his_trade_cnt
                     ,(t1.his_days + t1.lastest_days) / t1.his_trade_cnt as avg_days
-                    ,(t1.pos_cnt + t2.pos_cnt) / (t1.pos_cnt + t2.pos_cnt + t1.neg_cnt + t2.neg_cnt) as pnl_ratio
+                    ,(t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / (t1.pos_cnt + COALESCE(t2.pos_cnt,0) + t1.neg_cnt + COALESCE(t2.neg_cnt,0)) as pnl_ratio
                     from tmp2 t1 left join tmp t2
                     on t1.industry = t2.industry
                     order by t2.p_pnl+t1.his_pnl desc
