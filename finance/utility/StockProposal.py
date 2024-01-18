@@ -526,7 +526,10 @@ class StockProposal:
             df2.createOrReplaceTempView("temp2")
             """ 行业盈亏统计分析 """
             sparkdata7 = spark.sql(
-                """ with tmp as (select industry, count(*) as p_cnt, sum(`p&l`) as p_pnl from temp 
+                """ with tmp as (select industry
+                                ,sum(case when `p&l` >= 0 then 1 else 0 end) as pos_cnt
+                                ,sum(case when `p&l` < 0 then 1 else 0 end) as neg_cnt
+                                ,count(*) as p_cnt, sum(`p&l`) as p_pnl from temp 
                                 where buy_date >= date_add(current_date(), -365)
                                 group by industry)
                     ,tmp1 as (
@@ -565,7 +568,7 @@ class StockProposal:
                     select t1.industry, t2.p_cnt, t2.p_pnl+t1.his_pnl as pnl
                     ,t1.his_trade_cnt/t1.his_symbol_cnt as avg_his_trade_cnt
                     ,(t1.his_days + t1.lastest_days) / t1.his_trade_cnt as avg_days
-                    ,t1.pos_cnt / (t1.pos_cnt + t1.neg_cnt) as pnl_ratio
+                    ,(t1.pos_cnt + t2.pos_cnt) / (t1.pos_cnt + t2.pos_cnt + t1.neg_cnt + t2.neg_cnt) as pnl_ratio
                     from tmp2 t1 left join tmp t2
                     on t1.industry = t2.industry
                     order by t2.p_pnl+t1.his_pnl desc
