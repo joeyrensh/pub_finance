@@ -397,7 +397,8 @@ class BTStrategy(bt.Strategy):
                     and d.close[0] > d.open[0]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.inds[d._name]["highest_close"][0] -
-                    self.inds[d._name]["lowest_close"][0] < 0.2 * d.close[0]
+                    self.inds[d._name]["lowest_close"][0] < 0.2 *
+                        self.inds[d._name]["lowest_close"][0]
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])

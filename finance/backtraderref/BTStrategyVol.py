@@ -198,7 +198,8 @@ class BTStrategyVol(bt.Strategy):
                         0) > self.inds[d._name]["highest_close"](-1)
                 ),
                 self.inds[d._name]["highest_close"] -
-                self.inds[d._name]["lowest_close"] < 0.2 * d.close
+                self.inds[d._name]["lowest_close"] < 0.2 *
+                self.inds[d._name]["lowest_close"]
             )
 
             """

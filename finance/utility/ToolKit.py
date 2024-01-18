@@ -72,7 +72,7 @@ class ToolKit():
                     continue
                 else:
                     """返回日期字符串格式20200101"""
-                    # print("当前获取的美股日期是：", str(utc_us)[0:10].replace("-", ""))
+                    print("trade date: ", str(utc_us)[0:10].replace("-", ""))
                     return str(utc_us)[0:10].replace("-", "")
             else:
                 continue
@@ -145,7 +145,7 @@ class ToolKit():
                     continue
                 else:
                     """返回日期字符串格式20200101"""
-                    # print("当前获取的A股日期是：", str(utc_cn)[0:10].replace("-", ""))
+                    print("trade date: ", str(utc_cn)[0:10].replace("-", ""))
                     return str(utc_cn)[0:10].replace("-", "")
             else:
                 continue

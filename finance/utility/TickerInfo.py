@@ -49,7 +49,7 @@ class TickerInfo:
             """
             if self.market == "us":
                 if (
-                    float(i["turnover"]) >= 100000000
+                    float(i["close"]) * float(i["volume"]) >= 100000000
                     and float(i["close"]) > 2
                     and float(i["close"]) < 10000
                     and float(i["open"]) > 0
@@ -59,7 +59,7 @@ class TickerInfo:
                     tickers.append(i["symbol"])
             elif self.market == "cn":
                 if (
-                    float(i["turnover"]) >= 100000000
+                    float(i["close"]) * float(i["volume"]) * 100 >= 100000000
                     and float(i["close"]) > 2
                     and float(i["close"]) < 10000
                     and float(i["open"]) > 0
