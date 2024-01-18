@@ -394,6 +394,7 @@ class BTStrategy(bt.Strategy):
                         or self.signals[d._name]["close_over_ema"][0] == 1
                     )
                     and self.signals[d._name]["mavol_long_position"][0] == 1
+                    and self.inds[d._name]["ma60"][0] > self.inds[d._name]["ma60"][-1]
                     and d.close[0] > d.open[0]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.inds[d._name]["highest_close"][0] -
