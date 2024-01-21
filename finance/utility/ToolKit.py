@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import re
 
 
-class ToolKit():
+class ToolKit:
     def __init__(self, val):
         self.val = val
         print("\n" + val + "...")
@@ -22,13 +22,14 @@ class ToolKit():
     """ 判断今日是否美股交易日 """
 
     @staticmethod
-    def is_us_trade_date() -> bool:
+    def is_us_trade_date(trade_date) -> bool:
         """
         当前北京时间 UTC+8
         utc_loc = datetime.now()
         当前美国时间 UTC-4
         """
-        utc_us = datetime.now() - timedelta(hours=12)
+        # utc_us = datetime.now() - timedelta(hours=12)
+        utc_us = datetime.strptime(trade_date, "%Y%m%d") - timedelta(hours=12)
         """ 
         utc_us = datetime.fromisoformat('2021-01-18 01:00:00')
         美股休市日，https://www.nyse.com/markets/hours-calendars
@@ -52,12 +53,14 @@ class ToolKit():
     """ 获取美股最新交易日期 """
 
     @staticmethod
-    def get_us_latest_trade_date(offset) -> (str | None):
+    def get_us_latest_trade_date(offset) -> str | None:
         """
         utc_us = datetime.fromisoformat('2021-01-18 01:00:00')
         美股休市日，https://www.nyse.com/markets/hours-calendars
         USStockMarketClosed.config 是2021和2022两年的美股法定休市配置文件
         """
+        if offset == 0:
+            return str(datetime.now() - timedelta(hours=12))[0:10].replace("-", "")
         f = open("./usstockinfo/USStockMarketClosed.config").readlines()
         x = []
         for i in f:
@@ -80,7 +83,7 @@ class ToolKit():
     """ 获取美股两个日期间的交易天数 """
 
     @staticmethod
-    def get_us_trade_off_days(cur, before) -> (int | None):
+    def get_us_trade_off_days(cur, before) -> int | None:
         """
         取两个交易日起之间的交易天数，用来过滤塞选滞胀的股票
         cur, before都需是datetime类型
@@ -105,8 +108,9 @@ class ToolKit():
     """ 判断今日是否A股交易日 """
 
     @staticmethod
-    def is_cn_trade_date() -> bool:
-        utc_cn = datetime.now()
+    def is_cn_trade_date(trade_date) -> bool:
+        # utc_cn = datetime.now()
+        utc_cn = datetime.strptime(trade_date, "%Y%m%d")
         """
         utc_cn = datetime.fromisoformat('2021-01-18 01:00:00')
         A股休市日
@@ -130,7 +134,9 @@ class ToolKit():
     """ 获取A股最新交易日期 """
 
     @staticmethod
-    def get_cn_latest_trade_date(offset) -> (str | None):
+    def get_cn_latest_trade_date(offset) -> str | None:
+        if offset == 0:
+            return str(datetime.now())[0:10].replace("-", "")
         f = open("./cnstockinfo/CNStockMarketClosed.config").readlines()
         x = []
         for i in f:
@@ -153,7 +159,7 @@ class ToolKit():
     """ 获取A股两个日期间的交易天数 """
 
     @staticmethod
-    def get_cn_trade_off_days(cur, before) -> (int | None):
+    def get_cn_trade_off_days(cur, before) -> int | None:
         """
         取两个交易日起之间的交易天数，用来过滤塞选滞胀的股票
         cur, before都需是datetime类型

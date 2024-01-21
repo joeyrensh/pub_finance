@@ -31,7 +31,7 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(BTStrategyVol)
+    cerebro.addstrategy(BTStrategyVol, trade_date=date)
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
@@ -44,13 +44,17 @@ def exec_btstrategy(date):
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0.001, stocklike=True)
     """ 添加股票当日即历史数据 """
-    stocklist = ['SH603220']
+    stocklist = ["SH603220"]
     list = TickerInfo(date, "cn").get_backtrader_data_feed_testonly(stocklist)
     """ 循环初始化数据进入cerebro """
     for h in list:
-        """ 历史数据最早不超过2021-01-01 """
+        """历史数据最早不超过2021-01-01"""
         data = BTPandasDataExt(
-            dataname=h, name=h["symbol"][0], fromdate=datetime(2023, 1, 1), datetime=-1, timeframe=bt.TimeFrame.Days
+            dataname=h,
+            name=h["symbol"][0],
+            fromdate=datetime(2023, 1, 1),
+            datetime=-1,
+            timeframe=bt.TimeFrame.Days,
         )
         cerebro.adddata(data)
         # 周数据
@@ -72,8 +76,15 @@ def exec_btstrategy(date):
 
 # 主程序入口
 if __name__ == "__main__":
-    """美股交易日期 utc+8"""
-    trade_date = ToolKit("获取最新A股交易日期").get_cn_latest_trade_date(0)
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(1)
+
+    """ 非交易日程序终止运行 """
+    if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
+        pass
+    else:
+        sys.exit()
 
     """ 执行bt相关策略 """
     exec_btstrategy(trade_date)
+
+    StockProposal("cn", trade_date).send_btstrategy_by_email()

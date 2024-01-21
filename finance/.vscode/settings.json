@@ -1,14 +1,6 @@
 {
     "jupyter.jupyterServerType": "remote",
-    "python.autoComplete.extraPaths": [
-        "./finance"
-    ],
     "python.analysis.extraPaths": [
         "./finance"
-    ],
-    "python.linting.flake8Enabled": false,
-    "python.linting.enabled": false,
-    "python.linting.pylintEnabled": true,
-    "python.linting.pycodestyleEnabled": false,
-    "python.formatting.provider": "black"
+    ]
 }

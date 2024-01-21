@@ -11,14 +11,13 @@ import base64
 
 
 class MyEmail(object):
-    """ string_to_encode = xxx
-        encoded_string = base64.b64encode(
-            string_to_encode.encode("utf-8")).decode("utf-8") 
+    """string_to_encode = xxx
+    encoded_string = base64.b64encode(
+        string_to_encode.encode("utf-8")).decode("utf-8")
     """
-    _mail_user = base64.b64decode(
-        os.environ.get("email_addr")).decode("utf-8")
-    _mail_password = base64.b64decode(
-        os.environ.get("email_key")).decode("utf-8")
+
+    _mail_user = base64.b64decode(os.environ.get("email_addr")).decode("utf-8")
+    _mail_password = base64.b64decode(os.environ.get("email_key")).decode("utf-8")
 
     def __init__(self):
         self.send_from = self._mail_user
@@ -60,8 +59,9 @@ class MyEmail(object):
             smtp_server.login(self._mail_user, self._mail_password)
             smtp_server.sendmail(
                 self.send_from,
-                [self.to,
-                 ],
+                [
+                    self.to,
+                ],
                 self.msg.as_string(),
             )
             smtp_server.close()
@@ -70,6 +70,5 @@ class MyEmail(object):
             print("Something went wrong….", ex)
 
     def format_addr(self, s):
-
         name, addr = parseaddr(s)
         return formataddr((Header(name, "utf-8").encode(), addr))

@@ -35,11 +35,9 @@ class StockProposal:
         file_name_industry = file.get_file_path_industry
 
         """ 匹配行业信息 """
-        df_ind = pd.read_csv(file_name_industry, usecols=[
-                             i for i in range(1, 3)])
+        df_ind = pd.read_csv(file_name_industry, usecols=[i for i in range(1, 3)])
         df_n = pd.merge(dataframe, df_ind, how="left", on="symbol")
-        df_n.sort_values(by=["chg", "amplitude"],
-                         ascending=False, inplace=True)
+        df_n.sort_values(by=["chg", "amplitude"], ascending=False, inplace=True)
         df_n.reset_index(drop=True, inplace=True)
         df_n.rename(
             columns={
@@ -55,8 +53,7 @@ class StockProposal:
         )
         cm = sns.color_palette("Blues", as_cmap=True)
         html = (
-            df_n.style
-            .hide(axis=1, subset=["标记", "成交量"])
+            df_n.style.hide(axis=1, subset=["标记", "成交量"])
             .format({"收盘价": "{:.2f}", "涨幅": "{:.2f}", "成交量": "{:.0f}", "振幅": "{:.2f}%"})
             .background_gradient(subset=["收盘价", "涨幅", "成交量", "振幅"], cmap=cm)
             .bar(
@@ -97,8 +94,13 @@ class StockProposal:
     def send_btstrategy_by_email(self):
         """发送邮件"""
         """ 取最新一天数据，获取股票名称 """
-        spark = SparkSession.builder.master(
-            "local").appName("SparkTest").config("spark.driver.memory", "512m").config("spark.executor.memory", "512m").getOrCreate()
+        spark = (
+            SparkSession.builder.master("local")
+            .appName("SparkTest")
+            .config("spark.driver.memory", "512m")
+            .config("spark.executor.memory", "512m")
+            .getOrCreate()
+        )
         # spark.conf.set("spark.sql.execution.arrow.enabled", "true")
         spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
 
@@ -128,8 +130,7 @@ class StockProposal:
             )
             cm = sns.color_palette("Blues", as_cmap=True)
             html = (
-                df_np.style
-                .hide(axis=1, subset=["收益金额"])
+                df_np.style.hide(axis=1, subset=["收益金额"])
                 .format({"买入价": "{:.2f}", "当前价": "{:.2f}", "收益率": "{:.2f}"})
                 .background_gradient(subset=["买入价", "当前价"], cmap=cm)
                 .bar(
@@ -149,18 +150,24 @@ class StockProposal:
                 )
                 .set_table_styles(
                     [
-                        dict(selector="th", props=[
-                            ("border", "5px solid #eee"),
-                            ("border-collapse", "collapse"),
-                            ("white-space", "nowrap"),
-                            ("color", "black")
-                        ]),
-                        dict(selector="td", props=[
-                            ("border", "5px solid #eee"),
-                            ("border-collapse", "collapse"),
-                            ("white-space", "nowrap"),
-                            ("color", "black")
-                        ]),
+                        dict(
+                            selector="th",
+                            props=[
+                                ("border", "5px solid #eee"),
+                                ("border-collapse", "collapse"),
+                                ("white-space", "nowrap"),
+                                ("color", "black"),
+                            ],
+                        ),
+                        dict(
+                            selector="td",
+                            props=[
+                                ("border", "5px solid #eee"),
+                                ("border-collapse", "collapse"),
+                                ("white-space", "nowrap"),
+                                ("color", "black"),
+                            ],
+                        ),
                     ],
                 )
                 .set_sticky(axis="columns")
@@ -211,8 +218,7 @@ class StockProposal:
             file_path_trade = file.get_file_path_trade
             cols = ["idx", "symbol", "date", "trade_type", "price", "size"]
 
-            df1 = spark.read.csv(file_path_trade,
-                                 header=None, inferSchema=True)
+            df1 = spark.read.csv(file_path_trade, header=None, inferSchema=True)
             df1.coalesce(2)
             df1 = df1.toDF(*cols)
             df1.createOrReplaceTempView("temp1")
@@ -228,27 +234,24 @@ class StockProposal:
             )
             # sqlDF.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
             dfdata1 = sparkdata1.toPandas()
-            fig = go.Figure(data=[go.Pie(labels=dfdata1['industry'],
-                                         values=dfdata1['cnt'],
-                                         pull=0.2)]
-                            )
-            colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
-            fig.update_traces(marker=dict(colors=colors,
-                                          line=dict(color='#000000', width=1)),
-                              textinfo='value+percent'
-                              )
-            fig.update_layout(title='Top 10 Stock Position Industry',
-                              legend=dict(
-                                  orientation="h",
-                                  yanchor="bottom",
-                                  xanchor="center",
-                                  x=0.5,
-                                  y=-0.5
-                              ),
-                              margin=dict(t=50, b=0.2, l=0.2, r=0.2)
-                              )
-            fig.write_image("./images/postion_byindustry.png",
-                            engine='kaleido')
+            fig = go.Figure(
+                data=[
+                    go.Pie(labels=dfdata1["industry"], values=dfdata1["cnt"], pull=0.2)
+                ]
+            )
+            colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
+            fig.update_traces(
+                marker=dict(colors=colors, line=dict(color="#000000", width=1)),
+                textinfo="value+percent",
+            )
+            fig.update_layout(
+                title="Top 10 Stock Position Industry",
+                legend=dict(
+                    orientation="h", yanchor="bottom", xanchor="center", x=0.5, y=-0.5
+                ),
+                margin=dict(t=50, b=0.2, l=0.2, r=0.2),
+            )
+            fig.write_image("./images/postion_byindustry.png", engine="kaleido")
             del dfdata1
             gc.collect()
 
@@ -260,23 +263,24 @@ class StockProposal:
             )
             # sparkdata2.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
             dfdata2 = sparkdata2.toPandas()
-            fig = go.Figure(data=[go.Pie(
-                labels=dfdata2['industry'], values=dfdata2['pl'], pull=0.2)])
-            colors = ['gold', 'mediumturquoise', 'darkorange', 'lightgreen']
-            fig.update_traces(marker=dict(colors=colors,
-                                          line=dict(color='#000000', width=1)
-                                          ),
-                              textinfo='value+percent')
-            fig.update_layout(title='Top 10 Profit Industry',
-                              legend=dict(
-                                  orientation="h",
-                                  yanchor="bottom",
-                                  xanchor="center",
-                                  x=0.5,
-                                  y=-0.5
-                              ),
-                              margin=dict(t=50, b=0.2, l=0.2, r=0.2))
-            fig.write_image("./images/postion_byp&l.png", engine='kaleido')
+            fig = go.Figure(
+                data=[
+                    go.Pie(labels=dfdata2["industry"], values=dfdata2["pl"], pull=0.2)
+                ]
+            )
+            colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
+            fig.update_traces(
+                marker=dict(colors=colors, line=dict(color="#000000", width=1)),
+                textinfo="value+percent",
+            )
+            fig.update_layout(
+                title="Top 10 Profit Industry",
+                legend=dict(
+                    orientation="h", yanchor="bottom", xanchor="center", x=0.5, y=-0.5
+                ),
+                margin=dict(t=50, b=0.2, l=0.2, r=0.2),
+            )
+            fig.write_image("./images/postion_byp&l.png", engine="kaleido")
 
             del dfdata2
             gc.collect()
@@ -295,44 +299,56 @@ class StockProposal:
             # sparkdata3.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
             dfdata3 = sparkdata3.toPandas()
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=dfdata3['buy_date'], y=dfdata3['total_cnt'],
-                                     mode='lines+markers',
-                                     name='total stock',
-                                     line=dict(color='darkslateblue',
-                                               width=2),
-                                     yaxis='y'))
-            fig.add_trace(go.Bar(x=dfdata3['buy_date'], y=dfdata3['cnt'],
-                                 name='stock per day',
-                                 marker_color='darkorange',
-                                 yaxis='y2'))
-            fig.update_layout(title='Last 60 days Stock Position Distribution',
-                              xaxis_title='Trade Date',
-                              yaxis_title='Stock Positions',
-                              legend=dict(
-                                    orientation="h",
-                                    yanchor="bottom",
-                                    y=-0.3,
-                                    xanchor="center",
-                                    x=0.5
-                              ),
-                              plot_bgcolor='white',
-                              yaxis=dict(title='Total Positions', side='left'),
-                              yaxis2=dict(title='Positions per day', side='right', overlaying='y', showgrid=False))
+            fig.add_trace(
+                go.Scatter(
+                    x=dfdata3["buy_date"],
+                    y=dfdata3["total_cnt"],
+                    mode="lines+markers",
+                    name="total stock",
+                    line=dict(color="darkslateblue", width=2),
+                    yaxis="y",
+                )
+            )
+            fig.add_trace(
+                go.Bar(
+                    x=dfdata3["buy_date"],
+                    y=dfdata3["cnt"],
+                    name="stock per day",
+                    marker_color="darkorange",
+                    yaxis="y2",
+                )
+            )
+            fig.update_layout(
+                title="Last 60 days Stock Position Distribution",
+                xaxis_title="Trade Date",
+                yaxis_title="Stock Positions",
+                legend=dict(
+                    orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5
+                ),
+                plot_bgcolor="white",
+                yaxis=dict(title="Total Positions", side="left"),
+                yaxis2=dict(
+                    title="Positions per day",
+                    side="right",
+                    overlaying="y",
+                    showgrid=False,
+                ),
+            )
             fig.update_xaxes(
                 mirror=True,
-                ticks='outside',
+                ticks="outside",
                 showline=True,
-                linecolor='black',
-                gridcolor='lightgrey'
+                linecolor="black",
+                gridcolor="lightgrey",
             )
             fig.update_yaxes(
                 mirror=True,
-                ticks='outside',
+                ticks="outside",
                 showline=True,
-                linecolor='black',
-                gridcolor='lightgrey'
+                linecolor="black",
+                gridcolor="lightgrey",
             )
-            fig.write_image("./images/postion_bydate.png", engine='kaleido')
+            fig.write_image("./images/postion_bydate.png", engine="kaleido")
 
             del dfdata3
             gc.collect()
@@ -346,47 +362,47 @@ class StockProposal:
             dfdata4 = sparkdata4.toPandas()
             fig = px.bar(
                 dfdata4,
-                color='trade_type',
+                color="trade_type",
                 x="date",
                 y="cnt",
                 title="Last 60 days trade details",
-                labels={"date": "Trade Date", "cnt": "Trade Sum"}
+                labels={"date": "Trade Date", "cnt": "Trade Sum"},
             )
-            fig.update_layout(legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.3,
-                xanchor="center",
-                x=0.5),
-                plot_bgcolor='white'
+            fig.update_layout(
+                legend=dict(
+                    orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5
+                ),
+                plot_bgcolor="white",
             )
             fig.update_xaxes(
                 mirror=True,
-                ticks='outside',
+                ticks="outside",
                 showline=True,
-                linecolor='black',
-                gridcolor='lightgrey'
+                linecolor="black",
+                gridcolor="lightgrey",
             )
             fig.update_yaxes(
                 mirror=True,
-                ticks='outside',
+                ticks="outside",
                 showline=True,
-                linecolor='black',
-                gridcolor='lightgrey'
+                linecolor="black",
+                gridcolor="lightgrey",
             )
-            fig.write_image("./images/BuySell.png", engine='kaleido')
+            fig.write_image("./images/BuySell.png", engine="kaleido")
 
             del dfdata4
             gc.collect()
 
             # Top5行业仓位变化
-            end_date = pd.to_datetime('today').strftime("%Y-%m-%d")
+            end_date = pd.to_datetime("today").strftime("%Y-%m-%d")
             start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
             date_range = pd.date_range(
-                start=start_date.strftime("%Y-%m-%d"), end=end_date, freq='D')
-            df_timeseries = pd.DataFrame({'buy_date': date_range})
+                start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
+            )
+            df_timeseries = pd.DataFrame({"buy_date": date_range})
             df_timeseries_spark = spark.createDataFrame(
-                df_timeseries.astype({'buy_date': 'string'}))
+                df_timeseries.astype({"buy_date": "string"})
+            )
             df_timeseries_spark.createOrReplaceTempView("temp_timeseries")
 
             sparkdata5 = spark.sql(
@@ -418,38 +434,36 @@ class StockProposal:
                 """
             )
             dfdata5 = sparkdata5.toPandas()
-            fig = px.line(dfdata5,
-                          x='buy_date',
-                          y='total_cnt',
-                          color='industry',
-                          color_discrete_sequence=px.colors.qualitative.Plotly)
+            fig = px.line(
+                dfdata5,
+                x="buy_date",
+                y="total_cnt",
+                color="industry",
+                color_discrete_sequence=px.colors.qualitative.Plotly,
+            )
             fig.update_traces(line=dict(width=3))
             fig.update_xaxes(
                 mirror=True,
-                ticks='outside',
+                ticks="outside",
                 showline=True,
-                linecolor='black',
-                gridcolor='lightgrey'
+                linecolor="black",
+                gridcolor="lightgrey",
             )
             fig.update_yaxes(
                 mirror=True,
-                ticks='outside',
+                ticks="outside",
                 showline=True,
-                linecolor='black',
-                gridcolor='lightgrey'
+                linecolor="black",
+                gridcolor="lightgrey",
             )
-            fig.update_layout(title='Last 60 days Industry Position Distribution No',
-                              legend=dict(
-                                    orientation="h",
-                                    yanchor="bottom",
-                                    y=-0.5,
-                                    xanchor="left",
-                                    x=0
-                              ),
-                              plot_bgcolor='white',
-                              )
-            fig.write_image(
-                "./images/postion_byindustry&date.png", engine='kaleido')
+            fig.update_layout(
+                title="Last 60 days Industry Position Distribution No",
+                legend=dict(
+                    orientation="h", yanchor="bottom", y=-0.5, xanchor="left", x=0
+                ),
+                plot_bgcolor="white",
+            )
+            fig.write_image("./images/postion_byindustry&date.png", engine="kaleido")
 
             del dfdata5
             gc.collect()
@@ -484,38 +498,36 @@ class StockProposal:
             )
             # sparkdata6.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
             dfdata6 = sparkdata6.toPandas()
-            fig = px.line(dfdata6,
-                          x='buy_date',
-                          y='total_cnt',
-                          color='industry',
-                          color_discrete_sequence=px.colors.qualitative.Plotly)
+            fig = px.line(
+                dfdata6,
+                x="buy_date",
+                y="total_cnt",
+                color="industry",
+                color_discrete_sequence=px.colors.qualitative.Plotly,
+            )
             fig.update_traces(line=dict(width=3))
             fig.update_xaxes(
                 mirror=True,
-                ticks='outside',
+                ticks="outside",
                 showline=True,
-                linecolor='black',
-                gridcolor='lightgrey'
+                linecolor="black",
+                gridcolor="lightgrey",
             )
             fig.update_yaxes(
                 mirror=True,
-                ticks='outside',
+                ticks="outside",
                 showline=True,
-                linecolor='black',
-                gridcolor='lightgrey'
+                linecolor="black",
+                gridcolor="lightgrey",
             )
-            fig.update_layout(title='Last 60 days Industry Position Distribution P&L',
-                              legend=dict(
-                                    orientation="h",
-                                    yanchor="bottom",
-                                    y=-0.5,
-                                    xanchor="left",
-                                    x=0
-                              ),
-                              plot_bgcolor='white',
-                              )
-            fig.write_image(
-                "./images/postion_byindustry&p&l.png", engine='kaleido')
+            fig.update_layout(
+                title="Last 60 days Industry Position Distribution P&L",
+                legend=dict(
+                    orientation="h", yanchor="bottom", y=-0.5, xanchor="left", x=0
+                ),
+                plot_bgcolor="white",
+            )
+            fig.write_image("./images/postion_byindustry&p&l.png", engine="kaleido")
             del dfdata6
             gc.collect()
 
@@ -531,6 +543,7 @@ class StockProposal:
                                     ,sum(case when `p&l` >= 0 then 1 else 0 end) as pos_cnt
                                     ,sum(case when `p&l` < 0 then 1 else 0 end) as neg_cnt
                                     ,count(*) as p_cnt
+                                    ,sum(case when buy_date >= date_add(current_date(), -5) then 1 else 0 end) as l5_p_cnt
                                     ,sum(`p&l`) as p_pnl
                                 from temp 
                                 where buy_date >= date_add(current_date(), -365)
@@ -561,6 +574,7 @@ class StockProposal:
                                 ,sum(case when t3.price - t3.l_price >=0 then 1 else 0 end) as pos_cnt
                                 ,sum(case when t3.price - t3.l_price < 0 then 1 else 0 end) as neg_cnt
                                 ,sum(t3.price * (-t3.size) - t3.l_price * t3.l_size) as his_pnl
+                                ,sum(case when t3.l_date >= date_add(current_date(), -5) then t3.price * (-t3.size) - t3.l_price * t3.l_size else 0 end) as l5_pnl
                             from temp2 as t1
                             join (select * from tmp1 where trade_type = 'buy' ) as t2
                             on t1.symbol = t2.symbol
@@ -571,7 +585,9 @@ class StockProposal:
                     select 
                     t1.industry
                     ,t2.p_cnt
+                    ,t2.l5_p_cnt
                     ,t2.p_pnl + t1.his_pnl as pnl
+                    ,t2.p_pnl + t1.l5_pnl as l5_pnl
                     ,t1.his_trade_cnt / t1.his_symbol_cnt as avg_his_trade_cnt
                     ,(t1.his_days + t1.lastest_days) / t1.his_trade_cnt as avg_days
                     ,(t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / (t1.pos_cnt + COALESCE(t2.pos_cnt,0) + t1.neg_cnt + COALESCE(t2.neg_cnt,0)) as pnl_ratio
@@ -585,20 +601,32 @@ class StockProposal:
             dfdata7.rename(
                 columns={
                     "industry": "行业",
-                    "p_cnt": "当前持仓量",
+                    "p_cnt": "当前持仓",
+                    "l5_p_cnt": "近5日持仓",
                     "pnl": "盈亏金额",
+                    "l5_pnl": "近5日盈亏金额",
                     "avg_his_trade_cnt": "平均交易次数",
                     "avg_days": "平均持仓天数",
-                    "pnl_ratio": "盈亏比"
+                    "pnl_ratio": "盈亏比",
                 },
                 inplace=True,
             )
             cm = sns.color_palette("Wistia", as_cmap=True)
             html1 = (
-                dfdata7.style
-                .format({"当前持仓量": "{:.2f}", "盈亏金额": "{:.2f}",
-                         "平均交易次数": "{:.0f}", "平均持仓天数": "{:.2f}", "盈亏比": "{:.2f}"})
-                .background_gradient(subset=["盈亏金额", "当前持仓量"], cmap=cm)
+                dfdata7.style.format(
+                    {
+                        "当前持仓": "{:.2f}",
+                        "近5日持仓": "{:.2f}",
+                        "盈亏金额": "{:.2f}",
+                        "近5日盈亏金额": "{:.2f}",
+                        "平均交易次数": "{:.0f}",
+                        "平均持仓天数": "{:.2f}",
+                        "盈亏比": "{:.2f}",
+                    }
+                )
+                .background_gradient(
+                    subset=["盈亏金额", "当前持仓", "近5日持仓", "近5日盈亏金额"], cmap=cm
+                )
                 .bar(
                     subset=["盈亏比"],
                     align="left",
@@ -616,18 +644,24 @@ class StockProposal:
                 )
                 .set_table_styles(
                     [
-                        dict(selector="th", props=[
-                            ("border", "5px solid #eee"),
-                            ("border-collapse", "collapse"),
-                            ("white-space", "nowrap"),
-                            ("color", "black")
-                        ]),
-                        dict(selector="td", props=[
-                            ("border", "5px solid #eee"),
-                            ("border-collapse", "collapse"),
-                            ("white-space", "nowrap"),
-                            ("color", "black")
-                        ]),
+                        dict(
+                            selector="th",
+                            props=[
+                                ("border", "5px solid #eee"),
+                                ("border-collapse", "collapse"),
+                                ("white-space", "nowrap"),
+                                ("color", "black"),
+                            ],
+                        ),
+                        dict(
+                            selector="td",
+                            props=[
+                                ("border", "5px solid #eee"),
+                                ("border-collapse", "collapse"),
+                                ("white-space", "nowrap"),
+                                ("color", "black"),
+                            ],
+                        ),
                     ],
                 )
                 .set_sticky(axis="columns")

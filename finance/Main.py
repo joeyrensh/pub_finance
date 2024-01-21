@@ -42,7 +42,7 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(BTStrategy)
+    cerebro.addstrategy(BTStrategy, trade_date=date)
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
@@ -57,9 +57,13 @@ def exec_btstrategy(date):
     list = TickerInfo(date, "us").get_backtrader_data_feed()
     """ 循环初始化数据进入cerebro """
     for h in list:
-        """ 历史数据最早不超过2021-01-01 """
+        """历史数据最早不超过2021-01-01"""
         data = BTPandasDataExt(
-            dataname=h, name=h["symbol"][0], fromdate=datetime(2023, 1, 1), datetime=-1, timeframe=bt.TimeFrame.Days
+            dataname=h,
+            name=h["symbol"][0],
+            fromdate=datetime(2023, 1, 1),
+            datetime=-1,
+            timeframe=bt.TimeFrame.Days,
         )
         cerebro.adddata(data, name=h["symbol"][0])
         # 周数据
@@ -191,7 +195,13 @@ def exec_btstrategy(date):
     # 将累计收益曲线的 y 轴移至左侧
     # 绘制回撤曲线
     drawdown.plot.area(
-        ax=ax1, label="drawdown (right)", rot=0, alpha=0.3, fontsize=13, grid=False, color='red'
+        ax=ax1,
+        label="drawdown (right)",
+        rot=0,
+        alpha=0.3,
+        fontsize=13,
+        grid=False,
+        color="red",
     )
 
     # 绘制累计收益曲线
@@ -202,9 +212,9 @@ def exec_btstrategy(date):
         rot=0,
         fontsize=13,
         grid=True,
-        color='blue'
+        color="blue",
     )
-    ax2.set_facecolor('lightgray')
+    ax2.set_facecolor("lightgray")
 
     # 不然 x 轴留有空白
     ax2.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
@@ -229,7 +239,7 @@ if __name__ == "__main__":
     trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
-    if ToolKit("判断当天是否交易日").is_us_trade_date():
+    if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
         pass
     else:
         sys.exit()

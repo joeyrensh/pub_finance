@@ -31,7 +31,7 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(BTStrategyVol)
+    cerebro.addstrategy(BTStrategyVol, trade_date=date)
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
@@ -47,9 +47,13 @@ def exec_btstrategy(date):
     list = TickerInfo(date, "cn").get_backtrader_data_feed()
     """ 循环初始化数据进入cerebro """
     for h in list:
-        """ 历史数据最早不超过2021-01-01 """
+        """历史数据最早不超过2021-01-01"""
         data = BTPandasDataExt(
-            dataname=h, name=h["symbol"][0], fromdate=datetime(2023, 1, 1), datetime=-1, timeframe=bt.TimeFrame.Days
+            dataname=h,
+            name=h["symbol"][0],
+            fromdate=datetime(2023, 1, 1),
+            datetime=-1,
+            timeframe=bt.TimeFrame.Days,
         )
         cerebro.adddata(data)
         # 周数据
@@ -108,7 +112,7 @@ def exec_btstrategy(date):
         2, 1, gridspec_kw={"height_ratios": [1.5, 4]}, figsize=(20, 8)
     )
 
-    """ 
+    """
     年度回报率 (Annual return)：衡量投资组合或股票在一年内的收益率。它通常以百分比表示，计算方法是将期末价值减去期初价值，再除以期初价值，并乘以100。
 
     累积回报率 (Cumulative returns)：衡量投资组合或股票在一段时间内的总收益率。它表示从投资开始到目前为止的总回报，可以用于评估长期投资的表现。
@@ -135,7 +139,6 @@ def exec_btstrategy(date):
 
     日风险价值 (Daily value at risk)：衡量股票或投资组合在一天内可能面临的最大损失。它是在给定置信水平下的损失金额，用于评估投资组合的风险暴露。 
     """
-
     cols_names = [
         "date",
         "Annual\nreturn",
@@ -181,7 +184,13 @@ def exec_btstrategy(date):
     # 将累计收益曲线的 y 轴移至左侧
     # 绘制回撤曲线
     drawdown.plot.area(
-        ax=ax1, label="drawdown (right)", rot=0, alpha=0.3, fontsize=13, grid=False, color='red'
+        ax=ax1,
+        label="drawdown (right)",
+        rot=0,
+        alpha=0.3,
+        fontsize=13,
+        grid=False,
+        color="red",
     )
 
     # 绘制累计收益曲线
@@ -192,9 +201,9 @@ def exec_btstrategy(date):
         rot=0,
         fontsize=13,
         grid=True,
-        color='blue'
+        color="blue",
     )
-    ax2.set_facecolor('lightgray')
+    ax2.set_facecolor("lightgray")
 
     # 不然 x 轴留有空白
     ax2.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
@@ -220,7 +229,7 @@ if __name__ == "__main__":
     trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
-    if ToolKit("判断当天是否交易日").is_cn_trade_date():
+    if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
         pass
     else:
         sys.exit()
