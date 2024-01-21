@@ -544,6 +544,7 @@ class StockProposal:
                                     ,sum(case when `p&l` < 0 then 1 else 0 end) as neg_cnt
                                     ,count(*) as p_cnt
                                     ,sum(case when buy_date >= date_add(current_date(), -5) then 1 else 0 end) as l5_p_cnt
+                                    ,sum(case when buy_date >= date_add(current_date(), -5) then `p&l` else 0 end) as l5_pnl
                                     ,sum(`p&l`) as p_pnl
                                 from temp 
                                 where buy_date >= date_add(current_date(), -365)
@@ -587,7 +588,7 @@ class StockProposal:
                     ,t2.p_cnt
                     ,t2.l5_p_cnt
                     ,t2.p_pnl + t1.his_pnl as pnl
-                    ,t2.p_pnl + t1.l5_pnl as l5_pnl
+                    ,t2.l5_pnl as l5_pnl
                     ,t1.his_trade_cnt / t1.his_symbol_cnt as avg_his_trade_cnt
                     ,(t1.his_days + t1.lastest_days) / t1.his_trade_cnt as avg_days
                     ,(t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / (t1.pos_cnt + COALESCE(t2.pos_cnt,0) + t1.neg_cnt + COALESCE(t2.neg_cnt,0)) as pnl_ratio
