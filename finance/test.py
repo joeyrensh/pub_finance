@@ -44,7 +44,8 @@ def exec_btstrategy(date):
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0.001, stocklike=True)
     """ 添加股票当日即历史数据 """
-    stocklist = ["SH603220"]
+    stocklist = ["SH603220", "SH601009", "SZ002807", "SH601169"]
+    # stocklist = TickerInfo(date, "cn").get_stock_list()
     list = TickerInfo(date, "cn").get_backtrader_data_feed_testonly(stocklist)
     """ 循环初始化数据进入cerebro """
     for h in list:

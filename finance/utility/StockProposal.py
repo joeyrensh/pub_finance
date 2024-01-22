@@ -114,7 +114,13 @@ class StockProposal:
         if not df_cur_p.empty:
             df_np = pd.merge(df_cur_p, df_d, how="inner", on="symbol")
             # df_np = df_np[df_np['p&l_ratio'] > 0].reset_index(drop=True)
-            df_np = df_np.reset_index(drop=True)
+            df_np["pnlsum"] = df_np.groupby("industry")["p&l"].transform("sum")
+            df_np = (
+                df_np.sort_values(["pnlsum", "buy_date"], ascending=[False, False])
+                .drop(columns="pnlsum")
+                .reset_index(drop=True)
+            )
+
             df_np.rename(
                 columns={
                     "symbol": "股票代码",
