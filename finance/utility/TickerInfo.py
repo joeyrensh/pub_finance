@@ -30,7 +30,7 @@ class TickerInfo:
 
     def get_stock_list(self):
         tickers = list()
-        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 14)])
+        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 16)])
         df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
         df.sort_values(by=["symbol"], ascending=True, inplace=True)
         """ 匹配行业信息 """
@@ -53,6 +53,11 @@ class TickerInfo:
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
                     and float(i["low"]) > 0
+                    and float(i["total_value"]) > 1000000000
+                    and float(i["close"]) * float(i["volume"])
+                    >= float(i["circulation_value"]) * 0.005
+                    and float(i["close"]) * float(i["volume"])
+                    < float(i["circulation_value"]) * 0.5
                 ):
                     tickers.append(i["symbol"])
             elif self.market == "cn":
@@ -63,6 +68,11 @@ class TickerInfo:
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
                     and float(i["low"]) > 0
+                    and float(i["total_value"]) > 1000000000
+                    and float(i["close"]) * float(i["volume"]) * 100
+                    >= float(i["circulation_value"]) * 0.005
+                    and float(i["close"]) * float(i["volume"]) * 100
+                    < float(i["circulation_value"]) * 0.5
                 ):
                     tickers.append(i["symbol"])
         return tickers
@@ -70,7 +80,7 @@ class TickerInfo:
     """ 获取最新一天股票数据 """
 
     def get_stock_data_for_day(self):
-        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 14)])
+        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 16)])
         df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
         """ 匹配行业信息 """
         df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
@@ -82,7 +92,24 @@ class TickerInfo:
     def get_history_data(self):
         dic = {}
         for j in range(len(self.files)):
-            df = pd.read_csv(self.files[j], usecols=[i for i in range(1, 14)])
+            df = pd.read_csv(
+                self.files[j],
+                usecols=[
+                    "symbol",
+                    "name",
+                    "open",
+                    "close",
+                    "high",
+                    "low",
+                    "volume",
+                    "turnover",
+                    "chg",
+                    "change",
+                    "amplitude",
+                    "preclose",
+                    "date",
+                ],
+            )
             df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
             dic[j] = df
         df = pd.concat(list(dic.values()), ignore_index=True)

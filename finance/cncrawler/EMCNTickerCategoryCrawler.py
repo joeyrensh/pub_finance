@@ -28,13 +28,16 @@ class EMCNTickerCategoryCrawler:
         list = []
         url = (
             "https://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
-            "&pn=i&pz=100000&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:mkt_code&fields=f2,f5,f12,f14,f15,f16,f17&_=unix_time"
+            "&pn=i&pz=100000&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:mkt_code&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
         )
         for mkt_code in ["0", "1"]:
-            """ 请求url，获取数据response """
+            """请求url，获取数据response"""
             for i in range(1, 100):
-                url_re = url.replace("unix_time", str(current_timestamp)).replace(
-                    "mkt_code", mkt_code).replace("pn=i", "pn="+str(i))
+                url_re = (
+                    url.replace("unix_time", str(current_timestamp))
+                    .replace("mkt_code", mkt_code)
+                    .replace("pn=i", "pn=" + str(i))
+                )
                 res = requests.get(url_re).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
@@ -54,6 +57,8 @@ class EMCNTickerCategoryCrawler:
                         or i["f15"] == "-"
                         or i["f16"] == "-"
                         or i["f5"] == "-"
+                        or i["f20"] == "-"
+                        or i["f21"] == "-"
                     ):
                         continue
                     dict = {"symbol": market + i["f12"], "mkt_code": mkt_code}
@@ -89,14 +94,12 @@ class EMCNTickerCategoryCrawler:
                 if json_object["jbzl"]["sshy"] == "--":
                     continue
                 # print(json_object["jbzl"]["sshy"])
-                dict = {"symbol": i["symbol"],
-                        "industry": json_object["jbzl"]["sshy"]}
+                dict = {"symbol": i["symbol"], "industry": json_object["jbzl"]["sshy"]}
                 list.append(dict)
                 print(dict)
             tool.progress_bar(len(tick_list), tick_list.index(i))
         df = pd.DataFrame(list)
-        df.drop_duplicates(
-            subset=["symbol", "industry"], keep="last", inplace=True)
+        df.drop_duplicates(subset=["symbol", "industry"], keep="last", inplace=True)
         """ 获取板块文件信息 """
         file = FileInfo(trade_date, "cn")
         file_path_industry = file.get_file_path_industry
