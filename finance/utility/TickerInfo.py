@@ -57,7 +57,7 @@ class TickerInfo:
                     and float(i["close"]) * float(i["volume"])
                     >= float(i["circulation_value"]) * 0.005
                     and float(i["close"]) * float(i["volume"])
-                    < float(i["circulation_value"]) * 0.5
+                    < float(i["circulation_value"]) * 0.3
                 ):
                     tickers.append(i["symbol"])
             elif self.market == "cn":
@@ -70,9 +70,9 @@ class TickerInfo:
                     and float(i["low"]) > 0
                     and float(i["total_value"]) > 1000000000
                     and float(i["close"]) * float(i["volume"]) * 100
-                    >= float(i["circulation_value"]) * 0.005
+                    >= float(i["circulation_value"]) * 0.01
                     and float(i["close"]) * float(i["volume"]) * 100
-                    < float(i["circulation_value"]) * 0.5
+                    < float(i["circulation_value"]) * 0.3
                 ):
                     tickers.append(i["symbol"])
         return tickers
