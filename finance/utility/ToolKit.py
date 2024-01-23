@@ -29,7 +29,7 @@ class ToolKit:
         当前美国时间 UTC-4
         """
         # utc_us = datetime.now() - timedelta(hours=12)
-        utc_us = datetime.strptime(trade_date, "%Y%m%d") - timedelta(hours=12)
+        utc_us = datetime.strptime(trade_date, "%Y%m%d")
         """ 
         utc_us = datetime.fromisoformat('2021-01-18 01:00:00')
         美股休市日，https://www.nyse.com/markets/hours-calendars
