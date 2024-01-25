@@ -293,16 +293,56 @@ class StockProposal:
 
             # recent 60 days
             sparkdata3 = spark.sql(
-                """select buy_date, cnt, total_cnt 
-                from ( 
-                    select buy_date, count(*) as cnt,
-                    SUM(COUNT(*)) OVER (ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt
-                    from temp
-                    group by buy_date order by buy_date ) t
-                where buy_date >= date_add(current_date(), -60)
+                """ with tmp1 as (
+                        select buy_date, cnt, total_cnt 
+                        from ( 
+                            select buy_date, count(*) as cnt,
+                            SUM(COUNT(*)) OVER (ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt
+                            from temp
+                            group by buy_date order by buy_date ) t
+                        where buy_date >= date_add(current_date(), -60)
+                ), tmp2 as (
+                            select symbol, date, trade_type, price, size, l_date, l_trade_type, l_price, l_size
+                            from (
+                                select symbol, date, trade_type, price, size
+                                    ,case when trade_type = 'sell' then lag(date) over (partition by symbol order by date)  
+                                            else lead(date) over (partition by symbol order by date) end as l_date
+                                    ,case when trade_type = 'sell' then lag(trade_type) over (partition by symbol order by date) 
+                                            else lead(trade_type) over (partition by symbol order by date) end as l_trade_type
+                                    ,case when trade_type = 'sell' then lag(price) over (partition by symbol order by date)
+                                            else lead(price) over (partition by symbol order by date) end as l_price
+                                    ,case when trade_type = 'sell' then lag(size) over (partition by symbol order by date) 
+                                            else lead(size) over (partition by symbol order by date) end as l_size
+                                from temp1
+                                where date >= date_add(current_date(), -365)
+                                order by symbol, date, trade_type
+                                ) t
+                            )
+                ,tmp3 as (
+                        select symbol,date,l_date
+                        from tmp2 
+                        where trade_type = 'sell'
+                        and date >= date_add(current_date(), -60) and l_date >= date_add(current_date(), -60)
+                        )
+                ,tmp4 as (
+                        select date, sum(cnt) as cnt
+                        from (
+                            select l_date as date,
+                            count(symbol) as cnt
+                            from tmp3
+                            group by l_date
+                            union all
+                            select date, (-1) * count(symbol) as cnt
+                            from tmp3
+                            group by date
+                        ) t group by date                        
+                ) select t1.buy_date as buy_date, 
+                         t1.cnt as cnt, 
+                         t1.total_cnt + t2.cnt as total_cnt
+                  from tmp1 t1 left join tmp4 t2
+                  on t1.buy_date = t2.date
                 """
             )
-            # sparkdata3.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
             dfdata3 = sparkdata3.toPandas()
             fig = go.Figure()
             fig.add_trace(

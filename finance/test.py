@@ -44,8 +44,8 @@ def exec_btstrategy(date):
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0.001, stocklike=True)
     """ 添加股票当日即历史数据 """
-    stocklist = ["SH603220", "SH601009", "SZ002807", "SH601169"]
-    # stocklist = TickerInfo(date, "cn").get_stock_list()
+    # stocklist = ["SH603220", "SH601009", "SZ002807", "SH601169"]
+    stocklist = TickerInfo(date, "cn").get_stock_list()
     list = TickerInfo(date, "cn").get_backtrader_data_feed_testonly(stocklist)
     """ 循环初始化数据进入cerebro """
     for h in list:
@@ -77,7 +77,7 @@ def exec_btstrategy(date):
 
 # 主程序入口
 if __name__ == "__main__":
-    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(1)
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
