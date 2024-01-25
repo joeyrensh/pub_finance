@@ -231,6 +231,22 @@ class StockProposal:
             df = spark.read.csv(file_cur_p, header=True)
             df.coalesce(2)
             df.createOrReplaceTempView("temp")
+            """ 行业分析 """
+            file_path_indus = file.get_file_path_industry
+            df2 = spark.read.csv(file_path_indus, header=True)
+            df2.coalesce(2)
+            df2.createOrReplaceTempView("temp2")
+            """ 时间序列生成 """
+            end_date = pd.to_datetime("today").strftime("%Y-%m-%d")
+            start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
+            date_range = pd.date_range(
+                start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
+            )
+            df_timeseries = pd.DataFrame({"buy_date": date_range})
+            df_timeseries_spark = spark.createDataFrame(
+                df_timeseries.astype({"buy_date": "string"})
+            )
+            df_timeseries_spark.createOrReplaceTempView("temp_timeseries")
 
             # TOP10热门行业
             sparkdata1 = spark.sql(
@@ -238,11 +254,15 @@ class StockProposal:
                     select industry, count(*) as cnt from temp group by industry)
                     order by cnt desc limit 10 """
             )
-            # sqlDF.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
+
             dfdata1 = sparkdata1.toPandas()
             fig = go.Figure(
                 data=[
-                    go.Pie(labels=dfdata1["industry"], values=dfdata1["cnt"], pull=0.2)
+                    go.Pie(
+                        labels=dfdata1["industry"],
+                        values=dfdata1["cnt"],
+                        pull=[0.2, 0.2, 0.2, 0.2, 0.2],
+                    )
                 ]
             )
             colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
@@ -251,7 +271,7 @@ class StockProposal:
                 textinfo="value+percent",
             )
             fig.update_layout(
-                title="Top 10 Stock Position Industry",
+                title="Top10 Position",
                 legend=dict(
                     orientation="h", yanchor="bottom", xanchor="center", x=0.5, y=-0.5
                 ),
@@ -267,11 +287,15 @@ class StockProposal:
                     select industry, sum(`p&l`) as pl from temp group by industry)
                     order by pl desc limit 10"""
             )
-            # sparkdata2.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
+
             dfdata2 = sparkdata2.toPandas()
             fig = go.Figure(
                 data=[
-                    go.Pie(labels=dfdata2["industry"], values=dfdata2["pl"], pull=0.2)
+                    go.Pie(
+                        labels=dfdata2["industry"],
+                        values=dfdata2["pl"],
+                        pull=[0.2, 0.2, 0.2, 0.2, 0.2],
+                    )
                 ]
             )
             colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
@@ -280,7 +304,7 @@ class StockProposal:
                 textinfo="value+percent",
             )
             fig.update_layout(
-                title="Top 10 Profit Industry",
+                title="Top10 Profit",
                 legend=dict(
                     orientation="h", yanchor="bottom", xanchor="center", x=0.5, y=-0.5
                 ),
@@ -301,6 +325,12 @@ class StockProposal:
                             from temp
                             group by buy_date order by buy_date ) t
                         where buy_date >= date_add(current_date(), -60)
+                ), tmp11 as (
+                        select temp_timeseries.buy_date, tmp1.cnt, 
+                        case when tmp1.total_cnt > 0 then tmp1.total_cnt
+                            else last_value(tmp1.total_cnt) ignore nulls over (order by temp_timeseries.buy_date) end as total_cnt
+                        from temp_timeseries left join tmp1
+                        on temp_timeseries.buy_date = tmp1.buy_date
                 ), tmp2 as (
                             select symbol, date, trade_type, price, size, l_date, l_trade_type, l_price, l_size
                             from (
@@ -336,11 +366,24 @@ class StockProposal:
                             from tmp3
                             group by date
                         ) t group by date                        
-                ) select t1.buy_date as buy_date, 
+                ), tmp5 as (
+                        select date, 
+                               sum(case when trade_type = 'buy' then 1 else 0 end) as buy_cnt,
+                               sum(case when trade_type = 'sell' then 1 else 0 end) as sell_cnt
+                        from temp1 
+                        where date >= date_add(current_date(), -60)
+                        group by date
+                )
+                select t1.buy_date as buy_date, 
                          t1.cnt as cnt, 
-                         t1.total_cnt + t2.cnt as total_cnt
-                  from tmp1 t1 left join tmp4 t2
+                         t1.total_cnt + COALESCE(t2.cnt,0) as total_cnt,
+                         t3.buy_cnt as buy_cnt,
+                         t3.sell_cnt as sell_cnt
+                  from tmp11 t1 
+                  left join tmp4 t2
                   on t1.buy_date = t2.date
+                  left join tmp5 t3
+                  on t1.buy_date = t3.date
                 """
             )
             dfdata3 = sparkdata3.toPandas()
@@ -359,19 +402,38 @@ class StockProposal:
                 go.Bar(
                     x=dfdata3["buy_date"],
                     y=dfdata3["cnt"],
-                    name="stock per day",
+                    name="position",
                     marker_color="darkorange",
                     yaxis="y2",
                 )
             )
+            fig.add_trace(
+                go.Bar(
+                    x=dfdata3["buy_date"],
+                    y=dfdata3["buy_cnt"],
+                    name="long",
+                    marker_color="red",
+                    yaxis="y2",
+                )
+            )
+            fig.add_trace(
+                go.Bar(
+                    x=dfdata3["buy_date"],
+                    y=dfdata3["sell_cnt"],
+                    name="short",
+                    marker_color="green",
+                    yaxis="y2",
+                )
+            )
             fig.update_layout(
-                title="Last 60 days Stock Position Distribution",
+                title="Last 60 days trade info",
                 xaxis_title="Trade Date",
                 yaxis_title="Stock Positions",
                 legend=dict(
                     orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5
                 ),
                 plot_bgcolor="white",
+                barmode="stack",
                 yaxis=dict(title="Total Positions", side="left"),
                 yaxis2=dict(
                     title="Positions per day",
@@ -399,57 +461,7 @@ class StockProposal:
             del dfdata3
             gc.collect()
 
-            sparkdata4 = spark.sql(
-                """ select date, trade_type, count(symbol) as cnt from temp1 
-                    where date >= date_add(current_date(), -60)
-                    group by date, trade_type order by date"""
-            )
-            # sparkdata4.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
-            dfdata4 = sparkdata4.toPandas()
-            fig = px.bar(
-                dfdata4,
-                color="trade_type",
-                x="date",
-                y="cnt",
-                title="Last 60 days trade details",
-                labels={"date": "Trade Date", "cnt": "Trade Sum"},
-            )
-            fig.update_layout(
-                legend=dict(
-                    orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5
-                ),
-                plot_bgcolor="white",
-            )
-            fig.update_xaxes(
-                mirror=True,
-                ticks="outside",
-                showline=True,
-                linecolor="black",
-                gridcolor="lightgrey",
-            )
-            fig.update_yaxes(
-                mirror=True,
-                ticks="outside",
-                showline=True,
-                linecolor="black",
-                gridcolor="lightgrey",
-            )
-            fig.write_image("./images/BuySell.png", engine="kaleido")
-
-            del dfdata4
-            gc.collect()
-
             # Top5行业仓位变化
-            end_date = pd.to_datetime("today").strftime("%Y-%m-%d")
-            start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
-            date_range = pd.date_range(
-                start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
-            )
-            df_timeseries = pd.DataFrame({"buy_date": date_range})
-            df_timeseries_spark = spark.createDataFrame(
-                df_timeseries.astype({"buy_date": "string"})
-            )
-            df_timeseries_spark.createOrReplaceTempView("temp_timeseries")
 
             sparkdata5 = spark.sql(
                 """with tmp as (
@@ -469,7 +481,8 @@ class StockProposal:
                 ), tmp3 as (select temp_timeseries.buy_date, tmp.industry, tmp.cnt
                             from temp_timeseries left join tmp
                             on 1=1
-                )  select tmp3.buy_date, tmp3.industry, 
+                )               
+                select tmp3.buy_date, tmp3.industry, 
                         case when tmp2.total_cnt > 0 then tmp2.total_cnt
                             else last_value(tmp2.total_cnt) ignore nulls over (partition by tmp3.industry order by tmp3.buy_date)
                         end as total_cnt
@@ -485,9 +498,10 @@ class StockProposal:
                 x="buy_date",
                 y="total_cnt",
                 color="industry",
-                color_discrete_sequence=px.colors.qualitative.Plotly,
+                line_group="industry",
+                # color_discrete_sequence=px.colors.qualitative.Plotly,
             )
-            fig.update_traces(line=dict(width=3))
+            fig.update_traces(line=dict(width=2))
             fig.update_xaxes(
                 mirror=True,
                 ticks="outside",
@@ -503,7 +517,7 @@ class StockProposal:
                 gridcolor="lightgrey",
             )
             fig.update_layout(
-                title="Last 60 days Industry Position Distribution No",
+                title="Last 60 days top5 positions ",
                 legend=dict(
                     orientation="h", yanchor="bottom", y=-0.5, xanchor="left", x=0
                 ),
@@ -522,7 +536,7 @@ class StockProposal:
                 ), tmp1 as ( select buy_date, industry, total_cnt
                 from (
                     select buy_date, industry,
-                            SUM(COUNT(*)) OVER (partition by industry ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt
+                            sum(COUNT(*)) OVER (partition by industry ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt
                     from temp
                     group by buy_date, industry order by buy_date ) t
                     where buy_date >= date_add(current_date(), -60) 
@@ -542,16 +556,17 @@ class StockProposal:
                     order by tmp3.pl desc
                 """
             )
-            # sparkdata6.persist(storageLevel=StorageLevel.MEMORY_AND_DISK)
             dfdata6 = sparkdata6.toPandas()
             fig = px.line(
                 dfdata6,
                 x="buy_date",
                 y="total_cnt",
+                line_group="industry",
                 color="industry",
-                color_discrete_sequence=px.colors.qualitative.Plotly,
+                # color_discrete_sequence=px.colors.qualitative.Plotly,
+                # markers=True,
             )
-            fig.update_traces(line=dict(width=3))
+            fig.update_traces(line=dict(width=2))
             fig.update_xaxes(
                 mirror=True,
                 ticks="outside",
@@ -567,7 +582,7 @@ class StockProposal:
                 gridcolor="lightgrey",
             )
             fig.update_layout(
-                title="Last 60 days Industry Position Distribution P&L",
+                title="Last 60 days top5 Pnl positions",
                 legend=dict(
                     orientation="h", yanchor="bottom", y=-0.5, xanchor="left", x=0
                 ),
@@ -577,11 +592,6 @@ class StockProposal:
             del dfdata6
             gc.collect()
 
-            """ 行业分析 """
-            file_path_indus = file.get_file_path_industry
-            df2 = spark.read.csv(file_path_indus, header=True)
-            df2.coalesce(2)
-            df2.createOrReplaceTempView("temp2")
             """ 行业盈亏统计分析 """
             sparkdata7 = spark.sql(
                 """ with tmp as (select 
@@ -766,7 +776,6 @@ class StockProposal:
                 "./images/postion_byindustry.png",
                 "./images/postion_byp&l.png",
                 "./images/postion_bydate.png",
-                "./images/BuySell.png",
                 "./images/postion_byindustry&date.png",
                 "./images/postion_byindustry&p&l.png",
                 image_path_return,
