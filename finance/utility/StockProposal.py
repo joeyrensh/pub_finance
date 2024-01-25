@@ -549,8 +549,8 @@ class StockProposal:
                                     ,sum(case when `p&l` >= 0 then 1 else 0 end) as pos_cnt
                                     ,sum(case when `p&l` < 0 then 1 else 0 end) as neg_cnt
                                     ,count(*) as p_cnt
-                                    ,sum(case when buy_date >= date_add(current_date(), -5) then 1 else 0 end) as l5_p_cnt
-                                    ,sum(case when buy_date >= date_add(current_date(), -5) then `p&l` else 0 end) as l5_pnl
+                                    ,sum(case when buy_date >= date_add(current_date(), -10) then 1 else 0 end) as l10_p_cnt
+                                    ,sum(case when buy_date >= date_add(current_date(), -10) then `p&l` else 0 end) as l10_pnl
                                     ,sum(`p&l`) as p_pnl
                                 from temp 
                                 where buy_date >= date_add(current_date(), -365)
@@ -581,7 +581,7 @@ class StockProposal:
                                 ,sum(case when t3.price - t3.l_price >=0 then 1 else 0 end) as pos_cnt
                                 ,sum(case when t3.price - t3.l_price < 0 then 1 else 0 end) as neg_cnt
                                 ,sum(t3.price * (-t3.size) - t3.l_price * t3.l_size) as his_pnl
-                                ,sum(case when t3.l_date >= date_add(current_date(), -5) then t3.price * (-t3.size) - t3.l_price * t3.l_size else 0 end) as l5_pnl
+                                ,sum(case when t3.l_date >= date_add(current_date(), -10) then t3.price * (-t3.size) - t3.l_price * t3.l_size else 0 end) as l10_pnl
                             from temp2 as t1
                             join (select * from tmp1 where trade_type = 'buy' ) as t2
                             on t1.symbol = t2.symbol
@@ -592,9 +592,9 @@ class StockProposal:
                     select 
                     t1.industry
                     ,t2.p_cnt
-                    ,t2.l5_p_cnt
+                    ,t2.l10_p_cnt
                     ,t2.p_pnl + t1.his_pnl as pnl
-                    ,t2.l5_pnl as l5_pnl
+                    ,t2.l10_pnl as l10_pnl
                     ,t1.his_trade_cnt / t1.his_symbol_cnt as avg_his_trade_cnt
                     ,(t1.his_days + t1.lastest_days) / t1.his_trade_cnt as avg_days
                     ,(t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / (t1.pos_cnt + COALESCE(t2.pos_cnt,0) + t1.neg_cnt + COALESCE(t2.neg_cnt,0)) as pnl_ratio
@@ -609,9 +609,9 @@ class StockProposal:
                 columns={
                     "industry": "行业",
                     "p_cnt": "当前持仓",
-                    "l5_p_cnt": "近5日持仓",
+                    "l10_p_cnt": "近10日持仓",
                     "pnl": "盈亏金额",
-                    "l5_pnl": "近5日盈亏金额",
+                    "l10_pnl": "近10日盈亏金额",
                     "avg_his_trade_cnt": "平均交易次数",
                     "avg_days": "平均持仓天数",
                     "pnl_ratio": "盈亏比",
@@ -623,16 +623,16 @@ class StockProposal:
                 dfdata7.style.format(
                     {
                         "当前持仓": "{:.2f}",
-                        "近5日持仓": "{:.2f}",
+                        "近10日持仓": "{:.2f}",
                         "盈亏金额": "{:.2f}",
-                        "近5日盈亏金额": "{:.2f}",
+                        "近10日盈亏金额": "{:.2f}",
                         "平均交易次数": "{:.0f}",
                         "平均持仓天数": "{:.2f}",
                         "盈亏比": "{:.2f}",
                     }
                 )
                 .background_gradient(
-                    subset=["盈亏金额", "当前持仓", "近5日持仓", "近5日盈亏金额"], cmap=cm
+                    subset=["盈亏金额", "当前持仓", "近10日持仓", "近10日盈亏金额"], cmap=cm
                 )
                 .bar(
                     subset=["盈亏比"],
