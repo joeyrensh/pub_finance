@@ -9,6 +9,7 @@ import seaborn as sns
 import os
 import sys
 from numpy import size
+import numpy as np
 from pyspark.sql import SparkSession
 import matplotlib.pyplot as plt
 from matplotlib.pylab import mpl
@@ -481,27 +482,61 @@ class StockProposal:
                 ), tmp3 as (select temp_timeseries.buy_date, tmp.industry, tmp.cnt
                             from temp_timeseries left join tmp
                             on 1=1
-                )               
+                ), tmp4 as (
+                            select symbol, date, trade_type, price, size, l_date, l_trade_type, l_price, l_size
+                            from (
+                                select symbol, date, trade_type, price, size
+                                    ,case when trade_type = 'sell' then lag(date) over (partition by symbol order by date)  
+                                            else lead(date) over (partition by symbol order by date) end as l_date
+                                    ,case when trade_type = 'sell' then lag(trade_type) over (partition by symbol order by date) 
+                                            else lead(trade_type) over (partition by symbol order by date) end as l_trade_type
+                                    ,case when trade_type = 'sell' then lag(price) over (partition by symbol order by date)
+                                            else lead(price) over (partition by symbol order by date) end as l_price
+                                    ,case when trade_type = 'sell' then lag(size) over (partition by symbol order by date) 
+                                            else lead(size) over (partition by symbol order by date) end as l_size
+                                from temp1
+                                where date >= date_add(current_date(), -365)
+                                order by symbol, date, trade_type
+                                ) t
+                            )
+                ,tmp5 as (
+                        select t1.symbol, t1.date, t1.l_date, t2.industry
+                        from tmp4 t1 join temp2 t2
+                        on t1.symbol = t2.symbol
+                        where t1.trade_type = 'sell'
+                        and t1.date >= date_add(current_date(), -60) and t1.l_date >= date_add(current_date(), -60)
+                        )
+                ,tmp6 as (
+                        select date, industry, sum(cnt) as cnt
+                        from (
+                            select l_date as date,
+                                    industry,
+                                    count(symbol) as cnt
+                            from tmp5
+                            group by l_date, industry
+                            union all
+                            select date,
+                                    industry,
+                                    (-1) * count(symbol) as cnt
+                            from tmp5
+                            group by date, industry
+                        ) t group by date, industry                        
+                )
                 select tmp3.buy_date, tmp3.industry, 
-                        case when tmp2.total_cnt > 0 then tmp2.total_cnt
+                        (case when tmp2.total_cnt > 0 then tmp2.total_cnt
                             else last_value(tmp2.total_cnt) ignore nulls over (partition by tmp3.industry order by tmp3.buy_date)
-                        end as total_cnt
+                        end)  + COALESCE(tmp6.cnt,0) as total_cnt
                     from tmp3 left join tmp2
                     on tmp3.buy_date = tmp2.buy_date
                     and tmp3.industry = tmp2.industry
+                    left join tmp6
+                    on tmp3.buy_date = tmp6.date
+                    and tmp3.industry = tmp6.industry
                     order by tmp3.cnt desc
                 """
             )
             dfdata5 = sparkdata5.toPandas()
-            fig = px.line(
-                dfdata5,
-                x="buy_date",
-                y="total_cnt",
-                color="industry",
-                line_group="industry",
-                # color_discrete_sequence=px.colors.qualitative.Plotly,
-            )
-            fig.update_traces(line=dict(width=2))
+            fig = px.bar(dfdata5, x="buy_date", y="total_cnt", color="industry")
             fig.update_xaxes(
                 mirror=True,
                 ticks="outside",
@@ -523,6 +558,7 @@ class StockProposal:
                 ),
                 plot_bgcolor="white",
             )
+
             fig.write_image("./images/postion_byindustry&date.png", engine="kaleido")
 
             del dfdata5
@@ -546,27 +582,66 @@ class StockProposal:
                 ), tmp3 as (select temp_timeseries.buy_date, tmp.industry, tmp.pl
                             from temp_timeseries left join tmp
                             on 1=1
-                )  select tmp3.buy_date, tmp3.industry, 
-                        case when tmp2.total_cnt > 0 then tmp2.total_cnt
+                ), tmp4 as (
+                            select symbol, date, trade_type, price, size, l_date, l_trade_type, l_price, l_size
+                            from (
+                                select symbol, date, trade_type, price, size
+                                    ,case when trade_type = 'sell' then lag(date) over (partition by symbol order by date)  
+                                            else lead(date) over (partition by symbol order by date) end as l_date
+                                    ,case when trade_type = 'sell' then lag(trade_type) over (partition by symbol order by date) 
+                                            else lead(trade_type) over (partition by symbol order by date) end as l_trade_type
+                                    ,case when trade_type = 'sell' then lag(price) over (partition by symbol order by date)
+                                            else lead(price) over (partition by symbol order by date) end as l_price
+                                    ,case when trade_type = 'sell' then lag(size) over (partition by symbol order by date) 
+                                            else lead(size) over (partition by symbol order by date) end as l_size
+                                from temp1
+                                where date >= date_add(current_date(), -365)
+                                order by symbol, date, trade_type
+                                ) t
+                            )
+                ,tmp5 as (
+                        select t1.symbol, t1.date, t1.l_date, t2.industry
+                        from tmp4 t1 join temp2 t2
+                        on t1.symbol = t2.symbol
+                        where t1.trade_type = 'sell'
+                        and t1.date >= date_add(current_date(), -60) and t1.l_date >= date_add(current_date(), -60)
+                        )
+                ,tmp6 as (
+                        select date, industry, sum(cnt) as cnt
+                        from (
+                            select l_date as date,
+                                    industry,
+                                    count(symbol) as cnt
+                            from tmp5
+                            group by l_date, industry
+                            union all
+                            select date,
+                                    industry,
+                                    (-1) * count(symbol) as cnt
+                            from tmp5
+                            group by date, industry
+                        ) t group by date, industry                        
+                )  
+                select tmp3.buy_date, tmp3.industry, 
+                        (case when tmp2.total_cnt > 0 then tmp2.total_cnt
                             else last_value(tmp2.total_cnt) ignore nulls over (partition by tmp3.industry order by tmp3.buy_date)
-                        end as total_cnt
+                        end)  + COALESCE(tmp6.cnt,0) as total_cnt
                     from tmp3 left join tmp2
                     on tmp3.buy_date = tmp2.buy_date
                     and tmp3.industry = tmp2.industry
+                    left join tmp6
+                    on tmp3.buy_date = tmp6.date
+                    and tmp3.industry = tmp6.industry
                     order by tmp3.pl desc
                 """
             )
             dfdata6 = sparkdata6.toPandas()
-            fig = px.line(
+            fig = px.bar(
                 dfdata6,
                 x="buy_date",
                 y="total_cnt",
-                line_group="industry",
                 color="industry",
-                # color_discrete_sequence=px.colors.qualitative.Plotly,
-                # markers=True,
             )
-            fig.update_traces(line=dict(width=2))
             fig.update_xaxes(
                 mirror=True,
                 ticks="outside",
