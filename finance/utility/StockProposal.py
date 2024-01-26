@@ -22,6 +22,8 @@ from email.mime.text import MIMEText
 import gc
 import matplotlib.colors as mcolors
 
+from utility.ToolKit import ToolKit
+
 
 mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
 
@@ -244,6 +246,24 @@ class StockProposal:
                 start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
             )
             df_timeseries = pd.DataFrame({"buy_date": date_range})
+            # 将日期转换为字符串格式 'YYYYMMDD'
+            df_timeseries["trade_date"] = df_timeseries["buy_date"].dt.strftime(
+                "%Y%m%d"
+            )
+
+            # 假设您的ToolKit类已经定义好了，并且可以检查交易日期
+            toolkit = ToolKit("identify trade date")
+
+            # 根据市场类型过滤非交易日
+            if self.market == "us":
+                df_timeseries = df_timeseries[
+                    df_timeseries["trade_date"].apply(toolkit.is_us_trade_date)
+                ]
+            elif self.market == "cn":
+                df_timeseries = df_timeseries[
+                    df_timeseries["trade_date"].apply(toolkit.is_cn_trade_date)
+                ]
+
             df_timeseries_spark = spark.createDataFrame(
                 df_timeseries.astype({"buy_date": "string"})
             )
@@ -536,7 +556,14 @@ class StockProposal:
                 """
             )
             dfdata5 = sparkdata5.toPandas()
-            fig = px.bar(dfdata5, x="buy_date", y="total_cnt", color="industry")
+
+            fig = px.area(
+                dfdata5,
+                x="buy_date",
+                y="total_cnt",
+                color="industry",
+                line_group="industry",
+            )
             fig.update_xaxes(
                 mirror=True,
                 ticks="outside",
@@ -636,11 +663,12 @@ class StockProposal:
                 """
             )
             dfdata6 = sparkdata6.toPandas()
-            fig = px.bar(
+            fig = px.area(
                 dfdata6,
                 x="buy_date",
                 y="total_cnt",
                 color="industry",
+                line_group="industry",
             )
             fig.update_xaxes(
                 mirror=True,
