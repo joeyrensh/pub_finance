@@ -282,9 +282,12 @@ class StockProposal:
 
             # TOP10热门行业
             sparkdata1 = spark.sql(
-                """ select industry, cnt from (
-                    select industry, count(*) as cnt from temp group by industry)
-                    order by cnt desc limit 10 """
+                """ 
+                SELECT industry, cnt 
+                FROM (
+                    SELECT industry, count(*) AS cnt FROM temp GROUP BY industry)
+                ORDER BY cnt DESC LIMIT 10
+                """
             )
 
             dfdata1 = sparkdata1.toPandas()
@@ -315,9 +318,12 @@ class StockProposal:
 
             # TOP10盈利行业
             sparkdata2 = spark.sql(
-                """ select industry, round(pl,2) as pl from ( 
-                    select industry, sum(`p&l`) as pl from temp group by industry)
-                    order by pl desc limit 10"""
+                """ 
+                SELECT industry, ROUND(pl,2) AS pl 
+                FROM (
+                    SELECT industry, sum(`p&l`) as pl FROM temp GROUP BY industry)
+                ORDER BY pl DESC LIMIT 10
+                """
             )
 
             dfdata2 = sparkdata2.toPandas()
@@ -349,73 +355,91 @@ class StockProposal:
 
             # recent 60 days
             sparkdata3 = spark.sql(
-                """ with tmp1 as (
-                        select buy_date, cnt, total_cnt 
-                        from ( 
-                            select buy_date, count(*) as cnt,
-                            SUM(COUNT(*)) OVER (ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt
-                            from temp
-                            group by buy_date order by buy_date ) t
-                        where buy_date >= date_add(current_date(), -60)
-                ), tmp11 as (
-                        select temp_timeseries.buy_date, tmp1.cnt, 
-                        case when tmp1.total_cnt > 0 then tmp1.total_cnt
-                            else last_value(tmp1.total_cnt) ignore nulls over (order by temp_timeseries.buy_date) end as total_cnt
-                        from temp_timeseries left join tmp1
-                        on temp_timeseries.buy_date = tmp1.buy_date
-                ), tmp2 as (
-                            select symbol, date, trade_type, price, size, l_date, l_trade_type, l_price, l_size
-                            from (
-                                select symbol, date, trade_type, price, size
-                                    ,case when trade_type = 'sell' then lag(date) over (partition by symbol order by date)  
-                                            else lead(date) over (partition by symbol order by date) end as l_date
-                                    ,case when trade_type = 'sell' then lag(trade_type) over (partition by symbol order by date) 
-                                            else lead(trade_type) over (partition by symbol order by date) end as l_trade_type
-                                    ,case when trade_type = 'sell' then lag(price) over (partition by symbol order by date)
-                                            else lead(price) over (partition by symbol order by date) end as l_price
-                                    ,case when trade_type = 'sell' then lag(size) over (partition by symbol order by date) 
-                                            else lead(size) over (partition by symbol order by date) end as l_size
-                                from temp1
-                                where date >= date_add(current_date(), -365)
-                                order by symbol, date, trade_type
-                                ) t
-                            )
-                ,tmp3 as (
-                        select symbol,date,l_date
-                        from tmp2 
-                        where trade_type = 'sell'
-                        and date >= date_add(current_date(), -60) and l_date >= date_add(current_date(), -60)
-                        )
-                ,tmp4 as (
-                        select date, sum(cnt) as cnt
-                        from (
-                            select l_date as date,
-                            count(symbol) as cnt
-                            from tmp3
-                            group by l_date
-                            union all
-                            select date, (-1) * count(symbol) as cnt
-                            from tmp3
-                            group by date
-                        ) t group by date                        
-                ), tmp5 as (
-                        select date, 
-                               sum(case when trade_type = 'buy' then 1 else 0 end) as buy_cnt,
-                               sum(case when trade_type = 'sell' then 1 else 0 end) as sell_cnt
-                        from temp1 
-                        where date >= date_add(current_date(), -60)
-                        group by date
+                """ 
+                WITH tmp1 AS (
+                    SELECT buy_date
+                        ,cnt
+                        ,total_cnt 
+                    FROM ( 
+                        SELECT buy_date
+                            ,count(*) as cnt
+                            ,SUM(COUNT(*)) OVER (ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt
+                        FROM temp
+                        GROUP BY buy_date 
+                        ORDER BY buy_date ) t
+                    WHERE buy_date >= DATE_ADD(CURRENT_DATE(), -60)
+                ), tmp11 AS (
+                    SELECT temp_timeseries.buy_date
+                        ,tmp1.cnt
+                        ,CASE WHEN tmp1.total_cnt > 0 THEN tmp1.total_cnt
+                            ELSE last_value(tmp1.total_cnt) IGNORE NULLS OVER (ORDER BY temp_timeseries.buy_date) END AS total_cnt
+                    FROM temp_timeseries LEFT JOIN tmp1 ON temp_timeseries.buy_date = tmp1.buy_date
+                ), tmp2 AS (
+                    SELECT symbol
+                        ,date
+                        ,trade_type
+                        ,price
+                        ,size
+                        ,l_date
+                        ,l_trade_type
+                        ,l_price
+                        ,l_size
+                    FROM (
+                        SELECT symbol
+                            ,date
+                            ,trade_type
+                            ,price
+                            ,size
+                            ,CASE WHEN trade_type = 'sell' THEN LAG(date) OVER (PARTITION BY symbol ORDER BY date)  
+                                ELSE LEAD(date) OVER (PARTITION BY symbol ORDER BY date) END AS l_date
+                            ,CASE WHEN trade_type = 'sell' THEN LAG(trade_type) OVER (PARTITION BY symbol ORDER BY date) 
+                                ELSE LEAD(trade_type) OVER (PARTITION BY symbol ORDER BY date) END AS l_trade_type
+                            ,CASE WHEN trade_type = 'sell' THEN LAG(price) OVER (PARTITION BY symbol ORDER BY date)
+                                ELSE LEAD(price) OVER (PARTITION BY symbol ORDER BY date) END AS l_price
+                            ,CASE WHEN trade_type = 'sell' THEN LAG(size) OVER (PARTITION BY symbol ORDER BY date) 
+                                ELSE LEAD(size) OVER (PARTITION BY symbol ORDER BY date) END AS l_size
+                        FROM temp1
+                        WHERE date >= DATE_ADD(CURRENT_DATE(), -365)
+                        ORDER BY symbol
+                            ,date
+                            ,trade_type) t
+                ),tmp3 AS (
+                    SELECT symbol
+                        ,date
+                        ,l_date
+                    FROM tmp2 
+                    WHERE trade_type = 'sell'
+                    AND date >= DATE_ADD(CURRENT_DATE(), -60) AND l_date >= DATE_ADD(CURRENT_DATE(), -60)
+                ),tmp4 AS (
+                    SELECT date
+                        ,SUM(cnt) AS cnt
+                    FROM (
+                        SELECT l_date AS date
+                            ,COUNT(symbol) AS cnt
+                        FROM tmp3
+                        GROUP BY l_date
+                        UNION ALL
+                        SELECT date
+                            ,(-1) * COUNT(symbol) AS cnt
+                        FROM tmp3
+                        GROUP BY date
+                    ) t 
+                    GROUP BY date                        
+                ), tmp5 AS (
+                    SELECT date
+                        ,SUM(CASE WHEN trade_type = 'buy' THEN 1 ELSE 0 END) AS buy_cnt
+                        ,SUM(CASE WHEN trade_type = 'sell' THEN 1 ELSE 0 END) AS sell_cnt
+                    FROM temp1 
+                    WHERE date >= DATE_ADD(CURRENT_DATE(), -60)
+                    GROUP BY date
                 )
-                select t1.buy_date as buy_date, 
-                         t1.cnt as cnt, 
-                         t1.total_cnt + COALESCE(t2.cnt,0) as total_cnt,
-                         t3.buy_cnt as buy_cnt,
-                         t3.sell_cnt as sell_cnt
-                  from tmp11 t1 
-                  left join tmp4 t2
-                  on t1.buy_date = t2.date
-                  left join tmp5 t3
-                  on t1.buy_date = t3.date
+                SELECT t1.buy_date AS buy_date
+                    ,t1.cnt AS cnt
+                    ,t1.total_cnt + COALESCE(t2.cnt,0) AS total_cnt
+                    ,t3.buy_cnt AS buy_cnt
+                    ,t3.sell_cnt AS sell_cnt
+                FROM tmp11 t1 LEFT JOIN tmp4 t2 ON t1.buy_date = t2.date
+                LEFT JOIN tmp5 t3 ON t1.buy_date = t3.date
                 """
             )
             dfdata3 = sparkdata3.toPandas()
@@ -494,33 +518,32 @@ class StockProposal:
             gc.collect()
 
             # Top5行业仓位变化
-
             sparkdata5 = spark.sql(
-                """with tmp as ( 
-                    select industry, cnt from ( 
-                        select industry, count(*) as cnt from temp group by industry
-                    ) t
-                    order by cnt desc limit 5 
-                ), tmp1 as (
-                    select temp_timeseries.buy_date, tmp.industry, tmp.cnt
-                    from temp_timeseries left join tmp
-                    on 1=1
-                    order by tmp.cnt desc, temp_timeseries.buy_date asc
-                ), tmp2 as (
-                    select t1.symbol, t2.industry, t1.date, t1.pnl
-                    from temp3 t1 join temp2 t2
-                    on t1.symbol = t2.symbol
-                    where t1.date >= date_add(current_date(), -60)
+                """
+                WITH tmp AS ( 
+                    SELECT industry
+                        ,cnt 
+                    FROM ( 
+                        SELECT industry, count(*) AS cnt FROM temp GROUP BY industry) t
+                    ORDER BY cnt DESC LIMIT 5
+                ), tmp1 AS (
+                    SELECT temp_timeseries.buy_date
+                        ,tmp.industry
+                        ,tmp.cnt
+                    FROM temp_timeseries JOIN tmp ON 1=1
+                ), tmp2 AS (
+                    SELECT t1.symbol
+                        ,t2.industry
+                        ,t1.date
+                        ,t1.pnl
+                    FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                    WHERE t1.date >= DATE_ADD(CURRENT_DATE(), -60)
                 ) 
-                select t1.buy_date,
-                    t1.industry,
-                    sum(case when t2.symbol is not null then 1 else 0 end) as total_cnt
-                from tmp1 t1 
-                left join
-                    tmp2 t2
-                on t1.industry = t2.industry
-                and t1.buy_date = t2.date
-                group by t1.buy_date, t1.industry
+                SELECT t1.buy_date
+                    ,t1.industry
+                    ,SUM(CASE WHEN t2.symbol IS NOT NULL THEN 1 ELSE 0 END) AS total_cnt
+                FROM tmp1 t1 LEFT JOIN tmp2 t2 ON t1.industry = t2.industry AND t1.buy_date = t2.date
+                GROUP BY t1.buy_date, t1.industry
                 """
             )
             dfdata5 = sparkdata5.toPandas()
@@ -560,31 +583,31 @@ class StockProposal:
             gc.collect()
             # P&L分析
             sparkdata6 = spark.sql(
-                """with tmp as ( 
-                    select industry, pl from ( 
-                        select industry, sum(`p&l`) as pl from temp group by industry
-                    ) t 
-                    order by pl desc limit 5 
-                ), tmp1 as (
-                    select temp_timeseries.buy_date, tmp.industry, tmp.pl
-                    from temp_timeseries left join tmp
-                    on 1=1
-                    order by tmp.pl desc, temp_timeseries.buy_date asc
-                ), tmp2 as (
-                    select t1.symbol, t2.industry, t1.date, t1.pnl
-                    from temp3 t1 join temp2 t2
-                    on t1.symbol = t2.symbol
-                    where t1.date >= date_add(current_date(), -60)
+                """
+                WITH tmp AS ( 
+                    SELECT industry
+                        ,pl 
+                    FROM ( 
+                        SELECT industry, sum(`p&l`) AS pl FROM temp GROUP BY industry) t 
+                    ORDER BY pl DESC LIMIT 5
+                ), tmp1 AS (
+                    SELECT temp_timeseries.buy_date
+                        ,tmp.industry
+                        ,tmp.pl
+                    FROM temp_timeseries JOIN tmp ON 1=1
+                ), tmp2 AS (
+                    SELECT t1.symbol
+                        ,t2.industry
+                        ,t1.date
+                        ,t1.pnl
+                    FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                    WHERE t1.date >= DATE_ADD(CURRENT_DATE(), -60)
                 )   
-                select t1.buy_date,
-                    t1.industry,
-                    sum(COALESCE(t2.pnl, 0)) as pnl
-                from tmp1 t1 
-                left join
-                    tmp2 t2
-                on t1.industry = t2.industry
-                and t1.buy_date = t2.date
-                group by t1.buy_date, t1.industry
+                SELECT t1.buy_date
+                    ,t1.industry
+                    ,SUM(COALESCE(t2.pnl, 0)) AS pnl
+                FROM tmp1 t1 LEFT JOIN tmp2 t2 ON t1.industry = t2.industry AND t1.buy_date = t2.date
+                GROUP BY t1.buy_date, t1.industry
                 """
             )
             dfdata6 = sparkdata6.toPandas()
@@ -622,63 +645,76 @@ class StockProposal:
 
             """ 行业盈亏统计分析 """
             sparkdata7 = spark.sql(
-                """ with tmp as (select 
-                                    industry
-                                    ,sum(case when `p&l` >= 0 then 1 else 0 end) as pos_cnt
-                                    ,sum(case when `p&l` < 0 then 1 else 0 end) as neg_cnt
-                                    ,count(*) as p_cnt
-                                    ,sum(case when buy_date >= date_add(current_date(), -10) then 1 else 0 end) as l10_p_cnt
-                                    ,sum(case when buy_date >= date_add(current_date(), -10) then `p&l` else 0 end) as l10_pnl
-                                    ,sum(`p&l`) as p_pnl
-                                from temp 
-                                where buy_date >= date_add(current_date(), -365)
-                                group by industry)
-                    ,tmp1 as (
-                            select symbol, date, trade_type, price, size, l_date, l_trade_type, l_price, l_size
-                            from (
-                                select symbol, date, trade_type, price, size
-                                    ,case when trade_type = 'sell' then lag(date) over (partition by symbol order by date)  
-                                            else lead(date) over (partition by symbol order by date) end as l_date
-                                    ,case when trade_type = 'sell' then lag(trade_type) over (partition by symbol order by date) 
-                                            else lead(trade_type) over (partition by symbol order by date) end as l_trade_type
-                                    ,case when trade_type = 'sell' then lag(price) over (partition by symbol order by date)
-                                            else lead(price) over (partition by symbol order by date) end as l_price
-                                    ,case when trade_type = 'sell' then lag(size) over (partition by symbol order by date) 
-                                            else lead(size) over (partition by symbol order by date) end as l_size
-                                from temp1
-                                where date >= date_add(current_date(), -365)
-                                order by symbol, date, trade_type
-                                ) t
-                            )
-                    ,tmp2 as (
-                            select t1.industry
-                                ,count(t2.symbol) as his_trade_cnt
-                                ,count(distinct t2.symbol) as his_symbol_cnt
-                                ,sum(datediff(t3.date, t3.l_date)) as his_days
-                                ,sum(case when t2.l_date is null then datediff(current_date(), t2.date) else 0 end) as lastest_days
-                                ,sum(case when t3.price - t3.l_price >=0 then 1 else 0 end) as pos_cnt
-                                ,sum(case when t3.price - t3.l_price < 0 then 1 else 0 end) as neg_cnt
-                                ,sum(t3.price * (-t3.size) - t3.l_price * t3.l_size) as his_pnl
-                                ,sum(case when t3.l_date >= date_add(current_date(), -10) then t3.price * (-t3.size) - t3.l_price * t3.l_size else 0 end) as l10_pnl
-                            from temp2 as t1
-                            join (select * from tmp1 where trade_type = 'buy' ) as t2
-                            on t1.symbol = t2.symbol
-                            join (select * from tmp1 where trade_type = 'sell') as t3
-                            on t1.symbol = t3.symbol
-                            group by t1.industry
-                            )                
-                    select 
-                        t1.industry
-                        ,t2.p_cnt
-                        ,t2.l10_p_cnt
-                        ,t2.p_pnl + t1.his_pnl as pnl
-                        ,t2.l10_pnl as l10_pnl
-                        ,t1.his_trade_cnt / t1.his_symbol_cnt as avg_his_trade_cnt
-                        ,(t1.his_days + t1.lastest_days) / t1.his_trade_cnt as avg_days
-                        ,(t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / (t1.pos_cnt + COALESCE(t2.pos_cnt,0) + t1.neg_cnt + COALESCE(t2.neg_cnt,0)) as pnl_ratio
-                    from tmp2 t1 left join tmp t2
-                    on t1.industry = t2.industry
-                    order by t2.p_pnl+t1.his_pnl desc
+                """ 
+                WITH tmp AS (
+                    SELECT industry
+                        ,SUM(CASE WHEN `p&l` >= 0 THEN 1 ELSE 0 END) AS pos_cnt
+                        ,SUM(CASE WHEN `p&l` < 0 THEN 1 ELSE 0 END) AS neg_cnt
+                        ,COUNT(*) AS p_cnt
+                        ,SUM(CASE WHEN buy_date >= DATE_ADD(CURRENT_DATE(), -10) THEN 1 ELSE 0 END) AS l10_p_cnt
+                        ,SUM(`p&l`) AS p_pnl
+                    FROM temp 
+                    WHERE buy_date >= DATE_ADD(CURRENT_DATE(), -365)
+                    GROUP BY industry
+                 ), tmp1 AS (
+                    SELECT symbol
+                        ,date
+                        ,trade_type
+                        ,price
+                        ,size
+                        ,l_date
+                        ,l_trade_type
+                        ,l_price
+                        ,l_size
+                    FROM (
+                        SELECT symbol
+                            ,date
+                            ,trade_type
+                            ,price
+                            ,size
+                            ,CASE WHEN trade_type = 'sell' THEN LAG(date) OVER (PARTITION BY symbol ORDER BY date)  
+                                ELSE LEAD(date) OVER (PARTITION BY symbol ORDER BY date) END AS l_date
+                            ,CASE WHEN trade_type = 'sell' THEN LAG(trade_type) OVER (PARTITION BY symbol ORDER BY date) 
+                                ELSE LEAD(trade_type) OVER (PARTITION BY symbol ORDER BY date) END AS l_trade_type
+                            ,CASE WHEN trade_type = 'sell' THEN LAG(price) OVER (PARTITION BY symbol ORDER BY date)
+                                ELSE LEAD(price) OVER (PARTITION BY symbol ORDER BY date) END AS l_price
+                            ,CASE WHEN trade_type = 'sell' THEN LAG(size) OVER (PARTITION BY symbol ORDER BY date) 
+                                ELSE LEAD(size) OVER (PARTITION BY symbol ORDER BY date) END AS l_size
+                        FROM temp1
+                        WHERE date >= DATE_ADD(CURRENT_DATE(), -365)
+                        ORDER BY symbol
+                            ,date
+                            ,trade_type) t
+                ), tmp2 AS (
+                    SELECT t1.industry
+                        ,COUNT(t2.symbol) AS his_trade_cnt
+                        ,COUNT(DISTINCT t2.symbol) AS his_symbol_cnt
+                        ,SUM(DATEDIFF(t3.date, t3.l_date)) AS his_days
+                        ,SUM(CASE WHEN t2.l_date IS NULL THEN DATEDIFF(CURRENT_DATE(), t2.date) ELSE 0 END) AS lastest_days
+                        ,SUM(CASE WHEN t3.price - t3.l_price >=0 THEN 1 ELSE 0 END) AS pos_cnt
+                        ,SUM(CASE WHEN t3.price - t3.l_price < 0 THEN 1 ELSE 0 END) as neg_cnt
+                        ,SUM(t3.price * (-t3.size) - t3.l_price * t3.l_size) AS his_pnl
+                    FROM temp2 t1 JOIN (SELECT * FROM tmp1 WHERE trade_type = 'buy' ) t2 ON t1.symbol = t2.symbol
+                    JOIN (SELECT * FROM tmp1 WHERE trade_type = 'sell') t3 ON t1.symbol = t3.symbol
+                    GROUP BY t1.industry
+                ), tmp3 AS (
+                    SELECT t2.industry
+                        ,SUM(t1.pnl) AS l10_pnl
+                    FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                    WHERE t1.date = DATE_ADD(CURRENT_DATE(), -10)
+                    GROUP BY t2.industry
+                )                
+                SELECT t1.industry
+                    ,COALESCE(t2.p_cnt,0) AS p_cnt
+                    ,COALESCE(t2.l10_p_cnt,0) AS l10_p_cnt
+                    ,COALESCE(t2.p_pnl,0) + t1.his_pnl AS pnl
+                    ,CASE WHEN COALESCE(t2.p_pnl,0) = 0 THEN 0 ELSE COALESCE(t2.p_pnl,0) - COALESCE(t3.l10_pnl,0) END AS l10_pnl
+                    ,t1.his_trade_cnt / t1.his_symbol_cnt AS avg_his_trade_cnt
+                    ,(t1.his_days + t1.lastest_days) / t1.his_trade_cnt AS avg_days
+                    ,(t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / (t1.pos_cnt + COALESCE(t2.pos_cnt,0) + t1.neg_cnt + COALESCE(t2.neg_cnt,0)) AS pnl_ratio
+                FROM tmp2 t1 LEFT JOIN tmp t2 ON t1.industry = t2.industry
+                LEFT JOIN tmp3 t3 ON t1.industry = t3.industry
+                ORDER BY t2.p_pnl + t1.his_pnl DESC
                 """
             )
             dfdata7 = sparkdata7.toPandas()
@@ -687,9 +723,9 @@ class StockProposal:
                 columns={
                     "industry": "行业",
                     "p_cnt": "当前持仓",
-                    "l10_p_cnt": "近10日持仓",
+                    "l10_p_cnt": "近10日新增持仓",
                     "pnl": "盈亏金额",
-                    "l10_pnl": "近10日盈亏金额",
+                    "l10_pnl": "近10日持仓盈亏变化",
                     "avg_his_trade_cnt": "平均交易次数",
                     "avg_days": "平均持仓天数",
                     "pnl_ratio": "盈亏比",
@@ -701,16 +737,16 @@ class StockProposal:
                 dfdata7.style.format(
                     {
                         "当前持仓": "{:.2f}",
-                        "近10日持仓": "{:.2f}",
+                        "近10日新增持仓": "{:.2f}",
                         "盈亏金额": "{:.2f}",
-                        "近10日盈亏金额": "{:.2f}",
+                        "近10日持仓盈亏变化": "{:.2f}",
                         "平均交易次数": "{:.0f}",
                         "平均持仓天数": "{:.2f}",
                         "盈亏比": "{:.2f}",
                     }
                 )
                 .background_gradient(
-                    subset=["盈亏金额", "当前持仓", "近10日持仓", "近10日盈亏金额"], cmap=cm
+                    subset=["盈亏金额", "当前持仓", "近10日新增持仓", "近10日持仓盈亏变化"], cmap=cm
                 )
                 .bar(
                     subset=["盈亏比"],
