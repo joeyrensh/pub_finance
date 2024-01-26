@@ -626,6 +626,7 @@ class StockProposal:
                 on t1.industry = t2.industry
                 and t1.buy_date = t2.date
                 group by t1.buy_date, t1.industry
+                order by tmp1.pl desc
                 """
             )
             dfdata6 = sparkdata6.toPandas()
