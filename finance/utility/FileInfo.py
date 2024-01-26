@@ -19,17 +19,19 @@ class FileInfo:
     def __init__(self, trade_date=None, market=None):
         self.market = market
         self.trade_date = trade_date
-        self._file_path_latest = "./" + market + \
-            "stockinfo/stock_" + trade_date + ".csv"
+        self._file_path_latest = (
+            "./" + market + "stockinfo/stock_" + trade_date + ".csv"
+        )
         self._file_path_dir = "./" + market + "stockinfo/"
         self._file_path_sta = "./" + market + "strategy/strategy_" + trade_date + ".csv"
         self._file_path_industry = "./" + market + "stockinfo/industry.csv"
         self._file_path_position = (
             "./" + market + "stockinfo/position_" + trade_date + ".csv"
         )
-        self._file_path_trade = (
-            "./" + market + "stockinfo/trade_" + trade_date + ".csv"
+        self._file_path_position_detail = (
+            "./" + market + "stockinfo/position_detail_" + trade_date + ".csv"
         )
+        self._file_path_trade = "./" + market + "stockinfo/trade_" + trade_date + ".csv"
 
     """ 返回某日数据文件路径 """
 
@@ -77,6 +79,10 @@ class FileInfo:
     @property
     def get_file_path_position(self):
         return self._file_path_position
+
+    @property
+    def get_file_path_position_detail(self):
+        return self._file_path_position_detail
 
     @property
     def get_file_path_trade(self):

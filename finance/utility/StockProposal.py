@@ -224,13 +224,14 @@ class StockProposal:
             gc.collect()
 
             """ 按照行业板块聚合，统计最近成交率最高的行业 """
+            # trade detail
             file_path_trade = file.get_file_path_trade
             cols = ["idx", "symbol", "date", "trade_type", "price", "size"]
-
             df1 = spark.read.csv(file_path_trade, header=None, inferSchema=True)
             df1.coalesce(2)
             df1 = df1.toDF(*cols)
             df1.createOrReplaceTempView("temp1")
+            # latest position
             df = spark.read.csv(file_cur_p, header=True)
             df.coalesce(2)
             df.createOrReplaceTempView("temp")
@@ -239,6 +240,16 @@ class StockProposal:
             df2 = spark.read.csv(file_path_indus, header=True)
             df2.coalesce(2)
             df2.createOrReplaceTempView("temp2")
+            # position details
+            file_path_position_detail = file.get_file_path_position_detail
+            cols = ["idx", "symbol", "date", "price", "adjbase", "pnl"]
+            df3 = spark.read.csv(
+                file_path_position_detail, header=None, inferSchema=True
+            )
+            df3.coalesce(2)
+            df3 = df3.toDF(*cols)
+            df3.createOrReplaceTempView("temp3")
+
             """ 时间序列生成 """
             end_date = pd.to_datetime("today").strftime("%Y-%m-%d")
             start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
@@ -596,62 +607,25 @@ class StockProposal:
                     select industry, pl from ( 
                         select industry, sum(`p&l`) as pl from temp group by industry) 
                         order by pl desc limit 5 
-                ), tmp1 as ( select buy_date, industry, pnl
-                from (
-                    select buy_date, industry,
-                            sum(sum(`p&l`)) OVER (partition by industry ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS pnl
-                    from temp
-                    group by buy_date, industry order by buy_date ) t
-                    where buy_date >= date_add(current_date(), -60) 
-                ), tmp2 as (select tmp.industry, tmp1.buy_date, tmp1.pnl 
-                            from tmp left join tmp1 
-                            on tmp.industry = tmp1.industry
-                ), tmp3 as (select temp_timeseries.buy_date, tmp.industry, tmp.pl
-                            from temp_timeseries left join tmp
-                            on 1=1
-                ), tmp4 as (
-                            select symbol, date, trade_type, price, size, l_date, l_trade_type, l_price, l_size
-                            from (
-                                select symbol, date, trade_type, price, size
-                                    ,case when trade_type = 'sell' then lag(date) over (partition by symbol order by date)  
-                                            else lead(date) over (partition by symbol order by date) end as l_date
-                                    ,case when trade_type = 'sell' then lag(trade_type) over (partition by symbol order by date) 
-                                            else lead(trade_type) over (partition by symbol order by date) end as l_trade_type
-                                    ,case when trade_type = 'sell' then lag(price) over (partition by symbol order by date)
-                                            else lead(price) over (partition by symbol order by date) end as l_price
-                                    ,case when trade_type = 'sell' then lag(size) over (partition by symbol order by date) 
-                                            else lead(size) over (partition by symbol order by date) end as l_size
-                                from temp1
-                                where date >= date_add(current_date(), -365)
-                                order by symbol, date, trade_type
-                                ) t
-                            )
-                ,tmp5 as (
-                        select t1.symbol, t1.date, t1.l_date, t2.industry,
-                        t1.price * (-t1.size) - t1.l_price * t1.l_size as l60_pnl
-                        from tmp4 t1 join temp2 t2
-                        on t1.symbol = t2.symbol
-                        where t1.trade_type = 'sell'
-                        and t1.date >= date_add(current_date(), -60) and t1.l_date >= date_add(current_date(), -60)
-                        )
-                ,tmp6 as (
-                        select  date,
-                                industry,
-                                sum(l60_pnl) as l60_pnl
-                        from tmp5
-                        group by date, industry                      
-                )  
-                select tmp3.buy_date, tmp3.industry, 
-                        (case when tmp2.pnl > 0 then tmp2.pnl
-                            else last_value(tmp2.pnl) ignore nulls over (partition by tmp3.industry order by tmp3.buy_date)
-                        end)  + COALESCE(tmp6.l60_pnl,0) as pnl
-                    from tmp3 left join tmp2
-                    on tmp3.buy_date = tmp2.buy_date
-                    and tmp3.industry = tmp2.industry
-                    left join tmp6
-                    on tmp3.buy_date = tmp6.date
-                    and tmp3.industry = tmp6.industry
-                    order by tmp3.pl desc
+                ), tmp1 as (
+                    select temp_timeseries.buy_date, tmp.industry, tmp.pl
+                    from temp_timeseries left join tmp
+                    on 1=1
+                ), tmp2 as (
+                    select t1.symbol, t2.industry, t1.date, t1.pnl
+                    from temp3 t1 join temp2 t2
+                    on t1.symbol = t2.symbol
+                    where t1.date >= date_add(current_date(), -60)
+                )   
+                select t1.buy_date,
+                        t1.industry,
+                        sum(COALESCE(t2.pnl, 0)) as pnl
+                from tmp1 t1 
+                left join
+                    tmp2 t2
+                on t1.industry = t2.industry
+                and t1.buy_date = t2.date
+                group by t1.buy_date, t1.industry
                 """
             )
             dfdata6 = sparkdata6.toPandas()

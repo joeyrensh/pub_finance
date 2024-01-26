@@ -44,6 +44,8 @@ class BTStrategyVol(bt.Strategy):
         """ 仓位文件地址 """
         file_path_position = file.get_file_path_position
         self.file_path_position = open(file_path_position, "w")
+        file_path_position_detail = file.get_file_path_position_detail
+        self.file_path_position_detail = open(file_path_position_detail, "w")
         file_path_trade = file.get_file_path_trade
         self.file_path_trade = open(file_path_trade, "w")
         """ 板块文件地址 """
@@ -307,6 +309,7 @@ class BTStrategyVol(bt.Strategy):
         self.next()
 
     def next(self):
+        list = []
         for i, d in enumerate(self.datas):
             if self.order[d._name]:
                 continue
@@ -334,6 +337,15 @@ class BTStrategyVol(bt.Strategy):
                 信号2: 日dif下穿0轴
                 信号3: 已经亏损20%
                 """
+                dt = self.datas[0].datetime.date(0)
+                dict = {
+                    "symbol": d._name,
+                    "date": dt.isoformat(),
+                    "price": pos.price,
+                    "adjbase": pos.adjbase,
+                    "pnl": pos.size * (pos.adjbase - pos.price),
+                }
+                list.append(dict)
                 if (
                     (
                         self.signals[d._name]["close_crossdown_mashort"][0] == 1
@@ -347,6 +359,9 @@ class BTStrategyVol(bt.Strategy):
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
+        df = pd.DataFrame(list)
+        df.reset_index(inplace=True, drop=True)
+        df.to_csv(self.file_path_position_detail, header=None)
 
     def stop(self):
         list = []
@@ -414,3 +429,4 @@ class BTStrategyVol(bt.Strategy):
         df_n.reset_index(drop=True, inplace=True)
         df_n.to_csv(self.file_path_position)
         self.file_path_position.close()
+        self.file_path_position_detail.close()
