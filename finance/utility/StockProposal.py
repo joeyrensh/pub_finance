@@ -596,14 +596,14 @@ class StockProposal:
                     select industry, pl from ( 
                         select industry, sum(`p&l`) as pl from temp group by industry) 
                         order by pl desc limit 5 
-                ), tmp1 as ( select buy_date, industry, total_cnt
+                ), tmp1 as ( select buy_date, industry, pnl
                 from (
                     select buy_date, industry,
-                            sum(COUNT(*)) OVER (partition by industry ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_cnt
+                            sum(sum(`p&l`)) OVER (partition by industry ORDER BY buy_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS pnl
                     from temp
                     group by buy_date, industry order by buy_date ) t
                     where buy_date >= date_add(current_date(), -60) 
-                ), tmp2 as (select tmp.industry, tmp1.buy_date, tmp1.total_cnt 
+                ), tmp2 as (select tmp.industry, tmp1.buy_date, tmp1.pnl 
                             from tmp left join tmp1 
                             on tmp.industry = tmp1.industry
                 ), tmp3 as (select temp_timeseries.buy_date, tmp.industry, tmp.pl
@@ -627,32 +627,24 @@ class StockProposal:
                                 ) t
                             )
                 ,tmp5 as (
-                        select t1.symbol, t1.date, t1.l_date, t2.industry
+                        select t1.symbol, t1.date, t1.l_date, t2.industry,
+                        t1.price * (-t1.size) - t1.l_price * t1.l_size as l60_pnl
                         from tmp4 t1 join temp2 t2
                         on t1.symbol = t2.symbol
                         where t1.trade_type = 'sell'
                         and t1.date >= date_add(current_date(), -60) and t1.l_date >= date_add(current_date(), -60)
                         )
                 ,tmp6 as (
-                        select date, industry, sum(cnt) as cnt
-                        from (
-                            select l_date as date,
-                                    industry,
-                                    count(symbol) as cnt
-                            from tmp5
-                            group by l_date, industry
-                            union all
-                            select date,
-                                    industry,
-                                    (-1) * count(symbol) as cnt
-                            from tmp5
-                            group by date, industry
-                        ) t group by date, industry                        
+                        select  date,
+                                industry,
+                                sum(l60_pnl) as l60_pnl
+                        from tmp5
+                        group by date, industry                      
                 )  
                 select tmp3.buy_date, tmp3.industry, 
-                        (case when tmp2.total_cnt > 0 then tmp2.total_cnt
-                            else last_value(tmp2.total_cnt) ignore nulls over (partition by tmp3.industry order by tmp3.buy_date)
-                        end)  + COALESCE(tmp6.cnt,0) as total_cnt
+                        (case when tmp2.pnl > 0 then tmp2.pnl
+                            else last_value(tmp2.pnl) ignore nulls over (partition by tmp3.industry order by tmp3.buy_date)
+                        end)  + COALESCE(tmp6.l60_pnl,0) as pnl
                     from tmp3 left join tmp2
                     on tmp3.buy_date = tmp2.buy_date
                     and tmp3.industry = tmp2.industry
@@ -666,7 +658,7 @@ class StockProposal:
             fig = px.area(
                 dfdata6,
                 x="buy_date",
-                y="total_cnt",
+                y="pnl",
                 color="industry",
                 line_group="industry",
             )
@@ -685,7 +677,7 @@ class StockProposal:
                 gridcolor="lightgrey",
             )
             fig.update_layout(
-                title="Last 60 days top5 Pnl positions",
+                title="Last 60 days top5 Pnl",
                 legend=dict(
                     orientation="h", yanchor="bottom", y=-0.5, xanchor="left", x=0
                 ),
