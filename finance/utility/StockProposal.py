@@ -21,7 +21,7 @@ from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 import gc
 import matplotlib.colors as mcolors
-
+from io import BytesIO
 from utility.ToolKit import ToolKit
 
 
@@ -197,10 +197,12 @@ class StockProposal:
                         bgcolor: "#000000" !important;
                         color: black;
                         display: table !important;
+                        width: 100%;
                     }
                     table {
                         bgcolor: "#000000" !important;
                         color: black;
+                        width: 100%;
                     }
                 }
 
@@ -210,10 +212,12 @@ class StockProposal:
                         bgcolor: "#000000" !important;
                         color: black;
                         display: table !important;
+                        width: 100%;
                     }
                     table {
                         bgcolor: "#000000" !important;
                         color: black;
+                        width: 100%;
                     }
                 }
             </style>
@@ -824,10 +828,12 @@ class StockProposal:
                         bgcolor: "#000000" !important;
                         color: black;
                         display: table !important;
+                        width: 100%;
                     }
                     table {
                         bgcolor: "#000000" !important;
                         color: black;
+                        width: 100%;
                     }
                 }
 
@@ -837,10 +843,12 @@ class StockProposal:
                         bgcolor: "#000000" !important;
                         color: black;
                         display: table !important;
+                        width: 100%;
                     }
                     table {
                         bgcolor: "#000000" !important;
                         color: black;
+                        width: 100%;
                     }
                 }
             </style>
