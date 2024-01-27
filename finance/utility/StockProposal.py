@@ -547,6 +547,18 @@ class StockProposal:
                 """
             )
             dfdata5 = sparkdata5.toPandas()
+            dfdata5.sort_values(
+                by=["buy_date", "total_cnt"], ascending=[False, False], inplace=True
+            )
+            # dfdata5["label"] = None
+            # last_dates = dfdata5.groupby("industry")["buy_date"].max()
+            # for industry in dfdata5["industry"].unique():
+            #     last_date = last_dates[industry]
+            #     last_row = dfdata5[
+            #         (dfdata5["industry"] == industry)
+            #         & (dfdata5["buy_date"] == last_date)
+            #     ]
+            #     dfdata5.loc[last_row.index, "label"] = last_row["total_cnt"]
 
             fig = px.area(
                 dfdata5,
@@ -611,12 +623,21 @@ class StockProposal:
                 """
             )
             dfdata6 = sparkdata6.toPandas()
+            dfdata6.sort_values(
+                by=["buy_date", "pnl"], ascending=[False, False], inplace=True
+            )
+            # dfdata6["label"] = None
+            # last_dates = dfdata6.groupby("industry")["buy_date"].max()
+            # for industry in dfdata6["industry"].unique():
+            #     last_date = last_dates[industry]
+            #     last_row = dfdata6[
+            #         (dfdata6["industry"] == industry)
+            #         & (dfdata6["buy_date"] == last_date)
+            #     ]
+            #     dfdata6.loc[last_row.index, "label"] = last_row["pnl"]
+
             fig = px.area(
-                dfdata6,
-                x="buy_date",
-                y="pnl",
-                color="industry",
-                line_group="industry",
+                dfdata6, x="buy_date", y="pnl", color="industry", line_group="industry"
             )
             fig.update_xaxes(
                 mirror=True,
