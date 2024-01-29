@@ -119,7 +119,7 @@ def exec_btstrategy(date):
     # plt.style.use('dark_background')
 
     fig, (ax0, ax1) = plt.subplots(
-        2, 1, gridspec_kw={"height_ratios": [1.5, 4]}, figsize=(20, 8)
+        2, 1, gridspec_kw={"height_ratios": [1, 1]}, figsize=(40, 40)
     )
 
     """ 
@@ -199,7 +199,7 @@ def exec_btstrategy(date):
         label="drawdown (right)",
         rot=0,
         alpha=0.3,
-        fontsize=18,
+        fontsize=22,
         grid=False,
         color="red",
     )
@@ -207,10 +207,10 @@ def exec_btstrategy(date):
     # 绘制累计收益曲线
     cumulative_line = (cumulative).plot(
         ax=ax2,
-        lw=2.0,
+        lw=3.0,
         label="cumret (left)",
         rot=0,
-        fontsize=18,
+        fontsize=22,
         grid=True,
         color="blue",
     )
@@ -227,10 +227,10 @@ def exec_btstrategy(date):
 
     h2, l2 = ax2.get_legend_handles_labels()
 
-    plt.legend(h1 + h2, l1 + l2, fontsize=18, loc="upper left", ncol=1)
+    plt.legend(h1 + h2, l1 + l2, fontsize=22, loc="upper left", ncol=1)
 
     fig.tight_layout()
-    plt.savefig("./images/TRdraw.png")
+    plt.savefig("./images/TRdraw.png", dpi=1080)
 
 
 # 主程序入口

@@ -327,6 +327,7 @@ class StockProposal:
                     x=-0.3,
                     y=1,
                     font=dict(size=18),  # 调整图例字体大小
+                    bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
                 ),
                 # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
                 autosize=True,
@@ -381,6 +382,7 @@ class StockProposal:
                     x=-0.3,
                     y=1,
                     font=dict(size=18),  # 调整图例字体大小
+                    bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
                 ),
                 # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
                 autosize=True,
@@ -969,16 +971,67 @@ class StockProposal:
             ]
             html_img = """
                     <html>
+                        <head>
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                }
+                                figure {
+                                    margin: 20px;
+                                    border: 1px solid #ddd;
+                                    padding: 10px;
+                                    border-radius: 8px;
+                                    background-color: #f8f8f8;
+                                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                                }
+                                img {
+                                    width: 100%;
+                                    height: auto;
+                                    border-radius: 5px;
+                                }
+                                figcaption {
+                                    color: #555;
+                                    padding: 8px;
+                                    text-align: center;
+                                    font-style: italic;
+                                    font-size: 0.9em;
+                                }
+                            </style>
+                        </head>                    
                         <body>
-                            <img src="cid:image0", width="100%">
-                            <img src="cid:image1", width="100%">
-                            <img src="cid:image2", width="100%">
-                            <img src="cid:image3", width="100%">
-                            <img src="cid:image4", width="100%">
-                            <img src="cid:image5", width="100%">
+                            <figure>
+                                <img src="cid:image0" alt="The industry distribution of current positions is as follows:" style="width:100%">
+                                <figcaption>The industry position distribution of the top 10 shows the current distribution of industry 
+                                            positions that meet the strategy.</figcaption>
+                            </figure>
+                            <figure>
+                                <img src="cid:image1" alt="The industry distribution of current pnl is as follows:" style="width:100%">
+                                <figcaption>The industry pnl distribution of the top 10 shows the current distribution of industry 
+                                            pnl that meet the strategy.</figcaption>
+                            </figure>
+                            <figure>
+                                <img src="cid:image2" alt="The diagram shows the last x days trade detail info:" style="width:100%">
+                                <figcaption>The diagram shows the last x days trade detail info, which include the short/long/position
+                                            info every day.</figcaption>
+                            </figure>
+                            <figure>
+                                <img src="cid:image3" alt="The diagram shows the last x days top5 industry position info:" style="width:100%">
+                                <figcaption>The diagram shows the last x days top5 industry position trend, to stat last x days
+                                            the top5 industry positions change status</figcaption>
+                            </figure>
+                            <figure>
+                                <img src="cid:image4" alt="The diagram shows the last x days top5 industry pnl info:" style="width:100%">
+                                <figcaption>The diagram shows the last x days top5 industry pnl trend, to stat last x days
+                                            the top5 industry pnl change status</figcaption>
+                            </figure>
+                            <figure>
+                                <img src="cid:image5" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%">
+                                <figcaption>The diagram shows the last x years cumulative return and max drawdown trend,
+                                            to track the stock market and stategy execution information</figcaption>
+                            </figure>
                         </body>
                     </html>
                     """
             MyEmail().send_email_embedded_image(
-                subject, html1 + html + html_img, image_path
+                subject, html1 + html_img + html, image_path
             )
