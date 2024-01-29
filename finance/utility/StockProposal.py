@@ -321,14 +321,14 @@ class StockProposal:
                 title="Top10 Position",
                 title_font=dict(size=24),
                 legend=dict(
-                    orientation="h",
-                    yanchor="auto",
-                    xanchor="center",
-                    x=0.5,
-                    y=-0.2,
+                    orientation="v",
+                    yanchor="top",
+                    xanchor="left",
+                    x=-0.3,
+                    y=1,
                     font=dict(size=18),  # 调整图例字体大小
                 ),
-                margin=dict(t=50, b=0.2, l=0.2, r=0.2),
+                # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
                 autosize=True,
             )
             # 设置图像的宽度和高度（例如，1920x1080像素）
@@ -375,14 +375,14 @@ class StockProposal:
                 title="Top10 Profit",
                 title_font=dict(size=24),
                 legend=dict(
-                    orientation="h",
-                    yanchor="auto",
-                    xanchor="center",
-                    x=0.5,
-                    y=-0.2,
+                    orientation="v",
+                    yanchor="top",
+                    xanchor="left",
+                    x=-0.3,
+                    y=1,
                     font=dict(size=18),  # 调整图例字体大小
                 ),
-                margin=dict(t=50, b=0.2, l=0.2, r=0.2),
+                # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
                 autosize=True,
             )
 
@@ -528,7 +528,7 @@ class StockProposal:
                 title={
                     "text": "Last 60 days trade info",
                     "y": 0.9,
-                    "x": 0,
+                    "x": 0.1,
                     "xanchor": "left",
                     "yanchor": "top",
                     "font": dict(family="Courier", size=24, color="black"),
@@ -653,7 +653,7 @@ class StockProposal:
                 legend=dict(
                     orientation="h",
                     yanchor="bottom",
-                    y=-0.5,
+                    y=-0.3,
                     xanchor="left",
                     x=0,
                     font=dict(size=18, family="Courier", color="black"),
@@ -738,7 +738,7 @@ class StockProposal:
                 legend=dict(
                     orientation="h",
                     yanchor="bottom",
-                    y=-0.5,
+                    y=-0.3,
                     xanchor="left",
                     x=0,
                     font=dict(size=18, family="Courier", color="black"),
