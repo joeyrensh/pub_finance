@@ -173,7 +173,7 @@ def exec_btstrategy(date):
         edges="open",  # 不显示表格边框
     )
 
-    table.set_fontsize(13)
+    table.set_fontsize(18)
 
     # 绘制累计收益曲线
     ax2 = ax1.twinx()
@@ -188,7 +188,7 @@ def exec_btstrategy(date):
         label="drawdown (right)",
         rot=0,
         alpha=0.3,
-        fontsize=13,
+        fontsize=18,
         grid=False,
         color="red",
     )
@@ -199,7 +199,7 @@ def exec_btstrategy(date):
         lw=2.0,
         label="cumret (left)",
         rot=0,
-        fontsize=13,
+        fontsize=18,
         grid=True,
         color="blue",
     )
@@ -216,7 +216,7 @@ def exec_btstrategy(date):
 
     h2, l2 = ax2.get_legend_handles_labels()
 
-    plt.legend(h1 + h2, l1 + l2, fontsize=12, loc="upper left", ncol=1)
+    plt.legend(h1 + h2, l1 + l2, fontsize=18, loc="upper left", ncol=1)
 
     fig.tight_layout()
 

@@ -152,32 +152,39 @@ class StockProposal:
                 .set_properties(
                     **{
                         "text-align": "left",
-                        "border": "1px solid",
-                        "cellspacing": "0px",
-                        "style": "border-collapse:collapse;",
+                        "border": "1px solid #ccc",
+                        "cellspacing": "0",
+                        "style": "border-collapse: collapse; width: 100%;",
                     }
                 )
                 .set_table_styles(
                     [
+                        # 表头样式
                         dict(
                             selector="th",
                             props=[
-                                ("border", "5px solid #eee"),
-                                ("border-collapse", "collapse"),
-                                ("white-space", "nowrap"),
-                                ("color", "black"),
+                                ("background-color", "#f2f2f2"),  # 轻灰色背景
+                                ("border", "1px solid #ccc"),
+                                ("text-align", "left"),
+                                ("padding", "8px"),  # 增加填充以便更易点击和阅读
+                                ("font-size", "16px"),  # 在PC端使用较大字体
+                                ("min-width", "50px"),
+                                ("max-width", "200px"),
                             ],
                         ),
+                        # 表格数据单元格样式
                         dict(
                             selector="td",
                             props=[
-                                ("border", "5px solid #eee"),
-                                ("border-collapse", "collapse"),
-                                ("white-space", "nowrap"),
-                                ("color", "black"),
+                                ("border", "1px solid #ccc"),
+                                ("text-align", "left"),
+                                ("padding", "8px"),
+                                ("font-size", "16px"),  # 同样适用较大字体以提高移动端可读性
+                                ("min-width", "50px"),
+                                ("max-width", "200px"),
                             ],
                         ),
-                    ],
+                    ]
                 )
                 .set_sticky(axis="columns")
                 .to_html(doctype_html=True)
@@ -308,13 +315,21 @@ class StockProposal:
             fig.update_traces(
                 marker=dict(colors=colors, line=dict(color="#000000", width=1)),
                 textinfo="value+percent",
+                textfont=dict(size=24),
             )
             fig.update_layout(
                 title="Top10 Position",
+                title_font=dict(size=24),
                 legend=dict(
-                    orientation="h", yanchor="bottom", xanchor="center", x=0.5, y=-0.5
+                    orientation="h",
+                    yanchor="auto",
+                    xanchor="center",
+                    x=0.5,
+                    y=-0.2,
+                    font=dict(size=18),  # 调整图例字体大小
                 ),
                 margin=dict(t=50, b=0.2, l=0.2, r=0.2),
+                autosize=True,
             )
             # 设置图像的宽度和高度（例如，1920x1080像素）
             fig_width, fig_height = 1024, 768
@@ -354,13 +369,21 @@ class StockProposal:
             fig.update_traces(
                 marker=dict(colors=colors, line=dict(color="#000000", width=1)),
                 textinfo="value+percent",
+                textfont=dict(size=24),
             )
             fig.update_layout(
                 title="Top10 Profit",
+                title_font=dict(size=24),
                 legend=dict(
-                    orientation="h", yanchor="bottom", xanchor="center", x=0.5, y=-0.5
+                    orientation="h",
+                    yanchor="auto",
+                    xanchor="center",
+                    x=0.5,
+                    y=-0.2,
+                    font=dict(size=18),  # 调整图例字体大小
                 ),
                 margin=dict(t=50, b=0.2, l=0.2, r=0.2),
+                autosize=True,
             )
 
             fig.write_image(
@@ -502,35 +525,50 @@ class StockProposal:
                 )
             )
             fig.update_layout(
-                title="Last 60 days trade info",
-                xaxis_title="Trade Date",
-                yaxis_title="Stock Positions",
-                legend=dict(
-                    orientation="h", yanchor="bottom", y=-0.3, xanchor="center", x=0.5
+                title={
+                    "text": "Last 60 days trade info",
+                    "y": 0.9,
+                    "x": 0,
+                    "xanchor": "left",
+                    "yanchor": "top",
+                    "font": dict(family="Courier", size=24, color="black"),
+                },
+                xaxis=dict(
+                    title="Trade Date",
+                    titlefont=dict(family="Courier", size=18, color="black"),
+                    mirror=True,
+                    ticks="outside",
+                    showline=True,
+                    linecolor="black",
+                    gridcolor="lightgrey",
                 ),
-                plot_bgcolor="white",
-                barmode="stack",
-                yaxis=dict(title="Total Positions", side="left"),
+                yaxis=dict(
+                    title="Total Positions",
+                    titlefont=dict(family="Courier", size=18, color="black"),
+                    side="left",
+                    mirror=True,
+                    ticks="outside",
+                    showline=True,
+                    linecolor="black",
+                    gridcolor="lightgrey",
+                ),
                 yaxis2=dict(
                     title="Positions per day",
+                    titlefont=dict(family="Courier", size=18, color="black"),
                     side="right",
                     overlaying="y",
                     showgrid=False,
                 ),
-            )
-            fig.update_xaxes(
-                mirror=True,
-                ticks="outside",
-                showline=True,
-                linecolor="black",
-                gridcolor="lightgrey",
-            )
-            fig.update_yaxes(
-                mirror=True,
-                ticks="outside",
-                showline=True,
-                linecolor="black",
-                gridcolor="lightgrey",
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.3,
+                    xanchor="center",
+                    x=0.5,
+                    font=dict(family="Courier", size=18, color="black"),
+                ),
+                plot_bgcolor="white",
+                barmode="stack",
             )
 
             fig.write_image(
@@ -599,6 +637,7 @@ class StockProposal:
                 showline=True,
                 linecolor="black",
                 gridcolor="lightgrey",
+                title_font=dict(size=18, family="Courier", color="black"),
             )
             fig.update_yaxes(
                 mirror=True,
@@ -606,11 +645,18 @@ class StockProposal:
                 showline=True,
                 linecolor="black",
                 gridcolor="lightgrey",
+                title_font=dict(size=18, family="Courier", color="black"),
             )
             fig.update_layout(
                 title="Last 60 days top5 positions ",
+                title_font=dict(size=24),
                 legend=dict(
-                    orientation="h", yanchor="bottom", y=-0.5, xanchor="left", x=0
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.5,
+                    xanchor="left",
+                    x=0,
+                    font=dict(size=18, family="Courier", color="black"),
                 ),
                 plot_bgcolor="white",
             )
@@ -676,6 +722,7 @@ class StockProposal:
                 showline=True,
                 linecolor="black",
                 gridcolor="lightgrey",
+                title_font=dict(size=18, family="Courier", color="black"),
             )
             fig.update_yaxes(
                 mirror=True,
@@ -683,11 +730,18 @@ class StockProposal:
                 showline=True,
                 linecolor="black",
                 gridcolor="lightgrey",
+                title_font=dict(size=18, family="Courier", color="black"),
             )
             fig.update_layout(
-                title="Last 60 days top5 Pnl",
+                title="Last 60 days top5 pnl ",
+                title_font=dict(size=24),
                 legend=dict(
-                    orientation="h", yanchor="bottom", y=-0.5, xanchor="left", x=0
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.5,
+                    xanchor="left",
+                    x=0,
+                    font=dict(size=18, family="Courier", color="black"),
                 ),
                 plot_bgcolor="white",
             )
@@ -816,29 +870,36 @@ class StockProposal:
                 .set_properties(
                     **{
                         "text-align": "left",
-                        "border": "1px solid",
-                        "cellspacing": "0px",
-                        "style": "border-collapse:collapse;",
+                        "border": "1px solid #ccc",
+                        "cellspacing": "0",
+                        "style": "border-collapse: collapse; width: 100%;",
                     }
                 )
                 .set_table_styles(
                     [
+                        # 表头样式
                         dict(
                             selector="th",
                             props=[
-                                ("border", "5px solid #eee"),
-                                ("border-collapse", "collapse"),
-                                ("white-space", "nowrap"),
-                                ("color", "black"),
+                                ("background-color", "#f2f2f2"),  # 轻灰色背景
+                                ("border", "1px solid #ccc"),
+                                ("text-align", "left"),
+                                ("padding", "8px"),  # 增加填充以便更易点击和阅读
+                                ("font-size", "16px"),  # 在PC端使用较大字体
+                                ("min-width", "50px"),
+                                ("max-width", "200px"),
                             ],
                         ),
+                        # 表格数据单元格样式
                         dict(
                             selector="td",
                             props=[
-                                ("border", "5px solid #eee"),
-                                ("border-collapse", "collapse"),
-                                ("white-space", "nowrap"),
-                                ("color", "black"),
+                                ("border", "1px solid #ccc"),
+                                ("text-align", "left"),
+                                ("padding", "8px"),
+                                ("font-size", "16px"),  # 同样适用较大字体以提高移动端可读性
+                                ("min-width", "50px"),
+                                ("max-width", "200px"),
                             ],
                         ),
                     ],
