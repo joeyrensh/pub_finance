@@ -316,7 +316,17 @@ class StockProposal:
                 ),
                 margin=dict(t=50, b=0.2, l=0.2, r=0.2),
             )
-            fig.write_image("./images/postion_byindustry.png", engine="kaleido")
+            # 设置图像的宽度和高度（例如，1920x1080像素）
+            fig_width, fig_height = 1024, 768
+            # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
+            scale_factor = 2
+
+            fig.write_image(
+                "./images/postion_byindustry.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
             del dfdata1
             gc.collect()
 
@@ -352,7 +362,13 @@ class StockProposal:
                 ),
                 margin=dict(t=50, b=0.2, l=0.2, r=0.2),
             )
-            fig.write_image("./images/postion_byp&l.png", engine="kaleido")
+
+            fig.write_image(
+                "./images/postion_byp&l.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
 
             del dfdata2
             gc.collect()
@@ -516,7 +532,13 @@ class StockProposal:
                 linecolor="black",
                 gridcolor="lightgrey",
             )
-            fig.write_image("./images/postion_bydate.png", engine="kaleido")
+
+            fig.write_image(
+                "./images/postion_bydate.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
 
             del dfdata3
             gc.collect()
@@ -593,7 +615,12 @@ class StockProposal:
                 plot_bgcolor="white",
             )
 
-            fig.write_image("./images/postion_byindustry&date.png", engine="kaleido")
+            fig.write_image(
+                "./images/postion_byindustry&date.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
 
             del dfdata5
             gc.collect()
@@ -664,7 +691,13 @@ class StockProposal:
                 ),
                 plot_bgcolor="white",
             )
-            fig.write_image("./images/postion_byindustry&p&l.png", engine="kaleido")
+
+            fig.write_image(
+                "./images/postion_byindustry&p&l.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
             del dfdata6
             gc.collect()
 
@@ -873,4 +906,18 @@ class StockProposal:
                 "./images/postion_byindustry&p&l.png",
                 image_path_return,
             ]
-            MyEmail().send_email_embedded_image(subject, html1 + html, image_path)
+            html_img = """
+                    <html>
+                        <body>
+                            <img src="cid:image0", width="100%">
+                            <img src="cid:image1", width="100%">
+                            <img src="cid:image2", width="100%">
+                            <img src="cid:image3", width="100%">
+                            <img src="cid:image4", width="100%">
+                            <img src="cid:image5", width="100%">
+                        </body>
+                    </html>
+                    """
+            MyEmail().send_email_embedded_image(
+                subject, html1 + html + html_img, image_path
+            )

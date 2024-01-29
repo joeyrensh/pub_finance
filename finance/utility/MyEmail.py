@@ -22,7 +22,7 @@ class MyEmail(object):
     def __init__(self):
         self.send_from = self._mail_user
         self.to = self._mail_user
-        self.msg = MIMEMultipart("mixed")
+        self.msg = MIMEMultipart("related")
         self.msg["To"] = self.to
         self.msg["From"] = self.format_addr(
             "Quantitative trading <%s>" % self._mail_user
@@ -51,9 +51,15 @@ class MyEmail(object):
             self.subject = subject
             self.msg["Subject"] = subject
             self.msg.attach(MIMEText(message, "html"))
-            for image_path_s in image_path:
-                image = MIMEImage(open(image_path_s, "rb").read())
-                self.msg.attach(image)
+            for i, image_path_s in enumerate(image_path):
+                try:
+                    image = MIMEImage(open(image_path_s, "rb").read())
+                    image.add_header("Content-ID", f"<image{i}>")
+                    self.msg.attach(image)
+                except IOError:
+                    print(
+                        f"Unable to open image file {image_path_s}. Please check the path and try again."
+                    )
             smtp_server = smtplib.SMTP_SSL("smtp.163.com", 465)
             smtp_server.ehlo()
             smtp_server.login(self._mail_user, self._mail_password)
