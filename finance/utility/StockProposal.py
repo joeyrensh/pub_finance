@@ -168,8 +168,8 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),  # 增加填充以便更易点击和阅读
                                 ("font-size", "16px"),  # 在PC端使用较大字体
-                                ("min-width", "50px"),
-                                ("max-width", "200px"),
+                                ("min-width", "30%"),
+                                ("max-width", "100%"),
                             ],
                         ),
                         # 表格数据单元格样式
@@ -180,8 +180,8 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),
                                 ("font-size", "16px"),  # 同样适用较大字体以提高移动端可读性
-                                ("min-width", "50px"),
-                                ("max-width", "200px"),
+                                ("min-width", "30%"),
+                                ("max-width", "100%"),
                             ],
                         ),
                     ]
@@ -888,8 +888,8 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),  # 增加填充以便更易点击和阅读
                                 ("font-size", "16px"),  # 在PC端使用较大字体
-                                ("min-width", "50px"),
-                                ("max-width", "200px"),
+                                ("min-width", "30%"),
+                                ("max-width", "100%"),
                             ],
                         ),
                         # 表格数据单元格样式
@@ -900,8 +900,8 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),
                                 ("font-size", "16px"),  # 同样适用较大字体以提高移动端可读性
-                                ("min-width", "50px"),
-                                ("max-width", "200px"),
+                                ("min-width", "30%"),
+                                ("max-width", "100%"),
                             ],
                         ),
                     ],
@@ -916,7 +916,7 @@ class StockProposal:
                     supported-color-schemes: light;
                     bgcolor: "#000000" !important;
                     color: black;
-                    display: table !important;        
+                    display: table !important;
                 }
                 @media (prefers-color-scheme: light) {
                     /* Your light mode (default) styles: */
@@ -994,7 +994,7 @@ class StockProposal:
                                     padding: 8px;
                                     text-align: center;
                                     font-style: italic;
-                                    font-size: 0.9em;
+                                    font-size: 1em;
                                 }
                             </style>
                         </head>                    
