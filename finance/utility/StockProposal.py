@@ -168,7 +168,7 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),  # 增加填充以便更易点击和阅读
                                 ("font-size", "16px"),  # 在PC端使用较大字体
-                                ("min-width", "50px"),
+                                ("min-width", "40px"),
                                 ("max-width", "200px"),
                             ],
                         ),
@@ -180,7 +180,7 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),
                                 ("font-size", "16px"),  # 同样适用较大字体以提高移动端可读性
-                                ("min-width", "50px"),
+                                ("min-width", "40px"),
                                 ("max-width", "200px"),
                             ],
                         ),
@@ -890,7 +890,7 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),  # 增加填充以便更易点击和阅读
                                 ("font-size", "16px"),  # 在PC端使用较大字体
-                                ("min-width", "50px"),
+                                ("min-width", "40px"),
                                 ("max-width", "200px"),
                             ],
                         ),
@@ -902,7 +902,7 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),
                                 ("font-size", "16px"),  # 同样适用较大字体以提高移动端可读性
-                                ("min-width", "50px"),
+                                ("min-width", "40px"),
                                 ("max-width", "200px"),
                             ],
                         ),
@@ -910,8 +910,8 @@ class StockProposal:
                         dict(
                             selector=".pnl_trend",
                             props=[
-                                ("min-width", "200px"),  # Increase the minimum width
-                                ("max-width", "400px"),  # Increase the maximum width
+                                ("min-width", "400px"),  # Increase the minimum width
+                                ("max-width", "600px"),  # Increase the maximum width
                             ],
                         ),
                     ],
