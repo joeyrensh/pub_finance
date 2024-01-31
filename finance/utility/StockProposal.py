@@ -824,7 +824,7 @@ class StockProposal:
                     ,COALESCE(t2.p_cnt,0) AS p_cnt
                     ,COALESCE(t2.l10_p_cnt,0) AS l10_p_cnt
                     ,COALESCE(t2.p_pnl,0) + t1.his_pnl AS pnl
-                    ,COALESCE(t3.pnl_array,ARRAY(0,0,0,0,0,0,0,0,0,0)) AS pnl_array
+                    ,COALESCE(t3.pnl_array,ARRAY(0,0,0,0,0)) AS pnl_array
                     ,t1.his_trade_cnt / t1.his_symbol_cnt AS avg_his_trade_cnt
                     ,(t1.his_days + t1.lastest_days) / t1.his_trade_cnt AS avg_days
                     ,(t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / (t1.pos_cnt + COALESCE(t2.pos_cnt,0) + t1.neg_cnt + COALESCE(t2.neg_cnt,0)) AS pnl_ratio

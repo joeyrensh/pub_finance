@@ -195,13 +195,17 @@ class ToolKit:
         fig, ax = plt.subplots(1, 1, figsize=(2, 1), facecolor="none")
 
         # add color coding to the line.
-        if data[len(data) - 1] > 0:
-            # if latest price is less than open price, make the plot red
-            chart_color = colors[0]
-
+        if len(data) > 0:
+            if data[len(data) - 1] > 0:
+                # if latest price is less than open price, make the plot red
+                chart_color = colors[0]
+            elif data[-5:] == [0] * 5:
+                chart_color = colors[2]
+            else:
+                # if the latest price is more than open price, make the plot green
+                chart_color = colors[3]
         else:
-            # if the latest price is more than open price, make the plot green
-            chart_color = colors[3]
+            chart_color = colors[0]
 
         # create a line plot
         ax.plot(data, color=chart_color, linewidth=5)
