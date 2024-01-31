@@ -2,6 +2,10 @@
 # -*- coding: UTF-8 -*-
 from datetime import datetime, timedelta
 import re
+from base64 import b64encode
+from io import BytesIO
+from matplotlib_inline.backend_inline import set_matplotlib_formats
+import matplotlib.pyplot as plt
 
 
 class ToolKit:
@@ -180,3 +184,48 @@ class ToolKit:
             """ 当前美国时间 UTC-4 """
             if utc_cn == before:
                 return timer
+
+    @staticmethod
+    def create_line(data):
+        data = list(data)
+        set_matplotlib_formats("svg")
+        colors = ["#fe7c73", "#2471A3", "#3498DB", "#27AE60"]
+
+        # initialise the plot as you usually would
+        fig, ax = plt.subplots(1, 1, figsize=(2, 1), facecolor="none")
+
+        # add color coding to the line.
+        if data[len(data) - 1] > 0:
+            # if latest price is less than open price, make the plot red
+            chart_color = colors[0]
+
+        else:
+            # if the latest price is more than open price, make the plot green
+            chart_color = colors[3]
+
+        # create a line plot
+        ax.plot(data, color=chart_color, linewidth=5)
+
+        # turn off axis
+        ax.axis("off")
+
+        # add a marker at the last data point
+        plt.plot(len(data) - 1, data[len(data) - 1], "b.")
+
+        # close the figure
+        plt.close(fig)
+
+        # create a Bytes object
+        img = BytesIO()
+
+        # store the above plot to this Bytes object
+        fig.savefig(img, format="png", dpi=300)
+
+        # Encode object as base64 byte string
+        encoded = b64encode(img.getvalue())
+
+        # The above cannote be printed directly. We need to convert it to utf-8 format
+        decoded = encoded.decode("utf-8")
+
+        # Return the corresponding HTML tag
+        return '<img src="data:image/png;base64,{}"/>'.format(decoded)

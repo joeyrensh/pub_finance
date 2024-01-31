@@ -812,17 +812,19 @@ class StockProposal:
                     JOIN (SELECT * FROM tmp1 WHERE trade_type = 'sell') t3 ON t1.symbol = t3.symbol
                     GROUP BY t1.industry
                 ), tmp3 AS (
-                    SELECT t2.industry
-                        ,SUM(t1.pnl) AS l10_pnl
-                    FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
-                    WHERE t1.date = DATE_ADD(CURRENT_DATE(), -10)
-                    GROUP BY t2.industry
+                    SELECT industry, COLLECT_LIST(pnl) AS pnl_array
+                    FROM (SELECT t2.industry, t1.date, SUM(t1.pnl) AS pnl
+                        FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                        WHERE t1.date >= DATE_ADD(CURRENT_DATE(), -60) 
+                        GROUP BY t2.industry, t1.date
+                        ORDER BY t2.industry, t1.date ASC) t
+                    GROUP BY industry
                 )                
                 SELECT t1.industry
                     ,COALESCE(t2.p_cnt,0) AS p_cnt
                     ,COALESCE(t2.l10_p_cnt,0) AS l10_p_cnt
                     ,COALESCE(t2.p_pnl,0) + t1.his_pnl AS pnl
-                    ,CASE WHEN COALESCE(t2.p_pnl,0) = 0 THEN 0 ELSE COALESCE(t2.p_pnl,0) - COALESCE(t3.l10_pnl,0) END AS l10_pnl
+                    ,COALESCE(t3.pnl_array,ARRAY(0)) AS pnl_array
                     ,t1.his_trade_cnt / t1.his_symbol_cnt AS avg_his_trade_cnt
                     ,(t1.his_days + t1.lastest_days) / t1.his_trade_cnt AS avg_days
                     ,(t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / (t1.pos_cnt + COALESCE(t2.pos_cnt,0) + t1.neg_cnt + COALESCE(t2.neg_cnt,0)) AS pnl_ratio
@@ -832,36 +834,36 @@ class StockProposal:
                 """
             )
             dfdata7 = sparkdata7.toPandas()
-
+            dfdata7["pnl_trend"] = dfdata7["pnl_array"].apply(
+                ToolKit("draw line").create_line
+            )
             dfdata7.rename(
                 columns={
                     "industry": "行业",
                     "p_cnt": "当前持仓",
                     "l10_p_cnt": "近10日新增持仓",
                     "pnl": "盈亏金额",
-                    "l10_pnl": "近10日持仓盈亏变化",
                     "avg_his_trade_cnt": "平均交易次数",
                     "avg_days": "平均持仓天数",
                     "pnl_ratio": "盈亏比",
                 },
                 inplace=True,
             )
+            # "pnl_trend": "盈亏趋势",
             cm = sns.color_palette("Wistia", as_cmap=True)
             html1 = (
-                dfdata7.style.format(
+                dfdata7.style.hide(axis=1, subset=["pnl_array"])
+                .format(
                     {
                         "当前持仓": "{:.2f}",
                         "近10日新增持仓": "{:.2f}",
                         "盈亏金额": "{:.2f}",
-                        "近10日持仓盈亏变化": "{:.2f}",
                         "平均交易次数": "{:.0f}",
                         "平均持仓天数": "{:.2f}",
                         "盈亏比": "{:.2f}",
                     }
                 )
-                .background_gradient(
-                    subset=["盈亏金额", "当前持仓", "近10日新增持仓", "近10日持仓盈亏变化"], cmap=cm
-                )
+                .background_gradient(subset=["盈亏金额", "当前持仓", "近10日新增持仓"], cmap=cm)
                 .bar(
                     subset=["盈亏比"],
                     align="left",
@@ -904,10 +906,18 @@ class StockProposal:
                                 ("max-width", "200px"),
                             ],
                         ),
+                        # 针对盈亏趋势列增加列宽
+                        dict(
+                            selector=".pnl_trend",
+                            props=[
+                                ("min-width", "200px"),  # Increase the minimum width
+                                ("max-width", "400px"),  # Increase the maximum width
+                            ],
+                        ),
                     ],
                 )
                 .set_sticky(axis="columns")
-                .to_html(doctype_html=True)
+                .to_html(classes=["pnl_trend"], doctype_html=True, escape=False)
             )
             css1 = """
             <style>
