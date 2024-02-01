@@ -223,7 +223,7 @@ class ToolKit:
         img = BytesIO()
 
         # store the above plot to this Bytes object
-        fig.savefig(img, format="png", dpi=300)
+        fig.savefig(img, format="png", dpi=150)
 
         # Encode object as base64 byte string
         encoded = b64encode(img.getvalue())

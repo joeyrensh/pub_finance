@@ -168,7 +168,7 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),  # 增加填充以便更易点击和阅读
                                 ("font-size", "16px"),  # 在PC端使用较大字体
-                                ("min-width", "40px"),
+                                ("min-width", "60px"),
                                 ("max-width", "200px"),
                             ],
                         ),
@@ -180,7 +180,7 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),
                                 ("font-size", "16px"),  # 同样适用较大字体以提高移动端可读性
-                                ("min-width", "40px"),
+                                ("min-width", "60px"),
                                 ("max-width", "200px"),
                             ],
                         ),
@@ -987,9 +987,9 @@ class StockProposal:
                                     font-family: Arial, sans-serif;
                                 }
                                 figure {
-                                    margin: 20px;
+                                    margin: 0px;
                                     border: 1px solid #ddd;
-                                    padding: 10px;
+                                    padding: 5px;
                                     border-radius: 8px;
                                     background-color: #f8f8f8;
                                     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -997,11 +997,11 @@ class StockProposal:
                                 img {
                                     width: 100%;
                                     height: auto;
-                                    border-radius: 5px;
+                                    border-radius: 2px;
                                 }
                                 figcaption {
                                     color: #555;
-                                    padding: 8px;
+                                    padding: 5px;
                                     text-align: center;
                                     font-style: italic;
                                     font-size: 1em;
