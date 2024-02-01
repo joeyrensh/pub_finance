@@ -126,24 +126,26 @@ class StockProposal:
 
             df_np.rename(
                 columns={
-                    "symbol": "股票代码",
-                    "buy_date": "策略命中时间",
-                    "price": "买入价",
-                    "adjbase": "当前价",
-                    "p&l": "收益金额",
-                    "p&l_ratio": "收益率",
-                    "industry": "所属行业",
-                    "name": "公司名称",
+                    "symbol": "SYMBOL",
+                    "buy_date": "HIT DATE",
+                    "price": "BASE",
+                    "adjbase": "ADJBASE",
+                    "p&l": "PROFIT",
+                    "p&l_ratio": "PROFIT RATIO",
+                    "industry": "IND",
+                    "name": "NAME",
                 },
                 inplace=True,
             )
             cm = sns.color_palette("Blues", as_cmap=True)
             html = (
-                df_np.style.hide(axis=1, subset=["收益金额"])
-                .format({"买入价": "{:.2f}", "当前价": "{:.2f}", "收益率": "{:.2f}"})
-                .background_gradient(subset=["买入价", "当前价"], cmap=cm)
+                df_np.style.hide(axis=1, subset=["PROFIT"])
+                .format(
+                    {"BASE": "{:.2f}", "ADJBASE": "{:.2f}", "PROFIT RATIO": "{:.2f}"}
+                )
+                .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
                 .bar(
-                    subset=["收益率"],
+                    subset=["PROFIT RATIO"],
                     align="left",
                     color=["#5fba7d", "#d65f5f"],
                     vmin=-1,
@@ -168,8 +170,8 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),  # 增加填充以便更易点击和阅读
                                 ("font-size", "16px"),  # 在PC端使用较大字体
-                                ("min-width", "60px"),
-                                ("max-width", "200px"),
+                                ("min-width", "80px"),
+                                ("max-width", "150px"),
                             ],
                         ),
                         # 表格数据单元格样式
@@ -180,14 +182,14 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),
                                 ("font-size", "16px"),  # 同样适用较大字体以提高移动端可读性
-                                ("min-width", "60px"),
-                                ("max-width", "200px"),
+                                ("min-width", "80px"),
+                                ("max-width", "150px"),
                             ],
                         ),
                     ]
                 )
                 .set_sticky(axis="columns")
-                .to_html(doctype_html=True)
+                .to_html(doctype_html=True, escape=False)
             )
             css = """
             <style>
@@ -839,33 +841,33 @@ class StockProposal:
             )
             dfdata7.rename(
                 columns={
-                    "industry": "行业",
-                    "p_cnt": "当前持仓",
-                    "l10_p_cnt": "近10日新增持仓",
-                    "pnl": "盈亏金额",
-                    "avg_his_trade_cnt": "平均交易次数",
-                    "avg_days": "平均持仓天数",
-                    "pnl_ratio": "盈亏比",
+                    "industry": "IND",
+                    "p_cnt": "OPEN",
+                    "l10_p_cnt": "L10 OPEN",
+                    "pnl": "PROFIT",
+                    "avg_his_trade_cnt": "AVG TRANS",
+                    "avg_days": "AVG DAYS",
+                    "pnl_ratio": "PROFIT RATIO",
+                    "pnl_trend": "PROFIT_TREND",
                 },
                 inplace=True,
             )
-            # "pnl_trend": "盈亏趋势",
             cm = sns.color_palette("Wistia", as_cmap=True)
             html1 = (
                 dfdata7.style.hide(axis=1, subset=["pnl_array"])
                 .format(
                     {
-                        "当前持仓": "{:.2f}",
-                        "近10日新增持仓": "{:.2f}",
-                        "盈亏金额": "{:.2f}",
-                        "平均交易次数": "{:.0f}",
-                        "平均持仓天数": "{:.2f}",
-                        "盈亏比": "{:.2f}",
+                        "OPEN": "{:.2f}",
+                        "L10 OPEN": "{:.2f}",
+                        "PROFIT": "{:.2f}",
+                        "AVG TRANS": "{:.0f}",
+                        "AVG DAYS": "{:.2f}",
+                        "PROFIT RATIO": "{:.2f}",
                     }
                 )
-                .background_gradient(subset=["盈亏金额", "当前持仓", "近10日新增持仓"], cmap=cm)
+                .background_gradient(subset=["PROFIT", "OPEN", "L10 OPEN"], cmap=cm)
                 .bar(
-                    subset=["盈亏比"],
+                    subset=["PROFIT RATIO"],
                     align="left",
                     color=["#5fba7d", "#d65f5f"],
                     vmin=0,
@@ -890,7 +892,7 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),  # 增加填充以便更易点击和阅读
                                 ("font-size", "16px"),  # 在PC端使用较大字体
-                                ("min-width", "40px"),
+                                ("min-width", "50px"),
                                 ("max-width", "200px"),
                             ],
                         ),
@@ -902,22 +904,22 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),
                                 ("font-size", "16px"),  # 同样适用较大字体以提高移动端可读性
-                                ("min-width", "40px"),
+                                ("min-width", "50px"),
                                 ("max-width", "200px"),
                             ],
                         ),
                         # 针对盈亏趋势列增加列宽
                         dict(
-                            selector=".pnl_trend",
+                            selector=".PROFIT_TREND",  # Updated selector for "PnL Trend" column
                             props=[
-                                ("min-width", "400px"),  # Increase the minimum width
+                                ("min-width", "500px"),  # Increase the minimum width
                                 ("max-width", "600px"),  # Increase the maximum width
                             ],
                         ),
                     ],
                 )
                 .set_sticky(axis="columns")
-                .to_html(classes=["pnl_trend"], doctype_html=True, escape=False)
+                .to_html(classes=["PROFIT_TREND"], doctype_html=True, escape=False)
             )
             css1 = """
             <style>
