@@ -190,7 +190,7 @@ class BTStrategyVol(bt.Strategy):
             self.signals[d._name]["close_over_ema"] = bt.And(
                 d.close > self.inds[d._name]["emashort"],
                 self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
-                self.inds[d._name]["emamid"] >= self.inds[d._name]["emalong"],
+                self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
             )
             """
             短期EMA上穿中期EMA
@@ -236,10 +236,10 @@ class BTStrategyVol(bt.Strategy):
                 d.close, self.inds[d._name]["mashort"]
             )
             """
-            close未跌破MA120
+            close未跌破MA60
             """
-            self.signals[d._name]["close_over_malong"] = (
-                d.close > self.inds[d._name]["malong"]
+            self.signals[d._name]["close_over_mamid"] = (
+                d.close > self.inds[d._name]["mamid"]
             )
             """ dif下穿0轴 """
             self.signals[d._name]["dif_crossdown_axis"] = bt.indicators.CrossDown(
@@ -368,7 +368,7 @@ class BTStrategyVol(bt.Strategy):
                 if (
                     (
                         self.signals[d._name]["close_crossdown_mashort"][0] == 1
-                        and self.signals[d._name]["close_over_malong"][0] == 0
+                        and self.signals[d._name]["close_over_mamid"][0] == 0
                     )
                     or (
                         self.signals[d._name]["dea_crossdown_axis"][0] == 1

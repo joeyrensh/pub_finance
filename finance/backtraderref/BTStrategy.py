@@ -293,8 +293,8 @@ class BTStrategy(bt.Strategy):
             self.signals[d._name]["close_crossdown_mashort"] = bt.indicators.CrossDown(
                 d.close, self.inds[d._name]["mashort"]
             )
-            self.signals[d._name]["close_over_malong"] = (
-                d.close > self.inds[d._name]["malong"]
+            self.signals[d._name]["close_over_mamid"] = (
+                d.close > self.inds[d._name]["mamid"]
             )
             """ dif下穿0轴 """
             self.signals[d._name]["dif_crossdown_axis"] = bt.indicators.CrossDown(
@@ -448,7 +448,7 @@ class BTStrategy(bt.Strategy):
                 if (
                     (
                         self.signals[d._name]["close_crossdown_mashort"][0] == 1
-                        and self.signals[d._name]["close_over_malong"][0] == 0
+                        and self.signals[d._name]["close_over_mamid"][0] == 0
                     )
                     or (
                         self.signals[d._name]["dea_crossdown_axis"][0] == 1
