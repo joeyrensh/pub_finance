@@ -161,39 +161,26 @@ class BTStrategyVol(bt.Strategy):
             self.inds[d._name]["highest_close"] = bt.indicators.Highest(
                 d.close, period=self.params.shortperiod
             )
-            self.inds[d._name]["lowest_close_index"] = (
-                bt.indicators.FindLastIndexLowest(
-                    d.close, period=self.params.shortperiod
-                )
-            )
-            self.inds[d._name]["highest_close_index"] = (
-                bt.indicators.FindLastIndexHighest(
-                    d.close, period=self.params.shortperiod
-                )
-            )
-
-            """ 波动率 """
-            self.inds[d._name]["ATR"] = bt.indicators.ATR(
-                d, period=self.params.shortperiod
-            )
 
             """
-            成交量均线多头排列 (短期成交量均线在中期均线上方或者短期成交量在长期均线上方)
+            辅助指标：成交量放大
             """
             self.signals[d._name]["mavol_long_position"] = bt.And(
                 self.inds[d._name]["mavolshort"] > self.inds[d._name]["mavolmid"],
                 self.inds[d._name]["mavolshort"] > self.inds[d._name]["mavollong"],
             )
             """ 
-            均线多头排列
+            多头排列1，均线多头，价格上穿短期均线
             """
             self.signals[d._name]["close_over_ema"] = bt.And(
                 d.close > self.inds[d._name]["emashort"],
-                self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
-                self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
+                bt.Or(
+                    self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
+                    self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
+                ),
             )
             """
-            短期EMA上穿中期EMA
+            多头排列2, 价在线上，ema短期上穿中期均线
             """
             self.signals[d._name]["emashort_cross_emamid"] = bt.And(
                 bt.indicators.CrossUp(
@@ -201,20 +188,45 @@ class BTStrategyVol(bt.Strategy):
                 ),
                 d.close >= self.inds[d._name]["emashort"],
             )
-            self.signals[d._name]["close_cross_emashort"] = bt.And(
-                bt.indicators.CrossUp(d.close, self.inds[d._name]["emashort"]),
+            """
+            多头排列3，兜底策略，价在线上，均线多头 
+            """
+            self.signals[d._name]["long_position"] = bt.And(
+                d.close > self.inds[d._name]["emashort"],
                 self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
+                self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
+            )
+
+            """
+            MDCD上穿，价在线上
+            """
+            self.signals[d._name]["dea_crossup_0axis"] = bt.And(
+                bt.Or(
+                    d.close >= self.inds[d._name]["emashort"],
+                    d.close >= self.inds[d._name]["mashort"],
+                ),
+                bt.indicators.CrossUp(self.inds[d._name]["dea"], 0) == 1,
+            )
+
+            """
+            成交量突然放大，价格上穿短期均线
+            """
+            self.signals[d._name]["mavol_long_position"] = bt.And(
+                self.inds[d._name]["mavolshort"] > self.inds[d._name]["mavolmid"],
+                self.inds[d._name]["mavolshort"] > self.inds[d._name]["mavollong"],
+                bt.indicators.CrossUp(d.close, self.inds[d._name]["emashort"]),
             )
 
             """
             生成交易信号
             """
-            self.signals[d._name]["signal1"] = bt.And(
-                self.signals[d._name]["mavol_long_position"] == 1,
+            self.signals[d._name]["signalup"] = bt.And(
                 bt.Or(
                     self.signals[d._name]["close_over_ema"] == 1,
                     self.signals[d._name]["emashort_cross_emamid"] == 1,
-                    self.signals[d._name]["close_cross_emashort"] == 1,
+                    self.signals[d._name]["long_position"] == 1,
+                    self.signals[d._name]["dea_crossup_0axis"] == 1,
+                    self.signals[d._name]["mavol_long_position"] == 1,
                 ),
                 self.inds[d._name]["mamid"](0) > self.inds[d._name]["mamid"](-1),
                 d.close > d.open,
@@ -242,10 +254,10 @@ class BTStrategyVol(bt.Strategy):
                 d.close > self.inds[d._name]["mamid"]
             )
             """ dif下穿0轴 """
-            self.signals[d._name]["dif_crossdown_axis"] = bt.indicators.CrossDown(
+            self.signals[d._name]["dif_crossdown_0axis"] = bt.indicators.CrossDown(
                 self.inds[d._name]["dif"], 0
             )
-            self.signals[d._name]["dea_crossdown_axis"] = bt.indicators.CrossDown(
+            self.signals[d._name]["dea_crossdown_0axis"] = bt.indicators.CrossDown(
                 self.inds[d._name]["dea"], 0
             )
 
@@ -344,7 +356,7 @@ class BTStrategyVol(bt.Strategy):
             """ 如果没有仓位就判断是否买卖 """
             if len(pos) == 0:
                 """成交量均线和K均线均多头"""
-                if self.signals[d._name]["signal1"][0] == 1:
+                if self.signals[d._name]["signalup"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
@@ -371,7 +383,7 @@ class BTStrategyVol(bt.Strategy):
                         and self.signals[d._name]["close_over_mamid"][0] == 0
                     )
                     or (
-                        self.signals[d._name]["dea_crossdown_axis"][0] == 1
+                        self.signals[d._name]["dea_crossdown_0axis"][0] == 1
                         and self.inds[d._name]["dif"] <= 0
                     )
                     or (d.close[0] - pos.price) / pos.price < -0.2

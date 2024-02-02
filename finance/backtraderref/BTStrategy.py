@@ -150,140 +150,93 @@ class BTStrategy(bt.Strategy):
                 (self.inds[d._name]["emashort"] - self.inds[d._name]["mashort"])
                 / self.inds[d._name]["mashort"]
             )
-            """ 波动率检查 """
+            """ 高点/低点 """
             self.inds[d._name]["lowest_close"] = bt.indicators.Lowest(
                 d.close, period=self.params.shortperiod
             )
             self.inds[d._name]["highest_close"] = bt.indicators.Highest(
                 d.close, period=self.params.shortperiod
             )
-            self.inds[d._name]["lowest_close_index"] = (
-                bt.indicators.FindLastIndexLowest(
-                    d.close, period=self.params.shortperiod
-                )
-            )
-            self.inds[d._name]["highest_close_index"] = (
-                bt.indicators.FindLastIndexHighest(
-                    d.close, period=self.params.shortperiod
-                )
-            )
 
             """
-            双均线看涨信号：
-            信号1:
-            收盘价在ma20均线和ema20均线之上
-            ema20上穿ema60均线
+            多头排列1, 价格在均线上方，短期均线上穿中期均线
             """
-            self.signals[d._name]["close_over_emashort"] = (
-                d.close > self.inds[d._name]["emashort"]
-            )
-            self.signals[d._name]["close_over_mashort"] = (
-                d.close > self.inds[d._name]["mashort"]
-            )
             self.signals[d._name]["emashort_crossup_emamid"] = bt.And(
-                self.signals[d._name]["close_over_emashort"] == 1,
-                self.signals[d._name]["close_over_mashort"] == 1,
+                d.close >= self.inds[d._name]["emashort"],
+                d.close >= self.inds[d._name]["mashort"],
                 bt.indicators.CrossUp(
                     self.inds[d._name]["emashort"], self.inds[d._name]["emamid"]
                 )
                 == 1,
             )
-
+            """ 
+            多头排列2, 均线多头排列，价格上穿短期均线
             """
-            信号2:
-            dif上穿dea看涨信号：
-            收盘价在ma20均线和ema20均线上方
-            dif上穿dea
-            """
-            self.signals[d._name]["high_over_emashort"] = (
-                d.high > self.inds[d._name]["emashort"]
-            )
-            self.signals[d._name]["high_over_mashort"] = (
-                d.high > self.inds[d._name]["mashort"]
-            )
-            self.signals[d._name]["dif_crossup_dea"] = bt.And(
-                bt.Or(
-                    self.signals[d._name]["close_over_emashort"] == 1,
-                    self.signals[d._name]["high_over_emashort"] == 1,
-                ),
-                bt.Or(
-                    self.signals[d._name]["close_over_mashort"] == 1,
-                    self.signals[d._name]["high_over_mashort"] == 1,
-                ),
-                bt.indicators.CrossUp(
-                    self.inds[d._name]["dif"], self.inds[d._name]["dea"]
-                )
-                == 1,
-            )
-
-            """
-            信号3：
-            收盘价看涨信号：
-            近期收盘价跌破了ma20均线，再次上穿ma20信号：
-            ma20均线在ma60均线上方
-            ema20在ema60上方
-            收盘价上穿ma20
-            """
-            self.signals[d._name]["emashort_over_emamid"] = (
-                self.inds[d._name]["emashort"] > self.inds[d._name]["emamid"]
-            )
-            self.signals[d._name]["mashort_over_mamid"] = (
-                self.inds[d._name]["mashort"] > self.inds[d._name]["mamid"]
-            )
             self.signals[d._name]["close_crossup_mashort"] = bt.And(
-                self.signals[d._name]["emashort_over_emamid"] == 1,
-                self.signals[d._name]["mashort_over_mamid"] == 1,
+                bt.Or(
+                    self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
+                    self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
+                ),
                 bt.indicators.CrossUp(d.close, self.inds[d._name]["mashort"]) == 1,
             )
 
             """
-            信号4:
-            近5日均线密集
+            多头排列3，兜底策略，价在线上，均线多头 
+            """
+            self.signals[d._name]["long_position"] = bt.And(
+                d.close > self.inds[d._name]["emashort"],
+                self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
+                self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
+            )
+
+            """
+            MDCD上穿，价在线上
+            """
+            self.signals[d._name]["dea_crossup_0axis"] = bt.And(
+                bt.Or(
+                    d.close >= self.inds[d._name]["emashort"],
+                    d.close >= self.inds[d._name]["mashort"],
+                ),
+                bt.indicators.CrossUp(self.inds[d._name]["dea"], 0) == 1,
+            )
+
+            """
+            近5日均线密集，价格上穿短期均线
             """
             self.signals[d._name]["bias_mashort"] = bt.And(
-                self.inds[d._name]["bias_mashort"](0) < 0.1,
-                self.inds[d._name]["bias_mashort"](-1) < 0.1,
-                self.inds[d._name]["bias_mashort"](-2) < 0.1,
-                self.inds[d._name]["bias_mashort"](-3) < 0.1,
-                self.inds[d._name]["bias_mashort"](-4) < 0.1,
+                self.inds[d._name]["bias_mashort"](0) < 0.05,
+                self.inds[d._name]["bias_mashort"](-1) < 0.05,
+                self.inds[d._name]["bias_mashort"](-2) < 0.05,
+                self.inds[d._name]["bias_mashort"](-3) < 0.05,
+                self.inds[d._name]["bias_mashort"](-4) < 0.05,
+                bt.indicators.CrossUp(d.close, self.inds[d._name]["emashort"]),
             )
-            self.signals[d._name]["close_crossover_mashort"] = bt.indicators.CrossOver(
-                d.close, self.inds[d._name]["mashort"]
-            )
+
             """
-            信号5:
-            多头排列
-            """
-            self.signals[d._name]["close_over_ema"] = bt.And(
-                d.close > self.inds[d._name]["emashort"],
-                self.inds[d._name]["emashort"] > self.inds[d._name]["emamid"],
-                self.inds[d._name]["mashort"] > self.inds[d._name]["mamid"],
-            )
-            """
-            成交量均线多头排列 (短期成交量均线在中期均线上方或者中期成交量在长期均线上方)
+            成交量突然放大，价格上穿短期均线
             """
             self.signals[d._name]["mavol_long_position"] = bt.And(
                 self.inds[d._name]["mavolshort"] > self.inds[d._name]["mavolmid"],
                 self.inds[d._name]["mavolshort"] > self.inds[d._name]["mavollong"],
+                bt.indicators.CrossUp(d.close, self.inds[d._name]["emashort"]),
             )
 
-            """ higher higher/ higher lower """
+            """
+            辅助指标：低点上移或者高点上移
+            """
             self.signals[d._name]["higher"] = bt.Or(
                 self.inds[d._name]["lowest_close"](0)
                 > self.inds[d._name]["lowest_close"](-1),
                 self.inds[d._name]["highest_close"](0)
                 > self.inds[d._name]["highest_close"](-1),
             )
-            """ 波动率 """
-            self.inds[d._name]["ATR"] = bt.indicators.ATR(
-                d, period=self.params.shortperiod
-            )
 
+            """ 
+            辅助指标：
             """
-            最近5个交易日，收盘价频繁穿越ma20均线
-            震荡过大的股票进行过滤
-            成交量超过过去5天成交量均值
-            """
+            self.signals[d._name]["close_crossover_mashort"] = bt.indicators.CrossOver(
+                d.close, self.inds[d._name]["mashort"]
+            )
 
             """
             生成交易信号
@@ -296,11 +249,11 @@ class BTStrategy(bt.Strategy):
             self.signals[d._name]["close_over_mamid"] = (
                 d.close > self.inds[d._name]["mamid"]
             )
-            """ dif下穿0轴 """
-            self.signals[d._name]["dif_crossdown_axis"] = bt.indicators.CrossDown(
+            """ dea/dif下穿0轴 """
+            self.signals[d._name]["dif_crossdown_0axis"] = bt.indicators.CrossDown(
                 self.inds[d._name]["dif"], 0
             )
-            self.signals[d._name]["dea_crossdown_axis"] = bt.indicators.CrossDown(
+            self.signals[d._name]["dea_crossdown_0axis"] = bt.indicators.CrossDown(
                 self.inds[d._name]["dea"], 0
             )
 
@@ -409,11 +362,12 @@ class BTStrategy(bt.Strategy):
                 if (
                     (
                         self.signals[d._name]["emashort_crossup_emamid"][0] == 1
-                        or self.signals[d._name]["dif_crossup_dea"][0] == 1
                         or self.signals[d._name]["close_crossup_mashort"][0] == 1
-                        or self.signals[d._name]["close_over_ema"][0] == 1
+                        or self.signals[d._name]["long_position"][0] == 1
+                        or self.signals[d._name]["dea_crossup_0axis"][0] == 1
+                        or self.signals[d._name]["bias_mashort"][0] == 1
+                        or self.signals[d._name]["mavol_long_position"][0] == 1
                     )
-                    and self.signals[d._name]["mavol_long_position"][0] == 1
                     and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
                     and d.close[0] > d.open[0]
                     and self.signals[d._name]["higher"][0] == 1
@@ -451,7 +405,7 @@ class BTStrategy(bt.Strategy):
                         and self.signals[d._name]["close_over_mamid"][0] == 0
                     )
                     or (
-                        self.signals[d._name]["dea_crossdown_axis"][0] == 1
+                        self.signals[d._name]["dea_crossdown_0axis"][0] == 1
                         and self.inds[d._name]["dif"][0] <= 0
                     )
                     or (d.close[0] - pos.price) / pos.price < -0.2
