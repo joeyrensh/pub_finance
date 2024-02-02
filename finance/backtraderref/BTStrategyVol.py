@@ -170,6 +170,12 @@ class BTStrategyVol(bt.Strategy):
                 self.inds[d._name]["mavolshort"] > self.inds[d._name]["mavollong"],
             )
             """ 
+            辅助指标：收盘价穿越MA
+            """
+            self.signals[d._name]["close_crossover_mashort"] = bt.indicators.CrossOver(
+                d.close, self.inds[d._name]["mashort"]
+            )
+            """ 
             多头排列1，均线多头，价格上穿短期均线
             """
             self.signals[d._name]["close_over_ema"] = bt.And(
@@ -355,6 +361,15 @@ class BTStrategyVol(bt.Strategy):
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
             if len(pos) == 0:
+                """最近5个交易日收盘价频繁穿越ma20均线，不进行交易"""
+                if (
+                    self.signals[d._name]["close_crossover_mashort"][0] in [1, -1]
+                    and self.signals[d._name]["close_crossover_mashort"][-1] in [1, -1]
+                    and self.signals[d._name]["close_crossover_mashort"][-2] in [1, -1]
+                    and self.signals[d._name]["close_crossover_mashort"][-3] in [1, -1]
+                    and self.signals[d._name]["close_crossover_mashort"][-4] in [1, -1]
+                ):
+                    continue
                 """成交量均线和K均线均多头"""
                 if self.signals[d._name]["signalup"][0] == 1:
                     """买入对应仓位"""
