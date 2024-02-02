@@ -57,7 +57,14 @@ class StockProposal:
         cm = sns.color_palette("Blues", as_cmap=True)
         html = (
             df_n.style.hide(axis=1, subset=["标记", "成交量"])
-            .format({"收盘价": "{:.2f}", "涨幅": "{:.2f}", "成交量": "{:.0f}", "振幅": "{:.2f}%"})
+            .format(
+                {
+                    "收盘价": "{:.2f}",
+                    "涨幅": "{:.2f}",
+                    "成交量": "{:.0f}",
+                    "振幅": "{:.2f}%",
+                }
+            )
             .background_gradient(subset=["收盘价", "涨幅", "成交量", "振幅"], cmap=cm)
             .bar(
                 subset=["涨幅"],
@@ -181,7 +188,10 @@ class StockProposal:
                                 ("border", "1px solid #ccc"),
                                 ("text-align", "left"),
                                 ("padding", "8px"),
-                                ("font-size", "16px"),  # 同样适用较大字体以提高移动端可读性
+                                (
+                                    "font-size",
+                                    "16px",
+                                ),  # 同样适用较大字体以提高移动端可读性
                                 ("min-width", "80px"),
                                 ("max-width", "150px"),
                             ],
@@ -318,6 +328,7 @@ class StockProposal:
                 marker=dict(colors=colors, line=dict(color="#000000", width=1)),
                 textinfo="value+percent",
                 textfont=dict(size=24),
+                textposition="inside",
             )
             fig.update_layout(
                 title="Top10 Position",
@@ -373,6 +384,7 @@ class StockProposal:
                 marker=dict(colors=colors, line=dict(color="#000000", width=1)),
                 textinfo="value+percent",
                 textfont=dict(size=24),
+                textposition="inside",
             )
             fig.update_layout(
                 title="Top10 Profit",
@@ -903,7 +915,10 @@ class StockProposal:
                                 ("border", "1px solid #ccc"),
                                 ("text-align", "left"),
                                 ("padding", "8px"),
-                                ("font-size", "16px"),  # 同样适用较大字体以提高移动端可读性
+                                (
+                                    "font-size",
+                                    "16px",
+                                ),  # 同样适用较大字体以提高移动端可读性
                                 ("min-width", "50px"),
                                 ("max-width", "200px"),
                             ],

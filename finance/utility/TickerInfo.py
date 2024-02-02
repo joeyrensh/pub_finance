@@ -54,8 +54,18 @@ class TickerInfo:
                     and float(i["high"]) > 0
                     and float(i["low"]) > 0
                     and float(i["total_value"]) > 1000000000
-                    and float(i["close"]) * float(i["volume"])
-                    >= float(i["circulation_value"]) * 0.005
+                    and (
+                        (
+                            float(i["total_value"]) >= 100000000000
+                            and float(i["close"]) * float(i["volume"]) * 100
+                            >= float(i["circulation_value"]) * 0.003
+                        )
+                        or (
+                            float(i["total_value"]) < 100000000000
+                            and float(i["close"]) * float(i["volume"]) * 100
+                            >= float(i["circulation_value"]) * 0.005
+                        )
+                    )
                     and float(i["close"]) * float(i["volume"])
                     < float(i["circulation_value"]) * 0.3
                 ):
@@ -69,8 +79,18 @@ class TickerInfo:
                     and float(i["high"]) > 0
                     and float(i["low"]) > 0
                     and float(i["total_value"]) > 1000000000
-                    and float(i["close"]) * float(i["volume"]) * 100
-                    >= float(i["circulation_value"]) * 0.01
+                    and (
+                        (
+                            float(i["total_value"]) >= 50000000000
+                            and float(i["close"]) * float(i["volume"]) * 100
+                            >= float(i["circulation_value"]) * 0.003
+                        )
+                        or (
+                            float(i["total_value"]) < 50000000000
+                            and float(i["close"]) * float(i["volume"]) * 100
+                            >= float(i["circulation_value"]) * 0.01
+                        )
+                    )
                     and float(i["close"]) * float(i["volume"]) * 100
                     < float(i["circulation_value"]) * 0.3
                 ):
@@ -158,9 +178,9 @@ class TickerInfo:
     def reconstruct_dataframe(self, group_obj, i):
         """
         过滤历史数据不完整的股票
-        小于100天的股票暂时不进入回测列表
+        小于120天的股票暂时不进入回测列表
         """
-        if len(group_obj) < 100:
+        if len(group_obj) < 120:
             return pd.DataFrame()
         """ 适配BackTrader数据结构 """
         if self.market == "us":

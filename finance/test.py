@@ -209,7 +209,7 @@ def exec_btstrategy(date):
     ax2.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
 
     # 主轴定位器：每 5 个月显示一个日期：根据具体天数来做排版
-    ax2.xaxis.set_major_locator(ticker.MultipleLocator(100))
+    ax2.xaxis.set_major_locator(ticker.MultipleLocator(60))
 
     # 同时绘制双轴的图例
     h1, l1 = ax1.get_legend_handles_labels()
@@ -226,7 +226,7 @@ def exec_btstrategy(date):
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc+8"""
-    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(0)
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
@@ -234,5 +234,29 @@ if __name__ == "__main__":
     else:
         sys.exit()
 
+    """ 定义程序显示的进度条 """
+    widgets = [
+        "doing task: ",
+        progressbar.Percentage(),
+        " ",
+        progressbar.Bar(),
+        " ",
+        progressbar.ETA(),
+    ]
+    """ 创建进度条并开始运行 """
+    pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
+
+    print("trade_date is :", trade_date)
+
+    """ 执行bt相关策略 """
+    exec_btstrategy(trade_date)
+
+    collected = gc.collect()
+
+    print("Garbage collector: collected %d objects." % (collected))
+
     """ 发送邮件 """
     StockProposal("cn", trade_date).send_btstrategy_by_email()
+
+    """ 结束进度条 """
+    pbar.finish()

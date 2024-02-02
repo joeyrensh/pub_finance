@@ -1,3 +1,6 @@
+/root/miniconda3/lib/python3.11/site-packages/pyfolio/pos.py:26: UserWarning: Module "zipline.assets" not found; mutltipliers will not be applied to position notionals.
+  warnings.warn(
+doing task:   0% |                                             | ETA:  --:--:--
 
 get_latest_trade_date...
 
@@ -8726,6 +8729,463 @@ trade_date is : 20240201
 
 最新交易日...
 当前股票: SZ301383, 交易天数: 38, 累计涨幅: -0.1428571770522947
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+findfont: Generic family 'sans-serif' not found because none of the following families were found: SimHei
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+24/02/01 17:32:08 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+[Stage 0:>                                                          (0 + 1) / 1]                                                                                [Stage 1:>                                                          (0 + 1) / 1]                                                                                [Stage 5:>                                                          (0 + 1) / 1]                                                                                24/02/01 17:32:35 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:35 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:35 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:35 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:35 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:36 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:36 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:36 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:36 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:36 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:36 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:36 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+[Stage 14:>                                                         (0 + 1) / 1]24/02/01 17:32:37 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:37 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:37 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:37 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+[Stage 18:>                                                         (0 + 1) / 1][Stage 18:>                 (0 + 1) / 1][Stage 19:>                 (0 + 0) / 1]24/02/01 17:32:37 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:37 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+[Stage 19:>                                                         (0 + 1) / 1]24/02/01 17:32:37 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:37 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+                                                                                24/02/01 17:32:38 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:38 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:38 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:38 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:38 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:38 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:39 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+24/02/01 17:32:39 WARN WindowExec: No Partition Defined for Window operation! Moving all data to a single partition, this can cause serious performance degradation.
+[Stage 41:>                                                         (0 + 1) / 1][Stage 41:>                 (0 + 1) / 1][Stage 42:>                 (0 + 0) / 1][Stage 42:>                                                         (0 + 1) / 1]                                                                                [Stage 54:>                                                         (0 + 1) / 1]                                                                                [Stage 68:>                                                         (0 + 1) / 1]                                                                                doing task: 100% |#############################################| Time:  0:05:18
 总持仓：296211.9988679886, 浮盈：18804.001259803772, 浮亏：-17057.001304626465
 当前现金持有:  1441809.2889227362
 Final Portfolio Value: 1738021.29

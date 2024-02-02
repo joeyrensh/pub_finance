@@ -220,7 +220,7 @@ def exec_btstrategy(date):
     ax2.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
 
     # 主轴定位器：每 5 个月显示一个日期：根据具体天数来做排版
-    ax2.xaxis.set_major_locator(ticker.MultipleLocator(100))
+    ax2.xaxis.set_major_locator(ticker.MultipleLocator(60))
 
     # 同时绘制双轴的图例
     h1, l1 = ax1.get_legend_handles_labels()
