@@ -196,35 +196,32 @@ class ToolKit:
         # initialise the plot as you usually would
         fig, ax = plt.subplots(1, 1, figsize=(2, 1), facecolor="none")
 
-        # # add color coding to the line.
-        # if len(data) > 0:
-        #     if data[len(data) - 1] > 0:
-        #         # if latest price is less than open price, make the plot red
-        #         chart_color = colors[0]
-        #     elif data[-5:] == [0] * 5:
-        #         chart_color = colors[2]
-        #     else:
-        #         # if the latest price is more than open price, make the plot green
-        #         chart_color = colors[3]
-        # else:
-        #     chart_color = colors[0]
-
-        # # create a line plot
-        # ax.plot(data, color=chart_color, linewidth=3)
-
         # Iterate over each data point
         for i in range(len(data) - 1):
-            if data[i] > 0:
+            if data[i] > 0 and data[i + 1] > 0:
                 # If both data points are above zero, make the plot red
                 line_color = colors[0]
-            elif data[i] < 0:
+                ax.plot(
+                    [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=3
+                )
+            elif data[i] < 0 and data[i + 1] < 0:
                 # If both data points are below or equal to zero, make the plot green
                 line_color = colors[1]
+                ax.plot(
+                    [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=3
+                )
+            elif data[i] > 0 and data[i + 1] < 0:
+                ax.plot([i, i], [data[i], 0], color="#FF0000", linewidth=3)
+                ax.plot([i, i + 1], [0, data[i + 1]], color="#006F00", linewidth=3)
+            elif data[i] < 0 and data[i + 1] > 0:
+                ax.plot([i, i], [data[i], 0], color="#006F00", linewidth=3)
+                ax.plot([i, i + 1], [0, data[i + 1]], color="#FF0000", linewidth=3)
             else:
                 line_color = "#808080"
-
-            # Create a line chart for each data point with gradient color
-            ax.plot([i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=3)
+                # Create a line chart for each data point with gradient color
+                ax.plot(
+                    [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=3
+                )
 
         # turn on zero axis
         ax.axhline(0, color="black", linestyle="--", linewidth=0.5, dashes=(5, 5))
