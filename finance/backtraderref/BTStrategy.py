@@ -80,10 +80,12 @@ class BTStrategy(bt.Strategy):
         for i, d in enumerate(self.datas):
             """初始化最后一笔订单的购买日期，key是symbol"""
             self.last_deal_date[d._name] = None
-            """ 为每个股票初始化技术指标，key是symbol """
+            """为每个股票初始化技术指标，key是symbol """
             self.order[d._name] = None
             self.inds[d._name] = dict()
             self.signals[d._name] = dict()
+
+            """辅助变量  """
 
             """MA20/60/120指标 """
             self.inds[d._name]["mashort"] = bt.indicators.SMA(
@@ -145,11 +147,7 @@ class BTStrategy(bt.Strategy):
             self.inds[d._name]["mavollong"] = bt.indicators.EMA(
                 d.volume, period=self.params.vollongperiod
             )
-            """ 20均线乖离率 """
-            self.inds[d._name]["bias_mashort"] = abs(
-                (self.inds[d._name]["emashort"] - self.inds[d._name]["mashort"])
-                / self.inds[d._name]["mashort"]
-            )
+
             """ 高点/低点 """
             self.inds[d._name]["lowest_close"] = bt.indicators.Lowest(
                 d.close, period=self.params.shortperiod
@@ -184,7 +182,7 @@ class BTStrategy(bt.Strategy):
             多头排列3，兜底策略，价在线上，均线多头 
             """
             self.signals[d._name]["long_position"] = bt.And(
-                d.close > self.inds[d._name]["emashort"],
+                d.close >= self.inds[d._name]["emashort"],
                 self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
                 self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
             )
@@ -201,15 +199,10 @@ class BTStrategy(bt.Strategy):
             )
 
             """
-            近5日均线密集，价格上穿短期均线
+            近20日均线密集，价格上穿短期均线
             """
-            self.signals[d._name]["bias_mashort"] = bt.And(
-                self.inds[d._name]["bias_mashort"](0) < 0.05,
-                self.inds[d._name]["bias_mashort"](-1) < 0.05,
-                self.inds[d._name]["bias_mashort"](-2) < 0.05,
-                self.inds[d._name]["bias_mashort"](-3) < 0.05,
-                self.inds[d._name]["bias_mashort"](-4) < 0.05,
-                bt.indicators.CrossUp(d.close, self.inds[d._name]["emashort"]),
+            self.signals[d._name]["close_crossup_emashort"] = bt.indicators.CrossUp(
+                d.close, self.inds[d._name]["emashort"]
             )
 
             """
@@ -232,7 +225,7 @@ class BTStrategy(bt.Strategy):
             )
 
             """ 
-            辅助指标：
+            辅助指标：收盘价穿越MA
             """
             self.signals[d._name]["close_crossover_mashort"] = bt.indicators.CrossOver(
                 d.close, self.inds[d._name]["mashort"]
@@ -255,6 +248,9 @@ class BTStrategy(bt.Strategy):
             )
             self.signals[d._name]["dea_crossdown_0axis"] = bt.indicators.CrossDown(
                 self.inds[d._name]["dea"], 0
+            )
+            self.signals[d._name]["dif_crossdown_dea"] = bt.indicators.CrossDown(
+                self.inds[d._name]["dif"], self.inds[d._name]["dea"]
             )
 
             """ indicators以及signals初始化进度打印 """
@@ -347,33 +343,58 @@ class BTStrategy(bt.Strategy):
 
             """ 如果没有仓位就判断是否买卖 """
             if len(pos) == 0:
-                """最近5个交易日收盘价频繁穿越ma20均线，不进行交易"""
+                """噪声处理"""
+                # 最近20个交易日收盘价频繁穿越ma20均线，不进行交易
                 if (
-                    self.signals[d._name]["close_crossover_mashort"][0] in [1, -1]
-                    and self.signals[d._name]["close_crossover_mashort"][-1] in [1, -1]
-                    and self.signals[d._name]["close_crossover_mashort"][-2] in [1, -1]
-                    and self.signals[d._name]["close_crossover_mashort"][-3] in [1, -1]
-                    and self.signals[d._name]["close_crossover_mashort"][-4] in [1, -1]
+                    self.signals[d._name]["close_crossover_mashort"]
+                    .get(ago=0, size=self.params.shortperiod)
+                    .count(1)
+                    + self.signals[d._name]["close_crossover_mashort"]
+                    .get(ago=0, size=self.params.shortperiod)
+                    .count(-1)
+                    > 5
+                ):
+                    continue
+                # 最近20个交易日，dea下穿0轴2次，不进行交易
+                if (
+                    self.signals[d._name]["dea_crossdown_0axis"]
+                    .get(ago=0, size=self.params.shortperiod)
+                    .count(1)
+                    > 2
+                ) or (
+                    self.signals[d._name]["dif_crossdown_dea"]
+                    .get(ago=0, size=self.params.shortperiod)
+                    .count(1)
+                    > 2
                 ):
                     continue
                 """
                 交易信号:
                 """
+                # 均线密集判断，短期ema与中期ema近20日内密集排列
+                x1 = self.inds[d._name]["emashort"].get(
+                    ago=0, size=self.params.shortperiod
+                )
+                y1 = self.inds[d._name]["emamid"].get(
+                    ago=0, size=self.params.shortperiod
+                )
+                diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y != 0]
+
                 if (
                     (
                         self.signals[d._name]["emashort_crossup_emamid"][0] == 1
                         or self.signals[d._name]["close_crossup_mashort"][0] == 1
                         or self.signals[d._name]["long_position"][0] == 1
                         or self.signals[d._name]["dea_crossup_0axis"][0] == 1
-                        or self.signals[d._name]["bias_mashort"][0] == 1
+                        or (
+                            self.signals[d._name]["close_crossup_emashort"][0]
+                            and sum(1 for value in diff_array if value < 3) > 5
+                        )
                         or self.signals[d._name]["mavol_long_position"][0] == 1
                     )
                     and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
                     and d.close[0] > d.open[0]
                     and self.signals[d._name]["higher"][0] == 1
-                    and self.inds[d._name]["highest_close"][0]
-                    - self.inds[d._name]["lowest_close"][0]
-                    < 0.2 * self.inds[d._name]["lowest_close"][0]
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])

@@ -42,7 +42,7 @@ def exec_btstrategy(date):
     """ 每手10股 """
     cerebro.addsizer(bt.sizers.FixedSize, stake=100)
     """ 费率千分之一 """
-    cerebro.broker.setcommission(commission=0.001, stocklike=True)
+    cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
     list = TickerInfo(date, "cn").get_backtrader_data_feed()
     """ 循环初始化数据进入cerebro """

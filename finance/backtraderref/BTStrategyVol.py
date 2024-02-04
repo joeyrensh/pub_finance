@@ -242,8 +242,6 @@ class BTStrategyVol(bt.Strategy):
                     self.inds[d._name]["highest_close"](0)
                     > self.inds[d._name]["highest_close"](-1),
                 ),
-                self.inds[d._name]["highest_close"] - self.inds[d._name]["lowest_close"]
-                < 0.2 * self.inds[d._name]["lowest_close"],
             )
 
             """
@@ -265,6 +263,9 @@ class BTStrategyVol(bt.Strategy):
             )
             self.signals[d._name]["dea_crossdown_0axis"] = bt.indicators.CrossDown(
                 self.inds[d._name]["dea"], 0
+            )
+            self.signals[d._name]["dif_crossdown_dea"] = bt.indicators.CrossDown(
+                self.inds[d._name]["dif"], self.inds[d._name]["dea"]
             )
 
             """ indicators以及signals初始化进度打印 """
@@ -361,13 +362,29 @@ class BTStrategyVol(bt.Strategy):
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
             if len(pos) == 0:
-                """最近5个交易日收盘价频繁穿越ma20均线，不进行交易"""
+                """噪声处理"""
+                # 最近20个交易日收盘价频繁穿越ma20均线，不进行交易
                 if (
-                    self.signals[d._name]["close_crossover_mashort"][0] in [1, -1]
-                    and self.signals[d._name]["close_crossover_mashort"][-1] in [1, -1]
-                    and self.signals[d._name]["close_crossover_mashort"][-2] in [1, -1]
-                    and self.signals[d._name]["close_crossover_mashort"][-3] in [1, -1]
-                    and self.signals[d._name]["close_crossover_mashort"][-4] in [1, -1]
+                    self.signals[d._name]["close_crossover_mashort"]
+                    .get(ago=0, size=self.params.shortperiod)
+                    .count(1)
+                    + self.signals[d._name]["close_crossover_mashort"]
+                    .get(ago=0, size=self.params.shortperiod)
+                    .count(-1)
+                    > 5
+                ):
+                    continue
+                # 最近20个交易日，dea下穿0轴2次，不进行交易
+                if (
+                    self.signals[d._name]["dea_crossdown_0axis"]
+                    .get(ago=0, size=self.params.shortperiod)
+                    .count(1)
+                    > 2
+                ) or (
+                    self.signals[d._name]["dif_crossdown_dea"]
+                    .get(ago=0, size=self.params.shortperiod)
+                    .count(1)
+                    > 2
                 ):
                     continue
                 """成交量均线和K均线均多头"""

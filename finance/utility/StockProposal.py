@@ -813,17 +813,35 @@ class StockProposal:
                         ORDER BY symbol
                             ,date
                             ,trade_type) t
+                ), tmp11 AS (
+                    SELECT symbol
+                        ,l_date as buy_date
+                        ,l_price as base_price
+                        ,l_size as base_size
+                        ,date as sell_date
+                        ,price as adj_price
+                        ,size as adj_size
+                    FROM 
+                    tmp1 WHERE trade_type = 'sell'
+                    UNION ALL
+                    SELECT symbol
+                        ,date as buy_date
+                        ,price as base_price
+                        ,size as base_size
+                        ,null as sell_date
+                        ,null as adj_price
+                        ,null as adj_size
+                    FROM 
+                    tmp1 WHERE trade_type = 'buy' AND l_date IS NULL
                 ), tmp2 AS (
                     SELECT t1.industry
-                        ,COUNT(t2.symbol) AS his_trade_cnt
+                        ,COUNT(t2.symbol) * 1.00 AS his_trade_cnt
                         ,COUNT(DISTINCT t2.symbol) AS his_symbol_cnt
-                        ,SUM(DATEDIFF(t3.date, t3.l_date)) AS his_days
-                        ,SUM(CASE WHEN t2.l_date IS NULL THEN DATEDIFF(CURRENT_DATE(), t2.date) ELSE 0 END) AS lastest_days
-                        ,SUM(CASE WHEN t3.price - t3.l_price >=0 THEN 1 ELSE 0 END) AS pos_cnt
-                        ,SUM(CASE WHEN t3.price - t3.l_price < 0 THEN 1 ELSE 0 END) as neg_cnt
-                        ,SUM(t3.price * (-t3.size) - t3.l_price * t3.l_size) AS his_pnl
-                    FROM temp2 t1 JOIN (SELECT * FROM tmp1 WHERE trade_type = 'buy' ) t2 ON t1.symbol = t2.symbol
-                    JOIN (SELECT * FROM tmp1 WHERE trade_type = 'sell') t3 ON t1.symbol = t3.symbol
+                        ,SUM(CASE WHEN t2.sell_date IS NOT NULL THEN DATEDIFF(t2.sell_date, t2.buy_date) ELSE DATEDIFF(CURRENT_DATE(), t2.buy_date) END) AS his_days
+                        ,SUM(CASE WHEN t2.sell_date IS NOT NULL AND t2.adj_price - t2.base_price >=0 THEN 1 ELSE 0 END) AS pos_cnt
+                        ,SUM(CASE WHEN t2.sell_date IS NOT NULL AND t2.adj_price - t2.base_price < 0 THEN 1 ELSE 0 END) as neg_cnt
+                        ,SUM(CASE WHEN t2.sell_date IS NOT NULL THEN t2.adj_price * (-t2.adj_size) - t2.base_price * t2.base_size ELSE 0 END) AS his_pnl
+                    FROM temp2 t1 JOIN tmp11 t2 ON t1.symbol = t2.symbol
                     GROUP BY t1.industry
                 ), tmp3 AS (
                     SELECT industry, COLLECT_LIST(pnl) AS pnl_array
@@ -840,11 +858,11 @@ class StockProposal:
                     ,COALESCE(t2.p_pnl,0) + t1.his_pnl AS pnl
                     ,COALESCE(t3.pnl_array,ARRAY(0,0,0,0,0)) AS pnl_array
                     ,t1.his_trade_cnt / t1.his_symbol_cnt AS avg_his_trade_cnt
-                    ,(t1.his_days + t1.lastest_days) / t1.his_trade_cnt AS avg_days
+                    ,t1.his_days / t1.his_trade_cnt AS avg_days
                     ,(t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / (t1.pos_cnt + COALESCE(t2.pos_cnt,0) + t1.neg_cnt + COALESCE(t2.neg_cnt,0)) AS pnl_ratio
                 FROM tmp2 t1 LEFT JOIN tmp t2 ON t1.industry = t2.industry
                 LEFT JOIN tmp3 t3 ON t1.industry = t3.industry
-                ORDER BY t2.p_pnl + t1.his_pnl DESC
+                ORDER BY COALESCE(t2.p_pnl,0) + t1.his_pnl DESC
                 """
             )
             dfdata7 = sparkdata7.toPandas()
