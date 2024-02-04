@@ -248,8 +248,8 @@ if __name__ == "__main__":
 
     print("trade_date is :", trade_date)
 
-    """ 执行bt相关策略 """
-    exec_btstrategy(trade_date)
+    # """ 执行bt相关策略 """
+    # exec_btstrategy(trade_date)
 
     collected = gc.collect()
 

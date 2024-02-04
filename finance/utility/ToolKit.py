@@ -208,7 +208,7 @@ class ToolKit:
             chart_color = colors[0]
 
         # create a line plot
-        ax.plot(data, color=chart_color, linewidth=5)
+        ax.plot(data, color=chart_color, linewidth=3)
 
         # turn off axis
         ax.axis("off")
