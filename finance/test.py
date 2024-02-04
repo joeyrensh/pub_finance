@@ -262,8 +262,8 @@ if __name__ == "__main__":
     # if not df.empty:
     #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
 
-    """ 执行bt相关策略 """
-    exec_btstrategy(trade_date)
+    # """ 执行bt相关策略 """
+    # exec_btstrategy(trade_date)
 
     collected = gc.collect()
 

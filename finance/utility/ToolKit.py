@@ -6,6 +6,8 @@ from base64 import b64encode
 from io import BytesIO
 from matplotlib_inline.backend_inline import set_matplotlib_formats
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import LinearSegmentedColormap
 
 
 class ToolKit:
@@ -189,32 +191,60 @@ class ToolKit:
     def create_line(data):
         data = list(data)
         set_matplotlib_formats("svg")
-        colors = ["#fe7c73", "#2471A3", "#3498DB", "#27AE60"]
+        colors = ["#FF0000", "#006F00"]
 
         # initialise the plot as you usually would
         fig, ax = plt.subplots(1, 1, figsize=(2, 1), facecolor="none")
 
-        # add color coding to the line.
-        if len(data) > 0:
-            if data[len(data) - 1] > 0:
-                # if latest price is less than open price, make the plot red
-                chart_color = colors[0]
-            elif data[-5:] == [0] * 5:
-                chart_color = colors[2]
+        # # add color coding to the line.
+        # if len(data) > 0:
+        #     if data[len(data) - 1] > 0:
+        #         # if latest price is less than open price, make the plot red
+        #         chart_color = colors[0]
+        #     elif data[-5:] == [0] * 5:
+        #         chart_color = colors[2]
+        #     else:
+        #         # if the latest price is more than open price, make the plot green
+        #         chart_color = colors[3]
+        # else:
+        #     chart_color = colors[0]
+
+        # # create a line plot
+        # ax.plot(data, color=chart_color, linewidth=3)
+
+        # Iterate over each data point
+        for i in range(len(data) - 1):
+            if data[i] > 0:
+                # If both data points are above zero, make the plot red
+                line_color = colors[0]
+            elif data[i] < 0:
+                # If both data points are below or equal to zero, make the plot green
+                line_color = colors[1]
             else:
-                # if the latest price is more than open price, make the plot green
-                chart_color = colors[3]
-        else:
-            chart_color = colors[0]
+                line_color = "#808080"
 
-        # create a line plot
-        ax.plot(data, color=chart_color, linewidth=3)
+            # Create a line chart for each data point with gradient color
+            ax.plot([i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=3)
 
+        # turn on zero axis
+        ax.axhline(0, color="black", linestyle="--", linewidth=0.5, dashes=(5, 5))
         # turn off axis
         ax.axis("off")
 
         # add a marker at the last data point
-        plt.plot(len(data) - 1, data[len(data) - 1], "b.")
+        # plt.plot(len(data) - 1, data[len(data) - 1], "b.")
+        if data[len(data) - 1] > 0:
+            marker_color = colors[0]
+        else:
+            marker_color = colors[1]
+
+        plt.plot(
+            len(data) - 1,
+            data[len(data) - 1],
+            marker="o",
+            markersize=4,
+            color=marker_color,
+        )
 
         # close the figure
         plt.close(fig)
