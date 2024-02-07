@@ -779,7 +779,13 @@ class StockProposal:
                         ,SUM(CASE WHEN `p&l` >= 0 THEN 1 ELSE 0 END) AS pos_cnt
                         ,SUM(CASE WHEN `p&l` < 0 THEN 1 ELSE 0 END) AS neg_cnt
                         ,COUNT(*) AS p_cnt
-                        ,SUM(CASE WHEN buy_date >= DATE_ADD(CURRENT_DATE(), -10) THEN 1 ELSE 0 END) AS l10_p_cnt
+                        ,SUM(CASE WHEN buy_date >= (SELECT buy_date 
+                                                    FROM (
+                                                        SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
+                                                        FROM (SELECT DISTINCT buy_date FROM temp) t ) tt
+                                                    WHERE row_num = 10 
+                                                    ) THEN 1 ELSE 0 END
+                            ) AS l10_p_cnt
                         ,SUM(`p&l`) AS p_pnl
                     FROM temp 
                     WHERE buy_date >= DATE_ADD(CURRENT_DATE(), -365)
