@@ -862,100 +862,22 @@ class StockProposal:
                     ,(t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / (t1.pos_cnt + COALESCE(t2.pos_cnt,0) + t1.neg_cnt + COALESCE(t2.neg_cnt,0)) AS pnl_ratio
                 FROM tmp2 t1 LEFT JOIN tmp t2 ON t1.industry = t2.industry
                 LEFT JOIN tmp3 t3 ON t1.industry = t3.industry
-                ORDER BY COALESCE(t2.p_pnl,0) + t1.his_pnl DESC
+                ORDER BY COALESCE(t2.p_pnl,0) DESC
                 """
             )
             sparkdata71 = spark.sql(
-                """ 
+                """
                 WITH tmp AS (
-                    SELECT industry
-                        ,SUM(CASE WHEN `p&l` >= 0 THEN 1 ELSE 0 END) AS pos_cnt
-                        ,SUM(CASE WHEN `p&l` < 0 THEN 1 ELSE 0 END) AS neg_cnt
-                        ,COUNT(*) AS p_cnt
-                        ,SUM(CASE WHEN buy_date >= DATE_ADD(CURRENT_DATE(), -10) THEN 1 ELSE 0 END) AS l10_p_cnt
-                        ,SUM(`p&l`) AS p_pnl
-                    FROM temp 
-                    WHERE buy_date >= DATE_ADD(CURRENT_DATE(), -365) AND buy_date <= DATE_ADD((SELECT MAX(buy_date) FROM temp), -10)
-                    GROUP BY industry
-                 ), tmp1 AS (
-                    SELECT symbol
-                        ,date
-                        ,trade_type
-                        ,price
-                        ,size
-                        ,l_date
-                        ,l_trade_type
-                        ,l_price
-                        ,l_size
-                    FROM (
-                        SELECT symbol
-                            ,date
-                            ,trade_type
-                            ,price
-                            ,size
-                            ,CASE WHEN trade_type = 'sell' THEN LAG(date) OVER (PARTITION BY symbol ORDER BY date)  
-                                ELSE LEAD(date) OVER (PARTITION BY symbol ORDER BY date) END AS l_date
-                            ,CASE WHEN trade_type = 'sell' THEN LAG(trade_type) OVER (PARTITION BY symbol ORDER BY date) 
-                                ELSE LEAD(trade_type) OVER (PARTITION BY symbol ORDER BY date) END AS l_trade_type
-                            ,CASE WHEN trade_type = 'sell' THEN LAG(price) OVER (PARTITION BY symbol ORDER BY date)
-                                ELSE LEAD(price) OVER (PARTITION BY symbol ORDER BY date) END AS l_price
-                            ,CASE WHEN trade_type = 'sell' THEN LAG(size) OVER (PARTITION BY symbol ORDER BY date) 
-                                ELSE LEAD(size) OVER (PARTITION BY symbol ORDER BY date) END AS l_size
-                        FROM temp1
-                        WHERE date >= DATE_ADD(CURRENT_DATE(), -365) AND date <= DATE_ADD((SELECT MAX(date) FROM temp1), -10)
-                        ORDER BY symbol
-                            ,date
-                            ,trade_type) t
-                ), tmp11 AS (
-                    SELECT symbol
-                        ,l_date as buy_date
-                        ,l_price as base_price
-                        ,l_size as base_size
-                        ,date as sell_date
-                        ,price as adj_price
-                        ,size as adj_size
-                    FROM 
-                    tmp1 WHERE trade_type = 'sell'
-                    UNION ALL
-                    SELECT symbol
-                        ,date as buy_date
-                        ,price as base_price
-                        ,size as base_size
-                        ,null as sell_date
-                        ,null as adj_price
-                        ,null as adj_size
-                    FROM 
-                    tmp1 WHERE trade_type = 'buy' AND l_date IS NULL
-                ), tmp2 AS (
-                    SELECT t1.industry
-                        ,COUNT(t2.symbol) * 1.00 AS his_trade_cnt
-                        ,COUNT(DISTINCT t2.symbol) AS his_symbol_cnt
-                        ,SUM(CASE WHEN t2.sell_date IS NOT NULL THEN DATEDIFF(t2.sell_date, t2.buy_date) ELSE DATEDIFF(CURRENT_DATE(), t2.buy_date) END) AS his_days
-                        ,SUM(CASE WHEN t2.sell_date IS NOT NULL AND t2.adj_price - t2.base_price >=0 THEN 1 ELSE 0 END) AS pos_cnt
-                        ,SUM(CASE WHEN t2.sell_date IS NOT NULL AND t2.adj_price - t2.base_price < 0 THEN 1 ELSE 0 END) as neg_cnt
-                        ,SUM(CASE WHEN t2.sell_date IS NOT NULL THEN t2.adj_price * (-t2.adj_size) - t2.base_price * t2.base_size ELSE 0 END) AS his_pnl
-                    FROM temp2 t1 JOIN tmp11 t2 ON t1.symbol = t2.symbol
-                    GROUP BY t1.industry
-                ), tmp3 AS (
-                    SELECT industry, COLLECT_LIST(pnl) AS pnl_array
-                    FROM (SELECT t2.industry, t1.date, SUM(t1.pnl) AS pnl
-                        FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
-                        WHERE t1.date >= DATE_ADD(CURRENT_DATE(), -60) 
-                        GROUP BY t2.industry, t1.date
-                        ORDER BY t2.industry, t1.date ASC) t
-                    GROUP BY industry
-                )                
-                SELECT t1.industry
-                    ,COALESCE(t2.p_cnt,0) AS p_cnt
-                    ,COALESCE(t2.l10_p_cnt,0) AS l10_p_cnt
-                    ,COALESCE(t2.p_pnl,0) + t1.his_pnl AS pnl
-                    ,COALESCE(t3.pnl_array,ARRAY(0,0,0,0,0)) AS pnl_array
-                    ,t1.his_trade_cnt / t1.his_symbol_cnt AS avg_his_trade_cnt
-                    ,t1.his_days / t1.his_trade_cnt AS avg_days
-                    ,(t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / (t1.pos_cnt + COALESCE(t2.pos_cnt,0) + t1.neg_cnt + COALESCE(t2.neg_cnt,0)) AS pnl_ratio
-                FROM tmp2 t1 LEFT JOIN tmp t2 ON t1.industry = t2.industry
-                LEFT JOIN tmp3 t3 ON t1.industry = t3.industry
-                ORDER BY COALESCE(t2.p_pnl,0) + t1.his_pnl DESC
+                    SELECT t2.industry
+                        ,SUM(t1.pnl) AS pnl
+                    FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                    WHERE t1.date = DATE_ADD((SELECT MAX(date) FROM temp3), -10)
+                    GROUP BY t2.industry
+                )   
+                SELECT industry
+                    ,pnl
+                FROM tmp
+                ORDER BY pnl DESC
                 """
             )
             dfdata71 = sparkdata71.toPandas()
@@ -985,10 +907,10 @@ class StockProposal:
                     return ""
                 elif value > 0:
                     return (
-                        f"<span style='color:red'; font-size:1.4em>↑{abs(value)}</span>"
+                        f"<span style='color:red'; font-size:32px>↑{abs(value):.0f}</span>"
                     )
                 elif value < 0:
-                    return f"<span style='color:green'; font-size:1.4em>↓{abs(value)}</span>"
+                    return f"<span style='color:green'; font-size:32px>↓{abs(value):.0f}</span>"
                 else:
                     return ""
 

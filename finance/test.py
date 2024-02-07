@@ -1,26 +1,37 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
+
 from utility.FileInfo import FileInfo
+from usstrategy.UsStrategy import UsStrategy
 from tabulate import tabulate
 import progressbar
 from utility.ToolKit import ToolKit
 from utility.MyEmail import MyEmail
-import re
 from datetime import datetime, timedelta
 import pandas as pd
 import sys
 import seaborn as sns
-from backtraderref.BTStrategyVol import BTStrategyVol
+from backtraderref.BTStrategy import BTStrategy
 import backtrader as bt
 from utility.TickerInfo import TickerInfo
-from cncrawler.EMCNWebCrawler import EMCNWebCrawler
-from cncrawler.EMCNTickerCategoryCrawler import EMCNTickerCategoryCrawler
+from uscrawler.EMWebCrawler import EMWebCrawler
+from uscrawler.EMUsTickerCategoryCrawler import EMUsTickerCategoryCrawler
 from backtraderref.BTPandasDataExt import BTPandasDataExt
 from utility.StockProposal import StockProposal
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pyfolio as pf
 import gc
+
+""" 执行策略 """
+
+
+def exec_strategy(date):
+    """小市值大波动策略-策略1"""
+    us_strate = UsStrategy(date)
+    df1 = us_strate.get_usstrategy1()
+    print(tabulate(df1, headers="keys", tablefmt="pretty"))
+    return df1
 
 
 """ backtrader策略 """
@@ -31,20 +42,19 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(BTStrategyVol, trade_date=date)
+    cerebro.addstrategy(BTStrategy, trade_date=date)
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
     cerebro.addobserver(bt.observers.BuySell)
-
     """ 初始资金100M """
     cerebro.broker.setcash(2000000.0)
     """ 每手10股 """
-    cerebro.addsizer(bt.sizers.FixedSize, stake=100)
+    cerebro.addsizer(bt.sizers.FixedSize, stake=10)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "cn").get_backtrader_data_feed()
+    list = TickerInfo(date, "us").get_backtrader_data_feed()
     """ 循环初始化数据进入cerebro """
     for h in list:
         """历史数据最早不超过2021-01-01"""
@@ -55,7 +65,7 @@ def exec_btstrategy(date):
             datetime=-1,
             timeframe=bt.TimeFrame.Days,
         )
-        cerebro.adddata(data)
+        cerebro.adddata(data, name=h["symbol"][0])
         # 周数据
         # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
     """ 起始资金池 """
@@ -67,12 +77,12 @@ def exec_btstrategy(date):
 
     """ 运行cerebro """
     result = cerebro.run()
-
     """ 最终资金池 """
     print("当前现金持有: ", cerebro.broker.get_cash())
     print("Final Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
     """ 画图相关 """
+    # cerebro.plot(iplot=True, subplot=True)
     # 提取收益序列
     pnl = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
 
@@ -112,7 +122,7 @@ def exec_btstrategy(date):
         2, 1, gridspec_kw={"height_ratios": [1.5, 4]}, figsize=(20, 8)
     )
 
-    """
+    """ 
     年度回报率 (Annual return)：衡量投资组合或股票在一年内的收益率。它通常以百分比表示，计算方法是将期末价值减去期初价值，再除以期初价值，并乘以100。
 
     累积回报率 (Cumulative returns)：衡量投资组合或股票在一段时间内的总收益率。它表示从投资开始到目前为止的总回报，可以用于评估长期投资的表现。
@@ -139,6 +149,7 @@ def exec_btstrategy(date):
 
     日风险价值 (Daily value at risk)：衡量股票或投资组合在一天内可能面临的最大损失。它是在给定置信水平下的损失金额，用于评估投资组合的风险暴露。 
     """
+
     cols_names = [
         "date",
         "Annual\nreturn",
@@ -219,17 +230,16 @@ def exec_btstrategy(date):
     plt.legend(h1 + h2, l1 + l2, fontsize=18, loc="upper left", ncol=1)
 
     fig.tight_layout()
-
-    plt.savefig("./images/CNTRdraw.png")
+    plt.savefig("./images/TRdraw.png")
 
 
 # 主程序入口
 if __name__ == "__main__":
-    """美股交易日期 utc+8"""
-    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(1)
+    """美股交易日期 utc-4"""
+    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
-    if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
+    if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
         pass
     else:
         sys.exit()
@@ -246,17 +256,18 @@ if __name__ == "__main__":
     """ 创建进度条并开始运行 """
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
-    print("trade_date is :", trade_date)
-
-    """ 执行bt相关策略 """
-    # exec_btstrategy(trade_date)
+    # """ 执行策略 """
+    # df = exec_strategy(trade_date)
+    # """ 发送邮件 """
+    # if not df.empty:
+    #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email()
+    StockProposal("us", trade_date).send_btstrategy_by_email()
 
     """ 结束进度条 """
     pbar.finish()
