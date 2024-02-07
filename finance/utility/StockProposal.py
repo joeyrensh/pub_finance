@@ -855,7 +855,7 @@ class StockProposal:
                 SELECT t1.industry
                     ,COALESCE(t2.p_cnt,0) AS p_cnt
                     ,COALESCE(t2.l10_p_cnt,0) AS l10_p_cnt
-                    ,COALESCE(t2.p_pnl,0) + t1.his_pnl AS pnl
+                    ,COALESCE(t2.p_pnl,0) AS pnl
                     ,COALESCE(t3.pnl_array,ARRAY(0,0,0,0,0)) AS pnl_array
                     ,t1.his_trade_cnt / t1.his_symbol_cnt AS avg_his_trade_cnt
                     ,t1.his_days / t1.his_trade_cnt AS avg_days
@@ -871,7 +871,11 @@ class StockProposal:
                     SELECT t2.industry
                         ,SUM(t1.pnl) AS pnl
                     FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
-                    WHERE t1.date = DATE_ADD((SELECT MAX(date) FROM temp3), -10)
+                    WHERE t1.date = (
+                        SELECT date FROM (
+                        SELECT date, ROW_NUMBER() OVER(ORDER BY date DESC) AS row_num
+                        FROM (SELECT DISTINCT date FROM temp3) t ) tt
+                        WHERE row_num = 10 )
                     GROUP BY t2.industry
                 )   
                 SELECT industry
@@ -900,15 +904,14 @@ class StockProposal:
 
             # Add the index differences to df1 as a new column
             dfdata7["index_diff"] = dfdata7.index.map(index_diff_dict)
+            print(dfdata7["index_diff"])
 
             # Define a function to create the trend arrows
             def create_arrow(value):
                 if pd.isnull(value):
                     return ""
                 elif value > 0:
-                    return (
-                        f"<span style='color:red'; font-size:32px>↑{abs(value):.0f}</span>"
-                    )
+                    return f"<span style='color:red'; font-size:32px>↑{abs(value):.0f}</span>"
                 elif value < 0:
                     return f"<span style='color:green'; font-size:32px>↓{abs(value):.0f}</span>"
                 else:
