@@ -910,7 +910,6 @@ class StockProposal:
 
             # Add the index differences to df1 as a new column
             dfdata7["index_diff"] = dfdata7.index.map(index_diff_dict)
-            print(dfdata7["index_diff"])
 
             # Define a function to create the trend arrows
             def create_arrow(value):

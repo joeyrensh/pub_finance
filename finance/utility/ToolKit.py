@@ -191,7 +191,7 @@ class ToolKit:
     def create_line(data):
         data = list(data)
         set_matplotlib_formats("svg")
-        colors = ["#FF0000", "#006F00"]
+        colors = ["#FF0000", "#009900", "#FFCCCC", "#CCFFCC"]
 
         # initialise the plot as you usually would
         fig, ax = plt.subplots(1, 1, figsize=(2, 1), facecolor="none")
@@ -199,28 +199,34 @@ class ToolKit:
         # Iterate over each data point
         for i in range(len(data) - 1):
             if data[i] > 0 and data[i + 1] > 0:
-                # If both data points are above zero, make the plot red
                 line_color = colors[0]
+                fill_color = colors[2]
                 ax.plot(
-                    [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=3
+                    [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=2
                 )
+                ax.fill_between([i, i + 1], [data[i], data[i + 1]], color=fill_color)
             elif data[i] < 0 and data[i + 1] < 0:
-                # If both data points are below or equal to zero, make the plot green
                 line_color = colors[1]
+                fill_color = colors[3]
                 ax.plot(
-                    [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=3
+                    [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=2
                 )
+                ax.fill_between([i, i + 1], [data[i], data[i + 1]], color=fill_color)
             elif data[i] > 0 and data[i + 1] < 0:
-                ax.plot([i, i], [data[i], 0], color="#FF0000", linewidth=3)
-                ax.plot([i, i + 1], [0, data[i + 1]], color="#006F00", linewidth=3)
+                ax.plot([i, i], [data[i], 0], color="#FF0000", linewidth=2)
+                ax.fill_between([i, i], [data[i], 0], color="#FFCCCC")
+                ax.plot([i, i + 1], [0, data[i + 1]], color="#009900", linewidth=2)
+                ax.fill_between([i, i + 1], [0, data[i + 1]], color="#CCFFCC")
             elif data[i] < 0 and data[i + 1] > 0:
-                ax.plot([i, i], [data[i], 0], color="#006F00", linewidth=3)
-                ax.plot([i, i + 1], [0, data[i + 1]], color="#FF0000", linewidth=3)
+                ax.plot([i, i], [data[i], 0], color="#009900", linewidth=2)
+                ax.fill_between([i, i], [data[i], 0], color="#CCFFCC")
+                ax.plot([i, i + 1], [0, data[i + 1]], color="#FF0000", linewidth=2)
+                ax.fill_between([i, i + 1], [0, data[i + 1]], color="#00CC00")
             else:
                 line_color = "#808080"
                 # Create a line chart for each data point with gradient color
                 ax.plot(
-                    [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=3
+                    [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=2
                 )
 
         # turn on zero axis
