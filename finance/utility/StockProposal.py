@@ -851,18 +851,18 @@ class StockProposal:
                     GROUP BY t1.industry
                 ), tmp3 AS (
                     SELECT industry, COLLECT_LIST(pnl) AS pnl_array
-                    FROM (SELECT t2.industry, t1.date, SUM(t1.pnl) AS pnl
-                        FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
-                        WHERE t1.date >= DATE_ADD(CURRENT_DATE(), -60) 
-                        GROUP BY t2.industry, t1.date
-                        ORDER BY t2.industry, t1.date ASC) t
+                    FROM (SELECT t3.industry, t1.buy_date as date, SUM(COALESCE(t2.pnl, 0)) AS pnl
+                        FROM temp_timeseries t1 LEFT JOIN temp3 t2 ON t1.buy_date = t2.date
+                        JOIN temp2 t3 ON t2.symbol = t3.symbol
+                        GROUP BY t3.industry, t1.buy_date
+                        ORDER BY t3.industry, t1.buy_date ASC) t
                     GROUP BY industry
                 )                
                 SELECT t1.industry
                     ,COALESCE(t2.p_cnt,0) AS p_cnt
                     ,COALESCE(t2.l10_p_cnt,0) AS l10_p_cnt
                     ,COALESCE(t2.p_pnl,0) AS pnl
-                    ,COALESCE(t3.pnl_array,ARRAY(0,0,0,0,0)) AS pnl_array
+                    ,COALESCE(t3.pnl_array,ARRAY(0)) AS pnl_array
                     ,t1.his_trade_cnt / t1.his_symbol_cnt AS avg_his_trade_cnt
                     ,t1.his_days / t1.his_trade_cnt AS avg_days
                     ,(t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / (t1.pos_cnt + COALESCE(t2.pos_cnt,0) + t1.neg_cnt + COALESCE(t2.neg_cnt,0)) AS pnl_ratio

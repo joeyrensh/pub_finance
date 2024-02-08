@@ -224,7 +224,6 @@ class ToolKit:
                 ax.fill_between([i, i + 1], [0, data[i + 1]], color="#00CC00")
             else:
                 line_color = "#808080"
-                # Create a line chart for each data point with gradient color
                 ax.plot(
                     [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=2
                 )
@@ -236,7 +235,7 @@ class ToolKit:
 
         # add a marker at the last data point
         # plt.plot(len(data) - 1, data[len(data) - 1], "b.")
-        if data[len(data) - 1] > 0:
+        if data[len(data) - 1] >= 0:
             marker_color = colors[0]
         else:
             marker_color = colors[1]
