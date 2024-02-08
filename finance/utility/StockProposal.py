@@ -851,11 +851,12 @@ class StockProposal:
                     GROUP BY t1.industry
                 ), tmp3 AS (
                     SELECT industry, COLLECT_LIST(pnl) AS pnl_array
-                    FROM (SELECT t3.industry, t1.buy_date as date, SUM(COALESCE(t2.pnl, 0)) AS pnl
-                        FROM temp_timeseries t1 LEFT JOIN temp3 t2 ON t1.buy_date = t2.date
-                        JOIN temp2 t3 ON t2.symbol = t3.symbol
-                        GROUP BY t3.industry, t1.buy_date
-                        ORDER BY t3.industry, t1.buy_date ASC) t
+                    FROM (SELECT t2.industry, t1.buy_date as date, SUM(COALESCE(t2.pnl, 0)) AS pnl
+                        FROM temp_timeseries t1 
+                        LEFT JOIN  (SELECT t3.industry, t2.date, t2.pnl FROM temp3 t2 JOIN temp2 t3 ON t2.symbol = t3.symbol) t2
+                        ON t1.buy_date = t2.date
+                        GROUP BY t2.industry, t1.buy_date
+                        ORDER BY t2.industry, t1.buy_date ASC) t
                     GROUP BY industry
                 )                
                 SELECT t1.industry

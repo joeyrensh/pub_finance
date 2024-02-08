@@ -54,20 +54,20 @@ class TickerInfo:
                     and float(i["high"]) > 0
                     and float(i["low"]) > 0
                     and float(i["total_value"]) > 1000000000
-                    and (
-                        (
-                            float(i["total_value"]) >= 100000000000
-                            and float(i["close"]) * float(i["volume"]) * 100
-                            >= float(i["circulation_value"]) * 0.003
-                        )
-                        or (
-                            float(i["total_value"]) < 100000000000
-                            and float(i["close"]) * float(i["volume"]) * 100
-                            >= float(i["circulation_value"]) * 0.005
-                        )
-                    )
-                    and float(i["close"]) * float(i["volume"])
-                    < float(i["circulation_value"]) * 0.3
+                    # and (
+                    #     (
+                    #         float(i["total_value"]) >= 100000000000
+                    #         and float(i["close"]) * float(i["volume"]) * 100
+                    #         >= float(i["circulation_value"]) * 0.003
+                    #     )
+                    #     or (
+                    #         float(i["total_value"]) < 100000000000
+                    #         and float(i["close"]) * float(i["volume"]) * 100
+                    #         >= float(i["circulation_value"]) * 0.005
+                    #     )
+                    # )
+                    # and float(i["close"]) * float(i["volume"])
+                    # < float(i["circulation_value"]) * 0.3
                 ):
                     tickers.append(i["symbol"])
             elif self.market == "cn":
@@ -91,8 +91,8 @@ class TickerInfo:
                             >= float(i["circulation_value"]) * 0.01
                         )
                     )
-                    and float(i["close"]) * float(i["volume"]) * 100
-                    < float(i["circulation_value"]) * 0.3
+                    # and float(i["close"]) * float(i["volume"]) * 100
+                    # < float(i["circulation_value"]) * 0.5
                 ):
                     tickers.append(i["symbol"])
         return tickers
@@ -180,7 +180,7 @@ class TickerInfo:
         过滤历史数据不完整的股票
         小于120天的股票暂时不进入回测列表
         """
-        if len(group_obj) < 120:
+        if len(group_obj) < 61:
             return pd.DataFrame()
         """ 适配BackTrader数据结构 """
         if self.market == "us":

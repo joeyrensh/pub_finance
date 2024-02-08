@@ -24,7 +24,7 @@ class BTStrategyVol(bt.Strategy):
         ("signalperiod", 7),
         ("shortperiod", 20),
         ("midperiod", 60),
-        ("longperiod", 120),
+        # ("longperiod", 120),
         ("volshortperiod", 5),
         ("volmidperiod", 10),
         ("vollongperiod", 30),
@@ -95,9 +95,9 @@ class BTStrategyVol(bt.Strategy):
             self.inds[d._name]["mamid"] = bt.indicators.SMA(
                 d.close, period=self.params.midperiod
             )
-            self.inds[d._name]["malong"] = bt.indicators.SMA(
-                d.close, period=self.params.longperiod
-            )
+            # self.inds[d._name]["malong"] = bt.indicators.SMA(
+            #     d.close, period=self.params.longperiod
+            # )
 
             """
             EMA短中长周期指标 
@@ -108,9 +108,9 @@ class BTStrategyVol(bt.Strategy):
             self.inds[d._name]["emamid"] = bt.indicators.EMA(
                 d.close, period=self.params.midperiod
             )
-            self.inds[d._name]["emalong"] = bt.indicators.EMA(
-                d.close, period=self.params.longperiod
-            )
+            # self.inds[d._name]["emalong"] = bt.indicators.EMA(
+            #     d.close, period=self.params.longperiod
+            # )
 
             """
             MAVOL5、10、30成交量均线
