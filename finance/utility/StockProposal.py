@@ -274,7 +274,12 @@ class StockProposal:
             df3.createOrReplaceTempView("temp3")
 
             """ 时间序列生成 """
-            end_date = pd.to_datetime("today").strftime("%Y-%m-%d")
+            if self.market == "cn":
+                end_date = pd.to_datetime("today").strftime("%Y-%m-%d")
+            else:
+                end_date = (pd.to_datetime("today") - timedelta(hours=12)).strftime(
+                    "%Y-%m-%d"
+                )
             start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
             date_range = pd.date_range(
                 start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
@@ -851,10 +856,12 @@ class StockProposal:
                     GROUP BY t1.industry
                 ), tmp3 AS (
                     SELECT industry, COLLECT_LIST(pnl) AS pnl_array
-                    FROM (SELECT t2.industry, t1.buy_date as date, SUM(COALESCE(t2.pnl, 0)) AS pnl
+                    FROM (SELECT t2.industry, t1.buy_date as date
+                            , SUM(CASE WHEN t1.buy_date = t2.date THEN COALESCE(t2.pnl, 0) ELSE 0 END) AS pnl
                         FROM temp_timeseries t1 
-                        LEFT JOIN  (SELECT t3.industry, t2.date, t2.pnl FROM temp3 t2 JOIN temp2 t3 ON t2.symbol = t3.symbol) t2
-                        ON t1.buy_date = t2.date
+                        LEFT JOIN  (SELECT t3.industry, t2.date, SUM(t2.pnl) AS pnl FROM temp3 t2 JOIN temp2 t3 ON t2.symbol = t3.symbol 
+                                    GROUP BY t3.industry, t2.date) t2
+                        ON 1 = 1
                         GROUP BY t2.industry, t1.buy_date
                         ORDER BY t2.industry, t1.buy_date ASC) t
                     GROUP BY industry

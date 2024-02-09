@@ -198,7 +198,7 @@ class ToolKit:
 
         # Iterate over each data point
         for i in range(len(data) - 1):
-            if data[i] > 0 and data[i + 1] > 0:
+            if data[i] >= 0 and data[i + 1] >= 0:
                 line_color = colors[0]
                 fill_color = colors[2]
                 ax.plot(
@@ -212,12 +212,12 @@ class ToolKit:
                     [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=2
                 )
                 ax.fill_between([i, i + 1], [data[i], data[i + 1]], color=fill_color)
-            elif data[i] > 0 and data[i + 1] < 0:
+            elif data[i] >= 0 and data[i + 1] < 0:
                 ax.plot([i, i], [data[i], 0], color="#FF0000", linewidth=2)
                 ax.fill_between([i, i], [data[i], 0], color="#FFCCCC")
                 ax.plot([i, i + 1], [0, data[i + 1]], color="#009900", linewidth=2)
                 ax.fill_between([i, i + 1], [0, data[i + 1]], color="#CCFFCC")
-            elif data[i] < 0 and data[i + 1] > 0:
+            elif data[i] < 0 and data[i + 1] >= 0:
                 ax.plot([i, i], [data[i], 0], color="#009900", linewidth=2)
                 ax.fill_between([i, i], [data[i], 0], color="#CCFFCC")
                 ax.plot([i, i + 1], [0, data[i + 1]], color="#FF0000", linewidth=2)
