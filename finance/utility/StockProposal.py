@@ -114,13 +114,71 @@ class StockProposal:
         # spark.conf.set("spark.sql.execution.arrow.enabled", "true")
         spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
 
-        """输出仓位表格"""
+        """ 按照行业板块聚合，统计最近成交率最高的行业 """
         file = FileInfo(self.trade_date, self.market)
+        """输出仓位表格"""
         file_name_day = file.get_file_path_latest
         df_d = pd.read_csv(file_name_day, usecols=[i for i in range(1, 3)])
         """ 取仓位数据 """
         file_cur_p = file.get_file_path_position
         df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 8)])
+        # trade detail
+        file_path_trade = file.get_file_path_trade
+        cols = ["idx", "symbol", "date", "trade_type", "price", "size"]
+        df1 = spark.read.csv(file_path_trade, header=None, inferSchema=True)
+        df1.coalesce(2)
+        df1 = df1.toDF(*cols)
+        df1.createOrReplaceTempView("temp1")
+        # latest position
+        df = spark.read.csv(file_cur_p, header=True)
+        df.coalesce(2)
+        df.createOrReplaceTempView("temp")
+        """ 行业分析 """
+        file_path_indus = file.get_file_path_industry
+        df2 = spark.read.csv(file_path_indus, header=True)
+        df2.coalesce(2)
+        df2.createOrReplaceTempView("temp2")
+        # position details
+        file_path_position_detail = file.get_file_path_position_detail
+        cols = ["idx", "symbol", "date", "price", "adjbase", "pnl"]
+        df3 = spark.read.csv(file_path_position_detail, header=None, inferSchema=True)
+        df3.coalesce(2)
+        df3 = df3.toDF(*cols)
+        df3.createOrReplaceTempView("temp3")
+
+        """ 时间序列生成 """
+        if self.market == "cn":
+            end_date = pd.to_datetime("today").strftime("%Y-%m-%d")
+        else:
+            end_date = (pd.to_datetime("today") - timedelta(hours=12)).strftime(
+                "%Y-%m-%d"
+            )
+        start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
+        date_range = pd.date_range(
+            start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
+        )
+        df_timeseries = pd.DataFrame({"buy_date": date_range})
+        # 将日期转换为字符串格式 'YYYYMMDD'
+        df_timeseries["trade_date"] = df_timeseries["buy_date"].dt.strftime("%Y%m%d")
+
+        # 假设您的ToolKit类已经定义好了，并且可以检查交易日期
+        toolkit = ToolKit("identify trade date")
+
+        # 根据市场类型过滤非交易日
+        if self.market == "us":
+            df_timeseries = df_timeseries[
+                df_timeseries["trade_date"].apply(toolkit.is_us_trade_date)
+            ]
+        elif self.market == "cn":
+            df_timeseries = df_timeseries[
+                df_timeseries["trade_date"].apply(toolkit.is_cn_trade_date)
+            ]
+
+        df_timeseries_spark = spark.createDataFrame(
+            df_timeseries.astype({"buy_date": "string"})
+        )
+        df_timeseries_spark.createOrReplaceTempView("temp_timeseries")
+
         if not df_cur_p.empty:
             df_np = pd.merge(df_cur_p, df_d, how="inner", on="symbol")
             # df_np = df_np[df_np['p&l_ratio'] > 0].reset_index(drop=True)
@@ -131,14 +189,111 @@ class StockProposal:
                 .reset_index(drop=True)
             )
 
-            df_np.rename(
+            df_np_spark = spark.createDataFrame(df_np)
+            df_np_spark.createOrReplaceTempView("temp_symbol")
+
+            sparkdata8 = spark.sql(
+                """ 
+                WITH tmp1 AS (
+                    SELECT symbol
+                        ,date
+                        ,trade_type
+                        ,price
+                        ,size
+                        ,l_date
+                        ,l_trade_type
+                        ,l_price
+                        ,l_size
+                    FROM (
+                        SELECT symbol
+                            ,date
+                            ,trade_type
+                            ,price
+                            ,size
+                            ,CASE WHEN trade_type = 'sell' THEN LAG(date) OVER (PARTITION BY symbol ORDER BY date)  
+                                ELSE LEAD(date) OVER (PARTITION BY symbol ORDER BY date) END AS l_date
+                            ,CASE WHEN trade_type = 'sell' THEN LAG(trade_type) OVER (PARTITION BY symbol ORDER BY date) 
+                                ELSE LEAD(trade_type) OVER (PARTITION BY symbol ORDER BY date) END AS l_trade_type
+                            ,CASE WHEN trade_type = 'sell' THEN LAG(price) OVER (PARTITION BY symbol ORDER BY date)
+                                ELSE LEAD(price) OVER (PARTITION BY symbol ORDER BY date) END AS l_price
+                            ,CASE WHEN trade_type = 'sell' THEN LAG(size) OVER (PARTITION BY symbol ORDER BY date) 
+                                ELSE LEAD(size) OVER (PARTITION BY symbol ORDER BY date) END AS l_size
+                        FROM temp1
+                        WHERE date >= DATE_ADD(CURRENT_DATE(), -365)
+                        ORDER BY symbol
+                            ,date
+                            ,trade_type) t
+                ), tmp11 AS (
+                    SELECT symbol
+                        ,l_date as buy_date
+                        ,l_price as base_price
+                        ,l_size as base_size
+                        ,date as sell_date
+                        ,price as adj_price
+                        ,size as adj_size
+                    FROM 
+                    tmp1 WHERE trade_type = 'sell'
+                    UNION ALL
+                    SELECT symbol
+                        ,date as buy_date
+                        ,price as base_price
+                        ,size as base_size
+                        ,null as sell_date
+                        ,null as adj_price
+                        ,null as adj_size
+                    FROM 
+                    tmp1 WHERE trade_type = 'buy' AND l_date IS NULL
+                ), tmp2 AS (
+                    SELECT symbol
+                        ,COUNT(symbol) AS his_trade_cnt
+                        ,SUM(CASE WHEN sell_date IS NOT NULL THEN DATEDIFF(sell_date, buy_date) ELSE DATEDIFF(CURRENT_DATE(), buy_date) END) AS his_days
+                        ,SUM(CASE WHEN sell_date IS NOT NULL AND adj_price - base_price >=0 THEN 1 ELSE 0 END) AS pos_cnt
+                        ,SUM(CASE WHEN sell_date IS NOT NULL AND adj_price - base_price < 0 THEN 1 ELSE 0 END) as neg_cnt
+                        ,SUM(CASE WHEN sell_date IS NOT NULL THEN adj_price * (-adj_size) - base_price * base_size ELSE 0 END) AS his_pnl
+                        ,SUM(CASE WHEN sell_date IS NOT NULL THEN base_price * base_size ELSE 0 END) AS his_base_price
+                    FROM  tmp11
+                    GROUP BY symbol
+                ), tmp3 AS (
+                    SELECT symbol
+                        , buy_date
+                        , price
+                        , adjbase
+                        , `p&l` as pnl
+                        , `p&l_ratio` as pnl_ratio
+                        , industry
+                        , name
+                    FROM temp_symbol
+                )   
+                SELECT t1.symbol
+                    , t1.buy_date
+                    , t1.price
+                    , t1.adjbase
+                    , t1.pnl
+                    , t1.pnl_ratio
+                    , t1.industry
+                    , t1.name
+                    , COALESCE(t2.his_trade_cnt, 0) AS avg_trans
+                    , CASE WHEN t2.his_trade_cnt > 1 THEN COALESCE(t2.his_days, 0) / t2.his_trade_cnt ELSE 0 END AS avg_days
+                    , CASE WHEN t2.his_trade_cnt > 1 THEN COALESCE(t2.pos_cnt,0) / ( COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0) ) ELSE 0 END AS win_rate
+                    , CASE WHEN t2.his_trade_cnt > 1 THEN COALESCE(t2.his_pnl,0) / COALESCE(t2.his_base_price,0) ELSE 0 END AS avg_pnl_ratio
+                FROM tmp3 t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol
+                """
+            )
+
+            dfdata8 = sparkdata8.toPandas()
+
+            dfdata8.rename(
                 columns={
                     "symbol": "SYMBOL",
                     "buy_date": "HIT DATE",
                     "price": "BASE",
                     "adjbase": "ADJBASE",
-                    "p&l": "PROFIT",
-                    "p&l_ratio": "PROFIT RATIO",
+                    "pnl": "PNL",
+                    "pnl_ratio": "PNL RATIO",
+                    "avg_trans": "AVG TRANS",
+                    "avg_days": "AVG DAYS",
+                    "win_rate": "WIN RATE",
+                    "avg_pnl_ratio": "AVG PNL RATIO",
                     "industry": "IND",
                     "name": "NAME",
                 },
@@ -146,16 +301,31 @@ class StockProposal:
             )
             cm = sns.color_palette("Blues", as_cmap=True)
             html = (
-                df_np.style.hide(axis=1, subset=["PROFIT"])
+                dfdata8.style.hide(axis=1, subset=["PNL"])
                 .format(
-                    {"BASE": "{:.2f}", "ADJBASE": "{:.2f}", "PROFIT RATIO": "{:.2f}"}
+                    {
+                        "BASE": "{:.2f}",
+                        "ADJBASE": "{:.2f}",
+                        "PNL RATIO": "{:.2f}",
+                        "AVG TRANS": "{:.0f}",
+                        "AVG DAYS": "{:.2f}",
+                        "WIN RATE": "{:.2f}",
+                        "AVG PNL RATIO": "{:.2f}",
+                    }
                 )
                 .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
                 .bar(
-                    subset=["PROFIT RATIO"],
+                    subset=["PNL RATIO", "AVG PNL RATIO"],
                     align="left",
                     color=["#5fba7d", "#d65f5f"],
                     vmin=-1,
+                    vmax=1,
+                )
+                .bar(
+                    subset=["WIN RATE"],
+                    align="left",
+                    color=["#5fba7d", "#d65f5f"],
+                    vmin=0,
                     vmax=1,
                 )
                 .set_properties(
@@ -163,7 +333,7 @@ class StockProposal:
                         "text-align": "left",
                         "border": "1px solid #ccc",
                         "cellspacing": "0",
-                        "style": "border-collapse: collapse; width: 100%;",
+                        "style": "border-collapse: collapse; ",
                     }
                 )
                 .set_table_styles(
@@ -176,9 +346,9 @@ class StockProposal:
                                 ("border", "1px solid #ccc"),
                                 ("text-align", "left"),
                                 ("padding", "8px"),  # 增加填充以便更易点击和阅读
-                                ("font-size", "16px"),  # 在PC端使用较大字体
-                                ("min-width", "80px"),
-                                ("max-width", "150px"),
+                                ("font-size", "18px"),  # 在PC端使用较大字体
+                                ("min-width", "40px"),
+                                ("max-width", "200px"),
                             ],
                         ),
                         # 表格数据单元格样式
@@ -190,10 +360,10 @@ class StockProposal:
                                 ("padding", "8px"),
                                 (
                                     "font-size",
-                                    "16px",
+                                    "18px",
                                 ),  # 同样适用较大字体以提高移动端可读性
-                                ("min-width", "80px"),
-                                ("max-width", "150px"),
+                                ("min-width", "40px"),
+                                ("max-width", "200px"),
                             ],
                         ),
                     ]
@@ -246,68 +416,6 @@ class StockProposal:
             del df_np
             gc.collect()
 
-            """ 按照行业板块聚合，统计最近成交率最高的行业 """
-            # trade detail
-            file_path_trade = file.get_file_path_trade
-            cols = ["idx", "symbol", "date", "trade_type", "price", "size"]
-            df1 = spark.read.csv(file_path_trade, header=None, inferSchema=True)
-            df1.coalesce(2)
-            df1 = df1.toDF(*cols)
-            df1.createOrReplaceTempView("temp1")
-            # latest position
-            df = spark.read.csv(file_cur_p, header=True)
-            df.coalesce(2)
-            df.createOrReplaceTempView("temp")
-            """ 行业分析 """
-            file_path_indus = file.get_file_path_industry
-            df2 = spark.read.csv(file_path_indus, header=True)
-            df2.coalesce(2)
-            df2.createOrReplaceTempView("temp2")
-            # position details
-            file_path_position_detail = file.get_file_path_position_detail
-            cols = ["idx", "symbol", "date", "price", "adjbase", "pnl"]
-            df3 = spark.read.csv(
-                file_path_position_detail, header=None, inferSchema=True
-            )
-            df3.coalesce(2)
-            df3 = df3.toDF(*cols)
-            df3.createOrReplaceTempView("temp3")
-
-            """ 时间序列生成 """
-            if self.market == "cn":
-                end_date = pd.to_datetime("today").strftime("%Y-%m-%d")
-            else:
-                end_date = (pd.to_datetime("today") - timedelta(hours=12)).strftime(
-                    "%Y-%m-%d"
-                )
-            start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
-            date_range = pd.date_range(
-                start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
-            )
-            df_timeseries = pd.DataFrame({"buy_date": date_range})
-            # 将日期转换为字符串格式 'YYYYMMDD'
-            df_timeseries["trade_date"] = df_timeseries["buy_date"].dt.strftime(
-                "%Y%m%d"
-            )
-
-            # 假设您的ToolKit类已经定义好了，并且可以检查交易日期
-            toolkit = ToolKit("identify trade date")
-
-            # 根据市场类型过滤非交易日
-            if self.market == "us":
-                df_timeseries = df_timeseries[
-                    df_timeseries["trade_date"].apply(toolkit.is_us_trade_date)
-                ]
-            elif self.market == "cn":
-                df_timeseries = df_timeseries[
-                    df_timeseries["trade_date"].apply(toolkit.is_cn_trade_date)
-                ]
-
-            df_timeseries_spark = spark.createDataFrame(
-                df_timeseries.astype({"buy_date": "string"})
-            )
-            df_timeseries_spark.createOrReplaceTempView("temp_timeseries")
-
             # TOP10热门行业
             sparkdata1 = spark.sql(
                 """ 
@@ -332,19 +440,19 @@ class StockProposal:
             fig.update_traces(
                 marker=dict(colors=colors, line=dict(color="#000000", width=1)),
                 textinfo="value+percent",
-                textfont=dict(size=24),
+                textfont=dict(size=20),
                 textposition="inside",
             )
             fig.update_layout(
                 title="Top10 Position",
-                title_font=dict(size=24),
+                title_font=dict(size=20),
                 legend=dict(
                     orientation="v",
                     yanchor="top",
                     xanchor="left",
                     x=-0.3,
                     y=1,
-                    font=dict(size=18),  # 调整图例字体大小
+                    font=dict(size=20),  # 调整图例字体大小
                     bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
                 ),
                 # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
@@ -388,19 +496,19 @@ class StockProposal:
             fig.update_traces(
                 marker=dict(colors=colors, line=dict(color="#000000", width=1)),
                 textinfo="value+percent",
-                textfont=dict(size=24),
+                textfont=dict(size=20),
                 textposition="inside",
             )
             fig.update_layout(
                 title="Top10 Profit",
-                title_font=dict(size=24),
+                title_font=dict(size=20),
                 legend=dict(
                     orientation="v",
                     yanchor="top",
                     xanchor="left",
                     x=-0.3,
                     y=1,
-                    font=dict(size=18),  # 调整图例字体大小
+                    font=dict(size=20),  # 调整图例字体大小
                     bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
                 ),
                 # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
@@ -548,15 +656,15 @@ class StockProposal:
             fig.update_layout(
                 title={
                     "text": "Last 60 days trade info",
-                    "y": 0.9,
-                    "x": 0.1,
+                    "y": 0.95,
+                    "x": 0.05,
                     "xanchor": "left",
                     "yanchor": "top",
-                    "font": dict(family="Courier", size=24, color="black"),
+                    "font": dict(family="Courier", size=20, color="black"),
                 },
                 xaxis=dict(
                     title="Trade Date",
-                    titlefont=dict(family="Courier", size=18, color="black"),
+                    titlefont=dict(family="Courier", size=20, color="black"),
                     mirror=True,
                     ticks="outside",
                     showline=True,
@@ -565,7 +673,7 @@ class StockProposal:
                 ),
                 yaxis=dict(
                     title="Total Positions",
-                    titlefont=dict(family="Courier", size=18, color="black"),
+                    titlefont=dict(family="Courier", size=20, color="black"),
                     side="left",
                     mirror=True,
                     ticks="outside",
@@ -575,7 +683,7 @@ class StockProposal:
                 ),
                 yaxis2=dict(
                     title="Positions per day",
-                    titlefont=dict(family="Courier", size=18, color="black"),
+                    titlefont=dict(family="Courier", size=20, color="black"),
                     side="right",
                     overlaying="y",
                     showgrid=False,
@@ -586,7 +694,7 @@ class StockProposal:
                     y=-0.3,
                     xanchor="center",
                     x=0.5,
-                    font=dict(family="Courier", size=18, color="black"),
+                    font=dict(family="Courier", size=20, color="black"),
                 ),
                 plot_bgcolor="white",
                 barmode="stack",
@@ -635,15 +743,6 @@ class StockProposal:
             dfdata5.sort_values(
                 by=["buy_date", "total_cnt"], ascending=[False, False], inplace=True
             )
-            # dfdata5["label"] = None
-            # last_dates = dfdata5.groupby("industry")["buy_date"].max()
-            # for industry in dfdata5["industry"].unique():
-            #     last_date = last_dates[industry]
-            #     last_row = dfdata5[
-            #         (dfdata5["industry"] == industry)
-            #         & (dfdata5["buy_date"] == last_date)
-            #     ]
-            #     dfdata5.loc[last_row.index, "label"] = last_row["total_cnt"]
 
             fig = px.area(
                 dfdata5,
@@ -658,7 +757,7 @@ class StockProposal:
                 showline=True,
                 linecolor="black",
                 gridcolor="lightgrey",
-                title_font=dict(size=18, family="Courier", color="black"),
+                title_font=dict(size=20, family="Courier", color="black"),
             )
             fig.update_yaxes(
                 mirror=True,
@@ -666,18 +765,18 @@ class StockProposal:
                 showline=True,
                 linecolor="black",
                 gridcolor="lightgrey",
-                title_font=dict(size=18, family="Courier", color="black"),
+                title_font=dict(size=20, family="Courier", color="black"),
             )
             fig.update_layout(
                 title="Last 60 days top5 positions ",
-                title_font=dict(size=24),
+                title_font=dict(size=20),
                 legend=dict(
                     orientation="h",
                     yanchor="bottom",
                     y=-0.3,
                     xanchor="left",
                     x=0,
-                    font=dict(size=18, family="Courier", color="black"),
+                    font=dict(size=20, family="Courier", color="black"),
                 ),
                 plot_bgcolor="white",
             )
@@ -724,15 +823,6 @@ class StockProposal:
             dfdata6.sort_values(
                 by=["buy_date", "pnl"], ascending=[False, False], inplace=True
             )
-            # dfdata6["label"] = None
-            # last_dates = dfdata6.groupby("industry")["buy_date"].max()
-            # for industry in dfdata6["industry"].unique():
-            #     last_date = last_dates[industry]
-            #     last_row = dfdata6[
-            #         (dfdata6["industry"] == industry)
-            #         & (dfdata6["buy_date"] == last_date)
-            #     ]
-            #     dfdata6.loc[last_row.index, "label"] = last_row["pnl"]
 
             fig = px.area(
                 dfdata6, x="buy_date", y="pnl", color="industry", line_group="industry"
@@ -743,7 +833,7 @@ class StockProposal:
                 showline=True,
                 linecolor="black",
                 gridcolor="lightgrey",
-                title_font=dict(size=18, family="Courier", color="black"),
+                title_font=dict(size=20, family="Courier", color="black"),
             )
             fig.update_yaxes(
                 mirror=True,
@@ -751,18 +841,18 @@ class StockProposal:
                 showline=True,
                 linecolor="black",
                 gridcolor="lightgrey",
-                title_font=dict(size=18, family="Courier", color="black"),
+                title_font=dict(size=20, family="Courier", color="black"),
             )
             fig.update_layout(
                 title="Last 60 days top5 pnl ",
-                title_font=dict(size=24),
+                title_font=dict(size=20),
                 legend=dict(
                     orientation="h",
                     yanchor="bottom",
                     y=-0.3,
                     xanchor="left",
                     x=0,
-                    font=dict(size=18, family="Courier", color="black"),
+                    font=dict(size=20, family="Courier", color="black"),
                 ),
                 plot_bgcolor="white",
             )
@@ -947,7 +1037,7 @@ class StockProposal:
                     "pnl": "PROFIT",
                     "avg_his_trade_cnt": "AVG TRANS",
                     "avg_days": "AVG DAYS",
-                    "pnl_ratio": "PROFIT RATIO",
+                    "pnl_ratio": "WIN RATE",
                     "pnl_trend": "PROFIT_TREND",
                 },
                 inplace=True,
@@ -962,12 +1052,12 @@ class StockProposal:
                         "PROFIT": "{:.2f}",
                         "AVG TRANS": "{:.0f}",
                         "AVG DAYS": "{:.2f}",
-                        "PROFIT RATIO": "{:.2f}",
+                        "WIN RATE": "{:.2f}",
                     }
                 )
                 .background_gradient(subset=["PROFIT", "OPEN", "L10 OPEN"], cmap=cm)
                 .bar(
-                    subset=["PROFIT RATIO"],
+                    subset=["WIN RATE"],
                     align="left",
                     color=["#5fba7d", "#d65f5f"],
                     vmin=0,
@@ -978,7 +1068,7 @@ class StockProposal:
                         "text-align": "left",
                         "border": "1px solid #ccc",
                         "cellspacing": "0",
-                        "style": "border-collapse: collapse; width: 100%;",
+                        "style": "border-collapse: collapse; ",
                     }
                 )
                 .set_table_styles(
@@ -991,9 +1081,9 @@ class StockProposal:
                                 ("border", "1px solid #ccc"),
                                 ("text-align", "left"),
                                 ("padding", "8px"),  # 增加填充以便更易点击和阅读
-                                ("font-size", "16px"),  # 在PC端使用较大字体
-                                ("min-width", "50px"),
-                                ("max-width", "200px"),
+                                ("font-size", "20px"),  # 在PC端使用较大字体
+                                ("width", "30px"),
+                                # ("max-width", "150px"),
                             ],
                         ),
                         # 表格数据单元格样式
@@ -1005,25 +1095,33 @@ class StockProposal:
                                 ("padding", "8px"),
                                 (
                                     "font-size",
-                                    "16px",
+                                    "20px",
                                 ),  # 同样适用较大字体以提高移动端可读性
-                                ("min-width", "50px"),
-                                ("max-width", "200px"),
+                                ("width", "30px"),
+                                ("white-space", "nowrap"),
+                                # ("max-width", "150px"),
                             ],
                         ),
                         # 针对盈亏趋势列增加列宽
                         dict(
                             selector=".PROFIT_TREND",  # Updated selector for "PnL Trend" column
                             props=[
-                                ("min-width", "500px"),  # Increase the minimum width
-                                ("max-width", "600px"),  # Increase the maximum width
+                                ("width", "600px"),  # Increase the minimum width
+                                # ("max-width", "1000px"),  # Increase the maximum width
+                            ],
+                        ),
+                        dict(
+                            selector=".IND",  # Updated selector for "PnL Trend" column
+                            props=[
+                                ("width", "200px"),  # Increase the minimum width
+                                # ("max-width", "1000px"),  # Increase the maximum width
                             ],
                         ),
                     ],
                 )
                 .set_sticky(axis="columns")
                 .to_html(
-                    classes=["PROFIT_TREND"],
+                    classes=["PROFIT_TREND", "IND"],
                     doctype_html=True,
                     escape=None,
                 )
@@ -1113,7 +1211,7 @@ class StockProposal:
                                     padding: 5px;
                                     text-align: center;
                                     font-style: italic;
-                                    font-size: 1em;
+                                    font-size: 24px;
                                 }
                             </style>
                         </head>                    
