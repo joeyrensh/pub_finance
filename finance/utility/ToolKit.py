@@ -194,7 +194,7 @@ class ToolKit:
         colors = ["#FF0000", "#009900", "#FFCCCC", "#CCFFCC"]
 
         # initialise the plot as you usually would
-        fig, ax = plt.subplots(1, 1, figsize=(2, 1), facecolor="none")
+        fig, ax = plt.subplots(1, 1, figsize=(3, 1), facecolor="none")
 
         # Iterate over each data point
         for i in range(len(data) - 1):
@@ -255,7 +255,7 @@ class ToolKit:
         img = BytesIO()
 
         # store the above plot to this Bytes object
-        fig.savefig(img, format="png", dpi=150)
+        fig.savefig(img, format="png", dpi=72)
 
         # Encode object as base64 byte string
         encoded = b64encode(img.getvalue())

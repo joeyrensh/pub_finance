@@ -306,25 +306,25 @@ class StockProposal:
                     {
                         "BASE": "{:.2f}",
                         "ADJBASE": "{:.2f}",
-                        "PNL RATIO": "{:.2f}",
+                        "PNL RATIO": "{:.2%}",
                         "AVG TRANS": "{:.0f}",
                         "AVG DAYS": "{:.2f}",
-                        "WIN RATE": "{:.2f}",
-                        "AVG PNL RATIO": "{:.2f}",
+                        "WIN RATE": "{:.2%}",
+                        "AVG PNL RATIO": "{:.2%}",
                     }
                 )
                 .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
                 .bar(
                     subset=["PNL RATIO", "AVG PNL RATIO"],
                     align="left",
-                    color=["#5fba7d", "#d65f5f"],
+                    color=["#99CC66", "#FF6666"],
                     vmin=-1,
                     vmax=1,
                 )
                 .bar(
                     subset=["WIN RATE"],
                     align="left",
-                    color=["#5fba7d", "#d65f5f"],
+                    color=["#99CC66", "#FF6666"],
                     vmin=0,
                     vmax=1,
                 )
@@ -347,8 +347,8 @@ class StockProposal:
                                 ("text-align", "left"),
                                 ("padding", "8px"),  # 增加填充以便更易点击和阅读
                                 ("font-size", "18px"),  # 在PC端使用较大字体
-                                ("min-width", "40px"),
-                                ("max-width", "200px"),
+                                # ("min-width", "40px"),
+                                # ("max-width", "200px"),
                             ],
                         ),
                         # 表格数据单元格样式
@@ -362,11 +362,48 @@ class StockProposal:
                                     "font-size",
                                     "18px",
                                 ),  # 同样适用较大字体以提高移动端可读性
-                                ("min-width", "40px"),
-                                ("max-width", "200px"),
+                                # ("min-width", "40px"),
+                                # ("max-width", "200px"),
                             ],
                         ),
                     ]
+                )
+                .set_table_styles(
+                    {
+                        "IND": [
+                            {
+                                "selector": "th",
+                                "props": [
+                                    ("min-width", "100px"),
+                                    ("max-width", "200px"),
+                                ],
+                            },
+                            {
+                                "selector": "td",
+                                "props": [
+                                    ("min-width", "100px"),
+                                    ("max-width", "200px"),
+                                ],
+                            },
+                        ],
+                        "NAME": [
+                            {
+                                "selector": "th",
+                                "props": [
+                                    ("min-width", "100px"),
+                                    ("max-width", "200px"),
+                                ],
+                            },
+                            {
+                                "selector": "td",
+                                "props": [
+                                    ("min-width", "100px"),
+                                    ("max-width", "200px"),
+                                ],
+                            },
+                        ],
+                    },
+                    overwrite=False,
                 )
                 .set_sticky(axis="columns")
                 .to_html(doctype_html=True, escape=False)
@@ -459,7 +496,7 @@ class StockProposal:
                 autosize=True,
             )
             # 设置图像的宽度和高度（例如，1920x1080像素）
-            fig_width, fig_height = 1024, 768
+            fig_width, fig_height = 1280, 720
             # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
             scale_factor = 2
 
@@ -1038,7 +1075,7 @@ class StockProposal:
                     "avg_his_trade_cnt": "AVG TRANS",
                     "avg_days": "AVG DAYS",
                     "pnl_ratio": "WIN RATE",
-                    "pnl_trend": "PROFIT_TREND",
+                    "pnl_trend": "PROFIT TREND",
                 },
                 inplace=True,
             )
@@ -1052,16 +1089,17 @@ class StockProposal:
                         "PROFIT": "{:.2f}",
                         "AVG TRANS": "{:.0f}",
                         "AVG DAYS": "{:.2f}",
-                        "WIN RATE": "{:.2f}",
+                        "WIN RATE": "{:.2%}",
                     }
                 )
                 .background_gradient(subset=["PROFIT", "OPEN", "L10 OPEN"], cmap=cm)
                 .bar(
                     subset=["WIN RATE"],
                     align="left",
-                    color=["#5fba7d", "#d65f5f"],
+                    color=["#99CC66", "#FF6666"],
                     vmin=0,
                     vmax=1,
+                    # width=50,
                 )
                 .set_properties(
                     **{
@@ -1080,10 +1118,8 @@ class StockProposal:
                                 ("background-color", "#f2f2f2"),  # 轻灰色背景
                                 ("border", "1px solid #ccc"),
                                 ("text-align", "left"),
-                                ("padding", "8px"),  # 增加填充以便更易点击和阅读
+                                ("padding", "5px"),  # 增加填充以便更易点击和阅读
                                 ("font-size", "20px"),  # 在PC端使用较大字体
-                                ("width", "30px"),
-                                # ("max-width", "150px"),
                             ],
                         ),
                         # 表格数据单元格样式
@@ -1092,40 +1128,62 @@ class StockProposal:
                             props=[
                                 ("border", "1px solid #ccc"),
                                 ("text-align", "left"),
-                                ("padding", "8px"),
-                                (
-                                    "font-size",
-                                    "20px",
-                                ),  # 同样适用较大字体以提高移动端可读性
-                                ("width", "30px"),
-                                ("white-space", "nowrap"),
-                                # ("max-width", "150px"),
-                            ],
-                        ),
-                        # 针对盈亏趋势列增加列宽
-                        dict(
-                            selector=".PROFIT_TREND",  # Updated selector for "PnL Trend" column
-                            props=[
-                                ("width", "600px"),  # Increase the minimum width
-                                # ("max-width", "1000px"),  # Increase the maximum width
-                            ],
-                        ),
-                        dict(
-                            selector=".IND",  # Updated selector for "PnL Trend" column
-                            props=[
-                                ("width", "200px"),  # Increase the minimum width
-                                # ("max-width", "1000px"),  # Increase the maximum width
+                                ("padding", "5px"),
+                                ("font-size", "20px"),
                             ],
                         ),
                     ],
                 )
+                .set_table_styles(
+                    {
+                        # 针对盈亏趋势列增加列宽
+                        "PROFIT TREND": [
+                            {
+                                "selector": "th",
+                                "props": [
+                                    ("min-width", "200px"),
+                                    ("max-width", "300px"),
+                                ],
+                            },
+                            {
+                                "selector": "td",
+                                "props": [
+                                    ("min-width", "200px"),
+                                    ("max-width", "300px"),
+                                ],
+                            },
+                        ],
+                        "IND": [
+                            {
+                                "selector": "th",
+                                "props": [
+                                    ("min-width", "200px"),
+                                    ("max-width", "500px"),
+                                ],
+                            },
+                            {
+                                "selector": "td",
+                                "props": [
+                                    ("min-width", "200px"),
+                                    ("max-width", "500px"),
+                                    ("white-space", "nowrap"),
+                                ],
+                            },
+                        ],
+                        "WIN RATE": [
+                            {"selector": "th", "props": [("width", "50px")]},
+                            {"selector": "td", "props": [("width", "50px")]},
+                        ],
+                    },
+                    overwrite=False,
+                )
                 .set_sticky(axis="columns")
                 .to_html(
-                    classes=["PROFIT_TREND", "IND"],
                     doctype_html=True,
-                    escape=None,
+                    escape=False,
                 )
             )
+
             css1 = """
             <style>
                 :root {
@@ -1163,7 +1221,7 @@ class StockProposal:
                         color: black;
                         width: 100%;
                     }
-                }
+                }                      
             </style>
             """
             html1 = css1 + html1

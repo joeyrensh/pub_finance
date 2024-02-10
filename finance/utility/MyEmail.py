@@ -12,8 +12,7 @@ import base64
 
 class MyEmail(object):
     """string_to_encode = xxx
-    encoded_string = base64.b64encode(
-        string_to_encode.encode("utf-8")).decode("utf-8")
+    encoded_string = base64.b64encode(string_to_encode.encode("utf-8")).decode("utf-8")
     """
 
     _mail_user = base64.b64decode(os.environ.get("email_addr")).decode("utf-8")
@@ -22,6 +21,8 @@ class MyEmail(object):
     def __init__(self):
         self.send_from = self._mail_user
         self.to = self._mail_user
+        self.server = "smtp.qq.com"  # smtp.163.com
+        self.port = 465
         self.msg = MIMEMultipart("related")
         self.msg["To"] = self.to
         self.msg["From"] = self.format_addr(
@@ -33,9 +34,10 @@ class MyEmail(object):
             self.subject = subject
             self.msg["Subject"] = subject
             self.msg.attach(MIMEText(message, "html"))
-            smtp_server = smtplib.SMTP_SSL("smtp.163.com", 465)
+            smtp_server = smtplib.SMTP_SSL(self.server, self.port)
             smtp_server.ehlo()
             smtp_server.login(self._mail_user, self._mail_password)
+            print(self.msg.as_string())
             smtp_server.sendmail(
                 self.send_from,
                 [self.to],
@@ -60,7 +62,7 @@ class MyEmail(object):
                     print(
                         f"Unable to open image file {image_path_s}. Please check the path and try again."
                     )
-            smtp_server = smtplib.SMTP_SSL("smtp.163.com", 465)
+            smtp_server = smtplib.SMTP_SSL(self.server, self.port)
             smtp_server.ehlo()
             smtp_server.login(self._mail_user, self._mail_password)
             smtp_server.sendmail(
