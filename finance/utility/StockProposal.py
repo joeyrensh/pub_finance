@@ -127,7 +127,7 @@ class StockProposal:
         df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 8)])
         # 交易明细
         file_path_trade = file.get_file_path_trade
-        cols = ["idx", "symbol", "date", "trade_type", "price", "size"]
+        cols = ["idx", "symbol", "date", "trade_type", "price", "size", "strategy"]
         df1 = spark.read.csv(file_path_trade, header=None, inferSchema=True)
         df1.coalesce(2)
         df1 = df1.toDF(*cols)
@@ -532,16 +532,19 @@ class StockProposal:
                         ,trade_type
                         ,price
                         ,size
+                        ,strategy
                         ,l_date
                         ,l_trade_type
                         ,l_price
                         ,l_size
+                        ,l_strategy
                     FROM (
                         SELECT symbol
                             ,date
                             ,trade_type
                             ,price
                             ,size
+                            ,strategy
                             ,IF(trade_type = 'sell', LAG(date) OVER (PARTITION BY symbol ORDER BY date)  
                                 , LEAD(date) OVER (PARTITION BY symbol ORDER BY date)) AS l_date
                             ,IF(trade_type = 'sell', LAG(trade_type) OVER (PARTITION BY symbol ORDER BY date) 
@@ -550,6 +553,8 @@ class StockProposal:
                                 , LEAD(price) OVER (PARTITION BY symbol ORDER BY date)) AS l_price
                             ,IF(trade_type = 'sell', LAG(size) OVER (PARTITION BY symbol ORDER BY date) 
                                 , LEAD(size) OVER (PARTITION BY symbol ORDER BY date)) AS l_size
+                            ,IF(trade_type = 'sell', LAG(strategy) OVER (PARTITION BY symbol ORDER BY date) 
+                                , LEAD(strategy) OVER (PARTITION BY symbol ORDER BY date)) AS l_strategy                               
                         FROM temp1
                         WHERE date >= DATE_ADD(CURRENT_DATE(), -365)
                         ORDER BY symbol
@@ -557,30 +562,35 @@ class StockProposal:
                             ,trade_type) t
                 ), tmp11 AS (
                     SELECT symbol
-                        ,l_date as buy_date
-                        ,l_price as base_price
-                        ,l_size as base_size
-                        ,date as sell_date
-                        ,price as adj_price
-                        ,size as adj_size
+                        ,l_date AS buy_date
+                        ,l_price AS base_price
+                        ,l_size AS base_size
+                        ,l_strategy AS buy_strategy
+                        ,date AS sell_date
+                        ,price AS adj_price
+                        ,size AS adj_size
+                        ,strategy AS sell_strategy
                     FROM tmp1 WHERE trade_type = 'sell'
                     UNION ALL
                     SELECT symbol
-                        ,date as buy_date
-                        ,price as base_price
-                        ,size as base_size
-                        ,null as sell_date
-                        ,null as adj_price
-                        ,null as adj_size
+                        ,date AS buy_date
+                        ,price AS base_price
+                        ,size AS base_size
+                        ,strategy AS buy_strategy
+                        ,null AS sell_date
+                        ,null AS adj_price
+                        ,null AS adj_size
+                        ,null AS sell_strategy
                     FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL
                 ), tmp2 AS (
                     SELECT symbol
                         ,COUNT(symbol) AS his_trade_cnt
                         ,SUM(IF(sell_date IS NOT NULL, DATEDIFF(sell_date, buy_date), DATEDIFF(CURRENT_DATE(), buy_date))) AS his_days
                         ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price >=0, 1, 0)) AS pos_cnt
-                        ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price < 0, 1, 0)) as neg_cnt
+                        ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price < 0, 1, 0)) AS neg_cnt
                         ,SUM(IF(sell_date IS NOT NULL, adj_price * (-adj_size) - base_price * base_size, 0)) AS his_pnl
                         ,SUM(IF(sell_date IS NOT NULL, base_price * base_size, 0)) AS his_base_price
+                        ,MAX(IF(sell_date IS NULL, buy_strategy, null)) AS buy_strategy
                     FROM  tmp11
                     GROUP BY symbol
                 ), tmp3 AS (
@@ -606,6 +616,7 @@ class StockProposal:
                     , COALESCE(t2.his_days, 0) / t2.his_trade_cnt AS avg_days
                     , (t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / ( COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0) + t1.pos_cnt + t1.neg_cnt) AS win_rate
                     , (COALESCE(t2.his_pnl,0) + t1.adjbase - t1.price) / (COALESCE(t2.his_base_price,0) + t1.price) AS avg_pnl_ratio
+                    , t2.buy_strategy
                 FROM (
                     SELECT symbol
                     , buy_date
@@ -656,6 +667,7 @@ class StockProposal:
                     "avg_pnl_ratio": "AVG PNL RATIO",
                     "industry": "IND",
                     "name": "NAME",
+                    "buy_strategy": "Strategy",
                 },
                 inplace=True,
             )

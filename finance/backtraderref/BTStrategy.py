@@ -70,6 +70,7 @@ class BTStrategy(bt.Strategy):
         self.inds = dict()
         self.signals = dict()
         self.last_deal_date = dict()
+        self.myorder = dict()
         """ 策略进度方法初始化 """
         t = ToolKit("策略初始化")
         """
@@ -84,6 +85,9 @@ class BTStrategy(bt.Strategy):
             self.order[d._name] = None
             self.inds[d._name] = dict()
             self.signals[d._name] = dict()
+
+            # 跟踪订单交易策略
+            self.myorder[d._name] = dict()
 
             """辅助变量  """
 
@@ -279,6 +283,7 @@ class BTStrategy(bt.Strategy):
                     "trade_type": "buy",
                     "price": order.executed.price,
                     "size": order.executed.size,
+                    "strategy": self.myorder[order.data._name]["strategy"],
                 }
             elif order.issell():
                 """订单卖出成功"""
@@ -294,6 +299,7 @@ class BTStrategy(bt.Strategy):
                     "trade_type": "sell",
                     "price": order.executed.price,
                     "size": order.executed.size,
+                    "strategy": self.myorder[order.data._name]["strategy"],
                 }
             elif order.alive():
                 """returns bool if order is in status Partial or Accepted"""
@@ -378,19 +384,70 @@ class BTStrategy(bt.Strategy):
                 y1 = self.inds[d._name]["emamid"].get(
                     ago=0, size=self.params.shortperiod
                 )
+                z1 = self.inds[d._name]["mashort"].get(
+                    ago=0, size=self.params.shortperiod
+                )
                 diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y != 0]
+                diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x1, z1) if y != 0]
 
+                # 短期均线突破中期均线
                 if (
+                    self.signals[d._name]["emashort_crossup_emamid"][0] == 1
+                    and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
+                    and d.close[0] > d.open[0]
+                    and self.signals[d._name]["higher"][0] == 1
+                ):
+                    """买入对应仓位"""
+                    self.broker.cancel(self.order[d._name])
+                    self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
+                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
+                    self.myorder[d._name]["strategy"] = "EMA CrossUP"
+
+                # 均线多头，收盘价突破MA
+                elif (
+                    self.signals[d._name]["close_crossup_mashort"][0] == 1
+                    and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
+                    and d.close[0] > d.open[0]
+                    and self.signals[d._name]["higher"][0] == 1
+                ):
+                    """买入对应仓位"""
+                    self.broker.cancel(self.order[d._name])
+                    self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
+                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
+                    self.myorder[d._name]["strategy"] = "Close CrossUP"
+
+                # 多头排列
+                elif (
+                    self.signals[d._name]["long_position"][0] == 1
+                    and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
+                    and d.close[0] > d.open[0]
+                    and self.signals[d._name]["higher"][0] == 1
+                ):
+                    """买入对应仓位"""
+                    self.broker.cancel(self.order[d._name])
+                    self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
+                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
+                    self.myorder[d._name]["strategy"] = "Long Position"
+
+                # DEA上穿0轴
+                elif (
+                    self.signals[d._name]["dea_crossup_0axis"][0] == 1
+                    and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
+                    and d.close[0] > d.open[0]
+                    and self.signals[d._name]["higher"][0] == 1
+                ):
+                    """买入对应仓位"""
+                    self.broker.cancel(self.order[d._name])
+                    self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
+                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
+                    self.myorder[d._name]["strategy"] = "DEA CrossUP"
+
+                # 均线密集突破
+                elif (
                     (
-                        self.signals[d._name]["emashort_crossup_emamid"][0] == 1
-                        or self.signals[d._name]["close_crossup_mashort"][0] == 1
-                        or self.signals[d._name]["long_position"][0] == 1
-                        or self.signals[d._name]["dea_crossup_0axis"][0] == 1
-                        or (
-                            self.signals[d._name]["close_crossup_emashort"][0]
-                            and sum(1 for value in diff_array if value < 3) > 5
-                        )
-                        or self.signals[d._name]["mavol_long_position"][0] == 1
+                        self.signals[d._name]["close_crossup_emashort"][0]
+                        and sum(1 for value in diff_array if value < 2) > 5
+                        and sum(1 for value in diff_array2 if value < 2) > 5
                     )
                     and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
                     and d.close[0] > d.open[0]
@@ -400,6 +457,21 @@ class BTStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
+                    self.myorder[d._name]["strategy"] = "Dense MA"
+
+                # 放量突破
+                elif (
+                    self.signals[d._name]["mavol_long_position"][0] == 1
+                    and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
+                    and d.close[0] > d.open[0]
+                    and self.signals[d._name]["higher"][0] == 1
+                ):
+                    """买入对应仓位"""
+                    self.broker.cancel(self.order[d._name])
+                    self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
+                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
+                    self.myorder[d._name]["strategy"] = "VOL Increased"
+
             else:
                 """
                 均线止损/止盈信号：
@@ -420,19 +492,35 @@ class BTStrategy(bt.Strategy):
                 #     "symbol: %s, price:, %s, adjbase:, %s"
                 #     % (d._name, pos.price, pos.adjbase)
                 # )
+
+                # 收盘价跌破均线支撑
                 if (
-                    (
-                        self.signals[d._name]["close_crossdown_mashort"][0] == 1
-                        and self.signals[d._name]["close_over_mamid"][0] == 0
-                    )
-                    or (
-                        self.signals[d._name]["dea_crossdown_0axis"][0] == 1
-                        and self.inds[d._name]["dif"][0] <= 0
-                    )
-                    or (d.close[0] - pos.price) / pos.price < -0.2
+                    self.signals[d._name]["close_crossdown_mashort"][0] == 1
+                    and self.signals[d._name]["close_over_mamid"][0] == 0
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
+                    self.myorder[d._name]["strategy"] = "Close CrossDown"
+
+                # dea下穿0轴
+                elif (
+                    self.signals[d._name]["dea_crossdown_0axis"][0] == 1
+                    and self.inds[d._name]["dif"][0] <= 0
+                ):
+                    self.order[d._name] = self.close(data=d)
+                    self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
+                    self.myorder[d._name]["strategy"] = "DEA CrossDown"
+
+                # 止损点
+                elif (
+                    d.close[0] < d.close[-20]
+                    and self.inds[d._name]["emashort"][0]
+                    < self.inds[d._name]["emamid"][0]
+                ):
+                    self.order[d._name] = self.close(data=d)
+                    self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
+                    self.myorder[d._name]["strategy"] = "Close20 Down"
+
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
         df.to_csv(self.file_path_position_detail, header=None)
