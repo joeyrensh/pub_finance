@@ -73,6 +73,7 @@ def exec_btstrategy(date):
     print("Final Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
     """ 画图相关 """
+    # cerebro.plot(iplot=True, subplot=True)
     # 提取收益序列
     pnl = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
 
@@ -109,10 +110,10 @@ def exec_btstrategy(date):
     # plt.style.use('dark_background')
 
     fig, (ax0, ax1) = plt.subplots(
-        2, 1, gridspec_kw={"height_ratios": [1.5, 4]}, figsize=(20, 8)
+        2, 1, gridspec_kw={"height_ratios": [1, 2]}, figsize=(20, 12)
     )
 
-    """
+    """ 
     年度回报率 (Annual return)：衡量投资组合或股票在一年内的收益率。它通常以百分比表示，计算方法是将期末价值减去期初价值，再除以期初价值，并乘以100。
 
     累积回报率 (Cumulative returns)：衡量投资组合或股票在一段时间内的总收益率。它表示从投资开始到目前为止的总回报，可以用于评估长期投资的表现。
@@ -139,6 +140,7 @@ def exec_btstrategy(date):
 
     日风险价值 (Daily value at risk)：衡量股票或投资组合在一天内可能面临的最大损失。它是在给定置信水平下的损失金额，用于评估投资组合的风险暴露。 
     """
+
     cols_names = [
         "date",
         "Annual\nreturn",
@@ -173,7 +175,13 @@ def exec_btstrategy(date):
         edges="open",  # 不显示表格边框
     )
 
-    table.set_fontsize(18)
+    # # Access the cells and modify font properties
+    # for cell in table.get_celld().values():
+    #     cell.set_fontsize(18)  # Adjust the font size as per your preference
+
+    # Set the font size of the table title
+    table.auto_set_font_size(False)
+    table.set_fontsize(16)
 
     # 绘制累计收益曲线
     ax2 = ax1.twinx()
@@ -188,9 +196,9 @@ def exec_btstrategy(date):
         label="drawdown (right)",
         rot=0,
         alpha=0.3,
-        fontsize=18,
+        fontsize=20,
         grid=False,
-        color="red",
+        color="#5fba7d",
     )
 
     # 绘制累计收益曲线
@@ -199,9 +207,9 @@ def exec_btstrategy(date):
         lw=2.0,
         label="cumret (left)",
         rot=0,
-        fontsize=18,
+        fontsize=20,
         grid=True,
-        color="blue",
+        color="#d65f5f",
     )
     ax2.set_facecolor("lightgray")
 
@@ -209,17 +217,16 @@ def exec_btstrategy(date):
     ax2.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
 
     # 主轴定位器：每 5 个月显示一个日期：根据具体天数来做排版
-    ax2.xaxis.set_major_locator(ticker.MultipleLocator(60))
+    ax2.xaxis.set_major_locator(ticker.MultipleLocator(120))
 
     # 同时绘制双轴的图例
     h1, l1 = ax1.get_legend_handles_labels()
 
     h2, l2 = ax2.get_legend_handles_labels()
 
-    plt.legend(h1 + h2, l1 + l2, fontsize=18, loc="upper left", ncol=1)
+    plt.legend(h1 + h2, l1 + l2, fontsize=20, loc="upper left", ncol=1)
 
     fig.tight_layout()
-
     plt.savefig("./images/CNTRdraw.png")
 
 
