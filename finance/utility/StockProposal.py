@@ -403,7 +403,7 @@ class StockProposal:
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
                             ("padding", "5px"),  # 增加填充以便更易点击和阅读
-                            ("font-size", "20px"),  # 在PC端使用较大字体
+                            ("font-size", "24px"),  # 在PC端使用较大字体
                         ],
                     ),
                     # 表格数据单元格样式
@@ -413,7 +413,7 @@ class StockProposal:
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
                             ("padding", "5px"),
-                            ("font-size", "20px"),
+                            ("font-size", "24px"),
                         ],
                     ),
                 ],
@@ -425,15 +425,15 @@ class StockProposal:
                         {
                             "selector": "th",
                             "props": [
-                                ("min-width", "200px"),
-                                ("max-width", "300px"),
+                                ("min-width", "300px"),
+                                ("max-width", "500px"),
                             ],
                         },
                         {
                             "selector": "td",
                             "props": [
-                                ("min-width", "200px"),
-                                ("max-width", "300px"),
+                                ("min-width", "300px"),
+                                ("max-width", "500px"),
                             ],
                         },
                     ],
@@ -455,8 +455,14 @@ class StockProposal:
                         },
                     ],
                     "WIN RATE": [
-                        {"selector": "th", "props": [("width", "50px")]},
-                        {"selector": "td", "props": [("width", "50px")]},
+                        {
+                            "selector": "th",
+                            "props": [("min-width", "50px"), ("max-width", "100px")],
+                        },
+                        {
+                            "selector": "td",
+                            "props": [("min-width", "50px"), ("max-width", "100px")],
+                        },
                     ],
                 },
                 overwrite=False,
@@ -742,15 +748,15 @@ class StockProposal:
                             {
                                 "selector": "th",
                                 "props": [
-                                    ("min-width", "100px"),
-                                    ("max-width", "200px"),
+                                    ("min-width", "150px"),
+                                    ("max-width", "300px"),
                                 ],
                             },
                             {
                                 "selector": "td",
                                 "props": [
-                                    ("min-width", "100px"),
-                                    ("max-width", "200px"),
+                                    ("min-width", "150px"),
+                                    ("max-width", "300px"),
                                 ],
                             },
                         ],
@@ -758,15 +764,15 @@ class StockProposal:
                             {
                                 "selector": "th",
                                 "props": [
-                                    ("min-width", "100px"),
-                                    ("max-width", "200px"),
+                                    ("min-width", "150px"),
+                                    ("max-width", "300px"),
                                 ],
                             },
                             {
                                 "selector": "td",
                                 "props": [
-                                    ("min-width", "100px"),
-                                    ("max-width", "200px"),
+                                    ("min-width", "150px"),
+                                    ("max-width", "300px"),
                                 ],
                             },
                         ],
@@ -1276,10 +1282,10 @@ class StockProposal:
             spark.stop()
 
             if self.market == "us":
-                subject = "美股行情分析"
+                subject = "US Stock Market Trends"
                 image_path_return = "./images/TRdraw.png"
             elif self.market == "cn":
-                subject = "A股行情分析"
+                subject = "CN Stock Market Trends"
                 image_path_return = "./images/CNTRdraw.png"
             image_path = [
                 "./images/postion_byindustry.png",
