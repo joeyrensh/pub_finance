@@ -361,7 +361,7 @@ class StockProposal:
             },
             inplace=True,
         )
-        cm = sns.color_palette("Wistia", as_cmap=True)
+        cm = sns.color_palette("coolwarm", as_cmap=True)
         html1 = (
             dfdata7.style.hide(
                 axis=1, subset=["pnl_array", "index_diff", "industry_new"]
@@ -399,7 +399,6 @@ class StockProposal:
                     dict(
                         selector="th",
                         props=[
-                            ("background-color", "#f2f2f2"),  # 轻灰色背景
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
                             ("padding", "5px"),  # 增加填充以便更易点击和阅读
@@ -473,46 +472,43 @@ class StockProposal:
                 escape=False,
             )
         )
-
         css1 = """
-        <style>
-            :root {
-                color-scheme: light;
-                supported-color-schemes: light;
-                bgcolor: "#000000" !important;
-                color: black;
-                display: table !important;
-            }
-            @media (prefers-color-scheme: light) {
-                /* Your light mode (default) styles: */
-                body {
-                    bgcolor: "#000000" !important;
-                    color: black;
-                    display: table !important;
-                    width: 100%;
+            <style>
+                :root {
+                    color-scheme: dark light;
+                    background: white;
+                    color: black;                    
                 }
-                table {
-                    bgcolor: "#000000" !important;
-                    color: black;
-                    width: 100%;
+                @media (prefers-color-scheme: light) {
+                    /* Your light mode (default) styles: */
+                    body {
+                        background: white ;
+                        color: black;
+                        display: table ;
+                        width: 100%;
+                    }
+                    table {
+                        background: white ;
+                        color: black;
+                        width: 100%;
+                    }
                 }
-            }
 
-            @media (prefers-color-scheme: dark) {
-                /* Your dark mode styles: */
-                body {
-                    bgcolor: "#000000" !important;
-                    color: black;
-                    display: table !important;
-                    width: 100%;
+                @media (prefers-color-scheme: dark) {
+                    /* Your dark mode styles: */
+                    body {
+                        background: black ;
+                        color: white;
+                        display: table ;
+                        width: 100%;
+                    }
+                    table {
+                        background: black;
+                        color: white;
+                        width: 100%;
+                    }
                 }
-                table {
-                    bgcolor: "#000000" !important;
-                    color: black;
-                    width: 100%;
-                }
-            }                      
-        </style>
+            </style>
         """
         html1 = css1 + html1
 
@@ -677,7 +673,7 @@ class StockProposal:
                 },
                 inplace=True,
             )
-            cm = sns.color_palette("Blues", as_cmap=True)
+            cm = sns.color_palette("coolwarm", as_cmap=True)
             html = (
                 dfdata8.style.hide(axis=1, subset=["PNL"])
                 .format(
@@ -720,7 +716,6 @@ class StockProposal:
                         dict(
                             selector="th",
                             props=[
-                                ("background-color", "#f2f2f2"),  # 轻灰色背景
                                 ("border", "1px solid #ccc"),
                                 ("text-align", "left"),
                                 ("padding", "8px"),  # 增加填充以便更易点击和阅读
@@ -782,46 +777,46 @@ class StockProposal:
                 .set_sticky(axis="columns")
                 .to_html(doctype_html=True, escape=False)
             )
-            css = """
-            <style>
-                :root {
-                    color-scheme: light;
-                    supported-color-schemes: light;
-                    bgcolor: "#000000" !important;
-                    color: black;
-                    display: table !important;        
-                }
-                @media (prefers-color-scheme: light) {
-                    /* Your light mode (default) styles: */
-                    body {
-                        bgcolor: "#000000" !important;
-                        color: black;
-                        display: table !important;
-                        width: 100%;
-                    }
-                    table {
-                        bgcolor: "#000000" !important;
-                        color: black;
-                        width: 100%;
-                    }
-                }
 
-                @media (prefers-color-scheme: dark) {
-                    /* Your dark mode styles: */
-                    body {
-                        bgcolor: "#000000" !important;
-                        color: black;
-                        display: table !important;
-                        width: 100%;
+            css = """
+                <style>
+                    :root {
+                        color-scheme: dark light;
+                        background: white;
+                        color: black;                    
                     }
-                    table {
-                        bgcolor: "#000000" !important;
-                        color: black;
-                        width: 100%;
+                    @media (prefers-color-scheme: light) {
+                        /* Your light mode (default) styles: */
+                        body {
+                            background: white ;
+                            color: black;
+                            display: table ;
+                            width: 100%;
+                        }
+                        table {
+                            background: white ;
+                            color: black;
+                            width: 100%;
+                        }
                     }
-                }
-            </style>
+
+                    @media (prefers-color-scheme: dark) {
+                        /* Your dark mode styles: */
+                        body {
+                            background: black ;
+                            color: white;
+                            display: table ;
+                            width: 100%;
+                        }
+                        table {
+                            background: black ;
+                            color: white;
+                            width: 100%;
+                        }
+                    }
+                </style>
             """
+
             html = css + html
 
             del dfdata7
@@ -850,26 +845,32 @@ class StockProposal:
                 ]
             )
             colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
+            # light mode
             fig.update_traces(
-                marker=dict(colors=colors, line=dict(color="#000000", width=1)),
+                marker=dict(colors=colors, line=dict(width=1)),
                 textinfo="value+percent",
-                textfont=dict(size=20),
+                textfont=dict(
+                    size=20,
+                    color="black",
+                ),
                 textposition="inside",
             )
             fig.update_layout(
                 title="Top10 Position",
-                title_font=dict(size=20),
+                title_font=dict(size=20, color="black"),
                 legend=dict(
                     orientation="v",
                     yanchor="top",
                     xanchor="left",
                     x=-0.3,
                     y=1,
-                    font=dict(size=20),  # 调整图例字体大小
+                    font=dict(size=20, color="black"),  # 调整图例字体大小
                     bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
                 ),
                 # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
                 autosize=True,
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
             )
             # 设置图像的宽度和高度（例如，1920x1080像素）
             fig_width, fig_height = 1280, 720
@@ -877,7 +878,48 @@ class StockProposal:
             scale_factor = 2
 
             fig.write_image(
-                "./images/postion_byindustry.png",
+                "./images/postion_byindustry_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+            # dark mode
+            fig.update_traces(
+                marker=dict(colors=colors, line=dict(width=1)),
+                textinfo="value+percent",
+                textfont=dict(
+                    size=20,
+                    color="white",
+                ),
+                textposition="inside",
+            )
+            fig.update_layout(
+                title="Top10 Position",
+                title_font=dict(
+                    size=20,
+                    color="white",
+                ),
+                legend=dict(
+                    orientation="v",
+                    yanchor="top",
+                    xanchor="left",
+                    x=-0.3,
+                    y=1,
+                    font=dict(size=20, color="white"),  # 调整图例字体大小
+                    bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
+                ),
+                # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
+                autosize=True,
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+            )
+            # 设置图像的宽度和高度（例如，1920x1080像素）
+            fig_width, fig_height = 1280, 720
+            # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
+            scale_factor = 2
+
+            fig.write_image(
+                "./images/postion_byindustry_dark.png",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -906,30 +948,82 @@ class StockProposal:
                 ]
             )
             colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
+            # light mode
             fig.update_traces(
-                marker=dict(colors=colors, line=dict(color="#000000", width=1)),
+                marker=dict(colors=colors, line=dict(width=1)),
                 textinfo="value+percent",
-                textfont=dict(size=20),
+                textfont=dict(
+                    size=20,
+                    color="black",
+                ),
                 textposition="inside",
             )
             fig.update_layout(
                 title="Top10 Profit",
-                title_font=dict(size=20),
+                title_font=dict(
+                    size=20,
+                    color="black",
+                ),
                 legend=dict(
                     orientation="v",
                     yanchor="top",
                     xanchor="left",
                     x=-0.3,
                     y=1,
-                    font=dict(size=20),  # 调整图例字体大小
+                    font=dict(
+                        size=20,
+                        color="black",
+                    ),  # 调整图例字体大小
                     bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
                 ),
                 # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
                 autosize=True,
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
             )
 
             fig.write_image(
-                "./images/postion_byp&l.png",
+                "./images/postion_byp&l_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+            # dark mode
+            fig.update_traces(
+                marker=dict(colors=colors, line=dict(width=1)),
+                textinfo="value+percent",
+                textfont=dict(
+                    size=20,
+                    color="white",
+                ),
+                textposition="inside",
+            )
+            fig.update_layout(
+                title="Top10 Profit",
+                title_font=dict(
+                    size=20,
+                    color="white",
+                ),
+                legend=dict(
+                    orientation="v",
+                    yanchor="top",
+                    xanchor="left",
+                    x=-0.3,
+                    y=1,
+                    font=dict(
+                        size=20,
+                        color="white",
+                    ),  # 调整图例字体大小
+                    bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
+                ),
+                # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
+                autosize=True,
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+            )
+
+            fig.write_image(
+                "./images/postion_byp&l_dark.png",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -1066,6 +1160,7 @@ class StockProposal:
                     yaxis="y2",
                 )
             )
+            # light mode
             fig.update_layout(
                 title={
                     "text": "Last 60 days trade info",
@@ -1080,9 +1175,10 @@ class StockProposal:
                     titlefont=dict(family="Courier", size=20, color="black"),
                     mirror=True,
                     ticks="outside",
+                    tickfont=dict(color="black"),
                     showline=True,
-                    linecolor="black",
-                    gridcolor="lightgrey",
+                    linecolor="rgba(0, 0, 0, 0.5)",
+                    gridcolor="rgba(0, 0, 0, 0.5)",
                 ),
                 yaxis=dict(
                     title="Total Positions",
@@ -1090,9 +1186,10 @@ class StockProposal:
                     side="left",
                     mirror=True,
                     ticks="outside",
+                    tickfont=dict(color="black"),
                     showline=True,
-                    linecolor="black",
-                    gridcolor="lightgrey",
+                    linecolor="rgba(0, 0, 0, 0.5)",
+                    gridcolor="rgba(0, 0, 0, 0.5)",
                 ),
                 yaxis2=dict(
                     title="Positions per day",
@@ -1109,12 +1206,70 @@ class StockProposal:
                     x=0.5,
                     font=dict(family="Courier", size=20, color="black"),
                 ),
-                plot_bgcolor="white",
                 barmode="stack",
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
             )
 
             fig.write_image(
-                "./images/postion_bydate.png",
+                "./images/postion_bydate_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+            # dark mode
+            fig.update_layout(
+                title={
+                    "text": "Last 60 days trade info",
+                    "y": 0.95,
+                    "x": 0.05,
+                    "xanchor": "left",
+                    "yanchor": "top",
+                    "font": dict(family="Courier", size=20, color="white"),
+                },
+                xaxis=dict(
+                    title="Trade Date",
+                    titlefont=dict(family="Courier", size=20, color="white"),
+                    mirror=True,
+                    ticks="outside",
+                    tickfont=dict(color="white"),
+                    showline=True,
+                    linecolor="rgba(255, 255, 255, 0.5)",
+                    gridcolor="rgba(255, 255, 255, 0.5)",
+                ),
+                yaxis=dict(
+                    title="Total Positions",
+                    titlefont=dict(family="Courier", size=20, color="white"),
+                    side="left",
+                    mirror=True,
+                    ticks="outside",
+                    tickfont=dict(color="white"),
+                    showline=True,
+                    linecolor="rgba(255, 255, 255, 0.5)",
+                    gridcolor="rgba(255, 255, 255, 0.5)",
+                ),
+                yaxis2=dict(
+                    title="Positions per day",
+                    titlefont=dict(family="Courier", size=20, color="white"),
+                    side="right",
+                    overlaying="y",
+                    showgrid=False,
+                ),
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.3,
+                    xanchor="center",
+                    x=0.5,
+                    font=dict(family="Courier", size=20, color="white"),
+                ),
+                barmode="stack",
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+            )
+
+            fig.write_image(
+                "./images/postion_bydate_dark.png",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -1164,25 +1319,28 @@ class StockProposal:
                 color="industry",
                 line_group="industry",
             )
+            # light mode
             fig.update_xaxes(
                 mirror=True,
                 ticks="outside",
+                tickfont=dict(color="black"),
                 showline=True,
-                linecolor="black",
-                gridcolor="lightgrey",
+                linecolor="rgba(0, 0, 0, 0.5)",
+                gridcolor="rgba(0, 0, 0, 0.5)",
                 title_font=dict(size=20, family="Courier", color="black"),
             )
             fig.update_yaxes(
                 mirror=True,
                 ticks="outside",
+                tickfont=dict(color="black"),
                 showline=True,
-                linecolor="black",
-                gridcolor="lightgrey",
+                linecolor="rgba(0, 0, 0, 0.5)",
+                gridcolor="rgba(0, 0, 0, 0.5)",
                 title_font=dict(size=20, family="Courier", color="black"),
             )
             fig.update_layout(
                 title="Last 60 days top5 positions ",
-                title_font=dict(size=20),
+                title_font=dict(size=20, color="black"),
                 legend=dict(
                     orientation="h",
                     yanchor="bottom",
@@ -1191,11 +1349,52 @@ class StockProposal:
                     x=0,
                     font=dict(size=20, family="Courier", color="black"),
                 ),
-                plot_bgcolor="white",
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
             )
 
             fig.write_image(
-                "./images/postion_byindustry&date.png",
+                "./images/postion_byindustry&date_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+            # dark mode
+            fig.update_xaxes(
+                mirror=True,
+                ticks="outside",
+                tickfont=dict(color="white"),
+                showline=True,
+                linecolor="rgba(255, 255, 255, 0.5)",
+                gridcolor="rgba(255, 255, 255, 0.5)",
+                title_font=dict(size=20, family="Courier", color="white"),
+            )
+            fig.update_yaxes(
+                mirror=True,
+                ticks="outside",
+                tickfont=dict(color="white"),
+                showline=True,
+                linecolor="rgba(255, 255, 255, 0.5)",
+                gridcolor="rgba(255, 255, 255, 0.5)",
+                title_font=dict(size=20, family="Courier", color="white"),
+            )
+            fig.update_layout(
+                title="Last 60 days top5 positions ",
+                title_font=dict(size=20, color="white"),
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.3,
+                    xanchor="left",
+                    x=0,
+                    font=dict(size=20, family="Courier", color="white"),
+                ),
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+            )
+
+            fig.write_image(
+                "./images/postion_byindustry&date_dark.png",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -1240,25 +1439,26 @@ class StockProposal:
             fig = px.area(
                 dfdata6, x="buy_date", y="pnl", color="industry", line_group="industry"
             )
+            # light mode
             fig.update_xaxes(
                 mirror=True,
                 ticks="outside",
+                tickfont=dict(color="black"),
                 showline=True,
-                linecolor="black",
-                gridcolor="lightgrey",
+                gridcolor="rgba(0, 0, 0, 0.5)",
                 title_font=dict(size=20, family="Courier", color="black"),
             )
             fig.update_yaxes(
                 mirror=True,
                 ticks="outside",
+                tickfont=dict(color="black"),
                 showline=True,
-                linecolor="black",
-                gridcolor="lightgrey",
+                gridcolor="rgba(0, 0, 0, 0.5)",
                 title_font=dict(size=20, family="Courier", color="black"),
             )
             fig.update_layout(
                 title="Last 60 days top5 pnl ",
-                title_font=dict(size=20),
+                title_font=dict(size=20, color="black"),
                 legend=dict(
                     orientation="h",
                     yanchor="bottom",
@@ -1267,11 +1467,50 @@ class StockProposal:
                     x=0,
                     font=dict(size=20, family="Courier", color="black"),
                 ),
-                plot_bgcolor="white",
+                plot_bgcolor="rgba(0, 0, 0, 0)",
+                paper_bgcolor="rgba(0,0,0,0)",
             )
 
             fig.write_image(
-                "./images/postion_byindustry&p&l.png",
+                "./images/postion_byindustry&p&l_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+            # dark mode
+            fig.update_xaxes(
+                mirror=True,
+                ticks="outside",
+                tickfont=dict(color="white"),
+                showline=True,
+                gridcolor="rgba(255, 255, 255, 0.5)",
+                title_font=dict(size=20, family="Courier", color="white"),
+            )
+            fig.update_yaxes(
+                mirror=True,
+                ticks="outside",
+                tickfont=dict(color="white"),
+                showline=True,
+                gridcolor="rgba(255, 255, 255, 0.5)",
+                title_font=dict(size=20, family="Courier", color="white"),
+            )
+            fig.update_layout(
+                title="Last 60 days top5 pnl ",
+                title_font=dict(size=20, color="white"),
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=-0.3,
+                    xanchor="left",
+                    x=0,
+                    font=dict(size=20, family="Courier", color="white"),
+                ),
+                plot_bgcolor="rgba(0, 0, 0, 0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+            )
+
+            fig.write_image(
+                "./images/postion_byindustry&p&l_dark.png",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -1283,32 +1522,56 @@ class StockProposal:
 
             if self.market == "us":
                 subject = "US Stock Market Trends"
-                image_path_return = "./images/TRdraw.png"
+                image_path_return_light = "./images/TRdraw_light.png"
+                image_path_return_dark = "./images/TRdraw_dark.png"
             elif self.market == "cn":
                 subject = "CN Stock Market Trends"
-                image_path_return = "./images/CNTRdraw.png"
+                image_path_return_light = "./images/CNTRdraw_light.png"
+                image_path_return_dark = "./images/CNTRdraw_dark.png"
             image_path = [
-                "./images/postion_byindustry.png",
-                "./images/postion_byp&l.png",
-                "./images/postion_bydate.png",
-                "./images/postion_byindustry&date.png",
-                "./images/postion_byindustry&p&l.png",
-                image_path_return,
+                "./images/postion_byindustry_light.png",
+                "./images/postion_byindustry_dark.png",
+                "./images/postion_byp&l_light.png",
+                "./images/postion_byp&l_dark.png",
+                "./images/postion_bydate_light.png",
+                "./images/postion_bydate_dark.png",
+                "./images/postion_byindustry&date_light.png",
+                "./images/postion_byindustry&date_dark.png",
+                "./images/postion_byindustry&p&l_light.png",
+                "./images/postion_byindustry&p&l_dark.png",
+                image_path_return_light,
+                image_path_return_dark,
             ]
             html_img = """
                     <html>
                         <head>
                             <style>
+                                :root {
+                                    --background-color: white; /* 默认浅色主题背景色 */
+                                    --text-color: black; /* 默认浅色主题文字颜色 */
+                                    --border-color: #ddd; /* 默认浅色主题边框颜色 */
+                                    --shadow-color: rgba(0, 0, 0, 0.1); /* 默认浅色主题阴影颜色 */
+                                }
+
+                                @media (prefers-color-scheme: dark) {
+                                    :root {
+                                        --background-color: black; /* 深色主题背景色 */
+                                        --text-color: white; /* 深色主题文字颜色 */
+                                        --border-color: #444; /* 深色主题边框颜色 */
+                                        --shadow-color: rgba(255, 255, 255, 0.1); /* 深色主题阴影颜色 */
+                                    }
+                                } 
                                 body {
-                                    font-family: Arial, sans-serif;
+                                    font-family: Arial, sans-serif; color: var(--text-color);
                                 }
                                 figure {
                                     margin: 0px;
-                                    border: 1px solid #ddd;
+                                    border: 1px solid var(--border-color);
                                     padding: 5px;
                                     border-radius: 8px;
-                                    background-color: #f8f8f8;
-                                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                                    background-color: var(--background-color);
+                                    box-shadow: 0 2px 4px var(--shadow-color);
+                                    color: var(--text-color);
                                 }
                                 img {
                                     width: 100%;
@@ -1316,7 +1579,7 @@ class StockProposal:
                                     border-radius: 2px;
                                 }
                                 figcaption {
-                                    color: #555;
+                                    color: var(--text-color);
                                     padding: 5px;
                                     text-align: center;
                                     font-style: italic;
@@ -1325,36 +1588,54 @@ class StockProposal:
                             </style>
                         </head>                    
                         <body>
-                            <figure>
+                            <picture>
+                                <!-- 深色模式下的图片 -->
+                                <source srcset="cid:image1" media="(prefers-color-scheme: dark)" alt="The industry distribution of current positions is as follows:" style="width:100%"/>
+                                <!-- 默认模式下的图片 -->
                                 <img src="cid:image0" alt="The industry distribution of current positions is as follows:" style="width:100%">
                                 <figcaption>The industry position distribution of the top 10 shows the current distribution of industry 
                                             positions that meet the strategy.</figcaption>
-                            </figure>
-                            <figure>
-                                <img src="cid:image1" alt="The industry distribution of current pnl is as follows:" style="width:100%">
+                            </picture>
+                            <picture>
+                                <!-- 深色模式下的图片 -->
+                                <source srcset="cid:image3" media="(prefers-color-scheme: dark)" alt="The industry distribution of current pnl is as follows:" style="width:100%"/>
+                                <!-- 默认模式下的图片 -->
+                                <img src="cid:image2" alt="The industry distribution of current pnl is as follows:" style="width:100%">
                                 <figcaption>The industry pnl distribution of the top 10 shows the current distribution of industry 
                                             pnl that meet the strategy.</figcaption>
-                            </figure>
-                            <figure>
-                                <img src="cid:image2" alt="The diagram shows the last x days trade detail info:" style="width:100%">
+                            </picture>                                                          
+                            <picture>
+                                <!-- 深色模式下的图片 -->
+                                <source srcset="cid:image5" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days trade detail info:" style="width:100%"/>
+                                <!-- 默认模式下的图片 -->
+                                <img src="cid:image4" alt="The diagram shows the last x days trade detail info:" style="width:100%">
                                 <figcaption>The diagram shows the last x days trade detail info, which include the short/long/position
                                             info every day.</figcaption>
-                            </figure>
-                            <figure>
-                                <img src="cid:image3" alt="The diagram shows the last x days top5 industry position info:" style="width:100%">
+                            </picture>
+                            <picture>
+                                <!-- 深色模式下的图片 -->
+                                <source srcset="cid:image7" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top5 industry position info:" style="width:100%"/>
+                                <!-- 默认模式下的图片 -->
+                                <img src="cid:image6" alt="The diagram shows the last x days top5 industry position info:" style="width:100%">
                                 <figcaption>The diagram shows the last x days top5 industry position trend, to stat last x days
                                             the top5 industry positions change status</figcaption>
-                            </figure>
-                            <figure>
-                                <img src="cid:image4" alt="The diagram shows the last x days top5 industry pnl info:" style="width:100%">
+                            </picture>                               
+                            <picture>
+                                <!-- 深色模式下的图片 -->
+                                <source srcset="cid:image9" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top5 industry pnl info:" style="width:100%"/>
+                                <!-- 默认模式下的图片 -->
+                                <img src="cid:image8" alt="The diagram shows the last x days top5 industry pnl info:" style="width:100%">
                                 <figcaption>The diagram shows the last x days top5 industry pnl trend, to stat last x days
                                             the top5 industry pnl change status</figcaption>
-                            </figure>
-                            <figure>
-                                <img src="cid:image5" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%">
+                            </picture>    
+                            <picture>
+                                <!-- 深色模式下的图片 -->
+                                <source srcset="cid:image11" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%"/>
+                                <!-- 默认模式下的图片 -->
+                                <img src="cid:image10" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%">
                                 <figcaption>The diagram shows the last x years cumulative return and max drawdown trend,
                                             to track the stock market and stategy execution information</figcaption>
-                            </figure>
+                            </picture>
                         </body>
                     </html>
                     """

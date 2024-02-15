@@ -211,7 +211,7 @@ def exec_btstrategy(date):
         grid=True,
         color="#d65f5f",
     )
-    ax2.set_facecolor("lightgray")
+    ax2.set_facecolor("none")
 
     # 不然 x 轴留有空白
     ax2.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
@@ -225,9 +225,24 @@ def exec_btstrategy(date):
     h2, l2 = ax2.get_legend_handles_labels()
 
     plt.legend(h1 + h2, l1 + l2, fontsize=20, loc="upper left", ncol=1)
-
+    # Set the font color of the table cells to white
+    for cell in table.get_celld().values():
+        cell.set_text_props(color="black")
+    # Set the font color of the trend graph
+    ax2.yaxis.label.set_color("black")
+    ax2.tick_params(axis="y", colors="black")
+    ax2.spines["right"].set_color("black")
     fig.tight_layout()
-    plt.savefig("./images/CNTRdraw.png")
+    plt.savefig("./images/CNTRdraw_light.png", transparent=True)
+    # Set the font color of the table cells to white
+    for cell in table.get_celld().values():
+        cell.set_text_props(color="white")
+    # Set the font color of the trend graph
+    ax2.yaxis.label.set_color("white")
+    ax2.tick_params(axis="y", colors="white")
+    ax2.spines["right"].set_color("white")
+    fig.tight_layout()
+    plt.savefig("./images/CNTRdraw_dark.png", transparent=True)
 
 
 # 主程序入口
