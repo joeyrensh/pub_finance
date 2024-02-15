@@ -240,6 +240,8 @@ def exec_btstrategy(date):
     # Set the font color of the trend graph
     ax2.yaxis.label.set_color("black")
     ax2.tick_params(axis="y", colors="black")
+    ax1.yaxis.label.set_color("black")
+    ax1.tick_params(axis="y", colors="black")
     ax2.spines["right"].set_color("black")
     fig.tight_layout()
     plt.savefig("./images/TRdraw_light.png", transparent=True)
@@ -249,6 +251,8 @@ def exec_btstrategy(date):
     # Set the font color of the trend graph
     ax2.yaxis.label.set_color("white")
     ax2.tick_params(axis="y", colors="white")
+    ax1.yaxis.label.set_color("white")
+    ax1.tick_params(axis="y", colors="white")
     ax2.spines["right"].set_color("white")
     fig.tight_layout()
     plt.savefig("./images/TRdraw_dark.png", transparent=True)

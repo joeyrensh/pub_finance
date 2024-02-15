@@ -1197,6 +1197,8 @@ class StockProposal:
                     side="right",
                     overlaying="y",
                     showgrid=False,
+                    ticks="outside",
+                    tickfont=dict(color="black"),
                 ),
                 legend=dict(
                     orientation="h",
@@ -1254,6 +1256,8 @@ class StockProposal:
                     side="right",
                     overlaying="y",
                     showgrid=False,
+                    ticks="outside",
+                    tickfont=dict(color="white"),
                 ),
                 legend=dict(
                     orientation="h",
