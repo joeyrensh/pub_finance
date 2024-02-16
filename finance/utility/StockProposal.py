@@ -472,42 +472,49 @@ class StockProposal:
                 escape=False,
             )
         )
+
         css1 = """
             <style>
                 :root {
                     color-scheme: dark light;
+                    supported-color-schemes: dark light;
                     background: white;
-                    color: black;                    
-                }
-                @media (prefers-color-scheme: light) {
-                    /* Your light mode (default) styles: */
-                    body {
-                        background: white ;
-                        color: black;
-                        display: table ;
-                        width: 100%;
-                    }
-                    table {
-                        background: white ;
-                        color: black;
-                        width: 100%;
-                    }
+                    bgcolor: white;
+                    color: black;                
                 }
 
                 @media (prefers-color-scheme: dark) {
                     /* Your dark mode styles: */
                     body {
                         background: black ;
+                        bgcolor: black;
                         color: white;
                         display: table ;
                         width: 100%;
                     }
                     table {
                         background: black;
+                        bgcolor: black;
                         color: white;
                         width: 100%;
                     }
                 }
+                @media (prefers-color-scheme: light) {
+                    /* Your light mode (default) styles: */
+                    body {
+                        background: white ;
+                        bgcolor: white;
+                        color: black;
+                        display: table ;
+                        width: 100%;
+                    }
+                    table {
+                        background: white ;
+                        bgcolor: white;
+                        color: black;
+                        width: 100%;
+                    }
+                }                
             </style>
         """
         html1 = css1 + html1
@@ -782,38 +789,44 @@ class StockProposal:
                 <style>
                     :root {
                         color-scheme: dark light;
+                        supported-color-schemes: dark light;
                         background: white;
-                        color: black;                    
+                        bgcolor: white;
+                        color: black;                                       
                     }
-                    @media (prefers-color-scheme: light) {
-                        /* Your light mode (default) styles: */
-                        body {
-                            background: white ;
-                            color: black;
-                            display: table ;
-                            width: 100%;
-                        }
-                        table {
-                            background: white ;
-                            color: black;
-                            width: 100%;
-                        }
-                    }
-
                     @media (prefers-color-scheme: dark) {
                         /* Your dark mode styles: */
                         body {
                             background: black ;
+                            bgcolor: black;
                             color: white;
                             display: table ;
                             width: 100%;
                         }
                         table {
                             background: black ;
+                            bgcolor: black;
                             color: white;
                             width: 100%;
                         }
-                    }
+                    }                    
+                    @media (prefers-color-scheme: light) {
+                        /* Your light mode (default) styles: */
+                        body {
+                            background: white ;
+                            bgcolor: white;
+                            color: black;
+                            display: table ;
+                            width: 100%;
+                        }
+                        table {
+                            background: white ;
+                            bgcolor: white;
+                            color: black;
+                            width: 100%;
+                        }
+                    }                    
+
                 </style>
             """
 
@@ -1177,7 +1190,6 @@ class StockProposal:
                     ticks="outside",
                     tickfont=dict(color="black"),
                     showline=True,
-                    linecolor="rgba(0, 0, 0, 0.5)",
                     gridcolor="rgba(0, 0, 0, 0.5)",
                 ),
                 yaxis=dict(
@@ -1188,7 +1200,6 @@ class StockProposal:
                     ticks="outside",
                     tickfont=dict(color="black"),
                     showline=True,
-                    linecolor="rgba(0, 0, 0, 0.5)",
                     gridcolor="rgba(0, 0, 0, 0.5)",
                 ),
                 yaxis2=dict(
@@ -1236,7 +1247,6 @@ class StockProposal:
                     ticks="outside",
                     tickfont=dict(color="white"),
                     showline=True,
-                    linecolor="rgba(255, 255, 255, 0.5)",
                     gridcolor="rgba(255, 255, 255, 0.5)",
                 ),
                 yaxis=dict(
@@ -1247,7 +1257,6 @@ class StockProposal:
                     ticks="outside",
                     tickfont=dict(color="white"),
                     showline=True,
-                    linecolor="rgba(255, 255, 255, 0.5)",
                     gridcolor="rgba(255, 255, 255, 0.5)",
                 ),
                 yaxis2=dict(
@@ -1329,7 +1338,6 @@ class StockProposal:
                 ticks="outside",
                 tickfont=dict(color="black"),
                 showline=True,
-                linecolor="rgba(0, 0, 0, 0.5)",
                 gridcolor="rgba(0, 0, 0, 0.5)",
                 title_font=dict(size=20, family="Courier", color="black"),
             )
@@ -1338,7 +1346,6 @@ class StockProposal:
                 ticks="outside",
                 tickfont=dict(color="black"),
                 showline=True,
-                linecolor="rgba(0, 0, 0, 0.5)",
                 gridcolor="rgba(0, 0, 0, 0.5)",
                 title_font=dict(size=20, family="Courier", color="black"),
             )
@@ -1369,7 +1376,6 @@ class StockProposal:
                 ticks="outside",
                 tickfont=dict(color="white"),
                 showline=True,
-                linecolor="rgba(255, 255, 255, 0.5)",
                 gridcolor="rgba(255, 255, 255, 0.5)",
                 title_font=dict(size=20, family="Courier", color="white"),
             )
@@ -1378,7 +1384,6 @@ class StockProposal:
                 ticks="outside",
                 tickfont=dict(color="white"),
                 showline=True,
-                linecolor="rgba(255, 255, 255, 0.5)",
                 gridcolor="rgba(255, 255, 255, 0.5)",
                 title_font=dict(size=20, family="Courier", color="white"),
             )
