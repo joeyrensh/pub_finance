@@ -478,23 +478,21 @@ class StockProposal:
                 :root {
                     color-scheme: dark light;
                     supported-color-schemes: dark light;
-                    background: white;
-                    bgcolor: white;
-                    color: black;                
+                    background-color: white;
+                    color: black;
+                    display: table ;
                 }
 
                 @media (prefers-color-scheme: dark) {
                     /* Your dark mode styles: */
                     body {
-                        background: black ;
-                        bgcolor: black;
+                        background-color: black;
                         color: white;
                         display: table ;
                         width: 100%;
                     }
                     table {
-                        background: black;
-                        bgcolor: black;
+                        background-color: black;
                         color: white;
                         width: 100%;
                     }
@@ -502,19 +500,17 @@ class StockProposal:
                 @media (prefers-color-scheme: light) {
                     /* Your light mode (default) styles: */
                     body {
-                        background: white ;
-                        bgcolor: white;
+                        background-color: white;
                         color: black;
                         display: table ;
                         width: 100%;
                     }
                     table {
-                        background: white ;
-                        bgcolor: white;
+                        background-color: white;
                         color: black;
                         width: 100%;
                     }
-                }                
+                }
             </style>
         """
         html1 = css1 + html1
@@ -790,43 +786,39 @@ class StockProposal:
                     :root {
                         color-scheme: dark light;
                         supported-color-schemes: dark light;
-                        background: white;
-                        bgcolor: white;
-                        color: black;                                       
+                        background-color: white;
+                        color: black;
+                        display: table ;
                     }
+
                     @media (prefers-color-scheme: dark) {
                         /* Your dark mode styles: */
                         body {
-                            background: black ;
-                            bgcolor: black;
+                            background-color: black;
                             color: white;
                             display: table ;
                             width: 100%;
                         }
                         table {
-                            background: black ;
-                            bgcolor: black;
+                            background-color: black;
                             color: white;
                             width: 100%;
                         }
-                    }                    
+                    }
                     @media (prefers-color-scheme: light) {
                         /* Your light mode (default) styles: */
                         body {
-                            background: white ;
-                            bgcolor: white;
+                            background-color: white;
                             color: black;
                             display: table ;
                             width: 100%;
                         }
                         table {
-                            background: white ;
-                            bgcolor: white;
+                            background-color: white;
                             color: black;
                             width: 100%;
                         }
-                    }                    
-
+                    }
                 </style>
             """
 
@@ -1555,44 +1547,54 @@ class StockProposal:
                     <html>
                         <head>
                             <style>
-                                :root {
-                                    --background-color: white; /* 默认浅色主题背景色 */
-                                    --text-color: black; /* 默认浅色主题文字颜色 */
-                                    --border-color: #ddd; /* 默认浅色主题边框颜色 */
-                                    --shadow-color: rgba(0, 0, 0, 0.1); /* 默认浅色主题阴影颜色 */
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    background-color: white; /* 设置默认背景颜色为白色 */
+                                    color: black; /* 设置默认字体颜色为黑色 */
                                 }
 
-                                @media (prefers-color-scheme: dark) {
-                                    :root {
-                                        --background-color: black; /* 深色主题背景色 */
-                                        --text-color: white; /* 深色主题文字颜色 */
-                                        --border-color: #444; /* 深色主题边框颜色 */
-                                        --shadow-color: rgba(255, 255, 255, 0.1); /* 深色主题阴影颜色 */
-                                    }
-                                } 
-                                body {
-                                    font-family: Arial, sans-serif; color: var(--text-color);
-                                }
                                 figure {
-                                    margin: 0px;
-                                    border: 1px solid var(--border-color);
+                                    margin: 0;
                                     padding: 5px;
                                     border-radius: 8px;
-                                    background-color: var(--background-color);
-                                    box-shadow: 0 2px 4px var(--shadow-color);
-                                    color: var(--text-color);
+                                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
                                 }
+
                                 img {
                                     width: 100%;
                                     height: auto;
                                     border-radius: 2px;
                                 }
+
                                 figcaption {
-                                    color: var(--text-color);
                                     padding: 5px;
                                     text-align: center;
                                     font-style: italic;
                                     font-size: 24px;
+                                }
+
+                                /* Light Mode */
+                                @media (prefers-color-scheme: light) {
+                                    body {
+                                        background-color: white;
+                                        color: black;
+                                    }
+
+                                    figure {
+                                        border: 1px solid #ddd;
+                                    }
+                                }
+
+                                /* Dark Mode */
+                                @media (prefers-color-scheme: dark) {
+                                    body {
+                                        background-color: black;
+                                        color: white;
+                                    }
+
+                                    figure {
+                                        border: 1px solid #444;
+                                    }
                                 }
                             </style>
                         </head>                    
@@ -1602,7 +1604,7 @@ class StockProposal:
                                 <source srcset="cid:image1" media="(prefers-color-scheme: dark)" alt="The industry distribution of current positions is as follows:" style="width:100%"/>
                                 <!-- 默认模式下的图片 -->
                                 <img src="cid:image0" alt="The industry distribution of current positions is as follows:" style="width:100%">
-                                <figcaption>The industry position distribution of the top 10 shows the current distribution of industry 
+                                <figcaption> The industry position distribution of the top 10 shows the current distribution of industry
                                             positions that meet the strategy.</figcaption>
                             </picture>
                             <picture>

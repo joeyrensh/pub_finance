@@ -54,6 +54,7 @@ def exec_btstrategy(date):
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
+    # stocklist = ["USFD"]
     list = TickerInfo(date, "us").get_backtrader_data_feed()
     """ 循环初始化数据进入cerebro """
     for h in list:
