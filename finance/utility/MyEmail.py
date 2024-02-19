@@ -21,7 +21,7 @@ class MyEmail(object):
     def __init__(self):
         self.send_from = self._mail_user
         self.to = self._mail_user
-        self.server = "smtp.163.com"  # smtp.163.com smtp.qq.com
+        self.server = "smtp.qq.com"  # smtp.163.com smtp.qq.com
         self.port = 465
         self.msg = MIMEMultipart("related")
         self.msg["To"] = self.to

@@ -513,6 +513,7 @@ class StockProposal:
                 }
             </style>
         """
+
         html1 = css1 + html1
 
         if not df_cur_p.empty:
@@ -1597,7 +1598,7 @@ class StockProposal:
                                     }
                                 }
                             </style>
-                        </head>                    
+                        </head>
                         <body>
                             <picture>
                                 <!-- 深色模式下的图片 -->
@@ -1612,9 +1613,9 @@ class StockProposal:
                                 <source srcset="cid:image3" media="(prefers-color-scheme: dark)" alt="The industry distribution of current pnl is as follows:" style="width:100%"/>
                                 <!-- 默认模式下的图片 -->
                                 <img src="cid:image2" alt="The industry distribution of current pnl is as follows:" style="width:100%">
-                                <figcaption>The industry pnl distribution of the top 10 shows the current distribution of industry 
+                                <figcaption>The industry pnl distribution of the top 10 shows the current distribution of industry
                                             pnl that meet the strategy.</figcaption>
-                            </picture>                                                          
+                            </picture>
                             <picture>
                                 <!-- 深色模式下的图片 -->
                                 <source srcset="cid:image5" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days trade detail info:" style="width:100%"/>
@@ -1630,7 +1631,7 @@ class StockProposal:
                                 <img src="cid:image6" alt="The diagram shows the last x days top5 industry position info:" style="width:100%">
                                 <figcaption>The diagram shows the last x days top5 industry position trend, to stat last x days
                                             the top5 industry positions change status</figcaption>
-                            </picture>                               
+                            </picture>
                             <picture>
                                 <!-- 深色模式下的图片 -->
                                 <source srcset="cid:image9" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top5 industry pnl info:" style="width:100%"/>
@@ -1638,7 +1639,7 @@ class StockProposal:
                                 <img src="cid:image8" alt="The diagram shows the last x days top5 industry pnl info:" style="width:100%">
                                 <figcaption>The diagram shows the last x days top5 industry pnl trend, to stat last x days
                                             the top5 industry pnl change status</figcaption>
-                            </picture>    
+                            </picture>
                             <picture>
                                 <!-- 深色模式下的图片 -->
                                 <source srcset="cid:image11" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%"/>
@@ -1650,6 +1651,7 @@ class StockProposal:
                         </body>
                     </html>
                     """
+
             MyEmail().send_email_embedded_image(
                 subject, html1 + html_img + html, image_path
             )

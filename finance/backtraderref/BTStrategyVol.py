@@ -412,6 +412,7 @@ class BTStrategyVol(bt.Strategy):
                     self.signals[d._name]["close_crossup_mashort"][0] == 1
                     and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
                     and d.close[0] > d.open[0]
+                    and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
                 ):
                     """买入对应仓位"""
@@ -425,6 +426,7 @@ class BTStrategyVol(bt.Strategy):
                     self.signals[d._name]["emashort_crossup_emamid"][0] == 1
                     and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
                     and d.close[0] > d.open[0]
+                    and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
                 ):
                     """买入对应仓位"""
@@ -438,6 +440,7 @@ class BTStrategyVol(bt.Strategy):
                     self.signals[d._name]["long_position"][0] == 1
                     and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
                     and d.close[0] > d.open[0]
+                    and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
                 ):
                     """买入对应仓位"""
@@ -451,6 +454,7 @@ class BTStrategyVol(bt.Strategy):
                     self.signals[d._name]["dea_crossup_0axis"][0] == 1
                     and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
                     and d.close[0] > d.open[0]
+                    and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
                 ):
                     """买入对应仓位"""
@@ -464,6 +468,7 @@ class BTStrategyVol(bt.Strategy):
                     self.signals[d._name]["mavol_long_position"][0] == 1
                     and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
                     and d.close[0] > d.open[0]
+                    and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
                 ):
                     """买入对应仓位"""
@@ -481,6 +486,7 @@ class BTStrategyVol(bt.Strategy):
                     )
                     and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
                     and d.close[0] > d.open[0]
+                    and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
                 ):
                     """买入对应仓位"""
