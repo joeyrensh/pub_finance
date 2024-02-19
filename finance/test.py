@@ -40,7 +40,8 @@ def exec_btstrategy(date):
     """ 初始资金100M """
     cerebro.broker.setcash(2000000.0)
     """ 每手10股 """
-    cerebro.addsizer(bt.sizers.FixedSize, stake=100)
+    # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
+    cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
@@ -252,7 +253,7 @@ def exec_btstrategy(date):
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc+8"""
-    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(1)
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
@@ -273,6 +274,11 @@ if __name__ == "__main__":
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
     print("trade_date is :", trade_date)
+
+    """ 东方财经爬虫 """
+    """ 爬取每日最新股票数据 """
+    em = EMCNWebCrawler()
+    em.get_cn_daily_stock_info(trade_date)
 
     """ 执行bt相关策略 """
     exec_btstrategy(trade_date)

@@ -40,7 +40,8 @@ def exec_btstrategy(date):
     """ 初始资金100M """
     cerebro.broker.setcash(2000000.0)
     """ 每手10股 """
-    cerebro.addsizer(bt.sizers.FixedSize, stake=100)
+    # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
+    cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """

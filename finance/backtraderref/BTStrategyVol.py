@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from utility.MyEmail import MyEmail
 import seaborn as sns
 from utility.FileInfo import FileInfo
+import math
 
 
 class BTStrategyVol(bt.Strategy):
@@ -190,6 +191,19 @@ class BTStrategyVol(bt.Strategy):
                 d.close, self.inds[d._name]["mashort"]
             )
 
+            """ 
+            辅助指标：抵扣价正切角度需要保持在合理角度之间
+            """
+            slope20 = (
+                self.inds[d._name]["emashort"](0) - self.inds[d._name]["emashort"](-20)
+            ) / self.inds[d._name]["emashort"](-20)
+            self.signals[d._name]["reasonable_angle"] = bt.And(
+                slope20 > 0,
+                slope20 <= math.tan(math.radians(60)),
+            )
+
+            self.signals[d._name]["steep_angle"] = slope20 > math.tan(math.radians(60))
+
             """
             近20日均线密集，价格上穿短期均线
             """
@@ -287,8 +301,11 @@ class BTStrategyVol(bt.Strategy):
             if order.isbuy():
                 """订单购入成功"""
                 print(
-                    "{}, Buy {} Executed, Price: {:.2f}".format(
-                        self.datetime.date(), order.data._name, order.executed.price
+                    "{}, Buy {} Executed, Price: {:.2f} Size: {:.2f}".format(
+                        self.datetime.date(),
+                        order.data._name,
+                        order.executed.price,
+                        order.executed.size,
                     )
                 )
                 self.last_deal_date[order.data._name] = self.datetime.date()
@@ -303,8 +320,11 @@ class BTStrategyVol(bt.Strategy):
             elif order.issell():
                 """订单卖出成功"""
                 print(
-                    "{} Sell {} Executed, Price: {:.2f}".format(
-                        self.datetime.date(), order.data._name, order.executed.price
+                    "{} Sell {} Executed, Price: {:.2f} Size: {:.2f}".format(
+                        self.datetime.date(),
+                        order.data._name,
+                        order.executed.price,
+                        order.executed.size,
                     )
                 )
                 self.last_deal_date[order.data._name] = None
@@ -319,8 +339,11 @@ class BTStrategyVol(bt.Strategy):
             elif order.alive():
                 """returns bool if order is in status Partial or Accepted"""
                 print(
-                    "{} Partial {} Executed, Price: {:.2f}".format(
-                        self.datetime.date(), order.data._name, order.executed.price
+                    "{} Partial {} Executed, Price: {:.2f} Size: {:.2f}".format(
+                        self.datetime.date(),
+                        order.data._name,
+                        order.executed.price,
+                        order.executed.size,
                     )
                 )
                 self.last_deal_date[order.data._name] = None
@@ -367,7 +390,12 @@ class BTStrategyVol(bt.Strategy):
             """
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
-            if len(pos) == 0:
+            if not pos:
+
+                # 小于100，取100，大于100，取100的倍数
+                buy_size = (lambda num: 100 if num < 100 else (num // 100) * 100)(
+                    self.getsizing(d)
+                )
                 """噪声处理"""
                 # 最近20个交易日收盘价频繁穿越ma20均线，不进行交易
                 if (
@@ -414,10 +442,13 @@ class BTStrategyVol(bt.Strategy):
                     and d.close[0] > d.open[0]
                     and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
+                    and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
+                    self.order[d._name] = self.buy(
+                        data=d, exectype=bt.Order.Market, size=buy_size
+                    )
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Close CrossUP"
 
@@ -428,10 +459,13 @@ class BTStrategyVol(bt.Strategy):
                     and d.close[0] > d.open[0]
                     and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
+                    and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
+                    self.order[d._name] = self.buy(
+                        data=d, exectype=bt.Order.Market, size=buy_size
+                    )
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "EMA CrossUP"
 
@@ -442,10 +476,13 @@ class BTStrategyVol(bt.Strategy):
                     and d.close[0] > d.open[0]
                     and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
+                    and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
+                    self.order[d._name] = self.buy(
+                        data=d, exectype=bt.Order.Market, size=buy_size
+                    )
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Long Position"
 
@@ -456,10 +493,13 @@ class BTStrategyVol(bt.Strategy):
                     and d.close[0] > d.open[0]
                     and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
+                    and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
+                    self.order[d._name] = self.buy(
+                        data=d, exectype=bt.Order.Market, size=buy_size
+                    )
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "DEA CrossUP"
 
@@ -470,10 +510,13 @@ class BTStrategyVol(bt.Strategy):
                     and d.close[0] > d.open[0]
                     and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
+                    and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
+                    self.order[d._name] = self.buy(
+                        data=d, exectype=bt.Order.Market, size=buy_size
+                    )
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "VOL Increased"
 
@@ -488,10 +531,13 @@ class BTStrategyVol(bt.Strategy):
                     and d.close[0] > d.open[0]
                     and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
+                    and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d, exectype=bt.Order.Market)
+                    self.order[d._name] = self.buy(
+                        data=d, exectype=bt.Order.Market, size=buy_size
+                    )
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Dense MA"
 
@@ -540,6 +586,12 @@ class BTStrategyVol(bt.Strategy):
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Close20 Down"
 
+                # 止盈点
+                elif self.signals[d._name]["steep_angle"][0] == 1:
+                    self.order[d._name] = self.close(data=d)
+                    self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
+                    self.myorder[d._name]["strategy"] = "Steep Angle"
+
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
         df.to_csv(self.file_path_position_detail, header=None)
@@ -553,7 +605,7 @@ class BTStrategyVol(bt.Strategy):
         for i, d in enumerate(self.datas):
             pos = self.getposition(d)
             """ 截止当前，持仓仓位打印 """
-            if len(pos) and pos.size > 0:
+            if  pos.size > 0:
                 """
                 股票代码
                 最后买入日期
