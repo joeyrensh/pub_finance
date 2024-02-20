@@ -230,7 +230,7 @@ class BTStrategyVol(bt.Strategy):
                     self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
                     self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
                 ),
-                bt.indicators.CrossUp(d.close, self.inds[d._name]["mashort"]) == 1,
+                bt.indicators.CrossUp(d.close, self.inds[d._name]["emashort"]) == 1,
             )
 
             """
@@ -605,7 +605,7 @@ class BTStrategyVol(bt.Strategy):
         for i, d in enumerate(self.datas):
             pos = self.getposition(d)
             """ 截止当前，持仓仓位打印 """
-            if  pos.size > 0:
+            if pos.size > 0:
                 """
                 股票代码
                 最后买入日期

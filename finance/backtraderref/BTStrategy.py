@@ -180,7 +180,7 @@ class BTStrategy(bt.Strategy):
                     self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
                     self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
                 ),
-                bt.indicators.CrossUp(d.close, self.inds[d._name]["mashort"]) == 1,
+                bt.indicators.CrossUp(d.close, self.inds[d._name]["emashort"]) == 1,
             )
 
             """
