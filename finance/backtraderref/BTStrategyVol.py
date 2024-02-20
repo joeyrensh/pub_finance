@@ -195,8 +195,8 @@ class BTStrategyVol(bt.Strategy):
             辅助指标：抵扣价正切角度需要保持在合理角度之间
             """
             slope20 = (
-                self.inds[d._name]["emashort"](0) - self.inds[d._name]["emashort"](-20)
-            ) / self.inds[d._name]["emashort"](-20)
+                self.inds[d._name]["emashort"](0) - self.inds[d._name]["emashort"](-19)
+            ) / self.inds[d._name]["emashort"](-19)
             self.signals[d._name]["reasonable_angle"] = bt.And(
                 slope20 > 0,
                 slope20 <= math.tan(math.radians(60)),
@@ -429,18 +429,22 @@ class BTStrategyVol(bt.Strategy):
                 y1 = self.inds[d._name]["emamid"].get(
                     ago=0, size=self.params.shortperiod
                 )
-                z1 = self.inds[d._name]["mashort"].get(
+                x2 = self.inds[d._name]["mashort"].get(
+                    ago=0, size=self.params.shortperiod
+                )
+                y2 = self.inds[d._name]["mamid"].get(
                     ago=0, size=self.params.shortperiod
                 )
                 diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y != 0]
-                diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x1, z1) if y != 0]
+                diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y != 0]
 
                 # 收盘价穿越均线
                 if (
                     self.signals[d._name]["close_crossup_mashort"][0] == 1
-                    and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
+                    and self.inds[d._name]["mashort"][0]
+                    > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-20]
+                    and d.close[0] > d.close[-19]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
@@ -455,9 +459,10 @@ class BTStrategyVol(bt.Strategy):
                 # 短期均线穿越中期均线
                 elif (
                     self.signals[d._name]["emashort_crossup_emamid"][0] == 1
-                    and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
+                    and self.inds[d._name]["mashort"][0]
+                    > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-20]
+                    and d.close[0] > d.close[-19]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
@@ -472,9 +477,10 @@ class BTStrategyVol(bt.Strategy):
                 # 均线多头排列
                 elif (
                     self.signals[d._name]["long_position"][0] == 1
-                    and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
+                    and self.inds[d._name]["mashort"][0]
+                    > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-20]
+                    and d.close[0] > d.close[-19]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
@@ -489,9 +495,10 @@ class BTStrategyVol(bt.Strategy):
                 # dea上穿0轴
                 elif (
                     self.signals[d._name]["dea_crossup_0axis"][0] == 1
-                    and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
+                    and self.inds[d._name]["mashort"][0]
+                    > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-20]
+                    and d.close[0] > d.close[-19]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
@@ -506,9 +513,10 @@ class BTStrategyVol(bt.Strategy):
                 # 成交量突然放大
                 elif (
                     self.signals[d._name]["mavol_long_position"][0] == 1
-                    and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
+                    and self.inds[d._name]["mashort"][0]
+                    > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-20]
+                    and d.close[0] > d.close[-19]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
@@ -527,9 +535,10 @@ class BTStrategyVol(bt.Strategy):
                         and sum(1 for value in diff_array if value < 2) > 5
                         and sum(1 for value in diff_array2 if value < 2) > 5
                     )
-                    and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
+                    and self.inds[d._name]["mashort"][0]
+                    > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-20]
+                    and d.close[0] > d.close[-19]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
@@ -578,7 +587,7 @@ class BTStrategyVol(bt.Strategy):
 
                 # 止损点
                 elif (
-                    d.close[0] < d.close[-20]
+                    d.close[0] < d.close[-19]
                     and self.inds[d._name]["emashort"][0]
                     < self.inds[d._name]["emamid"][0]
                 ):
