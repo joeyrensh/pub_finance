@@ -17,6 +17,7 @@ import matplotlib.font_manager as fm
 from utility.MyEmail import MyEmail
 import plotly.graph_objects as go
 import plotly.express as px
+import plotly.io as io
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 import gc
@@ -482,32 +483,28 @@ class StockProposal:
                     color: black;
                     display: table ;
                 }
-
-                @media (prefers-color-scheme: dark) {
-                    /* Your dark mode styles: */
-                    body {
-                        background-color: black;
-                        color: white;
-                        display: table ;
-                        width: 100%;
-                    }
-                    table {
-                        background-color: black;
-                        color: white;
-                        width: 100%;
-                    }
+                /* Your light mode (default) styles: */
+                body {
+                    background-color: white;
+                    color: black;
+                    display: table ;
+                    width: 100%;
                 }
-                @media (prefers-color-scheme: light) {
-                    /* Your light mode (default) styles: */
+                table {
+                    background-color: white;
+                    color: black;
+                    width: 100%;
+                }
+                @media (prefers-color-scheme: dark) {            
                     body {
-                        background-color: white;
-                        color: black;
+                        background-color: black;
+                        color: white;
                         display: table ;
-                        width: 100%;
+                        width: 100%;                        
                     }
                     table {
-                        background-color: white;
-                        color: black;
+                        background-color: black;
+                        color: white;
                         width: 100%;
                     }
                 }
@@ -790,33 +787,29 @@ class StockProposal:
                         background-color: white;
                         color: black;
                         display: table ;
+                    }                
+                    /* Your light mode (default) styles: */
+                    body {
+                        background-color: white;
+                        color: black;
+                        display: table ;
+                        width: 100%;                          
                     }
-
-                    @media (prefers-color-scheme: dark) {
-                        /* Your dark mode styles: */
+                    table {
+                        background-color: white;
+                        color: black;
+                        width: 100%;
+                    }
+                    @media (prefers-color-scheme: dark) {            
                         body {
                             background-color: black;
                             color: white;
                             display: table ;
-                            width: 100%;
+                            width: 100%;                              
                         }
                         table {
                             background-color: black;
                             color: white;
-                            width: 100%;
-                        }
-                    }
-                    @media (prefers-color-scheme: light) {
-                        /* Your light mode (default) styles: */
-                        body {
-                            background-color: white;
-                            color: black;
-                            display: table ;
-                            width: 100%;
-                        }
-                        table {
-                            background-color: white;
-                            color: black;
                             width: 100%;
                         }
                     }
@@ -883,6 +876,8 @@ class StockProposal:
             # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
             scale_factor = 2
 
+            # htmltest = io.to_html(fig, full_html=False)
+
             fig.write_image(
                 "./images/postion_byindustry_light.png",
                 width=fig_width,
@@ -922,7 +917,7 @@ class StockProposal:
             # 设置图像的宽度和高度（例如，1920x1080像素）
             fig_width, fig_height = 1280, 720
             # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
-            scale_factor = 2
+            scale_factor = 1
 
             fig.write_image(
                 "./images/postion_byindustry_dark.png",
