@@ -24,6 +24,7 @@ class MyEmail(object):
         self.server = "smtp.qq.com"  # smtp.163.com smtp.qq.com
         self.port = 465
         self.msg = MIMEMultipart("related")
+        self.msg["MIME-Version"] = "1.1"
         self.msg["To"] = self.to
         self.msg["From"] = self.format_addr(
             "Quantitative trading <%s>" % self._mail_user
