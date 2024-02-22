@@ -160,21 +160,28 @@ class BTStrategyVol(bt.Strategy):
             """ 
             近x日内最低和最高收盘价 
             """
-            self.inds[d._name]["lowest_close"] = bt.indicators.Lowest(
-                d.close, period=self.params.shortperiod
+            self.inds[d._name]["highest_high"] = bt.indicators.Highest(
+                d.high, period=self.params.shortperiod
             )
-            self.inds[d._name]["highest_close"] = bt.indicators.Highest(
-                d.close, period=self.params.shortperiod
+            self.inds[d._name]["lowest_low"] = bt.indicators.Lowest(
+                d.low, period=self.params.shortperiod
             )
 
             """
             辅助指标：低点上移或者高点上移
             """
-            self.signals[d._name]["higher"] = bt.Or(
-                self.inds[d._name]["lowest_close"](0)
-                > self.inds[d._name]["lowest_close"](-1),
-                self.inds[d._name]["highest_close"](0)
-                > self.inds[d._name]["highest_close"](-1),
+            self.signals[d._name]["higher"] = bt.And(
+                self.inds[d._name]["highest_high"](0)
+                > self.inds[d._name]["highest_high"](-1),
+                self.inds[d._name]["lowest_low"](0)
+                >= self.inds[d._name]["lowest_low"](-1),
+            )
+
+            self.signals[d._name]["lower"] = bt.And(
+                self.inds[d._name]["highest_high"](0)
+                <= self.inds[d._name]["highest_high"](-1),
+                self.inds[d._name]["lowest_low"](0)
+                < self.inds[d._name]["lowest_low"](-1),
             )
 
             """
@@ -202,7 +209,7 @@ class BTStrategyVol(bt.Strategy):
                 slope20 <= math.tan(math.radians(60)),
             )
 
-            self.signals[d._name]["steep_angle"] = slope20 > math.tan(math.radians(60))
+            self.signals[d._name]["steep_angle"] = slope20 > math.tan(math.radians(80))
 
             """
             近20日均线密集，价格上穿短期均线
@@ -571,6 +578,7 @@ class BTStrategyVol(bt.Strategy):
                 if (
                     self.signals[d._name]["close_crossdown_mashort"][0] == 1
                     and self.signals[d._name]["close_over_mamid"][0] == 0
+                    and self.signals[d._name]["lower"][0] == 1
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
@@ -580,6 +588,7 @@ class BTStrategyVol(bt.Strategy):
                 elif (
                     self.signals[d._name]["dea_crossdown_0axis"][0] == 1
                     and self.inds[d._name]["dif"][0] <= 0
+                    and self.signals[d._name]["lower"][0] == 1
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
@@ -590,6 +599,7 @@ class BTStrategyVol(bt.Strategy):
                     d.close[0] < d.close[-19]
                     and self.inds[d._name]["emashort"][0]
                     < self.inds[d._name]["emamid"][0]
+                    and self.signals[d._name]["lower"][0] == 1
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
