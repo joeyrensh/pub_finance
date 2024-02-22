@@ -606,7 +606,10 @@ class BTStrategyVol(bt.Strategy):
                     self.myorder[d._name]["strategy"] = "Close20 Down"
 
                 # 止盈点
-                elif self.signals[d._name]["steep_angle"][0] == 1:
+                elif (
+                    self.signals[d._name]["steep_angle"][0] == 1
+                    and self.signals[d._name]["lower"][0] == 1
+                ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Steep Angle"
