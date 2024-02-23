@@ -177,57 +177,49 @@ class EMHistoryDataDownload:
         list_new = []
         tool = ToolKit("历史数据下载")
 
-        for h in range(0, len(tickinfo), batch_size):
-            """休眠, 避免IP Block"""
-            time.sleep(0.5)
-            batch_count += 1
-            batch_list = []
-            for t in range(1, batch_size + 1):
-                index = h + t - 1
-                if index < len(tickinfo):
-                    my_thread = MyThread(
-                        self.get_his_tick_info,
-                        (
-                            tickinfo[index]["mkt_code"],
-                            tickinfo[index]["symbol"],
-                            start_date,
-                            end_date,
-                        ),
-                    )
-                    my_thread.daemon = True
-                    my_thread.start()
-                    list1 = my_thread.get_result()
-                    if list1 is None:
-                        continue
-                    batch_list.extend(list1)
-            list_new.extend(batch_list)
-            tool.progress_bar(len(tickinfo), h)
+        with open(file_path, "a") as csvfile:
+            for h in range(0, len(tickinfo), batch_size):
+                """休眠, 避免IP Block"""
+                time.sleep(0.5)
+                batch_count += 1
+                batch_list = []
+                for t in range(1, batch_size + 1):
+                    index = h + t - 1
+                    if index < len(tickinfo):
+                        my_thread = MyThread(
+                            self.get_his_tick_info,
+                            (
+                                tickinfo[index]["mkt_code"],
+                                tickinfo[index]["symbol"],
+                                start_date,
+                                end_date,
+                            ),
+                        )
+                        my_thread.daemon = True
+                        my_thread.start()
+                        list1 = my_thread.get_result()
+                        if list1 is None:
+                            continue
+                        batch_list.extend(list1)
+                tool.progress_bar(len(tickinfo), h)
 
-            # Write batch data to CSV file
-            if batch_count % 10 == 0:  # Adjust the batch count as per your requirement
-                try:
-                    df = pd.DataFrame(batch_list)
-                    with open(file_path, "a") as csvfile:
-                        if batch_count == 10:
-                            df.to_csv(csvfile, mode="a", index=True, header=True)
-                        else:
-                            df.to_csv(csvfile, mode="a", index=True, header=False)
-                except IOError:
-                    pass
-
-        # Write remaining data to CSV file
-        try:
-            df = pd.DataFrame(list_new)
-            with open(file_path, "a") as csvfile:
-                df.to_csv(csvfile, mode="a", index=True, header=False)
-        except IOError:
-            pass
+                # Write batch data to CSV file
+                if (
+                    batch_count % 10 == 0
+                ):  # Adjust the batch count as per your requirement
+                    try:
+                        df = pd.DataFrame(batch_list)
+                        df.to_csv(
+                            csvfile, mode="a", index=True, header=(batch_count == 10)
+                        )
+                    except IOError:
+                        pass
 
 
 # 历史数据起始时间，结束时间
 # 文件名称定义
 em = EMHistoryDataDownload()
 start_date = "20230101"
-end_date = "20231231"
-file_path = "./usstockinfo/test_20230101.csv"
+end_date = "20240222"
+file_path = "./usstockinfo/stock_20240222.csv"
 em.set_his_tick_info_to_csv(start_date, end_date, file_path)
