@@ -1200,7 +1200,7 @@ class StockProposal:
         # 设置图像的宽度和高度（例如，1920x1080像素）
         fig_width, fig_height = 1280, 720
         # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
-        scale_factor = 2
+        scale_factor = 1
 
         # htmltest = io.to_html(fig, full_html=False)
 

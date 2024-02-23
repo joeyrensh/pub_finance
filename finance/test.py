@@ -288,10 +288,10 @@ if __name__ == "__main__":
     """ 创建进度条并开始运行 """
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
-    """ 东方财经爬虫 """
-    """ 爬取每日最新股票数据 """
-    em = EMWebCrawler()
-    em.get_us_daily_stock_info(trade_date)
+    # """ 东方财经爬虫 """
+    # """ 爬取每日最新股票数据 """
+    # em = EMWebCrawler()
+    # em.get_us_daily_stock_info(trade_date)
 
     # """ 执行策略 """
     # df = exec_strategy(trade_date)
@@ -299,7 +299,7 @@ if __name__ == "__main__":
     # if not df.empty:
     #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
 
-    """ 执行bt相关策略 """
+    # """ 执行bt相关策略 """
     exec_btstrategy(trade_date)
 
     collected = gc.collect()
