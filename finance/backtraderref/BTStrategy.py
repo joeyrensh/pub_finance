@@ -247,8 +247,8 @@ class BTStrategy(bt.Strategy):
             辅助指标：抵扣价正切角度需要保持在合理角度之间
             """
             slope20 = (
-                self.inds[d._name]["emashort"](0) - self.inds[d._name]["emashort"](-19)
-            ) / self.inds[d._name]["emashort"](-19)
+                self.inds[d._name]["emashort"](0) - self.inds[d._name]["emashort"](-20)
+            ) / self.inds[d._name]["emashort"](-20)
             self.signals[d._name]["reasonable_angle"] = bt.And(
                 slope20 > 0,
                 slope20 <= math.tan(math.radians(60)),
@@ -434,7 +434,7 @@ class BTStrategy(bt.Strategy):
                     and self.inds[d._name]["mashort"][0]
                     > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-19]
+                    and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
@@ -452,7 +452,7 @@ class BTStrategy(bt.Strategy):
                     and self.inds[d._name]["mashort"][0]
                     > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-19]
+                    and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
@@ -469,7 +469,7 @@ class BTStrategy(bt.Strategy):
                     self.signals[d._name]["long_position"][0] == 1
                     and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-19]
+                    and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
@@ -487,7 +487,7 @@ class BTStrategy(bt.Strategy):
                     and self.inds[d._name]["mashort"][0]
                     > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-19]
+                    and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
@@ -509,7 +509,7 @@ class BTStrategy(bt.Strategy):
                     and self.inds[d._name]["mashort"][0]
                     > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-19]
+                    and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
@@ -527,7 +527,7 @@ class BTStrategy(bt.Strategy):
                     and self.inds[d._name]["mashort"][0]
                     > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-19]
+                    and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                 ):
@@ -582,7 +582,7 @@ class BTStrategy(bt.Strategy):
 
                 # 止损点
                 elif (
-                    d.close[0] < d.close[-19]
+                    d.close[0] < d.close[-20]
                     and self.inds[d._name]["emashort"][0]
                     < self.inds[d._name]["emamid"][0]
                     and self.signals[d._name]["lower"][0] == 1

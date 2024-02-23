@@ -239,6 +239,9 @@ def exec_btstrategy(date):
     for cell in table.get_celld().values():
         cell.set_text_props(color="black")
     # Set the font color of the trend graph
+    ax1.tick_params(axis="x", colors="black")
+    for label in ax1.get_xticklabels():
+        label.set_color("black")
     ax2.yaxis.label.set_color("black")
     ax2.tick_params(axis="y", colors="black")
     ax1.yaxis.label.set_color("black")
@@ -250,6 +253,9 @@ def exec_btstrategy(date):
     for cell in table.get_celld().values():
         cell.set_text_props(color="white")
     # Set the font color of the trend graph
+    ax1.tick_params(axis="x", colors="white")
+    for label in ax1.get_xticklabels():
+        label.set_color("white")
     ax2.yaxis.label.set_color("white")
     ax2.tick_params(axis="y", colors="white")
     ax1.yaxis.label.set_color("white")
