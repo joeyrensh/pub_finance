@@ -10,7 +10,7 @@ import requests
 import json
 from utility.MyThread import MyThread
 from pandas.errors import EmptyDataError
-from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
 
 """ 
 东方财经的美股日K数据获取接口：
@@ -174,46 +174,45 @@ class EMHistoryDataDownload:
         """ 多线程获取，每次步长为3，为3线程 """
         batch_size = 10  # Number of tickinfo items to process in each batch
         batch_count = 0
-        list_new = []
         tool = ToolKit("历史数据下载")
 
         with open(file_path, "a") as csvfile:
-            for h in range(0, len(tickinfo), batch_size):
-                """休眠, 避免IP Block"""
-                time.sleep(0.5)
-                batch_count += 1
-                batch_list = []
-                for t in range(1, batch_size + 1):
-                    index = h + t - 1
-                    if index < len(tickinfo):
-                        my_thread = MyThread(
-                            self.get_his_tick_info,
-                            (
+            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+                for h in range(0, len(tickinfo), batch_size):
+                    """休眠, 避免IP Block"""
+                    time.sleep(0.5)
+                    batch_count += 1
+                    batch_list = []
+                    futures = []
+                    for t in range(1, batch_size + 1):
+                        index = h + t - 1
+                        if index < len(tickinfo):
+                            future = executor.submit(
+                                self.get_his_tick_info,
                                 tickinfo[index]["mkt_code"],
                                 tickinfo[index]["symbol"],
                                 start_date,
                                 end_date,
-                            ),
-                        )
-                        my_thread.daemon = True
-                        my_thread.start()
-                        list1 = my_thread.get_result()
-                        if list1 is None:
-                            continue
-                        batch_list.extend(list1)
-                tool.progress_bar(len(tickinfo), h)
+                            )
+                            futures.append(future)
+                    for future in concurrent.futures.as_completed(futures):
+                        list1 = future.result()
+                        if list1 is not None:  # Only append if list1 is not empty
+                            batch_list.extend(list1)
 
-                # Write batch data to CSV file
-                if (
-                    batch_count % 10 == 0
-                ):  # Adjust the batch count as per your requirement
-                    try:
-                        df = pd.DataFrame(batch_list)
-                        df.to_csv(
-                            csvfile, mode="a", index=True, header=(batch_count == 10)
-                        )
-                    except IOError:
-                        pass
+                    tool.progress_bar(len(tickinfo), h)
+                    # Write batch data to CSV file
+                    if len(batch_list) > 0:  # Check if batch_list is not empty
+                        try:
+                            df = pd.DataFrame(batch_list)
+                            df.to_csv(
+                                csvfile,
+                                mode="a",
+                                index=True,
+                                header=(h == 0),
+                            )
+                        except IOError:
+                            pass
 
 
 # 历史数据起始时间，结束时间
