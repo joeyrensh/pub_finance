@@ -169,18 +169,24 @@ class EMCNHistoryDataDownload:
         """获取股票列表"""
         tickinfo = self.get_us_stock_list()
         """ 多线程获取，每次步长为3，为3线程 """
+        batch_size = 10  # Number of tickinfo items to process in each batch
+        batch_count = 0
         list_new = []
         tool = ToolKit("历史数据下载")
-        for h in range(0, len(tickinfo), 4):
+
+        for h in range(0, len(tickinfo), batch_size):
             """休眠, 避免IP Block"""
             time.sleep(0.5)
-            for t in range(1, 5):
-                if (h + t) <= len(tickinfo):
+            batch_count += 1
+            batch_list = []
+            for t in range(1, batch_size + 1):
+                index = h + t - 1
+                if index < len(tickinfo):
                     my_thread = MyThread(
                         self.get_his_tick_info,
                         (
-                            tickinfo[h + t - 1]["mkt_code"],
-                            tickinfo[h + t - 1]["symbol"],
+                            tickinfo[index]["mkt_code"],
+                            tickinfo[index]["symbol"],
                             start_date,
                             end_date,
                         ),
@@ -190,13 +196,28 @@ class EMCNHistoryDataDownload:
                     list1 = my_thread.get_result()
                     if list1 is None:
                         continue
-                    list_new.extend(list1)
+                    batch_list.extend(list1)
+            list_new.extend(batch_list)
             tool.progress_bar(len(tickinfo), h)
+
+            # Write batch data to CSV file
+            if batch_count % 10 == 0:  # Adjust the batch count as per your requirement
+                try:
+                    df = pd.DataFrame(batch_list)
+                    with open(file_path, "a") as csvfile:
+                        if batch_count == 10:
+                            df.to_csv(csvfile, mode="a", index=True, header=True)
+                        else:
+                            df.to_csv(csvfile, mode="a", index=True, header=False)
+                except IOError:
+                    pass
+
+        # Write remaining data to CSV file
         try:
-            """将list转化为dataframe，并且存储为csv文件，带index和header"""
             df = pd.DataFrame(list_new)
-            df.to_csv(file_path, mode="w", index=True, header=True)
-        except EmptyDataError:
+            with open(file_path, "a") as csvfile:
+                df.to_csv(csvfile, mode="a", index=True, header=False)
+        except IOError:
             pass
 
 

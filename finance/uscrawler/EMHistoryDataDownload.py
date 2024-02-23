@@ -10,6 +10,7 @@ import requests
 import json
 from utility.MyThread import MyThread
 from pandas.errors import EmptyDataError
+from concurrent.futures import ThreadPoolExecutor
 
 """ 
 东方财经的美股日K数据获取接口：
@@ -57,8 +58,8 @@ class EMHistoryDataDownload:
             "&pn=i&pz=20000&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:mkt_code&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
         )
         for mkt_code in ["105", "106", "107"]:
-            """请求url，获取数据response"""
             for i in range(1, 100):
+                """请求url，获取数据response"""
                 url_re = (
                     url.replace("unix_time", str(current_timestamp))
                     .replace("mkt_code", mkt_code)
@@ -171,18 +172,24 @@ class EMHistoryDataDownload:
         """获取股票列表"""
         tickinfo = self.get_us_stock_list()
         """ 多线程获取，每次步长为3，为3线程 """
+        batch_size = 10  # Number of tickinfo items to process in each batch
+        batch_count = 0
         list_new = []
         tool = ToolKit("历史数据下载")
-        for h in range(0, len(tickinfo), 2):
+
+        for h in range(0, len(tickinfo), batch_size):
             """休眠, 避免IP Block"""
             time.sleep(0.5)
-            for t in range(1, 3):
-                if (h + t) <= len(tickinfo):
+            batch_count += 1
+            batch_list = []
+            for t in range(1, batch_size + 1):
+                index = h + t - 1
+                if index < len(tickinfo):
                     my_thread = MyThread(
                         self.get_his_tick_info,
                         (
-                            tickinfo[h + t - 1]["mkt_code"],
-                            tickinfo[h + t - 1]["symbol"],
+                            tickinfo[index]["mkt_code"],
+                            tickinfo[index]["symbol"],
                             start_date,
                             end_date,
                         ),
@@ -192,23 +199,35 @@ class EMHistoryDataDownload:
                     list1 = my_thread.get_result()
                     if list1 is None:
                         continue
-                    list_new.extend(list1)
+                    batch_list.extend(list1)
+            list_new.extend(batch_list)
             tool.progress_bar(len(tickinfo), h)
+
+            # Write batch data to CSV file
+            if batch_count % 10 == 0:  # Adjust the batch count as per your requirement
+                try:
+                    df = pd.DataFrame(batch_list)
+                    with open(file_path, "a") as csvfile:
+                        if batch_count == 10:
+                            df.to_csv(csvfile, mode="a", index=True, header=True)
+                        else:
+                            df.to_csv(csvfile, mode="a", index=True, header=False)
+                except IOError:
+                    pass
+
+        # Write remaining data to CSV file
         try:
-            """将list转化为dataframe，并且存储为csv文件，带index和header"""
             df = pd.DataFrame(list_new)
-            df.to_csv(file_path, mode="w", index=True, header=True)
-        except EmptyDataError:
+            with open(file_path, "a") as csvfile:
+                df.to_csv(csvfile, mode="a", index=True, header=False)
+        except IOError:
             pass
 
 
-""" 
-历史数据起始时间，结束时间
-文件名称定义 
-
+# 历史数据起始时间，结束时间
+# 文件名称定义
 em = EMHistoryDataDownload()
-start_date = '20220701'
-end_date = '20220926'
-file_path = './usstockinfo/stock_20220926.csv'
+start_date = "20230101"
+end_date = "20231231"
+file_path = "./usstockinfo/test_20230101.csv"
 em.set_his_tick_info_to_csv(start_date, end_date, file_path)
-"""
