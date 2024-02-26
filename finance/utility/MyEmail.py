@@ -68,7 +68,9 @@ class MyEmail(object):
             smtp_server.login(self._mail_user, self._mail_password)
             smtp_server.sendmail(
                 self.send_from,
-                [self.to, "xiaoshen0203@126.com", "cy34239184@163.com"],
+                [
+                    self.to,
+                ],
                 self.msg.as_string(),
             )
             smtp_server.close()

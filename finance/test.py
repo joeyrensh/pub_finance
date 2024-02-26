@@ -63,6 +63,7 @@ def exec_btstrategy(date):
             dataname=h,
             name=h["symbol"][0],
             fromdate=datetime(2023, 1, 1),
+            todate=datetime.strptime(date, "%Y%m%d"),
             datetime=-1,
             timeframe=bt.TimeFrame.Days,
         )
@@ -299,7 +300,7 @@ if __name__ == "__main__":
     # if not df.empty:
     #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
 
-    # """ 执行bt相关策略 """
+    """ 执行bt相关策略 """
     exec_btstrategy(trade_date)
 
     collected = gc.collect()

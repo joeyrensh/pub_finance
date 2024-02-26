@@ -63,6 +63,7 @@ def exec_btstrategy(date):
             dataname=h,
             name=h["symbol"][0],
             fromdate=datetime(2023, 1, 1),
+            todate=datetime.strptime(date, "%Y%m%d"),
             datetime=-1,
             timeframe=bt.TimeFrame.Days,
         )
