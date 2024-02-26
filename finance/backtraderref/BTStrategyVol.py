@@ -484,8 +484,7 @@ class BTStrategyVol(bt.Strategy):
                 # 均线多头排列
                 elif (
                     self.signals[d._name]["long_position"][0] == 1
-                    and self.inds[d._name]["mashort"][0]
-                    > self.inds[d._name]["mashort"][-1]
+                    and self.inds[d._name]["mamid"][0] > self.inds[d._name]["mamid"][-1]
                     and d.close[0] > d.open[0]
                     and d.close[0] > d.close[-20]
                     and self.signals[d._name]["higher"][0] == 1
@@ -597,8 +596,7 @@ class BTStrategyVol(bt.Strategy):
                 # 止损点
                 elif (
                     d.close[0] < d.close[-20]
-                    # and self.inds[d._name]["emashort"][0]
-                    # < self.inds[d._name]["emamid"][0]
+                    and d.close[0] < self.inds[d._name]["emamid"][0]
                     and self.inds[d._name]["emashort"][0]
                     < self.inds[d._name]["emashort"][-1]
                     and self.signals[d._name]["lower"][0] == 1

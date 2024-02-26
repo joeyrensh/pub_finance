@@ -583,8 +583,7 @@ class BTStrategy(bt.Strategy):
                 # 止损点
                 elif (
                     d.close[0] < d.close[-20]
-                    # and self.inds[d._name]["emashort"][0]
-                    # < self.inds[d._name]["emamid"][0]
+                    and d.close[0] < self.inds[d._name]["emamid"][0]
                     and self.inds[d._name]["emashort"][0]
                     < self.inds[d._name]["emashort"][-1]
                     and self.signals[d._name]["lower"][0] == 1
