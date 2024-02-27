@@ -294,16 +294,18 @@ class BTStrategy(bt.Strategy):
                 """订单购入成功"""
                 print(
                     "{}, Buy {} Executed, Price: {:.2f} Size: {:.2f}".format(
-                        self.datetime.date(),
+                        bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
                         order.data._name,
                         order.executed.price,
                         order.executed.size,
                     )
                 )
-                self.last_deal_date[order.data._name] = self.datetime.date()
+                self.last_deal_date[order.data._name] = bt.num2date(
+                    order.executed.dt
+                ).strftime("%Y-%m-%d")
                 dict = {
                     "symbol": order.data._name,
-                    "trade_date": self.datetime.date(),
+                    "trade_date": bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
                     "trade_type": "buy",
                     "price": order.executed.price,
                     "size": order.executed.size,
@@ -313,7 +315,7 @@ class BTStrategy(bt.Strategy):
                 """订单卖出成功"""
                 print(
                     "{} Sell {} Executed, Price: {:.2f} Size: {:.2f}".format(
-                        self.datetime.date(),
+                        bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
                         order.data._name,
                         order.executed.price,
                         order.executed.size,
@@ -322,7 +324,7 @@ class BTStrategy(bt.Strategy):
                 self.last_deal_date[order.data._name] = None
                 dict = {
                     "symbol": order.data._name,
-                    "trade_date": self.datetime.date(),
+                    "trade_date": bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
                     "trade_type": "sell",
                     "price": order.executed.price,
                     "size": order.executed.size,
@@ -332,7 +334,7 @@ class BTStrategy(bt.Strategy):
                 """returns bool if order is in status Partial or Accepted"""
                 print(
                     "{} Partial {} Executed, Price: {:.2f} Size: {:.2f}".format(
-                        self.datetime.date(),
+                        bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
                         order.data._name,
                         order.executed.price,
                         order.executed.size,

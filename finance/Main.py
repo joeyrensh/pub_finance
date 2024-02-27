@@ -54,6 +54,7 @@ def exec_btstrategy(date):
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
+    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 添加股票当日即历史数据 """
     list = TickerInfo(date, "us").get_backtrader_data_feed()
     """ 循环初始化数据进入cerebro """

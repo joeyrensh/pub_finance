@@ -54,6 +54,7 @@ def exec_btstrategy(date):
     cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
+    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 添加股票当日即历史数据 """
     list = TickerInfo(date, "us").get_backtrader_data_feed()
     """ 循环初始化数据进入cerebro """
@@ -269,7 +270,7 @@ def exec_btstrategy(date):
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc-4"""
-    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(0)
+    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
