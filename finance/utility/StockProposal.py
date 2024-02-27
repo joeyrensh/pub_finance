@@ -174,12 +174,7 @@ class StockProposal:
         df4.createOrReplaceTempView("temp4")
 
         # 生成时间序列，用于时间序列补齐
-        if self.market == "cn":
-            end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
-        else:
-            end_date = (pd.to_datetime(self.trade_date) - timedelta(hours=12)).strftime(
-                "%Y-%m-%d"
-            )
+        end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
         start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
         date_range = pd.date_range(
             start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
