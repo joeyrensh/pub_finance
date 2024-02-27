@@ -460,7 +460,7 @@ class BTStrategyVol(bt.Strategy):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(
-                        data=d, exectype=bt.Order.Market, size=buy_size
+                        data=d, size=buy_size
                     )
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Close CrossUP"
@@ -478,7 +478,7 @@ class BTStrategyVol(bt.Strategy):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(
-                        data=d, exectype=bt.Order.Market, size=buy_size
+                        data=d, size=buy_size
                     )
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "EMA CrossUP"
@@ -495,7 +495,7 @@ class BTStrategyVol(bt.Strategy):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(
-                        data=d, exectype=bt.Order.Market, size=buy_size
+                        data=d, size=buy_size
                     )
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Long Position"
@@ -513,7 +513,7 @@ class BTStrategyVol(bt.Strategy):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(
-                        data=d, exectype=bt.Order.Market, size=buy_size
+                        data=d, size=buy_size
                     )
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "DEA CrossUP"
@@ -531,7 +531,7 @@ class BTStrategyVol(bt.Strategy):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(
-                        data=d, exectype=bt.Order.Market, size=buy_size
+                        data=d, size=buy_size
                     )
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "VOL Increased"
@@ -553,7 +553,7 @@ class BTStrategyVol(bt.Strategy):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(
-                        data=d, exectype=bt.Order.Market, size=buy_size
+                        data=d, size=buy_size
                     )
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Dense MA"

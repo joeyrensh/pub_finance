@@ -948,7 +948,7 @@ class StockProposal:
                     , adj_price
                     , adj_price * (-adj_size) - base_price * base_size AS pnl
                     , (adj_price - base_price) / base_price AS pnl_ratio
-                FROM tmp11 WHERE sell_date = '{}'
+                FROM tmp11 WHERE sell_date >= DATE_ADD('{}', -1)
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol 
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
             """.format(
@@ -1455,15 +1455,6 @@ class StockProposal:
                 name="total stock",
                 line=dict(color="darkslateblue", width=2),
                 yaxis="y",
-            )
-        )
-        fig.add_trace(
-            go.Bar(
-                x=dfdata3["buy_date"],
-                y=dfdata3["cnt"],
-                name="position",
-                marker_color="darkorange",
-                yaxis="y2",
             )
         )
         fig.add_trace(
