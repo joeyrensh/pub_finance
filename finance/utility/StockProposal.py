@@ -1453,7 +1453,7 @@ class StockProposal:
                 y=dfdata3["total_cnt"],
                 mode="lines+markers",
                 name="total stock",
-                line=dict(color="darkslateblue", width=2),
+                line=dict(color="red", width=3),
                 yaxis="y",
             )
         )
