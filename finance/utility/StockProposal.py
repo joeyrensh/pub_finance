@@ -1656,6 +1656,7 @@ class StockProposal:
         fig.update_layout(
             title="Last 60 days top5 positions ",
             title_font=dict(size=20, color="black"),
+            legend_title_text="",
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -1694,6 +1695,7 @@ class StockProposal:
         fig.update_layout(
             title="Last 60 days top5 positions ",
             title_font=dict(size=20, color="white"),
+            legend_title_text="",
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -1774,6 +1776,7 @@ class StockProposal:
         fig.update_layout(
             title="Last 60 days top5 pnl ",
             title_font=dict(size=20, color="black"),
+            legend_title_text="",
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -1812,6 +1815,7 @@ class StockProposal:
         fig.update_layout(
             title="Last 60 days top5 pnl ",
             title_font=dict(size=20, color="white"),
+            legend_title_text="",
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
