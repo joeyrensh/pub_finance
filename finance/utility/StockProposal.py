@@ -692,7 +692,7 @@ class StockProposal:
         dfdata8.rename(
             columns={
                 "symbol": "SYMBOL",
-                "buy_date": "HIT DATE",
+                "buy_date": "OPEN DATE",
                 "price": "BASE",
                 "adjbase": "ADJBASE",
                 "pnl": "PNL",
@@ -930,6 +930,7 @@ class StockProposal:
             )
             SELECT t1.symbol
                 , t1.buy_date
+                , t1.sell_date
                 , t1.base_price AS price
                 , t1.adj_price AS adjbase
                 , t1.pnl
@@ -944,6 +945,7 @@ class StockProposal:
             FROM (
                 SELECT symbol
                     , buy_date
+                    , sell_date
                     , base_price
                     , adj_price
                     , adj_price * (-adj_size) - base_price * base_size AS pnl
@@ -976,7 +978,8 @@ class StockProposal:
             dfdata9.rename(
                 columns={
                     "symbol": "SYMBOL",
-                    "buy_date": "HIT DATE",
+                    "buy_date": "OPEN DATE",
+                    "sell_date": "CLOSE DATE",
                     "price": "BASE",
                     "adjbase": "ADJBASE",
                     "pnl": "PNL",
