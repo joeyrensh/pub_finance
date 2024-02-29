@@ -72,7 +72,7 @@ class StockProposal:
                 align="left",
                 color=["#5fba7d", "#d65f5f"],
                 vmin=0,
-                vmax=1,
+                vmax=0.8,
             )
             .set_properties(
                 **{
@@ -412,7 +412,7 @@ class StockProposal:
                 align="left",
                 color=["#99CC66", "#FF6666"],
                 vmin=0,
-                vmax=1,
+                vmax=0.8,
                 # width=50,
             )
             .set_properties(
@@ -726,17 +726,17 @@ class StockProposal:
             .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
             .bar(
                 subset=["PNL RATIO", "AVG PNL RATIO"],
-                align="left",
+                align="mid",
                 color=["#99CC66", "#FF6666"],
-                vmin=-1,
-                vmax=1,
+                vmin=-0.8,
+                vmax=0.8,
             )
             .bar(
                 subset=["WIN RATE"],
                 align="left",
                 color=["#99CC66", "#FF6666"],
                 vmin=0,
-                vmax=1,
+                vmax=0.8,
             )
             .set_properties(
                 **{
@@ -1013,17 +1013,17 @@ class StockProposal:
                 .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
                 .bar(
                     subset=["PNL RATIO", "AVG PNL RATIO"],
-                    align="left",
+                    align="mid",
                     color=["#99CC66", "#FF6666"],
-                    vmin=-1,
-                    vmax=1,
+                    vmin=-0.8,
+                    vmax=0.8,
                 )
                 .bar(
                     subset=["WIN RATE"],
                     align="left",
                     color=["#99CC66", "#FF6666"],
                     vmin=0,
-                    vmax=1,
+                    vmax=0.8,
                 )
                 .set_properties(
                     **{
