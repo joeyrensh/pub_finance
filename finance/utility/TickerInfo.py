@@ -163,14 +163,15 @@ class TickerInfo:
         """ 等待进程池中的所有进程执行完毕 """
         pool.join()
 
-        """ 垃圾回收 """
-        del his_data
-        gc.collect()
         """ 获取进程内数据 """
         for dic in results:
             if len(dic.get()) > 0:
                 list.append(dic.get())
             t.progress_bar(len(results), results.index(dic))
+        """ 垃圾回收 """
+        del his_data
+        del results
+        gc.collect()
         return list
 
     """ 重构dataframe封装 """
