@@ -46,9 +46,15 @@ def exec_btstrategy(date):
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "cn").get_backtrader_data_feed()
+
+    def data_generator():
+        ticker_info = TickerInfo(date, "cn")
+        for h in ticker_info.get_backtrader_data_feed():
+            yield h
+
+    hisdata = data_generator()
     """ 循环初始化数据进入cerebro """
-    for h in list:
+    for h in hisdata:
         """历史数据最早不超过2021-01-01"""
         data = BTPandasDataExt(
             dataname=h,
@@ -64,9 +70,9 @@ def exec_btstrategy(date):
     """ 起始资金池 """
     print("Starting Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
-    # 节约内存
-    del list
-    gc.collect()
+    # # 节约内存
+    # del list
+    # gc.collect()
 
     """ 运行cerebro """
     result = cerebro.run()
@@ -283,13 +289,13 @@ if __name__ == "__main__":
 
     print("trade_date is :", trade_date)
 
-    # """ 东方财经爬虫 """
-    # """ 爬取每日最新股票数据 """
-    # em = EMCNWebCrawler()
-    # em.get_cn_daily_stock_info(trade_date)
+    """ 东方财经爬虫 """
+    """ 爬取每日最新股票数据 """
+    em = EMCNWebCrawler()
+    em.get_cn_daily_stock_info(trade_date)
 
     """ 执行bt相关策略 """
-    # exec_btstrategy(trade_date)
+    exec_btstrategy(trade_date)
 
     collected = gc.collect()
 

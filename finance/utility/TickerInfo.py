@@ -116,19 +116,22 @@ class TickerInfo:
                 self.files[j],
                 usecols=[
                     "symbol",
-                    "name",
                     "open",
                     "close",
                     "high",
                     "low",
                     "volume",
-                    "turnover",
-                    "chg",
-                    "change",
-                    "amplitude",
-                    "preclose",
                     "date",
                 ],
+                dtype={
+                    "symbol": str,
+                    "open": np.float32,
+                    "close": np.float32,
+                    "high": np.float32,
+                    "low": np.float32,
+                    "volume": np.int64,
+                    "date": str,
+                },
             )
             df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
             dic[j] = df
@@ -202,7 +205,8 @@ class TickerInfo:
                     .round(decimals=2),
                     "low": group_obj["low"].values.astype("float32").round(decimals=2),
                     "volume": group_obj["volume"].values.astype("int64"),
-                    "symbol": group_obj["symbol"].values.astype(str),
+                    # "symbol": group_obj["symbol"].values.astype(str),
+                    "symbol": i,
                     "market": market,
                     "datetime": pd.to_datetime(
                         group_obj["date"].values, format="%Y-%m-%d"
@@ -210,7 +214,7 @@ class TickerInfo:
                 },
                 # index=pd.to_datetime(group_obj["date"].values, format="%Y-%m-%d"),
             )
-            .copy()
+            # .copy()
             .sort_values(by=["datetime"])
         )
         return df_copy
@@ -239,6 +243,7 @@ class TickerInfo:
 
         """ 垃圾回收 """
         del his_data
+        del results
         gc.collect()
         """ 获取进程内数据 """
         for dic in results:
