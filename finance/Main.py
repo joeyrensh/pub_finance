@@ -39,14 +39,14 @@ def exec_strategy(date):
 
 def exec_btstrategy(date):
     """创建cerebro对象"""
-    cerebro = bt.Cerebro(stdstats=False)
+    cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
     cerebro.addstrategy(BTStrategy, trade_date=date)
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
-    cerebro.addobserver(bt.observers.BuySell)
+    # cerebro.addobserver(bt.observers.BuySell)
     """ 初始资金100M """
     cerebro.broker.setcash(2000000.0)
     """ 每手10股 """
