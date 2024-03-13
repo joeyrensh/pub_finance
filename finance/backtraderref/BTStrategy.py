@@ -247,7 +247,8 @@ class BTStrategy(bt.Strategy):
             辅助指标：抵扣价正切角度需要保持在合理角度之间
             """
             slope20 = (
-                self.inds[d._name]["emashort"](0) - self.inds[d._name]["emashort"](-self.params.shortperiod)
+                self.inds[d._name]["emashort"](0)
+                - self.inds[d._name]["emashort"](-self.params.shortperiod)
             ) / self.inds[d._name]["emashort"](-self.params.shortperiod)
             self.signals[d._name]["reasonable_angle"] = bt.And(
                 slope20 > 0,
@@ -390,10 +391,10 @@ class BTStrategy(bt.Strategy):
                 # 最近20个交易日收盘价频繁穿越ma20均线，不进行交易
                 if (
                     self.signals[d._name]["close_crossover_mashort"]
-                    .get(ago=0, size=self.params.shortperiod)
+                    .get(ago=-1, size=self.params.shortperiod)
                     .count(1)
                     + self.signals[d._name]["close_crossover_mashort"]
-                    .get(ago=0, size=self.params.shortperiod)
+                    .get(ago=-1, size=self.params.shortperiod)
                     .count(-1)
                     > 5
                 ):
@@ -401,12 +402,12 @@ class BTStrategy(bt.Strategy):
                 # 最近20个交易日，dea下穿0轴2次，不进行交易
                 if (
                     self.signals[d._name]["dea_crossdown_0axis"]
-                    .get(ago=0, size=self.params.shortperiod)
+                    .get(ago=-1, size=self.params.shortperiod)
                     .count(1)
                     > 2
                 ) or (
                     self.signals[d._name]["dif_crossdown_dea"]
-                    .get(ago=0, size=self.params.shortperiod)
+                    .get(ago=-1, size=self.params.shortperiod)
                     .count(1)
                     > 2
                 ):
@@ -416,16 +417,16 @@ class BTStrategy(bt.Strategy):
                 """
                 # 均线密集判断，短期ema与中期ema近20日内密集排列
                 x1 = self.inds[d._name]["emashort"].get(
-                    ago=0, size=self.params.shortperiod
+                    ago=-1, size=self.params.shortperiod
                 )
                 y1 = self.inds[d._name]["emamid"].get(
-                    ago=0, size=self.params.shortperiod
+                    ago=-1, size=self.params.shortperiod
                 )
                 x2 = self.inds[d._name]["mashort"].get(
-                    ago=0, size=self.params.shortperiod
+                    ago=-1, size=self.params.shortperiod
                 )
                 y2 = self.inds[d._name]["mamid"].get(
-                    ago=0, size=self.params.shortperiod
+                    ago=-1, size=self.params.shortperiod
                 )
                 diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y != 0]
                 diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y != 0]
@@ -442,9 +443,7 @@ class BTStrategy(bt.Strategy):
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(
-                        data=d, size=buy_size
-                    )
+                    self.order[d._name] = self.buy(data=d, size=buy_size)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "EMA CrossUP"
 
@@ -460,9 +459,7 @@ class BTStrategy(bt.Strategy):
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(
-                        data=d, size=buy_size
-                    )
+                    self.order[d._name] = self.buy(data=d, size=buy_size)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Close CrossUP"
 
@@ -477,9 +474,7 @@ class BTStrategy(bt.Strategy):
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(
-                        data=d, size=buy_size
-                    )
+                    self.order[d._name] = self.buy(data=d, size=buy_size)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Long Position"
 
@@ -495,9 +490,7 @@ class BTStrategy(bt.Strategy):
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(
-                        data=d, size=buy_size
-                    )
+                    self.order[d._name] = self.buy(data=d, size=buy_size)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "DEA CrossUP"
 
@@ -517,9 +510,7 @@ class BTStrategy(bt.Strategy):
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(
-                        data=d, size=buy_size
-                    )
+                    self.order[d._name] = self.buy(data=d, size=buy_size)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Dense MA"
 

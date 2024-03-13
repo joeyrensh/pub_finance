@@ -28,14 +28,14 @@ import gc
 
 def exec_btstrategy(date):
     """创建cerebro对象"""
-    cerebro = bt.Cerebro(stdstats=False)
+    cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
     cerebro.addstrategy(BTStrategyVol, trade_date=date)
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn")
-    cerebro.addobserver(bt.observers.BuySell)
+    # cerebro.addobserver(bt.observers.BuySell)
 
     """ 初始资金100M """
     cerebro.broker.setcash(2000000.0)
@@ -46,15 +46,9 @@ def exec_btstrategy(date):
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
-
-    def data_generator():
-        ticker_info = TickerInfo(date, "cn")
-        for h in ticker_info.get_backtrader_data_feed():
-            yield h
-
-    hisdata = data_generator()
+    list = TickerInfo(date, "cn").get_backtrader_data_feed()
     """ 循环初始化数据进入cerebro """
-    for h in hisdata:
+    for h in list:
         """历史数据最早不超过2021-01-01"""
         data = BTPandasDataExt(
             dataname=h,
@@ -70,9 +64,9 @@ def exec_btstrategy(date):
     """ 起始资金池 """
     print("Starting Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
-    # # 节约内存
-    # del list
-    # gc.collect()
+    # 节约内存
+    del list
+    gc.collect()
 
     """ 运行cerebro """
     result = cerebro.run()
