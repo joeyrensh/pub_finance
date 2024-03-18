@@ -68,12 +68,12 @@ class TickerInfo:
                     and float(i["total_value"]) > 1000000000
                     and (
                         (
-                            float(i["total_value"]) >= 50000000000
+                            float(i["total_value"]) >= 10000000000
                             and float(i["close"]) * float(i["volume"]) * 100
                             >= float(i["circulation_value"]) * 0.003
                         )
                         or (
-                            float(i["total_value"]) < 50000000000
+                            float(i["total_value"]) < 10000000000
                             and float(i["close"]) * float(i["volume"]) * 100
                             >= float(i["circulation_value"]) * 0.005
                         )
