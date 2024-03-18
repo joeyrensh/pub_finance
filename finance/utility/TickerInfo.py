@@ -246,7 +246,10 @@ class TickerInfo:
         df.sort_values(by=["symbol"], ascending=True, inplace=True)
         if self.market == "cn":
             for index, i in df.iterrows():
-                if "ETF" in str(i["name"]).upper():
+                if (
+                    "ETF" in str(i["name"]).upper()
+                    and float(i["close"]) * float(i["volume"]) * 100 >= 500000000
+                ):
                     tickers.append(i["symbol"])
         return tickers
 

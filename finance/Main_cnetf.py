@@ -38,11 +38,11 @@ def exec_btstrategy(date):
     # cerebro.addobserver(bt.observers.BuySell)
 
     """ 初始资金100M """
-    cerebro.broker.setcash(2000000.0)
+    cerebro.broker.setcash(1000000.0)
     cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
     # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
-    cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
+    cerebro.addsizer(bt.sizers.PercentSizerInt, percents=2)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
