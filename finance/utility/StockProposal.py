@@ -1975,3 +1975,706 @@ class StockProposal:
         MyEmail().send_email_embedded_image(
             subject, html + html_img + html1 + html2, image_path
         )
+
+    def send_etf_btstrategy_by_email(self):
+        """
+        发送邮件
+        """
+        # 启动Spark Session
+        spark = (
+            SparkSession.builder.master("local")
+            .appName("SparkTest")
+            .config("spark.driver.memory", "512m")
+            .config("spark.executor.memory", "512m")
+            .getOrCreate()
+        )
+        spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
+
+        """ 
+        读取交易相关数据，交易明细，持仓明细，仓位日志明细，行业信息
+        """
+        file = FileInfo(self.trade_date, self.market)
+        # 最新一日股票信息
+        file_name_day = file.get_file_path_latest
+        df_d = pd.read_csv(file_name_day, usecols=[i for i in range(1, 3)])
+        # 持仓明细, pandas读取
+        file_cur_p = file.get_file_path_etf_position
+        df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 7)])
+        # 交易明细
+        file_path_trade = file.get_file_path_etf_trade
+        cols = ["idx", "symbol", "date", "trade_type", "price", "size", "strategy"]
+        df1 = spark.read.csv(file_path_trade, header=None, inferSchema=True)
+        df1.coalesce(2)
+        df1 = df1.toDF(*cols)
+        df1.createOrReplaceTempView("temp1")
+        # 持仓明细, spark读取
+        df = spark.read.csv(file_cur_p, header=True)
+        df.coalesce(2)
+        df.createOrReplaceTempView("temp")
+        # 仓位日志明细
+        file_path_position_detail = file.get_file_path_etf_position_detail
+        cols = ["idx", "symbol", "date", "price", "adjbase", "pnl"]
+        df3 = spark.read.csv(file_path_position_detail, header=None, inferSchema=True)
+        df3.coalesce(2)
+        df3 = df3.toDF(*cols)
+        df3.createOrReplaceTempView("temp3")
+        # 当日股票信息
+        cols = [
+            "idx",
+            "symbol",
+            "name",
+            "open",
+            "close",
+            "high",
+            "low",
+            "volume",
+            "turnover",
+            "chg",
+            "change",
+            "amplitude",
+            "preclose",
+            "total_value",
+            "circulation_value",
+            "date",
+        ]
+        df4 = spark.read.csv(file_name_day, header=None, inferSchema=True)
+        df4.coalesce(2)
+        df4 = df4.toDF(*cols)
+        df4.createOrReplaceTempView("temp4")
+
+        # 生成时间序列，用于时间序列补齐
+        end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
+        start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
+        date_range = pd.date_range(
+            start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
+        )
+        df_timeseries = pd.DataFrame({"buy_date": date_range})
+        # 将日期转换为字符串格式 'YYYYMMDD'
+        df_timeseries["trade_date"] = df_timeseries["buy_date"].dt.strftime("%Y%m%d")
+
+        # 假设您的ToolKit类已经定义好了，并且可以检查交易日期
+        toolkit = ToolKit("identify trade date")
+
+        # 根据市场类型过滤非交易日
+        if self.market == "us":
+            df_timeseries = df_timeseries[
+                df_timeseries["trade_date"].apply(toolkit.is_us_trade_date)
+            ]
+        elif self.market == "cn":
+            df_timeseries = df_timeseries[
+                df_timeseries["trade_date"].apply(toolkit.is_cn_trade_date)
+            ]
+
+        df_timeseries_spark = spark.createDataFrame(
+            df_timeseries.astype({"buy_date": "string"})
+        )
+
+        df_timeseries_spark.createOrReplaceTempView("temp_timeseries")
+
+        """
+        持仓明细历史交易情况分析
+        """
+        df_np = pd.merge(df_cur_p, df_d, how="inner", on="symbol")
+
+        df_np_spark = spark.createDataFrame(df_np)
+        df_np_spark.createOrReplaceTempView("temp_symbol")
+
+        sparkdata8 = spark.sql(
+            """ 
+            WITH tmp1 AS (
+                SELECT symbol
+                    ,date
+                    ,trade_type
+                    ,price
+                    ,size
+                    ,strategy
+                    ,l_date
+                    ,l_trade_type
+                    ,l_price
+                    ,l_size
+                    ,l_strategy
+                FROM (
+                    SELECT symbol
+                        ,date
+                        ,trade_type
+                        ,price
+                        ,size
+                        ,strategy
+                        ,IF(trade_type = 'sell', LAG(date) OVER (PARTITION BY symbol ORDER BY date)  
+                            , LEAD(date) OVER (PARTITION BY symbol ORDER BY date)) AS l_date
+                        ,IF(trade_type = 'sell', LAG(trade_type) OVER (PARTITION BY symbol ORDER BY date) 
+                            , LEAD(trade_type) OVER (PARTITION BY symbol ORDER BY date)) AS l_trade_type
+                        ,IF(trade_type = 'sell', LAG(price) OVER (PARTITION BY symbol ORDER BY date)
+                            , LEAD(price) OVER (PARTITION BY symbol ORDER BY date)) AS l_price
+                        ,IF(trade_type = 'sell', LAG(size) OVER (PARTITION BY symbol ORDER BY date) 
+                            , LEAD(size) OVER (PARTITION BY symbol ORDER BY date)) AS l_size
+                        ,IF(trade_type = 'sell', LAG(strategy) OVER (PARTITION BY symbol ORDER BY date) 
+                            , LEAD(strategy) OVER (PARTITION BY symbol ORDER BY date)) AS l_strategy                               
+                    FROM temp1
+                    WHERE date >= DATE_ADD('{}', -365)
+                    ORDER BY symbol
+                        ,date
+                        ,trade_type) t
+            ), tmp11 AS (
+                SELECT symbol
+                    ,l_date AS buy_date
+                    ,l_price AS base_price
+                    ,l_size AS base_size
+                    ,l_strategy AS buy_strategy
+                    ,date AS sell_date
+                    ,price AS adj_price
+                    ,size AS adj_size
+                    ,strategy AS sell_strategy
+                FROM tmp1 WHERE trade_type = 'sell'
+                UNION ALL
+                SELECT symbol
+                    ,date AS buy_date
+                    ,price AS base_price
+                    ,size AS base_size
+                    ,strategy AS buy_strategy
+                    ,null AS sell_date
+                    ,null AS adj_price
+                    ,null AS adj_size
+                    ,null AS sell_strategy
+                FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL
+            ), tmp2 AS (
+                SELECT symbol
+                    ,COUNT(symbol) AS his_trade_cnt
+                    ,SUM(IF(sell_date IS NOT NULL, DATEDIFF(sell_date, buy_date), DATEDIFF('{}', buy_date))) AS his_days
+                    ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price >=0, 1, 0)) AS pos_cnt
+                    ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price < 0, 1, 0)) AS neg_cnt
+                    ,SUM(IF(sell_date IS NOT NULL, adj_price * (-adj_size) - base_price * base_size, 0)) AS his_pnl
+                    ,SUM(IF(sell_date IS NOT NULL, base_price * base_size, 0)) AS his_base_price
+                    ,MAX(IF(sell_date IS NULL, buy_strategy, null)) AS buy_strategy
+                FROM  tmp11
+                GROUP BY symbol
+            ), tmp3 AS (
+                SELECT symbol
+                    , buy_date
+                    , price
+                    , adjbase
+                    , `p&l` as pnl
+                    , `p&l_ratio` as pnl_ratio
+                    , name
+                FROM temp_symbol
+            )
+            SELECT t1.symbol
+                , t1.buy_date
+                , t1.price
+                , t1.adjbase
+                , t1.pnl
+                , t1.pnl_ratio
+                , t1.name
+                , COALESCE(t2.his_trade_cnt, 0) AS avg_trans
+                , COALESCE(t2.his_days, 0) / t2.his_trade_cnt AS avg_days
+                , (t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / ( COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0) + t1.pos_cnt + t1.neg_cnt) AS win_rate
+                , (COALESCE(t2.his_pnl,0) + t1.adjbase - t1.price) / (COALESCE(t2.his_base_price,0) + t1.price) AS avg_pnl_ratio
+                , t2.buy_strategy
+            FROM (
+                SELECT symbol
+                , buy_date
+                , price
+                , adjbase
+                , pnl
+                , pnl_ratio
+                , name
+                , IF(adjbase >= price, 1, 0) AS pos_cnt
+                , IF(adjbase < price, 1, 0) AS neg_cnt
+                FROM tmp3
+                ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol
+            """.format(
+                end_date, end_date
+            )
+        )
+
+        dfdata8 = sparkdata8.toPandas()
+
+        dfdata8.rename(
+            columns={
+                "symbol": "SYMBOL",
+                "buy_date": "OPEN DATE",
+                "price": "BASE",
+                "adjbase": "ADJBASE",
+                "pnl": "PNL",
+                "pnl_ratio": "PNL RATIO",
+                "avg_trans": "AVG TRANS",
+                "avg_days": "AVG DAYS",
+                "win_rate": "WIN RATE",
+                "avg_pnl_ratio": "AVG PNL RATIO",
+                "name": "NAME",
+                "buy_strategy": "Strategy",
+            },
+            inplace=True,
+        )
+        cm = sns.color_palette("coolwarm", as_cmap=True)
+        html = (
+            "<h2>Open Position List Current Day</h2>"  # 添加标题
+            "<table>"
+            + dfdata8.style.hide(axis=1, subset=["PNL"])
+            .format(
+                {
+                    "BASE": "{:.2f}",
+                    "ADJBASE": "{:.2f}",
+                    "PNL RATIO": "{:.2%}",
+                    "AVG TRANS": "{:.0f}",
+                    "AVG DAYS": "{:.2f}",
+                    "WIN RATE": "{:.2%}",
+                    "AVG PNL RATIO": "{:.2%}",
+                }
+            )
+            .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
+            .bar(
+                subset=["PNL RATIO", "AVG PNL RATIO"],
+                align="mid",
+                color=["#99CC66", "#FF6666"],
+                vmin=-0.8,
+                vmax=0.8,
+            )
+            .bar(
+                subset=["WIN RATE"],
+                align="left",
+                color=["#99CC66", "#FF6666"],
+                vmin=0,
+                vmax=0.8,
+            )
+            .set_properties(
+                **{
+                    "text-align": "left",
+                    "border": "1px solid #ccc",
+                    "cellspacing": "0",
+                    "style": "border-collapse: collapse; ",
+                }
+            )
+            .set_table_styles(
+                [
+                    # 表头样式
+                    dict(
+                        selector="th",
+                        props=[
+                            ("border", "1px solid #ccc"),
+                            ("text-align", "left"),
+                            ("padding", "8px"),  # 增加填充以便更易点击和阅读
+                            ("font-size", "18px"),  # 在PC端使用较大字体
+                        ],
+                    ),
+                    # 表格数据单元格样式
+                    dict(
+                        selector="td",
+                        props=[
+                            ("border", "1px solid #ccc"),
+                            ("text-align", "left"),
+                            ("padding", "8px"),
+                            (
+                                "font-size",
+                                "18px",
+                            ),  # 同样适用较大字体以提高移动端可读性
+                        ],
+                    ),
+                ]
+            )
+            .set_table_styles(
+                {
+                    "NAME": [
+                        {
+                            "selector": "th",
+                            "props": [
+                                ("min-width", "150px"),
+                                ("max-width", "300px"),
+                            ],
+                        },
+                        {
+                            "selector": "td",
+                            "props": [
+                                ("min-width", "150px"),
+                                ("max-width", "300px"),
+                            ],
+                        },
+                    ],
+                },
+                overwrite=False,
+            )
+            .set_sticky(axis="columns")
+            .to_html(doctype_html=True, escape=False)
+            + "<table>"
+        )
+
+        css = """
+            <style>
+                :root {
+                    color-scheme: dark light;
+                    supported-color-schemes: dark light;
+                    background-color: white;
+                    color: black;
+                    display: table ;
+                }                
+                /* Your light mode (default) styles: */
+                body {
+                    background-color: white;
+                    color: black;
+                    display: table ;
+                    width: 100%;                          
+                }
+                table {
+                    background-color: white;
+                    color: black;
+                    width: 100%;
+                }
+                @media (prefers-color-scheme: dark) {            
+                    body {
+                        background-color: black;
+                        color: white;
+                        display: table ;
+                        width: 100%;                              
+                    }
+                    table {
+                        background-color: black;
+                        color: white;
+                        width: 100%;
+                    }
+                }
+            </style>
+        """
+
+        html = css + html
+
+        del df_np
+        gc.collect()
+
+        """
+        减仓情况分析
+        """
+        sparkdata9 = spark.sql(
+            """ 
+            WITH tmp1 AS (
+                SELECT symbol
+                    ,date
+                    ,trade_type
+                    ,price
+                    ,size
+                    ,strategy
+                    ,l_date
+                    ,l_trade_type
+                    ,l_price
+                    ,l_size
+                    ,l_strategy
+                FROM (
+                    SELECT symbol
+                        ,date
+                        ,trade_type
+                        ,price
+                        ,size
+                        ,strategy
+                        ,IF(trade_type = 'sell', LAG(date) OVER (PARTITION BY symbol ORDER BY date)  
+                            , LEAD(date) OVER (PARTITION BY symbol ORDER BY date)) AS l_date
+                        ,IF(trade_type = 'sell', LAG(trade_type) OVER (PARTITION BY symbol ORDER BY date) 
+                            , LEAD(trade_type) OVER (PARTITION BY symbol ORDER BY date)) AS l_trade_type
+                        ,IF(trade_type = 'sell', LAG(price) OVER (PARTITION BY symbol ORDER BY date)
+                            , LEAD(price) OVER (PARTITION BY symbol ORDER BY date)) AS l_price
+                        ,IF(trade_type = 'sell', LAG(size) OVER (PARTITION BY symbol ORDER BY date) 
+                            , LEAD(size) OVER (PARTITION BY symbol ORDER BY date)) AS l_size
+                        ,IF(trade_type = 'sell', LAG(strategy) OVER (PARTITION BY symbol ORDER BY date) 
+                            , LEAD(strategy) OVER (PARTITION BY symbol ORDER BY date)) AS l_strategy                               
+                    FROM temp1
+                    WHERE date >= DATE_ADD('{}', -365)
+                    ORDER BY symbol
+                        ,date
+                        ,trade_type) t
+            ), tmp11 AS (
+                SELECT symbol
+                    ,l_date AS buy_date
+                    ,l_price AS base_price
+                    ,l_size AS base_size
+                    ,l_strategy AS buy_strategy
+                    ,date AS sell_date
+                    ,price AS adj_price
+                    ,size AS adj_size
+                    ,strategy AS sell_strategy
+                    ,ROW_NUMBER() OVER(PARTITION BY symbol ORDER BY l_date DESC) AS row_num
+                FROM tmp1 WHERE trade_type = 'sell'
+            ), tmp2 AS (
+                SELECT symbol
+                    ,COUNT(symbol) AS his_trade_cnt
+                    ,SUM(DATEDIFF(sell_date, buy_date)) AS his_days
+                    ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price >=0, 1, 0)) AS pos_cnt
+                    ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price < 0, 1, 0)) AS neg_cnt
+                    ,SUM(IF(sell_date IS NOT NULL, adj_price * (-adj_size) - base_price * base_size, 0)) AS his_pnl
+                    ,SUM(IF(sell_date IS NOT NULL, base_price * base_size, 0)) AS his_base_price
+                    ,MAX(sell_strategy) AS sell_strategy
+                FROM  tmp11
+                GROUP BY symbol
+            ), tmp3 AS (
+                SELECT symbol
+                    ,name
+                FROM temp4
+                GROUP BY symbol
+                    ,name
+            )
+            SELECT t1.symbol
+                , t1.buy_date
+                , t1.sell_date
+                , t1.base_price AS price
+                , t1.adj_price AS adjbase
+                , t1.pnl
+                , t1.pnl_ratio
+                , t3.name
+                , COALESCE(t2.his_trade_cnt, 0) AS avg_trans
+                , COALESCE(t2.his_days, 0) / t2.his_trade_cnt AS avg_days
+                , COALESCE(t2.pos_cnt,0) / (COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0)) AS win_rate
+                , COALESCE(t2.his_pnl,0) / COALESCE(t2.his_base_price,0) AS avg_pnl_ratio
+                , t2.sell_strategy
+            FROM (
+                SELECT symbol
+                    , buy_date
+                    , sell_date
+                    , base_price
+                    , adj_price
+                    , adj_price * (-adj_size) - base_price * base_size AS pnl
+                    , (adj_price - base_price) / base_price AS pnl_ratio
+                FROM tmp11 WHERE sell_date >= DATE_ADD('{}', -1)
+                ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol 
+                LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
+            """.format(
+                end_date, end_date
+            )
+        )
+
+        dfdata9 = sparkdata9.toPandas()
+
+        if not dfdata9.empty:
+
+            dfdata9.rename(
+                columns={
+                    "symbol": "SYMBOL",
+                    "buy_date": "OPEN DATE",
+                    "sell_date": "CLOSE DATE",
+                    "price": "BASE",
+                    "adjbase": "ADJBASE",
+                    "pnl": "PNL",
+                    "pnl_ratio": "PNL RATIO",
+                    "avg_trans": "AVG TRANS",
+                    "avg_days": "AVG DAYS",
+                    "win_rate": "WIN RATE",
+                    "avg_pnl_ratio": "AVG PNL RATIO",
+                    "name": "NAME",
+                    "sell_strategy": "Strategy",
+                },
+                inplace=True,
+            )
+            cm = sns.color_palette("coolwarm", as_cmap=True)
+            html2 = (
+                "<h2>Close Position List Current Day</h2>"  # 添加标题
+                "<table>"
+                + dfdata9.style.hide(axis=1, subset=["PNL"])
+                .format(
+                    {
+                        "BASE": "{:.2f}",
+                        "ADJBASE": "{:.2f}",
+                        "PNL RATIO": "{:.2%}",
+                        "AVG TRANS": "{:.0f}",
+                        "AVG DAYS": "{:.2f}",
+                        "WIN RATE": "{:.2%}",
+                        "AVG PNL RATIO": "{:.2%}",
+                    }
+                )
+                .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
+                .bar(
+                    subset=["PNL RATIO", "AVG PNL RATIO"],
+                    align="mid",
+                    color=["#99CC66", "#FF6666"],
+                    vmin=-0.8,
+                    vmax=0.8,
+                )
+                .bar(
+                    subset=["WIN RATE"],
+                    align="left",
+                    color=["#99CC66", "#FF6666"],
+                    vmin=0,
+                    vmax=0.8,
+                )
+                .set_properties(
+                    **{
+                        "text-align": "left",
+                        "border": "1px solid #ccc",
+                        "cellspacing": "0",
+                        "style": "border-collapse: collapse; ",
+                    }
+                )
+                .set_table_styles(
+                    [
+                        # 表头样式
+                        dict(
+                            selector="th",
+                            props=[
+                                ("border", "1px solid #ccc"),
+                                ("text-align", "left"),
+                                ("padding", "8px"),  # 增加填充以便更易点击和阅读
+                                ("font-size", "18px"),  # 在PC端使用较大字体
+                            ],
+                        ),
+                        # 表格数据单元格样式
+                        dict(
+                            selector="td",
+                            props=[
+                                ("border", "1px solid #ccc"),
+                                ("text-align", "left"),
+                                ("padding", "8px"),
+                                (
+                                    "font-size",
+                                    "18px",
+                                ),  # 同样适用较大字体以提高移动端可读性
+                            ],
+                        ),
+                    ]
+                )
+                .set_table_styles(
+                    {
+                        "NAME": [
+                            {
+                                "selector": "th",
+                                "props": [
+                                    ("min-width", "150px"),
+                                    ("max-width", "300px"),
+                                ],
+                            },
+                            {
+                                "selector": "td",
+                                "props": [
+                                    ("min-width", "150px"),
+                                    ("max-width", "300px"),
+                                ],
+                            },
+                        ],
+                    },
+                    overwrite=False,
+                )
+                .set_sticky(axis="columns")
+                .to_html(doctype_html=True, escape=False)
+                + "</table>"
+            )
+
+            css2 = """
+                <style>
+                    :root {
+                        color-scheme: dark light;
+                        supported-color-schemes: dark light;
+                        background-color: white;
+                        color: black;
+                        display: table ;
+                    }                
+                    /* Your light mode (default) styles: */
+                    body {
+                        background-color: white;
+                        color: black;
+                        display: table ;
+                        width: 100%;                          
+                    }
+                    table {
+                        background-color: white;
+                        color: black;
+                        width: 100%;
+                    }
+                    @media (prefers-color-scheme: dark) {            
+                        body {
+                            background-color: black;
+                            color: white;
+                            display: table ;
+                            width: 100%;                              
+                        }
+                        table {
+                            background-color: black;
+                            color: white;
+                            width: 100%;
+                        }
+                    }
+                </style>
+            """
+            html2 = css2 + html2
+        else:
+            html2 = ""
+
+        del dfdata9
+        del dfdata8
+        gc.collect()
+        spark.stop()
+
+        if self.market == "us":
+            subject = "US Stock Market ETF Trends"
+            image_path_return_light = "./images/ETFTRdraw_light.png"
+            image_path_return_dark = "./images/ETFTRdraw_dark.png"
+        elif self.market == "cn":
+            subject = "CN Stock Market ETF Trends"
+            image_path_return_light = "./images/CNETFTRdraw_light.png"
+            image_path_return_dark = "./images/CNETFTRdraw_dark.png"
+        image_path = [
+            image_path_return_light,
+            image_path_return_dark,
+        ]
+        html_img = """
+                <html>
+                    <head>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                background-color: white; /* 设置默认背景颜色为白色 */
+                                color: black; /* 设置默认字体颜色为黑色 */
+                            }
+
+                            figure {
+                                margin: 0;
+                                padding: 5px;
+                                border-radius: 8px;
+                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                            }
+
+                            img {
+                                width: 100%;
+                                height: auto;
+                                border-radius: 2px;
+                            }
+
+                            figcaption {
+                                padding: 5px;
+                                text-align: center;
+                                font-style: italic;
+                                font-size: 24px;
+                            }
+
+                            /* Light Mode */
+                            @media (prefers-color-scheme: light) {
+                                body {
+                                    background-color: white;
+                                    color: black;
+                                }
+
+                                figure {
+                                    border: 1px solid #ddd;
+                                }
+                            }
+
+                            /* Dark Mode */
+                            @media (prefers-color-scheme: dark) {
+                                body {
+                                    background-color: black;
+                                    color: white;
+                                }
+
+                                figure {
+                                    border: 1px solid #444;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <picture>
+                            <!-- 深色模式下的图片 -->
+                            <source srcset="cid:image1" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%"/>
+                            <!-- 默认模式下的图片 -->
+                            <img src="cid:image0" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%">
+                            <figcaption>The diagram shows the last x years cumulative return and max drawdown trend,
+                                        to track the stock market and stategy execution information</figcaption>
+                        </picture>
+                    </body>
+                </html>
+                """
+
+        MyEmail().send_email_embedded_image(subject, html + html2 + html_img, image_path)

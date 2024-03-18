@@ -9,7 +9,6 @@ from utility.ToolKit import ToolKit
 
 
 class FileInfo:
-
     """
     market:
     美股：us
@@ -32,6 +31,15 @@ class FileInfo:
             "./" + market + "stockinfo/position_detail_" + trade_date + ".csv"
         )
         self._file_path_trade = "./" + market + "stockinfo/trade_" + trade_date + ".csv"
+        self._file_path_etf_position = (
+            "./" + market + "stockinfo/etf_position_" + trade_date + ".csv"
+        )
+        self._file_path_etf_position_detail = (
+            "./" + market + "stockinfo/etf_position_detail_" + trade_date + ".csv"
+        )
+        self._file_path_etf_trade = (
+            "./" + market + "stockinfo/etf_trade_" + trade_date + ".csv"
+        )
 
     """ 返回某日数据文件路径 """
 
@@ -87,3 +95,15 @@ class FileInfo:
     @property
     def get_file_path_trade(self):
         return self._file_path_trade
+
+    @property
+    def get_file_path_etf_position(self):
+        return self._file_path_etf_position
+
+    @property
+    def get_file_path_etf_position_detail(self):
+        return self._file_path_etf_position_detail
+
+    @property
+    def get_file_path_etf_trade(self):
+        return self._file_path_etf_trade

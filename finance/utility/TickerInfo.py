@@ -36,16 +36,16 @@ class TickerInfo:
         """ 匹配行业信息 """
         df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
         df_n = pd.merge(df, df_o, how="inner", on="symbol")
-        for index, i in df_n.iterrows():
-            """
-            美股：
-            单价超过2美金
-            日成交额超过1亿
-            A股：
-            单价超过2块
-            日成交额超过1亿
-            """
-            if self.market == "us":
+        if self.market == "us":
+            for index, i in df_n.iterrows():
+                """
+                美股：
+                单价超过2美金
+                日成交额超过1亿
+                A股：
+                单价超过2块
+                日成交额超过1亿
+                """
                 if (
                     float(i["close"]) * float(i["volume"]) >= 100000000
                     and float(i["close"]) > 2
@@ -54,23 +54,10 @@ class TickerInfo:
                     and float(i["high"]) > 0
                     and float(i["low"]) > 0
                     and float(i["total_value"]) > 1000000000
-                    # and (
-                    #     (
-                    #         float(i["total_value"]) >= 100000000000
-                    #         and float(i["close"]) * float(i["volume"]) * 100
-                    #         >= float(i["circulation_value"]) * 0.003
-                    #     )
-                    #     or (
-                    #         float(i["total_value"]) < 100000000000
-                    #         and float(i["close"]) * float(i["volume"]) * 100
-                    #         >= float(i["circulation_value"]) * 0.005
-                    #     )
-                    # )
-                    # and float(i["close"]) * float(i["volume"])
-                    # < float(i["circulation_value"]) * 0.3
                 ):
                     tickers.append(i["symbol"])
-            elif self.market == "cn":
+        elif self.market == "cn":
+            for index, i in df_n.iterrows():
                 if (
                     float(i["close"]) * float(i["volume"]) * 100 >= 100000000
                     and float(i["close"]) > 2
@@ -250,4 +237,48 @@ class TickerInfo:
             if len(dic.get()) > 0:
                 list.append(dic.get())
             t.progress_bar(len(results), results.index(dic))
+        return list
+
+    def get_etf_list(self):
+        tickers = list()
+        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 16)])
+        df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
+        df.sort_values(by=["symbol"], ascending=True, inplace=True)
+        if self.market == "cn":
+            for index, i in df.iterrows():
+                if "ETF" in str(i["name"]).upper():
+                    tickers.append(i["symbol"])
+        return tickers
+
+    def get_etf_backtrader_data_feed(self):
+        tickers = self.get_etf_list()
+        his_data = self.get_history_data().groupby(by="symbol")
+        t = ToolKit("加载历史数据")
+        """ 存放策略结果 """
+        list = []
+        results = []
+        """ 创建多进程 """
+        pool = multiprocessing.Pool(processes=4)
+        for i in tickers:
+            """
+            适配BackTrader数据结构
+            每个股票数据为一组
+            """
+            group_obj = his_data.get_group(i)
+            result = pool.apply_async(self.reconstruct_dataframe, (group_obj, i))
+            results.append(result)
+        """ 关闭进程池，表示不能再往进程池中添加进程，需要在join之前调用 """
+        pool.close()
+        """ 等待进程池中的所有进程执行完毕 """
+        pool.join()
+
+        """ 获取进程内数据 """
+        for dic in results:
+            if len(dic.get()) > 0:
+                list.append(dic.get())
+            t.progress_bar(len(results), results.index(dic))
+        """ 垃圾回收 """
+        del his_data
+        del results
+        gc.collect()
         return list
