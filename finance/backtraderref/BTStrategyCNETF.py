@@ -197,18 +197,17 @@ class BTStrategyCNETF(bt.Strategy):
             )
 
             """ 
-            辅助指标：抵扣价正切角度需要保持在合理角度之间
+            辅助指标：乖离率判断
             """
-            slope20 = (
-                self.inds[d._name]["emashort"](0)
-                - self.inds[d._name]["emashort"](-self.params.shortperiod)
-            ) / self.inds[d._name]["emashort"](-self.params.shortperiod)
+            bias20 = (d.close - self.inds[d._name]["mashort"]) / self.inds[d._name][
+                "mashort"
+            ]
             self.signals[d._name]["reasonable_angle"] = bt.And(
-                slope20 > 0,
-                slope20 <= math.tan(math.radians(60)),
+                bias20 > 0,
+                bias20 < 0.1,
             )
 
-            self.signals[d._name]["steep_angle"] = slope20 > math.tan(math.radians(80))
+            self.signals[d._name]["steep_angle"] = bias20 > 0.8
 
             """
             近20日均线密集，价格上穿短期均线

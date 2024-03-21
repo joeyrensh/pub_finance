@@ -60,7 +60,7 @@ class TickerInfo:
             for index, i in df_n.iterrows():
                 if (
                     float(i["close"]) * float(i["volume"]) * 100 >= 100000000
-                    and float(i["close"]) > 2
+                    and float(i["close"]) > 3
                     and float(i["close"]) < 10000
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
