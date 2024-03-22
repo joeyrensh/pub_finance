@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from utility.MyEmail import MyEmail
 import seaborn as sns
 from utility.FileInfo import FileInfo
-import math
+import numpy as np
 
 
 class BTStrategyVol(bt.Strategy):
@@ -29,6 +29,7 @@ class BTStrategyVol(bt.Strategy):
         ("volshortperiod", 5),
         ("volmidperiod", 10),
         ("vollongperiod", 20),
+        ("annualperiod", 250),
     )
 
     def log(self, txt, dt=None):
@@ -100,6 +101,9 @@ class BTStrategyVol(bt.Strategy):
             self.inds[d._name]["mamid"] = bt.indicators.SMA(
                 d.close, period=self.params.midperiod
             )
+            # self.inds[d._name]["maannual"] = bt.indicators.SMA(
+            #     d.close, period=self.params.annualperiod
+            # )
             # self.inds[d._name]["malong"] = bt.indicators.SMA(
             #     d.close, period=self.params.longperiod
             # )
@@ -252,12 +256,12 @@ class BTStrategyVol(bt.Strategy):
             """
             MDCD上穿，价在线上
             """
-            self.signals[d._name]["dea_crossup_0axis"] = bt.And(
+            self.signals[d._name]["dif_crossup_0axis"] = bt.And(
                 bt.Or(
                     d.close >= self.inds[d._name]["emashort"],
                     d.close >= self.inds[d._name]["mashort"],
                 ),
-                bt.indicators.CrossUp(self.inds[d._name]["dea"], 0) == 1,
+                bt.indicators.CrossUp(self.inds[d._name]["dif"], 0) == 1,
             )
 
             """
@@ -406,6 +410,12 @@ class BTStrategyVol(bt.Strategy):
                     self.getsizing(d)
                 )
                 """噪声处理"""
+                # 低于年线的不看
+                # if (
+                #     np.isnan(self.inds[d._name]["maannual"][0])
+                #     or d.close[0] < self.inds[d._name]["maannual"][0]
+                # ):
+                #     continue
                 # 最近20个交易日收盘价频繁穿越ma20均线，不进行交易
                 if (
                     self.signals[d._name]["close_crossover_mashort"]
@@ -419,7 +429,7 @@ class BTStrategyVol(bt.Strategy):
                     continue
                 # 最近20个交易日，dea下穿0轴2次，不进行交易
                 if (
-                    self.signals[d._name]["dea_crossdown_0axis"]
+                    self.signals[d._name]["dif_crossdown_0axis"]
                     .get(ago=-1, size=self.params.shortperiod)
                     .count(1)
                     + self.signals[d._name]["dif_crossdown_dea"]
@@ -492,9 +502,9 @@ class BTStrategyVol(bt.Strategy):
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Long Position"
 
-                # dea上穿0轴
+                # dif上穿0轴
                 elif (
-                    self.signals[d._name]["dea_crossup_0axis"][0] == 1
+                    self.signals[d._name]["dif_crossup_0axis"][0] == 1
                     and self.inds[d._name]["mashort"][0]
                     > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
@@ -506,7 +516,7 @@ class BTStrategyVol(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d, size=buy_size)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "DEA CrossUP"
+                    self.myorder[d._name]["strategy"] = "DIF CrossUP"
 
                 # 成交量突然放大
                 elif (
@@ -571,15 +581,14 @@ class BTStrategyVol(bt.Strategy):
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Close CrossDown"
 
-                # dea下穿0轴
+                # dif下穿0轴
                 elif (
-                    self.signals[d._name]["dea_crossdown_0axis"][0] == 1
-                    and self.inds[d._name]["dif"][0] <= 0
+                    self.signals[d._name]["dif_crossdown_0axis"][0] == 1
                     and self.signals[d._name]["lower"][0] == 1
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "DEA CrossDown"
+                    self.myorder[d._name]["strategy"] = "DIF CrossDown"
 
                 # 止损点
                 elif (

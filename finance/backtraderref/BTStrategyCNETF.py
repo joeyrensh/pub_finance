@@ -250,12 +250,12 @@ class BTStrategyCNETF(bt.Strategy):
             """
             MDCD上穿，价在线上
             """
-            self.signals[d._name]["dea_crossup_0axis"] = bt.And(
+            self.signals[d._name]["dif_crossup_0axis"] = bt.And(
                 bt.Or(
                     d.close >= self.inds[d._name]["emashort"],
                     d.close >= self.inds[d._name]["mashort"],
                 ),
-                bt.indicators.CrossUp(self.inds[d._name]["dea"], 0) == 1,
+                bt.indicators.CrossUp(self.inds[d._name]["dif"], 0) == 1,
             )
 
             """
@@ -417,7 +417,7 @@ class BTStrategyCNETF(bt.Strategy):
                     continue
                 # 最近20个交易日，dea下穿0轴2次，不进行交易
                 if (
-                    self.signals[d._name]["dea_crossdown_0axis"]
+                    self.signals[d._name]["dif_crossdown_0axis"]
                     .get(ago=-1, size=self.params.shortperiod)
                     .count(1)
                     > 2
@@ -494,7 +494,7 @@ class BTStrategyCNETF(bt.Strategy):
 
                 # dea上穿0轴
                 elif (
-                    self.signals[d._name]["dea_crossup_0axis"][0] == 1
+                    self.signals[d._name]["dif_crossup_0axis"][0] == 1
                     and self.inds[d._name]["mashort"][0]
                     > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
@@ -571,10 +571,9 @@ class BTStrategyCNETF(bt.Strategy):
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "Close CrossDown"
 
-                # dea下穿0轴
+                # dif下穿0轴
                 elif (
-                    self.signals[d._name]["dea_crossdown_0axis"][0] == 1
-                    and self.inds[d._name]["dif"][0] <= 0
+                    self.signals[d._name]["dif_crossdown_0axis"][0] == 1
                     and self.signals[d._name]["lower"][0] == 1
                 ):
                     self.order[d._name] = self.close(data=d)
