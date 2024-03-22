@@ -596,7 +596,7 @@ class BTStrategyVol(bt.Strategy):
                 # 止盈点
                 elif (
                     self.signals[d._name]["steep_angle"][0] == 1
-                    and self.signals[d._name]["lower"][0] == 1
+                    and self.signals[d._name]["higher"][0] == 1
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
