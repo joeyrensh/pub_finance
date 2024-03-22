@@ -420,9 +420,7 @@ class BTStrategyCNETF(bt.Strategy):
                     self.signals[d._name]["dif_crossdown_0axis"]
                     .get(ago=-1, size=self.params.shortperiod)
                     .count(1)
-                    > 2
-                ) or (
-                    self.signals[d._name]["dif_crossdown_dea"]
+                    + self.signals[d._name]["dif_crossdown_dea"]
                     .get(ago=-1, size=self.params.shortperiod)
                     .count(1)
                     > 2
