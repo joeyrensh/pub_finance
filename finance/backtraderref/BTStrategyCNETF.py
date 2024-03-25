@@ -504,7 +504,7 @@ class BTStrategyCNETF(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d, size=buy_size)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "DEA CrossUP"
+                    self.myorder[d._name]["strategy"] = "DIF CrossUP"
 
                 # 成交量突然放大
                 elif (
@@ -576,7 +576,7 @@ class BTStrategyCNETF(bt.Strategy):
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "DEA CrossDown"
+                    self.myorder[d._name]["strategy"] = "DIF CrossDown"
 
                 # 止损点
                 elif (
