@@ -44,7 +44,7 @@ class HouseInfoCrawler:
                 if j['house_type'] != '住宅':
                     continue
                 dict = {
-                    "name": j['title'],
+                    "title": j['title'],
                     "district": j['district'],
                     "bizcircle_name": j['bizcircle_name'],
                     "avg_price": j['average_price'],
@@ -65,16 +65,17 @@ class HouseInfoCrawler:
                 header=(i == 1))
 
 
-# hi = HouseInfoCrawler()
-# hi.get_house_info()
+hi = HouseInfoCrawler()
+hi.get_house_info()
 plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
 
 path = './shanghaidistrict.json'
 
 data = gpd.read_file(path)
 
-df_new_house = pd.read_csv('test.csv', usecols=[
-                           i for i in range(1, 9)])
+df_new_house = pd.read_csv('./test.csv', usecols=[
+                           i for i in range(0, 9)])
+print(df_new_house)
 gdf_new_house = gpd.GeoDataFrame(
     df_new_house, geometry=gpd.points_from_xy(df_new_house.longitude, df_new_house.latitude), crs="EPSG:4326"
 )
@@ -191,7 +192,8 @@ plt.savefig('./map_bystreet.png', dpi=300)
 cm = sns.color_palette("coolwarm", as_cmap=True)
 df_new_house.sort_values(by=["district", "bizcircle_name", "avg_price"],
                     ascending=[True, True, False], inplace=True)
-df_new_house.reset_index(drop=True, inplace=True)
+# df_new_house.reset_index(drop=True, inplace=True)
+
 html = (
     "<h2>New House List</h2>"  # 添加标题
     "<table>"
