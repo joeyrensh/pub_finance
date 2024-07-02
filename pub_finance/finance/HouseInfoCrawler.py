@@ -73,34 +73,22 @@ path = './shanghaidistrict.json'
 
 data = gpd.read_file(path)
 
-data_filter = data[data.level == 'street']
-
-df = pd.read_csv('test.csv', usecols=[
+df_new_house = pd.read_csv('test.csv', usecols=[
                            i for i in range(1, 9)])
-
-gdf2 = gpd.GeoDataFrame(
-    df, geometry=gpd.points_from_xy(df.longitude, df.latitude), crs="EPSG:4326"
+gdf_new_house = gpd.GeoDataFrame(
+    df_new_house, geometry=gpd.points_from_xy(df_new_house.longitude, df_new_house.latitude), crs="EPSG:4326"
 )
-merged_gdf = gpd.sjoin(data_filter, gdf2, how="left", op="intersects")
+# 处理行政区级别数据
+data_filter_bydistrict = data[data.level == 'district']
 
-result1 = merged_gdf.groupby('name')['avg_price'].mean().round(-3)
+gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_new_house, how="left", op="intersects")
 
-print(merged_gdf)
-
-result = data_filter.merge(result1, how='left', left_on='name', right_on ='name')
-# aggregate based on district
-# df_agg = df.groupby('district')['avg_price'].mean().round(-3)
-# result = data.merge(df_agg, how='left', left_on='name', right_on ='district')
+agg_bydistrict = gdf_merged_bydistrict.groupby('name')['avg_price'].mean().round(-3)
 
 
-# 检查并打印 `districts` 中的 `name`
-# 获取 `districts` 列表，如果存在的话
-# for idx, i in enumerate(result['districts']):
-#     print(i['name'])
+result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='name', right_on ='name')
 
-# result = data.merge(df_agg, how='left', left_on='name', right_on ='district')
-
-ax = result.plot(
+ax = result_bydistrict.plot(
     column="avg_price",
     cmap='RdYlGn_r',
     legend=True,
@@ -124,11 +112,7 @@ ax.set_title('Shanghai New House Distribution',
 
 
 texts = []
-for idx, row in result.iterrows():
-    # districts = json.loads(row.districts)
-    # for district in districts:
-    #     print(district['name'])
-    print(row.geometry)
+for idx, row in result_bydistrict.iterrows():
     centroid = row.geometry.centroid.coords[0]
     if not math.isnan(row['avg_price']):
         text = ax.annotate(
@@ -147,6 +131,63 @@ for idx, row in result.iterrows():
 adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5), only_move='x-');
 
 
-plt.savefig('./map.png', dpi=300)
+plt.savefig('./map_bydistrict.png', dpi=300)
+# 处理板块级别数据
+data_filter_bystreet = data[data.level == 'street']
+
+gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_new_house, how="left", op="intersects")
+
+agg_bystreet = gdf_merged_bystreet.groupby('name')['avg_price'].mean().round(-3)
+
+
+result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='name', right_on ='name')
+
+
+ax = result_bystreet.plot(
+    column="avg_price",
+    cmap='RdYlGn_r',
+    legend=True,
+    linewidth=0.8,
+    # edgecolor='0.8',
+    edgecolor='gainsboro',
+    scheme="natural_breaks",
+    # k = 8,
+    figsize=(15, 10),
+    missing_kwds={
+        "color": "lightgrey",
+        "edgecolor": "white",
+        "hatch": "///",
+        "label": "Missing values",
+    },
+);
+ax.axis('off')
+# 添加标题
+ax.set_title('Shanghai New House Distribution', 
+             fontdict={'fontsize': 20, 'fontweight': 'bold', 'color': 'darkblue'})
+
+
+texts = []
+for idx, row in result_bystreet.iterrows():
+    centroid = row.geometry.centroid.coords[0]
+    if not math.isnan(row['avg_price']):
+        text = ax.annotate(
+            text=f"{row['name']}\n{row['avg_price']}",
+            xy=centroid,
+            # xytext=offset,
+            ha='center',
+            fontsize=10,  # 设置字体大小
+            color='black',  # 设置字体颜色为黑色
+            weight='bold',  # 设置字体粗细
+            bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
+        )
+        texts.append(text)
+
+# 调整注释位置以避免重叠
+adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5), only_move='x-');
+
+
+plt.savefig('./map_bystreet.png', dpi=300)
+
+
 
 
