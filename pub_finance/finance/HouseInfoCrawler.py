@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import math
 from adjustText import adjust_text
 from utility.MyEmail import MyEmail
-
+import seaborn as sns
 
 """ 
 上海区域地图数据：https://geo.datav.aliyun.com/areas_v3/bound/310000_full.json
@@ -188,6 +188,129 @@ adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5), only_mov
 
 plt.savefig('./map_bystreet.png', dpi=300)
 
+cm = sns.color_palette("coolwarm", as_cmap=True)
+df_new_house.sort_values(by=["district", "bizcircle_name", "avg_price"],
+                    ascending=[True, True, False], inplace=True)
+df_new_house.reset_index(drop=True, inplace=True)
+html = (
+    "<h2>New House List</h2>"  # 添加标题
+    "<table>"
+    + df_new_house.style.hide(axis=1, subset=["longitude", "latitude", "index"])
+    .background_gradient(subset=["avg_price"], cmap=cm)
+    .set_properties(
+        **{
+            "text-align": "left",
+            "border": "1px solid #ccc",
+            "cellspacing": "0",
+            "style": "border-collapse: collapse; ",
+        }
+    )
+    .set_table_styles(
+        [
+            # 表头样式
+            dict(
+                selector="th",
+                props=[
+                    ("border", "1px solid #ccc"),
+                    ("text-align", "left"),
+                    ("padding", "8px"),  # 增加填充以便更易点击和阅读
+                    ("font-size", "18px"),  # 在PC端使用较大字体
+                ],
+            ),
+            # 表格数据单元格样式
+            dict(
+                selector="td",
+                props=[
+                    ("border", "1px solid #ccc"),
+                    ("text-align", "left"),
+                    ("padding", "8px"),
+                    (
+                        "font-size",
+                        "18px",
+                    ),  # 同样适用较大字体以提高移动端可读性
+                ],
+            ),
+        ]
+    )
+    .set_sticky(axis="columns")
+    .to_html(doctype_html=True, escape=False)
+    + "<table>"
+)
 
+html_img = """
+        <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: white; /* 设置默认背景颜色为白色 */
+                        color: black; /* 设置默认字体颜色为黑色 */
+                    }
 
+                    figure {
+                        margin: 0;
+                        padding: 5px;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    }
+
+                    img {
+                        width: 100%;
+                        height: auto;
+                        border-radius: 2px;
+                    }
+
+                    figcaption {
+                        padding: 5px;
+                        text-align: center;
+                        font-style: italic;
+                        font-size: 24px;
+                    }
+
+                    /* Light Mode */
+                    @media (prefers-color-scheme: light) {
+                        body {
+                            background-color: white;
+                            color: black;
+                        }
+
+                        figure {
+                            border: 1px solid #ddd;
+                        }
+                    }
+
+                    /* Dark Mode */
+                    @media (prefers-color-scheme: dark) {
+                        body {
+                            background-color: black;
+                            color: white;
+                        }
+
+                        figure {
+                            border: 1px solid #444;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <picture>
+                    <!-- 默认模式下的图片 -->
+                    <img src="cid:image0" alt="The industry distribution of current positions is as follows:" style="width:100%">
+                    <figcaption> Shanghai new house distribution by district.</figcaption>
+                </picture>
+                <picture>
+                    <!-- 默认模式下的图片 -->
+                    <img src="cid:image1" alt="The industry distribution of current pnl is as follows:" style="width:100%">
+                    <figcaption>Shanghai new house distribution by street.</figcaption>
+                </picture>
+            </body>
+        </html>
+        """
+image_path = [
+    "./map_bydistrict.png",
+    "./map_bystreet.png"
+]
+MyEmail().send_email_embedded_image(
+    '上海新房信息跟踪', html + html_img , image_path
+)
 
