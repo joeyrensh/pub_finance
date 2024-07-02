@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "ms-python.vscode-pylance",
+        "gencay.vscode-chatgpt",
+        "inferrinizzard.prettier-sql-vscode",
+        "l1xnan.py-inline-sql"
+    ]
+}
