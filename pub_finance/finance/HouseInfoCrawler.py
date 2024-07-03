@@ -8,6 +8,7 @@ import math
 from adjustText import adjust_text
 from utility.MyEmail import MyEmail
 import seaborn as sns
+from utility.ToolKit import ToolKit
 
 """ 
 上海区域地图数据：https://geo.datav.aliyun.com/areas_v3/bound/310000_full.json
@@ -20,6 +21,7 @@ class HouseInfoCrawler:
             "https://sh.fang.lianjia.com/loupan/nhs1pgpage_no/?_t=1"
         )
         houselist = []
+        t = ToolKit("策略执行中")
         for i in range(1, 200):
             dict = {}
             list = []
@@ -29,7 +31,7 @@ class HouseInfoCrawler:
             )
             res = requests.get(url_re).text
             json_object = json.loads(res)
-            print('i:', i)
+            t.progress_bar(200, i)
             if json_object['errno'] != 0:
                 continue
             for h, j in enumerate(json_object['data']['list']):
@@ -39,9 +41,9 @@ class HouseInfoCrawler:
                     continue
                 if j['title'] in houselist:
                     continue
-                if j['district'] not in ('崇明', '金山', '奉贤', '青浦', '松江', '嘉定', '闵行', '杨浦', '虹口', '宝山', '浦东', '普陀', '长宁', '黄浦', '徐汇'):
+                if j['district'] not in ('崇明', '金山', '奉贤', '青浦', '松江', '嘉定', '闵行', '杨浦', '虹口', '宝山', '浦东', '普陀', '长宁', '黄浦', '徐汇', '静安'):
                     continue
-                if j['house_type'] != '住宅':
+                if j['house_type'] not in ('住宅','别墅'):
                     continue
                 dict = {
                     "title": j['title'],
@@ -52,6 +54,7 @@ class HouseInfoCrawler:
                     "open_date": j['open_date'],
                     "longitude" : j['longitude'],
                     "latitude" : j['latitude'],
+                    "tags" : j['tags'],
                     "index": i
                 }
                 houselist.append(j['title'])
@@ -65,8 +68,8 @@ class HouseInfoCrawler:
                 header=(i == 1))
 
 
-hi = HouseInfoCrawler()
-hi.get_house_info()
+# hi = HouseInfoCrawler()
+# hi.get_house_info()
 plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
 
 path = './shanghaidistrict.json'
@@ -74,8 +77,8 @@ path = './shanghaidistrict.json'
 data = gpd.read_file(path)
 
 df_new_house = pd.read_csv('./test.csv', usecols=[
-                           i for i in range(0, 9)])
-print(df_new_house)
+                           i for i in range(0, 10)])
+
 gdf_new_house = gpd.GeoDataFrame(
     df_new_house, geometry=gpd.points_from_xy(df_new_house.longitude, df_new_house.latitude), crs="EPSG:4326"
 )
@@ -97,6 +100,7 @@ ax = result_bydistrict.plot(
     # edgecolor='0.8',
     edgecolor='gainsboro',
     scheme="natural_breaks",
+    k=8,
     # k = 8,
     figsize=(15, 10),
     missing_kwds={
@@ -129,13 +133,14 @@ for idx, row in result_bydistrict.iterrows():
         texts.append(text)
 
 # 调整注释位置以避免重叠
-adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5), only_move='x-');
+adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5));
 
-
-plt.savefig('./map_bydistrict.png', dpi=300)
+# 设置图像大小
+# plt.figure(figsize=(12, 9))
+plt.savefig('./map_bydistrict.png', dpi=500, bbox_inches='tight', pad_inches=0)
 # 处理板块级别数据
-data_filter_bystreet = data[data.level == 'street']
-
+data_filter_bystreet = data[(data.level == 'street') | (data.name.isin(['崇明', '金山', '黄浦', '静安', '虹口']))]
+print(data_filter_bystreet)
 gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_new_house, how="left", op="intersects")
 
 agg_bystreet = gdf_merged_bystreet.groupby('name')['avg_price'].mean().round(-3)
@@ -152,6 +157,7 @@ ax = result_bystreet.plot(
     # edgecolor='0.8',
     edgecolor='gainsboro',
     scheme="natural_breaks",
+    k=8,
     # k = 8,
     figsize=(15, 10),
     missing_kwds={
@@ -184,15 +190,15 @@ for idx, row in result_bystreet.iterrows():
         texts.append(text)
 
 # 调整注释位置以避免重叠
-adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5), only_move='x-');
+adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5));
 
 
-plt.savefig('./map_bystreet.png', dpi=300)
+plt.savefig('./map_bystreet.png', dpi=500, bbox_inches='tight', pad_inches=0)
 
 cm = sns.color_palette("coolwarm", as_cmap=True)
 df_new_house.sort_values(by=["district", "bizcircle_name", "avg_price"],
                     ascending=[True, True, False], inplace=True)
-# df_new_house.reset_index(drop=True, inplace=True)
+df_new_house.reset_index(drop=True, inplace=True)
 
 html = (
     "<h2>New House List</h2>"  # 添加标题
@@ -204,7 +210,7 @@ html = (
             "text-align": "left",
             "border": "1px solid #ccc",
             "cellspacing": "0",
-            "style": "border-collapse: collapse; ",
+            "style": "border-collapse: collapse; width: 100%;",  # 设置表格宽度为100%
         }
     )
     .set_table_styles(
@@ -216,7 +222,7 @@ html = (
                     ("border", "1px solid #ccc"),
                     ("text-align", "left"),
                     ("padding", "8px"),  # 增加填充以便更易点击和阅读
-                    ("font-size", "18px"),  # 在PC端使用较大字体
+                    ("font-size", "35px"),  # 在PC端使用较大字体
                 ],
             ),
             # 表格数据单元格样式
@@ -228,16 +234,50 @@ html = (
                     ("padding", "8px"),
                     (
                         "font-size",
-                        "18px",
+                        "35px",
                     ),  # 同样适用较大字体以提高移动端可读性
                 ],
             ),
         ]
     )
+    .set_table_styles({
+        "title": [
+            {
+                "selector": "td",
+                "props": [
+                    # ("white-space", "nowrap"),
+                ],
+            },
+        ]
+    })
     .set_sticky(axis="columns")
     .to_html(doctype_html=True, escape=False)
-    + "<table>"
+    + "</table>"
 )
+# css = """
+#     <style>
+#         html, body {
+#             margin: 0;
+#             padding: 0;
+#             width: 100%;
+#             height: 100%;
+#             overflow-x: hidden;  # 禁止水平滚动
+#         }
+#         body {
+#             display: flex;
+#             justify-content: center;
+#             align-items: center;
+#             background-color: white;
+#             color: black;
+#         }
+#         table {
+#             width: 100%;  # 确保表格宽度为100%
+#             border-collapse: collapse;
+#         }
+#     </style>
+# """
+
+# html = css + html
 
 html_img = """
         <html>
@@ -266,32 +306,19 @@ html_img = """
                         padding: 5px;
                         text-align: center;
                         font-style: italic;
-                        font-size: 24px;
+                        font-size: 14px;
+                    }
+                    
+                    body {
+                        background-color: white;
+                        color: black;
                     }
 
-                    /* Light Mode */
-                    @media (prefers-color-scheme: light) {
-                        body {
-                            background-color: white;
-                            color: black;
-                        }
-
-                        figure {
-                            border: 1px solid #ddd;
-                        }
+                    figure {
+                        border: 1px solid #ddd;
                     }
+                    
 
-                    /* Dark Mode */
-                    @media (prefers-color-scheme: dark) {
-                        body {
-                            background-color: black;
-                            color: white;
-                        }
-
-                        figure {
-                            border: 1px solid #444;
-                        }
-                    }
                 </style>
             </head>
             <body>
@@ -313,6 +340,6 @@ image_path = [
     "./map_bystreet.png"
 ]
 MyEmail().send_email_embedded_image(
-    '上海新房信息跟踪', html + html_img , image_path
+    '上海新房信息跟踪',  html_img + html, image_path
 )
 
