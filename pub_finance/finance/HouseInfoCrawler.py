@@ -9,6 +9,7 @@ from adjustText import adjust_text
 from utility.MyEmail import MyEmail
 import seaborn as sns
 from utility.ToolKit import ToolKit
+from matplotlib.transforms import Bbox
 
 """ 
 上海区域地图数据：https://geo.datav.aliyun.com/areas_v3/bound/310000_full.json
@@ -131,9 +132,24 @@ for idx, row in result_bydistrict.iterrows():
             bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
         )
         texts.append(text)
+# 检查注释是否重叠并调整位置
+def check_and_adjust_annotations(texts, vertical_spacing=0.002):
+    renderer = ax.get_figure().canvas.get_renderer()
+    for i, text in enumerate(texts):
+        rect1 = text.get_window_extent(renderer=renderer)
+        for j in range(i + 1, len(texts)):
+            text2 = texts[j]
+            rect2 = text2.get_window_extent(renderer=renderer)
+            while rect1.overlaps(rect2):
+                x, y = text2.get_position()
+                y -= vertical_spacing
+                text2.set_position((x, y))
+                rect2 = text2.get_window_extent(renderer=renderer)
+
+check_and_adjust_annotations(texts)        
 
 # 调整注释位置以避免重叠
-adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5));
+# adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5));
 
 # 设置图像大小
 # plt.figure(figsize=(12, 9))
@@ -172,7 +188,6 @@ ax.axis('off')
 ax.set_title('Shanghai New House Distribution', 
              fontdict={'fontsize': 20, 'fontweight': 'bold', 'color': 'darkblue'})
 
-
 texts = []
 for idx, row in result_bystreet.iterrows():
     centroid = row.geometry.centroid.coords[0]
@@ -182,15 +197,31 @@ for idx, row in result_bystreet.iterrows():
             xy=centroid,
             # xytext=offset,
             ha='center',
-            fontsize=10,  # 设置字体大小
+            fontsize=5,  # 设置字体大小
             color='black',  # 设置字体颜色为黑色
             weight='bold',  # 设置字体粗细
             bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
         )
         texts.append(text)
+# 检查注释是否重叠并调整位置
+def check_and_adjust_annotations(texts, vertical_spacing=0.002):
+    renderer = ax.get_figure().canvas.get_renderer()
+    for i, text in enumerate(texts):
+        rect1 = text.get_window_extent(renderer=renderer)
+        for j in range(i + 1, len(texts)):
+            text2 = texts[j]
+            rect2 = text2.get_window_extent(renderer=renderer)
+            while rect1.overlaps(rect2):
+                x, y = text2.get_position()
+                y -= vertical_spacing
+                text2.set_position((x, y))
+                rect2 = text2.get_window_extent(renderer=renderer)
+
+check_and_adjust_annotations(texts)
+
 
 # 调整注释位置以避免重叠
-adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5));
+# adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5));
 
 
 plt.savefig('./map_bystreet.png', dpi=500, bbox_inches='tight', pad_inches=0)
@@ -203,7 +234,7 @@ df_new_house.reset_index(drop=True, inplace=True)
 html = (
     "<h2>New House List</h2>"  # 添加标题
     "<table>"
-    + df_new_house.style.hide(axis=1, subset=["longitude", "latitude", "index"])
+    + df_new_house.style.hide(axis=1, subset=["longitude", "latitude", "index", "tags"])
     .background_gradient(subset=["avg_price"], cmap=cm)
     .set_properties(
         **{
@@ -222,7 +253,7 @@ html = (
                     ("border", "1px solid #ccc"),
                     ("text-align", "left"),
                     ("padding", "8px"),  # 增加填充以便更易点击和阅读
-                    ("font-size", "35px"),  # 在PC端使用较大字体
+                    ("font-size", "18px"),  # 在PC端使用较大字体
                 ],
             ),
             # 表格数据单元格样式
@@ -234,50 +265,62 @@ html = (
                     ("padding", "8px"),
                     (
                         "font-size",
-                        "35px",
+                        "18px",
                     ),  # 同样适用较大字体以提高移动端可读性
                 ],
             ),
         ]
     )
-    .set_table_styles({
-        "title": [
-            {
-                "selector": "td",
-                "props": [
-                    # ("white-space", "nowrap"),
-                ],
-            },
-        ]
-    })
+    .set_table_styles(
+        {
+            "title": [
+                {
+                    "selector": "th",
+                    "props": [
+                        ("min-width", "150px"),
+                        ("max-width", "300px"),
+                    ],
+                },
+                {
+                    "selector": "td",
+                    "props": [
+                        ("min-width", "150px"),
+                        ("max-width", "300px"),
+                    ],
+                },
+            ]
+        },
+        overwrite=False,
+    )
     .set_sticky(axis="columns")
     .to_html(doctype_html=True, escape=False)
-    + "</table>"
+    + "<table>"
 )
-# css = """
-#     <style>
-#         html, body {
-#             margin: 0;
-#             padding: 0;
-#             width: 100%;
-#             height: 100%;
-#             overflow-x: hidden;  # 禁止水平滚动
-#         }
-#         body {
-#             display: flex;
-#             justify-content: center;
-#             align-items: center;
-#             background-color: white;
-#             color: black;
-#         }
-#         table {
-#             width: 100%;  # 确保表格宽度为100%
-#             border-collapse: collapse;
-#         }
-#     </style>
-# """
+css = """
+    <style>
+        :root {
+            color-scheme: light;
+            supported-color-schemes: light;
+            background-color: white;
+            color: black;
+            display: table ;
+        }                
+        /* Your light mode (default) styles: */
+        body {
+            background-color: white;
+            color: black;
+            display: table ;
+            width: 100%;                          
+        }
+        table {
+            background-color: white;
+            color: black;
+            width: 100%;
+        }
+    </style>
+"""
 
-# html = css + html
+html = css + html
 
 html_img = """
         <html>
