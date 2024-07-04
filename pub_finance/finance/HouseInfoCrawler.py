@@ -10,6 +10,7 @@ from utility.MyEmail import MyEmail
 import seaborn as sns
 from utility.ToolKit import ToolKit
 from matplotlib.transforms import Bbox
+import os
 
 """ 
 上海区域地图数据：https://geo.datav.aliyun.com/areas_v3/bound/310000_full.json
@@ -22,6 +23,11 @@ class HouseInfoCrawler:
             "https://sh.fang.lianjia.com/loupan/nhs1pgpage_no/?_t=1"
         )
         houselist = []
+        filename = './houseinfo/newhouse.csv'
+
+        # 如果文件存在，则删除文件
+        if os.path.isfile(filename):
+            os.remove(filename)
         t = ToolKit("策略执行中")
         for i in range(1, 200):
             dict = {}
@@ -36,6 +42,8 @@ class HouseInfoCrawler:
             if json_object['errno'] != 0:
                 continue
             for h, j in enumerate(json_object['data']['list']):
+                if j ['title'] == '浦发唐城二期':
+                    print(j['title'])
                 if not j['title']:
                     continue
                 if j['title'] == '无':
@@ -63,21 +71,21 @@ class HouseInfoCrawler:
 
             df = pd.DataFrame(list)
             df.to_csv(
-                './test.csv',
+                filename,
                 mode="a",
                 index=False,
                 header=(i == 1))
 
 
-# hi = HouseInfoCrawler()
-# hi.get_house_info()
+hi = HouseInfoCrawler()
+hi.get_house_info()
 plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
 
-path = './shanghaidistrict.json'
+path = './houseinfo/shanghaidistrict.json'
 
 data = gpd.read_file(path)
 
-df_new_house = pd.read_csv('./test.csv', usecols=[
+df_new_house = pd.read_csv('./houseinfo/newhouse.csv', usecols=[
                            i for i in range(0, 10)])
 
 gdf_new_house = gpd.GeoDataFrame(
@@ -153,7 +161,7 @@ check_and_adjust_annotations(texts)
 
 # 设置图像大小
 # plt.figure(figsize=(12, 9))
-plt.savefig('./map_bydistrict.png', dpi=500, bbox_inches='tight', pad_inches=0)
+plt.savefig('./houseinfo/map_bydistrict.png', dpi=500, bbox_inches='tight', pad_inches=0)
 # 处理板块级别数据
 data_filter_bystreet = data[(data.level == 'street') | (data.name.isin(['崇明', '金山', '黄浦', '静安', '虹口']))]
 print(data_filter_bystreet)
@@ -224,7 +232,7 @@ check_and_adjust_annotations(texts)
 # adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5));
 
 
-plt.savefig('./map_bystreet.png', dpi=500, bbox_inches='tight', pad_inches=0)
+plt.savefig('./houseinfo/map_bystreet.png', dpi=500, bbox_inches='tight', pad_inches=0)
 
 cm = sns.color_palette("coolwarm", as_cmap=True)
 df_new_house.sort_values(by=["district", "bizcircle_name", "avg_price"],
@@ -379,8 +387,8 @@ html_img = """
         </html>
         """
 image_path = [
-    "./map_bydistrict.png",
-    "./map_bystreet.png"
+    "./houseinfo/map_bydistrict.png",
+    "./houseinfo/map_bystreet.png"
 ]
 MyEmail().send_email_embedded_image(
     '上海新房信息跟踪',  html_img + html, image_path
