@@ -71,7 +71,6 @@ class HouseInfoCrawler:
                     }
                     houselist.append("".join([j['title'], j['house_type']]))
                     list.append(dict)
-                    print('h:', h)
                 df = pd.DataFrame(list)
                 df.to_csv(
                     filename,
@@ -168,7 +167,6 @@ check_and_adjust_annotations(texts)
 plt.savefig('./houseinfo/map_bydistrict.png', dpi=500, bbox_inches='tight', pad_inches=0)
 # 处理板块级别数据
 data_filter_bystreet = data[(data.level == 'street') | (data.name.isin(['崇明', '金山', '黄浦', '静安', '虹口']))]
-print(data_filter_bystreet)
 gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_new_house, how="left", op="intersects")
 
 agg_bystreet = gdf_merged_bystreet.groupby('name')['avg_price'].mean().round(-3)
