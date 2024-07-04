@@ -14,67 +14,71 @@ import os
 
 """ 
 上海区域地图数据：https://geo.datav.aliyun.com/areas_v3/bound/310000_full.json
+链家数据：https://sh.fang.lianjia.com/loupan/minhang/nht1nht2nhs1pg1/?_t=1/
+huangpu-xuhui-changning-jingan-putuo-hongkou-yangpu-minhang-baoshan-jiading-pudong-jinshan-songjiang-qingpu-fengxian-chongming
+
 """
 
 
 class HouseInfoCrawler:
     def get_house_info(self):
-        url = (
-            "https://sh.fang.lianjia.com/loupan/nhs1pgpage_no/?_t=1"
-        )
+
+   
         houselist = []
         filename = './houseinfo/newhouse.csv'
 
         # 如果文件存在，则删除文件
         if os.path.isfile(filename):
             os.remove(filename)
+        district_list = ['huangpu','xuhui','changning','jingan','putuo','hongkou','yangpu','minhang','baoshan','jiading','pudong','jinshan','songjiang','qingpu','fengxian','chongming']
+        cnt = 0
         t = ToolKit("策略执行中")
-        for i in range(1, 200):
-            dict = {}
-            list = []
-            # time.sleep(0.5)
-            url_re = (
-                url.replace("page_no", str(i))
-            )
-            res = requests.get(url_re).text
-            json_object = json.loads(res)
-            t.progress_bar(200, i)
-            if json_object['errno'] != 0:
-                continue
-            for h, j in enumerate(json_object['data']['list']):
-                if j ['title'] == '浦发唐城二期':
-                    print(j['title'])
-                if not j['title']:
+        for idx, district in enumerate(district_list):
+            t.progress_bar(len(district_list), idx)
+            
+            for i in range(1, 10):
+                dict = {}
+                list = []
+                url = (
+                    "https://sh.fang.lianjia.com/loupan/district/nht1nht2nhs1pgpageno/?_t=1/"
+                )                
+                url_re = (
+                    url.replace("pageno", str(i)).replace("district", district)
+                )
+                res = requests.get(url_re).json()
+                if len(res['data']['list']) == 0:
                     continue
-                if j['title'] == '无':
-                    continue
-                if j['title'] in houselist:
-                    continue
-                if j['district'] not in ('崇明', '金山', '奉贤', '青浦', '松江', '嘉定', '闵行', '杨浦', '虹口', '宝山', '浦东', '普陀', '长宁', '黄浦', '徐汇', '静安'):
-                    continue
-                if j['house_type'] not in ('住宅','别墅'):
-                    continue
-                dict = {
-                    "title": j['title'],
-                    "district": j['district'],
-                    "bizcircle_name": j['bizcircle_name'],
-                    "avg_price": j['average_price'],
-                    "sale_status": j['sale_status'],
-                    "open_date": j['open_date'],
-                    "longitude" : j['longitude'],
-                    "latitude" : j['latitude'],
-                    "tags" : j['tags'],
-                    "index": i
-                }
-                houselist.append(j['title'])
-                list.append(dict)
-
-            df = pd.DataFrame(list)
-            df.to_csv(
-                filename,
-                mode="a",
-                index=False,
-                header=(i == 1))
+                for h, j in enumerate(res['data']['list']):
+                    if not j['longitude']:
+                        continue
+                    if not j['latitude']:
+                        continue
+                    if "".join([j['title'], j['house_type']]) in houselist:
+                        continue
+                    dict = {
+                        "title": j['title'],
+                        "house_type": j['house_type'],
+                        "district": j['district'],
+                        "bizcircle_name": j['bizcircle_name'],
+                        "avg_price": j['average_price'],
+                        "area_range": j['resblock_frame_area_range'],
+                        "sale_status": j['sale_status'],
+                        "open_date": j['open_date'],
+                        "longitude" : j['longitude'],
+                        "latitude" : j['latitude'],
+                        "tags" : j['tags'],
+                        "index": i
+                    }
+                    houselist.append("".join([j['title'], j['house_type']]))
+                    list.append(dict)
+                    print('h:', h)
+                df = pd.DataFrame(list)
+                df.to_csv(
+                    filename,
+                    mode="a",
+                    index=False,
+                    header=(cnt == 0))
+                cnt = cnt + 1
 
 
 hi = HouseInfoCrawler()
@@ -86,7 +90,7 @@ path = './houseinfo/shanghaidistrict.json'
 data = gpd.read_file(path)
 
 df_new_house = pd.read_csv('./houseinfo/newhouse.csv', usecols=[
-                           i for i in range(0, 10)])
+                           i for i in range(0, 12)])
 
 gdf_new_house = gpd.GeoDataFrame(
     df_new_house, geometry=gpd.points_from_xy(df_new_house.longitude, df_new_house.latitude), crs="EPSG:4326"
