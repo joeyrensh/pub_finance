@@ -166,22 +166,22 @@ check_and_adjust_annotations(texts)
 # plt.figure(figsize=(12, 9))
 plt.savefig('./houseinfo/map_bydistrict.png', dpi=500, bbox_inches='tight', pad_inches=0)
 # 处理板块级别数据
-data_filter_bystreet = data[(data.level == 'street') | (data.name.isin(['崇明', '金山', '黄浦', '静安', '虹口']))]
+data_filter_bystreet = data[(data.level == 'town')]
+# | (data.name.isin(['崇明', '金山', '黄浦', '静安', '虹口']))]
 gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_new_house, how="left", op="intersects")
 
 agg_bystreet = gdf_merged_bystreet.groupby('name')['avg_price'].mean().round(-3)
 
-
 result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='name', right_on ='name')
-
 
 ax = result_bystreet.plot(
     column="avg_price",
     cmap='RdYlGn_r',
     legend=True,
     linewidth=0.8,
-    # edgecolor='0.8',
     edgecolor='gainsboro',
+    # alpha=0.8,
+    # edgecolor="k",
     scheme="natural_breaks",
     k=8,
     # k = 8,
