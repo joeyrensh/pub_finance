@@ -78,8 +78,8 @@ class HouseInfoCrawlerHZ:
                 cnt = cnt + 1
 
 
-# hi = HouseInfoCrawlerHZ()
-# hi.get_house_info()
+hi = HouseInfoCrawlerHZ()
+hi.get_house_info()
 plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
 
 path = './houseinfo/hangzhoudistrict.json'
