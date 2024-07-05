@@ -97,7 +97,7 @@ data_filter_bydistrict = data[data.level == 'district']
 
 gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_new_house, how="left", op="intersects")
 
-agg_bydistrict = gdf_merged_bydistrict.groupby('name')['avg_price'].mean().round(-3)
+agg_bydistrict = gdf_merged_bydistrict.groupby('name')['avg_price'].median().round(-3)
 
 
 result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='name', right_on ='name')
@@ -169,7 +169,7 @@ data_filter_bystreet = data[(data.level == 'town') | (data.name.isin(['钱塘区
 # | (data.name.isin(['崇明', '金山', '黄浦', '静安', '虹口']))]
 gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_new_house, how="left", op="intersects")
 
-agg_bystreet = gdf_merged_bystreet.groupby('name')['avg_price'].mean().round(-3)
+agg_bystreet = gdf_merged_bystreet.groupby('name')['avg_price'].median().round(-3)
 
 result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='name', right_on ='name')
 
