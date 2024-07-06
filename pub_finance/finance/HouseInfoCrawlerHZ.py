@@ -78,8 +78,8 @@ class HouseInfoCrawlerHZ:
                 cnt = cnt + 1
 
 
-hi = HouseInfoCrawlerHZ()
-hi.get_house_info()
+# hi = HouseInfoCrawlerHZ()
+# hi.get_house_info()
 plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
 
 path = './houseinfo/hangzhoudistrict.json'
@@ -95,12 +95,11 @@ gdf_new_house = gpd.GeoDataFrame(
 # 处理行政区级别数据
 data_filter_bydistrict = data[data.level == 'district']
 
-gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_new_house, how="left", op="intersects")
+gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_new_house, how="left", predicate = "intersects")
 
-agg_bydistrict = gdf_merged_bydistrict.groupby('name')['avg_price'].median().round(-3)
+agg_bydistrict = gdf_merged_bydistrict.groupby('adcode')['avg_price'].median().round(-3)
 
-
-result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='name', right_on ='name')
+result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='adcode', right_on ='adcode')
 
 ax = result_bydistrict.plot(
     column="avg_price",
@@ -157,21 +156,16 @@ def check_and_adjust_annotations(texts, vertical_spacing=0.002):
 
 check_and_adjust_annotations(texts)        
 
-# 调整注释位置以避免重叠
-# adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5));
-
-# 设置图像大小
-# plt.figure(figsize=(12, 9))
 plt.savefig('./houseinfo/hzmap_bydistrict.png', dpi=500, bbox_inches='tight', pad_inches=0)
 
 # 处理板块级别数据
 data_filter_bystreet = data[(data.level == 'town') | (data.name.isin(['钱塘区', '临平区']))]
-# | (data.name.isin(['崇明', '金山', '黄浦', '静安', '虹口']))]
-gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_new_house, how="left", op="intersects")
 
-agg_bystreet = gdf_merged_bystreet.groupby('name')['avg_price'].median().round(-3)
+gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_new_house, how="left", predicate = "intersects")
 
-result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='name', right_on ='name')
+agg_bystreet = gdf_merged_bystreet.groupby('adcode')['avg_price'].median().round(-3)
+
+result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
 
 ax = result_bystreet.plot(
     column="avg_price",
@@ -228,22 +222,19 @@ def check_and_adjust_annotations(texts, vertical_spacing=0.002):
 
 check_and_adjust_annotations(texts)
 
-
-# 调整注释位置以避免重叠
-# adjust_text(texts, arrowprops=dict(arrowstyle="->", color='r', lw=0.5));
-
-
 plt.savefig('./houseinfo/hzmap_bystreet.png', dpi=500, bbox_inches='tight', pad_inches=0)
 
 cm = sns.color_palette("coolwarm", as_cmap=True)
-df_new_house.sort_values(by=["district", "bizcircle_name", "avg_price"],
+new_house_info = gdf_merged_bystreet[['title','house_type','district','bizcircle_name','name','avg_price','area_range','sale_status','open_date']].dropna(subset = ['title'])
+
+new_house_info.sort_values(by=["district", "bizcircle_name", "avg_price"],
                     ascending=[True, True, False], inplace=True)
-df_new_house.reset_index(drop=True, inplace=True)
+new_house_info.reset_index(drop=True, inplace=True)
 
 html = (
     "<h2>New House List</h2>"  # 添加标题
     "<table>"
-    + df_new_house.style.hide(axis=1, subset=["longitude", "latitude", "index", "tags"])
+    + new_house_info.style
     .background_gradient(subset=["avg_price"], cmap=cm)
     .set_properties(
         **{
