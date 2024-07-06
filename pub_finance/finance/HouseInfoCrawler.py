@@ -100,7 +100,8 @@ data_filter_bydistrict = data[data.level == 'district']
 gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_new_house, how="left", predicate = "intersects")
 
 
-agg_bydistrict = gdf_merged_bydistrict.groupby('adcode')['avg_price'].median().round(-3)
+agg_bydistrict = gdf_merged_bydistrict.groupby('adcode').median({'avg_price': 'avg_price'}).round(-3)
+
 
 result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='adcode', right_on ='adcode')
 
@@ -165,7 +166,7 @@ data_filter_bystreet = data[(data.level == 'town')]
 # | (data.name.isin(['崇明', '金山', '黄浦', '静安', '虹口']))]
 gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_new_house, how="left", predicate = "intersects")
 
-agg_bystreet = gdf_merged_bystreet.groupby('adcode')['avg_price'].median().round(-3)
+agg_bystreet = gdf_merged_bystreet.groupby('adcode').median({'avg_price': 'avg_price'}).round(-3)
 
 result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
 
@@ -240,6 +241,11 @@ html = (
     "<table>"
     + new_house_info.style
     .background_gradient(subset=["avg_price"], cmap=cm)
+    .format(
+        {
+            "avg_price": "{:.0f}"
+        }
+    )    
     .set_properties(
         **{
             "text-align": "left",
