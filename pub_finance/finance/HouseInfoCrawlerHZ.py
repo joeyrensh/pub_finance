@@ -78,8 +78,8 @@ class HouseInfoCrawlerHZ:
                 cnt = cnt + 1
 
 
-# hi = HouseInfoCrawlerHZ()
-# hi.get_house_info()
+hi = HouseInfoCrawlerHZ()
+hi.get_house_info()
 plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
 
 path = './houseinfo/hangzhoudistrict.json'
@@ -112,6 +112,7 @@ ax = result_bydistrict.plot(
     k=8,
     # k = 8,
     figsize=(15, 10),
+    legend_kwds={"fmt": "{:.0f}"},
     missing_kwds={
         "color": "lightgrey",
         "edgecolor": "white",
@@ -130,7 +131,7 @@ for idx, row in result_bydistrict.iterrows():
     centroid = row.geometry.centroid.coords[0]
     if not math.isnan(row['avg_price']):
         text = ax.annotate(
-            text=f"{row['name']}\n{row['avg_price']}",
+            text=f"{row['name']}\n{row['avg_price']:.0f}",
             xy=centroid,
             # xytext=offset,
             ha='center',
@@ -177,8 +178,8 @@ ax = result_bystreet.plot(
     # edgecolor="k",
     scheme="natural_breaks",
     k=8,
-    # k = 8,
     figsize=(15, 10),
+    legend_kwds={"fmt": "{:.0f}"},
     missing_kwds={
         "color": "lightgrey",
         "edgecolor": "white",
@@ -196,7 +197,7 @@ for idx, row in result_bystreet.iterrows():
     centroid = row.geometry.centroid.coords[0]
     if not math.isnan(row['avg_price']):
         text = ax.annotate(
-            text=f"{row['name']}\n{row['avg_price']}",
+            text=f"{row['name']}\n{row['avg_price']:.0f}",
             xy=centroid,
             # xytext=offset,
             ha='center',

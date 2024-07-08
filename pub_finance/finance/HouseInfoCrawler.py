@@ -11,6 +11,8 @@ import seaborn as sns
 from utility.ToolKit import ToolKit
 from matplotlib.transforms import Bbox
 import os
+import contextily as cx
+
 
 """ 
 上海区域地图数据：https://geo.datav.aliyun.com/areas_v3/bound/310000_full.json
@@ -108,14 +110,14 @@ result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', lef
 ax = result_bydistrict.plot(
     column="avg_price",
     cmap='RdYlGn_r',
+    # alpha = 0.8,
     legend=True,
     linewidth=0.8,
-    # edgecolor='0.8',
     edgecolor='gainsboro',
     scheme="natural_breaks",
     k=8,
-    # k = 8,
     figsize=(15, 10),
+    legend_kwds={"fmt": "{:.0f}"},
     missing_kwds={
         "color": "lightgrey",
         "edgecolor": "white",
@@ -123,7 +125,12 @@ ax = result_bydistrict.plot(
         "label": "Missing values",
     },
 );
+
+
+# cx.add_basemap(ax, crs="EPSG:4326", source=cx.providers.OpenTopoMap)
+
 ax.axis('off')
+
 # 添加标题
 ax.set_title('Shanghai New House Distribution', 
              fontdict={'fontsize': 20, 'fontweight': 'bold', 'color': 'darkblue'})
@@ -134,14 +141,14 @@ for idx, row in result_bydistrict.iterrows():
     centroid = row.geometry.centroid.coords[0]
     if not math.isnan(row['avg_price']):
         text = ax.annotate(
-            text=f"{row['name']}\n{row['avg_price']}",
+            text=f"{row['name']}\n{row['avg_price']:.0f}",
             xy=centroid,
             # xytext=offset,
             ha='center',
             fontsize=10,  # 设置字体大小
             color='black',  # 设置字体颜色为黑色
             weight='bold',  # 设置字体粗细
-            bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
+            bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0),  boxstyle='round, pad=0.5'),  # 设置注释框样式
         )
         texts.append(text)
 # 检查注释是否重叠并调整位置
@@ -173,15 +180,14 @@ result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='
 ax = result_bystreet.plot(
     column="avg_price",
     cmap='RdYlGn_r',
+    # alpha = 0.8,
     legend=True,
     linewidth=0.8,
     edgecolor='gainsboro',
-    # alpha=0.8,
-    # edgecolor="k",
     scheme="natural_breaks",
     k=8,
-    # k = 8,
     figsize=(15, 10),
+    legend_kwds={"fmt": "{:.0f}"},
     missing_kwds={
         "color": "lightgrey",
         "edgecolor": "white",
@@ -189,6 +195,7 @@ ax = result_bystreet.plot(
         "label": "Missing values",
     },
 );
+# cx.add_basemap(ax, crs="EPSG:4326", source=cx.providers.OpenTopoMap)
 ax.axis('off')
 # 添加标题
 ax.set_title('Shanghai New House Distribution', 
@@ -199,7 +206,7 @@ for idx, row in result_bystreet.iterrows():
     centroid = row.geometry.centroid.coords[0]
     if not math.isnan(row['avg_price']):
         text = ax.annotate(
-            text=f"{row['name']}\n{row['avg_price']}",
+            text=f"{row['name']}\n{row['avg_price']:.0f}",
             xy=centroid,
             # xytext=offset,
             ha='center',
