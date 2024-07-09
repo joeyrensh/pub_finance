@@ -11,6 +11,7 @@ import seaborn as sns
 from utility.ToolKit import ToolKit
 from matplotlib.transforms import Bbox
 import os
+import contextily as cx
 
 """ 
 杭州区域地图数据：https://geo.datav.aliyun.com/areas_v3/bound/330100_full.json
@@ -105,6 +106,7 @@ ax = result_bydistrict.plot(
     column="avg_price",
     cmap='RdYlGn_r',
     legend=True,
+    alpha = 0.7,
     linewidth=0.8,
     # edgecolor='0.8',
     edgecolor='gainsboro',
@@ -114,12 +116,15 @@ ax = result_bydistrict.plot(
     figsize=(15, 10),
     legend_kwds={"fmt": "{:.0f}"},
     missing_kwds={
-        "color": "lightgrey",
+        # "color": "lightgrey",
+        "facecolor": "none",
         "edgecolor": "white",
         "hatch": "///",
         "label": "Missing values",
     },
 );
+cx.add_basemap(ax, crs="EPSG:4326",
+                source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}')
 ax.axis('off')
 # 添加标题
 ax.set_title('HangZhou New House Distribution', 
@@ -172,6 +177,7 @@ ax = result_bystreet.plot(
     column="avg_price",
     cmap='RdYlGn_r',
     legend=True,
+    alpha = 0.7,
     linewidth=0.8,
     edgecolor='gainsboro',
     # alpha=0.8,
@@ -181,12 +187,15 @@ ax = result_bystreet.plot(
     figsize=(15, 10),
     legend_kwds={"fmt": "{:.0f}"},
     missing_kwds={
-        "color": "lightgrey",
+        # "color": "lightgrey",
+        "facecolor": "none",
         "edgecolor": "white",
         "hatch": "///",
         "label": "Missing values",
     },
 );
+cx.add_basemap(ax, crs="EPSG:4326",
+                source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}')
 ax.axis('off')
 # 添加标题
 ax.set_title('HangZhou New House Distribution', 

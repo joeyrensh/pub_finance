@@ -110,7 +110,7 @@ result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', lef
 ax = result_bydistrict.plot(
     column="avg_price",
     cmap='RdYlGn_r',
-    # alpha = 0.8,
+    alpha = 0.6,
     legend=True,
     linewidth=0.8,
     edgecolor='gainsboro',
@@ -119,14 +119,16 @@ ax = result_bydistrict.plot(
     figsize=(15, 10),
     legend_kwds={"fmt": "{:.0f}"},
     missing_kwds={
-        "color": "lightgrey",
+        # "color": "lightgrey",
+        "facecolor": "none",
         "edgecolor": "white",
         "hatch": "///",
         "label": "Missing values",
     },
 );
 
-
+cx.add_basemap(ax, crs="EPSG:4326",
+                source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}')
 # cx.add_basemap(ax, crs="EPSG:4326", source=cx.providers.OpenTopoMap)
 
 ax.axis('off')
@@ -180,7 +182,7 @@ result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='
 ax = result_bystreet.plot(
     column="avg_price",
     cmap='RdYlGn_r',
-    # alpha = 0.8,
+    alpha = 0.7,
     legend=True,
     linewidth=0.8,
     edgecolor='gainsboro',
@@ -189,13 +191,15 @@ ax = result_bystreet.plot(
     figsize=(15, 10),
     legend_kwds={"fmt": "{:.0f}"},
     missing_kwds={
-        "color": "lightgrey",
+        # "color": (0, 0, 0, 0),
+        "facecolor": "none",
         "edgecolor": "white",
         "hatch": "///",
         "label": "Missing values",
     },
 );
-# cx.add_basemap(ax, crs="EPSG:4326", source=cx.providers.OpenTopoMap)
+cx.add_basemap(ax, crs="EPSG:4326",
+                source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}')
 ax.axis('off')
 # 添加标题
 ax.set_title('Shanghai New House Distribution', 
