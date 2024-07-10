@@ -146,7 +146,7 @@ if __name__ == "__main__":
             )
             texts.append(text)
     # 检查注释是否重叠并调整位置
-    def check_and_adjust_annotations(texts, vertical_spacing=0.001, horizontal_spacing=0.001):
+    def check_and_adjust_annotations(texts, vertical_spacing=0.0002, horizontal_spacing=0.000):
         renderer = ax.get_figure().canvas.get_renderer()
         for i, text in enumerate(texts):
             rect1 = text.get_window_extent(renderer=renderer)
@@ -210,7 +210,7 @@ if __name__ == "__main__":
             )
             texts.append(text)
     # 检查注释是否重叠并调整位置
-    def check_and_adjust_annotations(texts, vertical_spacing=0.001, horizontal_spacing=0.001):
+    def check_and_adjust_annotations(texts, vertical_spacing=0.0002, horizontal_spacing=0.000):
         renderer = ax.get_figure().canvas.get_renderer()
         for i, text in enumerate(texts):
             rect1 = text.get_window_extent(renderer=renderer)
