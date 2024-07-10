@@ -208,7 +208,7 @@ def houseinfo_to_csv(file_path):
 if __name__ == "__main__":
     
     file_path = './houseinfo/secondhandhouse.csv'
-    houseinfo_to_csv(file_path)
+    # houseinfo_to_csv(file_path)
 
 
     plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
@@ -220,6 +220,8 @@ if __name__ == "__main__":
     geo_data = gpd.read_file(geo_path)
 
     df_second_hand_house = pd.read_csv(file_path, usecols=[i for i in range(0, 10)])
+    df_second_hand_house = df_second_hand_house.dropna(subset=['lanlong'])
+
     def extract_values(string):
         values = string.strip("[]").split(",")
         value1 = float(values[0])
