@@ -37,7 +37,7 @@ def get_house_info(file_path):
             dict = {}
             list = []
             url = (
-                "https://hz.fang.lianjia.com/loupan/district/nht1nht2nhs1pgpageno/?_t=1/"
+                "https://hz.fang.lianjia.com/loupan/district/nht1nht2nhs1co41pgpageno/?_t=1/"
             )                
             url_re = (
                 url.replace("pageno", str(i)).replace("district", district)
