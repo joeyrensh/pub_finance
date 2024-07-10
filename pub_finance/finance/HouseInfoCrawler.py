@@ -17,7 +17,6 @@ import contextily as cx
 """ 
 上海区域地图数据：https://geo.datav.aliyun.com/areas_v3/bound/310000_full.json
 链家数据：https://sh.fang.lianjia.com/loupan/minhang/nht1nht2nhs1pg1/?_t=1/
-huangpu-xuhui-changning-jingan-putuo-hongkou-yangpu-minhang-baoshan-jiading-pudong-jinshan-songjiang-qingpu-fengxian-chongming
 
 """
 
@@ -140,7 +139,7 @@ if __name__ == "__main__":
                 text=f"{row['name']}\n{row['avg_price']:.0f}",
                 xy=centroid,
                 ha='center',
-                fontsize=10,  # 设置字体大小
+                fontsize=8,  # 设置字体大小
                 color='black',  # 设置字体颜色为黑色
                 weight='bold',  # 设置字体粗细
                 bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0),  boxstyle='round, pad=0.5'),  # 设置注释框样式
@@ -204,7 +203,7 @@ if __name__ == "__main__":
                 text=f"{row['name']}\n{row['avg_price']:.0f}",
                 xy=centroid,
                 ha='center',
-                fontsize=5,  # 设置字体大小
+                fontsize=4,  # 设置字体大小
                 color='black',  # 设置字体颜色为黑色
                 weight='bold',  # 设置字体粗细
                 bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式

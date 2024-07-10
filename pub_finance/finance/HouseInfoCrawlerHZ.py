@@ -16,7 +16,6 @@ import contextily as cx
 """ 
 杭州区域地图数据：https://geo.datav.aliyun.com/areas_v3/bound/330100_full.json
 链家数据：https://hz.fang.lianjia.com/loupan/nht1nht2nhs1pg1/?_t=1/
-shangcheng-gongshu-xihu-binjiang-xiaoshan-yuhang-tonglu1-chunan1-jiande-fuyang-linan-qiantangqu-hangzhouwanxinqu1-linpingqu
 """
 
 
