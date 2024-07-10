@@ -144,7 +144,7 @@ if __name__ == "__main__":
 
 
     # # 设置并发数上限为6
-    # max_workers = 6
+    # max_workers = 1
     # data_batch_size = 10
     # list = []
     # count = 0
@@ -206,10 +206,11 @@ if __name__ == "__main__":
     # 处理行政区级别数据
     data_filter_bydistrict = data[data.level == 'district']
 
+    
     gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_second_hand_house, how="left", predicate = "intersects")
+    filtered_data = gdf_merged_bydistrict[gdf_merged_bydistrict['unit_price'] > 0]
 
-
-    agg_bydistrict = gdf_merged_bydistrict.groupby('adcode').median({'unit_price': 'unit_price'}).round(-3)
+    agg_bydistrict = filtered_data.groupby('adcode').median({'unit_price': 'unit_price'}).round(-3)
 
 
     result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='adcode', right_on ='adcode')
@@ -284,7 +285,8 @@ if __name__ == "__main__":
                         | ((data.level == 'town') & (~data.parent.apply(lambda x: x['adcode'] if isinstance(x, dict) and 'adcode' in x else None).isin(exclude_values)))]
     gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_second_hand_house, how="left", predicate = "intersects")
 
-    agg_bystreet = gdf_merged_bystreet.groupby('adcode').median({'unit_price': 'unit_price'}).round(-3)
+    filtered_data = gdf_merged_bystreet[gdf_merged_bystreet['unit_price'] > 0]
+    agg_bystreet = filtered_data.groupby('adcode').median({'unit_price': 'unit_price'}).round(-3)
 
     result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
 
@@ -346,3 +348,174 @@ if __name__ == "__main__":
     check_and_adjust_annotations(texts)
 
     plt.savefig('./houseinfo/map_second_bystreet.png', dpi=500, bbox_inches='tight', pad_inches=0)
+
+    cm = sns.color_palette("coolwarm", as_cmap=True)
+
+    print(gdf_merged_bystreet)
+
+
+    second_hand_house_info = filtered_data[['al_text','name','unit_price','age','total_cnt','sell_cnt']].dropna(subset = ['al_text'])
+
+    second_hand_house_info.sort_values(by=["name", "unit_price"],
+                        ascending=[True, False], inplace=True)
+    second_hand_house_info.reset_index(drop=True, inplace=True)
+
+    html = (
+        "<h2>Second Hand House List</h2>"  # 添加标题
+        "<table>"
+        + second_hand_house_info.style
+        .background_gradient(subset=["unit_price"], cmap=cm)
+        .format(
+            {
+                "avg_price": "{:.0f}"
+            }
+        )    
+        .set_properties(
+            **{
+                "text-align": "left",
+                "border": "1px solid #ccc",
+                "cellspacing": "0",
+                "style": "border-collapse: collapse; width: 100%;",  # 设置表格宽度为100%
+            }
+        )
+        .set_table_styles(
+            [
+                # 表头样式
+                dict(
+                    selector="th",
+                    props=[
+                        ("border", "1px solid #ccc"),
+                        ("text-align", "left"),
+                        ("padding", "8px"),  # 增加填充以便更易点击和阅读
+                        ("font-size", "18px"),  # 在PC端使用较大字体
+                    ],
+                ),
+                # 表格数据单元格样式
+                dict(
+                    selector="td",
+                    props=[
+                        ("border", "1px solid #ccc"),
+                        ("text-align", "left"),
+                        ("padding", "8px"),
+                        (
+                            "font-size",
+                            "18px",
+                        ),  # 同样适用较大字体以提高移动端可读性
+                    ],
+                ),
+            ]
+        )
+        .set_table_styles(
+            {
+                "title": [
+                    {
+                        "selector": "th",
+                        "props": [
+                            ("min-width", "150px"),
+                            ("max-width", "300px"),
+                        ],
+                    },
+                    {
+                        "selector": "td",
+                        "props": [
+                            ("min-width", "150px"),
+                            ("max-width", "300px"),
+                        ],
+                    },
+                ]
+            },
+            overwrite=False,
+        )
+        .set_sticky(axis="columns")
+        .to_html(doctype_html=True, escape=False)
+        + "<table>"
+    )
+    css = """
+        <style>
+            :root {
+                color-scheme: light;
+                supported-color-schemes: light;
+                background-color: white;
+                color: black;
+                display: table ;
+            }                
+            /* Your light mode (default) styles: */
+            body {
+                background-color: white;
+                color: black;
+                display: table ;
+                width: 100%;                          
+            }
+            table {
+                background-color: white;
+                color: black;
+                width: 100%;
+            }
+        </style>
+    """
+
+    html = css + html
+
+    html_img = """
+            <html>
+                <head>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            background-color: white; /* 设置默认背景颜色为白色 */
+                            color: black; /* 设置默认字体颜色为黑色 */
+                        }
+
+                        figure {
+                            margin: 0;
+                            padding: 5px;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                        }
+
+                        img {
+                            width: 100%;
+                            height: auto;
+                            border-radius: 2px;
+                        }
+
+                        figcaption {
+                            padding: 5px;
+                            text-align: center;
+                            font-style: italic;
+                            font-size: 14px;
+                        }
+                        
+                        body {
+                            background-color: white;
+                            color: black;
+                        }
+
+                        figure {
+                            border: 1px solid #ddd;
+                        }
+                        
+
+                    </style>
+                </head>
+                <body>
+                    <picture>
+                        <!-- 默认模式下的图片 -->
+                        <img src="cid:image0" alt="The industry distribution of current positions is as follows:" style="width:100%">
+                        <figcaption> Shanghai second hand house distribution by district.</figcaption>
+                    </picture>
+                    <picture>
+                        <!-- 默认模式下的图片 -->
+                        <img src="cid:image1" alt="The industry distribution of current pnl is as follows:" style="width:100%">
+                        <figcaption>Shanghai second hand house distribution by street.</figcaption>
+                    </picture>
+                </body>
+            </html>
+            """
+    image_path = [
+        "./houseinfo/map_second_bydistrict.png",
+        "./houseinfo/map_second_bystreet.png"
+    ]
+    MyEmail().send_email_embedded_image(
+        '上海二手房信息跟踪',  html_img + html, image_path
+    )
