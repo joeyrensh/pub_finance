@@ -139,10 +139,7 @@ def fetch_house_info(url, item):
 
     return dict
 
-# 主程序入口
-if __name__ == "__main__":
-    
-    file_path = './houseinfo/secondhandhouse.csv'
+def houseinfo_to_csv(file_path):
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path):
         os.remove(file_path)
@@ -207,6 +204,11 @@ if __name__ == "__main__":
                 index=False,
                 header=False
             )
+# 主程序入口
+if __name__ == "__main__":
+    
+    file_path = './houseinfo/secondhandhouse.csv'
+    houseinfo_to_csv(file_path)
 
     sys.exit()
 
@@ -219,7 +221,7 @@ if __name__ == "__main__":
 
     geo_data = gpd.read_file(geo_path)
 
-    df_second_hand_house = pd.read_csv(file_path, usecols=[i for i in range(0, 7)])
+    df_second_hand_house = pd.read_csv(file_path, usecols=[i for i in range(0, 10)])
     def extract_values(string):
         values = string.strip("[]").split(",")
         value1 = float(values[0])
@@ -375,9 +377,9 @@ if __name__ == "__main__":
     # 房屋明细
     cm = sns.color_palette("coolwarm", as_cmap=True)
 
-    second_hand_house_info = filtered_data[['al_text','name','unit_price','age','total_cnt','sell_cnt']].dropna(subset = ['al_text'])
-    second_hand_house_info.sort_values(by=["name", "unit_price"],
-                        ascending=[True, False], inplace=True)
+    second_hand_house_info = filtered_data[['al_text','district','name','unit_price','age','total_cnt','sell_cnt','structure','house_type']].dropna(subset = ['al_text'])
+    second_hand_house_info.sort_values(by=['district', "name", "unit_price"],
+                        ascending=[True, True, False], inplace=True)
     second_hand_house_info.reset_index(drop=True, inplace=True)
 
     html = (
