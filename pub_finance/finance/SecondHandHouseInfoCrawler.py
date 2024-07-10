@@ -155,7 +155,7 @@ def houseinfo_to_csv(file_path):
     houselist = []
     complete_list = []
     count = 0
-    url = ("https://sh.lianjia.com/xiaoqu/district/pgpgno/")
+    url = ("https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/")
     for idx, district in enumerate(district_list):                
         url_re = (
             url.replace("district", district)
@@ -209,8 +209,6 @@ if __name__ == "__main__":
     
     file_path = './houseinfo/secondhandhouse.csv'
     houseinfo_to_csv(file_path)
-
-    sys.exit()
 
 
     plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
