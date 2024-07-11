@@ -29,7 +29,7 @@ def get_house_info(file_path):
     cnt = 0
     district_list = ['shangcheng','gongshu','xihu','binjiang','xiaoshan','yuhang',
                      'tonglu1','chunan1','jiande','fuyang','linan','qiantangqu',
-                     'hangzhouwanxinqu1','linpingqu']
+                     'linpingqu']
     t = ToolKit("策略执行中")
     for idx, district in enumerate(district_list):
         t.progress_bar(len(district_list), idx)
