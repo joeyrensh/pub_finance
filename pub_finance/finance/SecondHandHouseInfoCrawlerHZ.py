@@ -234,7 +234,8 @@ if __name__ == "__main__":
         df_second_hand_house, geometry=gpd.points_from_xy(df_second_hand_house['longitude'], df_second_hand_house['latitude']), crs="EPSG:4326"
     )
     # 处理行政区级别数据
-    data_filter_bydistrict = geo_data[geo_data.level == 'district']
+    include_values = [330102, 330105, 330106, 330108, 330109, 330110, 330111, 330114]
+    data_filter_bydistrict = geo_data[(geo_data.level == 'district') & (geo_data.adcode.isin(include_values))]
     gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_second_hand_house, how="left", predicate = "intersects")
     filtered_data = gdf_merged_bydistrict[gdf_merged_bydistrict['unit_price'] > 0]
     agg_bydistrict = filtered_data.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
@@ -306,7 +307,9 @@ if __name__ == "__main__":
 
     # 处理板块级别数据
     # exclude_values = [310104, 310101, 310106, 310109, 310105, 310110, 310107]  # 要排除的值的列表     
-    data_filter_bystreet = geo_data[(geo_data.level == 'town') | (geo_data.name.isin(['钱塘区', '临平区']))]
+    data_filter_bystreet = geo_data[((geo_data.level == 'district') & (geo_data.adcode == 330114)) |
+        ((geo_data.level == 'town') & (geo_data['parent'].apply(lambda x: json.loads(x)['adcode']).isin(include_values) == True))
+        ]
   
     gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_second_hand_house, how="left", predicate = "intersects")
     filtered_data = gdf_merged_bystreet[gdf_merged_bystreet['unit_price'] > 0]
