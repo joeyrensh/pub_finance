@@ -250,7 +250,7 @@ if __name__ == "__main__":
         edgecolor='gainsboro',
         scheme="natural_breaks",
         k=8,
-        figsize=(15, 10),
+        figsize=(30, 15),
         legend_kwds={"fmt": "{:.0f}"},
         missing_kwds={
             # "color": "lightgrey",
@@ -322,7 +322,7 @@ if __name__ == "__main__":
         edgecolor='gainsboro',
         scheme="natural_breaks",
         k=8,
-        figsize=(15, 10),
+        figsize=(30, 15),
         legend_kwds={"fmt": "{:.0f}"},
         missing_kwds={
             # "color": (0, 0, 0, 0),
