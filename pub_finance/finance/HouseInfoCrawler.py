@@ -87,7 +87,7 @@ if __name__ == "__main__":
     png_path_by_district = './houseinfo/map_bydistrict.png'
     png_path_by_street = './houseinfo/map_bystreet.png'
 
-    get_house_info(file_path)
+    # get_house_info(file_path)
     plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
 
     geo_data = gpd.read_file(geo_path,  engine="pyogrio")
@@ -111,7 +111,7 @@ if __name__ == "__main__":
         edgecolor='gainsboro',
         scheme="natural_breaks",
         k=8,
-        figsize=(15, 10),
+        figsize=(30, 15),
         legend_kwds={"fmt": "{:.0f}"},
         missing_kwds={
             # "color": "lightgrey",
@@ -178,7 +178,7 @@ if __name__ == "__main__":
         edgecolor='gainsboro',
         scheme="natural_breaks",
         k=8,
-        figsize=(15, 10),
+        figsize=(30, 15),
         legend_kwds={"fmt": "{:.0f}"},
         missing_kwds={
             # "color": (0, 0, 0, 0),
