@@ -308,16 +308,10 @@ if __name__ == "__main__":
     exclude_values = [310104, 310101, 310106, 310109, 310105, 310110, 310107]  # 要排除的值的列表            ]
     data_filter_bystreet = geo_data[
         ((geo_data.level == 'district') & (geo_data.adcode.isin(exclude_values))) |
-        ((geo_data.level == 'town') & (geo_data['parent'].apply(lambda x: json.loads(x)['adcode']).isin(exclude_values)) == False)
+        ((geo_data.level == 'town') & (geo_data['parent'].apply(lambda x: json.loads(x)['adcode']).isin(exclude_values) == False))
     ]
-    data_filter_bystreet[['adcode','name','level','parent']].to_csv('./test.csv')
   
-    data_filter_bystreet = geo_data[
-        ((geo_data.level == 'district') & (geo_data.adcode.isin(exclude_values))) |
-        ((geo_data.level == 'town') & (~geo_data.parent.str['adcode'].isin(exclude_values)))
-    ]
     gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_second_hand_house, how="left", predicate = "intersects")
-
     filtered_data = gdf_merged_bystreet[gdf_merged_bystreet['unit_price'] > 0]
     agg_bystreet = filtered_data.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
     result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
