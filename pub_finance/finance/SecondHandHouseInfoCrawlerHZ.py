@@ -209,7 +209,7 @@ def houseinfo_to_csv(file_path):
 if __name__ == "__main__":
     
     file_path = './houseinfo/secondhandhousehz.csv'
-    houseinfo_to_csv(file_path)
+    # houseinfo_to_csv(file_path)
 
 
     plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
@@ -251,7 +251,7 @@ if __name__ == "__main__":
         edgecolor='gainsboro',
         scheme="natural_breaks",
         k=8,
-        figsize=(30, 15),
+        figsize=(20, 15),
         legend_kwds={"fmt": "{:.0f}"},
         missing_kwds={
             # "color": "lightgrey",
@@ -268,7 +268,7 @@ if __name__ == "__main__":
     ax.axis('off')
 
     # 添加标题
-    ax.set_title('Shanghai Second Hand House Distribution', 
+    ax.set_title('Hangzhou Second Hand House Distribution', 
                 fontdict={'fontsize': 20, 'fontweight': 'bold', 'color': 'darkblue'})
 
     # 添加annotation
@@ -322,7 +322,7 @@ if __name__ == "__main__":
         edgecolor='gainsboro',
         scheme="natural_breaks",
         k=8,
-        figsize=(30, 15),
+        figsize=(20, 15),
         legend_kwds={"fmt": "{:.0f}"},
         missing_kwds={
             # "color": (0, 0, 0, 0),
@@ -336,7 +336,7 @@ if __name__ == "__main__":
                     source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}')
     ax.axis('off')
     # 添加标题
-    ax.set_title('Shanghai Second House Distribution', 
+    ax.set_title('Hangzhou Second House Distribution', 
                 fontdict={'fontsize': 20, 'fontweight': 'bold', 'color': 'darkblue'})
 
     # 添加annotation
@@ -525,12 +525,12 @@ if __name__ == "__main__":
                     <picture>
                         <!-- 默认模式下的图片 -->
                         <img src="cid:image0" alt="The industry distribution of current positions is as follows:" style="width:100%">
-                        <figcaption> Shanghai second hand house distribution by district.</figcaption>
+                        <figcaption> Hangzhou second hand house distribution by district.</figcaption>
                     </picture>
                     <picture>
                         <!-- 默认模式下的图片 -->
                         <img src="cid:image1" alt="The industry distribution of current pnl is as follows:" style="width:100%">
-                        <figcaption>Shanghai second hand house distribution by street.</figcaption>
+                        <figcaption> Hangzhou second hand house distribution by street.</figcaption>
                     </picture>
                 </body>
             </html>
@@ -540,5 +540,5 @@ if __name__ == "__main__":
         png_path_by_street
     ]
     MyEmail().send_email_embedded_image(
-        '上海二手房信息跟踪',  html_img + html, image_path
+        '杭州二手房信息跟踪',  html_img + html, image_path
     )
