@@ -90,7 +90,7 @@ if __name__ == "__main__":
     get_house_info(file_path)
     plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
 
-    geo_data = gpd.read_file(geo_path)
+    geo_data = gpd.read_file(geo_path,  engine="pyogrio")
     df_new_house = pd.read_csv(file_path, usecols=[i for i in range(0, 12)])
 
     gdf_new_house = gpd.GeoDataFrame(
