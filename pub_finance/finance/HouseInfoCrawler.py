@@ -86,6 +86,7 @@ if __name__ == "__main__":
     geo_path = './houseinfo/shanghaidistrict.json'
     png_path_by_district = './houseinfo/map_bydistrict.png'
     png_path_by_street = './houseinfo/map_bystreet.png'
+    png_path_by_street_split = './houseinfo/map_bystreet_district.png'
 
     get_house_info(file_path)
     plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
@@ -189,7 +190,9 @@ if __name__ == "__main__":
         },
     );
     cx.add_basemap(ax, crs="EPSG:4326",
-                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}')
+                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'
+                    # source = 'https://a.tile.openstreetmap.org/${z}/${x}/${y}.png'
+                    )
     ax.axis('off')
     # 添加标题
     ax.set_title('Shanghai New House Distribution', 
@@ -226,6 +229,95 @@ if __name__ == "__main__":
 
     check_and_adjust_annotations(texts)
     plt.savefig(png_path_by_street, dpi=500, bbox_inches='tight', pad_inches=0)
+
+    # # 处理板块级别数据 - 分区快
+    # include_values = [310101 # 黄浦
+    #                   , 310104 # 徐汇
+    #                   , 310105 # 长宁
+    #                   , 310106 # 静安
+    #                   , 310107 # 普陀
+    #                   , 310109 # 虹口
+    #                   , 310110 # 杨浦
+    #                   , 310112 # 闵行
+    #                   , 310113 # 宝山
+    #                   , 310114 # 嘉定
+    #                   , 310115 # 浦东
+    #                   , 310116 # 金山
+    #                   , 310117 # 松江
+    #                   , 310118 # 青浦
+    #                   , 310120 # 奉贤
+    #                   , 310151 # 崇明
+    #                   ]  # 要排除的值的列表
+    
+    # for district in include_values:
+    #     data_filter_bystreet = geo_data[
+    #         ((geo_data.level == 'town') & (geo_data['parent'].apply(lambda x: json.loads(x)['adcode']) == district))
+    #         ]
+    #     gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_new_house, how="left", predicate = "intersects")
+    #     filtered_data = gdf_merged_bystreet[gdf_merged_bystreet['avg_price'] > 0]
+    #     if len(filtered_data) == 0:
+    #         continue
+    #     agg_bystreet = filtered_data.groupby('adcode').median({'avg_price': 'avg_price'}).round(-2)
+    #     result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
+
+    #     ax = result_bystreet.plot(
+    #         column="avg_price",
+    #         cmap='RdYlGn_r',
+    #         alpha = 0.7,
+    #         legend=False,
+    #         linewidth=0.8,
+    #         edgecolor='gainsboro',
+    #         scheme="natural_breaks",
+    #         k=8,
+    #         figsize=(10, 15),
+    #         legend_kwds={"fmt": "{:.0f}"},
+    #         missing_kwds={
+    #             # "color": (0, 0, 0, 0),
+    #             "facecolor": "none",
+    #             "edgecolor": "white",
+    #             "hatch": "///",
+    #             "label": "Missing values",
+    #         },
+    #     );
+    #     cx.add_basemap(ax, crs="EPSG:4326",
+    #                     source='http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}'
+    #                     )
+    #     ax.axis('off')
+    #     # 添加标题
+    #     ax.set_title('Shanghai New House Distribution', 
+    #                 fontdict={'fontsize': 10, 'fontweight': 'bold', 'color': 'darkblue'})
+    #     # 添加annotation
+    #     texts = []
+    #     for idx, row in result_bystreet.iterrows():
+    #         centroid = row.geometry.centroid.coords[0]
+    #         if not math.isnan(row['avg_price']):
+    #             text = ax.annotate(
+    #                 text=f"{row['name']}\n{row['avg_price']:.0f}",
+    #                 xy=centroid,
+    #                 ha='center',
+    #                 fontsize=6,  # 设置字体大小
+    #                 color='black',  # 设置字体颜色为黑色
+    #                 weight='bold',  # 设置字体粗细
+    #                 bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
+    #             )
+    #             texts.append(text)
+    #     # 检查注释是否重叠并调整位置
+    #     def check_and_adjust_annotations(texts, vertical_spacing=0.0002, horizontal_spacing=0.000):
+    #         renderer = ax.get_figure().canvas.get_renderer()
+    #         for i, text in enumerate(texts):
+    #             rect1 = text.get_window_extent(renderer=renderer)
+    #             for j in range(i + 1, len(texts)):
+    #                 text2 = texts[j]
+    #                 rect2 = text2.get_window_extent(renderer=renderer)
+    #                 while rect1.overlaps(rect2):
+    #                     x, y = text2.get_position()
+    #                     y -= vertical_spacing
+    #                     x -= horizontal_spacing
+    #                     text2.set_position((x, y))
+    #                     rect2 = text2.get_window_extent(renderer=renderer)
+
+    #     check_and_adjust_annotations(texts)
+    #     # plt.savefig(png_path_by_street_split.replace('district', str(district)), dpi=120, bbox_inches='tight', pad_inches=0)
 
 
     # 房屋明细
