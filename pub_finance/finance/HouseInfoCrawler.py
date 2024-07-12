@@ -87,7 +87,7 @@ if __name__ == "__main__":
     png_path_by_district = './houseinfo/map_bydistrict.png'
     png_path_by_street = './houseinfo/map_bystreet.png'
 
-    # get_house_info(file_path)
+    get_house_info(file_path)
     plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
 
     geo_data = gpd.read_file(geo_path,  engine="pyogrio")
