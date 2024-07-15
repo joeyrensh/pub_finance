@@ -118,13 +118,13 @@ if __name__ == "__main__":
         k=8,
         figsize=(10, 30),
         legend_kwds={"fmt": "{:.0f}"},
-        missing_kwds={
-            # "color": "lightgrey",
-            "facecolor": "none",
-            "edgecolor": "white",
-            "hatch": "///",
-            "label": "Missing values",
-        },
+        # missing_kwds={
+        #     # "color": "lightgrey",
+        #     "facecolor": "none",
+        #     "edgecolor": "white",
+        #     "hatch": "///",
+        #     "label": "Missing values",
+        # },
     );
 
     cx.add_basemap(ax, crs="EPSG:4326",
@@ -191,13 +191,13 @@ if __name__ == "__main__":
         k=8,
         figsize=(10, 30),
         legend_kwds={"fmt": "{:.0f}"},
-        missing_kwds={
-            # "color": (0, 0, 0, 0),
-            "facecolor": "none",
-            "edgecolor": "white",
-            "hatch": "///",
-            "label": "Missing values",
-        },
+        # missing_kwds={
+        #     # "color": (0, 0, 0, 0),
+        #     "facecolor": "none",
+        #     "edgecolor": "white",
+        #     "hatch": "///",
+        #     "label": "Missing values",
+        # },
     );
     cx.add_basemap(ax, crs="EPSG:4326",
                     source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
