@@ -245,10 +245,10 @@ if __name__ == "__main__":
     ax = result_bydistrict.plot(
         column="unit_price",
         cmap='RdYlGn_r',
-        alpha = 0.7,
+        alpha = 0.5,
         legend=True,
-        linewidth=0.8,
-        edgecolor='gainsboro',
+        linewidth=0.5,
+        edgecolor='k',
         scheme="natural_breaks",
         k=8,
         figsize=(15, 30),
@@ -263,7 +263,7 @@ if __name__ == "__main__":
     );
 
     cx.add_basemap(ax, crs="EPSG:4326",
-                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}')
+                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', zoom = 10)
 
     ax.axis('off')
 
@@ -319,10 +319,10 @@ if __name__ == "__main__":
     ax = result_bystreet.plot(
         column="unit_price",
         cmap='RdYlGn_r',
-        alpha = 0.7,
+        alpha = 0.5,
         legend=True,
-        linewidth=0.8,
-        edgecolor='gainsboro',
+        linewidth=0.5,
+        edgecolor='k',
         scheme="natural_breaks",
         k=8,
         figsize=(15, 30),
@@ -336,7 +336,7 @@ if __name__ == "__main__":
         },
     );
     cx.add_basemap(ax, crs="EPSG:4326",
-                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}')
+                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', zoom = 10)
     ax.axis('off')
     # 添加标题
     ax.set_title('Shanghai Second House Distribution', 
