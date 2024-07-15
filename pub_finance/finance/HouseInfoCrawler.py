@@ -12,6 +12,7 @@ from utility.ToolKit import ToolKit
 from matplotlib.transforms import Bbox
 import os
 import contextily as cx
+import xyzservices.providers as xyz
 
 
 """ 
@@ -88,8 +89,10 @@ if __name__ == "__main__":
     png_path_by_street = './houseinfo/map_bystreet.png'
     png_path_by_street_split = './houseinfo/map_bystreet_district.png'
 
-    get_house_info(file_path)
+    # get_house_info(file_path)
     plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
+    xyz.CartoDB.PositronNoLabels.url = 'https://{s}.basemaps.cartocdn.com/{variant}/{z}/{x}/{y}{r}.png'
+    xyz.CartoDB.PositronNoLabels.attribution = '(C) OpenStreetMap contributors (C) CARTO'    
 
     geo_data = gpd.read_file(geo_path,  engine="pyogrio")
     df_new_house = pd.read_csv(file_path, usecols=[i for i in range(0, 12)])
@@ -99,17 +102,18 @@ if __name__ == "__main__":
     )
     # 处理行政区级别数据
     data_filter_bydistrict = geo_data[geo_data.level == 'district']
-    gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_new_house, how="left", predicate = "intersects")
+    gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_new_house, how="inner", predicate = "intersects")
     agg_bydistrict = gdf_merged_bydistrict.groupby('adcode').median({'avg_price': 'avg_price'}).round(-2)
     result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='adcode', right_on ='adcode')
 
     ax = result_bydistrict.plot(
         column="avg_price",
         cmap='RdYlGn_r',
-        alpha = 0.7,
+        # cmap='coolwarm',
+        alpha = 0.5,
         legend=True,
-        linewidth=0.8,
-        edgecolor='gainsboro',
+        linewidth=0.5,
+        edgecolor='k',
         scheme="natural_breaks",
         k=8,
         figsize=(10, 30),
@@ -124,7 +128,11 @@ if __name__ == "__main__":
     );
 
     cx.add_basemap(ax, crs="EPSG:4326",
-                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}')
+                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+                    # source='http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}',
+                    # source = xyz.CartoDB.PositronNoLabels,
+                    zoom = 10
+                    )
 
     ax.axis('off')
     # 添加标题
@@ -166,17 +174,19 @@ if __name__ == "__main__":
     plt.savefig(png_path_by_district, dpi=500, bbox_inches='tight', pad_inches=0)
     # 处理板块级别数据
     data_filter_bystreet = geo_data[(geo_data.level == 'town')]
-    gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_new_house, how="left", predicate = "intersects")
+    gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_new_house, how="inner", predicate = "intersects")
     agg_bystreet = gdf_merged_bystreet.groupby('adcode').median({'avg_price': 'avg_price'}).round(-2)
     result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
 
     ax = result_bystreet.plot(
         column="avg_price",
         cmap='RdYlGn_r',
-        alpha = 0.7,
+        # cmap='coolwarm',
+        alpha = 0.5,
         legend=True,
-        linewidth=0.8,
-        edgecolor='gainsboro',
+        linewidth=0.5,
+        # edgecolor='gainsboro',
+        edgecolor='k',
         scheme="natural_breaks",
         k=8,
         figsize=(10, 30),
@@ -190,8 +200,10 @@ if __name__ == "__main__":
         },
     );
     cx.add_basemap(ax, crs="EPSG:4326",
-                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'
-                    # source = 'https://a.tile.openstreetmap.org/${z}/${x}/${y}.png'
+                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+                    # source = 'http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}',
+                    # source = xyz.CartoDB.PositronNoLabels,
+                    zoom = 10
                     )
     ax.axis('off')
     # 添加标题
