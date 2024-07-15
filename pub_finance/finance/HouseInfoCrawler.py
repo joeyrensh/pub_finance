@@ -89,7 +89,7 @@ if __name__ == "__main__":
     png_path_by_street = './houseinfo/map_bystreet.png'
     png_path_by_street_split = './houseinfo/map_bystreet_district.png'
 
-    # get_house_info(file_path)
+    get_house_info(file_path)
     plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
     xyz.CartoDB.PositronNoLabels.url = 'https://{s}.basemaps.cartocdn.com/{variant}/{z}/{x}/{y}{r}.png'
     xyz.CartoDB.PositronNoLabels.attribution = '(C) OpenStreetMap contributors (C) CARTO'    
