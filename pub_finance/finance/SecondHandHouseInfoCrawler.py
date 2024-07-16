@@ -12,6 +12,7 @@ from matplotlib.transforms import Bbox
 import os
 import contextily as cx
 import sys
+import numpy as np
 import json
 
 
@@ -209,7 +210,7 @@ def houseinfo_to_csv(file_path):
 if __name__ == "__main__":
     
     file_path = './houseinfo/secondhandhouse.csv'
-    # houseinfo_to_csv(file_path)
+    houseinfo_to_csv(file_path)
 
 
     plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
@@ -235,7 +236,7 @@ if __name__ == "__main__":
     )
     # 处理行政区级别数据
     data_filter_bydistrict = geo_data[geo_data.level == 'district']
-    gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_second_hand_house, how="left", predicate = "intersects")
+    gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_second_hand_house, how="inner", predicate = "intersects")
     filtered_data = gdf_merged_bydistrict[gdf_merged_bydistrict['unit_price'] > 0]
     agg_bydistrict = filtered_data.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
 
@@ -293,8 +294,8 @@ if __name__ == "__main__":
                 bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0),  boxstyle='round, pad=0.5'),  # 设置注释框样式
             )
             texts.append(text)
-    # 检查注释是否重叠并调整位置
-    def check_and_adjust_annotations(texts, vertical_spacing=0.0002, horizontal_spacing=0.0000, min_fontsize=6, default_fontsize=8):
+        # 检查注释是否重叠并调整位置
+    def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0001, min_fontsize=6, default_fontsize=8):
         renderer = ax.get_figure().canvas.get_renderer()
         for i, text in enumerate(texts):
             rect1 = text.get_window_extent(renderer=renderer)
@@ -312,7 +313,7 @@ if __name__ == "__main__":
                     # 调整字体大小和透明度
                     if current_fontsize > min_fontsize:
                         text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
-                    rect2 = text2.get_window_extent(renderer=renderer)
+                    rect2 = text2.get_window_extent(renderer=renderer) 
 
     check_and_adjust_annotations(texts)
     plt.savefig(png_path_by_district, dpi=500, bbox_inches='tight', pad_inches=0)
@@ -324,7 +325,7 @@ if __name__ == "__main__":
         ((geo_data.level == 'town') & (geo_data['parent'].apply(lambda x: json.loads(x)['adcode']).isin(exclude_values) == False))
     ]
   
-    gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_second_hand_house, how="left", predicate = "intersects")
+    gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_second_hand_house, how="inner", predicate = "intersects")
     filtered_data = gdf_merged_bystreet[gdf_merged_bystreet['unit_price'] > 0]
     agg_bystreet = filtered_data.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
     result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
@@ -378,8 +379,8 @@ if __name__ == "__main__":
                 bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
             )
             texts.append(text)
-    # 检查注释是否重叠并调整位置
-    def check_and_adjust_annotations(texts, vertical_spacing=0.0002, horizontal_spacing=0.0000, min_fontsize=3, default_fontsize=4):
+   # 检查注释是否重叠并调整位置
+    def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0001, min_fontsize=3, default_fontsize=4):
         renderer = ax.get_figure().canvas.get_renderer()
         for i, text in enumerate(texts):
             rect1 = text.get_window_extent(renderer=renderer)
@@ -390,14 +391,15 @@ if __name__ == "__main__":
                     x, y = text2.get_position()
                     y -= vertical_spacing
                     x -= horizontal_spacing
-                    text2.set_position((x, y))
+                    text2.set_position((x, y))                    
+
                     # 确保 fontsize 和 alpha 不为 None
                     current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
                     
                     # 调整字体大小和透明度
                     if current_fontsize > min_fontsize:
                         text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
-                    rect2 = text2.get_window_extent(renderer=renderer)   
+                    rect2 = text2.get_window_extent(renderer=renderer)  
 
     check_and_adjust_annotations(texts)
 
