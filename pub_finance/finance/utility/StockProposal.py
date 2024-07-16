@@ -1992,11 +1992,11 @@ class StockProposal:
                         </style>
                     </head>                    
                     <body>
-                        <h1>The current cash is {cash}, the final portfolio value is {final_value}</h1>
+                        <h1>The current cash is {cash}, the final portfolio value is {final_value}, the number of backtesting list is {stock_cnt}</h1>
                     </body>
                     </html>
                     """.format(
-            cash=cash, final_value=final_value
+            cash=cash, final_value=final_value, stock_cnt = len(stock_list)
         )
 
         MyEmail().send_email_embedded_image(
