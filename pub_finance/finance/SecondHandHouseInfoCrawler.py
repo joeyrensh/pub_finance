@@ -244,26 +244,33 @@ if __name__ == "__main__":
 
     ax = result_bydistrict.plot(
         column="unit_price",
-        cmap='RdYlGn_r',
+        cmap='YlOrRd',
         alpha = 0.5,
         legend=True,
         linewidth=0.5,
         edgecolor='k',
         scheme="natural_breaks",
         k=8,
-        figsize=(15, 30),
+        figsize=(10, 20),
         legend_kwds={"fmt": "{:.0f}"},
-        missing_kwds={
-            # "color": "lightgrey",
-            "facecolor": "none",
-            "edgecolor": "white",
-            "hatch": "///",
-            "label": "Missing values",
-        },
+        # missing_kwds={
+        #     # "color": "lightgrey",
+        #     "facecolor": "none",
+        #     "edgecolor": "white",
+        #     "hatch": "///",
+        #     "label": "Missing values",
+        # },
     );
 
-    cx.add_basemap(ax, crs="EPSG:4326",
-                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', zoom = 10)
+    cx.add_basemap(ax, 
+                    crs="EPSG:4326",
+                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+                    # source='http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}',
+                    # source = xyz.CartoDB.PositronNoLabels,
+                    zoom = 10,
+                    interpolation = 'bicubic',
+                    # alpha = 0.5
+                    )
 
     ax.axis('off')
 
@@ -282,12 +289,12 @@ if __name__ == "__main__":
                 ha='center',
                 fontsize=8,  # 设置字体大小
                 color='black',  # 设置字体颜色为黑色
-                weight='bold',  # 设置字体粗细
+                weight='black',  # 设置字体粗细
                 bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0),  boxstyle='round, pad=0.5'),  # 设置注释框样式
             )
             texts.append(text)
     # 检查注释是否重叠并调整位置
-    def check_and_adjust_annotations(texts, vertical_spacing=0.0002, horizontal_spacing=0.0000):
+    def check_and_adjust_annotations(texts, vertical_spacing=0.0002, horizontal_spacing=0.0000, min_fontsize=6, default_fontsize=8):
         renderer = ax.get_figure().canvas.get_renderer()
         for i, text in enumerate(texts):
             rect1 = text.get_window_extent(renderer=renderer)
@@ -299,6 +306,12 @@ if __name__ == "__main__":
                     y -= vertical_spacing
                     x -= horizontal_spacing
                     text2.set_position((x, y))
+                    # 确保 fontsize 和 alpha 不为 None
+                    current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
+                    
+                    # 调整字体大小和透明度
+                    if current_fontsize > min_fontsize:
+                        text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
                     rect2 = text2.get_window_extent(renderer=renderer)
 
     check_and_adjust_annotations(texts)
@@ -318,25 +331,33 @@ if __name__ == "__main__":
 
     ax = result_bystreet.plot(
         column="unit_price",
-        cmap='RdYlGn_r',
+        cmap='YlOrRd',
         alpha = 0.5,
         legend=True,
         linewidth=0.5,
+        # edgecolor='gainsboro',
         edgecolor='k',
         scheme="natural_breaks",
         k=8,
-        figsize=(15, 30),
+        figsize=(10, 20),
         legend_kwds={"fmt": "{:.0f}"},
-        missing_kwds={
-            # "color": (0, 0, 0, 0),
-            "facecolor": "none",
-            "edgecolor": "white",
-            "hatch": "///",
-            "label": "Missing values",
-        },
+        # missing_kwds={
+        #     # "color": (0, 0, 0, 0),
+        #     "facecolor": "none",
+        #     "edgecolor": "white",
+        #     "hatch": "///",
+        #     "label": "Missing values",
+        # },
     );
-    cx.add_basemap(ax, crs="EPSG:4326",
-                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', zoom = 10)
+    cx.add_basemap(ax,
+                crs="EPSG:4326",
+                source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+                # source = 'http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}',
+                # source = xyz.CartoDB.PositronNoLabels,
+                zoom = 10,
+                interpolation = 'bicubic',
+                # alpha = 0.5
+                )
     ax.axis('off')
     # 添加标题
     ax.set_title('Shanghai Second House Distribution', 
@@ -351,14 +372,14 @@ if __name__ == "__main__":
                 text=f"{row['name']}\n{row['unit_price']:.0f}",
                 xy=centroid,
                 ha='center',
-                fontsize=5,  # 设置字体大小
+                fontsize=4,  # 设置字体大小
                 color='black',  # 设置字体颜色为黑色
-                weight='bold',  # 设置字体粗细
+                weight='black',  # 设置字体粗细
                 bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
             )
             texts.append(text)
     # 检查注释是否重叠并调整位置
-    def check_and_adjust_annotations(texts, vertical_spacing=0.0002, horizontal_spacing=0.0000):
+    def check_and_adjust_annotations(texts, vertical_spacing=0.0002, horizontal_spacing=0.0000, min_fontsize=3, default_fontsize=4):
         renderer = ax.get_figure().canvas.get_renderer()
         for i, text in enumerate(texts):
             rect1 = text.get_window_extent(renderer=renderer)
@@ -370,7 +391,13 @@ if __name__ == "__main__":
                     y -= vertical_spacing
                     x -= horizontal_spacing
                     text2.set_position((x, y))
-                    rect2 = text2.get_window_extent(renderer=renderer)
+                    # 确保 fontsize 和 alpha 不为 None
+                    current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
+                    
+                    # 调整字体大小和透明度
+                    if current_fontsize > min_fontsize:
+                        text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
+                    rect2 = text2.get_window_extent(renderer=renderer)   
 
     check_and_adjust_annotations(texts)
 
