@@ -3,6 +3,7 @@
 
 from utility.MyEmail import MyEmail
 from utility.FileInfo import FileInfo
+from utility.TickerInfo import TickerInfo
 import pandas as pd
 import seaborn as sns
 from pyspark.sql import SparkSession
@@ -160,6 +161,12 @@ class StockProposal:
         df4 = df4.toDF(*cols)
         df4.createOrReplaceTempView("temp4")
 
+        # 获取回测股票列表
+        stock_list = TickerInfo(self.trade_date, self.market).get_stock_list()
+        stock_list_tuples = [(symbol,) for symbol in stock_list]
+        df5 = spark.createDataFrame(stock_list_tuples, schema=['symbol'])
+        df5.createOrReplaceTempView("temp5")
+
         # 生成时间序列，用于时间序列补齐
         end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
         start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
@@ -283,9 +290,9 @@ class StockProposal:
                     ) t
                 GROUP BY industry
             ), tmp4 AS (
-                SELECT industry, COUNT(symbol) AS ticker_cnt
-                FROM temp2
-                GROUP BY industry
+                SELECT temp2.industry, COUNT(temp2.symbol) AS ticker_cnt
+                FROM temp2 JOIN temp5 ON temp2.symbol = temp5.symbol
+                GROUP BY temp2.industry
             )                
             SELECT t1.industry
                 ,COALESCE(t2.p_cnt,0) AS p_cnt
