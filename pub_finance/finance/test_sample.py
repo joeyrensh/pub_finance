@@ -14,6 +14,7 @@ import contextily as cx
 import re
 import numpy as np
 import json
+from matplotlib.font_manager import FontProperties
 
 
 
@@ -57,6 +58,7 @@ filtered_data = gdf_merged_bydistrict[gdf_merged_bydistrict['unit_price'] > 0]
 agg_bydistrict = filtered_data.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
 result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='adcode', right_on ='adcode')
 
+
 ax = result_bydistrict.plot(
     column="unit_price",
     cmap='YlOrRd',
@@ -89,7 +91,7 @@ for idx, row in result_bydistrict.iterrows():
     centroid = row.geometry.centroid.coords[0]
     if not math.isnan(row['unit_price']):
         text = ax.annotate(
-            text=f"{row['name']}\n{row['unit_price']:.0f}",
+            text=f"{row['name']}",
             xy=centroid,
             ha='center',
             fontsize=8,  # 设置字体大小
@@ -120,15 +122,136 @@ def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spac
                 rect2 = text2.get_window_extent(renderer=renderer) 
 
 check_and_adjust_annotations(texts)
-
-# 提取并排序注释内容
+# 创建自定义图例项
+# 获取绘制时使用的颜色映射
+cmap = plt.get_cmap('YlOrRd')
+norm = plt.Normalize(vmin=result_bydistrict['unit_price'].min(), vmax=result_bydistrict['unit_price'].max())
+colors = [cmap(norm(value)) for value in result_bydistrict['unit_price']]
 annotations = result_bydistrict[['name', 'unit_price']].sort_values(by='unit_price', ascending=False)
 
-# 创建自定义图例
-legend_texts = [f"{row['name']}: {row['unit_price']:.0f}" for _, row in annotations.iterrows()]
-legend = ax.figure.add_axes([1.05, 0.1, 0.2, 0.8], frameon=False)  # 在图的侧边创建一个新的axes
-legend.axis('on')
+legend_labels = [f"{row['name']}: {row['unit_price']:.0f}" for _, row in annotations.iterrows()]
+handles = [plt.Circle((0.5, 0.5), radius=0.1, label=label, facecolor=colors[i]) for i, label in enumerate(legend_labels)]
 
-for i, text in enumerate(legend_texts):
-    legend.text(0, 1 - (i * 0.05), text, fontsize=10, ha='left')
-# plt.savefig(testpath, dpi=500, bbox_inches='tight', pad_inches=0)
+# 使用ax.legend()方法定制图例的显示
+legend = ax.legend(handles=handles, loc='upper right', facecolor='lightblue', fancybox=True, shadow=False, borderpad=0.1, framealpha=0)
+
+# 更改图例字体颜色与标记颜色一致
+for text, color in zip(legend.get_texts(), colors):
+    text.set_color(color)
+
+
+
+exclude_values = [310104, 310101, 310106, 310109, 310105, 310110, 310107]  # 要排除的值的列表            ]
+data_filter_bystreet = geo_data[
+    ((geo_data.level == 'district') & (geo_data.adcode.isin(exclude_values))) |
+    ((geo_data.level == 'town') & (geo_data['parent'].apply(lambda x: json.loads(x)['adcode']).isin(exclude_values) == False))
+]
+
+gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_second_hand_house, how="inner", predicate = "intersects")
+# 板块均价分析
+filtered_data = gdf_merged_bystreet[gdf_merged_bystreet['unit_price'] > 0]
+agg_bystreet = filtered_data.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
+result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
+
+ax = result_bystreet.plot(
+    column="unit_price",
+    cmap='YlOrRd',
+    alpha = 0.5,
+    legend=True,
+    linewidth=0.5,
+    # edgecolor='gainsboro',
+    edgecolor='k',
+    scheme="natural_breaks",
+    k=8,
+    figsize=(10, 20),
+    legend_kwds={"fmt": "{:.0f}"},
+    # missing_kwds={
+    #     # "color": (0, 0, 0, 0),
+    #     "facecolor": "none",
+    #     "edgecolor": "white",
+    #     "hatch": "///",
+    #     "label": "Missing values",
+    # },
+);
+cx.add_basemap(ax,
+            crs="EPSG:4326",
+            source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+            # source = 'http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}',
+            # source = xyz.CartoDB.PositronNoLabels,
+            zoom = 10,
+            interpolation = 'bicubic',
+            # alpha = 0.5
+            )
+ax.axis('off')
+# 添加标题
+ax.set_title('Shanghai Second-hand House Distribution', 
+            fontdict={'fontsize': 20, 'fontweight': 'bold', 'color': 'darkblue'})
+
+# 添加annotation
+texts = []
+for idx, row in result_bystreet.iterrows():
+    centroid = row.geometry.centroid.coords[0]
+    if not math.isnan(row['unit_price']):
+        if row.level == 'town':
+            text = ax.annotate(
+                text=f"{row['name']}\n{row['unit_price']:.0f}",
+                xy=centroid,
+                ha='center',
+                fontsize=4,  # 设置字体大小
+                color='black',  # 设置字体颜色为黑色
+                weight='black',  # 设置字体粗细
+                bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
+            )
+        else:
+            text = ax.annotate(
+                text=f"{row['name']}",
+                xy=centroid,
+                ha='center',
+                fontsize=4,  # 设置字体大小
+                color='black',  # 设置字体颜色为黑色
+                weight='black',  # 设置字体粗细
+                bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
+            )
+        texts.append(text)
+# 检查注释是否重叠并调整位置
+def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0001, min_fontsize=3, default_fontsize=4):
+    renderer = ax.get_figure().canvas.get_renderer()
+    for i, text in enumerate(texts):
+        rect1 = text.get_window_extent(renderer=renderer)
+        for j in range(i + 1, len(texts)):
+            text2 = texts[j]
+            rect2 = text2.get_window_extent(renderer=renderer)
+            while rect1.overlaps(rect2):
+                x, y = text2.get_position()
+                y -= vertical_spacing
+                x -= horizontal_spacing
+                text2.set_position((x, y))                    
+
+                # 确保 fontsize 和 alpha 不为 None
+                current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
+                
+                # 调整字体大小和透明度
+                if current_fontsize > min_fontsize:
+                    text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
+                rect2 = text2.get_window_extent(renderer=renderer)  
+
+check_and_adjust_annotations(texts)
+
+# 创建自定义图例项
+# 获取绘制时使用的颜色映射
+cmap = plt.get_cmap('YlOrRd')
+norm = plt.Normalize(vmin=result_bydistrict['unit_price'].min(), vmax=result_bydistrict['unit_price'].max())
+colors = [cmap(norm(value)) for value in result_bydistrict['unit_price']]
+annotations = result_bydistrict[['name', 'unit_price']].sort_values(by='unit_price', ascending=False)
+
+legend_labels = [f"{row['name']}: {row['unit_price']:.0f}" for _, row in annotations.iterrows()]
+handles = [plt.Circle((0.5, 0.5), radius=0.1, label=label, facecolor=colors[i]) for i, label in enumerate(legend_labels)]
+
+# 使用ax.legend()方法定制图例的显示
+legend = ax.legend(handles=handles, loc='upper right',facecolor='lightblue', fancybox=True, shadow=False, borderpad=0.1, framealpha=0)
+
+# 更改图例字体颜色与标记颜色一致
+for text, color in zip(legend.get_texts(), colors):
+    text.set_color(color)
+
+plt.savefig('./houseinfo/test.png', dpi=500, bbox_inches='tight', pad_inches=0)        

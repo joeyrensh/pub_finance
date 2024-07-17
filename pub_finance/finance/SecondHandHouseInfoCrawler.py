@@ -14,6 +14,10 @@ import contextily as cx
 import re
 import numpy as np
 import json
+import matplotlib.colors as colors
+import sys
+import pysal.viz.mapclassify as mc
+
 
 
 
@@ -246,11 +250,11 @@ if __name__ == "__main__":
     gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_second_hand_house, how="inner", predicate = "intersects")
 
     # 行政区均价分析
-    filtered_data = gdf_merged_bydistrict[gdf_merged_bydistrict['unit_price'] > 0]
-    agg_bydistrict = filtered_data.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
-    result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='adcode', right_on ='adcode')
+    filtered_data1 = gdf_merged_bydistrict[gdf_merged_bydistrict['unit_price'] > 0]
+    agg_bydistrict1 = filtered_data1.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
+    result1 = data_filter_bydistrict.merge(agg_bydistrict1, how='left', left_on='adcode', right_on ='adcode')
 
-    ax = result_bydistrict.plot(
+    ax = result1.plot(
         column="unit_price",
         cmap='YlOrRd',
         alpha = 0.5,
@@ -288,11 +292,11 @@ if __name__ == "__main__":
 
     # 添加annotation
     texts = []
-    for idx, row in result_bydistrict.iterrows():
+    for idx, row in result1.iterrows():
         centroid = row.geometry.centroid.coords[0]
         if not math.isnan(row['unit_price']):
             text = ax.annotate(
-                text=f"{row['name']}\n{row['unit_price']:.0f}",
+                text=f"{row['name']}",
                 xy=centroid,
                 ha='center',
                 fontsize=8,  # 设置字体大小
@@ -323,17 +327,30 @@ if __name__ == "__main__":
                     rect2 = text2.get_window_extent(renderer=renderer) 
 
     check_and_adjust_annotations(texts)
+    # 创建自定义图例项
+    # 获取绘制时使用的颜色映射
+    annotations = result1[['name', 'unit_price']].sort_values(by='unit_price', ascending=False)
+    legend_labels = [f"{row['name']}: {row['unit_price']:.0f}" for _, row in annotations.iterrows()]
+    handles = [plt.Circle((0.5, 0.5), radius=0.1, label=label, facecolor='orange') for i, label in enumerate(legend_labels)]
+
+    # 使用ax.legend()方法定制图例的显示
+    legend = ax.legend(handles=handles, loc='upper right', facecolor='lightblue', fancybox=True, shadow=False, borderpad=0.1, framealpha=0)
+
+    # 更改图例字体颜色与标记颜色一致
+    for text in legend.get_texts():
+        text.set_color('black')    
     plt.savefig(png_path_price_by_district, dpi=500, bbox_inches='tight', pad_inches=0)
 
     # 行政区挂牌量分析
-    agg_bydistrict = gdf_merged_bydistrict.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(0)
+    filtered_data2 = gdf_merged_bydistrict[gdf_merged_bydistrict['sell_cnt'] > 0]
+    agg_bydistrict2 = filtered_data2.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(0)
     # 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
-    agg_bydistrict['ratio'] = agg_bydistrict.apply(
+    agg_bydistrict2['ratio'] = agg_bydistrict2.apply(
         lambda row: row['sell_cnt'] / row['total_cnt'] if row['total_cnt'] != 0 else None, axis=1
     )
-    result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='adcode', right_on ='adcode')
+    result2 = data_filter_bydistrict.merge(agg_bydistrict2, how='left', left_on='adcode', right_on ='adcode')
 
-    ax = result_bydistrict.plot(
+    ax = result2.plot(
         column="sell_cnt",
         cmap='YlOrRd',
         alpha = 0.5,
@@ -363,11 +380,11 @@ if __name__ == "__main__":
 
     # 添加annotation
     texts = []
-    for idx, row in result_bydistrict.iterrows():
+    for idx, row in result2.iterrows():
         centroid = row.geometry.centroid.coords[0]
         if not math.isnan(row['ratio']):
             text = ax.annotate(
-                text=f"{row['name']}\n{row['sell_cnt']:.0f}|{row['ratio']:.2%}",
+                text=f"{row['name']}",
                 xy=centroid,
                 ha='center',
                 fontsize=6,  # 设置字体大小
@@ -397,12 +414,25 @@ if __name__ == "__main__":
                         text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
                     rect2 = text2.get_window_extent(renderer=renderer) 
 
-    check_and_adjust_annotations(texts)        
+    check_and_adjust_annotations(texts)
+    # 创建自定义图例项
+    # 获取绘制时使用的颜色映射
+    annotations = result2[['name', 'sell_cnt', 'ratio']].sort_values(by='sell_cnt', ascending=False)
+
+    legend_labels = [f"{row['name']}: {row['sell_cnt']:.0f},{row['ratio']:.2%}" for _, row in annotations.iterrows()]
+    handles = [plt.Circle((0.5, 0.5), radius=0.1, label=label, facecolor='orange') for i, label in enumerate(legend_labels)]
+
+    # 使用ax.legend()方法定制图例的显示
+    legend = ax.legend(handles=handles, loc='upper right', facecolor='lightblue', fancybox=True, shadow=False, borderpad=0.1, framealpha=0)
+
+    # 更改图例字体颜色与标记颜色一致
+    for text in legend.get_texts():
+        text.set_color('black')
 
     plt.savefig(png_path_sell_by_district, dpi=500, bbox_inches='tight', pad_inches=0)    
 
     # 处理板块级别数据
-    exclude_values = [310104, 310101, 310106, 310109, 310105, 310110, 310107]  # 要排除的值的列表            ]
+    exclude_values = [310104, 310101, 310106, 310109, 310105, 310110, 310107]  # 要排除的值的列表
     data_filter_bystreet = geo_data[
         ((geo_data.level == 'district') & (geo_data.adcode.isin(exclude_values))) |
         ((geo_data.level == 'town') & (geo_data['parent'].apply(lambda x: json.loads(x)['adcode']).isin(exclude_values) == False))
@@ -410,11 +440,11 @@ if __name__ == "__main__":
   
     gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_second_hand_house, how="inner", predicate = "intersects")
     # 板块均价分析
-    filtered_data = gdf_merged_bystreet[gdf_merged_bystreet['unit_price'] > 0]
-    agg_bystreet = filtered_data.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
-    result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
+    filtered_data3 = gdf_merged_bystreet[gdf_merged_bystreet['unit_price'] > 0]
+    agg_bystreet3 = filtered_data3.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
+    result3 = data_filter_bystreet.merge(agg_bystreet3, how='left', left_on='adcode', right_on ='adcode')
 
-    ax = result_bystreet.plot(
+    ax = result3.plot(
         column="unit_price",
         cmap='YlOrRd',
         alpha = 0.5,
@@ -450,18 +480,29 @@ if __name__ == "__main__":
 
     # 添加annotation
     texts = []
-    for idx, row in result_bystreet.iterrows():
+    for idx, row in result3.iterrows():
         centroid = row.geometry.centroid.coords[0]
         if not math.isnan(row['unit_price']):
-            text = ax.annotate(
-                text=f"{row['name']}\n{row['unit_price']:.0f}",
-                xy=centroid,
-                ha='center',
-                fontsize=4,  # 设置字体大小
-                color='black',  # 设置字体颜色为黑色
-                weight='black',  # 设置字体粗细
-                bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
-            )
+            if row.level == 'town':
+                text = ax.annotate(
+                    text=f"{row['name']}\n{row['unit_price']:.0f}",
+                    xy=centroid,
+                    ha='center',
+                    fontsize=4,  # 设置字体大小
+                    color='black',  # 设置字体颜色为黑色
+                    weight='black',  # 设置字体粗细
+                    bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
+                )
+            else:
+                text = ax.annotate(
+                    text=f"{row['name']}",
+                    xy=centroid,
+                    ha='center',
+                    fontsize=4,  # 设置字体大小
+                    color='black',  # 设置字体颜色为黑色
+                    weight='black',  # 设置字体粗细
+                    bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
+                )
             texts.append(text)
    # 检查注释是否重叠并调整位置
     def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0001, min_fontsize=3, default_fontsize=4):
@@ -487,18 +528,32 @@ if __name__ == "__main__":
 
     check_and_adjust_annotations(texts)
 
+    # 创建自定义图例项
+    # 获取绘制时使用的颜色映射
+    annotations = result1[['name', 'unit_price']].sort_values(by='unit_price', ascending=False)
+
+    legend_labels = [f"{row['name']}: {row['unit_price']:.0f}" for _, row in annotations.iterrows()]
+    handles = [plt.Circle((0.5, 0.5), radius=0.1, label=label, facecolor='orange') for i, label in enumerate(legend_labels)]
+
+    # 使用ax.legend()方法定制图例的显示
+    legend = ax.legend(handles=handles, loc='upper right',facecolor='lightblue', fancybox=True, shadow=False, borderpad=0.1, framealpha=0)
+
+    # 更改图例字体颜色与标记颜色一致
+    for text in legend.get_texts():
+        text.set_color('black')
+
     plt.savefig(png_path_price_by_street, dpi=500, bbox_inches='tight', pad_inches=0)
     # 板块挂牌量分析
-    filtered_data = gdf_merged_bystreet[gdf_merged_bystreet['sell_cnt'] > 0]
+    filtered_data4 = gdf_merged_bystreet[gdf_merged_bystreet['sell_cnt'] > 0]
     # 按 adcode 分组并汇总 sell_cnt 和 total_cnt
-    agg_bystreet = filtered_data.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(0)
+    agg_bystreet4 = filtered_data4.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(0)
     # 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
-    agg_bystreet['ratio'] = agg_bystreet.apply(
+    agg_bystreet4['ratio'] = agg_bystreet4.apply(
         lambda row: row['sell_cnt'] / row['total_cnt'] if row['total_cnt'] != 0 else None, axis=1
     )
-    result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
+    result4 = data_filter_bystreet.merge(agg_bystreet4, how='left', left_on='adcode', right_on ='adcode')
 
-    ax = result_bystreet.plot(
+    ax = result4.plot(
         column="sell_cnt",
         cmap='YlOrRd',
         alpha = 0.5,
@@ -527,18 +582,29 @@ if __name__ == "__main__":
 
     # 添加annotation
     texts = []
-    for idx, row in result_bystreet.iterrows():
+    for idx, row in result4.iterrows():
         centroid = row.geometry.centroid.coords[0]
         if not math.isnan(row['ratio']):
-            text = ax.annotate(
-                text=f"{row['name']}\n{row['sell_cnt']:.0f}|{row['ratio']:.2%}",
-                xy=centroid,
-                ha='center',
-                fontsize=4,  # 设置字体大小
-                color='black',  # 设置字体颜色为黑色
-                weight='black',  # 设置字体粗细
-                bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
-            )
+            if row.level == 'town':
+                text = ax.annotate(
+                    text=f"{row['name']}\n{row['sell_cnt']:.0f},{row['ratio']:.2%}",
+                    xy=centroid,
+                    ha='center',
+                    fontsize=4,  # 设置字体大小
+                    color='black',  # 设置字体颜色为黑色
+                    weight='black',  # 设置字体粗细
+                    bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
+                )
+            else:
+                text = ax.annotate(
+                    text=f"{row['name']}",
+                    xy=centroid,
+                    ha='center',
+                    fontsize=4,  # 设置字体大小
+                    color='black',  # 设置字体颜色为黑色
+                    weight='black',  # 设置字体粗细
+                    bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
+                )                
             texts.append(text)
     # 检查注释是否重叠并调整位置
     def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0001, min_fontsize=3, default_fontsize=4):
@@ -564,13 +630,27 @@ if __name__ == "__main__":
 
     check_and_adjust_annotations(texts)
 
+    # 创建自定义图例项
+    # 获取绘制时使用的颜色映射
+    annotations = result2[['name', 'sell_cnt', 'ratio']].sort_values(by='sell_cnt', ascending=False)
+
+    legend_labels = [f"{row['name']}: {row['sell_cnt']:.0f}, {row['ratio']:.2%}" for _, row in annotations.iterrows()]
+    handles = [plt.Circle((0.5, 0.5), radius=0.1, label=label, facecolor='orange') for i, label in enumerate(legend_labels)]
+
+    # 使用ax.legend()方法定制图例的显示
+    legend = ax.legend(handles=handles, loc='upper right',facecolor='lightblue', fancybox=True, shadow=False, borderpad=0.1, framealpha=0)
+
+    # 更改图例字体颜色与标记颜色一致
+    for text in legend.get_texts():
+        text.set_color('black')   
+
     plt.savefig(png_path_sell_by_street, dpi=500, bbox_inches='tight', pad_inches=0)    
 
 
     # 房屋明细
     cm = sns.color_palette("coolwarm", as_cmap=True)
 
-    second_hand_house_info = filtered_data[['al_text','district','name','unit_price','age','total_cnt','sell_cnt','structure','house_type']].dropna(subset = ['al_text'])
+    second_hand_house_info = filtered_data1[['al_text','district','name','unit_price','age','total_cnt','sell_cnt','structure','house_type']].dropna(subset = ['al_text'])
     second_hand_house_info.sort_values(by=['district', "name", "unit_price"],
                         ascending=[True, True, False], inplace=True)
     second_hand_house_info.reset_index(drop=True, inplace=True)
