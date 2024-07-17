@@ -326,7 +326,7 @@ if __name__ == "__main__":
     plt.savefig(png_path_price_by_district, dpi=500, bbox_inches='tight', pad_inches=0)
 
     # 行政区挂牌量分析
-    agg_bydistrict = gdf_merged_bydistrict.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(-2)
+    agg_bydistrict = gdf_merged_bydistrict.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(0)
     # 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
     agg_bydistrict['ratio'] = agg_bydistrict.apply(
         lambda row: row['sell_cnt'] / row['total_cnt'] if row['total_cnt'] != 0 else None, axis=1
@@ -343,7 +343,7 @@ if __name__ == "__main__":
         scheme="natural_breaks",
         k=8,
         figsize=(10, 20),
-        legend_kwds={"fmt": "{:.2%}"}
+        legend_kwds={"fmt": "{:.0f}"}
     );
 
     cx.add_basemap(ax, 
@@ -491,7 +491,7 @@ if __name__ == "__main__":
     # 板块挂牌量分析
     filtered_data = gdf_merged_bystreet[gdf_merged_bystreet['sell_cnt'] > 0]
     # 按 adcode 分组并汇总 sell_cnt 和 total_cnt
-    agg_bystreet = filtered_data.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(-2)
+    agg_bystreet = filtered_data.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(0)
     # 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
     agg_bystreet['ratio'] = agg_bystreet.apply(
         lambda row: row['sell_cnt'] / row['total_cnt'] if row['total_cnt'] != 0 else None, axis=1
@@ -509,7 +509,7 @@ if __name__ == "__main__":
         scheme="natural_breaks",
         k=8,
         figsize=(10, 20),
-        legend_kwds={"fmt": "{:.2%}"}
+        legend_kwds={"fmt": "{:.0f}"}
     );
     cx.add_basemap(ax,
                 crs="EPSG:4326",
