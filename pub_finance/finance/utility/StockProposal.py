@@ -394,7 +394,9 @@ class StockProposal:
             },
             inplace=True,
         )
-        cm = sns.color_palette("coolwarm", as_cmap=True)
+        # cm = sns.color_palette("seagreen", as_cmap=True)
+        cm = sns.light_palette("seagreen", as_cmap=True)
+
         html = (
             "<h2>Industry Overview</h2>"
             "<table>"
@@ -740,7 +742,7 @@ class StockProposal:
             },
             inplace=True,
         )
-        cm = sns.color_palette("coolwarm", as_cmap=True)
+        cm = sns.light_palette("seagreen", as_cmap=True)
 
         # 创建样式函数，用于突出显示具有特定日期值的行
         old_date = datetime.strptime(self.trade_date, "%Y%m%d").date()
@@ -1064,7 +1066,7 @@ class StockProposal:
                 },
                 inplace=True,
             )
-            cm = sns.color_palette("coolwarm", as_cmap=True)
+            cm = sns.light_palette("seagreen", as_cmap=True)
             html2 = (
                 "<h2>Close Position List Last 5 Days</h2>"  # 添加标题
                 "<table>"
@@ -2234,7 +2236,7 @@ class StockProposal:
             },
             inplace=True,
         )
-        cm = sns.color_palette("coolwarm", as_cmap=True)
+        cm = sns.light_palette("seagreen", as_cmap=True)
         # 创建样式函数，用于突出显示具有特定日期值的行
         old_date = datetime.strptime(self.trade_date, "%Y%m%d").date()
 
@@ -2512,7 +2514,7 @@ class StockProposal:
                 },
                 inplace=True,
             )
-            cm = sns.color_palette("coolwarm", as_cmap=True)
+            cm = sns.light_palette("seagreen", as_cmap=True)
 
             html2 = (
                 "<h2>Close Position List Last 5 Days</h2>"  # 添加标题

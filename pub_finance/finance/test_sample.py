@@ -1,270 +1,319 @@
-import geopandas as gpd
-from shapely.geometry import MultiPolygon
+#!/usr/bin/env python3
+# -*- coding: UTF-8 -*-
+
+from usstrategy.UsStrategy import UsStrategy
+from tabulate import tabulate
+import progressbar
+from utility.ToolKit import ToolKit
+from datetime import datetime
 import pandas as pd
-from shapely.ops import unary_union
-from xyzservices import TileProvider
-import contextily as cx
-import xyzservices.providers as xyz
-import json
-import math
+import sys
+from backtraderref.BTStrategy import BTStrategy
+import backtrader as bt
+from utility.TickerInfo import TickerInfo
+from uscrawler.EMWebCrawler import EMWebCrawler
+from backtraderref.BTPandasDataExt import BTPandasDataExt
+from utility.StockProposal import StockProposal
 import matplotlib.pyplot as plt
-import re
+import matplotlib.ticker as ticker
+import pyfolio as pf
+import gc
+from backtraderref.FixAmount import FixedAmount
 
-# 定义自定义 TileProvider
-# xyz.CartoDB.Positron.url = 'https://{s}.basemaps.cartocdn.com/{variant}/{z}/{x}/{y}{r}.png'
-# xyz.CartoDB.Positron.attribution = '(C) OpenStreetMap contributors (C) CARTO'
-# # 读取 Shapefile
-# # gdf = gpd.read_file("path/to/your/file.shp")
-
-
-# # gdf.to_file('test4.json', driver='GeoJSON')
-# ax = gdf.plot()
-# cx.add_basemap(ax, 
-#                crs="EPSG:4326",
-#                 source = xyz.CartoDB.Positron,
-#                 zoom = 12
-#                 )
+""" 执行策略 """
 
 
-# geo_path = './OSMB-743692f42cf1d64dddced1486876337993217878.geojson'
-# gdf = gpd.read_file(geo_path,  engine="pyogrio") 
-# gdf.to_file('test4.json', driver='GeoJSON')
-# gdf.plot()
+def exec_strategy(date):
+    """小市值大波动策略-策略1"""
+    us_strate = UsStrategy(date)
+    df1 = us_strate.get_usstrategy1()
+    print(tabulate(df1, headers="keys", tablefmt="pretty"))
+    return df1
 
 
-
-# gdf_waigaoqiao = gpd.read_file('./test.json',  engine="pyogrio") #waigaoqiao
-# gdf_gaohang = gpd.read_file('./test1.json',  engine="pyogrio") #gaohang
-# gdf_tangzhen = gpd.read_file('./test2.json',  engine="pyogrio") #tangzhen
-# gdf_chuansha = gpd.read_file('./test3.json',  engine="pyogrio") #chuansha
-# # 提取 MultiPolygon 几何
-# multipolygon_waigaoqiao = gdf_waigaoqiao.unary_union
-# multipolygon_gaohang = gdf_gaohang.unary_union
-# multipolygon_tangzhen = gdf_tangzhen.unary_union
-# multipolygon_chuansha = gdf_chuansha.unary_union
-
-# gdf_inter = multipolygon_waigaoqiao.intersection(multipolygon_chuansha)
-# # gaoqiao
-# merged_multipolygon = multipolygon_waigaoqiao.difference(gdf_inter)
-# # merged_multipolygon = unary_union([multipolygon, gdf_inter])
-
-# # 合并两个 MultiPolygon
-# # merged_multipolygon = union_all([multipolygon, multipolygon1])
-# # merged_multipolygon = multipolygon.difference(multipolygon3)
-# # merged_multipolygon2 = merged_multipolygon1.difference(multipolygon3)
-
-# # 创建一个新的 GeoDataFrame
-# merged_gdf = gpd.GeoDataFrame(geometry=[merged_multipolygon])
-
-# merged_gdf.plot()
+""" backtrader策略 """
 
 
-# # 保存为新的 GeoJSON 文件
-# merged_gdf.to_file('test4.json', driver='GeoJSON')
-plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
-geo_path = './houseinfo/shanghaidistrict.json'
-file_path = './houseinfo/secondhandhouse.csv'
-geo_data = gpd.read_file(geo_path,  engine="pyogrio")
-# gdf_second_hand_house = pd.read_csv('./houseinfo/secondhandhouse.csv')
-# print(df.groupby('district')['sell_cnt'].sum())
-df_second_hand_house = pd.read_csv(file_path, usecols=[i for i in range(0, 10)])
-df_second_hand_house = df_second_hand_house.dropna(subset=['lanlong'])
+def exec_btstrategy(date):
+    """创建cerebro对象"""
+    cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
+    # cerebro.broker.set_coc(True)
+    """ 添加bt相关的策略 """
+    cerebro.addstrategy(BTStrategy, trade_date=date)
 
-def extract_values(string):
-    values = string.strip("[]").split(",")
-    value1 = float(values[0])
-    value2 = float(values[1])
-    return value1, value2
-df_second_hand_house[['longitude', 'latitude']] = df_second_hand_house['lanlong'].apply(extract_values).apply(pd.Series)
-
-# 定义一个函数来替换中文字符
-def replace_chinese_characters(text, replacement=''):
-    # 使用正则表达式匹配中文字符
-    return int(re.sub(r'[\u4e00-\u9fff]', replacement, text))
-
-df_second_hand_house['total_cnt'] = df_second_hand_house['total_cnt'].apply(replace_chinese_characters)
-
-gdf_second_hand_house = gpd.GeoDataFrame(
-    df_second_hand_house, geometry=gpd.points_from_xy(df_second_hand_house['longitude'], df_second_hand_house['latitude']), crs="EPSG:4326"
-)
-# 处理行政区级别数据
-# print(gdf_second_hand_house)
-    # 处理行政区级别数据
-data_filter_bydistrict = geo_data[geo_data.level == 'district']
-gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_second_hand_house, how="inner", predicate = "intersects")
-agg_bydistrict = gdf_merged_bydistrict.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(-2)
-# 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
-agg_bydistrict['ratio'] = agg_bydistrict.apply(
-    lambda row: row['sell_cnt'] / row['total_cnt'] if row['total_cnt'] != 0 else None, axis=1
-)
-result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='adcode', right_on ='adcode')
-
-ax = result_bydistrict.plot(
-    column="sell_cnt",
-    cmap='YlOrRd',
-    alpha = 0.5,
-    legend=True,
-    linewidth=0.5,
-    edgecolor='k',
-    scheme="natural_breaks",
-    k=8,
-    figsize=(10, 20),
-    legend_kwds={"fmt": "{:.2%}"},
-    # missing_kwds={
-    #     # "color": "lightgrey",
-    #     "facecolor": "none",
-    #     "edgecolor": "white",
-    #     "hatch": "///",
-    #     "label": "Missing values",
-    # },
-);
-
-cx.add_basemap(ax, 
-                crs="EPSG:4326",
-                source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-                # source='http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}',
-                # source = xyz.CartoDB.PositronNoLabels,
-                zoom = 10,
-                interpolation = 'bicubic',
-                # alpha = 0.5
-                )
-
-ax.axis('off')
-# 添加标题
-ax.set_title('Shanghai New House Distribution', 
-            fontdict={'fontsize': 20, 'fontweight': 'bold', 'color': 'darkblue'})
-
-# 添加annotation
-texts = []
-for idx, row in result_bydistrict.iterrows():
-    centroid = row.geometry.centroid.coords[0]
-    if not math.isnan(row['ratio']):
-        text = ax.annotate(
-            text=f"{row['name']}\n{row['sell_cnt']:.0f}|{row['ratio']:.2%}",
-            xy=centroid,
-            ha='center',
-            fontsize=6,  # 设置字体大小
-            color='black',  # 设置字体颜色为黑色
-            weight='black',  # 设置字体粗细
-            bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0),  boxstyle='round, pad=0.5'),  # 设置注释框样式
+    # 回测时需要添加 TimeReturn 分析器
+    cerebro.addanalyzer(bt.analyzers.TimeReturn,
+                        _name="_TimeReturn", fund=True)
+    # cerebro.addobserver(bt.observers.BuySell)
+    """ 初始资金100M """
+    cerebro.broker.setcash(1000000.0)
+    """ 每手10股 """
+    # cerebro.addsizer(bt.sizers.FixedSize, stake=10)
+    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
+    cerebro.addsizer(FixedAmount, amount=10000)
+    """ 费率千分之一 """
+    cerebro.broker.setcommission(commission=0, stocklike=True)
+    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
+    """ 添加股票当日即历史数据 """
+    list = TickerInfo(date, "us").get_backtrader_data_feed()
+    """ 循环初始化数据进入cerebro """
+    for h in list:
+        """历史数据最早不超过2021-01-01"""
+        data = BTPandasDataExt(
+            dataname=h,
+            name=h["symbol"][0],
+            fromdate=datetime(2023, 1, 1),
+            todate=datetime.strptime(date, "%Y%m%d"),
+            datetime=-1,
+            timeframe=bt.TimeFrame.Days,
         )
-        texts.append(text)
-# 检查注释是否重叠并调整位置
-def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0001, min_fontsize=4, default_fontsize=6):
-    renderer = ax.get_figure().canvas.get_renderer()
-    for i, text in enumerate(texts):
-        rect1 = text.get_window_extent(renderer=renderer)
-        for j in range(i + 1, len(texts)):
-            text2 = texts[j]
-            rect2 = text2.get_window_extent(renderer=renderer)
-            while rect1.overlaps(rect2):
-                x, y = text2.get_position()
-                y -= vertical_spacing
-                x -= horizontal_spacing
-                text2.set_position((x, y))
-                # 确保 fontsize 和 alpha 不为 None
-                current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
-                
-                # 调整字体大小和透明度
-                if current_fontsize > min_fontsize:
-                    text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
-                rect2 = text2.get_window_extent(renderer=renderer) 
+        cerebro.adddata(data, name=h["symbol"][0])
+        # 周数据
+        # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
+    """ 起始资金池 """
+    print("\nStarting Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
-check_and_adjust_annotations(texts)        
+    # 节约内存
+    del list
+    gc.collect()
 
-plt.savefig('./test1.png', dpi=500, bbox_inches='tight', pad_inches=0)
+    """ 运行cerebro """
+    result = cerebro.run()
+    """ 最终资金池 """
+    print("\n当前现金持有: ", cerebro.broker.get_cash())
+    print("\nFinal Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
-# 处理板块级别数据
-exclude_values = [310104, 310101, 310106, 310109, 310105, 310110, 310107]  # 要排除的值的列表
-data_filter_bystreet = geo_data[
-    ((geo_data.level == 'district') & (geo_data.adcode.isin(exclude_values))) |
-    ((geo_data.level == 'town') & (geo_data['parent'].apply(lambda x: json.loads(x)['adcode']).isin(exclude_values) == False))
-]
+    """ 画图相关 """
+    # cerebro.plot(iplot=True, subplot=True)
+    # 提取收益序列
+    pnl = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
 
-gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_second_hand_house, how="inner", predicate = "intersects")
-filtered_data = gdf_merged_bystreet[gdf_merged_bystreet['sell_cnt'] > 0]
-# 按 adcode 分组并汇总 sell_cnt 和 total_cnt
-# agg_bystreet = filtered_data.groupby('adcode').sum([{'sell_cnt' : 'sell_cnt'}, {'total_cnt' : 'total_cnt'}]).round(-2)
-agg_bystreet = filtered_data.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(-2)
-# 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
-agg_bystreet['ratio'] = agg_bystreet.apply(
-    lambda row: row['sell_cnt'] / row['total_cnt'] if row['total_cnt'] != 0 else None, axis=1
-)
+    # 计算累计收益
+    cumulative = (pnl + 1).cumprod()
+
+    # 计算回撤序列
+    max_return = cumulative.cummax()
+
+    drawdown = (cumulative - max_return) / max_return
+
+    # 按年统计收益指标
+    perf_stats_year = (
+        (pnl)
+        .groupby(pnl.index.to_period("Y"))
+        .apply(lambda data: pf.timeseries.perf_stats(data))
+        .unstack()
+    )
+
+    # 统计所有时间段的收益指标
+    perf_stats_all = pf.timeseries.perf_stats((pnl)).to_frame(name="all")
+
+    perf_stats = pd.concat([perf_stats_year, perf_stats_all.T], axis=0)
+
+    perf_stats_ = perf_stats.reset_index()
+    perf_stats_[perf_stats_.columns[1:]] = perf_stats_[
+        perf_stats_.columns[1:]].apply(lambda x: x.map(lambda y: f"{y*100:.2f}%"))
+
+    # 绘制图形
+
+    plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
+
+    # 导入设置坐标轴的模块
+    # sns.set()
+    # plt.style.use("seaborn")
+    # plt.style.use('dark_background')
+
+    fig, (ax0, ax1) = plt.subplots(
+        2, 1, gridspec_kw={"height_ratios": [1, 2]}, figsize=(20, 12)
+    )
+
+    """ 
+    年度回报率 (Annual return)：衡量投资组合或股票在一年内的收益率。它通常以百分比表示，计算方法是将期末价值减去期初价值，再除以期初价值，并乘以100。
+
+    累积回报率 (Cumulative returns)：衡量投资组合或股票在一段时间内的总收益率。它表示从投资开始到目前为止的总回报，可以用于评估长期投资的表现。
+
+    年度波动率 (Annual volatility)：衡量股票或投资组合价格波动的程度。它是标准差的年化值，标准差衡量价格变动相对于其平均值的离散程度。较高的波动率意味着价格变动幅度较大。
+
+    夏普比率 (Sharpe ratio)：衡量投资组合或股票每承担一单位风险所获得的超额回报。它是超额回报与波动率的比率，用于评估风险调整后的回报。
+
+    卡尔马比率 (Calmar ratio)：衡量投资组合或股票的风险调整回报率。它是年度回报率与最大回撤之比，用于评估投资组合的风险收益特征。
+
+    稳定性 (Stability)：衡量股票或投资组合价格的稳定性。较高的稳定性意味着价格波动较小。
+
+    最大回撤 (Max drawdown)：衡量投资组合或股票价格从峰值到谷底的最大跌幅。它用于评估投资组合的风险承受能力和潜在损失。
+
+    Omega比率 (Omega ratio)：衡量投资组合或股票正收益和负收益之间的比率。它将正收益的比例与负收益的比例进行比较，用于评估投资组合的收益分布特征。
+
+    Sortino比率 (Sortino ratio)：类似于夏普比率，但只考虑下行风险，即价格下跌的风险。它是超额回报与下行波动率的比率，用于评估投资组合的风险调整后的回报。
+
+    偏度 (Skew)：衡量股票或投资组合收益分布的偏斜程度。正偏度表示收益分布偏向较高的收益，负偏度表示偏向较低的收益。
+
+    峰度 (Kurtosis)：衡量股票或投资组合收益分布的尖峰程度。它衡量收益分布相对于正态分布的尖峰或扁平程度。
+
+    尾部比率 (Tail ratio)：衡量股票或投资组合收益分布的尾部风险。它是正尾部与负尾部之比，用于评估收益分布的不对称性和尾部风险。
+
+    日风险价值 (Daily value at risk)：衡量股票或投资组合在一天内可能面临的最大损失。它是在给定置信水平下的损失金额，用于评估投资组合的风险暴露。 
+    """
+
+    cols_names = [
+        "date",
+        "Annual\nreturn",
+        "Cumulative\nreturns",
+        "Annual\nvolatility",
+        "Sharpe\nratio",
+        "Calmar\nratio",
+        "Stability",
+        "Max\ndrawdown",
+        "Omega\nratio",
+        "Sortino\nratio",
+        "Skew",
+        "Kurtosis",
+        "Tail\nratio",
+        "Daily value\nat risk",
+    ]
+
+    # 绘制表格
+    ax0.set_axis_off()
+    # 除去坐标轴
+    table = ax0.table(
+        cellText=perf_stats_.values,
+        bbox=(0, 0, 1, 1),
+        # 设置表格位置， (x0, y0, width, height)
+        rowLoc="right",
+        # 行标题居中
+        cellLoc="right",
+        colLabels=cols_names,
+        # 设置列标题
+        colLoc="right",
+        # 列标题居中
+        edges="open",  # 不显示表格边框
+    )
+
+    # # Access the cells and modify font properties
+    # for cell in table.get_celld().values():
+    #     cell.set_fontsize(18)  # Adjust the font size as per your preference
+
+    # Set the font size of the table title
+    table.auto_set_font_size(False)
+    table.set_fontsize(16)
+
+    # 绘制累计收益曲线
+    ax2 = ax1.twinx()
+
+    ax1.yaxis.set_ticks_position("right")
+    # 将回撤曲线的 y 轴移至右侧
+    ax2.yaxis.set_ticks_position("left")
+    # 将累计收益曲线的 y 轴移至左侧
+    # 绘制回撤曲线
+    drawdown.plot.area(
+        ax=ax1,
+        label="drawdown (right)",
+        rot=0,
+        alpha=0.3,
+        fontsize=20,
+        grid=False,
+        color="#5fba7d",
+    )
+
+    # 绘制累计收益曲线
+    cumulative_line = (cumulative).plot(
+        ax=ax2,
+        lw=2.0,
+        label="cumret (left)",
+        rot=0,
+        fontsize=20,
+        grid=True,
+        color="#d65f5f",
+    )
+    ax2.set_facecolor("none")
+
+    # 不然 x 轴留有空白
+    ax2.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
+
+    # 主轴定位器：每 5 个月显示一个日期：根据具体天数来做排版
+    ax2.xaxis.set_major_locator(ticker.MultipleLocator(120))
+
+    # 同时绘制双轴的图例
+    h1, l1 = ax1.get_legend_handles_labels()
+
+    h2, l2 = ax2.get_legend_handles_labels()
+
+    plt.legend(h1 + h2, l1 + l2, fontsize=20, loc="upper left", ncol=1)
+    # Set the font color of the table cells to white
+    for cell in table.get_celld().values():
+        cell.set_text_props(color="black")
+    # Set the font color of the trend graph
+    ax1.tick_params(axis="x", colors="black")
+    for label in ax1.get_xticklabels():
+        label.set_color("black")
+    ax2.yaxis.label.set_color("black")
+    ax2.tick_params(axis="y", colors="black")
+    ax1.yaxis.label.set_color("black")
+    ax1.tick_params(axis="y", colors="black")
+    ax2.spines["right"].set_color("black")
+    fig.tight_layout()
+    plt.savefig("./images/TRdraw_light.png", transparent=True)
+    # Set the font color of the table cells to white
+    for cell in table.get_celld().values():
+        cell.set_text_props(color="white")
+    # Set the font color of the trend graph
+    ax1.tick_params(axis="x", colors="white")
+    for label in ax1.get_xticklabels():
+        label.set_color("white")
+    ax2.yaxis.label.set_color("white")
+    ax2.tick_params(axis="y", colors="white")
+    ax1.yaxis.label.set_color("white")
+    ax1.tick_params(axis="y", colors="white")
+    ax2.spines["right"].set_color("white")
+    fig.tight_layout()
+    plt.savefig("./images/TRdraw_dark.png", transparent=True)
+
+    return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 
 
-result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
+# 主程序入口
+if __name__ == "__main__":
+    """美股交易日期 utc-4"""
+    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(0)
 
-ax = result_bystreet.plot(
-    column="sell_cnt",
-    cmap='YlOrRd',
-    alpha = 0.5,
-    legend=True,
-    linewidth=0.5,
-    # edgecolor='gainsboro',
-    edgecolor='k',
-    scheme="natural_breaks",
-    k=8,
-    figsize=(10, 20),
-    legend_kwds={"fmt": "{:.2%}"},
-    # missing_kwds={
-    #     # "color": (0, 0, 0, 0),
-    #     "facecolor": "none",
-    #     "edgecolor": "white",
-    #     "hatch": "///",
-    #     "label": "Missing values",
-    # },
-);
-cx.add_basemap(ax,
-            crs="EPSG:4326",
-            source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-            # source = 'http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}',
-            # source = xyz.CartoDB.PositronNoLabels,
-            zoom = 10,
-            interpolation = 'bicubic',
-            # alpha = 0.5
-            )
-ax.axis('off')
-# 添加标题
-ax.set_title('Shanghai Second House Distribution', 
-            fontdict={'fontsize': 20, 'fontweight': 'bold', 'color': 'darkblue'})
+    """ 非交易日程序终止运行 """
+    if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
+        pass
+    else:
+        sys.exit()
 
-# 添加annotation
-texts = []
-for idx, row in result_bystreet.iterrows():
-    centroid = row.geometry.centroid.coords[0]
-    if not math.isnan(row['ratio']):
-        text = ax.annotate(
-            text=f"{row['name']}\n{row['sell_cnt']:.0f}|{row['ratio']:.2%}",
-            xy=centroid,
-            ha='center',
-            fontsize=4,  # 设置字体大小
-            color='black',  # 设置字体颜色为黑色
-            weight='black',  # 设置字体粗细
-            bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
-        )
-        texts.append(text)
-# 检查注释是否重叠并调整位置
-def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0001, min_fontsize=3, default_fontsize=4):
-    renderer = ax.get_figure().canvas.get_renderer()
-    for i, text in enumerate(texts):
-        rect1 = text.get_window_extent(renderer=renderer)
-        for j in range(i + 1, len(texts)):
-            text2 = texts[j]
-            rect2 = text2.get_window_extent(renderer=renderer)
-            while rect1.overlaps(rect2):
-                x, y = text2.get_position()
-                y -= vertical_spacing
-                x -= horizontal_spacing
-                text2.set_position((x, y))                    
+    """ 定义程序显示的进度条 """
+    widgets = [
+        "doing task: ",
+        progressbar.Percentage(),
+        " ",
+        progressbar.Bar(),
+        " ",
+        progressbar.ETA(),
+    ]
+    """ 创建进度条并开始运行 """
+    pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
-                # 确保 fontsize 和 alpha 不为 None
-                current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
-                
-                # 调整字体大小和透明度
-                if current_fontsize > min_fontsize:
-                    text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
-                rect2 = text2.get_window_extent(renderer=renderer)  
+    # """ 东方财经爬虫 """
+    # """ 爬取每日最新股票数据 """
+    # em = EMWebCrawler()
+    # em.get_us_daily_stock_info(trade_date)
 
-check_and_adjust_annotations(texts)
+    # """ 执行策略 """
+    # df = exec_strategy(trade_date)
+    # """ 发送邮件 """
+    # if not df.empty:
+    #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
 
-plt.savefig('./test.png', dpi=500, bbox_inches='tight', pad_inches=0)
+    """ 执行bt相关策略 """
+    # cash, final_value = exec_btstrategy(trade_date)
+    cash, final_value = 0,0
+
+    collected = gc.collect()
+
+    print("Garbage collector: collected %d objects." % (collected))
+
+    """ 发送邮件 """
+    StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
+
+    """ 结束进度条 """
+    pbar.finish()
