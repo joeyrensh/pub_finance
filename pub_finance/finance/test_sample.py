@@ -89,6 +89,90 @@ gdf_second_hand_house = gpd.GeoDataFrame(
 )
 # 处理行政区级别数据
 # print(gdf_second_hand_house)
+    # 处理行政区级别数据
+data_filter_bydistrict = geo_data[geo_data.level == 'district']
+gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_second_hand_house, how="inner", predicate = "intersects")
+agg_bydistrict = gdf_merged_bydistrict.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(-2)
+# 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
+agg_bydistrict['ratio'] = agg_bydistrict.apply(
+    lambda row: row['sell_cnt'] / row['total_cnt'] if row['total_cnt'] != 0 else None, axis=1
+)
+result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='adcode', right_on ='adcode')
+
+ax = result_bydistrict.plot(
+    column="sell_cnt",
+    cmap='YlOrRd',
+    alpha = 0.5,
+    legend=True,
+    linewidth=0.5,
+    edgecolor='k',
+    scheme="natural_breaks",
+    k=8,
+    figsize=(10, 20),
+    legend_kwds={"fmt": "{:.2%}"},
+    # missing_kwds={
+    #     # "color": "lightgrey",
+    #     "facecolor": "none",
+    #     "edgecolor": "white",
+    #     "hatch": "///",
+    #     "label": "Missing values",
+    # },
+);
+
+cx.add_basemap(ax, 
+                crs="EPSG:4326",
+                source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+                # source='http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}',
+                # source = xyz.CartoDB.PositronNoLabels,
+                zoom = 10,
+                interpolation = 'bicubic',
+                # alpha = 0.5
+                )
+
+ax.axis('off')
+# 添加标题
+ax.set_title('Shanghai New House Distribution', 
+            fontdict={'fontsize': 20, 'fontweight': 'bold', 'color': 'darkblue'})
+
+# 添加annotation
+texts = []
+for idx, row in result_bydistrict.iterrows():
+    centroid = row.geometry.centroid.coords[0]
+    if not math.isnan(row['ratio']):
+        text = ax.annotate(
+            text=f"{row['name']}\n{row['sell_cnt']:.0f}|{row['ratio']:.2%}",
+            xy=centroid,
+            ha='center',
+            fontsize=6,  # 设置字体大小
+            color='black',  # 设置字体颜色为黑色
+            weight='black',  # 设置字体粗细
+            bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0),  boxstyle='round, pad=0.5'),  # 设置注释框样式
+        )
+        texts.append(text)
+# 检查注释是否重叠并调整位置
+def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0001, min_fontsize=4, default_fontsize=6):
+    renderer = ax.get_figure().canvas.get_renderer()
+    for i, text in enumerate(texts):
+        rect1 = text.get_window_extent(renderer=renderer)
+        for j in range(i + 1, len(texts)):
+            text2 = texts[j]
+            rect2 = text2.get_window_extent(renderer=renderer)
+            while rect1.overlaps(rect2):
+                x, y = text2.get_position()
+                y -= vertical_spacing
+                x -= horizontal_spacing
+                text2.set_position((x, y))
+                # 确保 fontsize 和 alpha 不为 None
+                current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
+                
+                # 调整字体大小和透明度
+                if current_fontsize > min_fontsize:
+                    text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
+                rect2 = text2.get_window_extent(renderer=renderer) 
+
+check_and_adjust_annotations(texts)        
+
+plt.savefig('./test1.png', dpi=500, bbox_inches='tight', pad_inches=0)
 
 # 处理板块级别数据
 exclude_values = [310104, 310101, 310106, 310109, 310105, 310110, 310107]  # 要排除的值的列表
@@ -102,18 +186,16 @@ filtered_data = gdf_merged_bystreet[gdf_merged_bystreet['sell_cnt'] > 0]
 # 按 adcode 分组并汇总 sell_cnt 和 total_cnt
 # agg_bystreet = filtered_data.groupby('adcode').sum([{'sell_cnt' : 'sell_cnt'}, {'total_cnt' : 'total_cnt'}]).round(-2)
 agg_bystreet = filtered_data.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(-2)
-print(agg_bystreet)
 # 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
 agg_bystreet['ratio'] = agg_bystreet.apply(
     lambda row: row['sell_cnt'] / row['total_cnt'] if row['total_cnt'] != 0 else None, axis=1
 )
 
-# 打印结果
-print(agg_bystreet)
+
 result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
 
 ax = result_bystreet.plot(
-    column="ratio",
+    column="sell_cnt",
     cmap='YlOrRd',
     alpha = 0.5,
     legend=True,
@@ -152,7 +234,7 @@ for idx, row in result_bystreet.iterrows():
     centroid = row.geometry.centroid.coords[0]
     if not math.isnan(row['ratio']):
         text = ax.annotate(
-            text=f"{row['name']}\n{row['ratio']:.2%}",
+            text=f"{row['name']}\n{row['sell_cnt']:.0f}|{row['ratio']:.2%}",
             xy=centroid,
             ha='center',
             fontsize=4,  # 设置字体大小

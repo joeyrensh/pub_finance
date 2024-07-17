@@ -11,7 +11,7 @@ import seaborn as sns
 from matplotlib.transforms import Bbox
 import os
 import contextily as cx
-import sys
+import re
 import numpy as np
 import json
 
@@ -210,37 +210,44 @@ def houseinfo_to_csv(file_path):
 if __name__ == "__main__":
     
     file_path = './houseinfo/secondhandhouse.csv'
-    houseinfo_to_csv(file_path)
+    # houseinfo_to_csv(file_path)
 
 
     plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
 
     geo_path = './houseinfo/shanghaidistrict.json'
-    png_path_by_district = './houseinfo/map_second_bydistrict.png'
-    png_path_by_street = './houseinfo/map_second_bystreet.png'
+    png_path_price_by_district = './houseinfo/map_second_price_bydistrict.png'
+    png_path_price_by_street = './houseinfo/map_second_price_bystreet.png'
+    png_path_sell_by_district = './houseinfo/map_second_sell_bydistrict.png'
+    png_path_sell_by_street = './houseinfo/map_second_sell_bystreet.png'    
 
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
 
     df_second_hand_house = pd.read_csv(file_path, usecols=[i for i in range(0, 10)])
     df_second_hand_house = df_second_hand_house.dropna(subset=['lanlong'])
-
+    # 处理二手房经纬度格式
     def extract_values(string):
         values = string.strip("[]").split(",")
         value1 = float(values[0])
         value2 = float(values[1])
         return value1, value2
     df_second_hand_house[['longitude', 'latitude']] = df_second_hand_house['lanlong'].apply(extract_values).apply(pd.Series)
+    # 定义一个函数来替换中文字符
+    def replace_chinese_characters(text, replacement=''):
+        # 使用正则表达式匹配中文字符
+        return int(re.sub(r'[\u4e00-\u9fff]', replacement, text))
 
+    df_second_hand_house['total_cnt'] = df_second_hand_house['total_cnt'].apply(replace_chinese_characters)
     gdf_second_hand_house = gpd.GeoDataFrame(
         df_second_hand_house, geometry=gpd.points_from_xy(df_second_hand_house['longitude'], df_second_hand_house['latitude']), crs="EPSG:4326"
     )
-    # 处理行政区级别数据
+    # 房屋经纬度与地理围栏数据关联
     data_filter_bydistrict = geo_data[geo_data.level == 'district']
     gdf_merged_bydistrict = gpd.sjoin(data_filter_bydistrict, gdf_second_hand_house, how="inner", predicate = "intersects")
+
+    # 行政区均价分析
     filtered_data = gdf_merged_bydistrict[gdf_merged_bydistrict['unit_price'] > 0]
     agg_bydistrict = filtered_data.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
-
-
     result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='adcode', right_on ='adcode')
 
     ax = result_bydistrict.plot(
@@ -276,7 +283,7 @@ if __name__ == "__main__":
     ax.axis('off')
 
     # 添加标题
-    ax.set_title('Shanghai Second Hand House Distribution', 
+    ax.set_title('Shanghai Second-hand House Distribution', 
                 fontdict={'fontsize': 20, 'fontweight': 'bold', 'color': 'darkblue'})
 
     # 添加annotation
@@ -316,7 +323,83 @@ if __name__ == "__main__":
                     rect2 = text2.get_window_extent(renderer=renderer) 
 
     check_and_adjust_annotations(texts)
-    plt.savefig(png_path_by_district, dpi=500, bbox_inches='tight', pad_inches=0)
+    plt.savefig(png_path_price_by_district, dpi=500, bbox_inches='tight', pad_inches=0)
+
+    # 行政区挂牌量分析
+    agg_bydistrict = gdf_merged_bydistrict.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(-2)
+    # 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
+    agg_bydistrict['ratio'] = agg_bydistrict.apply(
+        lambda row: row['sell_cnt'] / row['total_cnt'] if row['total_cnt'] != 0 else None, axis=1
+    )
+    result_bydistrict = data_filter_bydistrict.merge(agg_bydistrict, how='left', left_on='adcode', right_on ='adcode')
+
+    ax = result_bydistrict.plot(
+        column="sell_cnt",
+        cmap='YlOrRd',
+        alpha = 0.5,
+        legend=True,
+        linewidth=0.5,
+        edgecolor='k',
+        scheme="natural_breaks",
+        k=8,
+        figsize=(10, 20),
+        legend_kwds={"fmt": "{:.2%}"}
+    );
+
+    cx.add_basemap(ax, 
+                    crs="EPSG:4326",
+                    source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+                    # source='http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}',
+                    # source = xyz.CartoDB.PositronNoLabels,
+                    zoom = 10,
+                    interpolation = 'bicubic',
+                    # alpha = 0.5
+                    )
+
+    ax.axis('off')
+    # 添加标题
+    ax.set_title('Shanghai Second-hand House Distribution', 
+                fontdict={'fontsize': 20, 'fontweight': 'bold', 'color': 'darkblue'})
+
+    # 添加annotation
+    texts = []
+    for idx, row in result_bydistrict.iterrows():
+        centroid = row.geometry.centroid.coords[0]
+        if not math.isnan(row['ratio']):
+            text = ax.annotate(
+                text=f"{row['name']}\n{row['sell_cnt']:.0f}|{row['ratio']:.2%}",
+                xy=centroid,
+                ha='center',
+                fontsize=6,  # 设置字体大小
+                color='black',  # 设置字体颜色为黑色
+                weight='black',  # 设置字体粗细
+                bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0),  boxstyle='round, pad=0.5'),  # 设置注释框样式
+            )
+            texts.append(text)
+    # 检查注释是否重叠并调整位置
+    def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0001, min_fontsize=4, default_fontsize=6):
+        renderer = ax.get_figure().canvas.get_renderer()
+        for i, text in enumerate(texts):
+            rect1 = text.get_window_extent(renderer=renderer)
+            for j in range(i + 1, len(texts)):
+                text2 = texts[j]
+                rect2 = text2.get_window_extent(renderer=renderer)
+                while rect1.overlaps(rect2):
+                    x, y = text2.get_position()
+                    y -= vertical_spacing
+                    x -= horizontal_spacing
+                    text2.set_position((x, y))
+                    # 确保 fontsize 和 alpha 不为 None
+                    current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
+                    
+                    # 调整字体大小和透明度
+                    if current_fontsize > min_fontsize:
+                        text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
+                    rect2 = text2.get_window_extent(renderer=renderer) 
+
+    check_and_adjust_annotations(texts)        
+
+    plt.savefig(png_path_sell_by_district, dpi=500, bbox_inches='tight', pad_inches=0)    
 
     # 处理板块级别数据
     exclude_values = [310104, 310101, 310106, 310109, 310105, 310110, 310107]  # 要排除的值的列表            ]
@@ -326,6 +409,7 @@ if __name__ == "__main__":
     ]
   
     gdf_merged_bystreet = gpd.sjoin(data_filter_bystreet, gdf_second_hand_house, how="inner", predicate = "intersects")
+    # 板块均价分析
     filtered_data = gdf_merged_bystreet[gdf_merged_bystreet['unit_price'] > 0]
     agg_bystreet = filtered_data.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
     result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
@@ -361,7 +445,7 @@ if __name__ == "__main__":
                 )
     ax.axis('off')
     # 添加标题
-    ax.set_title('Shanghai Second House Distribution', 
+    ax.set_title('Shanghai Second-hand House Distribution', 
                 fontdict={'fontsize': 20, 'fontweight': 'bold', 'color': 'darkblue'})
 
     # 添加annotation
@@ -403,7 +487,84 @@ if __name__ == "__main__":
 
     check_and_adjust_annotations(texts)
 
-    plt.savefig(png_path_by_street, dpi=500, bbox_inches='tight', pad_inches=0)
+    plt.savefig(png_path_price_by_street, dpi=500, bbox_inches='tight', pad_inches=0)
+    # 板块挂牌量分析
+    filtered_data = gdf_merged_bystreet[gdf_merged_bystreet['sell_cnt'] > 0]
+    # 按 adcode 分组并汇总 sell_cnt 和 total_cnt
+    agg_bystreet = filtered_data.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(-2)
+    # 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
+    agg_bystreet['ratio'] = agg_bystreet.apply(
+        lambda row: row['sell_cnt'] / row['total_cnt'] if row['total_cnt'] != 0 else None, axis=1
+    )
+    result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
+
+    ax = result_bystreet.plot(
+        column="sell_cnt",
+        cmap='YlOrRd',
+        alpha = 0.5,
+        legend=True,
+        linewidth=0.5,
+        # edgecolor='gainsboro',
+        edgecolor='k',
+        scheme="natural_breaks",
+        k=8,
+        figsize=(10, 20),
+        legend_kwds={"fmt": "{:.2%}"}
+    );
+    cx.add_basemap(ax,
+                crs="EPSG:4326",
+                source='https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+                # source = 'http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}',
+                # source = xyz.CartoDB.PositronNoLabels,
+                zoom = 10,
+                interpolation = 'bicubic',
+                # alpha = 0.5
+                )
+    ax.axis('off')
+    # 添加标题
+    ax.set_title('Shanghai Second-hand House Distribution', 
+                fontdict={'fontsize': 20, 'fontweight': 'bold', 'color': 'darkblue'})
+
+    # 添加annotation
+    texts = []
+    for idx, row in result_bystreet.iterrows():
+        centroid = row.geometry.centroid.coords[0]
+        if not math.isnan(row['ratio']):
+            text = ax.annotate(
+                text=f"{row['name']}\n{row['sell_cnt']:.0f}|{row['ratio']:.2%}",
+                xy=centroid,
+                ha='center',
+                fontsize=4,  # 设置字体大小
+                color='black',  # 设置字体颜色为黑色
+                weight='black',  # 设置字体粗细
+                bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
+            )
+            texts.append(text)
+    # 检查注释是否重叠并调整位置
+    def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0001, min_fontsize=3, default_fontsize=4):
+        renderer = ax.get_figure().canvas.get_renderer()
+        for i, text in enumerate(texts):
+            rect1 = text.get_window_extent(renderer=renderer)
+            for j in range(i + 1, len(texts)):
+                text2 = texts[j]
+                rect2 = text2.get_window_extent(renderer=renderer)
+                while rect1.overlaps(rect2):
+                    x, y = text2.get_position()
+                    y -= vertical_spacing
+                    x -= horizontal_spacing
+                    text2.set_position((x, y))                    
+
+                    # 确保 fontsize 和 alpha 不为 None
+                    current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
+                    
+                    # 调整字体大小和透明度
+                    if current_fontsize > min_fontsize:
+                        text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
+                    rect2 = text2.get_window_extent(renderer=renderer)  
+
+    check_and_adjust_annotations(texts)
+
+    plt.savefig(png_path_sell_by_street, dpi=500, bbox_inches='tight', pad_inches=0)    
 
 
     # 房屋明细
@@ -557,19 +718,31 @@ if __name__ == "__main__":
                     <picture>
                         <!-- 默认模式下的图片 -->
                         <img src="cid:image0" alt="The industry distribution of current positions is as follows:" style="width:100%">
-                        <figcaption> Shanghai second hand house distribution by district.</figcaption>
+                        <figcaption> Shanghai second-hand house distribution by district.</figcaption>
                     </picture>
                     <picture>
                         <!-- 默认模式下的图片 -->
                         <img src="cid:image1" alt="The industry distribution of current pnl is as follows:" style="width:100%">
-                        <figcaption>Shanghai second hand house distribution by street.</figcaption>
+                        <figcaption>Shanghai second-hand house distribution by district.</figcaption>
                     </picture>
+                    <picture>
+                        <!-- 默认模式下的图片 -->
+                        <img src="cid:image2" alt="The industry distribution of current pnl is as follows:" style="width:100%">
+                        <figcaption>Shanghai second-hand house distribution by street.</figcaption>
+                    </picture>
+                    <picture>
+                        <!-- 默认模式下的图片 -->
+                        <img src="cid:image3" alt="The industry distribution of current pnl is as follows:" style="width:100%">
+                        <figcaption>Shanghai second-hand house distribution by street.</figcaption>
+                    </picture>                                        
                 </body>
             </html>
             """
     image_path = [
-        png_path_by_district,
-        png_path_by_street
+        png_path_price_by_district,
+        png_path_sell_by_district,
+        png_path_price_by_street,
+        png_path_sell_by_street
     ]
     MyEmail().send_email_embedded_image(
         '上海二手房信息跟踪',  html_img + html, image_path
