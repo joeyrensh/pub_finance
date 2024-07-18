@@ -103,6 +103,11 @@ def fetch_house_info(url, item):
         unit_price = unit_price_div[0].xpath('string(.)')
     else:
         unit_price = ''
+    deal_price_div = tree.xpath('//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/div[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]')
+    if len(deal_price_div) > 0:
+        deal_price = deal_price_div[0].xpath('string(.)')
+    else:
+        deal_price = ''        
     lanlong_div = tree.xpath('//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemOneLine"]/div[@class="xiaoquInfoItem outerItem"][2]/span[@class="xiaoquInfoContent outer"]/span[@mendian]')
     if len(lanlong_div) > 0:
         lanlong = lanlong_div[0].get('xiaoqu')
@@ -824,6 +829,6 @@ if __name__ == "__main__":
         png_path_price_by_street,
         png_path_sell_by_street
     ]
-    MyEmail().send_email_embedded_image(
-        '上海二手房信息跟踪',  html_img + html, image_path
-    )
+    # MyEmail().send_email_embedded_image(
+    #     '上海二手房信息跟踪',  html_img + html, image_path
+    # )
