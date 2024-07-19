@@ -289,12 +289,12 @@ if __name__ == "__main__":
     png_path_s = './houseinfo/map_secondhouse.png'
     png_path_s2 = './houseinfo/map_secondhouse2.png'
     png_path_s3 = './houseinfo/map_secondhouse3.png'
-    # file_path_s = './houseinfo/secondhandhouse.csv'
-    file_path_s = './houseinfo/test.csv'
+    file_path_s = './houseinfo/secondhandhouse.csv'
+    # file_path_s = './houseinfo/test.csv'
     # 新房
-    # get_house_info_f(file_path)
+    get_house_info_f(file_path)
     # 二手
-    # houseinfo_to_csv_s(file_path_s)
+    houseinfo_to_csv_s(file_path_s)
     
 
     def map_plot(df, legend_title,legend_fmt, png_path, k, col_formats):
