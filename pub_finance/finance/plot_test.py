@@ -80,40 +80,45 @@ agg_bystreet = filtered_data.groupby('adcode').median({'unit_price': 'unit_price
 result_bystreet = data_filter_bystreet.merge(agg_bystreet, how='left', left_on='adcode', right_on ='adcode')
 
 k = 8
-
-
 ax = gplt.polyplot(df=geo_data,
                    projection=gcrs.AlbersEqualArea(),
-                   edgecolor='lightgrey',
-                   facecolor='#00003a',
+                   edgecolor='red',
+                #    facecolor='#00003a',
+                    # facecolor='lightgrey',
                    linewidths=0.5,
                    figsize=(10, 10)
                    )
 
 
 
-scheme = mc.Quantiles(gdf_second_hand_house['sell_cnt'], k=k)
-# 获取分类的边界值
-bounds = scheme.bins.tolist()
-bounds.append(gdf_second_hand_house['sell_cnt'].max())  # 添加最大值作为边界值
+# scheme = mc.Quantiles(gdf_second_hand_house['sell_cnt'], k=k)
+# # 获取分类的边界值
+# bounds = scheme.bins.tolist()
+# bounds.append(gdf_second_hand_house['sell_cnt'].max())  # 添加最大值作为边界值
 
-legend_labels = [f"{bounds[i - 1]:.2f} - {bounds[i]:.2f}" for i in range(1, k+1)]
+# legend_labels = [f"{bounds[i - 1]:.2f} - {bounds[i]:.2f}" for i in range(1, k+1)]
 
 
-gplt.pointplot(df=gdf_second_hand_house,
-               ax=ax, # 叠加图层
-               s=1, # 散点大小
-               linewidths=0.1, # 散点轮廓宽度
-               hue='sell_cnt', # 以price作为色彩映射列
-               cmap='Reds_r', # 色彩方案为Reds
-               scheme=scheme, # 传入mapclassify对象
-               legend=True, # 开启图例
-               legend_kwargs={
-                   'loc': 'upper right', # 图例位置
-                   'title': '价格区间', # 图例标题
-                   'title_fontsize': 8, # 图例标题字体大小
-                   'fontsize': 8, # 图例非标题外字体大小
-                   'shadow': True, # 添加图例阴影
-               },
-               legend_labels=legend_labels)
+# gplt.pointplot(df=gdf_second_hand_house,
+#                ax=ax, # 叠加图层
+#                s=1, # 散点大小
+#                linewidths=0.1, # 散点轮廓宽度
+#                hue='sell_cnt', # 以price作为色彩映射列
+#                cmap='Reds_r', # 色彩方案为Reds
+#                scheme=scheme, # 传入mapclassify对象
+#                legend=True, # 开启图例
+#                legend_kwargs={
+#                    'loc': 'upper right', # 图例位置
+#                    'title': '价格区间', # 图例标题
+#                    'title_fontsize': 8, # 图例标题字体大小
+#                    'fontsize': 8, # 图例非标题外字体大小
+#                    'shadow': True, # 添加图例阴影
+#                },
+#                legend_labels=legend_labels)
+ax = gplt.kdeplot(df=gdf_second_hand_house,
+                  cmap='Reds',
+                  shade=True,
+                  shade_lowest=True,
+                  clip=geo_data,
+                  ax=ax)
 ax.axis('off')

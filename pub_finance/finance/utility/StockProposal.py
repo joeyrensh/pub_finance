@@ -103,6 +103,7 @@ class StockProposal:
             .appName("SparkTest")
             .config("spark.driver.memory", "450m")
             .config("spark.executor.memory", "450m")
+            .config("spark.memory.fraction", "0.6")
             .getOrCreate()
         )
         spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
