@@ -224,7 +224,7 @@ def houseinfo_to_csv_s(file_path):
                      'hongkou','yangpu','minhang','baoshan','jiading',
                      'pudong','jinshan','songjiang','qingpu','fengxian','chongming']
     # district_list = ['minhang']
-    page_no = 200
+    page_no = 100
     
     t = ToolKit("列表生成")
     houselist = []
