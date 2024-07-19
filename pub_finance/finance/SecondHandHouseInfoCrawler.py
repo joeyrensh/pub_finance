@@ -21,7 +21,7 @@ import pysal.viz.mapclassify as mc
 
 
 
-def fetch_houselist(url, page, complete_list):
+def fetch_houselist_s(url, page, complete_list):
     # 添加请求头
     headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
@@ -86,7 +86,7 @@ def fetch_houselist(url, page, complete_list):
 
     return list
 
-def fetch_house_info(url, item):
+def fetch_house_info_s(url, item):
 
     # 添加请求头
     headers = {
@@ -150,7 +150,7 @@ def fetch_house_info(url, item):
 
     return dict
 
-def houseinfo_to_csv(file_path):
+def houseinfo_to_csv_s(file_path):
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path):
         os.remove(file_path)
@@ -171,7 +171,7 @@ def houseinfo_to_csv(file_path):
         url_re = (
             url.replace("district", district)
         )
-        houselist = fetch_houselist(url_re, page_no, complete_list)
+        houselist = fetch_houselist_s(url_re, page_no, complete_list)
         complete_list.extend(houselist) 
         t.progress_bar(len(district_list), idx + 1)
         print('complete list cnt is: ', len(houselist))
@@ -184,7 +184,7 @@ def houseinfo_to_csv(file_path):
         t = ToolKit("信息爬取")
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             # 提交任务并获取Future对象列表
-            futures = [executor.submit(fetch_house_info, url_detail, item) for item in houselist]
+            futures = [executor.submit(fetch_house_info_s, url_detail, item) for item in houselist]
             
             # 获取已完成的任务的结果
             for future in concurrent.futures.as_completed(futures):
