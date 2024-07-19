@@ -464,6 +464,8 @@ if __name__ == "__main__":
                         <style>
                             h1 {{
                                 font-style: italic;
+                                font-size: 18px;
+                                color: #333; /* 假设的亮色模式字体颜色 */                                 
                             }}
                         </style>
                 </head>                    
@@ -473,6 +475,30 @@ if __name__ == "__main__":
                 </body>
                 </html>
                 """.format(newhouse_cnt=new_house_cnt,sell_cnt=sell_cnt,total_cnt=total_cnt,lst_deal_price=lst_deal_price,lst_deal_date=lst_deal_date)
+    css = """
+        <style>
+            :root {
+                color-scheme: light;
+                supported-color-schemes: light;
+                background-color: white;
+                color: black;
+                display: table ;
+            }                
+            /* Your light mode (default) styles: */
+            body {
+                background-color: white;
+                color: black;
+                display: table ;
+                width: 100%;                          
+            }
+            table {
+                background-color: white;
+                color: black;
+                width: 100%;
+            }
+        </style>
+    """
+    html_txt = html_txt + css                
     html_img = """
             <html>
                 <head>
