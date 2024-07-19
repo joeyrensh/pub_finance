@@ -288,6 +288,7 @@ if __name__ == "__main__":
     png_path = './houseinfo/map_newhouse.png'
     png_path_s = './houseinfo/map_secondhouse.png'
     png_path_s2 = './houseinfo/map_secondhouse2.png'
+    png_path_s3 = './houseinfo/map_secondhouse3.png'
     # file_path_s = './houseinfo/secondhandhouse.csv'
     file_path_s = './houseinfo/test.csv'
     # 新房
@@ -296,78 +297,97 @@ if __name__ == "__main__":
     # houseinfo_to_csv_s(file_path_s)
     
 
+    def map_plot(df, legend_title,legend_fmt, png_path, k, col_formats):
+        col_name = col_formats['count']
+        fmt_string = "{:."f"{legend_fmt}""}"
+        legend_kwargs = {
+                'fmt': fmt_string,
+                'title': legend_title
+            }
+        missing_kwds = {
+            "facecolor": "lightgrey",
+            "edgecolor": "k",
+            "label": "Missing values",
+        }
+        ax = df.plot(
+            column=col_name,
+            cmap='RdYlGn_r',
+            alpha = 0.8,
+            legend=True,
+            linewidth=0.5,
+            edgecolor='k',
+            scheme="natural_breaks",
+            k=k,
+            figsize=(10, 10),
+            legend_kwds=legend_kwargs,
+            missing_kwds=missing_kwds
+        )
+        ax.axis('off')
+        # 添加annotation
+        
+        texts = []
+        for idx, row in df.iterrows():
+            centroid = row.geometry.centroid.coords[0]
+            if 'ratio' in col_formats:
+                name_key = 'name'
+                count_key = col_formats['count']
+                ratio_key = col_formats['ratio']
+                text_f = f"{row[name_key]}\n{row[count_key]:.0f},{row[ratio_key]:.2%}"     
+            else:
+                name_key = 'name'
+                count_key = col_formats['count']
+                text_f = f"{row[name_key]}\n{row[count_key]:.0f}"           
+            if not math.isnan(row[col_name]):
+                text = ax.annotate(
+                        text=text_f,
+                        # text=f"{row['name']}\n{row['avg_price']:.0f}",
+                        xy=centroid,
+                        ha='center',
+                        fontsize=4,  # 设置字体大小
+                        color='black',  # 设置字体颜色为黑色
+                        weight='black',  # 设置字体粗细
+                        bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
+                )
+                texts.append(text)
+        # 检查注释是否重叠并调整位置
+        def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0000, min_fontsize=3, default_fontsize=4):
+            renderer = ax.get_figure().canvas.get_renderer()
+            for i, text in enumerate(texts):
+                rect1 = text.get_window_extent(renderer=renderer)
+                for j in range(i + 1, len(texts)):
+                    text2 = texts[j]
+                    rect2 = text2.get_window_extent(renderer=renderer)
+                    while rect1.overlaps(rect2):
+                        x, y = text2.get_position()
+                        y -= vertical_spacing
+                        x -= horizontal_spacing
+                        text2.set_position((x, y))                    
+                        # 确保 fontsize 和 alpha 不为 None
+                        current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
+                        # 调整字体大小和透明度
+                        if current_fontsize > min_fontsize:
+                            text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
+                        rect2 = text2.get_window_extent(renderer=renderer)            
+
+        check_and_adjust_annotations(texts)
+        plt.savefig(png_path, dpi=500, bbox_inches='tight', pad_inches=0)        
+
+    # 新房数据分析
     geo_data = gpd.read_file(geo_path,  engine="pyogrio")
     df_new_house = pd.read_csv(file_path, usecols=[i for i in range(0, 12)])
 
     gdf_new_house = gpd.GeoDataFrame(
         df_new_house, geometry=gpd.points_from_xy(df_new_house.longitude, df_new_house.latitude), crs="EPSG:4326"
     )
-    # 处理板块级别数据
+    # 新房单价分析
     geo_data_f = geo_data[(geo_data.level == 'town')]
     gdf_merged = gpd.sjoin(geo_data_f, gdf_new_house, how="inner", predicate = "intersects")
     gdf_agg = gdf_merged.groupby('adcode').median({'avg_price': 'avg_price'}).round(-2)
     result = geo_data_f.merge(gdf_agg, how='left', left_on='adcode', right_on ='adcode')
-    legend_kwargs_1 = {
-        'fmt': '{:.0f}',
-        'title': '单价'
-    }
-    missing_kwds = {
-        "facecolor": "lightgrey",
-        "edgecolor": "k",
-        "label": "Missing values",
-    }
-    ax = result.plot(
-        column="avg_price",
-        cmap='RdYlGn_r',
-        alpha = 0.8,
-        legend=True,
-        linewidth=0.5,
-        edgecolor='k',
-        scheme="natural_breaks",
-        k=8,
-        figsize=(10, 10),
-        legend_kwds=legend_kwargs_1,
-        missing_kwds=missing_kwds
-    )
-    ax.axis('off')
-    # 添加annotation
-    texts = []
-    for idx, row in result.iterrows():
-        centroid = row.geometry.centroid.coords[0]
-        if not math.isnan(row['avg_price']):
-            text = ax.annotate(
-                text=f"{row['name']}\n{row['avg_price']:.0f}",
-                xy=centroid,
-                ha='center',
-                fontsize=4,  # 设置字体大小
-                color='black',  # 设置字体颜色为黑色
-                weight='black',  # 设置字体粗细
-                bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
-            )
-            texts.append(text)
-    # 检查注释是否重叠并调整位置
-    def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0001, min_fontsize=3, default_fontsize=4):
-        renderer = ax.get_figure().canvas.get_renderer()
-        for i, text in enumerate(texts):
-            rect1 = text.get_window_extent(renderer=renderer)
-            for j in range(i + 1, len(texts)):
-                text2 = texts[j]
-                rect2 = text2.get_window_extent(renderer=renderer)
-                while rect1.overlaps(rect2):
-                    x, y = text2.get_position()
-                    y -= vertical_spacing
-                    x -= horizontal_spacing
-                    text2.set_position((x, y))                    
-                    # 确保 fontsize 和 alpha 不为 None
-                    current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
-                    # 调整字体大小和透明度
-                    if current_fontsize > min_fontsize:
-                        text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
-                    rect2 = text2.get_window_extent(renderer=renderer)            
+    col_formats = {'count': 'avg_price'}
+    map_plot(result, '单价', '0f', png_path, 8, col_formats)
 
-    check_and_adjust_annotations(texts)
-    plt.savefig(png_path, dpi=500, bbox_inches='tight', pad_inches=0)
-
+    # 二手房数据分析
     df_second_hand_house = pd.read_csv(file_path_s, usecols=[i for i in range(0, 12)])
     df_second_hand_house = df_second_hand_house.dropna(subset=['lanlong'])
     # 处理二手房经纬度格式
@@ -400,169 +420,59 @@ if __name__ == "__main__":
         ((geo_data.level == 'town') & (geo_data['parent'].apply(lambda x: json.loads(x)['adcode']).isin(exclude_values) == False))
     ]
     gdf_merged = gpd.sjoin(geo_data_s, gdf_second_hand_house, how="inner", predicate = "intersects")
-    # 板块均价分析
+    # 二手房挂牌价分析
     gdf_merged = gdf_merged[gdf_merged['unit_price'] > 0]
     gdf_agg = gdf_merged.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
-    result = geo_data_s.merge(gdf_agg, how='left', left_on='adcode', right_on ='adcode')    
-    legend_kwargs_2 = {
-        'fmt': '{:.0f}',
-        'title': '挂牌价'
-    }
-    ax = result.plot(
-            column="unit_price",
-            cmap='RdYlGn_r',
-            alpha = 0.8,
-            legend=True,
-            linewidth=0.5,
-            edgecolor='k',
-            scheme="natural_breaks",
-            k=8,
-            figsize=(10, 10),
-            legend_kwds=legend_kwargs_2,
-            missing_kwds=missing_kwds
-        )
-    ax.axis('off')
+    result = geo_data_s.merge(gdf_agg, how='left', left_on='adcode', right_on ='adcode')   
+    col_formats = {'count': 'unit_price'} 
+    map_plot(result, '挂牌价', '0f', png_path_s, 8, col_formats)
 
-    # 添加annotation
-    texts = []
-    for idx, row in result.iterrows():
-        centroid = row.geometry.centroid.coords[0]
-        if not math.isnan(row['unit_price']):
-            if row.level == 'town':
-                text = ax.annotate(
-                    text=f"{row['name']}\n{row['unit_price']:.0f}",
-                    xy=centroid,
-                    ha='center',
-                    fontsize=4,  # 设置字体大小
-                    color='black',  # 设置字体颜色为黑色
-                    weight='black',  # 设置字体粗细
-                    bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
-                )
-            else:
-                text = ax.annotate(
-                    text=f"{row['name']}",
-                    xy=centroid,
-                    ha='center',
-                    fontsize=4,  # 设置字体大小
-                    color='black',  # 设置字体颜色为黑色
-                    weight='black',  # 设置字体粗细
-                    bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
-                )
-            texts.append(text)
-   # 检查注释是否重叠并调整位置
-    def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0001, min_fontsize=3, default_fontsize=4):
-        renderer = ax.get_figure().canvas.get_renderer()
-        for i, text in enumerate(texts):
-            rect1 = text.get_window_extent(renderer=renderer)
-            for j in range(i + 1, len(texts)):
-                text2 = texts[j]
-                rect2 = text2.get_window_extent(renderer=renderer)
-                while rect1.overlaps(rect2):
-                    x, y = text2.get_position()
-                    y -= vertical_spacing
-                    x -= horizontal_spacing
-                    text2.set_position((x, y))                    
-                    # 确保 fontsize 和 alpha 不为 None
-                    current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
-                    # 调整字体大小和透明度
-                    if current_fontsize > min_fontsize:
-                        text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
-                    rect2 = text2.get_window_extent(renderer=renderer)  
-
-    check_and_adjust_annotations(texts)
-    plt.savefig(png_path_s, dpi=500, bbox_inches='tight', pad_inches=0)
-
-    # 板块均价分析
+    # 二手房成交价分析
     gdf_merged = gpd.sjoin(geo_data_s, gdf_second_hand_house, how="inner", predicate = "intersects")
     gdf_merged = gdf_merged[gdf_merged['deal_price'] > 0]
     gdf_agg = gdf_merged.groupby('adcode').median({'deal_price': 'deal_price'}).round(-2)
+    result = geo_data_s.merge(gdf_agg, how='left', left_on='adcode', right_on ='adcode') 
+    col_formats = {'count': 'deal_price'} 
+    map_plot(result, '最近成交价', '0f', png_path_s2, 8, col_formats)    
+
+    # 二手房挂牌量分析
+    gdf_merged = gpd.sjoin(geo_data_s, gdf_second_hand_house, how="inner", predicate = "intersects")
+    gdf_merged = gdf_merged[gdf_merged['sell_cnt'] > 0]
+    gdf_agg = gdf_merged.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(0)
+    # 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
+    gdf_agg['ratio'] = gdf_agg.apply(
+        lambda row: row['sell_cnt'] / row['total_cnt'] if row['total_cnt'] != 0 else None, axis=1
+    )
     result = geo_data_s.merge(gdf_agg, how='left', left_on='adcode', right_on ='adcode')    
-    legend_kwargs_2 = {
-        'fmt': '{:.0f}',
-        'title': '最近成交价'
-    }
-    ax = result.plot(
-            column="deal_price",
-            cmap='RdYlGn_r',
-            alpha = 0.8,
-            legend=True,
-            linewidth=0.5,
-            edgecolor='k',
-            scheme="natural_breaks",
-            k=8,
-            figsize=(10, 10),
-            legend_kwds=legend_kwargs_2,
-            missing_kwds=missing_kwds
-        )
-    ax.axis('off')
-
-    # 添加annotation
-    texts = []
-    for idx, row in result.iterrows():
-        centroid = row.geometry.centroid.coords[0]
-        if not math.isnan(row['deal_price']):
-            if row.level == 'town':
-                text = ax.annotate(
-                    text=f"{row['name']}\n{row['deal_price']:.0f}",
-                    xy=centroid,
-                    ha='center',
-                    fontsize=4,  # 设置字体大小
-                    color='black',  # 设置字体颜色为黑色
-                    weight='black',  # 设置字体粗细
-                    bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
-                )
-            else:
-                text = ax.annotate(
-                    text=f"{row['name']}",
-                    xy=centroid,
-                    ha='center',
-                    fontsize=4,  # 设置字体大小
-                    color='black',  # 设置字体颜色为黑色
-                    weight='black',  # 设置字体粗细
-                    bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
-                )
-            texts.append(text)
-   # 检查注释是否重叠并调整位置
-    def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0001, min_fontsize=3, default_fontsize=4):
-        renderer = ax.get_figure().canvas.get_renderer()
-        for i, text in enumerate(texts):
-            rect1 = text.get_window_extent(renderer=renderer)
-            for j in range(i + 1, len(texts)):
-                text2 = texts[j]
-                rect2 = text2.get_window_extent(renderer=renderer)
-                while rect1.overlaps(rect2):
-                    x, y = text2.get_position()
-                    y -= vertical_spacing
-                    x -= horizontal_spacing
-                    text2.set_position((x, y))                    
-                    # 确保 fontsize 和 alpha 不为 None
-                    current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
-                    # 调整字体大小和透明度
-                    if current_fontsize > min_fontsize:
-                        text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
-                    rect2 = text2.get_window_extent(renderer=renderer)  
-
-    check_and_adjust_annotations(texts)
-    plt.savefig(png_path_s2, dpi=500, bbox_inches='tight', pad_inches=0)    
+    col_formats = {'count': 'sell_cnt', 'ratio': 'ratio'}
+    map_plot(result, '挂牌量', '0f', png_path_s3, 8, col_formats)
 
     # 房屋明细
     new_house_cnt = len(df_new_house)
+    second_house_cnt = len(df_second_hand_house)
+    agg_s = df_second_hand_house[['sell_cnt', 'total_cnt']].sum().round(0)
+    sell_cnt = agg_s['sell_cnt']
+    total_cnt = agg_s['total_cnt']
+    lst_deal_price = df_second_hand_house[df_second_hand_house['data_id'] == 5011000020013]['deal_price']
+    lst_deal_date = df_second_hand_house[df_second_hand_house['data_id'] == 5011000020013]['deal_date']
+    lst_deal_price=lst_deal_price.iloc[0]
+    lst_deal_date=lst_deal_date.iloc[0]
     html_txt = """
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <style>
-                        h2 {{
-                            font-style: italic;
-                        }}
-                    </style>
+                        <style>
+                            h1 {{
+                                font-style: italic;
+                            }}
+                        </style>
                 </head>                    
                 <body>
-                    <h2>新房在售 {newhouse_cnt} 个小区</h2>
+                    <h1>新房在售{newhouse_cnt}个楼盘</h1>
+                    <h1>二手房挂牌{sell_cnt}套, 总套数{total_cnt}, 其中X小区最新成交均价{lst_deal_price},成交日期{lst_deal_date} </h1>
                 </body>
                 </html>
-                """.format(newhouse_cnt=new_house_cnt)
-
+                """.format(newhouse_cnt=new_house_cnt,sell_cnt=sell_cnt,total_cnt=total_cnt,lst_deal_price=lst_deal_price,lst_deal_date=lst_deal_date)
     html_img = """
             <html>
                 <head>
@@ -591,7 +501,7 @@ if __name__ == "__main__":
                             text-align: center;
                             font-style: italic;
                             font-size: 14px;
-                        }
+                        }                        
                         
                         body {
                             background-color: white;
@@ -602,22 +512,39 @@ if __name__ == "__main__":
                             border: 1px solid #ddd;
                         }
                         
-
                     </style>
                 </head>
                 <body>
                     <picture>
                         <!-- 默认模式下的图片 -->
-                        <img src="cid:image0" alt="The industry distribution of current positions is as follows:" style="width:100%">
-                        <figcaption> Shanghai new house distribution by district.</figcaption>
+                        <img src="cid:image0" alt="Shanghai house info is as follows:" style="width:100%">
+                        <figcaption> Shanghai new house distribution by street.</figcaption>
                     </picture>
+                    <picture>
+                        <!-- 默认模式下的图片 -->
+                        <img src="cid:image1" alt="Shanghai house info is as follows:" style="width:100%">
+                        <figcaption> Shanghai second-hand house unit price distribution by street.</figcaption>
+                    </picture> 
+                    <picture>
+                        <!-- 默认模式下的图片 -->
+                        <img src="cid:image2" alt="Shanghai house info is as follows:" style="width:100%">
+                        <figcaption> Shanghai second-hand house deal price distribution by street.</figcaption>
+                    </picture>  
+                    <picture>
+                        <!-- 默认模式下的图片 -->
+                        <img src="cid:image3" alt="Shanghai house info is as follows:" style="width:100%">
+                        <figcaption> Shanghai second-hand house sell cnt distribution by street.</figcaption>
+                    </picture>                                                                
                 </body>
             </html>
             """
     image_path = [
-        png_path
+        png_path,
+        png_path_s,
+        png_path_s2,
+        png_path_s3
     ]
-    # MyEmail().send_email_embedded_image(
-    #     '上海新房信息跟踪',  html_txt + html_img, image_path
-    # )
+    MyEmail().send_email_embedded_image(
+        '上海房产信息跟踪',  html_txt + html_img, image_path
+    )
 
