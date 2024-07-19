@@ -306,7 +306,7 @@ if __name__ == "__main__":
     geo_data_f = geo_data[(geo_data.level == 'town')]
     gdf_merged = gpd.sjoin(geo_data_f, gdf_new_house, how="inner", predicate = "intersects")
     gdf_agg = gdf_merged.groupby('adcode').median({'avg_price': 'avg_price'}).round(-2)
-    result = geo_data.merge(gdf_agg, how='left', left_on='adcode', right_on ='adcode')
+    result = geo_data_f.merge(gdf_agg, how='left', left_on='adcode', right_on ='adcode')
     legend_kwargs_1 = {
         'fmt': '{:.0f}',
         'title': '单价'
@@ -382,11 +382,9 @@ if __name__ == "__main__":
         
         # 使用正则表达式匹配非数字字符
         numeric_text = re.sub(r'\D', '', str(text))
-        
         # 检查字符串是否为空
         if numeric_text == '':
-            return ''  # 返回空字符串
-        
+            return None  # 返回空字符串
         # 返回转换后的整数类型
         return int(numeric_text)
 
