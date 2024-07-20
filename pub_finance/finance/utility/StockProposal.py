@@ -970,6 +970,7 @@ class StockProposal:
                 FROM tmp1 WHERE trade_type = 'sell'
             ), tmp2 AS (
                 SELECT symbol
+                    ,sell_date
                     ,COUNT(symbol) AS his_trade_cnt
                     ,SUM(DATEDIFF(sell_date, buy_date)) AS his_days
                     ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price >=0, 1, 0)) AS pos_cnt
@@ -978,7 +979,7 @@ class StockProposal:
                     ,SUM(IF(sell_date IS NOT NULL, base_price * base_size, 0)) AS his_base_price
                     ,MAX(sell_strategy) AS sell_strategy
                 FROM  tmp11
-                GROUP BY symbol
+                GROUP BY symbol, sell_date
             ), tmp3 AS (
                 SELECT t1.symbol
                     ,t1.name
@@ -1014,7 +1015,7 @@ class StockProposal:
                                                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
                                                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t 
                                                 ) tt WHERE row_num = 5)
-                ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol 
+                ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol AND t1.sell_date = t2.sell_date
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
             """.format(
                 end_date
@@ -1022,6 +1023,7 @@ class StockProposal:
         )
 
         dfdata9 = sparkdata9.toPandas()
+
 
         if not dfdata9.empty:
 
