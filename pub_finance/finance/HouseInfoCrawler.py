@@ -343,14 +343,14 @@ if __name__ == "__main__":
                         # text=f"{row['name']}\n{row['avg_price']:.0f}",
                         xy=centroid,
                         ha='center',
-                        fontsize=4,  # 设置字体大小
+                        fontsize=3,  # 设置字体大小
                         color='black',  # 设置字体颜色为黑色
                         weight='black',  # 设置字体粗细
                         bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
                 )
                 texts.append(text)
         # 检查注释是否重叠并调整位置
-        def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0000, min_fontsize=3, default_fontsize=4):
+        def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0000, min_fontsize=2, default_fontsize=3):
             renderer = ax.get_figure().canvas.get_renderer()
             for i, text in enumerate(texts):
                 rect1 = text.get_window_extent(renderer=renderer)
