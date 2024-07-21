@@ -278,7 +278,82 @@ def houseinfo_to_csv_s(file_path):
                 mode="a",
                 index=False,
                 header=False
-            )            
+            )        
+
+def map_plot(df, legend_title,legend_fmt, png_path, k, col_formats):
+    col_name = col_formats['count']
+    fmt_string = "{:."f"{legend_fmt}""}"
+    legend_kwargs = {
+            'fmt': fmt_string,
+            'title': legend_title
+        }
+    missing_kwds = {
+        "facecolor": "lightgrey",
+        "edgecolor": "k",
+        "label": "Missing values",
+    }
+    ax = df.plot(
+        column=col_name,
+        cmap='RdYlGn_r',
+        alpha = 0.8,
+        legend=True,
+        linewidth=0.5,
+        edgecolor='k',
+        scheme="natural_breaks",
+        k=k,
+        figsize=(10, 10),
+        legend_kwds=legend_kwargs,
+        missing_kwds=missing_kwds
+    )
+    ax.axis('off')
+    # 添加annotation
+    
+    texts = []
+    for idx, row in df.iterrows():
+        centroid = row.geometry.centroid.coords[0]
+        if 'ratio' in col_formats:
+            name_key = 'name'
+            count_key = col_formats['count']
+            ratio_key = col_formats['ratio']
+            text_f = f"{row[name_key]}\n{row[count_key]:.0f},{row[ratio_key]:.2%}"     
+        else:
+            name_key = 'name'
+            count_key = col_formats['count']
+            text_f = f"{row[name_key]}\n{row[count_key]:.0f}"           
+        if not math.isnan(row[col_name]):
+            text = ax.annotate(
+                    text=text_f,
+                    # text=f"{row['name']}\n{row['avg_price']:.0f}",
+                    xy=centroid,
+                    ha='center',
+                    fontsize=3,  # 设置字体大小
+                    color='black',  # 设置字体颜色为黑色
+                    weight='black',  # 设置字体粗细
+                    bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
+            )
+            texts.append(text)
+    # 检查注释是否重叠并调整位置
+    def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0000, min_fontsize=2, default_fontsize=3):
+        renderer = ax.get_figure().canvas.get_renderer()
+        for i, text in enumerate(texts):
+            rect1 = text.get_window_extent(renderer=renderer)
+            for j in range(i + 1, len(texts)):
+                text2 = texts[j]
+                rect2 = text2.get_window_extent(renderer=renderer)
+                while rect1.overlaps(rect2):
+                    x, y = text2.get_position()
+                    y -= vertical_spacing
+                    x -= horizontal_spacing
+                    text2.set_position((x, y))                    
+                    # 确保 fontsize 和 alpha 不为 None
+                    current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
+                    # 调整字体大小和透明度
+                    if current_fontsize > min_fontsize:
+                        text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
+                    rect2 = text2.get_window_extent(renderer=renderer)            
+
+    check_and_adjust_annotations(texts)
+    plt.savefig(png_path, dpi=500, bbox_inches='tight', pad_inches=0)                    
 
 # 主程序入口
 if __name__ == "__main__":
@@ -295,82 +370,6 @@ if __name__ == "__main__":
     get_house_info_f(file_path)
     # 二手
     houseinfo_to_csv_s(file_path_s)
-    
-
-    def map_plot(df, legend_title,legend_fmt, png_path, k, col_formats):
-        col_name = col_formats['count']
-        fmt_string = "{:."f"{legend_fmt}""}"
-        legend_kwargs = {
-                'fmt': fmt_string,
-                'title': legend_title
-            }
-        missing_kwds = {
-            "facecolor": "lightgrey",
-            "edgecolor": "k",
-            "label": "Missing values",
-        }
-        ax = df.plot(
-            column=col_name,
-            cmap='RdYlGn_r',
-            alpha = 0.8,
-            legend=True,
-            linewidth=0.5,
-            edgecolor='k',
-            scheme="natural_breaks",
-            k=k,
-            figsize=(10, 10),
-            legend_kwds=legend_kwargs,
-            missing_kwds=missing_kwds
-        )
-        ax.axis('off')
-        # 添加annotation
-        
-        texts = []
-        for idx, row in df.iterrows():
-            centroid = row.geometry.centroid.coords[0]
-            if 'ratio' in col_formats:
-                name_key = 'name'
-                count_key = col_formats['count']
-                ratio_key = col_formats['ratio']
-                text_f = f"{row[name_key]}\n{row[count_key]:.0f},{row[ratio_key]:.2%}"     
-            else:
-                name_key = 'name'
-                count_key = col_formats['count']
-                text_f = f"{row[name_key]}\n{row[count_key]:.0f}"           
-            if not math.isnan(row[col_name]):
-                text = ax.annotate(
-                        text=text_f,
-                        # text=f"{row['name']}\n{row['avg_price']:.0f}",
-                        xy=centroid,
-                        ha='center',
-                        fontsize=3,  # 设置字体大小
-                        color='black',  # 设置字体颜色为黑色
-                        weight='black',  # 设置字体粗细
-                        bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
-                )
-                texts.append(text)
-        # 检查注释是否重叠并调整位置
-        def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0000, min_fontsize=2, default_fontsize=3):
-            renderer = ax.get_figure().canvas.get_renderer()
-            for i, text in enumerate(texts):
-                rect1 = text.get_window_extent(renderer=renderer)
-                for j in range(i + 1, len(texts)):
-                    text2 = texts[j]
-                    rect2 = text2.get_window_extent(renderer=renderer)
-                    while rect1.overlaps(rect2):
-                        x, y = text2.get_position()
-                        y -= vertical_spacing
-                        x -= horizontal_spacing
-                        text2.set_position((x, y))                    
-                        # 确保 fontsize 和 alpha 不为 None
-                        current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
-                        # 调整字体大小和透明度
-                        if current_fontsize > min_fontsize:
-                            text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
-                        rect2 = text2.get_window_extent(renderer=renderer)            
-
-        check_and_adjust_annotations(texts)
-        plt.savefig(png_path, dpi=500, bbox_inches='tight', pad_inches=0)        
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path,  engine="pyogrio")
@@ -455,8 +454,10 @@ if __name__ == "__main__":
     total_cnt = agg_s['total_cnt']
     lst_deal_price = df_second_hand_house[df_second_hand_house['data_id'] == 5011000020013]['deal_price']
     lst_deal_date = df_second_hand_house[df_second_hand_house['data_id'] == 5011000020013]['deal_date']
+    x_sell_cnt = df_second_hand_house[df_second_hand_house['data_id'] == 5011000020013]['sell_cnt']
     lst_deal_price=lst_deal_price.iloc[0]
     lst_deal_date=lst_deal_date.iloc[0]
+    x_sell_cnt=x_sell_cnt.iloc[0]
     html_txt = """
                 <!DOCTYPE html>
                 <html>
@@ -471,10 +472,11 @@ if __name__ == "__main__":
                 </head>                    
                 <body>
                     <h1>新房在售{newhouse_cnt}个楼盘</h1>
-                    <h1>二手房挂牌{sell_cnt}套, 总套数{total_cnt}, 其中X小区最新成交均价{lst_deal_price},成交日期{lst_deal_date} </h1>
+                    <h1>二手房挂牌{sell_cnt}套, 总套数{total_cnt}, 其中X小区挂牌量{x_sell_cnt},最新成交均价{lst_deal_price},成交日期{lst_deal_date} </h1>
                 </body>
                 </html>
-                """.format(newhouse_cnt=new_house_cnt,sell_cnt=sell_cnt,total_cnt=total_cnt,lst_deal_price=lst_deal_price,lst_deal_date=lst_deal_date)
+                """.format(newhouse_cnt=new_house_cnt,sell_cnt=sell_cnt,total_cnt=total_cnt,x_sell_cnt=x_sell_cnt,
+                           lst_deal_price=lst_deal_price,lst_deal_date=lst_deal_date)
     css = """
         <style>
             :root {
