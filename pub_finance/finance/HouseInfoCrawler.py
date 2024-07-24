@@ -419,9 +419,9 @@ if __name__ == "__main__":
     file_path_s = "./houseinfo/secondhandhouse.csv"
     # file_path_s = './houseinfo/test.csv'
     # 新房
-    get_house_info_f(file_path)
+    # get_house_info_f(file_path)
     # 二手
-    houseinfo_to_csv_s(file_path_s)
+    # houseinfo_to_csv_s(file_path_s)
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
