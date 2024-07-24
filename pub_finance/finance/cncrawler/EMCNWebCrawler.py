@@ -48,7 +48,7 @@ class EMCNWebCrawler:
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
                 try:
                     json_object = json.loads(res_p)
-                except ValueError as e:
+                except ValueError:
                     break
                 """
                 f12: 股票代码, f14: 公司名称, f2: 最新报价, f3: 涨跌幅, f4: 涨跌额, f5: 成交量, f6: 成交额

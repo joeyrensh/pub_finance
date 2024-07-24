@@ -43,7 +43,7 @@ class EMCNTickerCategoryCrawler:
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
                 try:
                     json_object = json.loads(res_p)
-                except ValueError as e:
+                except ValueError:
                     break
                 if mkt_code == "0":
                     market = "SZ"
@@ -94,14 +94,12 @@ class EMCNTickerCategoryCrawler:
                 if json_object["jbzl"]["sshy"] == "--":
                     continue
                 # print(json_object["jbzl"]["sshy"])
-                dict = {"symbol": i["symbol"],
-                        "industry": json_object["jbzl"]["sshy"]}
+                dict = {"symbol": i["symbol"], "industry": json_object["jbzl"]["sshy"]}
                 list.append(dict)
                 print(dict)
             tool.progress_bar(len(tick_list), tick_list.index(i))
         df = pd.DataFrame(list)
-        df.drop_duplicates(
-            subset=["symbol", "industry"], keep="last", inplace=True)
+        df.drop_duplicates(subset=["symbol", "industry"], keep="last", inplace=True)
         """ 获取板块文件信息 """
         file = FileInfo(trade_date, "cn")
         file_path_industry = file.get_file_path_industry

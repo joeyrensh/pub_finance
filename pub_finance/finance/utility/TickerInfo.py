@@ -31,12 +31,10 @@ class TickerInfo:
     def get_stock_list(self):
         tickers = list()
         df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 16)])
-        df.drop_duplicates(subset=["symbol", "date"],
-                           keep="first", inplace=True)
+        df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
         df.sort_values(by=["symbol"], ascending=True, inplace=True)
         """ 匹配行业信息 """
-        df_o = pd.read_csv(self.file_industry, usecols=[
-                           i for i in range(1, 3)])
+        df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
         df_n = pd.merge(df, df_o, how="inner", on="symbol")
         if self.market == "us":
             for index, i in df_n.iterrows():
@@ -90,11 +88,9 @@ class TickerInfo:
 
     def get_stock_data_for_day(self):
         df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 16)])
-        df.drop_duplicates(subset=["symbol", "date"],
-                           keep="first", inplace=True)
+        df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
         """ 匹配行业信息 """
-        df_o = pd.read_csv(self.file_industry, usecols=[
-                           i for i in range(1, 3)])
+        df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
         df_n = pd.merge(df, df_o, how="inner", on="symbol")
         return df_n
 
@@ -124,12 +120,10 @@ class TickerInfo:
                     "date": str,
                 },
             )
-            df.drop_duplicates(
-                subset=["symbol", "date"], keep="first", inplace=True)
+            df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
             dic[j] = df
         df = pd.concat(list(dic.values()), ignore_index=True)
-        df.sort_values(by=["symbol", "date"], ascending=[
-                       True, True], inplace=True)
+        df.sort_values(by=["symbol", "date"], ascending=[True, True], inplace=True)
         return df
 
     """ 
@@ -152,8 +146,7 @@ class TickerInfo:
             每个股票数据为一组
             """
             group_obj = his_data.get_group(i)
-            result = pool.apply_async(
-                self.reconstruct_dataframe, (group_obj, i))
+            result = pool.apply_async(self.reconstruct_dataframe, (group_obj, i))
             results.append(result)
         """ 关闭进程池，表示不能再往进程池中添加进程，需要在join之前调用 """
         pool.close()
@@ -228,8 +221,7 @@ class TickerInfo:
             每个股票数据为一组
             """
             group_obj = his_data.get_group(i)
-            result = pool.apply_async(
-                self.reconstruct_dataframe, (group_obj, i))
+            result = pool.apply_async(self.reconstruct_dataframe, (group_obj, i))
             results.append(result)
         """ 关闭进程池，表示不能再往进程池中添加进程，需要在join之前调用 """
         pool.close()
@@ -250,8 +242,7 @@ class TickerInfo:
     def get_etf_list(self):
         tickers = list()
         df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 16)])
-        df.drop_duplicates(subset=["symbol", "date"],
-                           keep="first", inplace=True)
+        df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
         df.sort_values(by=["symbol"], ascending=True, inplace=True)
         if self.market == "cn":
             for index, i in df.iterrows():
@@ -278,8 +269,7 @@ class TickerInfo:
             每个股票数据为一组
             """
             group_obj = his_data.get_group(i)
-            result = pool.apply_async(
-                self.reconstruct_dataframe, (group_obj, i))
+            result = pool.apply_async(self.reconstruct_dataframe, (group_obj, i))
             results.append(result)
         """ 关闭进程池，表示不能再往进程池中添加进程，需要在join之前调用 """
         pool.close()

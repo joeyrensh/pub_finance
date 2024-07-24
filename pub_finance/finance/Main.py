@@ -42,8 +42,7 @@ def exec_btstrategy(date):
     cerebro.addstrategy(BTStrategy, trade_date=date)
 
     # 回测时需要添加 TimeReturn 分析器
-    cerebro.addanalyzer(bt.analyzers.TimeReturn,
-                        _name="_TimeReturn", fund=True)
+    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=True)
     # cerebro.addobserver(bt.observers.BuySell)
     """ 初始资金100M """
     cerebro.broker.setcash(1000000.0)
@@ -110,8 +109,9 @@ def exec_btstrategy(date):
     perf_stats = pd.concat([perf_stats_year, perf_stats_all.T], axis=0)
 
     perf_stats_ = perf_stats.reset_index()
-    perf_stats_[perf_stats_.columns[1:]] = perf_stats_[
-        perf_stats_.columns[1:]].apply(lambda x: x.map(lambda y: f"{y*100:.2f}%"))
+    perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
+        lambda x: x.map(lambda y: f"{y*100:.2f}%")
+    )
 
     # 绘制图形
 
@@ -215,7 +215,7 @@ def exec_btstrategy(date):
     )
 
     # 绘制累计收益曲线
-    cumulative_line = (cumulative).plot(
+    (cumulative).plot(
         ax=ax2,
         lw=2.0,
         label="cumret (left)",

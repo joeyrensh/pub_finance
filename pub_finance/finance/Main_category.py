@@ -7,7 +7,6 @@ from utility.ToolKit import ToolKit
 
 # 主程序入口
 if __name__ == "__main__":
-
     """爬取每日最新股票对应行业数据"""
     trade_date = ToolKit("获取最新美股交易日期").get_us_latest_trade_date(0)
     emi = EMUsTickerCategoryCrawler()

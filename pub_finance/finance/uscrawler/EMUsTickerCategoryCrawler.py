@@ -44,7 +44,7 @@ class EMUsTickerCategoryCrawler:
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
                 try:
                     json_object = json.loads(res_p)
-                except ValueError as e:
+                except ValueError:
                     break
                 for i in json_object:
                     if (
@@ -83,8 +83,7 @@ class EMUsTickerCategoryCrawler:
                 mkt_code = "N"
             else:
                 mkt_code = "A"
-            url_re = url.replace("symbol", i["symbol"]).replace(
-                "mkt_code", mkt_code)
+            url_re = url.replace("symbol", i["symbol"]).replace("mkt_code", mkt_code)
             res = requests.get(url_re).text.lower()
             try:
                 json_object = json.loads(res)
@@ -98,8 +97,7 @@ class EMUsTickerCategoryCrawler:
                 list.append(dict)
             tool.progress_bar(len(tick_list), tick_list.index(i))
         df = pd.DataFrame(list)
-        df.drop_duplicates(
-            subset=["symbol", "industry"], keep="last", inplace=True)
+        df.drop_duplicates(subset=["symbol", "industry"], keep="last", inplace=True)
         """ 获取板块文件信息 """
         file = FileInfo(trade_date, "us")
         file_path_industry = file.get_file_path_industry

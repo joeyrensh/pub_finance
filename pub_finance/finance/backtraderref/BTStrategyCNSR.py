@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-from os import close
 import backtrader as bt
 from utility.ToolKit import ToolKit
 from datetime import datetime
 import pandas as pd
-from datetime import datetime, timedelta
-from utility.MyEmail import MyEmail
-import seaborn as sns
 from utility.FileInfo import FileInfo
-import math
 
 
 class BTStrategyCNSR(bt.Strategy):
@@ -435,7 +430,7 @@ class BTStrategyCNSR(bt.Strategy):
                 5天内累计上涨10个点以上
                 5天以上累计上15个点以上
                 """
-                if dict["buy_date"] == None:
+                if dict["buy_date"] is None:
                     continue
                 t = ToolKit("最新交易日")
                 if self.datas[0].market[0] == 1:

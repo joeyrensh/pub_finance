@@ -2,7 +2,7 @@ import backtrader as bt
 
 
 class FixedAmount(bt.Sizer):
-    params = (('amount', 10000),)  # Default fixed amount for each buy order
+    params = (("amount", 10000),)  # Default fixed amount for each buy order
 
     def _getsizing(self, comminfo, cash, data, isbuy):
         if isbuy:

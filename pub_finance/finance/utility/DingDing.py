@@ -2,14 +2,12 @@
 # -*- coding: UTF-8 -*-
 import requests
 import json
-import os
 
 
 """ 发送钉钉信息 """
 
 
 class DingDing(object):
-
     """钉钉webhook地址，自定义标签模式"""
 
     # dd_ak = os.environ.get("dd_ak")

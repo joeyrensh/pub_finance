@@ -68,7 +68,7 @@ class EMHistoryDataDownload:
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
                 try:
                     json_object = json.loads(res_p)
-                except ValueError as e:
+                except ValueError:
                     break
                 for i in json_object:
                     if (

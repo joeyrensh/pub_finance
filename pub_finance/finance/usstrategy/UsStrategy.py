@@ -4,7 +4,6 @@ import pandas as pd
 from utility.ToolKit import ToolKit
 import talib as tl
 import multiprocessing
-from utility.DingDing import DingDing
 from utility.TickerInfo import TickerInfo
 
 
@@ -47,7 +46,9 @@ class UsStrategy:
                 "close": row["close"],
                 "chg": float(row["chg"]) / 100,
                 "volume": float(row["volume"]),
-                "amplitude": (float(row["high"]) - float(row["low"])) * 100 / float(row["preclose"]),
+                "amplitude": (float(row["high"]) - float(row["low"]))
+                * 100
+                / float(row["preclose"]),
                 "tag": "振幅剧烈",
             }
             list.append(dic)

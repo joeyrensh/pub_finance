@@ -1,11 +1,9 @@
-
 import requests
 import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
 import math
 from utility.MyEmail import MyEmail
-import seaborn as sns
 from utility.ToolKit import ToolKit
 import os
 from lxml import html
@@ -19,76 +17,83 @@ import json
 
 """
 
-def get_house_info_f(file_path):
 
+def get_house_info_f(file_path):
     houselist = []
 
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path):
         os.remove(file_path)
-    district_list = ['huangpu','xuhui','changning','jingan',
-                     'putuo','hongkou','yangpu','minhang',
-                     'baoshan','jiading','pudong','jinshan',
-                     'songjiang','qingpu','fengxian','chongming']
+    district_list = [
+        "huangpu",
+        "xuhui",
+        "changning",
+        "jingan",
+        "putuo",
+        "hongkou",
+        "yangpu",
+        "minhang",
+        "baoshan",
+        "jiading",
+        "pudong",
+        "jinshan",
+        "songjiang",
+        "qingpu",
+        "fengxian",
+        "chongming",
+    ]
     cnt = 0
     t = ToolKit("策略执行中")
     for idx, district in enumerate(district_list):
         t.progress_bar(len(district_list), idx + 1)
-        
+
         for i in range(1, 10):
             dict = {}
             list = []
-            url = (
-                "https://sh.fang.lianjia.com/loupan/district/nht1nht2nhs1co41pgpageno/?_t=1/"
-            )                
-            url_re = (
-                url.replace("pageno", str(i)).replace("district", district)
-            )
+            url = "https://sh.fang.lianjia.com/loupan/district/nht1nht2nhs1co41pgpageno/?_t=1/"
+            url_re = url.replace("pageno", str(i)).replace("district", district)
             res = requests.get(url_re).json()
-            if len(res['data']['list']) == 0:
+            if len(res["data"]["list"]) == 0:
                 continue
-            for h, j in enumerate(res['data']['list']):
-                if not j['longitude']:
+            for h, j in enumerate(res["data"]["list"]):
+                if not j["longitude"]:
                     continue
-                if not j['latitude']:
+                if not j["latitude"]:
                     continue
-                if "".join([j['title'], j['house_type']]) in houselist:
+                if "".join([j["title"], j["house_type"]]) in houselist:
                     continue
                 dict = {
-                    "title": j['title'],
-                    "house_type": j['house_type'],
-                    "district": j['district'],
-                    "bizcircle_name": j['bizcircle_name'],
-                    "avg_price": j['average_price'],
-                    "area_range": j['resblock_frame_area_range'],
-                    "sale_status": j['sale_status'],
-                    "open_date": j['open_date'],
-                    "longitude" : j['longitude'],
-                    "latitude" : j['latitude'],
-                    "tags" : j['tags'],
-                    "index": i
+                    "title": j["title"],
+                    "house_type": j["house_type"],
+                    "district": j["district"],
+                    "bizcircle_name": j["bizcircle_name"],
+                    "avg_price": j["average_price"],
+                    "area_range": j["resblock_frame_area_range"],
+                    "sale_status": j["sale_status"],
+                    "open_date": j["open_date"],
+                    "longitude": j["longitude"],
+                    "latitude": j["latitude"],
+                    "tags": j["tags"],
+                    "index": i,
                 }
-                houselist.append("".join([j['title'], j['house_type']]))
+                houselist.append("".join([j["title"], j["house_type"]]))
                 list.append(dict)
             df = pd.DataFrame(list)
-            df.to_csv(
-                file_path,
-                mode="a",
-                index=False,
-                header=(cnt == 0))
+            df.to_csv(file_path, mode="a", index=False, header=(cnt == 0))
             cnt = cnt + 1
+
 
 def fetch_houselist_s(url, page, complete_list):
     # 添加请求头
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-        'Cookie': 'lianjia_uuid=9bb8fccc-9ed4-4f5d-ac1c-decaebb51169; _smt_uid=66682e43.4b7ae654; _jzqc=1; _qzjc=1; _ga=GA1.2.1669893493.1718103624; Hm_lvt_9152f8221cb6243a53c83b956842be8a=1718166241; crosSdkDT2019DeviceId=uik048-qg82dj-s69ornrx4lw5n96-m70vmzepz; _jzqx=1.1718103621.1719886293.3.jzqsr=google%2Ecom%2Ehk|jzqct=/.jzqsr=google%2Ecom%2Ehk|jzqct=/; _ga_34Q2BG9VYB=GS1.2.1720166985.1.1.1720166989.0.0.0; HMACCOUNT=5E4F5FB17861AFE8; select_city=310000; _jzqckmp=1; _gid=GA1.2.1156257387.1720495740; _ga_00MKBBEWEN=GS1.2.1720495741.16.1.1720495800.0.0.0; GUARANTEE_POPUP_SHOW=true; GUARANTEE_BANNER_SHOW=true; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%2219006f4b96399d-07f09aa9e418ea-1a525637-1930176-19006f4b9642836%22%2C%22%24device_id%22%3A%2219006f4b96399d-07f09aa9e418ea-1a525637-1930176-19006f4b9642836%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_referrer%22%3A%22%22%2C%22%24latest_referrer_host%22%3A%22%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%7D%7D; lianjia_ssid=86e9641a-701e-4911-9fee-869459536e79; _jzqa=1.1115327711180168800.1718103621.1720548541.1720578120.19; Hm_lpvt_9152f8221cb6243a53c83b956842be8a=1720578251; srcid=eyJ0Ijoie1wiZGF0YVwiOlwiNGY5MWNhZWU5YmFmODk0MzY2Mjk5ZDkxMjdmYTIyODU5MWM4M2U1ZTc3YjczYmRiNTU3MGFjMjVmMjBhYzBjYzA0MDkwZTNhMmM3NDAzYjBkZWRjNTBmZTk5NjMxYWExYzkxZjU1YWYzMDAzZmE0YjdmMDgxMzcwNzhlYTdmMmMzMTViNjNlYzc2NzZlYWY1NzlkNzlhZTEzOGQ4MmEwYjcwZTI2YmNkYWJlMTY2MjI4ZmEzODIyNWU3NTA4ODA4ZTAzNzQ5ZmFhYjQ0OWQ0MzA1NTFmZmZiNDhiMWI5ZGQ3MTBkMzcwMGI5MjBmZWU0YzM3Mzk3ZTU5NTcwZmU0YlwiLFwia2V5X2lkXCI6XCIxXCIsXCJzaWduXCI6XCJmZDVlYWE0N1wifSIsInIiOiJodHRwczovL3NoLmxpYW5qaWEuY29tL3hpYW9xdS9jaG9uZ21pbmcvcGcxLyIsIm9zIjoid2ViIiwidiI6IjAuMSJ9; _gat=1; _gat_past=1; _gat_global=1; _gat_new_global=1; _gat_dianpu_agent=1; _ga_GVYN2J1PCG=GS1.2.1720578122.13.1.1720578255.0.0.0; _ga_LRLL77SF11=GS1.2.1720578122.13.1.1720578255.0.0.0; _qzja=1.1984203958.1718103621059.1720548541230.1720578120092.1720578251169.1720578282145.0.0.0.117.19; _qzjb=1.1720578120092.3.0.0.0; _qzjto=48.2.0; _jzqb=1.3.10.1720578120.1'
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        "Cookie": "lianjia_uuid=9bb8fccc-9ed4-4f5d-ac1c-decaebb51169; _smt_uid=66682e43.4b7ae654; _jzqc=1; _qzjc=1; _ga=GA1.2.1669893493.1718103624; Hm_lvt_9152f8221cb6243a53c83b956842be8a=1718166241; crosSdkDT2019DeviceId=uik048-qg82dj-s69ornrx4lw5n96-m70vmzepz; _jzqx=1.1718103621.1719886293.3.jzqsr=google%2Ecom%2Ehk|jzqct=/.jzqsr=google%2Ecom%2Ehk|jzqct=/; _ga_34Q2BG9VYB=GS1.2.1720166985.1.1.1720166989.0.0.0; HMACCOUNT=5E4F5FB17861AFE8; select_city=310000; _jzqckmp=1; _gid=GA1.2.1156257387.1720495740; _ga_00MKBBEWEN=GS1.2.1720495741.16.1.1720495800.0.0.0; GUARANTEE_POPUP_SHOW=true; GUARANTEE_BANNER_SHOW=true; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%2219006f4b96399d-07f09aa9e418ea-1a525637-1930176-19006f4b9642836%22%2C%22%24device_id%22%3A%2219006f4b96399d-07f09aa9e418ea-1a525637-1930176-19006f4b9642836%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E7%9B%B4%E6%8E%A5%E6%B5%81%E9%87%8F%22%2C%22%24latest_referrer%22%3A%22%22%2C%22%24latest_referrer_host%22%3A%22%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC_%E7%9B%B4%E6%8E%A5%E6%89%93%E5%BC%80%22%7D%7D; lianjia_ssid=86e9641a-701e-4911-9fee-869459536e79; _jzqa=1.1115327711180168800.1718103621.1720548541.1720578120.19; Hm_lpvt_9152f8221cb6243a53c83b956842be8a=1720578251; srcid=eyJ0Ijoie1wiZGF0YVwiOlwiNGY5MWNhZWU5YmFmODk0MzY2Mjk5ZDkxMjdmYTIyODU5MWM4M2U1ZTc3YjczYmRiNTU3MGFjMjVmMjBhYzBjYzA0MDkwZTNhMmM3NDAzYjBkZWRjNTBmZTk5NjMxYWExYzkxZjU1YWYzMDAzZmE0YjdmMDgxMzcwNzhlYTdmMmMzMTViNjNlYzc2NzZlYWY1NzlkNzlhZTEzOGQ4MmEwYjcwZTI2YmNkYWJlMTY2MjI4ZmEzODIyNWU3NTA4ODA4ZTAzNzQ5ZmFhYjQ0OWQ0MzA1NTFmZmZiNDhiMWI5ZGQ3MTBkMzcwMGI5MjBmZWU0YzM3Mzk3ZTU5NTcwZmU0YlwiLFwia2V5X2lkXCI6XCIxXCIsXCJzaWduXCI6XCJmZDVlYWE0N1wifSIsInIiOiJodHRwczovL3NoLmxpYW5qaWEuY29tL3hpYW9xdS9jaG9uZ21pbmcvcGcxLyIsIm9zIjoid2ViIiwidiI6IjAuMSJ9; _gat=1; _gat_past=1; _gat_global=1; _gat_new_global=1; _gat_dianpu_agent=1; _ga_GVYN2J1PCG=GS1.2.1720578122.13.1.1720578255.0.0.0; _ga_LRLL77SF11=GS1.2.1720578122.13.1.1720578255.0.0.0; _qzja=1.1984203958.1718103621059.1720548541230.1720578120092.1720578251169.1720578282145.0.0.0.117.19; _qzjb=1.1720578120092.3.0.0.0; _qzjto=48.2.0; _jzqb=1.3.10.1720578120.1",
     }
-    datalist=[]
+    datalist = []
     df_complete = pd.DataFrame(complete_list)
     list = []
     for i in range(1, page):
-        url_re = (url.replace('pgno', str(i)))
+        url_re = url.replace("pgno", str(i))
         response = requests.get(url_re, headers=headers)
         print(url_re)
 
@@ -96,46 +101,52 @@ def fetch_houselist_s(url, page, complete_list):
         if response.status_code == 200:
             # 使用lxml解析HTML
             tree = html.fromstring(response.content)
-            
+
             # 查找特定的div
             # 假设我们要查找class为'target-div'的div
-            divs = tree.xpath('//div[@class="content"]/div[@class="leftContent"]/ul[@class="listContent"]/li[@class="clear xiaoquListItem"]')
-            
+            divs = tree.xpath(
+                '//div[@class="content"]/div[@class="leftContent"]/ul[@class="listContent"]/li[@class="clear xiaoquListItem"]'
+            )
+
             if len(divs) > 0:
                 for div in divs:
                     dict = {}
                     # 获取data-id属性的值
-                    data_id = div.get('data-id')
+                    data_id = div.get("data-id")
                     if data_id in datalist:
                         continue
                     if len(df_complete) > 0:
-                        if data_id in df_complete['data_id'].values:
+                        if data_id in df_complete["data_id"].values:
                             continue
                     # 查找<li>标签下的<img>标签，并获取alt属性的值
                     img_tag = div.xpath('.//img[@class="lj-lazy"]')
                     if img_tag:
-                        alt_text = img_tag[0].get('alt')
+                        alt_text = img_tag[0].get("alt")
                     else:
                         continue
-                    sell_cnt_div = div.xpath('.//div[@class="xiaoquListItemRight"]/div[@class="xiaoquListItemSellCount"]/a/span')
+                    sell_cnt_div = div.xpath(
+                        './/div[@class="xiaoquListItemRight"]/div[@class="xiaoquListItemSellCount"]/a/span'
+                    )
                     if sell_cnt_div:
-                        sell_cnt = sell_cnt_div[0].xpath('string(.)')
+                        sell_cnt = sell_cnt_div[0].xpath("string(.)")
                     else:
-                        sell_cnt = ''
-                    district_div = div.xpath('.//div[@class="info"]/div[@class="positionInfo"]/a[@class="district"]')
+                        sell_cnt = ""
+                    district_div = div.xpath(
+                        './/div[@class="info"]/div[@class="positionInfo"]/a[@class="district"]'
+                    )
                     if district_div:
-                        district = district_div[0].xpath('string(.)')
+                        district = district_div[0].xpath("string(.)")
                     else:
-                        district = ''
-                    
+                        district = ""
+
                     dict = {
-                        'data_id': data_id,
-                        'al_text': alt_text,
-                        'sell_cnt': sell_cnt,
-                        'district': district
+                        "data_id": data_id,
+                        "al_text": alt_text,
+                        "sell_cnt": sell_cnt,
+                        "district": district,
                     }
                     list.append(dict)
-                    datalist.append(data_id)                   
+                    datalist.append(data_id)
             else:
                 print("未找到目标<ul>标签")
         else:
@@ -143,76 +154,92 @@ def fetch_houselist_s(url, page, complete_list):
 
     return list
 
-def fetch_house_info_s(url, item):
 
+def fetch_house_info_s(url, item):
     # 添加请求头
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    }    
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
 
     dict = {}
-    url_re = (url.replace("data_id", item['data_id']))
+    url_re = url.replace("data_id", item["data_id"])
     response = requests.get(url_re, headers=headers)
     # print(url_re)
     tree = html.fromstring(response.content)
-    unit_price_div = tree.xpath('//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]')
+    unit_price_div = tree.xpath(
+        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
+    )
     if len(unit_price_div) > 0:
-        unit_price = unit_price_div[0].xpath('string(.)')
+        unit_price = unit_price_div[0].xpath("string(.)")
     else:
-        unit_price = ''
-    deal_price_div = tree.xpath('//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]')
+        unit_price = ""
+    deal_price_div = tree.xpath(
+        '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]'
+    )
     if len(deal_price_div) > 0:
-        deal_price = deal_price_div[0].xpath('string(.)')
+        deal_price = deal_price_div[0].xpath("string(.)")
     else:
-        deal_price = ''
-    deal_date_div = tree.xpath('//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealDate"]')
+        deal_price = ""
+    deal_date_div = tree.xpath(
+        '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealDate"]'
+    )
     if len(deal_date_div) > 0:
-        deal_date = deal_date_div[0].xpath('string(.)')
+        deal_date = deal_date_div[0].xpath("string(.)")
     else:
-        deal_date = ''      
-    lanlong_div = tree.xpath('//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemOneLine"]/div[@class="xiaoquInfoItem outerItem"][2]/span[@class="xiaoquInfoContent outer"]/span[@mendian]')
+        deal_date = ""
+    lanlong_div = tree.xpath(
+        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemOneLine"]/div[@class="xiaoquInfoItem outerItem"][2]/span[@class="xiaoquInfoContent outer"]/span[@mendian]'
+    )
     if len(lanlong_div) > 0:
-        lanlong = lanlong_div[0].get('xiaoqu')
+        lanlong = lanlong_div[0].get("xiaoqu")
     else:
-        lanlong = ''
-    age_div = tree.xpath('//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]')
+        lanlong = ""
+    age_div = tree.xpath(
+        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
+    )
     if len(age_div) > 0:
-        age = age_div[0].xpath('string(.)')
+        age = age_div[0].xpath("string(.)")
     else:
-        age = ''
-    house_type_div = tree.xpath('//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]')
+        age = ""
+    house_type_div = tree.xpath(
+        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
+    )
     if len(house_type_div) > 0:
-        house_type = house_type_div[0].xpath('string(.)')
+        house_type = house_type_div[0].xpath("string(.)")
     else:
-        house_type = ''        
-    total_cnt_div = tree.xpath('//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]')
+        house_type = ""
+    total_cnt_div = tree.xpath(
+        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
+    )
     if len(total_cnt_div) > 0:
-        total_cnt = total_cnt_div[0].xpath('string(.)')
+        total_cnt = total_cnt_div[0].xpath("string(.)")
     else:
-        total_cnt = ''
-    structure_div = tree.xpath('//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]')
+        total_cnt = ""
+    structure_div = tree.xpath(
+        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
+    )
     if len(structure_div) > 0:
-        structure = structure_div[0].xpath('string(.)')
+        structure = structure_div[0].xpath("string(.)")
     else:
-        structure = ''   
-    
+        structure = ""
 
     dict = {
-        'data_id': item['data_id'],
-        'al_text': item['al_text'],
-        'sell_cnt': item['sell_cnt'],
-        'district': item['district'],
-        'unit_price': unit_price,
-        'deal_price': deal_price,
-        'deal_date': deal_date,
-        'lanlong': lanlong,
-        'age': age,
-        'total_cnt': total_cnt,
-        'structure': structure,
-        'house_type': house_type
+        "data_id": item["data_id"],
+        "al_text": item["al_text"],
+        "sell_cnt": item["sell_cnt"],
+        "district": item["district"],
+        "unit_price": unit_price,
+        "deal_price": deal_price,
+        "deal_date": deal_date,
+        "lanlong": lanlong,
+        "age": age,
+        "total_cnt": total_cnt,
+        "structure": structure,
+        "house_type": house_type,
     }
 
     return dict
+
 
 def houseinfo_to_csv_s(file_path):
     # 如果文件存在，则删除文件
@@ -220,36 +247,52 @@ def houseinfo_to_csv_s(file_path):
         os.remove(file_path)
     # 发起HTTP请求
     # url = 'https://sh.lianjia.com/xiaoqu/minhang/pg1/'  # 替换为目标URL
-    district_list = ['huangpu','xuhui','changning','jingan','putuo',
-                     'hongkou','yangpu','minhang','baoshan','jiading',
-                     'pudong','jinshan','songjiang','qingpu','fengxian','chongming']
+    district_list = [
+        "huangpu",
+        "xuhui",
+        "changning",
+        "jingan",
+        "putuo",
+        "hongkou",
+        "yangpu",
+        "minhang",
+        "baoshan",
+        "jiading",
+        "pudong",
+        "jinshan",
+        "songjiang",
+        "qingpu",
+        "fengxian",
+        "chongming",
+    ]
     # district_list = ['minhang']
     page_no = 100
-    
+
     t = ToolKit("列表生成")
     houselist = []
     complete_list = []
     count = 0
-    url = ("https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/")
-    for idx, district in enumerate(district_list):                
-        url_re = (
-            url.replace("district", district)
-        )
+    url = "https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
+    for idx, district in enumerate(district_list):
+        url_re = url.replace("district", district)
         houselist = fetch_houselist_s(url_re, page_no, complete_list)
-        complete_list.extend(houselist) 
+        complete_list.extend(houselist)
         t.progress_bar(len(district_list), idx + 1)
-        print('complete list cnt is: ', len(houselist))
+        print("complete list cnt is: ", len(houselist))
 
         # 设置并发数上限为6
         max_workers = 2
         data_batch_size = 10
         list = []
-        url_detail = 'https://sh.lianjia.com/xiaoqu/data_id/'
+        url_detail = "https://sh.lianjia.com/xiaoqu/data_id/"
         t = ToolKit("信息爬取")
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             # 提交任务并获取Future对象列表
-            futures = [executor.submit(fetch_house_info_s, url_detail, item) for item in houselist]
-            
+            futures = [
+                executor.submit(fetch_house_info_s, url_detail, item)
+                for item in houselist
+            ]
+
             # 获取已完成的任务的结果
             for future in concurrent.futures.as_completed(futures):
                 try:
@@ -257,7 +300,7 @@ def houseinfo_to_csv_s(file_path):
                     list.append(result)
                 except Exception as e:
                     print(f"获取详细信息时出错: {e}")
-            
+
                 count += 1
                 if count % data_batch_size == 0:
                     # 每处理完一批数据后，将数据写入CSV文件
@@ -266,27 +309,20 @@ def houseinfo_to_csv_s(file_path):
                         file_path,
                         mode="a",
                         index=False,
-                        header=(count == data_batch_size)
+                        header=(count == data_batch_size),
                     )
                     list = []  # 清空列表以继续下一批数据的处理
 
         # 处理剩余的数据
         if list:
             df = pd.DataFrame(list)
-            df.to_csv(
-                file_path,
-                mode="a",
-                index=False,
-                header=False
-            )        
+            df.to_csv(file_path, mode="a", index=False, header=False)
 
-def map_plot(df, legend_title,legend_fmt, png_path, k, col_formats):
-    col_name = col_formats['count']
-    fmt_string = "{:."f"{legend_fmt}""}"
-    legend_kwargs = {
-            'fmt': fmt_string,
-            'title': legend_title
-        }
+
+def map_plot(df, legend_title, legend_fmt, png_path, k, col_formats):
+    col_name = col_formats["count"]
+    fmt_string = "{:." f"{legend_fmt}" "}"
+    legend_kwargs = {"fmt": fmt_string, "title": legend_title}
     missing_kwds = {
         "facecolor": "lightgrey",
         "edgecolor": "k",
@@ -294,46 +330,57 @@ def map_plot(df, legend_title,legend_fmt, png_path, k, col_formats):
     }
     ax = df.plot(
         column=col_name,
-        cmap='RdYlGn_r',
-        alpha = 0.8,
+        cmap="RdYlGn_r",
+        alpha=0.8,
         legend=True,
         linewidth=0.5,
-        edgecolor='k',
+        edgecolor="k",
         scheme="natural_breaks",
         k=k,
         figsize=(10, 10),
         legend_kwds=legend_kwargs,
-        missing_kwds=missing_kwds
+        missing_kwds=missing_kwds,
     )
-    ax.axis('off')
+    ax.axis("off")
     # 添加annotation
-    
+
     texts = []
     for idx, row in df.iterrows():
         centroid = row.geometry.centroid.coords[0]
-        if 'ratio' in col_formats:
-            name_key = 'name'
-            count_key = col_formats['count']
-            ratio_key = col_formats['ratio']
-            text_f = f"{row[name_key]}\n{row[count_key]:.0f},{row[ratio_key]:.2%}"     
+        if "ratio" in col_formats:
+            name_key = "name"
+            count_key = col_formats["count"]
+            ratio_key = col_formats["ratio"]
+            text_f = f"{row[name_key]}\n{row[count_key]:.0f},{row[ratio_key]:.2%}"
         else:
-            name_key = 'name'
-            count_key = col_formats['count']
-            text_f = f"{row[name_key]}\n{row[count_key]:.0f}"           
+            name_key = "name"
+            count_key = col_formats["count"]
+            text_f = f"{row[name_key]}\n{row[count_key]:.0f}"
         if not math.isnan(row[col_name]):
             text = ax.annotate(
-                    text=text_f,
-                    # text=f"{row['name']}\n{row['avg_price']:.0f}",
-                    xy=centroid,
-                    ha='center',
-                    fontsize=3,  # 设置字体大小
-                    color='black',  # 设置字体颜色为黑色
-                    weight='black',  # 设置字体粗细
-                    bbox=dict(facecolor=(1, 1, 1, 0), edgecolor=(1, 1, 1, 0), boxstyle='round, pad=0.5'),  # 设置注释框样式
+                text=text_f,
+                # text=f"{row['name']}\n{row['avg_price']:.0f}",
+                xy=centroid,
+                ha="center",
+                fontsize=3,  # 设置字体大小
+                color="black",  # 设置字体颜色为黑色
+                weight="black",  # 设置字体粗细
+                bbox=dict(
+                    facecolor=(1, 1, 1, 0),
+                    edgecolor=(1, 1, 1, 0),
+                    boxstyle="round, pad=0.5",
+                ),  # 设置注释框样式
             )
             texts.append(text)
+
     # 检查注释是否重叠并调整位置
-    def check_and_adjust_annotations(texts, vertical_spacing=0.0001, horizontal_spacing=0.0000, min_fontsize=2, default_fontsize=3):
+    def check_and_adjust_annotations(
+        texts,
+        vertical_spacing=0.0001,
+        horizontal_spacing=0.0000,
+        min_fontsize=2,
+        default_fontsize=3,
+    ):
         renderer = ax.get_figure().canvas.get_renderer()
         for i, text in enumerate(texts):
             rect1 = text.get_window_extent(renderer=renderer)
@@ -344,27 +391,32 @@ def map_plot(df, legend_title,legend_fmt, png_path, k, col_formats):
                     x, y = text2.get_position()
                     y -= vertical_spacing
                     x -= horizontal_spacing
-                    text2.set_position((x, y))                    
+                    text2.set_position((x, y))
                     # 确保 fontsize 和 alpha 不为 None
-                    current_fontsize = text2.get_fontsize() if text2.get_fontsize() is not None else default_fontsize
+                    current_fontsize = (
+                        text2.get_fontsize()
+                        if text2.get_fontsize() is not None
+                        else default_fontsize
+                    )
                     # 调整字体大小和透明度
                     if current_fontsize > min_fontsize:
                         text2.set_fontsize(max(min_fontsize, current_fontsize - 0.01))
-                    rect2 = text2.get_window_extent(renderer=renderer)            
+                    rect2 = text2.get_window_extent(renderer=renderer)
 
     check_and_adjust_annotations(texts)
-    plt.savefig(png_path, dpi=500, bbox_inches='tight', pad_inches=0)                    
+    plt.savefig(png_path, dpi=500, bbox_inches="tight", pad_inches=0)
+
 
 # 主程序入口
 if __name__ == "__main__":
-    plt.rcParams['font.family'] = 'WenQuanYi Zen Hei'
-    file_path = './houseinfo/newhouse.csv'
-    geo_path = './houseinfo/shanghaidistrict.json'
-    png_path = './houseinfo/map_newhouse.png'
-    png_path_s = './houseinfo/map_secondhouse.png'
-    png_path_s2 = './houseinfo/map_secondhouse2.png'
-    png_path_s3 = './houseinfo/map_secondhouse3.png'
-    file_path_s = './houseinfo/secondhandhouse.csv'
+    plt.rcParams["font.family"] = "WenQuanYi Zen Hei"
+    file_path = "./houseinfo/newhouse.csv"
+    geo_path = "./houseinfo/shanghaidistrict.json"
+    png_path = "./houseinfo/map_newhouse.png"
+    png_path_s = "./houseinfo/map_secondhouse.png"
+    png_path_s2 = "./houseinfo/map_secondhouse2.png"
+    png_path_s3 = "./houseinfo/map_secondhouse3.png"
+    file_path_s = "./houseinfo/secondhandhouse.csv"
     # file_path_s = './houseinfo/test.csv'
     # 新房
     get_house_info_f(file_path)
@@ -372,92 +424,142 @@ if __name__ == "__main__":
     houseinfo_to_csv_s(file_path_s)
 
     # 新房数据分析
-    geo_data = gpd.read_file(geo_path,  engine="pyogrio")
+    geo_data = gpd.read_file(geo_path, engine="pyogrio")
     df_new_house = pd.read_csv(file_path, usecols=[i for i in range(0, 12)])
 
     gdf_new_house = gpd.GeoDataFrame(
-        df_new_house, geometry=gpd.points_from_xy(df_new_house.longitude, df_new_house.latitude), crs="EPSG:4326"
+        df_new_house,
+        geometry=gpd.points_from_xy(df_new_house.longitude, df_new_house.latitude),
+        crs="EPSG:4326",
     )
     # 新房单价分析
-    geo_data_f = geo_data[(geo_data.level == 'town')]
-    gdf_merged = gpd.sjoin(geo_data_f, gdf_new_house, how="inner", predicate = "intersects")
-    gdf_agg = gdf_merged.groupby('adcode').median({'avg_price': 'avg_price'}).round(-2)
-    result = geo_data_f.merge(gdf_agg, how='left', left_on='adcode', right_on ='adcode')
-    col_formats = {'count': 'avg_price'}
-    map_plot(result, '单价', '0f', png_path, 8, col_formats)
+    geo_data_f = geo_data[(geo_data.level == "town")]
+    gdf_merged = gpd.sjoin(
+        geo_data_f, gdf_new_house, how="inner", predicate="intersects"
+    )
+    gdf_agg = gdf_merged.groupby("adcode").median({"avg_price": "avg_price"}).round(-2)
+    result = geo_data_f.merge(gdf_agg, how="left", left_on="adcode", right_on="adcode")
+    col_formats = {"count": "avg_price"}
+    map_plot(result, "单价", "0f", png_path, 8, col_formats)
 
     # 二手房数据分析
     df_second_hand_house = pd.read_csv(file_path_s, usecols=[i for i in range(0, 12)])
-    df_second_hand_house = df_second_hand_house.dropna(subset=['lanlong'])
+    df_second_hand_house = df_second_hand_house.dropna(subset=["lanlong"])
+
     # 处理二手房经纬度格式
     def extract_values(string):
         values = string.strip("[]").split(",")
         value1 = float(values[0])
         value2 = float(values[1])
         return value1, value2
-    df_second_hand_house[['longitude', 'latitude']] = df_second_hand_house['lanlong'].apply(extract_values).apply(pd.Series)
+
+    df_second_hand_house[["longitude", "latitude"]] = (
+        df_second_hand_house["lanlong"].apply(extract_values).apply(pd.Series)
+    )
+
     # 定义一个函数来替换中文字符
-    def replace_non_numeric_characters(text, replacement=''):
-        
+    def replace_non_numeric_characters(text, replacement=""):
         # 使用正则表达式匹配非数字字符
-        numeric_text = re.sub(r'\D', '', str(text))
+        numeric_text = re.sub(r"\D", "", str(text))
         # 检查字符串是否为空
-        if numeric_text == '':
+        if numeric_text == "":
             return None  # 返回空字符串
         # 返回转换后的整数类型
         return int(numeric_text)
 
-    df_second_hand_house['total_cnt'] = df_second_hand_house['total_cnt'].apply(replace_non_numeric_characters)
-    df_second_hand_house['deal_price'] = df_second_hand_house['deal_price'].apply(replace_non_numeric_characters)
+    df_second_hand_house["total_cnt"] = df_second_hand_house["total_cnt"].apply(
+        replace_non_numeric_characters
+    )
+    df_second_hand_house["deal_price"] = df_second_hand_house["deal_price"].apply(
+        replace_non_numeric_characters
+    )
     gdf_second_hand_house = gpd.GeoDataFrame(
-        df_second_hand_house, geometry=gpd.points_from_xy(df_second_hand_house['longitude'], df_second_hand_house['latitude']), crs="EPSG:4326"
+        df_second_hand_house,
+        geometry=gpd.points_from_xy(
+            df_second_hand_house["longitude"], df_second_hand_house["latitude"]
+        ),
+        crs="EPSG:4326",
     )
     # 处理板块级别数据
-    exclude_values = [310104, 310101, 310106, 310109, 310105, 310110, 310107]  # 要排除的值的列表
+    exclude_values = [
+        310104,
+        310101,
+        310106,
+        310109,
+        310105,
+        310110,
+        310107,
+    ]  # 要排除的值的列表
     geo_data_s = geo_data[
-        ((geo_data.level == 'district') & (geo_data.adcode.isin(exclude_values))) |
-        ((geo_data.level == 'town') & (geo_data['parent'].apply(lambda x: json.loads(x)['adcode']).isin(exclude_values) == False))
+        ((geo_data.level == "district") & (geo_data.adcode.isin(exclude_values)))
+        | (
+            (geo_data.level == "town")
+            & (
+                ~geo_data["parent"]
+                .apply(lambda x: json.loads(x)["adcode"])
+                .isin(exclude_values)
+            )
+        )
     ]
-    gdf_merged = gpd.sjoin(geo_data_s, gdf_second_hand_house, how="inner", predicate = "intersects")
+    gdf_merged = gpd.sjoin(
+        geo_data_s, gdf_second_hand_house, how="inner", predicate="intersects"
+    )
     # 二手房挂牌价分析
-    gdf_merged = gdf_merged[gdf_merged['unit_price'] > 0]
-    gdf_agg = gdf_merged.groupby('adcode').median({'unit_price': 'unit_price'}).round(-2)
-    result = geo_data_s.merge(gdf_agg, how='left', left_on='adcode', right_on ='adcode')   
-    col_formats = {'count': 'unit_price'} 
-    map_plot(result, '挂牌价', '0f', png_path_s, 8, col_formats)
+    gdf_merged = gdf_merged[gdf_merged["unit_price"] > 0]
+    gdf_agg = (
+        gdf_merged.groupby("adcode").median({"unit_price": "unit_price"}).round(-2)
+    )
+    result = geo_data_s.merge(gdf_agg, how="left", left_on="adcode", right_on="adcode")
+    col_formats = {"count": "unit_price"}
+    map_plot(result, "挂牌价", "0f", png_path_s, 8, col_formats)
 
     # 二手房成交价分析
-    gdf_merged = gpd.sjoin(geo_data_s, gdf_second_hand_house, how="inner", predicate = "intersects")
-    gdf_merged = gdf_merged[gdf_merged['deal_price'] > 0]
-    gdf_agg = gdf_merged.groupby('adcode').median({'deal_price': 'deal_price'}).round(-2)
-    result = geo_data_s.merge(gdf_agg, how='left', left_on='adcode', right_on ='adcode') 
-    col_formats = {'count': 'deal_price'} 
-    map_plot(result, '最近成交价', '0f', png_path_s2, 8, col_formats)    
+    gdf_merged = gpd.sjoin(
+        geo_data_s, gdf_second_hand_house, how="inner", predicate="intersects"
+    )
+    gdf_merged = gdf_merged[gdf_merged["deal_price"] > 0]
+    gdf_agg = (
+        gdf_merged.groupby("adcode").median({"deal_price": "deal_price"}).round(-2)
+    )
+    result = geo_data_s.merge(gdf_agg, how="left", left_on="adcode", right_on="adcode")
+    col_formats = {"count": "deal_price"}
+    map_plot(result, "最近成交价", "0f", png_path_s2, 8, col_formats)
 
     # 二手房挂牌量分析
-    gdf_merged = gpd.sjoin(geo_data_s, gdf_second_hand_house, how="inner", predicate = "intersects")
-    gdf_merged = gdf_merged[gdf_merged['sell_cnt'] > 0]
-    gdf_agg = gdf_merged.groupby('adcode')[['sell_cnt', 'total_cnt']].sum().round(0)
-    # 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
-    gdf_agg['ratio'] = gdf_agg.apply(
-        lambda row: row['sell_cnt'] / row['total_cnt'] if row['total_cnt'] != 0 else None, axis=1
+    gdf_merged = gpd.sjoin(
+        geo_data_s, gdf_second_hand_house, how="inner", predicate="intersects"
     )
-    result = geo_data_s.merge(gdf_agg, how='left', left_on='adcode', right_on ='adcode')    
-    col_formats = {'count': 'sell_cnt', 'ratio': 'ratio'}
-    map_plot(result, '挂牌量', '0f', png_path_s3, 8, col_formats)
+    gdf_merged = gdf_merged[gdf_merged["sell_cnt"] > 0]
+    gdf_agg = gdf_merged.groupby("adcode")[["sell_cnt", "total_cnt"]].sum().round(0)
+    # 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
+    gdf_agg["ratio"] = gdf_agg.apply(
+        lambda row: row["sell_cnt"] / row["total_cnt"]
+        if row["total_cnt"] != 0
+        else None,
+        axis=1,
+    )
+    result = geo_data_s.merge(gdf_agg, how="left", left_on="adcode", right_on="adcode")
+    col_formats = {"count": "sell_cnt", "ratio": "ratio"}
+    map_plot(result, "挂牌量", "0f", png_path_s3, 8, col_formats)
 
     # 房屋明细
     new_house_cnt = len(df_new_house)
     second_house_cnt = len(df_second_hand_house)
-    agg_s = df_second_hand_house[['sell_cnt', 'total_cnt']].sum().round(0)
-    sell_cnt = agg_s['sell_cnt']
-    total_cnt = agg_s['total_cnt']
-    lst_deal_price = df_second_hand_house[df_second_hand_house['data_id'] == 5011000020013]['deal_price']
-    lst_deal_date = df_second_hand_house[df_second_hand_house['data_id'] == 5011000020013]['deal_date']
-    x_sell_cnt = df_second_hand_house[df_second_hand_house['data_id'] == 5011000020013]['sell_cnt']
-    lst_deal_price=lst_deal_price.iloc[0]
-    lst_deal_date=lst_deal_date.iloc[0]
-    x_sell_cnt=x_sell_cnt.iloc[0]
+    agg_s = df_second_hand_house[["sell_cnt", "total_cnt"]].sum().round(0)
+    sell_cnt = agg_s["sell_cnt"]
+    total_cnt = agg_s["total_cnt"]
+    lst_deal_price = df_second_hand_house[
+        df_second_hand_house["data_id"] == 5011000020013
+    ]["deal_price"]
+    lst_deal_date = df_second_hand_house[
+        df_second_hand_house["data_id"] == 5011000020013
+    ]["deal_date"]
+    x_sell_cnt = df_second_hand_house[df_second_hand_house["data_id"] == 5011000020013][
+        "sell_cnt"
+    ]
+    lst_deal_price = lst_deal_price.iloc[0]
+    lst_deal_date = lst_deal_date.iloc[0]
+    x_sell_cnt = x_sell_cnt.iloc[0]
     html_txt = """
                 <!DOCTYPE html>
                 <html>
@@ -475,8 +577,14 @@ if __name__ == "__main__":
                     <h1>二手房挂牌{sell_cnt}套, 总套数{total_cnt}, 其中X小区挂牌量{x_sell_cnt},最新成交均价{lst_deal_price},成交日期{lst_deal_date} </h1>
                 </body>
                 </html>
-                """.format(newhouse_cnt=new_house_cnt,sell_cnt=sell_cnt,total_cnt=total_cnt,x_sell_cnt=x_sell_cnt,
-                           lst_deal_price=lst_deal_price,lst_deal_date=lst_deal_date)
+                """.format(
+        newhouse_cnt=new_house_cnt,
+        sell_cnt=sell_cnt,
+        total_cnt=total_cnt,
+        x_sell_cnt=x_sell_cnt,
+        lst_deal_price=lst_deal_price,
+        lst_deal_date=lst_deal_date,
+    )
     css = """
         <style>
             :root {
@@ -500,7 +608,7 @@ if __name__ == "__main__":
             }
         </style>
     """
-    html_txt = html_txt + css                
+    html_txt = html_txt + css
     html_img = """
             <html>
                 <head>
@@ -566,13 +674,7 @@ if __name__ == "__main__":
                 </body>
             </html>
             """
-    image_path = [
-        png_path,
-        png_path_s,
-        png_path_s2,
-        png_path_s3
-    ]
+    image_path = [png_path, png_path_s, png_path_s2, png_path_s3]
     MyEmail().send_email_embedded_image(
-        '上海房产信息跟踪',  html_txt + html_img, image_path
+        "上海房产信息跟踪", html_txt + html_img, image_path
     )
-

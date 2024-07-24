@@ -4,7 +4,6 @@ import backtrader as bt
 from utility.ToolKit import ToolKit
 from datetime import datetime
 import pandas as pd
-from datetime import datetime
 from utility.FileInfo import FileInfo
 
 
@@ -45,8 +44,7 @@ class BTStrategyCNETF(bt.Strategy):
         file_path_etf_position = file.get_file_path_etf_position
         self.file_path_etf_position = open(file_path_etf_position, "w")
         file_path_etf_position_detail = file.get_file_path_etf_position_detail
-        self.file_path_etf_position_detail = open(
-            file_path_etf_position_detail, "w")
+        self.file_path_etf_position_detail = open(file_path_etf_position_detail, "w")
         file_path_etf_trade = file.get_file_path_etf_trade
         self.file_path_etf_trade = open(file_path_etf_trade, "w")
 
@@ -215,8 +213,7 @@ class BTStrategyCNETF(bt.Strategy):
             近20日均线密集，价格上穿短期均线
             """
             self.signals[d._name]["close_crossup_emashort"] = (
-                bt.indicators.crossover.CrossUp(
-                    d.close, self.inds[d._name]["emashort"])
+                bt.indicators.crossover.CrossUp(d.close, self.inds[d._name]["emashort"])
             )
 
             """
@@ -238,8 +235,7 @@ class BTStrategyCNETF(bt.Strategy):
                     self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
                     self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
                 ),
-                bt.indicators.crossover.CrossUp(
-                    d.close, self.inds[d._name]["emashort"])
+                bt.indicators.crossover.CrossUp(d.close, self.inds[d._name]["emashort"])
                 == 1,
             )
 
@@ -281,8 +277,7 @@ class BTStrategyCNETF(bt.Strategy):
             穿越年线
             """
             self.signals[d._name]["closs_crossup_annualline"] = (
-                bt.indicators.crossover.CrossUp(
-                    d.close, self.inds[d._name]["maannual"])
+                bt.indicators.crossover.CrossUp(d.close, self.inds[d._name]["maannual"])
             )
 
             """
@@ -379,11 +374,9 @@ class BTStrategyCNETF(bt.Strategy):
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
             """由于仓位不足或者执行限价单等因素造成订单未成交"""
             if order.isbuy():
-                self.log("Buy %s Order Canceled/Margin/Rejected" %
-                         (order.data._name))
+                self.log("Buy %s Order Canceled/Margin/Rejected" % (order.data._name))
             else:
-                self.log("Sell %s Order Canceled/Margin/Rejected" %
-                         (order.data._name))
+                self.log("Sell %s Order Canceled/Margin/Rejected" % (order.data._name))
         self.order[order.data._name] = None
         if dict:
             list.append(dict)
@@ -400,8 +393,7 @@ class BTStrategyCNETF(bt.Strategy):
         if not trade.isclosed:
             return
         """ 每笔交易收益 毛利和净利 """
-        self.log("Operation Profit, Gross %.2f, Net %.2f" %
-                 (trade.pnl, trade.pnlcomm))
+        self.log("Operation Profit, Gross %.2f, Net %.2f" % (trade.pnl, trade.pnlcomm))
 
     def prenext(self):
         # call next() even when data is not available for all tickers
@@ -411,10 +403,15 @@ class BTStrategyCNETF(bt.Strategy):
         # 策略执行进度
         t = ToolKit("策略执行中")
         # 增加cash
-        if len(self) < self.data.buflen() - 1 and self.broker.cash < self.params.availablecash:
+        if (
+            len(self) < self.data.buflen() - 1
+            and self.broker.cash < self.params.availablecash
+        ):
             self.broker.add_cash(self.params.availablecash - self.broker.cash)
-            self.log("cash is not enough %s, add cash %s" %
-                     (self.broker.cash, self.params.availablecash - self.broker.cash))
+            self.log(
+                "cash is not enough %s, add cash %s"
+                % (self.broker.cash, self.params.availablecash - self.broker.cash)
+            )
 
         list = []
         for i, d in enumerate(self.datas):
@@ -431,7 +428,6 @@ class BTStrategyCNETF(bt.Strategy):
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
             if not pos:
-
                 # 小于100，取100，大于100，取100的倍数
                 # buy_size = (lambda num: 100 if num < 100 else (num // 100) * 100)(
                 #     self.getsizing(d)
@@ -470,10 +466,8 @@ class BTStrategyCNETF(bt.Strategy):
                 y2 = self.inds[d._name]["mamid"].get(
                     ago=-1, size=self.params.shortperiod
                 )
-                diff_array = [abs((x - y) * 100 / y)
-                              for x, y in zip(x1, y1) if y != 0]
-                diff_array2 = [abs((x - y) * 100 / y)
-                               for x, y in zip(x2, y2) if y != 0]
+                diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y != 0]
+                diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y != 0]
 
                 # 收盘价穿越均线
                 if (
@@ -676,10 +670,15 @@ class BTStrategyCNETF(bt.Strategy):
         df.to_csv(self.file_path_etf_position_detail, header=None)
 
         # 最后一日剔除多余现金
-        if len(self) == self.data.buflen() - 1 and self.broker.cash > self.params.availablecash:
+        if (
+            len(self) == self.data.buflen() - 1
+            and self.broker.cash > self.params.availablecash
+        ):
             self.broker.add_cash(self.params.availablecash - self.broker.cash)
-            self.log("cash is too much %s, add cash %s" %
-                     (self.broker.cash, self.params.availablecash - self.broker.cash))
+            self.log(
+                "cash is too much %s, add cash %s"
+                % (self.broker.cash, self.params.availablecash - self.broker.cash)
+            )
         t.progress_bar(self.data.buflen(), len(self))
 
     def stop(self):
@@ -714,17 +713,15 @@ class BTStrategyCNETF(bt.Strategy):
                 5天内累计上涨10个点以上
                 5天以上累计上15个点以上
                 """
-                if dict["buy_date"] == None:
+                if dict["buy_date"] is None:
                     continue
                 t = ToolKit("最新交易日")
                 if self.datas[0].market[0] == 1:
-                    cur = datetime.strptime(
-                        t.get_us_latest_trade_date(0), "%Y%m%d")
+                    cur = datetime.strptime(t.get_us_latest_trade_date(0), "%Y%m%d")
                     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
                     interval = t.get_us_trade_off_days(cur, bef)
                 elif self.datas[0].market[0] == 2:
-                    cur = datetime.strptime(
-                        t.get_cn_latest_trade_date(0), "%Y%m%d")
+                    cur = datetime.strptime(t.get_cn_latest_trade_date(0), "%Y%m%d")
                     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
                     interval = t.get_cn_trade_off_days(cur, bef)
                 print(
@@ -742,8 +739,7 @@ class BTStrategyCNETF(bt.Strategy):
         if df.empty:
             return
         """ 按照买入日期以及盈亏比倒排 """
-        df.sort_values(by=["buy_date", "p&l_ratio"],
-                       ascending=False, inplace=True)
+        df.sort_values(by=["buy_date", "p&l_ratio"], ascending=False, inplace=True)
         df.reset_index(drop=True, inplace=True)
         df.to_csv(self.file_path_etf_position)
         self.file_path_etf_position.close()

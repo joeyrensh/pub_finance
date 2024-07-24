@@ -7,10 +7,8 @@ from utility.TickerInfo import TickerInfo
 import pandas as pd
 import seaborn as sns
 from pyspark.sql import SparkSession
-from utility.MyEmail import MyEmail
 import plotly.graph_objects as go
 import plotly.express as px
-from datetime import datetime, timedelta
 import gc
 from utility.ToolKit import ToolKit
 
@@ -28,11 +26,9 @@ class StockProposal:
         file_name_industry = file.get_file_path_industry
 
         """ 匹配行业信息 """
-        df_ind = pd.read_csv(file_name_industry, usecols=[
-                             i for i in range(1, 3)])
+        df_ind = pd.read_csv(file_name_industry, usecols=[i for i in range(1, 3)])
         df_n = pd.merge(dataframe, df_ind, how="left", on="symbol")
-        df_n.sort_values(by=["chg", "amplitude"],
-                         ascending=False, inplace=True)
+        df_n.sort_values(by=["chg", "amplitude"], ascending=False, inplace=True)
         df_n.reset_index(drop=True, inplace=True)
         df_n.rename(
             columns={
@@ -123,8 +119,7 @@ class StockProposal:
         df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 9)])
         # 交易明细
         file_path_trade = file.get_file_path_trade
-        cols = ["idx", "symbol", "date",
-                "trade_type", "price", "size", "strategy"]
+        cols = ["idx", "symbol", "date", "trade_type", "price", "size", "strategy"]
         df1 = spark.read.csv(file_path_trade, header=None, inferSchema=True)
         df1 = df1.toDF(*cols)
         df1.createOrReplaceTempView("temp1")
@@ -138,8 +133,7 @@ class StockProposal:
         # 仓位日志明细
         file_path_position_detail = file.get_file_path_position_detail
         cols = ["idx", "symbol", "date", "price", "adjbase", "pnl"]
-        df3 = spark.read.csv(file_path_position_detail,
-                             header=None, inferSchema=True)
+        df3 = spark.read.csv(file_path_position_detail, header=None, inferSchema=True)
         df3 = df3.toDF(*cols)
         df3.createOrReplaceTempView("temp3")
         # 当日股票信息
@@ -168,7 +162,7 @@ class StockProposal:
         # 获取回测股票列表
         stock_list = TickerInfo(self.trade_date, self.market).get_stock_list()
         stock_list_tuples = [(symbol,) for symbol in stock_list]
-        df5 = spark.createDataFrame(stock_list_tuples, schema=['symbol'])
+        df5 = spark.createDataFrame(stock_list_tuples, schema=["symbol"])
         df5.createOrReplaceTempView("temp5")
 
         # 生成时间序列，用于时间序列补齐
@@ -179,8 +173,7 @@ class StockProposal:
         )
         df_timeseries = pd.DataFrame({"buy_date": date_range})
         # 将日期转换为字符串格式 'YYYYMMDD'
-        df_timeseries["trade_date"] = df_timeseries["buy_date"].dt.strftime(
-            "%Y%m%d")
+        df_timeseries["trade_date"] = df_timeseries["buy_date"].dt.strftime("%Y%m%d")
 
         # 假设您的ToolKit类已经定义好了，并且可以检查交易日期
         toolkit = ToolKit("identify trade date")
@@ -313,9 +306,7 @@ class StockProposal:
             LEFT JOIN tmp3 t3 ON t1.industry = t3.industry
             LEFT JOIN tmp4 t4 ON t1.industry = t4.industry
             ORDER BY COALESCE(t2.p_pnl,0) DESC
-            """.format(
-                end_date, end_date
-            )
+            """.format(end_date, end_date)
         )
         # 5日前行业盈亏情况
         sparkdata71 = spark.sql(
@@ -351,8 +342,7 @@ class StockProposal:
             if industry in dfdata71["industry"].values:
                 # Get the corresponding index differences from df2
                 index_diff = (
-                    dfdata71[dfdata71["industry"] ==
-                             industry].index.values - index
+                    dfdata71[dfdata71["industry"] == industry].index.values - index
                 )[0]
                 index_diff_dict[index] = index_diff
 
@@ -398,6 +388,7 @@ class StockProposal:
             },
             inplace=True,
         )
+
         # cm = sns.color_palette("seagreen", as_cmap=True)
         cm = sns.light_palette("seagreen", as_cmap=True)
 
@@ -459,10 +450,10 @@ class StockProposal:
                     dict(
                         selector="th",
                         props=[
-                            ("border", "1px solid #ccc"),
+                            ("border", "1px solid #ccc"),  # 设置边框粗细
                             ("text-align", "left"),
-                            ("padding", "5px"),  # 增加填充以便更易点击和阅读
-                            ("font-size", "24px"),  # 在PC端使用较大字体
+                            ("padding", "5px"),
+                            ("font-size", "24px"),
                         ],
                     ),
                     # 表格数据单元格样式
@@ -703,9 +694,7 @@ class StockProposal:
                 , IF(adjbase < price, 1, 0) AS neg_cnt
                 FROM tmp3
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol
-            """.format(
-                end_date, end_date
-            )
+            """.format(end_date, end_date)
         )
 
         dfdata8 = sparkdata8.toPandas()
@@ -748,17 +737,11 @@ class StockProposal:
         )
         cm = sns.light_palette("seagreen", as_cmap=True)
 
-        # 创建样式函数，用于突出显示具有特定日期值的行
-        old_date = datetime.strptime(self.trade_date, "%Y%m%d").date()
-
-        # 将日期减去一天
-        new_date = old_date - timedelta(days=5)
-
         # 将新日期转换为字符串
-        df_timeseries_sorted = df_timeseries.sort_values(
-            by="buy_date", ascending=False)
+        df_timeseries_sorted = df_timeseries.sort_values(by="buy_date", ascending=False)
         new_date_str = str(
-            df_timeseries_sorted.iloc[4]["buy_date"].strftime("%Y-%m-%d"))
+            df_timeseries_sorted.iloc[4]["buy_date"].strftime("%Y-%m-%d")
+        )
         # new_date_str = new_date.strftime("%Y-%m-%d")
 
         def highlight_row(row):
@@ -1020,16 +1003,12 @@ class StockProposal:
                                                 ) tt WHERE row_num = 5)
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol AND t1.sell_date = t2.sell_date
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
-            """.format(
-                end_date
-            )
+            """.format(end_date)
         )
 
         dfdata9 = sparkdata9.toPandas()
 
-
         if not dfdata9.empty:
-
             # 使用merge来找到df1和df2中'ind'相等的行，并保留df1的所有行
             dfdata9 = pd.merge(
                 dfdata9,
@@ -1043,12 +1022,12 @@ class StockProposal:
             # 删除添加的'combined_df2'列
             dfdata9.drop(columns=["combined", "industry_new"], inplace=True)
             # 提取括号内的数字
-            dfdata9['col_sort'] = dfdata9['industry'].str.extract(
-                r'\((\d+)\)').astype(int)
+            dfdata9["col_sort"] = (
+                dfdata9["industry"].str.extract(r"\((\d+)\)").astype(int)
+            )
 
             dfdata9 = (
-                dfdata9.sort_values(
-                    ["col_sort", "sell_date"], ascending=[True, False])
+                dfdata9.sort_values(["col_sort", "sell_date"], ascending=[True, False])
                 .drop(columns="col_sort")
                 .reset_index(drop=True)
             )
@@ -1462,9 +1441,7 @@ class StockProposal:
                 ,t2.buy_cnt AS buy_cnt
                 ,t2.sell_cnt AS sell_cnt
             FROM tmp11 t1 LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
-            """.format(
-                end_date, end_date
-            )
+            """.format(end_date, end_date)
         )
         dfdata3 = sparkdata3.toPandas()
         fig = go.Figure()
@@ -1641,9 +1618,7 @@ class StockProposal:
                 ,SUM(IF(t2.symbol IS NOT NULL, 1, 0)) AS total_cnt
             FROM tmp1 t1 LEFT JOIN tmp2 t2 ON t1.industry = t2.industry AND t1.buy_date = t2.date
             GROUP BY t1.buy_date, t1.industry
-            """.format(
-                end_date
-            )
+            """.format(end_date)
         )
         dfdata5 = sparkdata5.toPandas()
         dfdata5.sort_values(
@@ -1765,9 +1740,7 @@ class StockProposal:
                 ,SUM(COALESCE(t2.pnl, 0)) AS pnl
             FROM tmp1 t1 LEFT JOIN tmp2 t2 ON t1.industry = t2.industry AND t1.buy_date = t2.date
             GROUP BY t1.buy_date, t1.industry
-            """.format(
-                end_date
-            )
+            """.format(end_date)
         )
         dfdata6 = sparkdata6.toPandas()
         dfdata6.sort_values(
@@ -2004,7 +1977,7 @@ class StockProposal:
                     </body>
                     </html>
                     """.format(
-            cash=cash, final_value=final_value, stock_cnt = len(stock_list)
+            cash=cash, final_value=final_value, stock_cnt=len(stock_list)
         )
 
         MyEmail().send_email_embedded_image(
@@ -2038,8 +2011,7 @@ class StockProposal:
         df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 8)])
         # 交易明细
         file_path_trade = file.get_file_path_etf_trade
-        cols = ["idx", "symbol", "date",
-                "trade_type", "price", "size", "strategy"]
+        cols = ["idx", "symbol", "date", "trade_type", "price", "size", "strategy"]
         df1 = spark.read.csv(file_path_trade, header=None, inferSchema=True)
         df1 = df1.toDF(*cols)
         df1.createOrReplaceTempView("temp1")
@@ -2049,8 +2021,7 @@ class StockProposal:
         # 仓位日志明细
         file_path_position_detail = file.get_file_path_etf_position_detail
         cols = ["idx", "symbol", "date", "price", "adjbase", "pnl"]
-        df3 = spark.read.csv(file_path_position_detail,
-                             header=None, inferSchema=True)
+        df3 = spark.read.csv(file_path_position_detail, header=None, inferSchema=True)
         df3 = df3.toDF(*cols)
         df3.createOrReplaceTempView("temp3")
         # 当日股票信息
@@ -2084,8 +2055,7 @@ class StockProposal:
         )
         df_timeseries = pd.DataFrame({"buy_date": date_range})
         # 将日期转换为字符串格式 'YYYYMMDD'
-        df_timeseries["trade_date"] = df_timeseries["buy_date"].dt.strftime(
-            "%Y%m%d")
+        df_timeseries["trade_date"] = df_timeseries["buy_date"].dt.strftime("%Y%m%d")
 
         # 假设您的ToolKit类已经定义好了，并且可以检查交易日期
         toolkit = ToolKit("identify trade date")
@@ -2218,9 +2188,7 @@ class StockProposal:
                 , IF(adjbase < price, 1, 0) AS neg_cnt
                 FROM tmp3
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol
-            """.format(
-                end_date, end_date
-            )
+            """.format(end_date, end_date)
         )
 
         dfdata8 = sparkdata8.toPandas()
@@ -2243,16 +2211,11 @@ class StockProposal:
             inplace=True,
         )
         cm = sns.light_palette("seagreen", as_cmap=True)
-        # 创建样式函数，用于突出显示具有特定日期值的行
-        old_date = datetime.strptime(self.trade_date, "%Y%m%d").date()
 
-        # 将日期减去一天
-        new_date = old_date - timedelta(days=5)
-
-        df_timeseries_sorted = df_timeseries.sort_values(
-            by="buy_date", ascending=False)
+        df_timeseries_sorted = df_timeseries.sort_values(by="buy_date", ascending=False)
         new_date_str = str(
-            df_timeseries_sorted.iloc[4]["buy_date"].strftime("%Y-%m-%d"))
+            df_timeseries_sorted.iloc[4]["buy_date"].strftime("%Y-%m-%d")
+        )
 
         # 将新日期转换为字符串
         # new_date_str = new_date.strftime("%Y-%m-%d")
@@ -2493,15 +2456,12 @@ class StockProposal:
                                                 ) tt WHERE row_num = 5)
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol 
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
-            """.format(
-                end_date, end_date
-            )
+            """.format(end_date)
         )
 
         dfdata9 = sparkdata9.toPandas()
 
         if not dfdata9.empty:
-
             dfdata9.rename(
                 columns={
                     "symbol": "SYMBOL",
@@ -2685,9 +2645,7 @@ class StockProposal:
                 ,t2.buy_cnt AS buy_cnt
                 ,t2.sell_cnt AS sell_cnt
             FROM tmp11 t1 LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
-            """.format(
-                end_date, end_date
-            )
+            """.format(end_date, end_date)
         )
         dfdata3 = sparkdata3.toPandas()
 
@@ -2947,9 +2905,7 @@ class StockProposal:
                         <h1>The current cash is {cash}, the final portfolio value is {final_value}</h1>
                     </body>
                     </html>
-                    """.format(
-            cash=cash, final_value=final_value
-        )
+                    """.format(cash=cash, final_value=final_value)
 
         MyEmail().send_email_embedded_image(
             subject, html_txt + html + html2 + html_img, image_path

@@ -6,7 +6,6 @@ from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.utils import parseaddr, formataddr
 from email.header import Header
-import os
 import base64
 import csv
 
@@ -20,7 +19,6 @@ class MyEmail(object):
     # _mail_password = base64.b64decode(os.environ.get("email_key")).decode("utf-8")
 
     def __init__(self):
-
         # 打开文件
         file_path = "./mail.conf"
         with open(file_path, "r", newline="") as file:

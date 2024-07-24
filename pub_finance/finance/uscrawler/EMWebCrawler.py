@@ -46,10 +46,9 @@ class EMWebCrawler:
             """
             try:
                 json_object = json.loads(res_p)
-            except ValueError as e:
+            except ValueError:
                 break
             list = []
-            dict_a = dict()
             """ 重构数据字典 """
             for i in json_object:
                 if (
