@@ -1,34 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-
-from usstrategy.UsStrategy import UsStrategy
-from tabulate import tabulate
 import progressbar
 from utility.ToolKit import ToolKit
 from datetime import datetime
 import pandas as pd
 import sys
-from backtraderref.BTStrategy import BTStrategy
+from backtraderref.BTStrategyVol import BTStrategyVol
 import backtrader as bt
 from utility.TickerInfo import TickerInfo
-from uscrawler.EMWebCrawler import EMWebCrawler
+from cncrawler.EMCNWebCrawler import EMCNWebCrawler
 from backtraderref.BTPandasDataExt import BTPandasDataExt
 from utility.StockProposal import StockProposal
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pyfolio as pf
 import gc
-from backtraderref.FixAmount import FixedAmount
-
-""" 执行策略 """
-
-
-def exec_strategy(date):
-    """小市值大波动策略-策略1"""
-    us_strate = UsStrategy(date)
-    df1 = us_strate.get_usstrategy1()
-    print(tabulate(df1, headers="keys", tablefmt="pretty"))
-    return df1
+from backtraderref.FixAmountCN import FixedAmount
 
 
 """ backtrader策略 """
@@ -39,24 +26,23 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(BTStrategy, trade_date=date)
+    cerebro.addstrategy(BTStrategyVol, trade_date=date)
 
     # 回测时需要添加 TimeReturn 分析器
-    cerebro.addanalyzer(bt.analyzers.TimeReturn,
-                        _name="_TimeReturn", fund=True)
+    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=True)
     # cerebro.addobserver(bt.observers.BuySell)
+
     """ 初始资金100M """
     cerebro.broker.setcash(1000000.0)
+    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
-    # cerebro.addsizer(bt.sizers.FixedSize, stake=10)
+    # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
     # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
     cerebro.addsizer(FixedAmount, amount=10000)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
-    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 添加股票当日即历史数据 """
-    # stocklist=['DELL']
-    list = TickerInfo(date, "us").get_backtrader_data_feed()
+    list = TickerInfo(date, "cn").get_backtrader_data_feed()
     """ 循环初始化数据进入cerebro """
     for h in list:
         """历史数据最早不超过2021-01-01"""
@@ -68,7 +54,7 @@ def exec_btstrategy(date):
             datetime=-1,
             timeframe=bt.TimeFrame.Days,
         )
-        cerebro.adddata(data, name=h["symbol"][0])
+        cerebro.adddata(data)
         # 周数据
         # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
     """ 起始资金池 """
@@ -80,6 +66,7 @@ def exec_btstrategy(date):
 
     """ 运行cerebro """
     result = cerebro.run()
+
     """ 最终资金池 """
     print("\n当前现金持有: ", cerebro.broker.get_cash())
     print("\nFinal Portfolio Value: %.2f" % cerebro.broker.getvalue())
@@ -111,8 +98,9 @@ def exec_btstrategy(date):
     perf_stats = pd.concat([perf_stats_year, perf_stats_all.T], axis=0)
 
     perf_stats_ = perf_stats.reset_index()
-    perf_stats_[perf_stats_.columns[1:]] = perf_stats_[
-        perf_stats_.columns[1:]].apply(lambda x: x.map(lambda y: f"{y*100:.2f}%"))
+    perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
+        lambda x: x.map(lambda y: f"{y*100:.2f}%")
+    )
 
     # 绘制图形
 
@@ -216,7 +204,7 @@ def exec_btstrategy(date):
     )
 
     # 绘制累计收益曲线
-    cumulative_line = (cumulative).plot(
+    (cumulative).plot(
         ax=ax2,
         lw=2.0,
         label="cumret (left)",
@@ -252,7 +240,7 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="black")
     ax2.spines["right"].set_color("black")
     fig.tight_layout()
-    plt.savefig("./images/TRdraw_light.png", transparent=True)
+    plt.savefig("./images/CNTRdraw_light.png", transparent=True)
     # Set the font color of the table cells to white
     for cell in table.get_celld().values():
         cell.set_text_props(color="white")
@@ -266,18 +254,18 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="white")
     ax2.spines["right"].set_color("white")
     fig.tight_layout()
-    plt.savefig("./images/TRdraw_dark.png", transparent=True)
+    plt.savefig("./images/CNTRdraw_dark.png", transparent=True)
 
     return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 
 
 # 主程序入口
 if __name__ == "__main__":
-    """美股交易日期 utc-4"""
-    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(0)
+    """美股交易日期 utc+8"""
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
-    if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
+    if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
         pass
     else:
         sys.exit()
@@ -294,27 +282,22 @@ if __name__ == "__main__":
     """ 创建进度条并开始运行 """
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
-    # """ 东方财经爬虫 """
-    # """ 爬取每日最新股票数据 """
-    # em = EMWebCrawler()
-    # em.get_us_daily_stock_info(trade_date)
+    print("trade_date is :", trade_date)
 
-    # """ 执行策略 """
-    # df = exec_strategy(trade_date)
-    # """ 发送邮件 """
-    # if not df.empty:
-    #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
+    """ 东方财经爬虫 """
+    """ 爬取每日最新股票数据 """
+    # em = EMCNWebCrawler()
+    # em.get_cn_daily_stock_info(trade_date)
 
     """ 执行bt相关策略 """
     # cash, final_value = exec_btstrategy(trade_date)
-    cash, final_value = 0, 0 
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
+    StockProposal("cn", trade_date).send_btstrategy_by_email(0, 0)
 
     """ 结束进度条 """
     pbar.finish()

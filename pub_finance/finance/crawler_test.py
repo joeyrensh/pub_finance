@@ -98,22 +98,17 @@ result = result.merge(
     gdf_agg_deal_price, how="left", left_on="adcode", right_on="adcode"
 )
 result = result.merge(gdf_agg_sell, how="left", left_on="adcode", right_on="adcode")
-result.drop(
-    columns=[
-        "adcode",
-        "childrenNum",
-        "childrenNum_x",
-        "parent",
-        "subFeatureIndex_x",
-        "geometry",
-        "childrenNum_y",
-        "subFeatureIndex_y",
-        "longitude_y",
-        "latitude_y",
-        "index_right_x",
-        "data_id_x",
-        "data_id_x",
-    ],
-    inplace=True,
-)
+result.sort_values(["parent", "name"], inplace=True)
+result = result[
+    [
+        "name",
+        "level",
+        "unit_price_y",
+        "deal_price_y",
+        "sell_cnt",
+        "total_cnt",
+        "ratio",
+    ]
+]
+
 print(result)

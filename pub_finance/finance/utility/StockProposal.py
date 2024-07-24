@@ -388,6 +388,10 @@ class StockProposal:
             },
             inplace=True,
         )
+        if self.market == "us":
+            dfdata7.to_csv("./images/us_category.csv", header=True)
+        else:
+            dfdata7.to_csv("./images/cn_category.csv", header=True)
 
         # cm = sns.color_palette("seagreen", as_cmap=True)
         cm = sns.light_palette("seagreen", as_cmap=True)
