@@ -1,6 +1,7 @@
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
+import base64
 
 from utils import Header, make_dash_table
 
@@ -10,10 +11,19 @@ import pathlib
 # get relative data folder
 PATH = pathlib.Path(__file__).parent
 DATA_PATH = PATH.joinpath("../data").resolve()
-
+HOUSE_PATH = PATH.joinpath("../../houseinfo").resolve()
 
 df_fund_facts = pd.read_csv(DATA_PATH.joinpath("df_fund_facts.csv"))
 df_price_perf = pd.read_csv(DATA_PATH.joinpath("df_price_perf.csv"))
+
+
+with open(HOUSE_PATH.joinpath("map_newhouse.png"), "rb") as f:
+    image_data = f.read()
+    encoded_image_newhouse = base64.b64encode(image_data).decode("utf-8")
+
+df_new_house = pd.read_csv(
+    HOUSE_PATH.joinpath("newhouse.csv"), usecols=[i for i in range(0, 12)]
+)
 
 
 def create_layout(app):
@@ -29,23 +39,15 @@ def create_layout(app):
                         [
                             html.Div(
                                 [
-                                    html.H5("Product Summary"),
+                                    html.H5("上海房价概览"),
                                     html.Br([]),
                                     html.P(
                                         "\
-                                    As the industry’s first index fund for individual investors, \
-                                    the Calibre Index Fund is a low-cost way to gain diversified exposure \
-                                    to the U.S. equity market. The fund offers exposure to 500 of the \
-                                    largest U.S. companies, which span many different industries and \
-                                    account for about three-fourths of the U.S. stock market’s value. \
-                                    The key risk for the fund is the volatility that comes with its full \
-                                    exposure to the stock market. Because the Calibre Index Fund is broadly \
-                                    diversified within the large-capitalization market, it may be \
-                                    considered a core equity holding in a portfolio.",
+                                    数据基于网上开放数据，针对上海行政区划，对在售新房以及挂牌二手房做数据分布, \
+                                    在售新房主要关注联动均价中位数在各板块的数据分布，\
+                                    二手房主要关注挂牌价、最近成交价以及挂牌量中位数在各板块的数据分布。",
                                         style={"color": "#ffffff"},
                                         className="row",
-                                        
-                                        
                                     ),
                                 ],
                                 className="product",
@@ -59,11 +61,15 @@ def create_layout(app):
                             html.Div(
                                 [
                                     html.H6(
-                                        ["Fund Facts"], className="subtitle padded"
+                                        ["新房零售价中位数分布"],
+                                        className="subtitle padded",
                                     ),
-                                    html.Table(make_dash_table(df_fund_facts)),
+                                    html.Img(
+                                        src=f"data:image/png;base64,{encoded_image_newhouse}",
+                                        style={"width": "100%"},
+                                    ),
                                 ],
-                                className="six columns",
+                                className="seven columns",
                             ),
                             html.Div(
                                 [
@@ -71,101 +77,17 @@ def create_layout(app):
                                         "Average annual performance",
                                         className="subtitle padded",
                                     ),
-                                    dcc.Graph(
-                                        id="graph-1",
-                                        figure={
-                                            "data": [
-                                                go.Bar(
-                                                    x=[
-                                                        "1 Year",
-                                                        "3 Year",
-                                                        "5 Year",
-                                                        "10 Year",
-                                                        "41 Year",
-                                                    ],
-                                                    y=[
-                                                        "21.67",
-                                                        "11.26",
-                                                        "15.62",
-                                                        "8.37",
-                                                        "11.11",
-                                                    ],
-                                                    marker={
-                                                        "color":"#8b0202", #"#8b0202",
-                                                        "line": {
-                                                            "color": "rgb(255, 255, 255)",
-                                                            "width": 2,
-                                                        },
-                                                    },
-                                                    name="Calibre Index Fund",
-                                                ),
-                                                go.Bar(
-                                                    x=[
-                                                        "1 Year",
-                                                        "3 Year",
-                                                        "5 Year",
-                                                        "10 Year",
-                                                        "41 Year",
-                                                    ],
-                                                    y=[
-                                                        "21.83",
-                                                        "11.41",
-                                                        "15.79",
-                                                        "8.50",
-                                                    ],
-                                                    marker={
-                                                        "color":"#dddddd", #"#dddddd",
-                                                        "line": {
-                                                            "color": "rgb(255, 255, 255)",
-                                                            "width": 2,
-                                                        },
-                                                    },
-                                                    name="S&P 500 Index",
-                                                ),
-                                            ],
-                                            "layout": go.Layout(
-                                                autosize=False,
-                                                bargap=0.35,
-                                                font={"family": "Raleway", "size": 10},
-                                                height=200,
-                                                hovermode="closest",
-                                                legend={
-                                                    "x": -0.0228945952895,
-                                                    "y": -0.189563896463,
-                                                    "orientation": "h",
-                                                    "yanchor": "top",
-                                                },
-                                                margin={
-                                                    "r": 0,
-                                                    "t": 20,
-                                                    "b": 10,
-                                                    "l": 10,
-                                                },
-                                                showlegend=True,
-                                                title="",
-                                                width=330,
-                                                xaxis={
-                                                    "autorange": True,
-                                                    "range": [-0.5, 4.5],
-                                                    "showline": True,
-                                                    "title": "",
-                                                    "type": "category",
-                                                },
-                                                yaxis={
-                                                    "autorange": True,
-                                                    "range": [0, 22.9789473684],
-                                                    "showgrid": True,
-                                                    "showline": True,
-                                                    "title": "",
-                                                    "type": "linear",
-                                                    "zeroline": False,
-                                                },
-                                            ),
-                                        },
-                                        config={"displayModeBar": False},
+                                    html.Div(
+                                        [
+                                            html.Table(
+                                                make_dash_table(df_new_house),
+                                                className="tiny-header",
+                                            )
+                                        ],
+                                        style={"overflow-x": "auto", "height": 400},
                                     ),
                                 ],
-                                className="six columns",
+                                className="four columns",
                             ),
                         ],
                         className="row",
@@ -211,7 +133,9 @@ def create_layout(app):
                                                         "20500",
                                                         "24000",
                                                     ],
-                                                    line={"color":"#8b0202"}, #"#97151c"
+                                                    line={
+                                                        "color": "#8b0202"
+                                                    },  # "#97151c"
                                                     mode="lines",
                                                     name="Calibre Index Fund Inv",
                                                 )

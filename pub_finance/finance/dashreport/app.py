@@ -5,7 +5,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 from pages import (
     overview,
-    pricePerformance,
+    cnStockPerformance,
     portfolioManagement,
     feesMins,
     distributions,
@@ -13,7 +13,8 @@ from pages import (
 )
 
 app = dash.Dash(
-    __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}],
+    __name__,
+    meta_tags=[{"name": "viewport", "content": "width=device-width"}],
 )
 app.title = "Financial Report"
 server = app.server
@@ -23,11 +24,12 @@ app.layout = html.Div(
     [dcc.Location(id="url", refresh=False), html.Div(id="page-content")]
 )
 
+
 # Update page
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def display_page(pathname):
-    if pathname == "/dash-financial-report/price-performance":
-        return pricePerformance.create_layout(app)
+    if pathname == "/dash-financial-report/cn-stock-performance":
+        return cnStockPerformance.create_layout(app)
     elif pathname == "/dash-financial-report/portfolio-management":
         return portfolioManagement.create_layout(app)
     elif pathname == "/dash-financial-report/fees":
@@ -39,7 +41,7 @@ def display_page(pathname):
     elif pathname == "/dash-financial-report/full-view":
         return (
             overview.create_layout(app),
-            pricePerformance.create_layout(app),
+            cnStockPerformance.create_layout(app),
             portfolioManagement.create_layout(app),
             feesMins.create_layout(app),
             distributions.create_layout(app),
@@ -50,4 +52,4 @@ def display_page(pathname):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(host="0.0.0.0", port=8050, debug=True)

@@ -410,6 +410,7 @@ def map_plot(df, legend_title, legend_fmt, png_path, k, col_formats):
 # 主程序入口
 if __name__ == "__main__":
     plt.rcParams["font.family"] = "WenQuanYi Zen Hei"
+
     file_path = "./houseinfo/newhouse.csv"
     geo_path = "./houseinfo/shanghaidistrict.json"
     png_path = "./houseinfo/map_newhouse.png"
@@ -419,9 +420,9 @@ if __name__ == "__main__":
     file_path_s = "./houseinfo/secondhandhouse.csv"
     # file_path_s = './houseinfo/test.csv'
     # 新房
-    get_house_info_f(file_path)
+    # get_house_info_f(file_path)
     # 二手
-    houseinfo_to_csv_s(file_path_s)
+    # houseinfo_to_csv_s(file_path_s)
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")

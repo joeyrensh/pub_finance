@@ -28,7 +28,7 @@ def get_header(app):
                     ),
                     html.A(
                         html.Button("Source Code", id="learn-more-button"),
-                        href="#", 
+                        href="#",
                     ),
                 ],
                 className="row",
@@ -36,7 +36,7 @@ def get_header(app):
             html.Div(
                 [
                     html.Div(
-                        [html.H5("Calibre Financial Index Fund Investor Shares")],
+                        [html.H5("House and stock finance analysis")],
                         className="seven columns main-title",
                     ),
                     html.Div(
@@ -63,13 +63,13 @@ def get_menu():
     menu = html.Div(
         [
             dcc.Link(
-                "Overview",
+                "上海房产数据分析",
                 href="/dash-financial-report/overview",
                 className="tab first",
             ),
             dcc.Link(
-                "Price Performance",
-                href="/dash-financial-report/price-performance",
+                "CN Stock Performance",
+                href="/dash-financial-report/cn-stock-performance",
                 className="tab",
             ),
             dcc.Link(
@@ -97,7 +97,7 @@ def get_menu():
 
 
 def make_dash_table(df):
-    """ Return a dash definition of an HTML table for a Pandas dataframe """
+    """Return a dash definition of an HTML table for a Pandas dataframe"""
     table = []
     for index, row in df.iterrows():
         html_row = []
