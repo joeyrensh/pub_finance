@@ -1262,13 +1262,20 @@ class StockProposal:
         scale_factor = 1
 
         # htmltest = io.to_html(fig, full_html=False)
-
-        fig.write_image(
-            "./images/postion_byindustry_light.png",
-            width=fig_width,
-            height=fig_height,
-            scale=scale_factor,
-        )
+        if self.market == "us":
+            fig.write_image(
+                "./images/us_postion_byindustry_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+        else:
+            fig.write_image(
+                "./images/cn_postion_byindustry_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
         # dark mode
         fig.update_traces(
             marker=dict(colors=colors, line=dict(width=1)),
@@ -1303,13 +1310,20 @@ class StockProposal:
         fig_width, fig_height = 1280, 720
         # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
         scale_factor = 1
-
-        fig.write_image(
-            "./images/postion_byindustry_dark.png",
-            width=fig_width,
-            height=fig_height,
-            scale=scale_factor,
-        )
+        if self.market == "us":
+            fig.write_image(
+                "./images/us_postion_byindustry_dark.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+        else:
+            fig.write_image(
+                "./images/cn_postion_byindustry_dark.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
         del dfdata1
         gc.collect()
 
@@ -1368,12 +1382,20 @@ class StockProposal:
             paper_bgcolor="rgba(0,0,0,0)",
         )
 
-        fig.write_image(
-            "./images/postion_byp&l_light.png",
-            width=fig_width,
-            height=fig_height,
-            scale=scale_factor,
-        )
+        if self.market == "us":
+            fig.write_image(
+                "./images/us_postion_byp&l_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+        else:
+            fig.write_image(
+                "./images/cn_postion_byp&l_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
         # dark mode
         fig.update_traces(
             marker=dict(colors=colors, line=dict(width=1)),
@@ -1407,13 +1429,20 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
         )
-
-        fig.write_image(
-            "./images/postion_byp&l_dark.png",
-            width=fig_width,
-            height=fig_height,
-            scale=scale_factor,
-        )
+        if self.market == "us":
+            fig.write_image(
+                "./images/us_postion_byp&l_dark.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+        else:
+            fig.write_image(
+                "./images/cn_postion_byp&l_dark.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
 
         del dfdata2
         gc.collect()
@@ -1527,13 +1556,20 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
         )
-
-        fig.write_image(
-            "./images/postion_bydate_light.png",
-            width=fig_width,
-            height=fig_height,
-            scale=scale_factor,
-        )
+        if self.market == "us":
+            fig.write_image(
+                "./images/us_postion_bydate_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+        else:
+            fig.write_image(
+                "./images/cn_postion_bydate_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
         # dark mode
         fig.update_layout(
             title={
@@ -1585,12 +1621,20 @@ class StockProposal:
             paper_bgcolor="rgba(0,0,0,0)",
         )
 
-        fig.write_image(
-            "./images/postion_bydate_dark.png",
-            width=fig_width,
-            height=fig_height,
-            scale=scale_factor,
-        )
+        if self.market == "us":
+            fig.write_image(
+                "./images/us_postion_bydate_dark.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+        else:
+            fig.write_image(
+                "./images/cn_postion_bydate_dark.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
 
         del dfdata3
         gc.collect()
@@ -1669,12 +1713,20 @@ class StockProposal:
             paper_bgcolor="rgba(0,0,0,0)",
         )
 
-        fig.write_image(
-            "./images/postion_byindustry&date_light.png",
-            width=fig_width,
-            height=fig_height,
-            scale=scale_factor,
-        )
+        if self.market == "us":
+            fig.write_image(
+                "./images/us_postion_byindustry&date_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+        else:
+            fig.write_image(
+                "./images/cn_postion_byindustry&date_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
         # dark mode
         fig.update_xaxes(
             mirror=True,
@@ -1707,13 +1759,20 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
         )
-
-        fig.write_image(
-            "./images/postion_byindustry&date_dark.png",
-            width=fig_width,
-            height=fig_height,
-            scale=scale_factor,
-        )
+        if self.market == "us":
+            fig.write_image(
+                "./images/us_postion_byindustry&date_dark.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+        else:
+            fig.write_image(
+                "./images/cn_postion_byindustry&date_dark.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
 
         del dfdata5
         gc.collect()
@@ -1786,13 +1845,20 @@ class StockProposal:
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0,0,0,0)",
         )
-
-        fig.write_image(
-            "./images/postion_byindustry&p&l_light.png",
-            width=fig_width,
-            height=fig_height,
-            scale=scale_factor,
-        )
+        if self.market == "us":
+            fig.write_image(
+                "./images/us_postion_byindustry&p&l_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+        else:
+            fig.write_image(
+                "./images/cn_postion_byindustry&p&l_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
         # dark mode
         fig.update_xaxes(
             mirror=True,
@@ -1825,13 +1891,20 @@ class StockProposal:
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0,0,0,0)",
         )
-
-        fig.write_image(
-            "./images/postion_byindustry&p&l_dark.png",
-            width=fig_width,
-            height=fig_height,
-            scale=scale_factor,
-        )
+        if self.market == "us":
+            fig.write_image(
+                "./images/us_postion_byindustry&p&l_dark.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+        else:
+            fig.write_image(
+                "./images/cn_postion_byindustry&p&l_dark.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
         del dfdata6
         gc.collect()
 
@@ -1841,24 +1914,38 @@ class StockProposal:
             subject = "US Stock Market Trends"
             image_path_return_light = "./images/TRdraw_light.png"
             image_path_return_dark = "./images/TRdraw_dark.png"
+            image_path = [
+                "./images/us_postion_byindustry_light.png",
+                "./images/us_postion_byindustry_dark.png",
+                "./images/us_postion_byp&l_light.png",
+                "./images/us_postion_byp&l_dark.png",
+                "./images/us_postion_bydate_light.png",
+                "./images/us_postion_bydate_dark.png",
+                "./images/us_postion_byindustry&date_light.png",
+                "./images/us_postion_byindustry&date_dark.png",
+                "./images/us_postion_byindustry&p&l_light.png",
+                "./images/us_postion_byindustry&p&l_dark.png",
+                image_path_return_light,
+                image_path_return_dark,
+            ]
         elif self.market == "cn":
             subject = "CN Stock Market Trends"
             image_path_return_light = "./images/CNTRdraw_light.png"
             image_path_return_dark = "./images/CNTRdraw_dark.png"
-        image_path = [
-            "./images/postion_byindustry_light.png",
-            "./images/postion_byindustry_dark.png",
-            "./images/postion_byp&l_light.png",
-            "./images/postion_byp&l_dark.png",
-            "./images/postion_bydate_light.png",
-            "./images/postion_bydate_dark.png",
-            "./images/postion_byindustry&date_light.png",
-            "./images/postion_byindustry&date_dark.png",
-            "./images/postion_byindustry&p&l_light.png",
-            "./images/postion_byindustry&p&l_dark.png",
-            image_path_return_light,
-            image_path_return_dark,
-        ]
+            image_path = [
+                "./images/cn_postion_byindustry_light.png",
+                "./images/cn_postion_byindustry_dark.png",
+                "./images/cn_postion_byp&l_light.png",
+                "./images/cn_postion_byp&l_dark.png",
+                "./images/cn_postion_bydate_light.png",
+                "./images/cn_postion_bydate_dark.png",
+                "./images/cn_postion_byindustry&date_light.png",
+                "./images/cn_postion_byindustry&date_dark.png",
+                "./images/cn_postion_byindustry&p&l_light.png",
+                "./images/cn_postion_byindustry&p&l_dark.png",
+                image_path_return_light,
+                image_path_return_dark,
+            ]
         html_img = """
                 <html>
                     <head>

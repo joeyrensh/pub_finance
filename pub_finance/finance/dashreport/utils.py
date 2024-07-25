@@ -68,7 +68,7 @@ def get_menu():
                 className="tab first",
             ),
             dcc.Link(
-                "CN Stock Performance",
+                "A股市场数据分析",
                 href="/dash-financial-report/cn-stock-performance",
                 className="tab",
             ),
