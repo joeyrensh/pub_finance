@@ -36,7 +36,7 @@ def get_header(app):
             html.Div(
                 [
                     html.Div(
-                        [html.H5("House and stock finance analysis")],
+                        [html.H5("房产以及股市大数据分析")],
                         className="seven columns main-title",
                     ),
                     html.Div(
@@ -99,6 +99,10 @@ def get_menu():
 def make_dash_table(df):
     """Return a dash definition of an HTML table for a Pandas dataframe"""
     table = []
+    html_row = []
+    for row in df.columns:
+        html_row.append(html.Th([row]))
+    table.append(html.Tr(html_row))
     for index, row in df.iterrows():
         html_row = []
         for i in range(len(row)):
