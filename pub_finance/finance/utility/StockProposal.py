@@ -1224,7 +1224,7 @@ class StockProposal:
                 go.Pie(
                     labels=dfdata1["industry"],
                     values=dfdata1["cnt"],
-                    pull=[0.2, 0.2, 0.2, 0.2, 0.2],
+                    pull=[0.1, 0.1, 0.1, 0.1, 0.1],
                 )
             ]
         )
@@ -1244,20 +1244,20 @@ class StockProposal:
             title_font=dict(size=20, color="black"),
             legend=dict(
                 orientation="v",
-                yanchor="top",
-                xanchor="left",
-                x=-0.3,
-                y=1,
+                yanchor="middle",
+                xanchor="right",
+                x=0.95,
+                y=0.8,
                 font=dict(size=20, color="black"),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
             ),
-            # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
+            margin=dict(t=50, b=50, l=100, r=20),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
         )
         # 设置图像的宽度和高度（例如，1920x1080像素）
-        fig_width, fig_height = 1280, 720
+        fig_width, fig_height = 768, 768
         # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
         scale_factor = 1
 
@@ -1294,22 +1294,19 @@ class StockProposal:
             ),
             legend=dict(
                 orientation="v",
-                yanchor="top",
-                xanchor="left",
-                x=-0.3,
-                y=1,
+                yanchor="middle",
+                xanchor="right",
+                x=0.95,
+                y=0.8,
                 font=dict(size=20, color="white"),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
             ),
-            # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
+            margin=dict(t=50, b=50, l=100, r=20),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
         )
-        # 设置图像的宽度和高度（例如，1920x1080像素）
-        fig_width, fig_height = 1280, 720
-        # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
-        scale_factor = 1
+
         if self.market == "us":
             fig.write_image(
                 "./images/us_postion_byindustry_dark.png",
@@ -1343,7 +1340,7 @@ class StockProposal:
                 go.Pie(
                     labels=dfdata2["industry"],
                     values=dfdata2["pl"],
-                    pull=[0.2, 0.2, 0.2, 0.2, 0.2],
+                    pull=[0.1, 0.1, 0.1, 0.1, 0.1],
                 )
             ]
         )
@@ -1366,17 +1363,17 @@ class StockProposal:
             ),
             legend=dict(
                 orientation="v",
-                yanchor="top",
-                xanchor="left",
-                x=-0.3,
-                y=1,
+                yanchor="middle",
+                xanchor="right",
+                x=0.95,
+                y=0.8,
                 font=dict(
                     size=20,
                     color="black",
                 ),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
             ),
-            # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
+            margin=dict(t=50, b=50, l=100, r=20),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1414,17 +1411,17 @@ class StockProposal:
             ),
             legend=dict(
                 orientation="v",
-                yanchor="top",
-                xanchor="left",
-                x=-0.3,
-                y=1,
+                yanchor="middle",
+                xanchor="right",
+                x=0.95,
+                y=0.8,
                 font=dict(
                     size=20,
                     color="white",
                 ),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
             ),
-            # margin=dict(t=50, b=0.2, l=0.2, r=0.2),
+            margin=dict(t=50, b=50, l=100, r=20),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1556,6 +1553,10 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
         )
+        # 设置图像的宽度和高度（例如，1920x1080像素）
+        fig_width, fig_height = 1280, 768
+        # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
+        scale_factor = 1
         if self.market == "us":
             fig.write_image(
                 "./images/us_postion_bydate_light.png",
