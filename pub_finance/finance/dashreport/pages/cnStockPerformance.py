@@ -28,13 +28,6 @@ with open(IMAGE_PATH.joinpath("cn_postion_byindustry&date_light.png"), "rb") as 
     image_data = f.read()
     encoded_image_bypl_date = base64.b64encode(image_data).decode("utf-8")
 
-df_current_prices = pd.read_csv(DATA_PATH.joinpath("df_current_prices.csv"))
-df_hist_prices = pd.read_csv(DATA_PATH.joinpath("df_hist_prices.csv"))
-df_avg_returns = pd.read_csv(DATA_PATH.joinpath("df_avg_returns.csv"))
-df_after_tax = pd.read_csv(DATA_PATH.joinpath("df_after_tax.csv"))
-df_recent_returns = pd.read_csv(DATA_PATH.joinpath("df_recent_returns.csv"))
-df_graph = pd.read_csv(DATA_PATH.joinpath("df_graph.csv"))
-
 
 def create_layout(app):
     return html.Div(
@@ -121,50 +114,6 @@ def create_layout(app):
                     ),
                     # Row 3
                     # Row 4
-                    html.Div(
-                        [
-                            html.Div(
-                                [
-                                    html.H6(
-                                        [
-                                            "After-tax returns--updated quarterly as of 12/31/2017"
-                                        ],
-                                        className="subtitle padded",
-                                    ),
-                                    html.Div(
-                                        [
-                                            html.Table(
-                                                make_dash_table(df_after_tax),
-                                                className="tiny-header",
-                                            )
-                                        ],
-                                        style={"overflow-x": "auto"},
-                                    ),
-                                ],
-                                className=" twelve columns",
-                            )
-                        ],
-                        className="row ",
-                    ),
-                    # Row 5
-                    html.Div(
-                        [
-                            html.Div(
-                                [
-                                    html.H6(
-                                        ["Recent investment returns"],
-                                        className="subtitle padded",
-                                    ),
-                                    html.Table(
-                                        make_dash_table(df_recent_returns),
-                                        className="tiny-header",
-                                    ),
-                                ],
-                                className=" twelve columns",
-                            )
-                        ],
-                        className="row ",
-                    ),
                 ],
                 className="sub_page",
             ),
