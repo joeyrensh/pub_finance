@@ -5,6 +5,9 @@ from utils import Header, make_dash_table
 import pandas as pd
 import pathlib
 import base64
+import dash_bootstrap_components as dbc
+import dash_table
+
 
 # get relative data folder
 PATH = pathlib.Path(__file__).parent
@@ -24,9 +27,27 @@ with open(IMAGE_PATH.joinpath("cn_postion_byp&l_light.png"), "rb") as f:
 with open(IMAGE_PATH.joinpath("cn_postion_bydate_light.png"), "rb") as f:
     image_data = f.read()
     encoded_image_by_positiondate = base64.b64encode(image_data).decode("utf-8")
-with open(IMAGE_PATH.joinpath("cn_postion_byindustry&date_light.png"), "rb") as f:
+with open(IMAGE_PATH.joinpath("cn_postion_byindustry&p&l_light.png"), "rb") as f:
     image_data = f.read()
     encoded_image_bypl_date = base64.b64encode(image_data).decode("utf-8")
+df = pd.read_csv(
+    IMAGE_PATH.joinpath("cn_category.csv"), usecols=[i for i in range(1, 15)]
+)
+df = df[
+    [
+        "IND",
+        "OPEN",
+        "LRATIO",
+        "L5 OPEN",
+        "L5 CLOSE",
+        "PROFIT",
+        "PNL RATIO",
+        "AVG TRANS",
+        "AVG DAYS",
+        "WIN RATE",
+        "PROFIT TREND",
+    ]
+]
 
 
 def create_layout(app):
@@ -62,7 +83,7 @@ def create_layout(app):
                                     html.H6(["持仓占比"], className="subtitle padded"),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_by_postion}",
-                                        style={"width": "80%"},
+                                        style={"width": "100%"},
                                     ),
                                 ],
                                 className="six columns",
@@ -75,7 +96,7 @@ def create_layout(app):
                                     ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_by_pl}",
-                                        style={"width": "80%"},
+                                        style={"width": "120%"},
                                     ),
                                 ],
                                 className="six columns",
@@ -104,7 +125,7 @@ def create_layout(app):
                                     ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_bypl_date}",
-                                        style={"width": "100%"},
+                                        style={"width": "120%"},
                                     ),
                                 ],
                                 className="six columns",
@@ -113,6 +134,34 @@ def create_layout(app):
                         className="row ",
                     ),
                     # Row 3
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.H6(
+                                        "A股板块分析",
+                                        className="subtitle padded",
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                make_dash_table(df),
+                                                className="gs-table-header",
+                                            )
+                                        ],
+                                        style={
+                                            "overflow-x": "auto",
+                                            "height": 400,
+                                        },
+                                    ),
+                                ],
+                                className="twelve columns",
+                                # dangerously_allow_html=True,
+                            ),
+                        ],
+                        className="row",
+                        style={"margin-bottom": "35px"},
+                    ),
                     # Row 4
                 ],
                 className="sub_page",

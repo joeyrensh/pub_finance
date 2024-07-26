@@ -1,5 +1,6 @@
 import dash_html_components as html
 import dash_core_components as dcc
+import re
 
 
 def Header(app):
@@ -96,6 +97,16 @@ def get_menu():
     return menu
 
 
+# Function to check the type of value
+def check_value_type(value):
+    if re.search(r'<img\s+[^>]*src\s*=\s*["\'](.*?)["\'][^>]*>', value):
+        return "Image"
+    elif re.search(r"<.*?>", value):
+        return "RichText"
+    else:
+        return "Text"
+
+
 def make_dash_table(df):
     """Return a dash definition of an HTML table for a Pandas dataframe"""
     table = []
@@ -103,9 +114,16 @@ def make_dash_table(df):
     for row in df.columns:
         html_row.append(html.Th([row]))
     table.append(html.Tr(html_row))
-    for index, row in df.iterrows():
+    for _, row in df.iterrows():
         html_row = []
         for i in range(len(row)):
-            html_row.append(html.Td([row[i]]))
+            value = str(row[i])
+            value_type = check_value_type(value)
+            if value_type == "Text":
+                html_row.append(html.Td(value))
+            elif value_type == "RichText":
+                html_row.append(html.Td(dcc.Markdown(children=value)))
+            elif value_type == "Image":
+                html_row.append(html.Td(html.Img(src=value)))
         table.append(html.Tr(html_row))
     return table

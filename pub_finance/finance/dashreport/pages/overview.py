@@ -210,7 +210,7 @@ def create_layout(app):
                                     ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_secondhouse}",
-                                        style={"width": "100%"},
+                                        style={"width": "105%"},
                                     ),
                                 ],
                                 className="six columns",
@@ -223,7 +223,7 @@ def create_layout(app):
                                     ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_secondhouse2}",
-                                        style={"width": "100%"},
+                                        style={"width": "110%"},
                                     ),
                                 ],
                                 className="six columns",
@@ -237,7 +237,7 @@ def create_layout(app):
                             html.Div(
                                 [
                                     html.H6(
-                                        ["新房挂牌量中位数分布"],
+                                        ["二手房挂牌量中位数分布"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(
