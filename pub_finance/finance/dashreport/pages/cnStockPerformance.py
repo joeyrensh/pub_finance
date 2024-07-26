@@ -157,6 +157,7 @@ def create_layout(app):
                                     ),
                                 ],
                                 className="six columns",
+                                # className="fa-spin",
                             ),
                             html.Div(
                                 [
@@ -170,6 +171,7 @@ def create_layout(app):
                                     ),
                                 ],
                                 className="six columns",
+                                # className="fa-spin",
                             ),
                         ],
                         className="row ",
