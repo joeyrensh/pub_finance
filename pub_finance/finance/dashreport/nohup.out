@@ -1,0 +1,114 @@
+[2024-07-26 15:15:54 +0800] [46300] [INFO] Starting gunicorn 20.0.4
+[2024-07-26 15:15:54 +0800] [46300] [INFO] Listening at: http://0.0.0.0:8888 (46300)
+[2024-07-26 15:15:54 +0800] [46300] [INFO] Using worker: sync
+[2024-07-26 15:15:54 +0800] [46302] [INFO] Booting worker with pid: 46302
+[2024-07-26 15:15:54 +0800] [46302] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/gunicorn/arbiter.py", line 583, in spawn_worker
+    worker.init_process()
+  File "/usr/lib/python3/dist-packages/gunicorn/workers/base.py", line 119, in init_process
+    self.load_wsgi()
+  File "/usr/lib/python3/dist-packages/gunicorn/workers/base.py", line 144, in load_wsgi
+    self.wsgi = self.app.wsgi()
+  File "/usr/lib/python3/dist-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+  File "/usr/lib/python3/dist-packages/gunicorn/app/wsgiapp.py", line 49, in load
+    return self.load_wsgiapp()
+  File "/usr/lib/python3/dist-packages/gunicorn/app/wsgiapp.py", line 39, in load_wsgiapp
+    return util.import_app(self.app_uri)
+  File "/usr/lib/python3/dist-packages/gunicorn/util.py", line 383, in import_app
+    mod = importlib.import_module(module)
+  File "/usr/lib/python3.8/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 848, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/root/pub_finance/finance/dashreport/app.py", line 2, in <module>
+    import dash
+ModuleNotFoundError: No module named 'dash'
+[2024-07-26 15:15:54 +0800] [46302] [INFO] Worker exiting (pid: 46302)
+[2024-07-26 15:15:54 +0800] [46300] [INFO] Shutting down: Master
+[2024-07-26 15:15:54 +0800] [46300] [INFO] Reason: Worker failed to boot.
+[2024-07-26 15:16:41 +0800] [46307] [INFO] Starting gunicorn 20.0.4
+[2024-07-26 15:16:41 +0800] [46307] [INFO] Listening at: http://0.0.0.0:8888 (46307)
+[2024-07-26 15:16:41 +0800] [46307] [INFO] Using worker: sync
+[2024-07-26 15:16:41 +0800] [46309] [INFO] Booting worker with pid: 46309
+[2024-07-26 15:16:41 +0800] [46309] [ERROR] Exception in worker process
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/gunicorn/arbiter.py", line 583, in spawn_worker
+    worker.init_process()
+  File "/usr/lib/python3/dist-packages/gunicorn/workers/base.py", line 119, in init_process
+    self.load_wsgi()
+  File "/usr/lib/python3/dist-packages/gunicorn/workers/base.py", line 144, in load_wsgi
+    self.wsgi = self.app.wsgi()
+  File "/usr/lib/python3/dist-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+  File "/usr/lib/python3/dist-packages/gunicorn/app/wsgiapp.py", line 49, in load
+    return self.load_wsgiapp()
+  File "/usr/lib/python3/dist-packages/gunicorn/app/wsgiapp.py", line 39, in load_wsgiapp
+    return util.import_app(self.app_uri)
+  File "/usr/lib/python3/dist-packages/gunicorn/util.py", line 383, in import_app
+    mod = importlib.import_module(module)
+  File "/usr/lib/python3.8/importlib/__init__.py", line 127, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1014, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 991, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 975, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 671, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 848, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/root/pub_finance/finance/dashreport/app.py", line 2, in <module>
+    import dash
+ModuleNotFoundError: No module named 'dash'
+[2024-07-26 15:16:41 +0800] [46309] [INFO] Worker exiting (pid: 46309)
+[2024-07-26 15:16:41 +0800] [46307] [INFO] Shutting down: Master
+[2024-07-26 15:16:41 +0800] [46307] [INFO] Reason: Worker failed to boot.
+/root/pub_finance/finance/dashreport/app.py:3: UserWarning: 
+The dash_core_components package is deprecated. Please replace
+`import dash_core_components as dcc` with `from dash import dcc`
+  import dash_core_components as dcc
+/root/pub_finance/finance/dashreport/app.py:4: UserWarning: 
+The dash_html_components package is deprecated. Please replace
+`import dash_html_components as html` with `from dash import html`
+  import dash_html_components as html
+Skipping field center: unsupported OGR type: 3
+Skipping field centroid: unsupported OGR type: 3
+Skipping field acroutes: unsupported OGR type: 1
+/root/pub_finance/finance/dashreport/pages/cnStockPerformance.py:9: UserWarning: 
+The dash_table package is deprecated. Please replace
+`import dash_table` with `from dash import dash_table`
+
+Also, if you're using any of the table format helpers (e.g. Group), replace 
+`from dash_table.Format import Group` with 
+`from dash.dash_table.Format import Group`
+  import dash_table
+Dash is running on http://0.0.0.0:8050/
+
+ * Serving Flask app 'app'
+ * Debug mode: on
+/root/pub_finance/finance/dashreport/app.py:3: UserWarning: 
+The dash_core_components package is deprecated. Please replace
+`import dash_core_components as dcc` with `from dash import dcc`
+  import dash_core_components as dcc
+/root/pub_finance/finance/dashreport/app.py:4: UserWarning: 
+The dash_html_components package is deprecated. Please replace
+`import dash_html_components as html` with `from dash import html`
+  import dash_html_components as html
+Skipping field center: unsupported OGR type: 3
+Skipping field centroid: unsupported OGR type: 3
+Skipping field acroutes: unsupported OGR type: 1
+/root/pub_finance/finance/dashreport/pages/cnStockPerformance.py:9: UserWarning: 
+The dash_table package is deprecated. Please replace
+`import dash_table` with `from dash import dash_table`
+
+Also, if you're using any of the table format helpers (e.g. Group), replace 
+`from dash_table.Format import Group` with 
+`from dash.dash_table.Format import Group`
+  import dash_table
+/root/pub_finance/finance/dashreport/utils.py:117: FutureWarning:
+
+Series.__getitem__ treating keys as positions is deprecated. In a future version, integer keys will always be treated as labels (consistent with DataFrame behavior). To access a value by position, use `ser.iloc[pos]`
+
