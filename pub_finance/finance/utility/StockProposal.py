@@ -739,6 +739,10 @@ class StockProposal:
             },
             inplace=True,
         )
+        if self.market == "us":
+            dfdata8.to_csv("./images/us_stockdetail.csv", header=True)
+        else:
+            dfdata8.to_csv("./images/cn_stockdetail.csv", header=True)
         cm = sns.light_palette("seagreen", as_cmap=True)
 
         # 将新日期转换为字符串

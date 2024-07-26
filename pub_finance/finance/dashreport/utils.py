@@ -97,14 +97,19 @@ def get_menu():
     return menu
 
 
-# Function to check the type of value
 def check_value_type(value):
-    if re.search(r'<img\s+[^>]*src\s*=\s*["\'](.*?)["\'][^>]*>', value):
-        return "Image"
-    elif re.search(r"<.*?>", value):
-        return "RichText"
+    # 如果包含<img>标签，则提取<img>标签中的src属性值
+    if re.search(r"<img\s+[^>]*>", value):
+        match = re.search(r"<img\s+[^>]*src\s*=\s*\"([^\"]*)\"\s*\/?>", value)
+        if match:
+            return match.group(1), "img"
+
+    # 如果包含<span>标签，则去除<span>标签但保留其内容
+    elif re.search(r"<span\b[^>]*>(.*?)</span>", value):
+        return re.sub(r"<span\b[^>]*>(.*?)</span>", r"\1", value), "richtext"
+    # 如果不是上述两种情况，则直接返回原字符串
     else:
-        return "Text"
+        return value, "text"
 
 
 def make_dash_table(df):
@@ -118,12 +123,16 @@ def make_dash_table(df):
         html_row = []
         for i in range(len(row)):
             value = str(row[i])
-            value_type = check_value_type(value)
-            if value_type == "Text":
-                html_row.append(html.Td(value))
-            elif value_type == "RichText":
-                html_row.append(html.Td(dcc.Markdown(children=value)))
-            elif value_type == "Image":
-                html_row.append(html.Td(html.Img(src=value)))
+            new_value, value_type = check_value_type(value)
+            if value_type == "img":
+                # 添加样式设置到图片标签
+                img_style = {
+                    "max-width": "100px",  # 设置图片最大宽度
+                    "max-height": "80px",  # 设置图片最大高度
+                }
+                html_row.append(html.Td(html.Img(src=new_value, style=img_style)))
+            else:
+                html_row.append(html.Td(html.Span(children=new_value)))
         table.append(html.Tr(html_row))
+
     return table
