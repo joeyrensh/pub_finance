@@ -37,7 +37,9 @@ file_path_s = HOUSE_PATH.joinpath("secondhandhouse.csv")
 
 # 二手房数据分析
 geo_data = gpd.read_file(geo_path, engine="pyogrio", use_arrow=True)
-df_second_hand_house = pd.read_csv(file_path_s, usecols=[i for i in range(0, 12)])
+df_second_hand_house = pd.read_csv(
+    file_path_s, usecols=[i for i in range(0, 12)], engine="pyarrow"
+)
 df_second_hand_house = df_second_hand_house.dropna(subset=["lanlong"])
 
 

@@ -293,3 +293,44 @@ Also, if you're using any of the table format helpers (e.g. Group), replace
 
 Series.__getitem__ treating keys as positions is deprecated. In a future version, integer keys will always be treated as labels (consistent with DataFrame behavior). To access a value by position, use `ser.iloc[pos]`
 
+/root/pub_finance/finance/dashreport/app.py:3: UserWarning: 
+The dash_core_components package is deprecated. Please replace
+`import dash_core_components as dcc` with `from dash import dcc`
+  import dash_core_components as dcc
+/root/pub_finance/finance/dashreport/app.py:4: UserWarning: 
+The dash_html_components package is deprecated. Please replace
+`import dash_html_components as html` with `from dash import html`
+  import dash_html_components as html
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/arrow_parser_wrapper.py", line 249, in read
+    convert_options = pyarrow_csv.ConvertOptions(**self.convert_options)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pyarrow/_csv.pyx", line 842, in pyarrow._csv.ConvertOptions.__init__
+  File "pyarrow/_csv.pyx", line 996, in pyarrow._csv.ConvertOptions.include_columns.__set__
+  File "<stringsource>", line 15, in string.from_py.__pyx_convert_string_from_py_6libcpp_6string_std__in_string
+TypeError: expected bytes, int found
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/pub_finance/finance/dashreport/dash_wsgi.py", line 2, in <module>
+    from app import app
+  File "/root/pub_finance/finance/dashreport/app.py", line 6, in <module>
+    from pages import (
+  File "/root/pub_finance/finance/dashreport/pages/overview.py", line 40, in <module>
+    df_second_hand_house = pd.read_csv(
+                           ^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 626, in _read
+    return parser.read(nrows)
+           ^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1911, in read
+    df = self._engine.read()  # type: ignore[attr-defined]
+         ^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/arrow_parser_wrapper.py", line 253, in read
+    self._validate_usecols(include)
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/arrow_parser_wrapper.py", line 224, in _validate_usecols
+    raise ValueError(
+ValueError: The pyarrow engine does not allow 'usecols' to be integer column positions. Pass a list of string column names instead.
