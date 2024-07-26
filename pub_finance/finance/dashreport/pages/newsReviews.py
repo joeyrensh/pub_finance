@@ -19,10 +19,7 @@ def create_layout(app):
                                     html.Div(
                                         [
                                             html.P(
-                                                "10/25/16    The rise of indexing and the fall of costs"
-                                            ),
-                                            html.P(
-                                                "08/31/16    It's the index mutual fund's 40th anniversary: Let the low-cost, passive party begin"
+                                                "欢迎加入我们，本公司诚聘保安和保洁各2名"
                                             ),
                                         ],
                                         style={"color": "#7a7a7a"},
@@ -36,29 +33,15 @@ def create_layout(app):
                                     html.Br([]),
                                     html.Div(
                                         [
-                                            html.Li("Launched in 1976."),
-                                            html.Li(
-                                                "On average, has historically produced returns that have far outpaced the rate of inflation.*"
-                                            ),
-                                            html.Li(
-                                                "Quantitative Equity Group, the fund's advisor, is among the world's largest equity index managers."
-                                            ),
+                                            html.Li("公司成立于1894年"),
+                                            html.Li("受朝廷督办，致力于构建百年企业"),
                                         ],
                                         id="reviews-bullet-pts",
                                     ),
                                     html.Div(
                                         [
-                                            html.P(
-                                                "Did you know? The fund launched in 1976 as First Index Investment Trust—the nation's first index fund available to individual investors."
-                                            ),
                                             html.Br([]),
-                                            html.P(
-                                                "* The performance of an index is not an exact representation of any particular investment, as you cannot invest directly in an index."
-                                            ),
-                                            html.Br([]),
-                                            html.P(
-                                                "Past performance is no guarantee of future returns. See performance data current to the most recent month-end."
-                                            ),
+                                            html.P("商务加盟，请联系妙木"),
                                         ],
                                         style={"color": "#7a7a7a"},
                                     ),

@@ -6,6 +6,7 @@ from dash.dependencies import Input, Output
 from pages import (
     overview,
     cnStockPerformance,
+    usStockPerformance,
     portfolioManagement,
     feesMins,
     distributions,
@@ -30,21 +31,15 @@ app.layout = html.Div(
 def display_page(pathname):
     if pathname == "/dash-financial-report/cn-stock-performance":
         return cnStockPerformance.create_layout(app)
-    elif pathname == "/dash-financial-report/portfolio-management":
-        return portfolioManagement.create_layout(app)
-    elif pathname == "/dash-financial-report/fees":
-        return feesMins.create_layout(app)
-    elif pathname == "/dash-financial-report/distributions":
-        return distributions.create_layout(app)
+    elif pathname == "/dash-financial-report/us-stock-performance":
+        return usStockPerformance.create_layout(app)
     elif pathname == "/dash-financial-report/news-and-reviews":
         return newsReviews.create_layout(app)
     elif pathname == "/dash-financial-report/full-view":
         return (
             overview.create_layout(app),
             cnStockPerformance.create_layout(app),
-            portfolioManagement.create_layout(app),
-            feesMins.create_layout(app),
-            distributions.create_layout(app),
+            usStockPerformance.create_layout(app),
             newsReviews.create_layout(app),
         )
     else:

@@ -74,16 +74,8 @@ def get_menu():
                 className="tab",
             ),
             dcc.Link(
-                "Portfolio & Management",
-                href="/dash-financial-report/portfolio-management",
-                className="tab",
-            ),
-            dcc.Link(
-                "Fees & Minimums", href="/dash-financial-report/fees", className="tab"
-            ),
-            dcc.Link(
-                "Distributions",
-                href="/dash-financial-report/distributions",
+                "美股市场数据分析",
+                href="/dash-financial-report/us-stock-performance",
                 className="tab",
             ),
             dcc.Link(
