@@ -1,12 +1,8 @@
-import dash_core_components as dcc
 import dash_html_components as html
-import plotly.graph_objs as go
 from utils import Header, make_dash_table
 import pandas as pd
 import pathlib
 import base64
-import dash_bootstrap_components as dbc
-import dash_table
 
 
 def create_layout(app):
