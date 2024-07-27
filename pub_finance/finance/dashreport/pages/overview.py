@@ -224,7 +224,7 @@ def create_layout(app):
                                     ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_secondhouse}",
-                                        style={"width": "105%"},
+                                        style={"width": "100%"},
                                     ),
                                 ],
                                 className="six columns",
@@ -237,7 +237,7 @@ def create_layout(app):
                                     ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_secondhouse2}",
-                                        style={"width": "110%"},
+                                        style={"width": "100%"},
                                     ),
                                 ],
                                 className="six columns",
