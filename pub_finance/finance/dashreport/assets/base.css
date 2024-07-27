@@ -9,38 +9,44 @@ body {
   font-size: 1.1rem;
   line-height: 1.3;
 }
+
 * {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
 }
+
 .page {
   position: relative;
-  width: 210mm;
+  width: 250mm;
   min-height: 300mm;
   padding: 0mm;
-  margin: 10mm auto;
+  margin: 1mm auto;
   /* border: 1px #D3D3D3 solid; */
   border-radius: 5px;
   background: white;
   /* box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); */
 }
+
 .subpage {
-  padding: 1cm;
-  border: 5px #ccc solid;
+  padding: 0 cm;
+  border: 1 px #ccc solid;
   height: 257mm;
-  outline: 2cm whitesmoke solid;
+  outline: 0.2cm whitesmoke solid;
 }
 
 @page {
   size: A4;
   margin: 0;
 }
+
 @media print {
+
   html,
   body {
     width: 210mm;
     height: 297mm;
   }
+
   .page {
     margin: 0;
     border: initial;
@@ -51,6 +57,7 @@ body {
     background: initial;
     page-break-after: always;
   }
+
   .no-print,
   .no-print * {
     display: none !important;
@@ -117,6 +124,7 @@ table.reversed tr:nth-child(odd) {
   background-color: #d7dbe1;
   -webkit-print-color-adjust: exact;
 }
+
 table.reversed tr:nth-child(even) {
   background-color: white;
 }
@@ -216,6 +224,6 @@ border-style: solid;
   display: inline-block;
 } */
 
-#page-content > div:nth-child(n + 2) > a {
+#page-content>div:nth-child(n + 2)>a {
   visibility: hidden;
 }
