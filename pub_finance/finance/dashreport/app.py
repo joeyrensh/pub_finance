@@ -7,9 +7,6 @@ from pages import (
     overview,
     cnStockPerformance,
     usStockPerformance,
-    portfolioManagement,
-    feesMins,
-    distributions,
     newsReviews,
 )
 
@@ -22,7 +19,17 @@ server = app.server
 
 # Describe the layout/ UI of the app
 app.layout = html.Div(
-    [dcc.Location(id="url", refresh=False), html.Div(id="page-content")]
+    [
+        dcc.Location(id="url", refresh=False),
+        dcc.Loading(
+            id="loading",
+            type="circle",
+            fullscreen=True,
+            color="#119DFF",
+            style={"zIndex": "1000"},
+            children=[html.Div(id="page-content")],
+        ),
+    ]
 )
 
 
