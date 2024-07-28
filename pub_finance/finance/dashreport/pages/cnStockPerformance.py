@@ -59,13 +59,13 @@ def create_layout(app):
     df_detail = df_detail[
         [
             "SYMBOL",
+            "IND",
+            "NAME",
             "OPEN DATE",
             "BASE",
             "ADJBASE",
             "PNL",
             "PNL RATIO",
-            "IND",
-            "NAME",
             "AVG TRANS",
             "AVG DAYS",
             "WIN RATE",
