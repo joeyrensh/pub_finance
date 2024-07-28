@@ -3,6 +3,8 @@ from utils import Header, make_dash_table
 import pandas as pd
 import pathlib
 import base64
+import dash_core_components as dcc
+from dash.dependencies import Input, Output
 
 
 def create_layout(app):
@@ -83,6 +85,7 @@ def create_layout(app):
     df_detail["TOTAL PNL RATIO"] = df_detail["TOTAL PNL RATIO"].apply(
         lambda x: "{:.2%}".format(x)
     )
+
     return html.Div(
         [
             Header(app),
