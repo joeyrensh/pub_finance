@@ -123,6 +123,8 @@ td,
 th {
   border: 0px solid #ddd;
   padding: 8px;
+  text-align: left;
+
 }
 
 table.tiny-header tr:first-child {

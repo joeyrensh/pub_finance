@@ -182,7 +182,7 @@ def create_layout(app):
                                         [
                                             html.Div(
                                                 make_dash_table(df),
-                                                className="gs-table-header",
+                                                # className="gs-table-header",
                                                 # className="tiny-header",
                                             )
                                         ],
@@ -209,7 +209,7 @@ def create_layout(app):
                                         [
                                             html.Div(
                                                 make_dash_table(df_detail),
-                                                className="gs-table-header",
+                                                # className="gs-table-header",
                                                 # className="tiny-header",
                                             )
                                         ],

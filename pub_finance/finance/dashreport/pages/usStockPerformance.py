@@ -3,8 +3,9 @@ from utils import Header, make_dash_table
 import pandas as pd
 import pathlib
 import base64
-import dash_core_components as dcc
-from dash.dependencies import Input, Output
+
+# 定义全局变量 df_detail
+df_detail = None
 
 
 def create_layout(app):
@@ -182,8 +183,8 @@ def create_layout(app):
                                     html.Div(
                                         [
                                             html.Div(
-                                                make_dash_table(df),
-                                                className="gs-table-header",
+                                                children=make_dash_table(df),
+                                                className="table",
                                                 # className="tiny-header",
                                             )
                                         ],
@@ -209,8 +210,8 @@ def create_layout(app):
                                     html.Div(
                                         [
                                             html.Div(
-                                                make_dash_table(df_detail),
-                                                className="gs-table-header",
+                                                children=make_dash_table(df_detail),
+                                                className="table",
                                                 # className="tiny-header",
                                             )
                                         ],

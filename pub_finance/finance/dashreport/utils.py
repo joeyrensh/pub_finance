@@ -1,6 +1,7 @@
 import dash_html_components as html
 import dash_core_components as dcc
 import re
+import dash_table
 
 
 def Header(app):
@@ -104,27 +105,76 @@ def check_value_type(value):
         return value, "text"
 
 
+# def make_dash_table(df):
+#     """Return a dash definition of an HTML table for a Pandas dataframe"""
+#     table = []
+#     html_row = []
+#     for row in df.columns:
+#         html_row.append(html.Th([row]))
+#     table.append(html.Tr(html_row))
+#     for _, row in df.iterrows():
+#         html_row = []
+#         for i in range(len(row)):
+#             value = str(row[i])
+#             new_value, value_type = check_value_type(value)
+#             if value_type == "img":
+#                 # 添加样式设置到图片标签
+#                 img_style = {
+#                     "max-width": "100px",  # 设置图片最大宽度
+#                     "max-height": "80px",  # 设置图片最大高度
+#                 }
+#                 html_row.append(html.Td(html.Img(src=new_value, style=img_style)))
+#             elif value_type == "richtext":
+#                 html_row.append(html.Span(f"{new_value}"))
+#             else:
+#                 html_row.append(html.Td(html.Span(children=new_value)))
+#         table.append(html.Tr(html_row))
+
+#     return table
+
+
 def make_dash_table(df):
-    """Return a dash definition of an HTML table for a Pandas dataframe"""
-    table = []
-    html_row = []
-    for row in df.columns:
-        html_row.append(html.Th([row]))
-    table.append(html.Tr(html_row))
-    for _, row in df.iterrows():
-        html_row = []
-        for i in range(len(row)):
-            value = str(row[i])
+    """Return a dash_table.DataTable for a Pandas dataframe"""
+    data = df.to_dict("records")
+
+    columns = []
+    for col in df.columns:
+        columns.append({"name": col, "id": col, "presentation": "markdown"})
+
+    # Convert data to support markdown for images and rich text
+    for row in data:
+        for key in row:
+            value = str(row[key])
             new_value, value_type = check_value_type(value)
             if value_type == "img":
-                # 添加样式设置到图片标签
-                img_style = {
-                    "max-width": "100px",  # 设置图片最大宽度
-                    "max-height": "80px",  # 设置图片最大高度
-                }
-                html_row.append(html.Td(html.Img(src=new_value, style=img_style)))
+                # 使用 HTML 格式添加图片
+                img_style = "max-width: 100px; max-height: 50px;"
+                row[key] = f'<img src="{new_value}" style="{img_style}" />'
+            elif value_type == "richtext":
+                row[key] = f"{new_value}"
             else:
-                html_row.append(html.Td(html.Span(children=new_value)))
-        table.append(html.Tr(html_row))
+                row[key] = new_value
 
-    return table
+    return dash_table.DataTable(
+        data=data,
+        columns=columns,
+        filter_action="native",
+        filter_options={
+            "placeholder_text": None,
+            "case": "insensitive",
+        },
+        style_filter={"color": "white", "font-weight": "bold", "height": "2px"},
+        markdown_options={"html": True},
+        fill_width=False,
+        editable=True,
+        style_header={
+            "fontWeight": "bold",
+            # "backgroundColor": "white",
+        },
+        style_cell={
+            "textAlign": "left",
+            "height": "auto",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis",
+        },
+    )
