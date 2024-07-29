@@ -176,5 +176,6 @@ def make_dash_table(df):
             "height": "auto",
             "overflow": "hidden",
             "textOverflow": "ellipsis",
+            "font-size": "1rem",
         },
     )
