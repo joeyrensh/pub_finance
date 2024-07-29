@@ -163,9 +163,9 @@ def make_dash_table(df):
             "placeholder_text": None,
             "case": "insensitive",
         },
-        style_filter={"color": "white", "font-weight": "bold", "height": "2px"},
+        # style_filter={"color": "white", "font-weight": "bold", "height": "1px"},
         markdown_options={"html": True},
-        fill_width=False,
+        fill_width=True,
         editable=True,
         style_header={
             "fontWeight": "bold",
@@ -177,5 +177,7 @@ def make_dash_table(df):
             "overflow": "hidden",
             "textOverflow": "ellipsis",
             "font-size": "1rem",
+            "margin": "0px",
+            "padding": "2px",
         },
     )

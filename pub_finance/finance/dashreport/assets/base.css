@@ -133,6 +133,8 @@ table {
   font-size: 0.95rem;
   border-spacing: 0;
   border-collapse: collapse;
+  margin: 0;
+  padding: 0;
 }
 
 table.tiny-header tr:first-child {

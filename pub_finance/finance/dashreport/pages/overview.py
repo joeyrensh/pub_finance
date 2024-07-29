@@ -201,7 +201,7 @@ def create_layout(app):
                                         [
                                             html.Table(
                                                 make_dash_table(df_new_house),
-                                                # className="gs-table-header",
+                                                className="table",
                                             )
                                         ],
                                         style={"overflow-x": "auto", "height": 400},
@@ -271,7 +271,7 @@ def create_layout(app):
                                         [
                                             html.Table(
                                                 make_dash_table(result),
-                                                # className="gs-table-header",
+                                                className="table",
                                             )
                                         ],
                                         style={"overflow-x": "auto", "height": 400},

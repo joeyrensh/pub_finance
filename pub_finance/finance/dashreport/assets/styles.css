@@ -91,10 +91,15 @@ p.padded {
 
 table {
   width: 100%;
+  font-size: 1rem;
+  border-spacing: 0;
+  border-collapse: collapse;
+  margin: 0;
+  padding: 0;
 }
 
 td {
-  padding: 2px 0px;
+  padding: 0px 0px;
 }
 
 tr:nth-child(even) {
@@ -111,12 +116,6 @@ table.reversed tr:nth-child(odd) {
 
 table.reversed tr:nth-child(even) {
   background-color: #f0f0f0;
-}
-
-table {
-  font-size: 1rem;
-  border-spacing: 0;
-  border-collapse: collapse;
 }
 
 td,
