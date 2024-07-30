@@ -19,6 +19,17 @@ def create_layout(app):
     df_new_house = pd.read_csv(
         HOUSE_PATH.joinpath("newhouse.csv"), usecols=[i for i in range(0, 8)]
     )
+    # 重命名列
+    df_new_house = df_new_house.rename(
+        columns={
+            "house_type": "house type",
+            "bizcircle_name": "bizcircle name",
+            "avg_price": "avg price",
+            "area_range": "area range",
+            "sale_status": "sale status",
+            "open_date": "open date",
+        }
+    )
     with open(HOUSE_PATH.joinpath("map_newhouse.png"), "rb") as f:
         image_data = f.read()
         encoded_image_newhouse = base64.b64encode(image_data).decode("utf-8")
@@ -147,6 +158,15 @@ def create_layout(app):
         ["name", "unit_price_y", "deal_price_y", "sell_cnt", "total_cnt", "ratio"]
     ]
     result["ratio"] = result["ratio"].apply(lambda x: "{:.2%}".format(x))
+    # 重命名列
+    result = result.rename(
+        columns={
+            "unit_price_y": "unit price",
+            "deal_price_y": "deal price",
+            "sell_cnt": "sell cnt",
+            "total_cnt": "total cnt",
+        }
+    )
     # Page layouts
     return html.Div(
         [
@@ -201,9 +221,9 @@ def create_layout(app):
                                         [
                                             html.Table(
                                                 make_dash_table(df_new_house),
-                                                className="table",
                                             )
                                         ],
+                                        className="table",
                                         style={"overflow-x": "auto", "height": 400},
                                     ),
                                 ],
@@ -271,9 +291,9 @@ def create_layout(app):
                                         [
                                             html.Table(
                                                 make_dash_table(result),
-                                                className="table",
                                             )
                                         ],
+                                        className="table",
                                         style={"overflow-x": "auto", "height": 400},
                                     ),
                                 ],

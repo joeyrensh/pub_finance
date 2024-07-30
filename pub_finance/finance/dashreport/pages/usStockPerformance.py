@@ -184,10 +184,10 @@ def create_layout(app):
                                         [
                                             html.Div(
                                                 children=make_dash_table(df),
-                                                className="table",
                                                 # className="tiny-header",
                                             )
                                         ],
+                                        className="table",
                                         style={"overflow-x": "auto", "height": 400},
                                     ),
                                 ],
@@ -211,10 +211,10 @@ def create_layout(app):
                                         [
                                             html.Div(
                                                 children=make_dash_table(df_detail),
-                                                className="table",
                                                 # className="tiny-header",
                                             )
                                         ],
+                                        className="table",
                                         style={"overflow-x": "auto", "height": 400},
                                     ),
                                 ],

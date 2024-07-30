@@ -187,6 +187,7 @@ def create_layout(app):
                                             )
                                         ],
                                         style={"overflow-x": "auto", "height": 400},
+                                        className="table",
                                     ),
                                 ],
                                 className="twelve columns",
@@ -214,6 +215,7 @@ def create_layout(app):
                                             )
                                         ],
                                         style={"overflow-x": "auto", "height": 400},
+                                        className="table",
                                     ),
                                 ],
                                 className="twelve columns",
