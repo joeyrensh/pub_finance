@@ -81,7 +81,9 @@ def create_layout(app):
     df_detail["PNL"] = df_detail["PNL"].apply(lambda x: "{:.2f}".format(x))
     df_detail["AVG TRANS"] = df_detail["AVG TRANS"].apply(lambda x: "{:.2f}".format(x))
     df_detail["AVG DAYS"] = df_detail["AVG DAYS"].apply(lambda x: "{:.2f}".format(x))
-    df_detail["PNL RATIO"] = df_detail["PNL RATIO"].apply(lambda x: "{:.2%}".format(x))
+    df_detail["PNL RATIO"] = (
+        df_detail["PNL RATIO"].apply(lambda x: "{:.2%}".format(x)).astype(float)
+    )
     df_detail["WIN RATE"] = df_detail["WIN RATE"].apply(lambda x: "{:.2%}".format(x))
     df_detail["TOTAL PNL RATIO"] = df_detail["TOTAL PNL RATIO"].apply(
         lambda x: "{:.2%}".format(x)

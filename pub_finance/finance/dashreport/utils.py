@@ -96,7 +96,6 @@ def check_value_type(value):
         match = re.search(r"<img\s+[^>]*src\s*=\s*\"([^\"]*)\"\s*\/?>", value)
         if match:
             return match.group(1), "img"
-
     # 如果包含<span>标签，则去除<span>标签但保留其内容
     elif re.search(r"<span\b[^>]*>(.*?)</span>", value):
         return re.sub(r"<span\b[^>]*>(.*?)</span>", r"\1", value), "richtext"
@@ -124,8 +123,6 @@ def check_value_type(value):
 #                     "max-height": "80px",  # 设置图片最大高度
 #                 }
 #                 html_row.append(html.Td(html.Img(src=new_value, style=img_style)))
-#             elif value_type == "richtext":
-#                 html_row.append(html.Span(f"{new_value}"))
 #             else:
 #                 html_row.append(html.Td(html.Span(children=new_value)))
 #         table.append(html.Tr(html_row))

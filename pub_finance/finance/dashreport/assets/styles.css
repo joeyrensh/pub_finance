@@ -96,6 +96,7 @@ table {
   border-collapse: collapse;
   margin: 0;
   padding: 0;
+  border: 0px solid #050505;
 }
 
 td {
