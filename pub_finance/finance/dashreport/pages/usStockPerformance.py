@@ -1,5 +1,5 @@
 import dash_html_components as html
-from utils import Header, make_dash_table
+from utils import Header, make_dash_format_table
 import pandas as pd
 import pathlib
 import base64
@@ -48,12 +48,15 @@ def create_layout(app):
             "PROFIT TREND",
         ]
     ]
-    df["LRATIO"] = df["LRATIO"].apply(lambda x: "{:.2%}".format(x))
-    df["PROFIT"] = df["PROFIT"].apply(lambda x: "{:.0f}".format(x))
-    df["PNL RATIO"] = df["PNL RATIO"].apply(lambda x: "{:.2%}".format(x))
-    df["AVG TRANS"] = df["AVG TRANS"].apply(lambda x: "{:.2f}".format(x))
-    df["AVG DAYS"] = df["AVG DAYS"].apply(lambda x: "{:.2f}".format(x))
-    df["WIN RATE"] = df["WIN RATE"].apply(lambda x: "{:.2%}".format(x))
+
+    cols_format_category = {
+        "LRATIO": "ratio",
+        "PROFIT": "float",
+        "PNL RATIO": "ratio",
+        "AVG TRANS": "float",
+        "AVG DAYS": "float",
+        "WIN RATE": "ratio",
+    }
 
     # 持仓明细
     df_detail = pd.read_csv(
@@ -76,16 +79,16 @@ def create_layout(app):
             "Strategy",
         ]
     ]
-    df_detail["BASE"] = df_detail["BASE"].apply(lambda x: "{:.2f}".format(x))
-    df_detail["ADJBASE"] = df_detail["ADJBASE"].apply(lambda x: "{:.2f}".format(x))
-    df_detail["PNL"] = df_detail["PNL"].apply(lambda x: "{:.2f}".format(x))
-    df_detail["AVG TRANS"] = df_detail["AVG TRANS"].apply(lambda x: "{:.2f}".format(x))
-    df_detail["AVG DAYS"] = df_detail["AVG DAYS"].apply(lambda x: "{:.2f}".format(x))
-    df_detail["PNL RATIO"] = df_detail["PNL RATIO"].apply(lambda x: "{:.2%}".format(x))
-    df_detail["WIN RATE"] = df_detail["WIN RATE"].apply(lambda x: "{:.2%}".format(x))
-    df_detail["TOTAL PNL RATIO"] = df_detail["TOTAL PNL RATIO"].apply(
-        lambda x: "{:.2%}".format(x)
-    )
+    cols_format_detail = {
+        "BASE": "float",
+        "ADJBASE": "float",
+        "PNL": "float",
+        "AVG TRANS": "float",
+        "AVG DAYS": "float",
+        "PNL RATIO": "ratio",
+        "WIN RATE": "ratio",
+        "TOTAL PNL RATIO": "ratio",
+    }
 
     return html.Div(
         [
@@ -183,7 +186,9 @@ def create_layout(app):
                                     html.Div(
                                         [
                                             html.Div(
-                                                children=make_dash_table(df),
+                                                children=make_dash_format_table(
+                                                    df, cols_format_category
+                                                ),
                                                 # className="tiny-header",
                                             )
                                         ],
@@ -210,7 +215,9 @@ def create_layout(app):
                                     html.Div(
                                         [
                                             html.Div(
-                                                children=make_dash_table(df_detail),
+                                                children=make_dash_format_table(
+                                                    df_detail, cols_format_detail
+                                                ),
                                                 # className="tiny-header",
                                             )
                                         ],

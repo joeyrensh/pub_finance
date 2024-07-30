@@ -104,32 +104,6 @@ def check_value_type(value):
         return value, "text"
 
 
-# def make_dash_table(df):
-#     """Return a dash definition of an HTML table for a Pandas dataframe"""
-#     table = []
-#     html_row = []
-#     for row in df.columns:
-#         html_row.append(html.Th([row]))
-#     table.append(html.Tr(html_row))
-#     for _, row in df.iterrows():
-#         html_row = []
-#         for i in range(len(row)):
-#             value = str(row[i])
-#             new_value, value_type = check_value_type(value)
-#             if value_type == "img":
-#                 # 添加样式设置到图片标签
-#                 img_style = {
-#                     "max-width": "100px",  # 设置图片最大宽度
-#                     "max-height": "80px",  # 设置图片最大高度
-#                 }
-#                 html_row.append(html.Td(html.Img(src=new_value, style=img_style)))
-#             else:
-#                 html_row.append(html.Td(html.Span(children=new_value)))
-#         table.append(html.Tr(html_row))
-
-#     return table
-
-
 def make_dash_table(df):
     """Return a dash_table.DataTable for a Pandas dataframe"""
     data = df.to_dict("records")
@@ -179,4 +153,89 @@ def make_dash_table(df):
             "padding": "0px",
             # "border": "1px",
         },
+    )
+
+
+def make_dash_format_table(df, cols_format):
+    """Return a dash_table.DataTable for a Pandas dataframe"""
+    data = df.to_dict("records")
+    columns = []
+    for col in df.columns:
+        columns.append({"name": col, "id": col, "presentation": "markdown"})
+
+    # Convert data to support markdown for images and rich text
+    for row in data:
+        for key in row:
+            if key in cols_format:
+                new_value, value_type = row[key], "float"
+            else:
+                value = str(row[key])
+                new_value, value_type = check_value_type(value)
+            if value_type == "img":
+                img_style = "max-width: 100px; max-height: 50px;"
+                row[key] = f'<img src="{new_value}" style="{img_style}" />'
+            elif value_type == "richtext":
+                row[key] = f"{new_value}"
+            else:
+                if key in cols_format:
+                    if cols_format[key] == "float":
+                        row[key] = f"{new_value:.2f}"
+                    else:
+                        row[key] = f"{new_value * 100:.2f}%"
+                else:
+                    row[key] = new_value
+
+    return dash_table.DataTable(
+        data=data,
+        columns=columns,
+        filter_action="native",
+        filter_options={
+            "placeholder_text": None,
+            "case": "insensitive",
+        },
+        style_filter={"color": "white", "ling-height": "1px"},
+        markdown_options={"html": True},
+        fill_width=True,
+        editable=True,
+        style_header={
+            "fontWeight": "bold",
+            "white-space": "normal",
+            # "backgroundColor": "white",
+        },
+        style_cell={
+            "textAlign": "left",
+            "minHeight": "5px",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis",
+            "font-size": "1rem",
+            "margin": "0px",
+            "padding": "0px",
+            # "border": "1px",
+        },
+        style_data_conditional=(
+            [
+                {
+                    "if": {
+                        "filter_query": "{{{}}} < 0%".format(col),
+                        "column_id": col,
+                    },
+                    "backgroundColor": "#3D9970",
+                    "color": "white",
+                }
+                for col in df.columns
+                if col in cols_format and cols_format[col] == "ratio"
+            ]
+            + [
+                {
+                    "if": {
+                        "filter_query": "{{{}}} >= 0%".format(col),
+                        "column_id": col,
+                    },
+                    "backgroundColor": "#FF4136",
+                    "color": "white",
+                }
+                for col in df.columns
+                if col in cols_format and cols_format[col] == "ratio"
+            ]
+        ),
     )
