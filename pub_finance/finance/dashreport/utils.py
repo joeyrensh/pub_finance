@@ -216,7 +216,7 @@ def make_dash_format_table(df, cols_format):
             [
                 {
                     "if": {
-                        "filter_query": "{{{}}} < 0%".format(col),
+                        "filter_query": "{{{}}} <= 0%".format(col),
                         "column_id": col,
                     },
                     "backgroundColor": "#3D9970",
