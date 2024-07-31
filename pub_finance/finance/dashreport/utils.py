@@ -179,6 +179,7 @@ def data_bars(df, column):
                             if (i < len(bounds) - 1)
                             else ""
                         )
+                        + " && {{{column}}} > 0"  # 只对非负值应用样式
                     ).format(column=col_n, min_bound=min_bound, max_bound=max_bound),
                     "column_id": column,
                 },
