@@ -4,7 +4,7 @@ import re
 import geopandas as gpd
 import json
 
-from utils import Header, make_dash_table
+from utils import Header, make_dash_table, make_dash_format_table
 
 import pandas as pd
 import pathlib
@@ -157,7 +157,10 @@ def create_layout(app):
     result = result[result["unit_price_y"] > 0][
         ["name", "unit_price_y", "deal_price_y", "sell_cnt", "total_cnt", "ratio"]
     ]
-    result["ratio"] = result["ratio"].apply(lambda x: "{:.2%}".format(x))
+
+    cols_format_result = {
+        "ratio": ("ratio", "format"),
+    }
     # 重命名列
     result = result.rename(
         columns={
@@ -290,7 +293,10 @@ def create_layout(app):
                                     html.Div(
                                         [
                                             html.Table(
-                                                make_dash_table(result),
+                                                # make_dash_table(result),
+                                                make_dash_format_table(
+                                                    result, cols_format_result
+                                                )
                                             )
                                         ],
                                         className="table",

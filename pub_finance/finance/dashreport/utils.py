@@ -156,34 +156,125 @@ def make_dash_table(df):
     )
 
 
+def data_bars(df, column):
+    col_n = column + "_o"
+    n_bins = 100
+    bounds = [i * (1.0 / n_bins) for i in range(n_bins + 1)]
+    ranges = [
+        ((df[col_n].max() - df[col_n].min()) * i) + df[col_n].min() for i in bounds
+    ]
+    styles = []
+    for i in range(1, len(bounds)):
+        min_bound = ranges[i - 1]
+        max_bound = ranges[i]
+        max_bound_percentage = bounds[i] * 100
+        styles.append(
+            {
+                "if": {
+                    "filter_query": (
+                        "{{{column}}} >= {min_bound}"
+                        + (
+                            " && {{{column}}} < {max_bound}"
+                            if (i < len(bounds) - 1)
+                            else ""
+                        )
+                    ).format(column=col_n, min_bound=min_bound, max_bound=max_bound),
+                    "column_id": column,
+                },
+                "background": (
+                    """
+                    linear-gradient(90deg,
+                    #0074D9 0%,
+                    #0074D9 {max_bound_percentage}%,
+                    white {max_bound_percentage}%,
+                    white 100%)
+                """.format(max_bound_percentage=max_bound_percentage)
+                ),
+                "paddingBottom": 2,
+                "paddingTop": 2,
+            }
+        )
+
+    return styles
+
+
 def make_dash_format_table(df, cols_format):
     """Return a dash_table.DataTable for a Pandas dataframe"""
-    data = df.to_dict("records")
-    columns = []
+    columns = [
+        {
+            "name": col,
+            "id": col,
+            "type": "numeric" if col in cols_format else "text",
+            "presentation": "markdown",
+        }
+        for col in df.columns
+    ]
+    # 创建一个新的 DataFrame 来存储原始列的副本
+    original_df = df.copy()
+    # 遍历 DataFrame 的所有列
     for col in df.columns:
-        columns.append({"name": col, "id": col, "presentation": "markdown"})
+        # 为每一列创建一个新的列，新的列名为原列名加上后缀 "_o"
+        df[col + "_o"] = original_df[col]
+    data = df.to_dict("records")
+
+    def format_value(value, value_type):
+        if value_type == "img":
+            img_style = "max-width: 150px; max-height: 40px;"
+            return f'<img src="{value}" style="{img_style}" />'
+        elif value_type == "richtext":
+            return f"{value}"
+        elif value_type == "float":
+            return f"{value:.2f}"
+        elif value_type == "ratio":
+            return f"{value * 100:.0f}%"
+        else:
+            return value
 
     # Convert data to support markdown for images and rich text
     for row in data:
         for key in row:
             if key in cols_format:
-                new_value, value_type = row[key], "float"
+                new_value, value_type = row[key], cols_format[key][0]
             else:
                 value = str(row[key])
                 new_value, value_type = check_value_type(value)
-            if value_type == "img":
-                img_style = "max-width: 100px; max-height: 50px;"
-                row[key] = f'<img src="{new_value}" style="{img_style}" />'
-            elif value_type == "richtext":
-                row[key] = f"{new_value}"
-            else:
-                if key in cols_format:
-                    if cols_format[key] == "float":
-                        row[key] = f"{new_value:.2f}"
-                    else:
-                        row[key] = f"{new_value * 100:.2f}%"
-                else:
-                    row[key] = new_value
+
+            row[key] = format_value(new_value, value_type)
+
+    # Flatten the list of styles
+    style_data_conditional = [
+        {
+            "if": {
+                "filter_query": "{{{}}} < 0".format(col + "_o"),
+                "column_id": col,
+            },
+            "backgroundColor": "#3D9970",
+            "color": "white",
+        }
+        for col in df.columns
+        if col in cols_format
+        and len(cols_format[col]) > 1
+        and cols_format[col][0] == "float"
+        and cols_format[col][1] == "format"
+    ] + [
+        {
+            "if": {
+                "filter_query": "{{{}}} > 0".format(col + "_o"),
+                "column_id": col,
+            },
+            "backgroundColor": "#FF4136",
+            "color": "white",
+        }
+        for col in df.columns
+        if col in cols_format
+        and len(cols_format[col]) > 1
+        and cols_format[col][0] == "float"
+        and cols_format[col][1] == "format"
+    ]
+
+    for col in df.columns:
+        if col in cols_format and cols_format[col][0] == "ratio":
+            style_data_conditional.extend(data_bars(df, col))
 
     return dash_table.DataTable(
         data=data,
@@ -212,30 +303,5 @@ def make_dash_format_table(df, cols_format):
             "padding": "0px",
             # "border": "1px",
         },
-        style_data_conditional=(
-            [
-                {
-                    "if": {
-                        "filter_query": "{{{}}} <= 0%".format(col),
-                        "column_id": col,
-                    },
-                    "backgroundColor": "#3D9970",
-                    "color": "white",
-                }
-                for col in df.columns
-                if col in cols_format and cols_format[col] == "ratio"
-            ]
-            + [
-                {
-                    "if": {
-                        "filter_query": "{{{}}} > 0%".format(col),
-                        "column_id": col,
-                    },
-                    "backgroundColor": "#FF4136",
-                    "color": "white",
-                }
-                for col in df.columns
-                if col in cols_format and cols_format[col] == "ratio"
-            ]
-        ),
+        style_data_conditional=style_data_conditional,
     )

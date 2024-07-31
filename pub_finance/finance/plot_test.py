@@ -5,22 +5,10 @@ import plotly.express as px
 import pandas as pd
 
 
-def make_dash_table(df):
-    """Return a dash definition of an HTML table for a Pandas dataframe"""
-    table = []
-    html_row = []
-    for row in df.columns:
-        html_row.append(html.Th([row]))
-    table.append(html.Tr(html_row))
-    for index, row in df.iterrows():
-        html_row = []
-        for i in range(len(row)):
-            html_row.append(html.Td([row[i]]))
-        table.append(html.Tr(html_row))
-    print(table)
-    return table
+# 创建字典，键对应元组
+my_dict = {"key1": ("value1",), "key2": ("value3", "value4")}
 
-
-df_new_house = pd.read_csv("./houseinfo/newhouse.csv", usecols=[i for i in range(0, 8)])
-
-make_dash_table(df_new_house)
+# 存取值
+print(my_dict["key1"])  # 输出: ('value1', 'value2')
+print(my_dict["key1"][0])  # 输出: 'value1'
+print(my_dict["key1"][1])  # 输出: 'value2'

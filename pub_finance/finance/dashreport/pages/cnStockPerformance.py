@@ -46,12 +46,12 @@ def create_layout(app):
         ]
     ]
     cols_format_category = {
-        "LRATIO": "ratio",
-        "PROFIT": "float",
-        "PNL RATIO": "ratio",
-        "AVG TRANS": "float",
-        "AVG DAYS": "float",
-        "WIN RATE": "ratio",
+        "LRATIO": ("ratio", "format"),
+        "PROFIT": ("float", "format"),
+        "PNL RATIO": ("ratio", "format"),
+        "AVG TRANS": ("float",),
+        "AVG DAYS": ("float",),
+        "WIN RATE": ("ratio", "format"),
     }
 
     # 持仓明细
@@ -76,14 +76,14 @@ def create_layout(app):
         ]
     ]
     cols_format_detail = {
-        "BASE": "float",
-        "ADJBASE": "float",
-        "PNL": "float",
-        "AVG TRANS": "float",
-        "AVG DAYS": "float",
-        "PNL RATIO": "ratio",
-        "WIN RATE": "ratio",
-        "TOTAL PNL RATIO": "ratio",
+        "BASE": ("float",),
+        "ADJBASE": ("float",),
+        "PNL": ("float", "format"),
+        "AVG TRANS": ("float",),
+        "AVG DAYS": ("float",),
+        "PNL RATIO": ("ratio", "format"),
+        "WIN RATE": ("ratio", "format"),
+        "TOTAL PNL RATIO": ("ratio", "format"),
     }
     return html.Div(
         [
