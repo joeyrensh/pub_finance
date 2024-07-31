@@ -226,7 +226,7 @@ def make_dash_format_table(df, cols_format):
         elif value_type == "float":
             return f"{value:.2f}"
         elif value_type == "ratio":
-            return f"{value * 100:.0f}%"
+            return f"{value * 100:.2f}%"
         else:
             return value
 
