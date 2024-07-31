@@ -4,7 +4,7 @@ import re
 import geopandas as gpd
 import json
 
-from utils import Header, make_dash_table, make_dash_format_table
+from utils import Header, make_dash_format_table
 
 import pandas as pd
 import pathlib
@@ -30,6 +30,9 @@ def create_layout(app):
             "open_date": "open date",
         }
     )
+    cols_format_new_house = {
+        "open date": ("date", "format"),
+    }
     with open(HOUSE_PATH.joinpath("map_newhouse.png"), "rb") as f:
         image_data = f.read()
         encoded_image_newhouse = base64.b64encode(image_data).decode("utf-8")
@@ -223,7 +226,9 @@ def create_layout(app):
                                     html.Div(
                                         [
                                             html.Table(
-                                                make_dash_table(df_new_house),
+                                                make_dash_format_table(
+                                                    df_new_house, cols_format_new_house
+                                                )
                                             )
                                         ],
                                         className="table",
@@ -293,7 +298,6 @@ def create_layout(app):
                                     html.Div(
                                         [
                                             html.Table(
-                                                # make_dash_table(result),
                                                 make_dash_format_table(
                                                     result, cols_format_result
                                                 )

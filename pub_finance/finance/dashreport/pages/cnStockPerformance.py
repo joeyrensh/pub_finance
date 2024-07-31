@@ -84,6 +84,7 @@ def create_layout(app):
         "PNL RATIO": ("ratio", "format"),
         "WIN RATE": ("ratio", "format"),
         "TOTAL PNL RATIO": ("ratio", "format"),
+        "OPEN DATE": ("date", "format"),
     }
     return html.Div(
         [

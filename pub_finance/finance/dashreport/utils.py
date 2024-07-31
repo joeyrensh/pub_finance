@@ -2,6 +2,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 import re
 import dash_table
+from datetime import datetime, timedelta
 
 
 def Header(app):
@@ -184,14 +185,15 @@ def data_bars(df, column):
                 "background": (
                     """
                     linear-gradient(90deg,
-                    #0074D9 0%,
-                    #0074D9 {max_bound_percentage}%,
+                    dodgerblue 0%,
+                    dodgerblue {max_bound_percentage}%,
                     white {max_bound_percentage}%,
                     white 100%)
                 """.format(max_bound_percentage=max_bound_percentage)
                 ),
                 "paddingBottom": 2,
                 "paddingTop": 2,
+                "color": "black",
             }
         )
 
@@ -242,38 +244,63 @@ def make_dash_format_table(df, cols_format):
             row[key] = format_value(new_value, value_type)
 
     # Flatten the list of styles
-    style_data_conditional = [
-        {
-            "if": {
-                "filter_query": "{{{}}} < 0".format(col + "_o"),
-                "column_id": col,
-            },
-            "backgroundColor": "#3D9970",
-            "color": "white",
-        }
-        for col in df.columns
-        if col in cols_format
-        and len(cols_format[col]) > 1
-        and cols_format[col][0] == "float"
-        and cols_format[col][1] == "format"
-    ] + [
-        {
-            "if": {
-                "filter_query": "{{{}}} > 0".format(col + "_o"),
-                "column_id": col,
-            },
-            "backgroundColor": "#FF4136",
-            "color": "white",
-        }
-        for col in df.columns
-        if col in cols_format
-        and len(cols_format[col]) > 1
-        and cols_format[col][0] == "float"
-        and cols_format[col][1] == "format"
-    ]
+    date_threshold = str(datetime.now() - timedelta(days=5))[0:10]
+    style_data_conditional = (
+        [
+            {
+                "if": {
+                    "filter_query": "{{{column}}} >= {value} and {{{column}}} != 'nan'".format(
+                        column=col + "_o", value=date_threshold
+                    ),
+                },
+                "backgroundColor": "RebeccaPurple",
+                "color": "white",
+            }
+            for col in df.columns
+            if col in cols_format
+            and len(cols_format[col]) > 1
+            and cols_format[col][0] == "date"
+            and cols_format[col][1] == "format"
+        ]
+        + [
+            {
+                "if": {
+                    "filter_query": "{{{}}} < 0".format(col + "_o"),
+                    "column_id": col,
+                },
+                "backgroundColor": "#3D9970",
+                "color": "white",
+            }
+            for col in df.columns
+            if col in cols_format
+            and len(cols_format[col]) > 1
+            and cols_format[col][0] == "float"
+            and cols_format[col][1] == "format"
+        ]
+        + [
+            {
+                "if": {
+                    "filter_query": "{{{}}} > 0".format(col + "_o"),
+                    "column_id": col,
+                },
+                "backgroundColor": "#FF4136",
+                "color": "white",
+            }
+            for col in df.columns
+            if col in cols_format
+            and len(cols_format[col]) > 1
+            and cols_format[col][0] == "float"
+            and cols_format[col][1] == "format"
+        ]
+    )
 
     for col in df.columns:
-        if col in cols_format and cols_format[col][0] == "ratio":
+        if (
+            col in cols_format
+            and len(cols_format[col]) > 1
+            and cols_format[col][0] == "ratio"
+            and cols_format[col][1] == "format"
+        ):
             style_data_conditional.extend(data_bars(df, col))
 
     return dash_table.DataTable(
