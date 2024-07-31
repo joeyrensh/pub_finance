@@ -197,10 +197,10 @@ def exec_btstrategy(date):
         ax=ax1,
         label="drawdown (right)",
         rot=0,
-        alpha=0.3,
+        alpha=0.8,
         fontsize=20,
         grid=False,
-        color="#5fba7d",
+        color="#3D9970",
     )
 
     # 绘制累计收益曲线

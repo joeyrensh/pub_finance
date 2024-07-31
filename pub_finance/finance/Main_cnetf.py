@@ -29,8 +29,7 @@ def exec_btstrategy(date):
     cerebro.addstrategy(BTStrategyCNETF, trade_date=date)
 
     # 回测时需要添加 TimeReturn 分析器
-    cerebro.addanalyzer(bt.analyzers.TimeReturn,
-                        _name="_TimeReturn", fund=True)
+    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=True)
     # cerebro.addobserver(bt.observers.BuySell)
 
     """ 初始资金100M """
@@ -99,8 +98,9 @@ def exec_btstrategy(date):
     perf_stats = pd.concat([perf_stats_year, perf_stats_all.T], axis=0)
 
     perf_stats_ = perf_stats.reset_index()
-    perf_stats_[perf_stats_.columns[1:]] = perf_stats_[
-        perf_stats_.columns[1:]].apply(lambda x: x.map(lambda y: f"{y*100:.2f}%"))
+    perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
+        lambda x: x.map(lambda y: f"{y*100:.2f}%")
+    )
 
     # 绘制图形
 
@@ -197,14 +197,14 @@ def exec_btstrategy(date):
         ax=ax1,
         label="drawdown (right)",
         rot=0,
-        alpha=0.3,
+        alpha=0.8,
         fontsize=20,
         grid=False,
-        color="#5fba7d",
+        color="#3D9970",
     )
 
     # 绘制累计收益曲线
-    cumulative_line = (cumulative).plot(
+    (cumulative).plot(
         ax=ax2,
         lw=2.0,
         label="cumret (left)",
@@ -297,8 +297,7 @@ if __name__ == "__main__":
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_etf_btstrategy_by_email(
-        cash, final_value)
+    StockProposal("cn", trade_date).send_etf_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()
