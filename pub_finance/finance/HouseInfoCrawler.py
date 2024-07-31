@@ -515,10 +515,10 @@ if __name__ == "__main__":
     map_plot(result, "挂牌价", "0f", png_path_s, 8, col_formats)
 
     # 二手房成交价分析
-    gdf_merged = gpd.sjoin(
-        geo_data_s, gdf_second_hand_house, how="inner", predicate="intersects"
-    )
-    gdf_merged = gdf_merged[gdf_merged["deal_price"] > 0]
+    # gdf_merged = gpd.sjoin(
+    #     geo_data_s, gdf_second_hand_house, how="inner", predicate="intersects"
+    # )
+    # gdf_merged = gdf_merged[gdf_merged["deal_price"] > 0]
     gdf_agg = (
         gdf_merged.groupby("adcode").median({"deal_price": "deal_price"}).round(-2)
     )
@@ -527,10 +527,10 @@ if __name__ == "__main__":
     map_plot(result, "最近成交价", "0f", png_path_s2, 8, col_formats)
 
     # 二手房挂牌量分析
-    gdf_merged = gpd.sjoin(
-        geo_data_s, gdf_second_hand_house, how="inner", predicate="intersects"
-    )
-    gdf_merged = gdf_merged[gdf_merged["sell_cnt"] > 0]
+    # gdf_merged = gpd.sjoin(
+    #     geo_data_s, gdf_second_hand_house, how="inner", predicate="intersects"
+    # )
+    # gdf_merged = gdf_merged[gdf_merged["sell_cnt"] > 0]
     gdf_agg = gdf_merged.groupby("adcode")[["sell_cnt", "total_cnt"]].sum().round(0)
     # 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
     gdf_agg["ratio"] = gdf_agg.apply(
