@@ -327,6 +327,7 @@ def make_dash_format_table(df, cols_format):
             "textOverflow": "ellipsis",
             "font-size": "1rem",
             "margin": "0px",
+            "margin-bottom": "-20px",
             "padding": "0px",
             # "border": "1px",
         },
