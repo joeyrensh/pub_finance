@@ -11,56 +11,16 @@ import concurrent.futures
 import re
 import json
 import time
+import aiohttp
+import asyncio
 from fake_useragent import UserAgent
-import urllib.parse
 import random
-import string
-import uuid
-
 
 """ 
 上海区域地图数据：https://geo.datav.aliyun.com/areas_v3/bound/310000_full.json
 链家数据：https://sh.fang.lianjia.com/loupan/minhang/nht1nht2nhs1pg1/?_t=1/
 
 """
-
-
-def random_string(length):
-    """生成指定长度的随机字符串"""
-    letters_and_digits = string.ascii_letters + string.digits
-    return "".join(random.choice(letters_and_digits) for _ in range(length))
-
-
-def random_hex_string(length):
-    """生成指定长度的随机十六进制字符串"""
-    return "".join(random.choice(string.hexdigits) for _ in range(length)).lower()
-
-
-def random_urlencoded_string(length):
-    """生成指定长度的随机 URL 编码字符串"""
-    raw_string = random_string(length)
-    return urllib.parse.quote(raw_string)
-
-
-def random_ip():
-    """生成随机 IP 地址"""
-    return ".".join(str(random.randint(0, 255)) for _ in range(4))
-
-
-def random_cookie():
-    """生成随机 cookie 字符串"""
-    cookies = {
-        "SECKEY_ABVK": random_urlencoded_string(43),
-        "BMAP_SECKEY": random_urlencoded_string(128),
-        "lianjia_uuid": str(uuid.uuid4()),
-        "_smt_uid": random_hex_string(8) + "." + random_hex_string(8),
-        "proxy_ip": random_ip(),
-        "select_city": "310000",
-        "_jzqckmp": "1",
-    }
-
-    # 将字典转换为 cookie 字符串
-    return "; ".join([f"{key}={value}" for key, value in cookies.items()])
 
 
 def get_house_info_f(file_path):
@@ -90,7 +50,7 @@ def get_house_info_f(file_path):
     cnt = 0
     t = ToolKit("策略执行中")
     for idx, district in enumerate(district_list):
-        time.sleep(round(random.random(), 1))
+        time.sleep(5)
         t.progress_bar(len(district_list), idx + 1)
 
         for i in range(1, 10):
@@ -129,177 +89,157 @@ def get_house_info_f(file_path):
             cnt = cnt + 1
 
 
-def fetch_house_info_s(url, item):
+async def fetch_house_info_s(session, url, item):
     time.sleep(round(random.random(), 1))
-    # 添加请求头
     ua = UserAgent()
     headers = {
         "User-Agent": ua.random,
-        "Referer": "https://www.baidu.com/",
-        # "Cookie": random_cookie(),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Referer": "https://www.google.com/",
     }
+
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
-    response = requests.get(url_re, headers=headers)
-    # print(url_re)
-    tree = html.fromstring(response.content)
-    unit_price_div = tree.xpath(
-        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
-    )
-    if len(unit_price_div) > 0:
-        unit_price = unit_price_div[0].xpath("string(.)")
-    else:
-        unit_price = ""
-    deal_price_div = tree.xpath(
-        '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]'
-    )
-    if len(deal_price_div) > 0:
-        deal_price = deal_price_div[0].xpath("string(.)")
-    else:
-        deal_price = ""
-    deal_date_div = tree.xpath(
-        '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealDate"]'
-    )
-    if len(deal_date_div) > 0:
-        deal_date = deal_date_div[0].xpath("string(.)")
-    else:
-        deal_date = ""
-    lanlong_div = tree.xpath(
-        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemOneLine"]/div[@class="xiaoquInfoItem outerItem"][2]/span[@class="xiaoquInfoContent outer"]/span[@mendian]'
-    )
-    if len(lanlong_div) > 0:
-        lanlong = lanlong_div[0].get("xiaoqu")
-    else:
-        lanlong = ""
-    age_div = tree.xpath(
-        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
-    )
-    if len(age_div) > 0:
-        age = age_div[0].xpath("string(.)")
-    else:
-        age = ""
-    house_type_div = tree.xpath(
-        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
-    )
-    if len(house_type_div) > 0:
-        house_type = house_type_div[0].xpath("string(.)")
-    else:
-        house_type = ""
-    total_cnt_div = tree.xpath(
-        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
-    )
-    if len(total_cnt_div) > 0:
-        total_cnt = total_cnt_div[0].xpath("string(.)")
-    else:
-        total_cnt = ""
-    structure_div = tree.xpath(
-        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
-    )
-    if len(structure_div) > 0:
-        structure = structure_div[0].xpath("string(.)")
-    else:
-        structure = ""
+    async with session.get(url_re, headers=headers) as response:
+        content = await response.text()
+        tree = html.fromstring(content)
 
-    dict = {
-        "data_id": item["data_id"],
-        "al_text": item["al_text"],
-        "sell_cnt": item["sell_cnt"],
-        "district": item["district"],
-        "unit_price": unit_price,
-        "deal_price": deal_price,
-        "deal_date": deal_date,
-        "lanlong": lanlong,
-        "age": age,
-        "total_cnt": total_cnt,
-        "structure": structure,
-        "house_type": house_type,
-    }
+        unit_price_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
+        )
+        unit_price = unit_price_div[0].xpath("string(.)") if unit_price_div else ""
+
+        deal_price_div = tree.xpath(
+            '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]'
+        )
+        deal_price = deal_price_div[0].xpath("string(.)") if deal_price_div else ""
+
+        deal_date_div = tree.xpath(
+            '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealDate"]'
+        )
+        deal_date = deal_date_div[0].xpath("string(.)") if deal_date_div else ""
+
+        lanlong_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemOneLine"]/div[@class="xiaoquInfoItem outerItem"][2]/span[@class="xiaoquInfoContent outer"]/span[@mendian]'
+        )
+        lanlong = lanlong_div[0].get("xiaoqu") if lanlong_div else ""
+
+        age_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
+        )
+        age = age_div[0].xpath("string(.)") if age_div else ""
+
+        house_type_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
+        )
+        house_type = house_type_div[0].xpath("string(.)") if house_type_div else ""
+
+        total_cnt_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
+        )
+        total_cnt = total_cnt_div[0].xpath("string(.)") if total_cnt_div else ""
+
+        structure_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
+        )
+        structure = structure_div[0].xpath("string(.)") if structure_div else ""
+
+        dict = {
+            "data_id": item["data_id"],
+            "al_text": item["al_text"],
+            "sell_cnt": item["sell_cnt"],
+            "district": item["district"],
+            "unit_price": unit_price,
+            "deal_price": deal_price,
+            "deal_date": deal_date,
+            "lanlong": lanlong,
+            "age": age,
+            "total_cnt": total_cnt,
+            "structure": structure,
+            "house_type": house_type,
+        }
 
     return dict
 
 
-def fetch_houselist_s(url, page, complete_list):
+async def fetch_houselist_s(session, url, page, complete_list):
     datalist = []
     df_complete = pd.DataFrame(complete_list)
     list = []
+
     for i in range(1, page):
-        # 添加请求头
+        time.sleep(round(random.random(), 1))
         ua = UserAgent()
         headers = {
             "User-Agent": ua.random,
-            "Referer": "https://www.baidu.com/",
-            # "Cookie": random_cookie(),
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "Referer": "https://www.google.com/",
         }
-        time.sleep(round(random.random(), 2))
         url_re = url.replace("pgno", str(i))
-        response = requests.get(url_re, headers=headers)
-        print(url_re)
-        print(headers)
+        async with session.get(url_re, headers=headers, max_redirects=30) as response:
+            print(url_re)
+            if response.status == 200:
+                content = await response.text()
+                tree = html.fromstring(content)
 
-        # 检查请求是否成功
-        if response.status_code == 200:
-            # 使用lxml解析HTML
-            tree = html.fromstring(response.content)
-
-            # 查找特定的div
-            # 假设我们要查找class为'target-div'的div
-            divs = tree.xpath(
-                '//div[@class="content"]/div[@class="leftContent"]/ul[@class="listContent"]/li[@class="clear xiaoquListItem"]'
-            )
-
-            if divs:
-                for div in divs:
-                    dict = {}
-                    # 获取data-id属性的值
-                    data_id = div.get("data-id")
-                    if data_id in datalist:
-                        continue
-                    if len(df_complete) > 0:
-                        if data_id in df_complete["data_id"].values:
+                divs = tree.xpath(
+                    '//div[@class="content"]/div[@class="leftContent"]/ul[@class="listContent"]/li[@class="clear xiaoquListItem"]'
+                )
+                if divs:
+                    for div in divs:
+                        dict = {}
+                        data_id = div.get("data-id")
+                        if data_id in datalist:
                             continue
-                    # 查找<li>标签下的<img>标签，并获取alt属性的值
-                    img_tag = div.xpath('.//img[@class="lj-lazy"]')
-                    if img_tag:
-                        alt_text = img_tag[0].get("alt")
-                    else:
-                        continue
-                    sell_cnt_div = div.xpath(
-                        './/div[@class="xiaoquListItemRight"]/div[@class="xiaoquListItemSellCount"]/a/span'
-                    )
-                    if sell_cnt_div:
-                        sell_cnt = sell_cnt_div[0].xpath("string(.)")
-                    else:
-                        sell_cnt = ""
-                    district_div = div.xpath(
-                        './/div[@class="info"]/div[@class="positionInfo"]/a[@class="district"]'
-                    )
-                    if district_div:
-                        district = district_div[0].xpath("string(.)")
-                    else:
-                        district = ""
+                        if len(df_complete) > 0:
+                            if data_id in df_complete["data_id"].values:
+                                continue
+                        img_tag = div.xpath('.//img[@class="lj-lazy"]')
+                        if img_tag:
+                            alt_text = img_tag[0].get("alt")
+                        else:
+                            continue
+                        sell_cnt_div = div.xpath(
+                            './/div[@class="xiaoquListItemRight"]/div[@class="xiaoquListItemSellCount"]/a/span'
+                        )
+                        sell_cnt = (
+                            sell_cnt_div[0].xpath("string(.)") if sell_cnt_div else ""
+                        )
+                        district_div = div.xpath(
+                            './/div[@class="info"]/div[@class="positionInfo"]/a[@class="district"]'
+                        )
+                        district = (
+                            district_div[0].xpath("string(.)") if district_div else ""
+                        )
 
-                    dict = {
-                        "data_id": data_id,
-                        "al_text": alt_text,
-                        "sell_cnt": sell_cnt,
-                        "district": district,
-                    }
-                    list.append(dict)
-                    datalist.append(data_id)
+                        dict = {
+                            "data_id": data_id,
+                            "al_text": alt_text,
+                            "sell_cnt": sell_cnt,
+                            "district": district,
+                        }
+                        list.append(dict)
+                        datalist.append(data_id)
+                else:
+                    print("未找到目标<ul>标签")
             else:
-                print("未找到目标<ul>标签")
-        else:
-            print("请求失败，状态码:", response.status_code)
+                print("请求失败，状态码:", response.status)
 
     return list
 
 
-def houseinfo_to_csv_s(file_path):
-    # 如果文件存在，则删除文件
+async def houseinfo_to_csv_s(file_path):
     if os.path.isfile(file_path):
         os.remove(file_path)
-    # 发起HTTP请求
-    # url = 'https://sh.lianjia.com/xiaoqu/minhang/pg1/'  # 替换为目标URL
+
     district_list = [
         "pudong",
         "huangpu",
@@ -318,58 +258,54 @@ def houseinfo_to_csv_s(file_path):
         "fengxian",
         "chongming",
     ]
-    # district_list = ['minhang']
     page_no = 100
 
-    t = ToolKit("列表生成")
     houselist = []
     complete_list = []
-    count = 0
-    url = "https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
-    for idx, district in enumerate(district_list):
-        url_re = url.replace("district", district)
-        houselist = fetch_houselist_s(url_re, page_no, complete_list)
-        complete_list.extend(houselist)
-        t.progress_bar(len(district_list), idx + 1)
-        print("complete list cnt is: ", len(houselist))
+    url = "https://sh.lianjia.com/xiaoqu/district/pgpgnocro21"
 
-        # 设置并发数上限为6
-        max_workers = 2
-        data_batch_size = 10
-        list = []
-        url_detail = "https://sh.lianjia.com/xiaoqu/data_id/"
-        t = ToolKit("信息爬取")
-        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-            # 提交任务并获取Future对象列表
-            futures = [
-                executor.submit(fetch_house_info_s, url_detail, item)
-                for item in houselist
-            ]
+    async with aiohttp.ClientSession() as session:
+        for idx, district in enumerate(district_list):
+            url_re = url.replace("district", district)
+            houselist = await fetch_houselist_s(session, url_re, page_no, complete_list)
+            complete_list.extend(houselist)
+            print("complete list cnt is: ", len(houselist))
 
-            # 获取已完成的任务的结果
-            for future in concurrent.futures.as_completed(futures):
-                try:
-                    result = future.result()
-                    list.append(result)
-                except Exception as e:
-                    print(f"获取详细信息时出错: {e}")
+            max_workers = 2
+            data_batch_size = 10
+            list = []
+            url_detail = "https://sh.lianjia.com/xiaoqu/data_id/"
 
-                count += 1
-                if count % data_batch_size == 0:
-                    # 每处理完一批数据后，将数据写入CSV文件
-                    df = pd.DataFrame(list)
-                    df.to_csv(
-                        file_path,
-                        mode="a",
-                        index=False,
-                        header=(count == data_batch_size),
-                    )
-                    list = []  # 清空列表以继续下一批数据的处理
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=max_workers
+            ) as executor:
+                futures = [
+                    executor.submit(fetch_house_info_s, session, url_detail, item)
+                    for item in houselist
+                ]
 
-        # 处理剩余的数据
-        if list:
-            df = pd.DataFrame(list)
-            df.to_csv(file_path, mode="a", index=False, header=False)
+                count = 0
+                for future in concurrent.futures.as_completed(futures):
+                    try:
+                        result = future.result()
+                        list.append(result)
+                    except Exception as e:
+                        print(f"获取详细信息时出错: {e}")
+
+                    count += 1
+                    if count % data_batch_size == 0:
+                        df = pd.DataFrame(list)
+                        df.to_csv(
+                            file_path,
+                            mode="a",
+                            index=False,
+                            header=(count == data_batch_size),
+                        )
+                        list = []
+
+            if list:
+                df = pd.DataFrame(list)
+                df.to_csv(file_path, mode="a", index=False, header=False)
 
 
 def map_plot(df, legend_title, legend_fmt, png_path, k, col_formats):
@@ -475,7 +411,8 @@ if __name__ == "__main__":
     # 新房
     # get_house_info_f(file_path)
     # 二手
-    houseinfo_to_csv_s(file_path_s)
+    # houseinfo_to_csv_s(file_path_s)
+    asyncio.run(houseinfo_to_csv_s(file_path_s))
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
