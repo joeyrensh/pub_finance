@@ -130,7 +130,7 @@ def get_house_info_f(file_path):
 
 
 def fetch_house_info_s(url, item):
-    time.sleep(round(random.random(), 1))
+    time.sleep(random.randint(1, 3))
     # 添加请求头
     ua = UserAgent()
     headers = {
@@ -142,79 +142,82 @@ def fetch_house_info_s(url, item):
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
     response = requests.get(url_re, headers=headers)
-    print(url_re)
-    tree = html.fromstring(response.content)
-    unit_price_div = tree.xpath(
-        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
-    )
-    if len(unit_price_div) > 0:
-        unit_price = unit_price_div[0].xpath("string(.)")
-    else:
-        unit_price = ""
-    deal_price_div = tree.xpath(
-        '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]'
-    )
-    if len(deal_price_div) > 0:
-        deal_price = deal_price_div[0].xpath("string(.)")
-    else:
-        deal_price = ""
-    deal_date_div = tree.xpath(
-        '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealDate"]'
-    )
-    if len(deal_date_div) > 0:
-        deal_date = deal_date_div[0].xpath("string(.)")
-    else:
-        deal_date = ""
-    lanlong_div = tree.xpath(
-        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemOneLine"]/div[@class="xiaoquInfoItem outerItem"][2]/span[@class="xiaoquInfoContent outer"]/span[@mendian]'
-    )
-    if len(lanlong_div) > 0:
-        lanlong = lanlong_div[0].get("xiaoqu")
-    else:
-        lanlong = ""
-    age_div = tree.xpath(
-        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
-    )
-    if len(age_div) > 0:
-        age = age_div[0].xpath("string(.)")
-    else:
-        age = ""
-    house_type_div = tree.xpath(
-        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
-    )
-    if len(house_type_div) > 0:
-        house_type = house_type_div[0].xpath("string(.)")
-    else:
-        house_type = ""
-    total_cnt_div = tree.xpath(
-        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
-    )
-    if len(total_cnt_div) > 0:
-        total_cnt = total_cnt_div[0].xpath("string(.)")
-    else:
-        total_cnt = ""
-    structure_div = tree.xpath(
-        '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
-    )
-    if len(structure_div) > 0:
-        structure = structure_div[0].xpath("string(.)")
-    else:
-        structure = ""
+    if response.status_code == 200:
+        print(url_re)
+        tree = html.fromstring(response.content)
+        unit_price_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
+        )
+        if len(unit_price_div) > 0:
+            unit_price = unit_price_div[0].xpath("string(.)")
+        else:
+            unit_price = ""
+        deal_price_div = tree.xpath(
+            '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]'
+        )
+        if len(deal_price_div) > 0:
+            deal_price = deal_price_div[0].xpath("string(.)")
+        else:
+            deal_price = ""
+        deal_date_div = tree.xpath(
+            '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealDate"]'
+        )
+        if len(deal_date_div) > 0:
+            deal_date = deal_date_div[0].xpath("string(.)")
+        else:
+            deal_date = ""
+        lanlong_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemOneLine"]/div[@class="xiaoquInfoItem outerItem"][2]/span[@class="xiaoquInfoContent outer"]/span[@mendian]'
+        )
+        if len(lanlong_div) > 0:
+            lanlong = lanlong_div[0].get("xiaoqu")
+        else:
+            lanlong = ""
+        age_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
+        )
+        if len(age_div) > 0:
+            age = age_div[0].xpath("string(.)")
+        else:
+            age = ""
+        house_type_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
+        )
+        if len(house_type_div) > 0:
+            house_type = house_type_div[0].xpath("string(.)")
+        else:
+            house_type = ""
+        total_cnt_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
+        )
+        if len(total_cnt_div) > 0:
+            total_cnt = total_cnt_div[0].xpath("string(.)")
+        else:
+            total_cnt = ""
+        structure_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
+        )
+        if len(structure_div) > 0:
+            structure = structure_div[0].xpath("string(.)")
+        else:
+            structure = ""
 
-    dict = {
-        "data_id": item["data_id"],
-        "al_text": item["al_text"],
-        "sell_cnt": item["sell_cnt"],
-        "district": item["district"],
-        "unit_price": unit_price,
-        "deal_price": deal_price,
-        "deal_date": deal_date,
-        "lanlong": lanlong,
-        "age": age,
-        "total_cnt": total_cnt,
-        "structure": structure,
-        "house_type": house_type,
-    }
+        dict = {
+            "data_id": item["data_id"],
+            "al_text": item["al_text"],
+            "sell_cnt": item["sell_cnt"],
+            "district": item["district"],
+            "unit_price": unit_price,
+            "deal_price": deal_price,
+            "deal_date": deal_date,
+            "lanlong": lanlong,
+            "age": age,
+            "total_cnt": total_cnt,
+            "structure": structure,
+            "house_type": house_type,
+        }
+    else:
+        print("请求失败，状态码:", response.status_code)
 
     return dict
 
@@ -322,7 +325,7 @@ def houseinfo_to_csv_s(file_path):
         "chongming",
     ]
     # district_list = ['minhang']
-    page_no = 100
+    page_no = 10
 
     t = ToolKit("列表生成")
     houselist = []

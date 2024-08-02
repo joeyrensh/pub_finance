@@ -1,69 +1,163 @@
 import os
-import time
-import requests
-import json
-import re
 import pandas as pd
-from datetime import datetime
 from lxml import html
 from playwright.async_api import async_playwright
 import asyncio
+import random
+import time
+from fake_useragent import UserAgent
 
 
-def get_us_stock_list():
-    current_timestamp = int(time.mktime(datetime.now().timetuple()))
-    stock_list = []
-    url = (
-        "https://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
-        "&pn={page}&pz=100000&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:{mkt_code}&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18,f20,f21&_={unix_time}"
-    )
-    for mkt_code in ["105", "106", "107"]:
-        for page in range(1, 100):
-            url_re = url.format(
-                page=page, mkt_code=mkt_code, unix_time=current_timestamp
-            )
-            res = requests.get(url_re).text
-            res_p = re.sub(r"\].*", "]", re.sub(r".*:\[", "[", res, 1), 1)
-            try:
-                json_object = json.loads(res_p)
-            except ValueError:
-                break
-            for i in json_object:
-                if any(
-                    i[field] == "-"
-                    for field in ["f12", "f17", "f2", "f15", "f16", "f5", "f20", "f21"]
-                ):
+async def get_house_main_page(page, url):
+    try:
+        await page.goto(url, wait_until="networkidle")
+        page_content = await page.content()
+        print("page_content:", page_content)
+        tree = html.fromstring(page_content)
+        divs = tree.xpath(
+            '//div[@class="content"]/div[@class="leftContent"]/ul[@class="listContent"]/li[@class="clear xiaoquListItem"]'
+        )
+        if divs:
+            for div in divs:
+                dict = {}
+                # 获取data-id属性的值
+                data_id = div.get("data-id")
+                # 查找<li>标签下的<img>标签，并获取alt属性的值
+                img_tag = div.xpath('.//img[@class="lj-lazy"]')
+                if img_tag:
+                    alt_text = img_tag[0].get("alt")
+                else:
                     continue
-                stock_list.append({"symbol": i["f12"], "mkt_code": mkt_code})
-    return stock_list
+                sell_cnt_div = div.xpath(
+                    './/div[@class="xiaoquListItemRight"]/div[@class="xiaoquListItemSellCount"]/a/span'
+                )
+                if sell_cnt_div:
+                    sell_cnt = sell_cnt_div[0].xpath("string(.)")
+                else:
+                    sell_cnt = ""
+                district_div = div.xpath(
+                    './/div[@class="info"]/div[@class="positionInfo"]/a[@class="district"]'
+                )
+                if district_div:
+                    district = district_div[0].xpath("string(.)")
+                else:
+                    district = ""
+
+                dict = {
+                    "data_id": data_id,
+                    "al_text": alt_text,
+                    "sell_cnt": sell_cnt,
+                    "district": district,
+                }
+                list.append(dict)
+        return list
+    finally:
+        await page.close()  # 确保页面在使用完后关闭
 
 
-async def get_comp_info(page, symbol, url):
+async def get_house_detail_page(page, url, item):
     try:
         print(url)
         await page.goto(url, wait_until="networkidle")
         page_content = await page.content()
         tree = html.fromstring(page_content)
-        div = tree.xpath(
-            '//body[@class="ame"]/div[@class="main_content"]/div[@class="m_box"]/div[@class="bd"]/table[@class="companyinfo-tab"]/tbody/tr[2]/td[2]'
+        unit_price_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
         )
-        if div:
-            value = div[0].xpath("string(.)").split("：", 1)[1].replace(" ", "")
+        if len(unit_price_div) > 0:
+            unit_price = unit_price_div[0].xpath("string(.)")
         else:
-            value = "N/A"
-        return {"symbol": symbol, "industry": value}
+            unit_price = ""
+        deal_price_div = tree.xpath(
+            '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]'
+        )
+        if len(deal_price_div) > 0:
+            deal_price = deal_price_div[0].xpath("string(.)")
+        else:
+            deal_price = ""
+        deal_date_div = tree.xpath(
+            '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealDate"]'
+        )
+        if len(deal_date_div) > 0:
+            deal_date = deal_date_div[0].xpath("string(.)")
+        else:
+            deal_date = ""
+        lanlong_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemOneLine"]/div[@class="xiaoquInfoItem outerItem"][2]/span[@class="xiaoquInfoContent outer"]/span[@mendian]'
+        )
+        if len(lanlong_div) > 0:
+            lanlong = lanlong_div[0].get("xiaoqu")
+        else:
+            lanlong = ""
+        age_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
+        )
+        if len(age_div) > 0:
+            age = age_div[0].xpath("string(.)")
+        else:
+            age = ""
+        house_type_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
+        )
+        if len(house_type_div) > 0:
+            house_type = house_type_div[0].xpath("string(.)")
+        else:
+            house_type = ""
+        total_cnt_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
+        )
+        if len(total_cnt_div) > 0:
+            total_cnt = total_cnt_div[0].xpath("string(.)")
+        else:
+            total_cnt = ""
+        structure_div = tree.xpath(
+            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
+        )
+        if len(structure_div) > 0:
+            structure = structure_div[0].xpath("string(.)")
+        else:
+            structure = ""
+
+        dict = {
+            "data_id": item["data_id"],
+            "al_text": item["al_text"],
+            "sell_cnt": item["sell_cnt"],
+            "district": item["district"],
+            "unit_price": unit_price,
+            "deal_price": deal_price,
+            "deal_date": deal_date,
+            "lanlong": lanlong,
+            "age": age,
+            "total_cnt": total_cnt,
+            "structure": structure,
+            "house_type": house_type,
+        }
+        return dict
     finally:
         await page.close()  # 确保页面在使用完后关闭
 
 
-async def fetch_data(browser, tick_list):
+async def fetch_house_list(browser, url, max_page, semaphore):
     tasks = []
-    url_template = "https://stockpage.10jqka.com.cn/{symbol}/company/"
-    for stock in tick_list:
-        symbol = stock["symbol"].upper()
-        url = url_template.format(symbol=symbol)
+    numbers = list(range(1, max_page))
+    random.shuffle(numbers)
+    for number in numbers:
+        time.sleep(random.randint(1, 3))
+        url_r = url.format(pgno=number)
+        print("level1 url:", url_r)
+        async with semaphore:
+            page = await browser.new_page()
+            tasks.append(get_house_main_page(page, url_r))
+            results = await asyncio.gather(*tasks)
+    return results
+
+
+async def fetch_house_info(browser, url, houselist):
+    tasks = []
+    for item in houselist:
+        url = url.format(data_id=item["data_id"])
         page = await browser.new_page()
-        tasks.append(get_comp_info(page, symbol, url))
+        tasks.append(get_house_main_page(page, url))
     results = await asyncio.gather(*tasks)
     return results
 
@@ -71,22 +165,42 @@ async def fetch_data(browser, tick_list):
 async def main(file_path):
     if os.path.isfile(file_path):
         os.remove(file_path)
-    tick_list = get_us_stock_list()
-    batch_size = 10
-    all_results = []
+    districts = ["huangpu"]
+    max_page = 5
+    url = "https://sh.lianjia.com/xiaoqu/{district}/pg{{pgno}}cro21/"
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
-        for idx in range(0, len(tick_list), batch_size):
-            batch = tick_list[idx : idx + batch_size]
-            results = await fetch_data(browser, batch)
-            all_results.extend(results)
+        semaphore = asyncio.Semaphore(3)
+        for district in districts:
+            url_r = url.format(district=district)
+            results = await fetch_house_list(browser, url_r, max_page, semaphore)
             df = pd.DataFrame(results)
-            df.to_csv(file_path, mode="a", index=True, header=(idx == 0))
+            print(df)
         # if all_results:
         #     df = pd.DataFrame(all_results)
         #     df.to_csv(file_path, mode="a", index=True, header=False)
         await browser.close()
 
 
+# async def main(file_path):
+#     if os.path.isfile(file_path):
+#         os.remove(file_path)
+#     tick_list = get_us_stock_list()
+#     batch_size = 10
+#     all_results = []
+#     async with async_playwright() as p:
+#         browser = await p.chromium.launch(headless=True)
+#         for idx in range(0, len(tick_list), batch_size):
+#             batch = tick_list[idx : idx + batch_size]
+#             results = await fetch_data(browser, batch)
+#             all_results.extend(results)
+#             df = pd.DataFrame(results)
+#             df.to_csv(file_path, mode="a", index=True, header=(idx == 0))
+#         # if all_results:
+#         #     df = pd.DataFrame(all_results)
+#         #     df.to_csv(file_path, mode="a", index=True, header=False)
+#         await browser.close()
+
+
 if __name__ == "__main__":
-    asyncio.run(main("./usstockinfo/test.csv"))
+    asyncio.run(main("./houseinfo/test.csv"))
