@@ -230,7 +230,7 @@ def fetch_houselist_s(url, page, complete_list):
             "Referer": "https://www.baidu.com/",
             # "Cookie": random_cookie(),
         }
-        time.sleep(round(random.random(), 2))
+        time.sleep(random.randint(1, 3))
         url_re = url.replace("pgno", str(i))
         response = requests.get(url_re, headers=headers)
         print(url_re)
@@ -326,6 +326,7 @@ def houseinfo_to_csv_s(file_path):
     complete_list = []
     count = 0
     url = "https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
+    # url = "https://sh.lianjia.com/xiaoqu/district/pgpgno/"
     for idx, district in enumerate(district_list):
         url_re = url.replace("district", district)
         houselist = fetch_houselist_s(url_re, page_no, complete_list)
@@ -473,7 +474,7 @@ if __name__ == "__main__":
     file_path_s = "./houseinfo/secondhandhouse.csv"
     # file_path_s = './houseinfo/test.csv'
     # 新房
-    # get_house_info_f(file_path)
+    get_house_info_f(file_path)
     # 二手
     houseinfo_to_csv_s(file_path_s)
 
