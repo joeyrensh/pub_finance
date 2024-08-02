@@ -90,13 +90,10 @@ def get_house_info_f(file_path):
 
 
 async def fetch_house_info_s(session, url, item):
-    time.sleep(round(random.random(), 1))
+    time.sleep(random.randint(1, 3))
     ua = UserAgent()
     headers = {
         "User-Agent": ua.random,
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate, br",
         "Connection": "keep-alive",
         "Upgrade-Insecure-Requests": "1",
         "Referer": "https://www.google.com/",
@@ -104,6 +101,7 @@ async def fetch_house_info_s(session, url, item):
 
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
+    print(url_re)
     async with session.get(url_re, headers=headers) as response:
         content = await response.text()
         tree = html.fromstring(content)
@@ -169,16 +167,15 @@ async def fetch_house_info_s(session, url, item):
 async def fetch_houselist_s(session, url, page, complete_list):
     datalist = []
     df_complete = pd.DataFrame(complete_list)
-    list = []
-
-    for i in range(1, page):
-        time.sleep(round(random.random(), 1))
+    dlist = []
+    numbers = list(range(1, page))
+    random.shuffle(numbers)
+    for i in numbers:
+        time.sleep(random.randint(1, 3))
         ua = UserAgent()
         headers = {
             "User-Agent": ua.random,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
-            "Accept-Encoding": "gzip, deflate, br",
             "Connection": "keep-alive",
             "Upgrade-Insecure-Requests": "1",
             "Referer": "https://www.google.com/",
@@ -226,14 +223,14 @@ async def fetch_houselist_s(session, url, page, complete_list):
                             "sell_cnt": sell_cnt,
                             "district": district,
                         }
-                        list.append(dict)
+                        dlist.append(dict)
                         datalist.append(data_id)
                 else:
                     print("未找到目标<ul>标签")
             else:
                 print("请求失败，状态码:", response.status)
 
-    return list
+    return dlist
 
 
 async def houseinfo_to_csv_s(file_path):

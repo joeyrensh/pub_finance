@@ -135,13 +135,14 @@ def fetch_house_info_s(url, item):
     ua = UserAgent()
     headers = {
         "User-Agent": ua.random,
-        "Referer": "https://www.baidu.com/",
-        # "Cookie": random_cookie(),
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Referer": "https://www.google.com/",
     }
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
     response = requests.get(url_re, headers=headers)
-    # print(url_re)
+    print(url_re)
     tree = html.fromstring(response.content)
     unit_price_div = tree.xpath(
         '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
@@ -221,20 +222,22 @@ def fetch_house_info_s(url, item):
 def fetch_houselist_s(url, page, complete_list):
     datalist = []
     df_complete = pd.DataFrame(complete_list)
-    list = []
-    for i in range(1, page):
+    dlist = []
+    numbers = list(range(1, page))
+    random.shuffle(numbers)
+    for i in numbers:
         # 添加请求头
         ua = UserAgent()
         headers = {
             "User-Agent": ua.random,
-            "Referer": "https://www.baidu.com/",
-            # "Cookie": random_cookie(),
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "Referer": "https://www.google.com/",
         }
         time.sleep(random.randint(1, 3))
         url_re = url.replace("pgno", str(i))
         response = requests.get(url_re, headers=headers)
         print(url_re)
-        print(headers)
 
         # 检查请求是否成功
         if response.status_code == 200:
@@ -284,14 +287,14 @@ def fetch_houselist_s(url, page, complete_list):
                         "sell_cnt": sell_cnt,
                         "district": district,
                     }
-                    list.append(dict)
+                    dlist.append(dict)
                     datalist.append(data_id)
             else:
                 print("未找到目标<ul>标签")
         else:
             print("请求失败，状态码:", response.status_code)
 
-    return list
+    return dlist
 
 
 def houseinfo_to_csv_s(file_path):
