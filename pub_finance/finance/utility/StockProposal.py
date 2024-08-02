@@ -1059,6 +1059,11 @@ class StockProposal:
                 },
                 inplace=True,
             )
+
+            if self.market == "us":
+                dfdata9.to_csv("./images/us_stockdetail_short.csv", header=True)
+            else:
+                dfdata9.to_csv("./images/cn_stockdetail_short.csv", header=True)
             cm = sns.light_palette("seagreen", as_cmap=True)
             html2 = (
                 "<h2>Close Position List Last 5 Days</h2>"  # 添加标题

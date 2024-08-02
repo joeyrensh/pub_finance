@@ -90,6 +90,39 @@ def create_layout(app):
         "TOTAL PNL RATIO": ("ratio", "format"),
         "OPEN DATE": ("date", "format"),
     }
+    # 减仓明细
+    df_detail_short = pd.read_csv(
+        IMAGE_PATH.joinpath("us_stockdetail_short.csv"),
+        usecols=[i for i in range(1, 15)],
+    )
+    df_detail_short = df_detail_short[
+        [
+            "SYMBOL",
+            "IND",
+            "NAME",
+            "OPEN DATE",
+            "CLOSE DATE",
+            "BASE",
+            "ADJBASE",
+            "PNL",
+            "PNL RATIO",
+            "AVG TRANS",
+            "AVG DAYS",
+            "WIN RATE",
+            "TOTAL PNL RATIO",
+            "Strategy",
+        ]
+    ]
+    cols_format_detail_short = {
+        "BASE": ("float",),
+        "ADJBASE": ("float",),
+        "PNL": ("float", "format"),
+        "PNL RATIO": ("ratio", "format"),
+        "AVG TRANS": ("float",),
+        "AVG DAYS": ("float",),
+        "WIN RATE": ("ratio", "format"),
+        "TOTAL PNL RATIO": ("ratio", "format"),
+    }
 
     return html.Div(
         [
@@ -224,6 +257,34 @@ def create_layout(app):
                                         ],
                                         className="table",
                                         style={"overflow-x": "auto", "height": 400},
+                                    ),
+                                ],
+                                className="twelve columns",
+                                # dangerously_allow_html=True,
+                            ),
+                        ],
+                        className="row",
+                        style={"margin-bottom": "35px"},
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.H6(
+                                        "美股近5日减仓分析",
+                                        className="subtitle padded",
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                children=make_dash_format_table(
+                                                    df_detail_short,
+                                                    cols_format_detail_short,
+                                                ),
+                                            )
+                                        ],
+                                        style={"overflow-x": "auto", "height": 400},
+                                        className="table",
                                     ),
                                 ],
                                 className="twelve columns",
