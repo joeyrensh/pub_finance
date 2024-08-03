@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import requests
 import geopandas as gpd
 import pandas as pd
@@ -13,7 +15,9 @@ import json
 import time
 from fake_useragent import UserAgent
 import random
-from retrying import retry
+from tenacity import retry, wait_fixed, stop_after_attempt
+import logging
+import sys
 
 
 """ 
@@ -21,6 +25,8 @@ from retrying import retry
 链家数据：https://sh.fang.lianjia.com/loupan/minhang/nht1nht2nhs1pg1/?_t=1/
 
 """
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 def get_house_info_f(file_path):
@@ -89,7 +95,7 @@ def get_house_info_f(file_path):
             cnt = cnt + 1
 
 
-@retry(stop_max_attempt_number=100, wait_fixed=5000)
+@retry(wait=wait_fixed(5), stop=stop_after_attempt(100))
 def fetch_house_info_s(url, item):
     time.sleep(random.randint(1, 3))
     # 添加请求头
@@ -196,7 +202,7 @@ def fetch_houselist_s(url, page, complete_list):
         max_retries = 100
         retries = 0
         while retries < max_retries:
-            time.sleep(random.randint(5, 10))
+            time.sleep(random.randint(3, 5))
             # 添加请求头
             ua = UserAgent()
             headers = {
@@ -274,7 +280,7 @@ def fetch_houselist_s(url, page, complete_list):
     return dlist
 
 
-@retry(stop_max_attempt_number=100, wait_fixed=5000)
+@retry(wait=wait_fixed(5), stop=stop_after_attempt(100))
 def get_max_page(url):
     ua = UserAgent()
     headers = {
@@ -308,11 +314,12 @@ def get_max_page(url):
 
 
 def houseinfo_to_csv_s(file_path):
+    print("1111111111111111")
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path):
         os.remove(file_path)
+    print("222222222222222222")
     # 发起HTTP请求
-    # url = 'https://sh.lianjia.com/xiaoqu/minhang/pg1/'  # 替换为目标URL
     district_list = [
         "pudong",
         "huangpu",
@@ -331,21 +338,22 @@ def houseinfo_to_csv_s(file_path):
         "fengxian",
         "chongming",
     ]
-    # district_list = ['minhang']
     max_page = 100
-
-    t = ToolKit("列表生成")
+    print("3333333333333333333333")
+    # t = ToolKit("列表生成")
     houselist = []
     complete_list = []
     count = 0
+    print("4444444444")
     url = "https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
         url_default = url.replace("pgno", str(1)).replace("district", district)
+        print(url_default)
         max_page = get_max_page(url_default)
         url_re = url.replace("district", district)
         houselist = fetch_houselist_s(url_re, max_page, complete_list)
         complete_list.extend(houselist)
-        t.progress_bar(len(district_list), idx + 1)
+        # t.progress_bar(len(district_list), idx + 1)
         print("complete list cnt is: ", len(houselist))
 
         # 设置并发数上限为6

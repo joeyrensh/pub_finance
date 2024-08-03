@@ -2663,3 +2663,371 @@ Traceback (most recent call last):
     result = self.socket.send(data)
              ^^^^^^^^^^^^^^^^^^^^^^
 TimeoutError: [Errno 110] Connection timed out
+ERROR:app:Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/dash.py", line 1373, in dispatch
+    ctx.run(
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 465, in add_context
+    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 40, in _invoke_callback
+    return func(*args, **kwargs)  # %% callback invoked %%
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/app.py", line 52, in display_page
+    return overview.create_layout(app)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/pages/overview.py", line 54, in create_layout
+    df_second_hand_house = pd.read_csv(
+                           ^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/root/pub_finance/finance/houseinfo/secondhandhouse.csv'
+/root/pub_finance/finance/dashreport/app.py:3: UserWarning: 
+The dash_core_components package is deprecated. Please replace
+`import dash_core_components as dcc` with `from dash import dcc`
+  import dash_core_components as dcc
+/root/pub_finance/finance/dashreport/app.py:4: UserWarning: 
+The dash_html_components package is deprecated. Please replace
+`import dash_html_components as html` with `from dash import html`
+  import dash_html_components as html
+/root/pub_finance/finance/dashreport/utils.py:4: UserWarning: 
+The dash_table package is deprecated. Please replace
+`import dash_table` with `from dash import dash_table`
+
+Also, if you're using any of the table format helpers (e.g. Group), replace 
+`from dash_table.Format import Group` with 
+`from dash.dash_table.Format import Group`
+  import dash_table
+ERROR:app:Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/dash.py", line 1373, in dispatch
+    ctx.run(
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 465, in add_context
+    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 40, in _invoke_callback
+    return func(*args, **kwargs)  # %% callback invoked %%
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/app.py", line 52, in display_page
+    return overview.create_layout(app)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/pages/overview.py", line 54, in create_layout
+    df_second_hand_house = pd.read_csv(
+                           ^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/root/pub_finance/finance/houseinfo/secondhandhouse.csv'
+ERROR:app:Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/dash.py", line 1373, in dispatch
+    ctx.run(
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 465, in add_context
+    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 40, in _invoke_callback
+    return func(*args, **kwargs)  # %% callback invoked %%
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/app.py", line 52, in display_page
+    return overview.create_layout(app)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/pages/overview.py", line 54, in create_layout
+    df_second_hand_house = pd.read_csv(
+                           ^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/root/pub_finance/finance/houseinfo/secondhandhouse.csv'
+ERROR:app:Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/dash.py", line 1373, in dispatch
+    ctx.run(
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 465, in add_context
+    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 40, in _invoke_callback
+    return func(*args, **kwargs)  # %% callback invoked %%
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/app.py", line 52, in display_page
+    return overview.create_layout(app)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/pages/overview.py", line 54, in create_layout
+    df_second_hand_house = pd.read_csv(
+                           ^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/root/pub_finance/finance/houseinfo/secondhandhouse.csv'
+ERROR:app:Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/dash.py", line 1373, in dispatch
+    ctx.run(
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 465, in add_context
+    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 40, in _invoke_callback
+    return func(*args, **kwargs)  # %% callback invoked %%
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/app.py", line 52, in display_page
+    return overview.create_layout(app)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/pages/overview.py", line 54, in create_layout
+    df_second_hand_house = pd.read_csv(
+                           ^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/root/pub_finance/finance/houseinfo/secondhandhouse.csv'
+ERROR:app:Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/dash.py", line 1373, in dispatch
+    ctx.run(
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 465, in add_context
+    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 40, in _invoke_callback
+    return func(*args, **kwargs)  # %% callback invoked %%
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/app.py", line 52, in display_page
+    return overview.create_layout(app)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/pages/overview.py", line 54, in create_layout
+    df_second_hand_house = pd.read_csv(
+                           ^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/root/pub_finance/finance/houseinfo/secondhandhouse.csv'
+ERROR:app:Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/dash.py", line 1373, in dispatch
+    ctx.run(
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 465, in add_context
+    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 40, in _invoke_callback
+    return func(*args, **kwargs)  # %% callback invoked %%
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/app.py", line 52, in display_page
+    return overview.create_layout(app)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/pages/overview.py", line 54, in create_layout
+    df_second_hand_house = pd.read_csv(
+                           ^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/root/pub_finance/finance/houseinfo/secondhandhouse.csv'
+ERROR:app:Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/dash.py", line 1373, in dispatch
+    ctx.run(
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 465, in add_context
+    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 40, in _invoke_callback
+    return func(*args, **kwargs)  # %% callback invoked %%
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/app.py", line 52, in display_page
+    return overview.create_layout(app)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/pages/overview.py", line 54, in create_layout
+    df_second_hand_house = pd.read_csv(
+                           ^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/pandas/io/common.py", line 882, in get_handle
+    handle = open(handle, ioargs.mode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/root/pub_finance/finance/houseinfo/secondhandhouse.csv'
