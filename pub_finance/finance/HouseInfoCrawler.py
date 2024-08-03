@@ -288,6 +288,7 @@ def get_max_page(url):
 
     # 检查请求是否成功
     if response.status_code != 200:
+        print(f"Failed to retrieve data: {response.status_code}")
         raise Exception(f"Failed to retrieve data: {response.status_code}")
     tree = html.fromstring(response.content)
 
@@ -301,6 +302,7 @@ def get_max_page(url):
         page_no = round(int(cnt) / 30) + 1
         print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
     else:
+        print("XPath query returned no results")
         raise Exception("XPath query returned no results")
     return page_no
 
