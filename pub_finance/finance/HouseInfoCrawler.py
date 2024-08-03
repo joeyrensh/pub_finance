@@ -12,10 +12,8 @@ import re
 import json
 import time
 from fake_useragent import UserAgent
-import urllib.parse
 import random
-import string
-import uuid
+from retrying import retry
 
 
 """ 
@@ -23,44 +21,6 @@ import uuid
 链家数据：https://sh.fang.lianjia.com/loupan/minhang/nht1nht2nhs1pg1/?_t=1/
 
 """
-
-
-def random_string(length):
-    """生成指定长度的随机字符串"""
-    letters_and_digits = string.ascii_letters + string.digits
-    return "".join(random.choice(letters_and_digits) for _ in range(length))
-
-
-def random_hex_string(length):
-    """生成指定长度的随机十六进制字符串"""
-    return "".join(random.choice(string.hexdigits) for _ in range(length)).lower()
-
-
-def random_urlencoded_string(length):
-    """生成指定长度的随机 URL 编码字符串"""
-    raw_string = random_string(length)
-    return urllib.parse.quote(raw_string)
-
-
-def random_ip():
-    """生成随机 IP 地址"""
-    return ".".join(str(random.randint(0, 255)) for _ in range(4))
-
-
-def random_cookie():
-    """生成随机 cookie 字符串"""
-    cookies = {
-        "SECKEY_ABVK": random_urlencoded_string(43),
-        "BMAP_SECKEY": random_urlencoded_string(128),
-        "lianjia_uuid": str(uuid.uuid4()),
-        "_smt_uid": random_hex_string(8) + "." + random_hex_string(8),
-        "proxy_ip": random_ip(),
-        "select_city": "310000",
-        "_jzqckmp": "1",
-    }
-
-    # 将字典转换为 cookie 字符串
-    return "; ".join([f"{key}={value}" for key, value in cookies.items()])
 
 
 def get_house_info_f(file_path):
@@ -129,6 +89,7 @@ def get_house_info_f(file_path):
             cnt = cnt + 1
 
 
+@retry(stop_max_attempt_number=100, wait_fixed=5000)
 def fetch_house_info_s(url, item):
     time.sleep(random.randint(1, 3))
     # 添加请求头
@@ -152,6 +113,7 @@ def fetch_house_info_s(url, item):
             unit_price = unit_price_div[0].xpath("string(.)")
         else:
             unit_price = ""
+            raise Exception("XPath query returned no results")
         deal_price_div = tree.xpath(
             '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]'
         )
@@ -218,6 +180,7 @@ def fetch_house_info_s(url, item):
         }
     else:
         print("请求失败，状态码:", response.status_code)
+        raise Exception(f"Failed to retrieve data: {response.status_code}")
 
     return dict
 
@@ -229,75 +192,117 @@ def fetch_houselist_s(url, page, complete_list):
     numbers = list(range(1, page))
     random.shuffle(numbers)
     for i in numbers:
-        # 添加请求头
-        ua = UserAgent()
-        headers = {
-            "User-Agent": ua.random,
-            "Connection": "keep-alive",
-            "Upgrade-Insecure-Requests": "1",
-            "Referer": "https://www.google.com/",
-        }
-        time.sleep(random.randint(1, 3))
-        url_re = url.replace("pgno", str(i))
-        response = requests.get(url_re, headers=headers)
-        print(url_re)
+        # 重试计数器
+        max_retries = 100
+        retries = 0
+        while retries < max_retries:
+            time.sleep(random.randint(5, 10))
+            # 添加请求头
+            ua = UserAgent()
+            headers = {
+                "User-Agent": ua.random,
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1",
+                "Referer": "https://www.google.com/",
+            }
+            url_re = url.replace("pgno", str(i))
+            response = requests.get(url_re, headers=headers)
+            print(url_re)
 
-        # 检查请求是否成功
-        if response.status_code == 200:
-            # 使用lxml解析HTML
-            tree = html.fromstring(response.content)
+            # 检查请求是否成功
+            if response.status_code == 200:
+                # 使用lxml解析HTML
+                tree = html.fromstring(response.content)
 
-            # 查找特定的div
-            # 假设我们要查找class为'target-div'的div
-            divs = tree.xpath(
-                '//div[@class="content"]/div[@class="leftContent"]/ul[@class="listContent"]/li[@class="clear xiaoquListItem"]'
-            )
+                # 查找特定的div
+                # 假设我们要查找class为'target-div'的div
+                divs = tree.xpath(
+                    '//div[@class="content"]/div[@class="leftContent"]/ul[@class="listContent"]/li[@class="clear xiaoquListItem"]'
+                )
 
-            if divs:
-                for div in divs:
-                    dict = {}
-                    # 获取data-id属性的值
-                    data_id = div.get("data-id")
-                    if data_id in datalist:
-                        continue
-                    if len(df_complete) > 0:
-                        if data_id in df_complete["data_id"].values:
+                if divs:
+                    for div in divs:
+                        dict = {}
+                        # 获取data-id属性的值
+                        data_id = div.get("data-id")
+                        if data_id in datalist:
                             continue
-                    # 查找<li>标签下的<img>标签，并获取alt属性的值
-                    img_tag = div.xpath('.//img[@class="lj-lazy"]')
-                    if img_tag:
-                        alt_text = img_tag[0].get("alt")
-                    else:
-                        continue
-                    sell_cnt_div = div.xpath(
-                        './/div[@class="xiaoquListItemRight"]/div[@class="xiaoquListItemSellCount"]/a/span'
-                    )
-                    if sell_cnt_div:
-                        sell_cnt = sell_cnt_div[0].xpath("string(.)")
-                    else:
-                        sell_cnt = ""
-                    district_div = div.xpath(
-                        './/div[@class="info"]/div[@class="positionInfo"]/a[@class="district"]'
-                    )
-                    if district_div:
-                        district = district_div[0].xpath("string(.)")
-                    else:
-                        district = ""
+                        if len(df_complete) > 0:
+                            if data_id in df_complete["data_id"].values:
+                                continue
+                        # 查找<li>标签下的<img>标签，并获取alt属性的值
+                        img_tag = div.xpath('.//img[@class="lj-lazy"]')
+                        if img_tag:
+                            alt_text = img_tag[0].get("alt")
+                        else:
+                            continue
+                        sell_cnt_div = div.xpath(
+                            './/div[@class="xiaoquListItemRight"]/div[@class="xiaoquListItemSellCount"]/a/span'
+                        )
+                        if sell_cnt_div:
+                            sell_cnt = sell_cnt_div[0].xpath("string(.)")
+                        else:
+                            sell_cnt = ""
+                        district_div = div.xpath(
+                            './/div[@class="info"]/div[@class="positionInfo"]/a[@class="district"]'
+                        )
+                        if district_div:
+                            district = district_div[0].xpath("string(.)")
+                        else:
+                            district = ""
 
-                    dict = {
-                        "data_id": data_id,
-                        "al_text": alt_text,
-                        "sell_cnt": sell_cnt,
-                        "district": district,
-                    }
-                    dlist.append(dict)
-                    datalist.append(data_id)
+                        dict = {
+                            "data_id": data_id,
+                            "al_text": alt_text,
+                            "sell_cnt": sell_cnt,
+                            "district": district,
+                        }
+                        dlist.append(dict)
+                        datalist.append(data_id)
+                    break  # 成功找到divs，退出while循环
+                else:
+                    retries += 1
+                    print("未找到目标<ul>标签")
+                    if retries == max_retries:
+                        print(f"Max retries reached for page {i}, skipping...")
             else:
-                print("未找到目标<ul>标签")
-        else:
-            print("请求失败，状态码:", response.status_code)
+                retries += 1
+                print("请求失败，状态码:", response.status_code)
+                if retries == max_retries:
+                    print(f"Max retries reached for page {i}, skipping...")
 
     return dlist
+
+
+@retry(stop_max_attempt_number=100, wait_fixed=5000)
+def get_max_page(url):
+    ua = UserAgent()
+    headers = {
+        "User-Agent": ua.random,
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Referer": "https://www.google.com/",
+    }
+    time.sleep(random.randint(1, 3))
+    response = requests.get(url, headers=headers)
+
+    # 检查请求是否成功
+    if response.status_code != 200:
+        raise Exception(f"Failed to retrieve data: {response.status_code}")
+    tree = html.fromstring(response.content)
+
+    # 查找特定的div
+    # 假设我们要查找class为'target-div'的div
+    div = tree.xpath(
+        '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
+    )
+    if div:
+        cnt = div[0].text_content().strip()
+        page_no = round(int(cnt) / 30) + 1
+        print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
+    else:
+        raise Exception("XPath query returned no results")
+    return page_no
 
 
 def houseinfo_to_csv_s(file_path):
@@ -325,17 +330,18 @@ def houseinfo_to_csv_s(file_path):
         "chongming",
     ]
     # district_list = ['minhang']
-    page_no = 10
+    max_page = 100
 
     t = ToolKit("列表生成")
     houselist = []
     complete_list = []
     count = 0
     url = "https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
-    # url = "https://sh.lianjia.com/xiaoqu/district/pgpgno/"
     for idx, district in enumerate(district_list):
+        url_default = url.replace("pgno", str(1)).replace("district", district)
+        max_page = get_max_page(url_default)
         url_re = url.replace("district", district)
-        houselist = fetch_houselist_s(url_re, page_no, complete_list)
+        houselist = fetch_houselist_s(url_re, max_page, complete_list)
         complete_list.extend(houselist)
         t.progress_bar(len(district_list), idx + 1)
         print("complete list cnt is: ", len(houselist))
@@ -478,7 +484,7 @@ if __name__ == "__main__":
     png_path_s2 = "./houseinfo/map_secondhouse2.png"
     png_path_s3 = "./houseinfo/map_secondhouse3.png"
     file_path_s = "./houseinfo/secondhandhouse.csv"
-    # file_path_s = './houseinfo/test.csv'
+    # file_path_s = "./houseinfo/test.csv"
     # 新房
     get_house_info_f(file_path)
     # 二手
