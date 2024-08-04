@@ -25,7 +25,7 @@ import sys
 链家数据：https://sh.fang.lianjia.com/loupan/minhang/nht1nht2nhs1pg1/?_t=1/
 
 """
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
