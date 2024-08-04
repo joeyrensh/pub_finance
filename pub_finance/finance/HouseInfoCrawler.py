@@ -56,10 +56,10 @@ def get_house_info_f(file_path):
     cnt = 0
     t = ToolKit("策略执行中")
     for idx, district in enumerate(district_list):
-        time.sleep(round(random.random(), 1))
         t.progress_bar(len(district_list), idx + 1)
 
         for i in range(1, 10):
+            time.sleep(round(random.random(), 1))  # 随机休眠
             dict = {}
             list = []
             url = "https://sh.fang.lianjia.com/loupan/district/nht1nht2nhs1co41pgpageno/?_t=1/"
@@ -95,9 +95,8 @@ def get_house_info_f(file_path):
             cnt = cnt + 1
 
 
-@retry(wait=wait_fixed(5), stop=stop_after_attempt(100))
+@retry(wait=wait_fixed(3), stop=stop_after_attempt(100))
 def fetch_house_info_s(url, item):
-    time.sleep(random.randint(1, 3))
     # 添加请求头
     ua = UserAgent()
     headers = {
@@ -289,7 +288,6 @@ def get_max_page(url):
         "Upgrade-Insecure-Requests": "1",
         "Referer": "https://www.google.com/",
     }
-    time.sleep(random.randint(1, 3))
     response = requests.get(url, headers=headers)
 
     # 检查请求是否成功
