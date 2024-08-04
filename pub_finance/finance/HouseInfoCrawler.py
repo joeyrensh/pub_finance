@@ -314,11 +314,9 @@ def get_max_page(url):
 
 
 def houseinfo_to_csv_s(file_path):
-    print("1111111111111111")
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path):
         os.remove(file_path)
-    print("222222222222222222")
     # 发起HTTP请求
     district_list = [
         "pudong",
@@ -339,12 +337,10 @@ def houseinfo_to_csv_s(file_path):
         "chongming",
     ]
     max_page = 100
-    print("3333333333333333333333")
-    # t = ToolKit("列表生成")
+    t = ToolKit("列表生成")
     houselist = []
     complete_list = []
     count = 0
-    print("4444444444")
     url = "https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
         url_default = url.replace("pgno", str(1)).replace("district", district)
@@ -353,7 +349,7 @@ def houseinfo_to_csv_s(file_path):
         url_re = url.replace("district", district)
         houselist = fetch_houselist_s(url_re, max_page, complete_list)
         complete_list.extend(houselist)
-        # t.progress_bar(len(district_list), idx + 1)
+        t.progress_bar(len(district_list), idx + 1)
         print("complete list cnt is: ", len(houselist))
 
         # 设置并发数上限为6
