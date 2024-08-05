@@ -119,6 +119,37 @@ def create_layout(app):
         "WIN RATE": ("ratio", "format"),
         "TOTAL PNL RATIO": ("ratio", "format"),
     }
+    # ETF持仓明细
+    df_etf = pd.read_csv(
+        IMAGE_PATH.joinpath("cn_etf.csv"), usecols=[i for i in range(1, 13)]
+    )
+    df_etf = df_etf[
+        [
+            "SYMBOL",
+            "NAME",
+            "OPEN DATE",
+            "BASE",
+            "ADJBASE",
+            "PNL",
+            "PNL RATIO",
+            "AVG TRANS",
+            "AVG DAYS",
+            "WIN RATE",
+            "TOTAL PNL RATIO",
+            "Strategy",
+        ]
+    ]
+    cols_format_etf = {
+        "BASE": ("float",),
+        "ADJBASE": ("float",),
+        "PNL": ("float", "format"),
+        "AVG TRANS": ("float",),
+        "AVG DAYS": ("float",),
+        "PNL RATIO": ("ratio", "format"),
+        "WIN RATE": ("ratio", "format"),
+        "TOTAL PNL RATIO": ("ratio", "format"),
+        "OPEN DATE": ("date", "format"),
+    }
     return html.Div(
         [
             Header(app),
@@ -247,6 +278,33 @@ def create_layout(app):
                                             html.Div(
                                                 children=make_dash_format_table(
                                                     df_detail, cols_format_detail
+                                                ),
+                                            )
+                                        ],
+                                        style={"overflow-x": "auto", "height": 400},
+                                        className="table",
+                                    ),
+                                ],
+                                className="twelve columns",
+                                # dangerously_allow_html=True,
+                            ),
+                        ],
+                        className="row",
+                        style={"margin-bottom": "35px"},
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.H6(
+                                        "A股ETF持仓分析",
+                                        className="subtitle padded",
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                children=make_dash_format_table(
+                                                    df_etf, cols_format_etf
                                                 ),
                                             )
                                         ],

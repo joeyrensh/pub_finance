@@ -2311,6 +2311,10 @@ class StockProposal:
             },
             inplace=True,
         )
+        if self.market == "us":
+            dfdata8.to_csv("./images/us_etf.csv", header=True)
+        else:
+            dfdata8.to_csv("./images/cn_etf.csv", header=True)
         cm = sns.light_palette("seagreen", as_cmap=True)
 
         df_timeseries_sorted = df_timeseries.sort_values(by="buy_date", ascending=False)
