@@ -102,7 +102,8 @@ def check_value_type(value):
             return match.group(1), "img"
     # 如果包含<span>标签，则去除<span>标签但保留其内容
     elif re.search(r"<span\b[^>]*>(.*?)</span>", value):
-        return re.sub(r"<span\b[^>]*>(.*?)</span>", r"\1", value), "richtext"
+        # return re.sub(r"<span\b[^>]*>(.*?)</span>", r"\1", value), "richtext"
+        return value, "richtext"
     # 如果不是上述两种情况，则直接返回原字符串
     else:
         return value, "text"
