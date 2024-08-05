@@ -302,14 +302,20 @@ a:active {
 @media only screen and (max-width: 550px) {
   .tab.first {
     display: inline-block;
-    text-align: center;
-    margin-top: 5px;
-    padding: 5px 5px;
+    text-align: left;
+    /* margin-top: 5px;
+    padding: 5px 5px; */
   }
 
   .tab {
     display: inline-block;
-    text-align: center;
+    text-align: left;
+    text-decoration: none;
+  }
+
+  .all-tabs {
+    text-align: left;
+    margin-top: 10px;
   }
 
   .tablast {
