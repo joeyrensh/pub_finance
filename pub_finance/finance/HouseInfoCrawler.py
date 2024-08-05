@@ -15,7 +15,7 @@ import json
 import time
 from fake_useragent import UserAgent
 import random
-from tenacity import retry, wait_fixed, stop_after_attempt
+from tenacity import retry, wait_random, stop_after_attempt
 import logging
 import sys
 
@@ -25,7 +25,11 @@ import sys
 链家数据：https://sh.fang.lianjia.com/loupan/minhang/nht1nht2nhs1pg1/?_t=1/
 
 """
-logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -95,7 +99,7 @@ def get_house_info_f(file_path):
             cnt = cnt + 1
 
 
-@retry(wait=wait_fixed(3), stop=stop_after_attempt(100))
+@retry(wait=wait_random(min=1, max=3), stop=stop_after_attempt(100))
 def fetch_house_info_s(url, item):
     # 添加请求头
     ua = UserAgent()
@@ -109,7 +113,7 @@ def fetch_house_info_s(url, item):
     url_re = url.replace("data_id", item["data_id"])
     response = requests.get(url_re, headers=headers)
     if response.status_code == 200:
-        print(url_re)
+        logger.info("Url: %s" % (url_re))
         tree = html.fromstring(response.content)
         unit_price_div = tree.xpath(
             '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
@@ -212,7 +216,7 @@ def fetch_houselist_s(url, page, complete_list):
             }
             url_re = url.replace("pgno", str(i))
             response = requests.get(url_re, headers=headers)
-            print(url_re)
+            logger.info("Url: %s" % (url_re))
 
             # 检查请求是否成功
             if response.status_code == 200:
@@ -279,7 +283,7 @@ def fetch_houselist_s(url, page, complete_list):
     return dlist
 
 
-@retry(wait=wait_fixed(5), stop=stop_after_attempt(100))
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(100))
 def get_max_page(url):
     ua = UserAgent()
     headers = {
@@ -304,6 +308,7 @@ def get_max_page(url):
     if div:
         cnt = div[0].text_content().strip()
         page_no = round(int(cnt) / 30) + 1
+        logger.info("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
         print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
     else:
         print("XPath query returned no results")
@@ -342,7 +347,6 @@ def houseinfo_to_csv_s(file_path):
     url = "https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
         url_default = url.replace("pgno", str(1)).replace("district", district)
-        print(url_default)
         max_page = get_max_page(url_default)
         url_re = url.replace("district", district)
         houselist = fetch_houselist_s(url_re, max_page, complete_list)
