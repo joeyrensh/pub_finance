@@ -112,6 +112,7 @@ def fetch_house_info_s(url, item):
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
     response = requests.get(url_re, headers=headers)
+    time.sleep(round(random.random(), 1))  # 随机休眠
     if response.status_code == 200:
         logger.debug("Url: %s" % (url_re))
         tree = html.fromstring(response.content)
@@ -293,7 +294,7 @@ def get_max_page(url):
         "Referer": "https://www.google.com/",
     }
     response = requests.get(url, headers=headers)
-
+    time.sleep(round(random.random(), 1))  # 随机休眠
     # 检查请求是否成功
     if response.status_code != 200:
         print(f"Failed to retrieve data: {response.status_code}")
