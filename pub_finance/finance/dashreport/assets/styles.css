@@ -295,13 +295,21 @@ a:active {
   padding-left: 15px;
   padding-right: 15px;
   text-transform: none;
-  margin: 25px 25px;
+  margin: 25px 25px 0px 0px;
 }
 
 /* for screens smaller than 768px */
 @media only screen and (max-width: 550px) {
+  .tab.first {
+    display: inline-block;
+    text-align: center;
+    margin-top: 5px;
+    padding: 5px 5px;
+  }
+
   .tab {
-    display: block;
+    display: inline-block;
+    text-align: center;
   }
 
   .tablast {
@@ -328,10 +336,16 @@ a:active {
   }
 
   #learn-more-button {
+    float: right;
     line-height: 0;
     font-size: 10px;
-    height: 30px;
-    padding: 0 10px;
+    height: 25px;
+    /* margin: auto; */
+    margin-top: 10px;
+    padding: 2px;
+    /* padding: auto; */
+    /* border: 0; */
+    /* margin: 5px 5px 5px 5px; */
   }
 
   h5 {

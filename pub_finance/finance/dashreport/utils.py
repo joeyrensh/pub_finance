@@ -30,7 +30,10 @@ def get_header(app):
                         href="#",
                     ),
                     html.A(
-                        html.Button("Source Code", id="learn-more-button"),
+                        html.Button(
+                            "Source Code",
+                            id="learn-more-button",
+                        ),
                         href="#",
                     ),
                 ],
