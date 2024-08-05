@@ -27,7 +27,7 @@ import sys
 """
 logging.basicConfig(
     stream=sys.stdout,
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
@@ -113,7 +113,7 @@ def fetch_house_info_s(url, item):
     url_re = url.replace("data_id", item["data_id"])
     response = requests.get(url_re, headers=headers)
     if response.status_code == 200:
-        logger.info("Url: %s" % (url_re))
+        logger.debug("Url: %s" % (url_re))
         tree = html.fromstring(response.content)
         unit_price_div = tree.xpath(
             '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
@@ -205,7 +205,7 @@ def fetch_houselist_s(url, page, complete_list):
         max_retries = 100
         retries = 0
         while retries < max_retries:
-            time.sleep(random.randint(3, 5))
+            time.sleep(random.randint(1, 5))
             # 添加请求头
             ua = UserAgent()
             headers = {
@@ -216,7 +216,7 @@ def fetch_houselist_s(url, page, complete_list):
             }
             url_re = url.replace("pgno", str(i))
             response = requests.get(url_re, headers=headers)
-            logger.info("Url: %s" % (url_re))
+            logger.debug("Url: %s" % (url_re))
 
             # 检查请求是否成功
             if response.status_code == 200:
@@ -283,7 +283,7 @@ def fetch_houselist_s(url, page, complete_list):
     return dlist
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(100))
+@retry(wait=wait_random(min=1, max=5), stop=stop_after_attempt(100))
 def get_max_page(url):
     ua = UserAgent()
     headers = {
@@ -308,7 +308,7 @@ def get_max_page(url):
     if div:
         cnt = div[0].text_content().strip()
         page_no = round(int(cnt) / 30) + 1
-        logger.info("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
+        logger.debug("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
         print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
     else:
         print("XPath query returned no results")
