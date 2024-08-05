@@ -355,10 +355,10 @@ class StockProposal:
                 return ""
             elif value > 0:
                 return (
-                    f"<span style='color:red'; font-size:32px>↑{abs(value):.0f}</span>"
+                    f"<span style='color:red; font-size:32px'>↑{abs(value):.0f}</span>"
                 )
             elif value < 0:
-                return f"<span style='color:green'; font-size:32px>↓{abs(value):.0f}</span>"
+                return f"<span style='color:green; font-size:32px'>↓{abs(value):.0f}</span>"
             else:
                 return ""
 
