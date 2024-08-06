@@ -33,12 +33,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def get_house_info_f(file_path):
+def get_house_info_f(file_path, file_path_bk):
     houselist = []
 
     # 如果文件存在，则删除文件
-    if os.path.isfile(file_path):
-        os.remove(file_path)
+    if os.path.isfile(file_path_bk):
+        os.remove(file_path_bk)
     district_list = [
         "huangpu",
         "xuhui",
@@ -97,6 +97,9 @@ def get_house_info_f(file_path):
             df = pd.DataFrame(list)
             df.to_csv(file_path, mode="a", index=False, header=(cnt == 0))
             cnt = cnt + 1
+    # 如果文件存在，则删除文件
+    if os.path.isfile(file_path_bk):
+        os.replace(file_path_bk, file_path)
 
 
 @retry(wait=wait_random(min=1, max=3), stop=stop_after_attempt(100))
@@ -105,14 +108,12 @@ def fetch_house_info_s(url, item):
     ua = UserAgent()
     headers = {
         "User-Agent": ua.random,
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1",
-        "Referer": "https://www.google.com/",
+        "Referer": "https://www.baidu.com/",
     }
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
     response = requests.get(url_re, headers=headers)
-    time.sleep(round(random.random(), 1))  # 随机休眠
+    time.sleep(random.randint(1, 3))  # 随机休眠
     if response.status_code == 200:
         logger.debug("Url: %s" % (url_re))
         tree = html.fromstring(response.content)
@@ -211,9 +212,7 @@ def fetch_houselist_s(url, page, complete_list):
             ua = UserAgent()
             headers = {
                 "User-Agent": ua.random,
-                "Connection": "keep-alive",
-                "Upgrade-Insecure-Requests": "1",
-                "Referer": "https://www.google.com/",
+                "Referer": "https://www.baidu.com/",
             }
             url_re = url.replace("pgno", str(i))
             response = requests.get(url_re, headers=headers)
@@ -284,17 +283,15 @@ def fetch_houselist_s(url, page, complete_list):
     return dlist
 
 
-@retry(wait=wait_random(min=1, max=5), stop=stop_after_attempt(100))
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(100))
 def get_max_page(url):
     ua = UserAgent()
     headers = {
         "User-Agent": ua.random,
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1",
-        "Referer": "https://www.google.com/",
+        "Referer": "https://sh.lianjia.com/",
     }
     response = requests.get(url, headers=headers)
-    time.sleep(round(random.random(), 1))  # 随机休眠
+    time.sleep(random.randint(3, 5))  # 随机休眠
     # 检查请求是否成功
     if response.status_code != 200:
         print(f"Failed to retrieve data: {response.status_code}")
@@ -317,10 +314,10 @@ def get_max_page(url):
     return page_no
 
 
-def houseinfo_to_csv_s(file_path):
+def houseinfo_to_csv_s(file_path, file_path_bk):
     # 如果文件存在，则删除文件
-    if os.path.isfile(file_path):
-        os.remove(file_path)
+    if os.path.isfile(file_path_bk):
+        os.remove(file_path_bk)
     # 发起HTTP请求
     district_list = [
         "pudong",
@@ -392,6 +389,10 @@ def houseinfo_to_csv_s(file_path):
         if list:
             df = pd.DataFrame(list)
             df.to_csv(file_path, mode="a", index=False, header=False)
+
+    # 如果文件存在，则删除文件
+    if os.path.isfile(file_path_bk):
+        os.replace(file_path_bk, file_path)
 
 
 def map_plot(df, legend_title, legend_fmt, png_path, k, col_formats):
@@ -487,17 +488,19 @@ if __name__ == "__main__":
     plt.rcParams["font.family"] = "WenQuanYi Zen Hei"
 
     file_path = "./houseinfo/newhouse.csv"
+    file_path_bk = "./houseinfo/newhouse_bk.csv"
     geo_path = "./houseinfo/shanghaidistrict.json"
     png_path = "./houseinfo/map_newhouse.png"
     png_path_s = "./houseinfo/map_secondhouse.png"
     png_path_s2 = "./houseinfo/map_secondhouse2.png"
     png_path_s3 = "./houseinfo/map_secondhouse3.png"
     file_path_s = "./houseinfo/secondhandhouse.csv"
+    file_path_s_bk = "./houseinfo/secondhandhouse_bk.csv"
     # file_path_s = "./houseinfo/test.csv"
     # 新房
-    get_house_info_f(file_path)
+    get_house_info_f(file_path, file_path_bk)
     # 二手
-    houseinfo_to_csv_s(file_path_s)
+    houseinfo_to_csv_s(file_path_s, file_path_s_bk)
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
