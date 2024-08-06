@@ -126,7 +126,7 @@ def get_house_info_f(file_path, file_path_bk):
 
 
 @retry(
-    wait=wait_random(min=1, max=3), stop=stop_after_attempt(100), before=before_retry
+    wait=wait_random(min=3, max=5), stop=stop_after_attempt(100), before=before_retry
 )
 def fetch_house_info_s(url, item):
     # 添加请求头
