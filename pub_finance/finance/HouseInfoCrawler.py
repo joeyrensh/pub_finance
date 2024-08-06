@@ -13,7 +13,6 @@ import concurrent.futures
 import re
 import json
 import time
-from fake_useragent import UserAgent
 import random
 from tenacity import retry, wait_random, stop_after_attempt
 import logging
@@ -31,6 +30,25 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+# https://www.useragents.me/#most-common-desktop-useragents-json-csv 获取最新user agent
+user_agent_list = [
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.1",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.3",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.3",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/25.0 Chrome/121.0.0.0 Safari/537.3",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.3",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.3",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.3",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Unique/100.7.6266.6",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 OPR/112.0.0.",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.",
+    "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.3",
+    "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115."
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.3",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.",
+]
 
 
 # 定义一个函数来打印重试次数
@@ -100,7 +118,7 @@ def get_house_info_f(file_path, file_path_bk):
                 houselist.append("".join([j["title"], j["house_type"]]))
                 list.append(dict)
             df = pd.DataFrame(list)
-            df.to_csv(file_path, mode="a", index=False, header=(cnt == 0))
+            df.to_csv(file_path_bk, mode="a", index=False, header=(cnt == 0))
             cnt = cnt + 1
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path_bk):
@@ -112,9 +130,8 @@ def get_house_info_f(file_path, file_path_bk):
 )
 def fetch_house_info_s(url, item):
     # 添加请求头
-    ua = UserAgent()
     headers = {
-        "User-Agent": ua.random,
+        "User-Agent": random.choice(user_agent_list),
         "Connection": "keep-alive",
         "Referer": "https://www.baidu.com/",
     }
@@ -217,10 +234,8 @@ def fetch_houselist_s(url, page, complete_list):
         retries = 0
         while retries < max_retries:
             time.sleep(random.randint(1, 5))
-            # 添加请求头
-            ua = UserAgent()
             headers = {
-                "User-Agent": ua.random,
+                "User-Agent": random.choice(user_agent_list),
                 "Connection": "keep-alive",
                 "Referer": "https://www.baidu.com/",
             }
@@ -299,9 +314,8 @@ def fetch_houselist_s(url, page, complete_list):
     wait=wait_random(min=3, max=5), stop=stop_after_attempt(100), before=before_retry
 )
 def get_max_page(url):
-    ua = UserAgent()
     headers = {
-        "User-Agent": ua.random,
+        "User-Agent": random.choice(user_agent_list),
         "Connection": "keep-alive",
         "Referer": "https://sh.lianjia.com/",
     }
@@ -395,7 +409,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
                     # 每处理完一批数据后，将数据写入CSV文件
                     df = pd.DataFrame(list)
                     df.to_csv(
-                        file_path,
+                        file_path_bk,
                         mode="a",
                         index=False,
                         header=(count == data_batch_size),
@@ -405,7 +419,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         # 处理剩余的数据
         if list:
             df = pd.DataFrame(list)
-            df.to_csv(file_path, mode="a", index=False, header=False)
+            df.to_csv(file_path_bk, mode="a", index=False, header=False)
 
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path_bk):
