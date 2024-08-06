@@ -33,6 +33,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# 定义一个函数来打印重试次数
+def before_retry(retry_state):
+    logger.info(f"Retrying... attempt number {retry_state.attempt_number}")
+
+
 def get_house_info_f(file_path, file_path_bk):
     houselist = []
 
@@ -102,7 +107,9 @@ def get_house_info_f(file_path, file_path_bk):
         os.replace(file_path_bk, file_path)
 
 
-@retry(wait=wait_random(min=1, max=3), stop=stop_after_attempt(100))
+@retry(
+    wait=wait_random(min=1, max=3), stop=stop_after_attempt(100), before=before_retry
+)
 def fetch_house_info_s(url, item):
     # 添加请求头
     ua = UserAgent()
@@ -219,7 +226,7 @@ def fetch_houselist_s(url, page, complete_list):
             }
             url_re = url.replace("pgno", str(i))
             response = requests.get(url_re, headers=headers)
-            logger.info("Url: %s" % (url_re))
+            logger.info("Url: %s retry: %s" % (url_re, retries))
 
             # 检查请求是否成功
             if response.status_code == 200:
@@ -288,7 +295,9 @@ def fetch_houselist_s(url, page, complete_list):
     return dlist
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(100))
+@retry(
+    wait=wait_random(min=3, max=5), stop=stop_after_attempt(100), before=before_retry
+)
 def get_max_page(url):
     ua = UserAgent()
     headers = {
