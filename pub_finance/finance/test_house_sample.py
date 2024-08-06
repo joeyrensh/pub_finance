@@ -1,21 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: UTF-8 -*-
-import progressbar
-from utility.ToolKit import ToolKit
-from datetime import datetime
-import pandas as pd
-import sys
-from backtraderref.BTStrategyVol import BTStrategyVol
-import backtrader as bt
-from utility.TickerInfo import TickerInfo
-from cncrawler.EMCNWebCrawler import EMCNWebCrawler
-from backtraderref.BTPandasDataExt import BTPandasDataExt
-from utility.StockProposal import StockProposal
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
-import pyfolio as pf
-import gc
-from backtraderref.FixAmountCN import FixedAmount
-import random
+import requests
 
-print(random.randint(1, 3))
+proxies = {
+    "http": "socks5h://fc4239f5.w1o0q7h0v5-scnode-hk03.bzlxzl.com:57003",
+    "https": "socks5h://fc4239f5.w1o0q7h0v5-scnode-hk03.bzlxzl.com:57003",
+}
+
+response = requests.get("https://sh.lianjia.com/", proxies=proxies)
+print(response.text)
