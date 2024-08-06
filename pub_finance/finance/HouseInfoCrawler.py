@@ -108,6 +108,7 @@ def fetch_house_info_s(url, item):
     ua = UserAgent()
     headers = {
         "User-Agent": ua.random,
+        "Connection": "keep-alive",
         "Referer": "https://www.baidu.com/",
     }
     dict = {}
@@ -213,6 +214,7 @@ def fetch_houselist_s(url, page, complete_list):
             ua = UserAgent()
             headers = {
                 "User-Agent": ua.random,
+                "Connection": "keep-alive",
                 "Referer": "https://www.baidu.com/",
             }
             url_re = url.replace("pgno", str(i))
@@ -291,6 +293,7 @@ def get_max_page(url):
     ua = UserAgent()
     headers = {
         "User-Agent": ua.random,
+        "Connection": "keep-alive",
         "Referer": "https://sh.lianjia.com/",
     }
     response = requests.get(url, headers=headers)
@@ -346,6 +349,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
     houselist = []
     complete_list = []
     count = 0
+    # url = "https://sh.lianjia.com/xiaoqu/district/pgpgnobp0ep100/"
     url = "https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
         url_default = url.replace("pgno", str(1)).replace("district", district)
