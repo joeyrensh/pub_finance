@@ -126,7 +126,7 @@ def get_house_info_f(file_path, file_path_bk):
 
 
 @retry(
-    wait=wait_random(min=3, max=5), stop=stop_after_attempt(100), before=before_retry
+    wait=wait_random(min=3, max=5), stop=stop_after_attempt(20), before=before_retry
 )
 def fetch_house_info_s(url, item):
     # 添加请求头
@@ -230,10 +230,10 @@ def fetch_houselist_s(url, page, complete_list):
     random.shuffle(numbers)
     for i in numbers:
         # 重试计数器
-        max_retries = 100
+        max_retries = 20
         retries = 0
         while retries < max_retries:
-            time.sleep(random.randint(1, 5))
+            time.sleep(random.randint(3, 5))
             headers = {
                 "User-Agent": random.choice(user_agent_list),
                 "Connection": "keep-alive",
@@ -311,7 +311,7 @@ def fetch_houselist_s(url, page, complete_list):
 
 
 @retry(
-    wait=wait_random(min=3, max=5), stop=stop_after_attempt(100), before=before_retry
+    wait=wait_random(min=3, max=5), stop=stop_after_attempt(20), before=before_retry
 )
 def get_max_page(url):
     headers = {
