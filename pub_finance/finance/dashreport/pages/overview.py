@@ -218,7 +218,6 @@ def create_layout(app):
                                                 "width": "100%",
                                                 "overflow-x": "auto",
                                             },
-                                            alt="test",
                                         )
                                     ),
                                 ],
@@ -267,7 +266,6 @@ def create_layout(app):
                                                 "width": "100%",
                                                 "overflow-x": "auto",
                                             },
-                                            alt="test",
                                         )
                                     ),
                                 ],
@@ -286,7 +284,6 @@ def create_layout(app):
                                                 "width": "100%",
                                                 "overflow-x": "auto",
                                             },
-                                            alt="test",
                                         )
                                     ),
                                 ],
@@ -311,7 +308,6 @@ def create_layout(app):
                                                 "width": "100%",
                                                 "overflow-x": "auto",
                                             },
-                                            alt="test",
                                         )
                                     ),
                                 ],
