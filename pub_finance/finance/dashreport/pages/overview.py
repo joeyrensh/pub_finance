@@ -8,6 +8,7 @@ from utils import Header, make_dash_format_table
 
 import pandas as pd
 import pathlib
+import dash_grocery
 
 
 def create_layout(app):
@@ -210,12 +211,15 @@ def create_layout(app):
                                         ["新房零售价中位数分布"],
                                         className="subtitle padded",
                                     ),
-                                    html.Img(
-                                        src=f"data:image/png;base64,{encoded_image_newhouse}",
-                                        style={
-                                            "width": "100%",
-                                            "overflow-x": "auto",
-                                        },
+                                    dash_grocery.LazyLoad(
+                                        html.Img(
+                                            src=f"data:image/png;base64,{encoded_image_newhouse}",
+                                            style={
+                                                "width": "100%",
+                                                "overflow-x": "auto",
+                                            },
+                                            alt="test",
+                                        )
                                     ),
                                 ],
                                 className="six columns",
@@ -226,16 +230,19 @@ def create_layout(app):
                                         "在售新房明细",
                                         className="subtitle padded",
                                     ),
-                                    html.Div(
-                                        [
-                                            html.Table(
-                                                make_dash_format_table(
-                                                    df_new_house, cols_format_new_house
+                                    dash_grocery.LazyLoad(
+                                        html.Div(
+                                            [
+                                                html.Table(
+                                                    make_dash_format_table(
+                                                        df_new_house,
+                                                        cols_format_new_house,
+                                                    )
                                                 )
-                                            )
-                                        ],
-                                        className="table",
-                                        style={"overflow-x": "auto", "height": 400},
+                                            ],
+                                            className="table",
+                                            style={"overflow-x": "auto", "height": 400},
+                                        )
                                     ),
                                 ],
                                 className="six columns",
@@ -253,12 +260,15 @@ def create_layout(app):
                                         ["二手房挂牌价中位数分布"],
                                         className="subtitle padded",
                                     ),
-                                    html.Img(
-                                        src=f"data:image/png;base64,{encoded_image_secondhouse}",
-                                        style={
-                                            "width": "100%",
-                                            "overflow-x": "auto",
-                                        },
+                                    dash_grocery.LazyLoad(
+                                        html.Img(
+                                            src=f"data:image/png;base64,{encoded_image_secondhouse}",
+                                            style={
+                                                "width": "100%",
+                                                "overflow-x": "auto",
+                                            },
+                                            alt="test",
+                                        )
                                     ),
                                 ],
                                 className="six columns",
@@ -269,12 +279,15 @@ def create_layout(app):
                                         ["二手房成交价中位数分布"],
                                         className="subtitle padded",
                                     ),
-                                    html.Img(
-                                        src=f"data:image/png;base64,{encoded_image_secondhouse2}",
-                                        style={
-                                            "width": "100%",
-                                            "overflow-x": "auto",
-                                        },
+                                    dash_grocery.LazyLoad(
+                                        html.Img(
+                                            src=f"data:image/png;base64,{encoded_image_secondhouse2}",
+                                            style={
+                                                "width": "100%",
+                                                "overflow-x": "auto",
+                                            },
+                                            alt="test",
+                                        )
                                     ),
                                 ],
                                 className="six columns",
@@ -291,12 +304,15 @@ def create_layout(app):
                                         ["二手房挂牌量中位数分布"],
                                         className="subtitle padded",
                                     ),
-                                    html.Img(
-                                        src=f"data:image/png;base64,{encoded_image_secondhouse3}",
-                                        style={
-                                            "width": "100%",
-                                            "overflow-x": "auto",
-                                        },
+                                    dash_grocery.LazyLoad(
+                                        html.Img(
+                                            src=f"data:image/png;base64,{encoded_image_secondhouse3}",
+                                            style={
+                                                "width": "100%",
+                                                "overflow-x": "auto",
+                                            },
+                                            alt="test",
+                                        )
                                     ),
                                 ],
                                 className="six columns",
@@ -307,16 +323,18 @@ def create_layout(app):
                                         "二手房板块明细",
                                         className="subtitle padded",
                                     ),
-                                    html.Div(
-                                        [
-                                            html.Table(
-                                                make_dash_format_table(
-                                                    result, cols_format_result
+                                    dash_grocery.LazyLoad(
+                                        html.Div(
+                                            [
+                                                html.Table(
+                                                    make_dash_format_table(
+                                                        result, cols_format_result
+                                                    )
                                                 )
-                                            )
-                                        ],
-                                        className="table",
-                                        style={"overflow-x": "auto", "height": 400},
+                                            ],
+                                            className="table",
+                                            style={"overflow-x": "auto", "height": 400},
+                                        )
                                     ),
                                 ],
                                 className="six columns",
