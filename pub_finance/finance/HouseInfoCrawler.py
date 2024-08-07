@@ -63,6 +63,7 @@ def get_house_info_f(file_path, file_path_bk):
     if os.path.isfile(file_path_bk):
         os.remove(file_path_bk)
     district_list = [
+        "pudong",
         "huangpu",
         "xuhui",
         "changning",
@@ -73,7 +74,6 @@ def get_house_info_f(file_path, file_path_bk):
         "minhang",
         "baoshan",
         "jiading",
-        "pudong",
         "jinshan",
         "songjiang",
         "qingpu",
@@ -90,8 +90,13 @@ def get_house_info_f(file_path, file_path_bk):
             dict = {}
             list = []
             url = "https://sh.fang.lianjia.com/loupan/district/nht1nht2nhs1co41pgpageno/?_t=1/"
+            headers = {
+                "User-Agent": random.choice(user_agent_list),
+                "Connection": "keep-alive",
+                "Referer": "https://www.baidu.com/",
+            }
             url_re = url.replace("pageno", str(i)).replace("district", district)
-            res = requests.get(url_re).json()
+            res = requests.get(url_re, headers=headers).json()
             if len(res["data"]["list"]) == 0:
                 continue
             for h, j in enumerate(res["data"]["list"]):
@@ -125,9 +130,7 @@ def get_house_info_f(file_path, file_path_bk):
         os.replace(file_path_bk, file_path)
 
 
-@retry(
-    wait=wait_random(min=3, max=5), stop=stop_after_attempt(20), before=before_retry
-)
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(20), before=before_retry)
 def fetch_house_info_s(url, item):
     # 添加请求头
     headers = {
@@ -310,9 +313,7 @@ def fetch_houselist_s(url, page, complete_list):
     return dlist
 
 
-@retry(
-    wait=wait_random(min=3, max=5), stop=stop_after_attempt(20), before=before_retry
-)
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(20), before=before_retry)
 def get_max_page(url):
     headers = {
         "User-Agent": random.choice(user_agent_list),
