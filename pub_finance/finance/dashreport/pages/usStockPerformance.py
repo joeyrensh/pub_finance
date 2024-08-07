@@ -3,7 +3,7 @@ from utils import Header, make_dash_format_table
 import pandas as pd
 import pathlib
 import base64
-import dash_grocery
+
 
 # 定义全局变量 df_detail
 df_detail = None
@@ -139,11 +139,9 @@ def create_layout(app):
                                         ["美股年化收益率分析"],
                                         className="subtitle padded",
                                     ),
-                                    dash_grocery.LazyLoad(
-                                        html.Img(
-                                            src=f"data:image/png;base64,{encoded_image_trdraw}",
-                                            style={"width": "100%"},
-                                        )
+                                    html.Img(
+                                        src=f"data:image/png;base64,{encoded_image_trdraw}",
+                                        style={"width": "100%"},
                                     ),
                                 ],
                                 className="twelve columns",
@@ -158,11 +156,9 @@ def create_layout(app):
                                 [
                                     html.Br([]),
                                     html.H6(["持仓占比"], className="subtitle padded"),
-                                    dash_grocery.LazyLoad(
-                                        html.Img(
-                                            src=f"data:image/png;base64,{encoded_image_by_postion}",
-                                            style={"width": "100%"},
-                                        )
+                                    html.Img(
+                                        src=f"data:image/png;base64,{encoded_image_by_postion}",
+                                        style={"width": "100%"},
                                     ),
                                 ],
                                 className="six columns",
@@ -174,11 +170,9 @@ def create_layout(app):
                                         ["盈利占比"],
                                         className="subtitle padded",
                                     ),
-                                    dash_grocery.LazyLoad(
-                                        html.Img(
-                                            src=f"data:image/png;base64,{encoded_image_by_pl}",
-                                            style={"width": "100%"},
-                                        )
+                                    html.Img(
+                                        src=f"data:image/png;base64,{encoded_image_by_pl}",
+                                        style={"width": "100%"},
                                     ),
                                 ],
                                 className="six columns",
@@ -192,11 +186,9 @@ def create_layout(app):
                             html.Div(
                                 [
                                     html.H6(["持仓趋势"], className="subtitle padded"),
-                                    dash_grocery.LazyLoad(
-                                        html.Img(
-                                            src=f"data:image/png;base64,{encoded_image_by_positiondate}",
-                                            style={"width": "100%"},
-                                        )
+                                    html.Img(
+                                        src=f"data:image/png;base64,{encoded_image_by_positiondate}",
+                                        style={"width": "100%"},
                                     ),
                                 ],
                                 className="six columns",
@@ -207,11 +199,9 @@ def create_layout(app):
                                         ["盈利趋势"],
                                         className="subtitle padded",
                                     ),
-                                    dash_grocery.LazyLoad(
-                                        html.Img(
-                                            src=f"data:image/png;base64,{encoded_image_bypl_date}",
-                                            style={"width": "100%"},
-                                        )
+                                    html.Img(
+                                        src=f"data:image/png;base64,{encoded_image_bypl_date}",
+                                        style={"width": "100%"},
                                     ),
                                 ],
                                 className="six columns",
@@ -228,19 +218,17 @@ def create_layout(app):
                                         "美股板块分析",
                                         className="subtitle padded",
                                     ),
-                                    dash_grocery.LazyLoad(
-                                        html.Div(
-                                            [
-                                                html.Div(
-                                                    children=make_dash_format_table(
-                                                        df, cols_format_category
-                                                    ),
-                                                    # className="tiny-header",
-                                                )
-                                            ],
-                                            className="table",
-                                            style={"overflow-x": "auto", "height": 400},
-                                        )
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                children=make_dash_format_table(
+                                                    df, cols_format_category
+                                                ),
+                                                # className="tiny-header",
+                                            )
+                                        ],
+                                        className="table",
+                                        style={"overflow-x": "auto", "height": 400},
                                     ),
                                 ],
                                 className="twelve columns",
@@ -259,19 +247,17 @@ def create_layout(app):
                                         "美股持仓分析",
                                         className="subtitle padded",
                                     ),
-                                    dash_grocery.LazyLoad(
-                                        html.Div(
-                                            [
-                                                html.Div(
-                                                    children=make_dash_format_table(
-                                                        df_detail, cols_format_detail
-                                                    ),
-                                                    # className="tiny-header",
-                                                )
-                                            ],
-                                            className="table",
-                                            style={"overflow-x": "auto", "height": 400},
-                                        )
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                children=make_dash_format_table(
+                                                    df_detail, cols_format_detail
+                                                ),
+                                                # className="tiny-header",
+                                            )
+                                        ],
+                                        className="table",
+                                        style={"overflow-x": "auto", "height": 400},
                                     ),
                                 ],
                                 className="twelve columns",
@@ -289,19 +275,17 @@ def create_layout(app):
                                         "美股近5日减仓分析",
                                         className="subtitle padded",
                                     ),
-                                    dash_grocery.LazyLoad(
-                                        html.Div(
-                                            [
-                                                html.Div(
-                                                    children=make_dash_format_table(
-                                                        df_detail_short,
-                                                        cols_format_detail_short,
-                                                    ),
-                                                )
-                                            ],
-                                            style={"overflow-x": "auto", "height": 400},
-                                            className="table",
-                                        )
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                children=make_dash_format_table(
+                                                    df_detail_short,
+                                                    cols_format_detail_short,
+                                                ),
+                                            )
+                                        ],
+                                        style={"overflow-x": "auto", "height": 400},
+                                        className="table",
                                     ),
                                 ],
                                 className="twelve columns",
