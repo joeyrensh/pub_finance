@@ -22,7 +22,7 @@ app.layout = html.Div(
         dcc.Location(id="url", refresh=False),
         dcc.Loading(
             id="loading",
-            type="graph",
+            type="dot",
             fullscreen=True,
             color="#119DFF",
             style={"zIndex": "1000"},
