@@ -308,8 +308,57 @@ class StockProposal:
             ORDER BY COALESCE(t2.p_pnl,0) DESC
             """.format(end_date, end_date)
         )
-        # 5日前行业盈亏情况
+        # # 5日前行业盈亏情况
+        # sparkdata71 = spark.sql(
+        #     """
+        #     WITH tmp AS (
+        #         SELECT t2.industry
+        #             ,SUM(t1.pnl) AS pnl
+        #         FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+        #         WHERE t1.date = (
+        #             SELECT buy_date FROM (
+        #             SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+        #             FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
+        #             WHERE row_num = 5 )
+        #         GROUP BY t2.industry
+        #     )
+        #     SELECT industry
+        #         ,pnl
+        #     FROM tmp
+        #     ORDER BY pnl DESC
+        #     """
+        # )
+        # dfdata71 = sparkdata71.toPandas()
         sparkdata71 = spark.sql(
+            """
+            WITH tmp AS (
+                SELECT t2.industry
+                    ,SUM(t1.pnl) AS pnl
+                FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                WHERE t1.date = (
+                    SELECT buy_date FROM (
+                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                    FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
+                    WHERE row_num = 1 )
+                GROUP BY t2.industry
+            ), tmp1 AS (
+                SELECT t2.industry
+                    ,SUM(t1.pnl) AS pnl
+                FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                WHERE t1.date = (
+                    SELECT buy_date FROM (
+                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                    FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
+                    WHERE row_num = 5 )
+                GROUP BY t2.industry
+            )   
+            SELECT tmp.industry
+                ,tmp.pnl - COALESCE(tmp1.pnl, 0) AS pnl_growth
+            FROM tmp LEFT JOIN tmp1 ON tmp.industry = tmp1.industry
+            ORDER BY tmp.pnl - COALESCE(tmp1.pnl, 0) DESC
+            """
+        )
+        sparkdata72 = spark.sql(
             """
             WITH tmp AS (
                 SELECT t2.industry
@@ -321,16 +370,49 @@ class StockProposal:
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
                     WHERE row_num = 5 )
                 GROUP BY t2.industry
+            ), tmp1 AS (
+                SELECT t2.industry
+                    ,SUM(t1.pnl) AS pnl
+                FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                WHERE t1.date = (
+                    SELECT buy_date FROM (
+                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                    FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
+                    WHERE row_num = 10)
+                GROUP BY t2.industry
             )   
-            SELECT industry
-                ,pnl
-            FROM tmp
-            ORDER BY pnl DESC
+            SELECT tmp.industry
+                ,tmp.pnl - COALESCE(tmp1.pnl, 0) AS pnl_growth
+            FROM tmp LEFT JOIN tmp1 ON tmp.industry = tmp1.industry
+            ORDER BY tmp.pnl - COALESCE(tmp1.pnl, 0) DESC
             """
         )
         dfdata71 = sparkdata71.toPandas()
+        dfdata72 = sparkdata72.toPandas()
         dfdata7 = sparkdata7.toPandas()
 
+        # 合并并按照 df2 的 col3 进行排序
+        result_df = (
+            dfdata7.merge(dfdata71, on="industry")
+            .sort_values(by="pnl_growth", ascending=False)
+            .reset_index(drop=True)
+        )
+        dfdata7 = result_df[
+            [
+                "industry",
+                "p_cnt",
+                "l5_p_cnt",
+                "l5_close",
+                "pnl",
+                "pnl_ratio",
+                "long_ratio",
+                "avg_his_trade_cnt",
+                "avg_days",
+                "win_rate",
+                "pnl_array",
+                "pnl_growth",
+            ]
+        ].copy()
         # Create a dictionary to store the index differences
         index_diff_dict = {}
 
@@ -339,10 +421,10 @@ class StockProposal:
             industry = row["industry"]
 
             # Check if the industry value exists in df2
-            if industry in dfdata71["industry"].values:
+            if industry in dfdata72["industry"].values:
                 # Get the corresponding index differences from df2
                 index_diff = (
-                    dfdata71[dfdata71["industry"] == industry].index.values - index
+                    dfdata72[dfdata72["industry"] == industry].index.values - index
                 )[0]
                 index_diff_dict[index] = index_diff
 
@@ -366,7 +448,6 @@ class StockProposal:
             lambda row: f"{row['industry']} {create_arrow(row['index_diff'])}",
             axis=1,
         )
-
         dfdata7["pnl_trend"] = dfdata7["pnl_array"].apply(
             ToolKit("draw line").create_line
         )
@@ -398,7 +479,14 @@ class StockProposal:
             "<h2>Industry Overview</h2>"
             "<table>"
             + dfdata7.style.hide(
-                axis=1, subset=["pnl_array", "index_diff", "industry_new", "AVG TRANS"]
+                axis=1,
+                subset=[
+                    "pnl_array",
+                    "index_diff",
+                    "industry_new",
+                    "AVG TRANS",
+                    "pnl_growth",
+                ],
             )
             .format(
                 {
@@ -578,13 +666,6 @@ class StockProposal:
         持仓明细历史交易情况分析
         """
         df_np = pd.merge(df_cur_p, df_d, how="inner", on="symbol")
-        # df_np = df_np[df_np['p&l_ratio'] > 0].reset_index(drop=True)
-        df_np["pnlsum"] = df_np.groupby("industry")["p&l"].transform("sum")
-        df_np = (
-            df_np.sort_values(["pnlsum", "buy_date"], ascending=[False, False])
-            .drop(columns="pnlsum")
-            .reset_index(drop=True)
-        )
 
         df_np_spark = spark.createDataFrame(df_np)
         df_np_spark.createOrReplaceTempView("temp_symbol")
@@ -707,12 +788,17 @@ class StockProposal:
         )
 
         # 使用merge来找到df1和df2中'ind'相等的行，并保留df1的所有行
-        dfdata8 = pd.merge(
-            dfdata8,
-            dfdata7[["industry_new", "combined"]],
-            left_on="industry",
-            right_on="industry_new",
-            how="inner",
+        dfdata8 = (
+            dfdata8.merge(
+                dfdata7[["industry_new", "combined", "pnl_growth"]],
+                left_on="industry",
+                right_on="industry_new",
+                how="inner",
+            )
+            .sort_values(
+                by=["pnl_growth", "pnl", "buy_date"], ascending=[False, False, False]
+            )
+            .reset_index(drop=True)
         )
         dfdata8["industry"] = dfdata8["combined"]
 
@@ -762,7 +848,7 @@ class StockProposal:
         html1 = (
             "<h2>Open Position List</h2>"  # 添加标题
             "<table>"
-            + dfdata8.style.hide(axis=1, subset=["PNL"])
+            + dfdata8.style.hide(axis=1, subset=["PNL", "pnl_growth"])
             .format(
                 {
                     "BASE": "{:.2f}",
@@ -1016,27 +1102,27 @@ class StockProposal:
 
         if not dfdata9.empty:
             # 使用merge来找到df1和df2中'ind'相等的行，并保留df1的所有行
-            dfdata9 = pd.merge(
-                dfdata9,
-                dfdata7[["industry_new", "combined"]],
-                left_on="industry",
-                right_on="industry_new",
-                how="inner",
+            dfdata9 = (
+                dfdata9.merge(
+                    dfdata7[["industry_new", "combined", "pnl_growth"]],
+                    left_on="industry",
+                    right_on="industry_new",
+                    how="inner",
+                )
+                .sort_values(
+                    by=["pnl_growth", "pnl", "sell_date"],
+                    ascending=[False, False, False],
+                )
+                .reset_index(drop=True)
             )
             dfdata9["industry"] = dfdata9["combined"]
 
             # 删除添加的'combined_df2'列
             dfdata9.drop(columns=["combined", "industry_new"], inplace=True)
             # 提取括号内的数字
-            dfdata9["col_sort"] = (
-                dfdata9["industry"].str.extract(r"\((\d+)\)").astype(int)
-            )
-
-            dfdata9 = (
-                dfdata9.sort_values(["col_sort", "sell_date"], ascending=[True, False])
-                .drop(columns="col_sort")
-                .reset_index(drop=True)
-            )
+            # dfdata9["col_sort"] = (
+            #     dfdata9["industry"].str.extract(r"\((\d+)\)").astype(int)
+            # )
 
             dfdata9.rename(
                 columns={
@@ -1066,7 +1152,7 @@ class StockProposal:
             html2 = (
                 "<h2>Close Position List Last 5 Days</h2>"  # 添加标题
                 "<table>"
-                + dfdata9.style.hide(axis=1, subset=["PNL"])
+                + dfdata9.style.hide(axis=1, subset=["PNL", "pnl_growth"])
                 .format(
                     {
                         "BASE": "{:.2f}",
