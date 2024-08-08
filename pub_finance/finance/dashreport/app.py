@@ -9,12 +9,19 @@ from pages import (
     usStockPerformance,
     newsReviews,
 )
+from flask import Flask
+from flask_compress import Compress
+
+server = Flask(__name__)
+Compress(server)
 
 app = dash.Dash(
-    __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}]
+    __name__,
+    meta_tags=[{"name": "viewport", "content": "width=device-width"}],
+    server=server,
 )
 app.title = "Financial Report"
-server = app.server
+# server = app.server
 
 # Describe the layout/ UI of the app
 app.layout = html.Div(
