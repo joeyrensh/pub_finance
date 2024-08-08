@@ -135,6 +135,7 @@ def create_layout(app):
                         [
                             html.Div(
                                 [
+                                    html.Br([]),
                                     html.H6(
                                         ["美股年化收益率分析"],
                                         className="subtitle padded",
