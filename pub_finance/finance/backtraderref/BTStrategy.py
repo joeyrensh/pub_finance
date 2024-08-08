@@ -4,7 +4,6 @@ import backtrader as bt
 from utility.ToolKit import ToolKit
 from datetime import datetime
 import pandas as pd
-from datetime import datetime
 from utility.FileInfo import FileInfo
 
 
@@ -181,8 +180,7 @@ class BTStrategy(bt.Strategy):
                     self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
                     self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
                 ),
-                bt.indicators.crossover.CrossUp(
-                    d.close, self.inds[d._name]["emashort"])
+                bt.indicators.crossover.CrossUp(d.close, self.inds[d._name]["emashort"])
                 == 1,
             )
 
@@ -213,8 +211,7 @@ class BTStrategy(bt.Strategy):
             近20日均线密集，价格上穿短期均线
             """
             self.signals[d._name]["close_crossup_emashort"] = (
-                bt.indicators.crossover.CrossUp(
-                    d.close, self.inds[d._name]["emashort"])
+                bt.indicators.crossover.CrossUp(d.close, self.inds[d._name]["emashort"])
             )
 
             """
@@ -233,8 +230,7 @@ class BTStrategy(bt.Strategy):
             穿越年线
             """
             self.signals[d._name]["closs_crossup_annualline"] = (
-                bt.indicators.crossover.CrossUp(
-                    d.close, self.inds[d._name]["maannual"])
+                bt.indicators.crossover.CrossUp(d.close, self.inds[d._name]["maannual"])
             )
 
             """
@@ -364,11 +360,9 @@ class BTStrategy(bt.Strategy):
         elif order.status in [order.Canceled, order.Margin, order.Rejected]:
             """由于仓位不足或者执行限价单等因素造成订单未成交"""
             if order.isbuy():
-                self.log("Buy %s Order Canceled/Margin/Rejected" %
-                         (order.data._name))
+                self.log("Buy %s Order Canceled/Margin/Rejected" % (order.data._name))
             else:
-                self.log("Sell %s Order Canceled/Margin/Rejected" %
-                         (order.data._name))
+                self.log("Sell %s Order Canceled/Margin/Rejected" % (order.data._name))
         self.order[order.data._name] = None
         if dict:
             list.append(dict)
@@ -385,12 +379,10 @@ class BTStrategy(bt.Strategy):
         if not trade.isclosed:
             return
         """ 每笔交易收益 毛利和净利 """
-        self.log("Operation Profit, Gross %.2f, Net %.2f" %
-                 (trade.pnl, trade.pnlcomm))
+        self.log("Operation Profit, Gross %.2f, Net %.2f" % (trade.pnl, trade.pnlcomm))
 
     def prenext(self):
-        print("current period:", len(self),
-              "current date", self.datetime.date())
+        print("current period:", len(self), "current date", self.datetime.date())
         self.next()
 
     # def nextstart(self):
@@ -407,10 +399,15 @@ class BTStrategy(bt.Strategy):
         # 策略执行进度
         t = ToolKit("策略执行中")
         # 增加cash
-        if len(self) < self.data.buflen() - 1 and self.broker.cash < self.params.availablecash:
+        if (
+            len(self) < self.data.buflen() - 1
+            and self.broker.cash < self.params.availablecash
+        ):
             self.broker.add_cash(self.params.availablecash - self.broker.cash)
-            self.log("cash is not enough %s, add cash %s" %
-                     (self.broker.cash, self.params.availablecash - self.broker.cash))
+            self.log(
+                "cash is not enough %s, add cash %s"
+                % (self.broker.cash, self.params.availablecash - self.broker.cash)
+            )
         list = []
         for i, d in enumerate(self.datas):
             if self.order[d._name]:
@@ -464,10 +461,8 @@ class BTStrategy(bt.Strategy):
                 y2 = self.inds[d._name]["mamid"].get(
                     ago=-1, size=self.params.shortperiod
                 )
-                diff_array = [abs((x - y) * 100 / y)
-                              for x, y in zip(x1, y1) if y != 0]
-                diff_array2 = [abs((x - y) * 100 / y)
-                               for x, y in zip(x2, y2) if y != 0]
+                diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y != 0]
+                diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y != 0]
 
                 # 短期均线突破中期均线
                 if (
@@ -485,7 +480,7 @@ class BTStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "EMA CrossUP"
+                    self.myorder[d._name]["strategy"] = "短期均线上穿中期均线"
 
                 # 均线多头，收盘价突破MA
                 elif (
@@ -503,7 +498,7 @@ class BTStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Close CrossUP"
+                    self.myorder[d._name]["strategy"] = "收盘价上穿短期均线"
                 # 多头排列
                 elif (
                     self.signals[d._name]["long_position"][0] == 1
@@ -519,7 +514,7 @@ class BTStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Long Position"
+                    self.myorder[d._name]["strategy"] = "多头排列"
 
                 # 黄金交叉
                 elif (
@@ -538,7 +533,7 @@ class BTStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "DIF CrossUP"
+                    self.myorder[d._name]["strategy"] = "DIF上穿DEA-金叉"
 
                 # 均线密集突破
                 elif (
@@ -560,7 +555,7 @@ class BTStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Dense MA"
+                    self.myorder[d._name]["strategy"] = "均线密集"
 
                 # 放量突破
                 elif (
@@ -578,7 +573,7 @@ class BTStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "VOL Increased"
+                    self.myorder[d._name]["strategy"] = "成交量放大"
 
                 # 穿越年线
                 elif (
@@ -596,7 +591,7 @@ class BTStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Cross Annualline"
+                    self.myorder[d._name]["strategy"] = "收盘价上穿年线"
 
             else:
                 """
@@ -631,7 +626,7 @@ class BTStrategy(bt.Strategy):
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Close CrossDown"
+                    self.myorder[d._name]["strategy"] = "收盘价跌破短期均线"
 
                 # 死亡交叉
                 elif (
@@ -641,7 +636,7 @@ class BTStrategy(bt.Strategy):
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "DIF CrossDown"
+                    self.myorder[d._name]["strategy"] = "DIF下穿DEA-死叉"
 
                 # 止损点
                 elif (
@@ -657,7 +652,7 @@ class BTStrategy(bt.Strategy):
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Close20 Down"
+                    self.myorder[d._name]["strategy"] = "收盘价跌破短期抵扣价"
 
                 # 止盈点
                 elif (
@@ -666,16 +661,21 @@ class BTStrategy(bt.Strategy):
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Steep Angle"
+                    self.myorder[d._name]["strategy"] = "乖离率过大"
 
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
         df.to_csv(self.file_path_position_detail, header=None)
         # 最后一日剔除多余现金
-        if len(self) == self.data.buflen() - 1 and self.broker.cash > self.params.availablecash:
+        if (
+            len(self) == self.data.buflen() - 1
+            and self.broker.cash > self.params.availablecash
+        ):
             self.broker.add_cash(self.params.availablecash - self.broker.cash)
-            self.log("cash is too much %s, add cash %s" %
-                     (self.broker.cash, self.params.availablecash - self.broker.cash))
+            self.log(
+                "cash is too much %s, add cash %s"
+                % (self.broker.cash, self.params.availablecash - self.broker.cash)
+            )
         t.progress_bar(self.data.buflen(), len(self))
 
     def stop(self):
@@ -710,17 +710,15 @@ class BTStrategy(bt.Strategy):
                 5天内累计上涨10个点以上
                 5天以上累计上15个点以上
                 """
-                if dict["buy_date"] == None:
+                if dict["buy_date"] is None:
                     continue
                 t = ToolKit("最新交易日")
                 if self.datas[0].market[0] == 1:
-                    cur = datetime.strptime(
-                        t.get_us_latest_trade_date(0), "%Y%m%d")
+                    cur = datetime.strptime(t.get_us_latest_trade_date(0), "%Y%m%d")
                     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
                     interval = t.get_us_trade_off_days(cur, bef)
                 elif self.datas[0].market[0] == 2:
-                    cur = datetime.strptime(
-                        t.get_cn_latest_trade_date(0), "%Y%m%d")
+                    cur = datetime.strptime(t.get_cn_latest_trade_date(0), "%Y%m%d")
                     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
                     interval = t.get_cn_trade_off_days(cur, bef)
                 print(
@@ -740,8 +738,7 @@ class BTStrategy(bt.Strategy):
         """ 
         匹配行业信息 
         """
-        df_o = pd.read_csv(self.file_industry, usecols=[
-                           i for i in range(1, 3)])
+        df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
         df_n = pd.merge(df, df_o, how="left", on="symbol")
         """ 按照买入日期以及盈亏比倒排 """
         df_n.sort_values(

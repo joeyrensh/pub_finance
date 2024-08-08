@@ -485,7 +485,7 @@ class BTStrategyCNETF(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Close CrossUP"
+                    self.myorder[d._name]["strategy"] = "收盘价上穿短期均线"
 
                 # 短期均线穿越中期均线
                 elif (
@@ -503,7 +503,7 @@ class BTStrategyCNETF(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "EMA CrossUP"
+                    self.myorder[d._name]["strategy"] = "短期均线上穿中期均线"
 
                 # 均线多头排列
                 elif (
@@ -520,7 +520,7 @@ class BTStrategyCNETF(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Long Position"
+                    self.myorder[d._name]["strategy"] = "多头排列"
 
                 # dea上穿0轴
                 elif (
@@ -539,7 +539,7 @@ class BTStrategyCNETF(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "DIF CrossUP"
+                    self.myorder[d._name]["strategy"] = "DIF上穿DEA-金叉"
 
                 # 成交量突然放大
                 elif (
@@ -557,7 +557,7 @@ class BTStrategyCNETF(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "VOL Increased"
+                    self.myorder[d._name]["strategy"] = "成交量放大"
 
                 # 均线密集
                 elif (
@@ -579,7 +579,7 @@ class BTStrategyCNETF(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Dense MA"
+                    self.myorder[d._name]["strategy"] = "均线密集"
 
                 # 穿越年线
                 elif (
@@ -597,7 +597,7 @@ class BTStrategyCNETF(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Cross Annualline"
+                    self.myorder[d._name]["strategy"] = "收盘价上穿年线"
 
             else:
                 """
@@ -628,7 +628,7 @@ class BTStrategyCNETF(bt.Strategy):
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Close CrossDown"
+                    self.myorder[d._name]["strategy"] = "收盘价跌破短期均线"
 
                 # dif下穿0轴
                 elif (
@@ -638,7 +638,7 @@ class BTStrategyCNETF(bt.Strategy):
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "DIF CrossDown"
+                    self.myorder[d._name]["strategy"] = "DIF下穿DEA-死叉"
 
                 # 止损点
                 elif (
@@ -654,7 +654,7 @@ class BTStrategyCNETF(bt.Strategy):
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Close20 Down"
+                    self.myorder[d._name]["strategy"] = "收盘价跌破短期抵扣价"
 
                 # 止盈点
                 elif (
@@ -663,7 +663,7 @@ class BTStrategyCNETF(bt.Strategy):
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "Steep Angle"
+                    self.myorder[d._name]["strategy"] = "乖离率过大"
 
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
