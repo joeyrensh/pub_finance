@@ -32,7 +32,7 @@ def create_layout(app):
         encoded_image_bypl_date = base64.b64encode(image_data).decode("utf-8")
     # 板块数据
     df = pd.read_csv(
-        IMAGE_PATH.joinpath("us_category.csv"), usecols=[i for i in range(1, 15)]
+        IMAGE_PATH.joinpath("us_category.csv"), usecols=[i for i in range(1, 16)]
     )
     df = df[
         [
@@ -48,7 +48,7 @@ def create_layout(app):
             "WIN RATE",
             "PROFIT TREND",
         ]
-    ]
+    ].copy()
 
     cols_format_category = {
         "LRATIO": ("ratio", "format"),
@@ -61,7 +61,7 @@ def create_layout(app):
 
     # 持仓明细
     df_detail = pd.read_csv(
-        IMAGE_PATH.joinpath("us_stockdetail.csv"), usecols=[i for i in range(1, 14)]
+        IMAGE_PATH.joinpath("us_stockdetail.csv"), usecols=[i for i in range(1, 15)]
     )
     df_detail = df_detail[
         [
@@ -79,7 +79,7 @@ def create_layout(app):
             "TOTAL PNL RATIO",
             "Strategy",
         ]
-    ]
+    ].copy()
     cols_format_detail = {
         "BASE": ("float",),
         "ADJBASE": ("float",),
@@ -94,7 +94,7 @@ def create_layout(app):
     # 减仓明细
     df_detail_short = pd.read_csv(
         IMAGE_PATH.joinpath("us_stockdetail_short.csv"),
-        usecols=[i for i in range(1, 15)],
+        usecols=[i for i in range(1, 16)],
     )
     df_detail_short = df_detail_short[
         [
@@ -113,7 +113,7 @@ def create_layout(app):
             "TOTAL PNL RATIO",
             "Strategy",
         ]
-    ]
+    ].copy()
     cols_format_detail_short = {
         "BASE": ("float",),
         "ADJBASE": ("float",),
