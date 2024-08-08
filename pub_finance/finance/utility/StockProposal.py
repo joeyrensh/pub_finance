@@ -368,9 +368,20 @@ class StockProposal:
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
-                    WHERE row_num = 5 )
+                    WHERE row_num = 1 )
                 GROUP BY t2.industry
             ), tmp1 AS (
+                SELECT t2.industry
+                    ,SUM(t1.pnl) AS pnl
+                FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                WHERE t1.date = (
+                    SELECT buy_date FROM (
+                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                    FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
+                    WHERE row_num = 5)
+                GROUP BY t2.industry
+            )
+            , tmp2 AS (
                 SELECT t2.industry
                     ,SUM(t1.pnl) AS pnl
                 FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
@@ -382,9 +393,11 @@ class StockProposal:
                 GROUP BY t2.industry
             )   
             SELECT tmp.industry
-                ,tmp.pnl - COALESCE(tmp1.pnl, 0) AS pnl_growth
-            FROM tmp LEFT JOIN tmp1 ON tmp.industry = tmp1.industry
-            ORDER BY tmp.pnl - COALESCE(tmp1.pnl, 0) DESC
+                ,COALESCE(tmp1.pnl, 0) - COALESCE(tmp2.pnl, 0) AS pnl_growth
+            FROM tmp 
+            LEFT JOIN tmp1 ON tmp.industry = tmp1.industry
+            LEFT JOIN tmp2 ON tmp.industry = tmp2.industry
+            ORDER BY COALESCE(tmp1.pnl, 0) - COALESCE(tmp2.pnl, 0) DESC
             """
         )
         dfdata71 = sparkdata71.toPandas()
@@ -393,7 +406,7 @@ class StockProposal:
 
         # 合并并按照 df2 的 col3 进行排序
         result_df = (
-            dfdata7.merge(dfdata71, on="industry")
+            dfdata7.merge(dfdata71, on="industry", how="inner")
             .sort_values(by="pnl_growth", ascending=False)
             .reset_index(drop=True)
         )
