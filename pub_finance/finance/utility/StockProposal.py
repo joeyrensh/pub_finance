@@ -389,7 +389,7 @@ class StockProposal:
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
-                    WHERE row_num = 5)
+                    WHERE row_num = 6)
                 GROUP BY t2.industry
             )   
             SELECT tmp.industry

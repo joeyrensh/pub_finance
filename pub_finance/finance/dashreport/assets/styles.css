@@ -180,13 +180,13 @@ li {
   padding: 30px;
   margin-bottom: 25px;
   border-radius: 1px;
-  background: #8b0202;
+  background: #3C6D71;
   /*#8b0202*/
   color: #ffffff;
 }
 
 .full-view-link {
-  background-color: #8b0202;
+  background-color: #3C6D71;
   color: white !important;
   font-size: medium;
   padding: 15px 15px;
@@ -208,7 +208,7 @@ li {
   color: #3a3a3a;
   font-size: 40px !important;
   width: 80%;
-  border-left: 20px solid #8b0202;
+  border-left: 20px solid #3C6D71;
   /*#8b0202*/
   background: #ffffff;
   padding-left: 30px;
@@ -220,7 +220,7 @@ li {
   left: 0;
   height: 20%;
   margin: 0mm;
-  border-left: 5px solid #8b0202;
+  border-left: 5px solid #3C6D71;
   /*#8b0202*/
   background: #ffffff;
   padding-top: 1px;
@@ -371,7 +371,7 @@ a:active {
   .main-title {
     width: 55%;
     padding-left: 15px;
-    border-left: 15px solid #8b0202;
+    border-left: 15px solid rgb(10, 66, 122);
   }
 
   .five.columns {

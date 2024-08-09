@@ -16,7 +16,13 @@ def get_header(app):
                 [
                     html.A(
                         html.Img(
-                            src=app.get_asset_url("dash-financial-logo.png"),
+                            src=app.get_asset_url("buyahouse-high-resolution-logo.png"),
+                            style={
+                                "width": "30%",
+                                "height": "40%",
+                                "margin-left": "2px",
+                                "margin-top": "5px",
+                            },
                             className="logo",
                         ),
                         href="#",
