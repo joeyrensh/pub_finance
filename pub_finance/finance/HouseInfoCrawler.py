@@ -445,7 +445,7 @@ def map_plot(df, legend_title, legend_fmt, png_path, k, col_formats):
         edgecolor="k",
         scheme="natural_breaks",
         k=k,
-        figsize=(10, 10),
+        figsize=(10, 15),
         legend_kwds=legend_kwargs,
         missing_kwds=missing_kwds,
     )
@@ -512,7 +512,7 @@ def map_plot(df, legend_title, legend_fmt, png_path, k, col_formats):
                     rect2 = text2.get_window_extent(renderer=renderer)
 
     check_and_adjust_annotations(texts)
-    plt.savefig(png_path, dpi=500, bbox_inches="tight", pad_inches=0)
+    plt.savefig(png_path, dpi=300, bbox_inches="tight", pad_inches=0)
 
 
 # 主程序入口

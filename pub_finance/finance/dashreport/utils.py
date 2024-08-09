@@ -316,25 +316,28 @@ def make_dash_format_table(df, cols_format):
             "placeholder_text": None,
             "case": "insensitive",
         },
-        style_filter={"color": "white", "ling-height": "1px"},
+        style_filter={
+            # "top": "-3px",  # 根据需要调整这个值
+            # "z-index": "10",
+            "color": "black",
+            "overflow": "hidden",
+        },
         markdown_options={"html": True},
         fill_width=True,
         editable=True,
         style_header={
             "fontWeight": "bold",
             "white-space": "normal",
-            # "backgroundColor": "white",
+            # "z-index": "10",
         },
         style_cell={
             "textAlign": "left",
-            "minHeight": "5px",
             "overflow": "hidden",
             "textOverflow": "ellipsis",
             "font-size": "1rem",
             "margin": "0px",
             "margin-bottom": "-20px",
             "padding": "0px",
-            # "border": "1px",
         },
         style_data_conditional=style_data_conditional,
     )
