@@ -266,7 +266,7 @@ a:active {
 
 .tab {
   border-style: solid;
-  border-color: #8b0202;
+  border-color: #3C6D71;
   /*#8b0202*/
   ;
   border-bottom-style: none;
@@ -371,7 +371,7 @@ a:active {
   .main-title {
     width: 55%;
     padding-left: 15px;
-    border-left: 15px solid rgb(10, 66, 122);
+    border-left: 15px solid #3C6D71;
   }
 
   .five.columns {
