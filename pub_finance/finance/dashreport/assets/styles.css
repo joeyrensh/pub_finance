@@ -99,6 +99,16 @@ table {
   border: 0px solid #050505;
 }
 
+#idAssignedToDataTable .dash-filter input:not([type=radio]):not([type=checkbox]) {
+  color: rgb(11, 11, 11);
+  text-align: left;
+  line-height: 0%;
+  height: 100%;
+  margin: 0;
+  margin-bottom: -10px;
+  padding: 0;
+}
+
 td {
   padding: 0px 0px;
 }

@@ -309,18 +309,19 @@ def make_dash_format_table(df, cols_format):
             style_data_conditional.extend(data_bars(df, col))
 
     return dash_table.DataTable(
+        id="idAssignedToDataTable",
         data=data,
         columns=columns,
         filter_action="native",
         filter_options={
-            "placeholder_text": None,
+            "placeholder_text": "......",
             "case": "insensitive",
         },
         style_filter={
             # "top": "-3px",  # 根据需要调整这个值
             # "z-index": "10",
-            "color": "black",
-            "overflow": "hidden",
+            # "color": "black",
+            # "overflow": "hidden",
         },
         markdown_options={"html": True},
         fill_width=True,
