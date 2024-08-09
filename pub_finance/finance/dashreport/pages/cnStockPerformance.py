@@ -160,6 +160,26 @@ def create_layout(app):
                         [
                             html.Div(
                                 [
+                                    html.H5("A股主板全市场分析"),
+                                    html.Br([]),
+                                    html.P(
+                                        "\
+                                    数据基于网上开放数据，数据T+1更新，跟踪板块及板块内个股近期走势 \
+                                    包括板块，个股及主要ETF涨跌情况\
+                                    本分析基于个人理解及大数据分析，只做参考不做推荐。",
+                                        style={"color": "#ffffff"},
+                                        className="row",
+                                    ),
+                                ],
+                                className="product",
+                            )
+                        ],
+                        className="row",
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [
                                     html.Br([]),
                                     html.H6(
                                         ["A股年化收益率分析"],
