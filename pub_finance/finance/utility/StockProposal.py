@@ -378,7 +378,7 @@ class StockProposal:
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
-                    WHERE row_num = 5)
+                    WHERE row_num = 2)
                 GROUP BY t2.industry
             )
             , tmp2 AS (
@@ -389,7 +389,7 @@ class StockProposal:
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
-                    WHERE row_num = 10)
+                    WHERE row_num = 5)
                 GROUP BY t2.industry
             )   
             SELECT tmp.industry
@@ -809,7 +809,7 @@ class StockProposal:
                 how="inner",
             )
             .sort_values(
-                by=["pnl_growth", "pnl", "buy_date"], ascending=[False, False, False]
+                by=["pnl_growth", "buy_date", "pnl"], ascending=[False, False, False]
             )
             .reset_index(drop=True)
         )
@@ -1123,7 +1123,7 @@ class StockProposal:
                     how="inner",
                 )
                 .sort_values(
-                    by=["pnl_growth", "pnl", "sell_date"],
+                    by=["pnl_growth", "sell_date", "pnl"],
                     ascending=[False, False, False],
                 )
                 .reset_index(drop=True)

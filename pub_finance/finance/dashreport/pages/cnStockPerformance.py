@@ -324,7 +324,7 @@ def create_layout(app):
                                                 ),
                                             )
                                         ],
-                                        style={"overflow-x": "auto", "height": 400},
+                                        style={"overflow-x": "auto", "height": 300},
                                         className="table",
                                     ),
                                 ],
