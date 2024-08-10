@@ -18,6 +18,7 @@ from tenacity import retry, wait_random, stop_after_attempt
 import logging
 import sys
 import uuid
+import math
 
 
 """ 
@@ -54,11 +55,11 @@ user_agent_list = [
 
 
 # 定义一个函数来打印重试次数
-def before_retry(retry_state):
+def after_retry(retry_state):
     logger.info(f"Retrying... attempt number {retry_state.attempt_number}")
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(20), before=before_retry)
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
 def get_max_page_f(url):
     headers = {
         "User-Agent": random.choice(user_agent_list),
@@ -75,11 +76,7 @@ def get_max_page_f(url):
     tree = html.fromstring(response.content)
     count_div = tree.xpath(".//div[3]/div[2]/div/span[2]")
     count = count_div[0].xpath("string(.)")
-    if int(count) > 0:
-        page_cnt = round(int(count) // 10) + 1
-    else:
-        page_cnt = 0
-
+    page_cnt = math.ceil(int(count) / 10)
     logger.info("共找到房源:%s，页数:%s" % (count, page_cnt))
     return page_cnt
 
@@ -179,7 +176,7 @@ def get_house_info_f(file_path, file_path_bk):
                         if date_div:
                             date = date_div[0].text_content().strip()
                         else:
-                            date = "" 
+                            date = ""
                         longlat_div = tree.xpath("//div[2]/div[3]/div[1]/span")
 
                         longitude = longlat_div[0].get("data-coord").split(",")[1]
@@ -207,7 +204,7 @@ def get_house_info_f(file_path, file_path_bk):
         os.replace(file_path_bk, file_path)
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(20), before=before_retry)
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), before=after_retry)
 def fetch_house_info_s(url, item):
     # 添加请求头
     headers = {
@@ -390,7 +387,7 @@ def fetch_houselist_s(url, page, complete_list):
     return dlist
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(20), before=before_retry)
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), before=after_retry)
 def get_max_page(url):
     headers = {
         "User-Agent": random.choice(user_agent_list),
@@ -412,10 +409,7 @@ def get_max_page(url):
     )
     if div:
         cnt = div[0].text_content().strip()
-        if int(cnt) > 0:
-            page_no = round(int(cnt) // 30) + 1
-        else:
-            page_no = 0
+        page_no = math.ceil(int(cnt) / 30)
         logger.info("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
         print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
     else:
