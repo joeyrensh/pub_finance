@@ -180,13 +180,13 @@ li {
   padding: 30px;
   margin-bottom: 25px;
   border-radius: 1px;
-  background: #BA3B0A;
+  background: #FF4136;
   /*#8b0202*/
   color: #ffffff;
 }
 
 .full-view-link {
-  background-color: #BA3B0A;
+  background-color: #FF4136;
   color: white !important;
   font-size: medium;
   padding: 15px 15px;
@@ -208,7 +208,7 @@ li {
   color: #3a3a3a;
   font-size: 40px !important;
   width: 80%;
-  border-left: 20px solid #BA3B0A;
+  border-left: 20px solid #FF4136;
   /*#8b0202*/
   background: #ffffff;
   padding-left: 30px;
@@ -220,7 +220,7 @@ li {
   left: 0;
   height: 20%;
   margin: 0mm;
-  border-left: 5px solid #BA3B0A;
+  border-left: 5px solid #FF4136;
   /*#8b0202*/
   background: #ffffff;
   padding-top: 1px;
@@ -266,7 +266,7 @@ a:active {
 
 .tab {
   border-style: solid;
-  border-color: #BA3B0A;
+  border-color: #FF4136;
   /*#8b0202*/
   ;
   border-bottom-style: none;
@@ -288,7 +288,7 @@ a:active {
 
 .tablast {
   border-style: solid;
-  border-color: #8b0202;
+  border-color: #FF4136;
   /*#8b0202*/
   ;
   border-bottom-style: none;
@@ -371,7 +371,7 @@ a:active {
   .main-title {
     width: 55%;
     padding-left: 15px;
-    border-left: 15px solid #BA3B0A;
+    border-left: 15px solid #FF4136;
   }
 
   .five.columns {
