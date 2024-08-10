@@ -177,12 +177,13 @@ li {
 .product {
   position: relative;
   height: 15%;
-  padding: 30px;
+  padding: 10px;
   margin-bottom: 25px;
   border-radius: 1px;
   background: #FF4136;
   /*#8b0202*/
   color: #ffffff;
+  border-radius: 2px;
 }
 
 .full-view-link {
