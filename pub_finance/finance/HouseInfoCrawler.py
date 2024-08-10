@@ -179,7 +179,7 @@ def get_house_info_f(file_path, file_path_bk):
                         if date_div:
                             date = date_div[0].text_content().strip()
                         else:
-                            continue
+                            date = "" 
                         longlat_div = tree.xpath("//div[2]/div[3]/div[1]/span")
 
                         longitude = longlat_div[0].get("data-coord").split(",")[1]
