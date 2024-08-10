@@ -17,6 +17,7 @@ import random
 from tenacity import retry, wait_random, stop_after_attempt
 import logging
 import sys
+import uuid
 
 
 """ 
@@ -48,6 +49,7 @@ user_agent_list = [
     "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115."
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.3",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
 ]
 
 
@@ -56,19 +58,43 @@ def before_retry(retry_state):
     logger.info(f"Retrying... attempt number {retry_state.attempt_number}")
 
 
-def get_house_info_f(file_path, file_path_bk):
-    houselist = []
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(20), before=before_retry)
+def get_max_page_f(url):
+    headers = {
+        "User-Agent": random.choice(user_agent_list),
+        "Connection": "keep-alive",
+        "Referer": "https://sh.fang.lianjia.com/",
+        "Cookie": "lianjia_uuid=%s" % (uuid.uuid4()),
+    }
+    response = requests.get(url, headers=headers)
+    time.sleep(random.randint(3, 5))  # 随机休眠
+    # 检查请求是否成功
+    if response.status_code != 200:
+        print(f"Failed to retrieve data: {response.status_code}")
+        raise Exception(f"Failed to retrieve data: {response.status_code}")
+    tree = html.fromstring(response.content)
+    count_div = tree.xpath(".//div[3]/div[2]/div/span[2]")
+    count = count_div[0].xpath("string(.)")
+    if int(count) > 0:
+        page_cnt = round(int(count) // 10) + 1
+    else:
+        page_cnt = 0
 
+    logger.info("共找到房源:%s，页数:%s" % (count, page_cnt))
+    return page_cnt
+
+
+def get_house_info_f(file_path, file_path_bk):
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path_bk):
         os.remove(file_path_bk)
     district_list = [
-        "pudong",
         "huangpu",
         "xuhui",
         "changning",
         "jingan",
         "putuo",
+        "pudong",
         "hongkou",
         "yangpu",
         "minhang",
@@ -81,50 +107,101 @@ def get_house_info_f(file_path, file_path_bk):
         "chongming",
     ]
     cnt = 0
-    t = ToolKit("策略执行中")
+    # t = ToolKit("策略执行中")
+    url = "https://sh.fang.lianjia.com/loupan/district/nht1nht2nhs1co41pgpageno/"
+    base_url = "https://sh.fang.lianjia.com"
     for idx, district in enumerate(district_list):
-        t.progress_bar(len(district_list), idx + 1)
-
-        for i in range(1, 10):
-            time.sleep(round(random.random(), 1))  # 随机休眠
+        # t.progress_bar(len(district_list), idx + 1)
+        url_default = url.replace("district", district).replace("pageno", str(1))
+        page = get_max_page_f(url_default)
+        numbers = list(range(1, page + 1))
+        random.shuffle(numbers)
+        for i in numbers:
+            time.sleep(random.randint(3, 5))
             dict = {}
-            list = []
-            url = "https://sh.fang.lianjia.com/loupan/district/nht1nht2nhs1co41pgpageno/?_t=1/"
+            dlist = []
             headers = {
                 "User-Agent": random.choice(user_agent_list),
                 "Connection": "keep-alive",
-                "Referer": "https://www.baidu.com/",
+                "Referer": "https://sh.fang.lianjia.com/",
+                "Cookie": "lianjia_uuid=%s" % (uuid.uuid4()),
             }
-            url_re = url.replace("pageno", str(i)).replace("district", district)
-            res = requests.get(url_re, headers=headers).json()
-            if len(res["data"]["list"]) == 0:
-                continue
-            for h, j in enumerate(res["data"]["list"]):
-                if not j["longitude"]:
-                    continue
-                if not j["latitude"]:
-                    continue
-                if "".join([j["title"], j["house_type"]]) in houselist:
-                    continue
-                dict = {
-                    "title": j["title"],
-                    "house_type": j["house_type"],
-                    "district": j["district"],
-                    "bizcircle_name": j["bizcircle_name"],
-                    "avg_price": j["average_price"],
-                    "area_range": j["resblock_frame_area_range"],
-                    "sale_status": j["sale_status"],
-                    "open_date": j["open_date"],
-                    "longitude": j["longitude"],
-                    "latitude": j["latitude"],
-                    "tags": j["tags"],
-                    "index": i,
-                }
-                houselist.append("".join([j["title"], j["house_type"]]))
-                list.append(dict)
-            df = pd.DataFrame(list)
-            df.to_csv(file_path_bk, mode="a", index=False, header=(cnt == 0))
-            cnt = cnt + 1
+            url_re = url.replace("district", district).replace("pageno", str(i))
+            res = requests.get(url_re, headers=headers)
+            logger.info("URL: %s, response: %s" % (url_re, res.status_code))
+            if res.status_code == 200:
+                tree = html.fromstring(res.content)
+                divs = tree.xpath(
+                    '//div[@class="resblock-list-container clearfix"]/ul[@class="resblock-list-wrapper"]/li'
+                )
+                for div in divs:
+                    name_div = div.xpath(
+                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/a'
+                    )
+                    name = name_div[0].xpath("string(.)")
+
+                    sale_status_div = div.xpath(
+                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[@class="sale-status"]'
+                    )
+                    sale_status = sale_status_div[0].xpath("string(.)")
+                    resblock_type_div = div.xpath(
+                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[@class="resblock-type"]'
+                    )
+                    resblock_type = resblock_type_div[0].xpath("string(.)")
+                    district_div = div.xpath(
+                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-location"]/span[1]'
+                    )
+                    district_name = district_div[0].xpath("string(.)")
+                    street_div = div.xpath(
+                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-location"]/span[2]'
+                    )
+                    street = street_div[0].xpath("string(.)")
+                    area_div = div.xpath(
+                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-area"]/span'
+                    )
+                    area = area_div[0].xpath("string(.)")
+                    unit_price_div = div.xpath(
+                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-price"]/div[@class="main-price"]/span[@class="number"]'
+                    )
+                    unit_price = unit_price_div[0].xpath("string(.)")
+                    href_div = div.xpath(".//a")
+                    href = href_div[0].get("href")
+
+                    url_detail = base_url + href
+                    res = requests.get(url_detail, headers=headers)
+                    if res.status_code == 200:
+                        tree = html.fromstring(res.content)
+                        date_div = tree.xpath(
+                            "//div[2]/div[3]/div[2]/div/div[3]/ul/li[2]/div/span[2]"
+                        )
+
+                        # date = date_div[0].xpath("string(.)")
+                        if date_div:
+                            date = date_div[0].text_content().strip()
+                        else:
+                            continue
+                        longlat_div = tree.xpath("//div[2]/div[3]/div[1]/span")
+
+                        longitude = longlat_div[0].get("data-coord").split(",")[1]
+                        latitude = longlat_div[0].get("data-coord").split(",")[0]
+
+                        dict = {
+                            "title": name,
+                            "house_type": resblock_type,
+                            "district": district_name,
+                            "bizcircle_name": street,
+                            "avg_price": unit_price,
+                            "area_range": area,
+                            "sale_status": sale_status,
+                            "open_date": date,
+                            "longitude": longitude,
+                            "latitude": latitude,
+                            "index": i,
+                        }
+                        dlist.append(dict)
+                df = pd.DataFrame(dlist)
+                df.to_csv(file_path_bk, mode="a", index=False, header=(cnt == 0))
+                cnt = cnt + 1
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path_bk):
         os.replace(file_path_bk, file_path)
@@ -229,7 +306,7 @@ def fetch_houselist_s(url, page, complete_list):
     datalist = []
     df_complete = pd.DataFrame(complete_list)
     dlist = []
-    numbers = list(range(1, page))
+    numbers = list(range(1, page + 1))
     random.shuffle(numbers)
     for i in numbers:
         # 重试计数器
@@ -335,7 +412,10 @@ def get_max_page(url):
     )
     if div:
         cnt = div[0].text_content().strip()
-        page_no = round(int(cnt) / 30) + 1
+        if int(cnt) > 0:
+            page_no = round(int(cnt) // 30) + 1
+        else:
+            page_no = 0
         logger.info("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
         print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
     else:
@@ -536,7 +616,7 @@ if __name__ == "__main__":
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
-    df_new_house = pd.read_csv(file_path, usecols=[i for i in range(0, 12)])
+    df_new_house = pd.read_csv(file_path, usecols=[i for i in range(0, 11)])
 
     gdf_new_house = gpd.GeoDataFrame(
         df_new_house,
