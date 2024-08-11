@@ -192,8 +192,6 @@ def create_layout(app):
                                     数据基于网上开放数据，针对上海行政区划，对在售新房以及挂牌二手房做数据分布, \
                                     在售新房主要关注联动均价中位数在各板块的数据分布，\
                                     二手房主要关注挂牌价、最近成交价以及挂牌量中位数在各板块的数据分布。",
-                                        style={"color": "#ffffff"},
-                                        className="row",
                                     ),
                                 ],
                                 className="product",
@@ -243,7 +241,7 @@ def create_layout(app):
                             ),
                         ],
                         className="row",
-                        style={"margin-bottom": "35px"},
+                        # style={"margin-bottom": "35px"},
                     ),
                     # Row 5
                     html.Div(
@@ -282,7 +280,7 @@ def create_layout(app):
                             ),
                         ],
                         className="row",
-                        style={"margin-bottom": "35px"},
+                        # style={"margin-bottom": "35px"},
                     ),
                     html.Div(
                         [
