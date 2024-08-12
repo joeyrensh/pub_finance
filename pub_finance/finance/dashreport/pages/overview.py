@@ -234,14 +234,15 @@ def create_layout(app):
                                             )
                                         ],
                                         className="table",
-                                        style={"overflow-x": "auto", "height": 400},
+                                        style={"overflow-x": "auto", "height": 480},
                                     ),
                                 ],
                                 className="six columns",
+                                style={"margin-bottom": "10px"},
                             ),
                         ],
-                        className="row",
-                        # style={"margin-bottom": "35px"},
+                        # className="row",
+                        # style={"margin-bottom": "25px"},
                     ),
                     # Row 5
                     html.Div(
@@ -279,7 +280,7 @@ def create_layout(app):
                                 className="six columns",
                             ),
                         ],
-                        className="row",
+                        # className="row",
                         # style={"margin-bottom": "35px"},
                     ),
                     html.Div(
@@ -299,6 +300,7 @@ def create_layout(app):
                                     ),
                                 ],
                                 className="six columns",
+                                style={"margin-bottom": "35px"},
                             ),
                             html.Div(
                                 [
@@ -315,14 +317,14 @@ def create_layout(app):
                                             )
                                         ],
                                         className="table",
-                                        style={"overflow-x": "auto", "height": 400},
+                                        style={"overflow-x": "auto", "height": 480},
                                     ),
                                 ],
                                 className="six columns",
+                                style={"margin-bottom": "35px"},
                             ),
                         ],
-                        className="row",
-                        style={"margin-bottom": "35px"},
+                        # className="row",
                     ),
                 ],
                 className="sub_page",
