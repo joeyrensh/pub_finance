@@ -150,7 +150,7 @@ table.tiny-header tr:first-child {
 }
 
 .row>.columns:not(:first-child) {
-  padding-left: 20px;
+  padding-left: 0px;
 }
 
 h1,
