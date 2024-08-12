@@ -212,7 +212,7 @@ def create_layout(app):
                                         src=f"data:image/png;base64,{encoded_image_newhouse}",
                                         style={
                                             "width": "100%",
-                                            # "overflow-x": "auto",
+                                            "overflow-x": "auto",
                                         },
                                     ),
                                 ],
@@ -257,7 +257,7 @@ def create_layout(app):
                                         src=f"data:image/png;base64,{encoded_image_secondhouse}",
                                         style={
                                             "width": "100%",
-                                            # "overflow-x": "auto",
+                                            "overflow-x": "auto",
                                         },
                                     ),
                                 ],
@@ -273,7 +273,7 @@ def create_layout(app):
                                         src=f"data:image/png;base64,{encoded_image_secondhouse2}",
                                         style={
                                             "width": "100%",
-                                            # "overflow-x": "auto",
+                                            "overflow-x": "auto",
                                         },
                                     ),
                                 ],
@@ -295,7 +295,7 @@ def create_layout(app):
                                         src=f"data:image/png;base64,{encoded_image_secondhouse3}",
                                         style={
                                             "width": "100%",
-                                            # "overflow-x": "auto",
+                                            "overflow-x": "auto",
                                         },
                                     ),
                                 ],

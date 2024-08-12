@@ -159,7 +159,7 @@ def create_layout(app):
                                     ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_trdraw}",
-                                        style={"width": "100%"},
+                                        style={"overflow-x": "auto", "width": "100%"},
                                     ),
                                 ],
                                 className="twelve columns",
@@ -175,7 +175,7 @@ def create_layout(app):
                                     html.H6(["持仓占比"], className="subtitle padded"),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_by_postion}",
-                                        style={"width": "100%"},
+                                        style={"overflow-x": "auto", "width": "100%"},
                                     ),
                                 ],
                                 className="six columns",
@@ -189,7 +189,7 @@ def create_layout(app):
                                     ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_by_pl}",
-                                        style={"width": "100%"},
+                                        style={"overflow-x": "auto", "width": "100%"},
                                     ),
                                 ],
                                 className="six columns",
@@ -204,7 +204,7 @@ def create_layout(app):
                                     html.H6(["持仓趋势"], className="subtitle padded"),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_by_positiondate}",
-                                        style={"width": "100%"},
+                                        style={"overflow-x": "auto", "width": "100%"},
                                     ),
                                 ],
                                 className="six columns",
@@ -217,7 +217,7 @@ def create_layout(app):
                                     ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_bypl_date}",
-                                        style={"width": "100%"},
+                                        style={"overflow-x": "auto", "width": "100%"},
                                     ),
                                 ],
                                 className="six columns",
