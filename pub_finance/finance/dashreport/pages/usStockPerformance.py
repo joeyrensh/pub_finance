@@ -147,7 +147,6 @@ def create_layout(app):
                                 className="product",
                             )
                         ],
-                        className="row",
                     ),
                     html.Div(
                         [
@@ -166,7 +165,6 @@ def create_layout(app):
                                 className="twelve columns",
                             )
                         ],
-                        className="row ",
                     ),
                     # Row
                     html.Div(
@@ -197,7 +195,6 @@ def create_layout(app):
                                 className="six columns",
                             ),
                         ],
-                        className="row ",
                     ),
                     # Row 2
                     html.Div(
@@ -226,7 +223,6 @@ def create_layout(app):
                                 className="six columns",
                             ),
                         ],
-                        className="row ",
                     ),
                     # Row 3
                     html.Div(
@@ -243,7 +239,6 @@ def create_layout(app):
                                                 children=make_dash_format_table(
                                                     df, cols_format_category
                                                 ),
-                                                # className="tiny-header",
                                             )
                                         ],
                                         className="table",
@@ -251,11 +246,9 @@ def create_layout(app):
                                     ),
                                 ],
                                 className="twelve columns",
-                                # dangerously_allow_html=True,
                             ),
                         ],
                         className="row",
-                        # style={"margin-bottom": "35px"},
                     ),
                     # Row 4
                     html.Div(
@@ -272,7 +265,6 @@ def create_layout(app):
                                                 children=make_dash_format_table(
                                                     df_detail, cols_format_detail
                                                 ),
-                                                # className="tiny-header",
                                             )
                                         ],
                                         className="table",
@@ -280,11 +272,9 @@ def create_layout(app):
                                     ),
                                 ],
                                 className="twelve columns",
-                                # dangerously_allow_html=True,
                             ),
                         ],
                         className="row",
-                        # style={"margin-bottom": "35px"},
                     ),
                     html.Div(
                         [
@@ -308,7 +298,6 @@ def create_layout(app):
                                     ),
                                 ],
                                 className="twelve columns",
-                                # dangerously_allow_html=True,
                             ),
                         ],
                         className="row",

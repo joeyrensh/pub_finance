@@ -86,7 +86,8 @@
   }
 
   .six.columns {
-    width: 48%;
+    width: 50%;
+    /* width: 50%; */
   }
 
   .seven.columns {

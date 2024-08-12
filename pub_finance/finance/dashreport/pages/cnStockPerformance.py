@@ -189,6 +189,7 @@ def create_layout(app):
                                             "width": "100%",
                                             "overflow-x": "auto",
                                         },
+                                        className="image",
                                     ),
                                 ],
                                 className="twelve columns",
@@ -231,7 +232,6 @@ def create_layout(app):
                                 className="six columns",
                             ),
                         ],
-                        className="row ",
                     ),
                     # Row 2
                     html.Div(
@@ -248,7 +248,6 @@ def create_layout(app):
                                     ),
                                 ],
                                 className="six columns",
-                                # className="fa-spin",
                             ),
                             html.Div(
                                 [
@@ -265,10 +264,8 @@ def create_layout(app):
                                     ),
                                 ],
                                 className="six columns",
-                                # className="fa-spin",
                             ),
                         ],
-                        className="row ",
                     ),
                     # Row 3
                     html.Div(
@@ -292,11 +289,9 @@ def create_layout(app):
                                     ),
                                 ],
                                 className="twelve columns",
-                                # dangerously_allow_html=True,
                             ),
                         ],
                         className="row",
-                        # style={"margin-bottom": "35px"},
                     ),
                     # Row 4
                     html.Div(
@@ -320,11 +315,9 @@ def create_layout(app):
                                     ),
                                 ],
                                 className="twelve columns",
-                                # dangerously_allow_html=True,
                             ),
                         ],
                         className="row",
-                        # style={"margin-bottom": "35px"},
                     ),
                     html.Div(
                         [
@@ -347,11 +340,9 @@ def create_layout(app):
                                     ),
                                 ],
                                 className="twelve columns",
-                                # dangerously_allow_html=True,
                             ),
                         ],
                         className="row",
-                        # style={"margin-bottom": "35px"},
                     ),
                     html.Div(
                         [
@@ -375,7 +366,6 @@ def create_layout(app):
                                     ),
                                 ],
                                 className="twelve columns",
-                                # dangerously_allow_html=True,
                             ),
                         ],
                         className="row",
