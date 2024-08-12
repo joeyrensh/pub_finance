@@ -19,8 +19,8 @@ body {
   min-height: 300mm;
   padding: 0mm;
   margin: 2mm auto;
-  border-radius: 5px;
   background: rgb(255, 255, 255);
+  border-radius: 5px;
   box-shadow: 0 0 10px lightgrey;
 }
 
@@ -183,6 +183,7 @@ li {
   /*#8b0202*/
   color: #ffffff;
   border-radius: 2px;
+  box-shadow: 0 0 10px lightgrey;
 }
 
 .full-view-link {
@@ -201,6 +202,7 @@ li {
   text-align: center;
   font-size: 13px;
   margin-top: 10px;
+
 }
 
 .main-title {
