@@ -11,17 +11,28 @@ from pages import (
 )
 from flask import Flask
 from flask_compress import Compress
+import dash_auth
+import os
+import base64
 
 server = Flask(__name__)
 Compress(server)
+
+VALID_USERNAME_PASSWORD_PAIRS = {"admin": "123"}
+external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
 app = dash.Dash(
     __name__,
     meta_tags=[{"name": "viewport", "content": "width=device-width"}],
     server=server,
+    external_stylesheets=external_stylesheets,
 )
 app.title = "Financial Report"
-# server = app.server
+auth = dash_auth.BasicAuth(
+    app,
+    VALID_USERNAME_PASSWORD_PAIRS,
+    secret_key=base64.b64encode(os.urandom(30)).decode("utf-8"),
+)
 
 # Describe the layout/ UI of the app
 app.layout = html.Div(
