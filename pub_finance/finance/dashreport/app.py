@@ -11,32 +11,24 @@ from pages import (
 )
 from flask import Flask
 from flask_compress import Compress
-import dash_auth
-import os
-import base64
+
 
 server = Flask(__name__)
 Compress(server)
 
 VALID_USERNAME_PASSWORD_PAIRS = {"admin": "123"}
-# external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"]
 
 app = dash.Dash(
     __name__,
     meta_tags=[{"name": "viewport", "content": "width=device-width"}],
     server=server,
-    # external_stylesheets=external_stylesheets,
 )
 app.title = "Financial Report"
-# auth = dash_auth.BasicAuth(
-#     app,
-#     VALID_USERNAME_PASSWORD_PAIRS,
-#     secret_key=base64.b64encode(os.urandom(30)).decode("utf-8"),
-# )
 
 # Describe the layout/ UI of the app
 app.layout = html.Div(
     children=[
+        dcc.Location(id="url", refresh=False),
         html.Div(
             id="login-page",
             children=[
@@ -68,14 +60,15 @@ app.layout = html.Div(
         html.Div(
             id="main-page",
             children=[
-                dcc.Location(id="url", refresh=False),
                 dcc.Loading(
                     id="loading",
                     type="dot",
                     fullscreen=True,
                     color="#119DFF",
                     style={"zIndex": "1000"},
-                    children=[html.Div(id="page-content")],
+                    children=[
+                        html.Div(id="page-content"),
+                    ],
                 ),
             ],
             # style={"display": "none"},
@@ -92,8 +85,12 @@ app.layout = html.Div(
         Output("main-page", "style"),
         Output("page-content", "children"),
     ],
-    [Input("login-button", "n_clicks"), Input("url", "pathname")],
-    [State("username", "value"), State("password", "value")],
+    [
+        Input("login-button", "n_clicks"),
+        Input("url", "pathname"),
+        State("username", "value"),
+        State("password", "value"),
+    ],
 )
 def update_output(n_clicks, pathname, username, password):
     ctx = dash.callback_context
@@ -104,28 +101,36 @@ def update_output(n_clicks, pathname, username, password):
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
     if trigger_id == "login-button":
-        if n_clicks is not None:
-            if (
-                username in VALID_USERNAME_PASSWORD_PAIRS
-                and password == VALID_USERNAME_PASSWORD_PAIRS[username]
-            ):
-                return (
-                    "",
-                    pathname,
-                    {"display": "none"},
-                    {"display": "block"},
-                    dash.no_update,
-                )
-            else:
-                return (
-                    html.Div("Invalid username or password", style={"color": "red"}),
-                    dash.no_update,
-                    html.Div("Invalid username or password", style={"color": "red"}),
-                    {"display": "none"},
-                    html.Div("Please log in."),
-                )
+        if n_clicks is not None and (
+            username in VALID_USERNAME_PASSWORD_PAIRS
+            and password == VALID_USERNAME_PASSWORD_PAIRS[username]
+        ):
+            return (
+                "",
+                pathname,
+                {"display": "none"},
+                {"display": "block"},
+                dash.no_update,
+            )
+        else:
+            return (
+                html.Div("Invalid username or password", style={"color": "red"}),
+                dash.no_update,
+                {"display": "flex"},
+                {"display": "none"},
+                html.Div("Please log in."),
+            )
+    is_main_page_loading = ctx.states.get("loading.loading_state") == "loading"
 
-    if pathname == "/dash-financial-report/cn-stock-performance":
+    if pathname == "/dash-financial-report/overview":
+        return (
+            "",
+            dash.no_update,
+            {},
+            {"display": "none"},
+            overview.create_layout(app),
+        )
+    elif pathname == "/dash-financial-report/cn-stock-performance":
         return (
             "",
             dash.no_update,
