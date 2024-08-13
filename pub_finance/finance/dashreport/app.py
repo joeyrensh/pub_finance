@@ -25,6 +25,7 @@ app = dash.Dash(
 )
 app.title = "Financial Report"
 
+
 # Describe the layout/ UI of the app
 app.layout = html.Div(
     children=[
@@ -71,7 +72,7 @@ app.layout = html.Div(
                     ],
                 ),
             ],
-            # style={"display": "none"},
+            style={"display": "none"},
         ),
     ],
 )
@@ -80,103 +81,56 @@ app.layout = html.Div(
 @app.callback(
     [
         Output("output-state", "children"),
-        Output("url", "pathname"),
         Output("login-page", "style"),
         Output("main-page", "style"),
-        Output("page-content", "children"),
     ],
     [
         Input("login-button", "n_clicks"),
-        Input("url", "pathname"),
         State("username", "value"),
         State("password", "value"),
     ],
 )
-def update_output(n_clicks, pathname, username, password):
-    ctx = dash.callback_context
+def handle_login(n_clicks, username, password):
+    if n_clicks is None:
+        return "", {"display": "flex"}, {"display": "none"}
 
-    if not ctx.triggered:
-        return "", dash.no_update, {}, {"display": "none"}, html.Div("Please log in.")
-
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    if trigger_id == "login-button":
-        if n_clicks is not None and (
-            username in VALID_USERNAME_PASSWORD_PAIRS
-            and password == VALID_USERNAME_PASSWORD_PAIRS[username]
-        ):
-            return (
-                "",
-                pathname,
-                {"display": "none"},
-                {"display": "block"},
-                dash.no_update,
-            )
-        else:
-            return (
-                html.Div("Invalid username or password", style={"color": "red"}),
-                dash.no_update,
-                {"display": "flex"},
-                {"display": "none"},
-                html.Div("Please log in."),
-            )
-    is_main_page_loading = ctx.states.get("loading.loading_state") == "loading"
-
-    if pathname == "/dash-financial-report/overview":
-        return (
-            "",
-            dash.no_update,
-            {},
-            {"display": "none"},
-            overview.create_layout(app),
-        )
-    elif pathname == "/dash-financial-report/cn-stock-performance":
-        return (
-            "",
-            dash.no_update,
-            {},
-            {"display": "none"},
-            cnStockPerformance.create_layout(app),
-        )
-    elif pathname == "/dash-financial-report/us-stock-performance":
-        return (
-            "",
-            dash.no_update,
-            {},
-            {"display": "none"},
-            usStockPerformance.create_layout(app),
-        )
-    elif pathname == "/dash-financial-report/news-and-reviews":
-        return (
-            "",
-            dash.no_update,
-            {},
-            {"display": "none"},
-            newsReviews.create_layout(app),
-        )
-    elif pathname == "/dash-financial-report/full-view":
-        return (
-            "",
-            dash.no_update,
-            {},
-            {"display": "none"},
-            html.Div(
-                [
-                    overview.create_layout(app),
-                    cnStockPerformance.create_layout(app),
-                    usStockPerformance.create_layout(app),
-                    newsReviews.create_layout(app),
-                ]
-            ),
-        )
+    if (
+        username in VALID_USERNAME_PASSWORD_PAIRS
+        and password == VALID_USERNAME_PASSWORD_PAIRS[username]
+    ):
+        return "", {"display": "none"}, {"display": "block"}
     else:
         return (
-            "",
-            dash.no_update,
-            {},
+            html.Div("Invalid username or password", style={"color": "red"}),
+            {"display": "flex"},
             {"display": "none"},
-            overview.create_layout(app),
         )
+
+
+@app.callback(
+    Output("page-content", "children"),
+    [
+        Input("url", "pathname"),
+    ],
+)
+def update_page_content(pathname):
+    if pathname == "/dash-financial-report/overview":
+        return overview.create_layout(app)
+    elif pathname == "/dash-financial-report/cn-stock-performance":
+        return cnStockPerformance.create_layout(app)
+    elif pathname == "/dash-financial-report/us-stock-performance":
+        return usStockPerformance.create_layout(app)
+    elif pathname == "/dash-financial-report/news-and-reviews":
+        return newsReviews.create_layout(app)
+    elif pathname == "/dash-financial-report/full-view":
+        return [
+            overview.create_layout(app),
+            cnStockPerformance.create_layout(app),
+            usStockPerformance.create_layout(app),
+            newsReviews.create_layout(app),
+        ]
+    else:
+        return overview.create_layout(app)
 
 
 if __name__ == "__main__":
