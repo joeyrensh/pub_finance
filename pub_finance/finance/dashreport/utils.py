@@ -16,7 +16,9 @@ def get_header(app):
                 [
                     html.A(
                         html.Img(
-                            src=app.get_asset_url("buyahouse-high-resolution-logo.png"),
+                            src=app.get_asset_url(
+                                "buyahouse-background-transparent.png"
+                            ),
                             style={
                                 "width": "30%",
                                 "height": "40%",
