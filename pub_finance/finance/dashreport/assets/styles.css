@@ -83,7 +83,7 @@ body {
   background-size: contain;
   background-repeat: no-repeat;
   /* 防止图片重复 */
-  height: 80vh;
+  height: 80vb;
   display: flex;
   justify-content: center;
   align-items: center;
