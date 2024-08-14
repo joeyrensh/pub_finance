@@ -473,8 +473,10 @@ class BTStrategy(bt.Strategy):
                     and d.close[0] > d.close[-self.params.shortperiod]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
-                    and self.inds[d._name]["dif"][0] > 0
-                    and self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    and (
+                        self.inds[d._name]["dif"][0] > 0
+                        or self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    )
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
@@ -491,8 +493,10 @@ class BTStrategy(bt.Strategy):
                     and d.close[0] > d.close[-self.params.shortperiod]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
-                    and self.inds[d._name]["dif"][0] > 0
-                    and self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    and (
+                        self.inds[d._name]["dif"][0] > 0
+                        or self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    )
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
@@ -507,8 +511,10 @@ class BTStrategy(bt.Strategy):
                     and d.close[0] > d.close[-self.params.shortperiod]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
-                    and self.inds[d._name]["dif"][0] > 0
-                    and self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    and (
+                        self.inds[d._name]["dif"][0] > 0
+                        or self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    )
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
@@ -526,8 +532,10 @@ class BTStrategy(bt.Strategy):
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                     and self.inds[d._name]["RSI"][0] >= 60
-                    and self.inds[d._name]["dif"][0] > 0
-                    and self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    and (
+                        self.inds[d._name]["dif"][0] > 0
+                        or self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    )
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
@@ -548,8 +556,10 @@ class BTStrategy(bt.Strategy):
                     and d.close[0] > d.close[-self.params.shortperiod]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
-                    and self.inds[d._name]["dif"][0] > 0
-                    and self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    and (
+                        self.inds[d._name]["dif"][0] > 0
+                        or self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    )
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
@@ -566,8 +576,10 @@ class BTStrategy(bt.Strategy):
                     and d.close[0] > d.close[-self.params.shortperiod]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
-                    and self.inds[d._name]["dif"][0] > 0
-                    and self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    and (
+                        self.inds[d._name]["dif"][0] > 0
+                        or self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    )
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
@@ -584,8 +596,10 @@ class BTStrategy(bt.Strategy):
                     and d.close[0] > d.close[-self.params.shortperiod]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
-                    and self.inds[d._name]["dif"][0] > 0
-                    and self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    and (
+                        self.inds[d._name]["dif"][0] > 0
+                        or self.inds[d._name]["dif"][0] > self.inds[d._name]["dea"][0]
+                    )
                 ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
