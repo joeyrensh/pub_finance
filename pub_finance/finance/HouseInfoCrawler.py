@@ -205,14 +205,14 @@ def get_house_info_f(file_path, file_path_bk):
 
 
 @retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
-def fetch_house_info_s(url, item):
+def fetch_house_info_s(url, item, headers):
     # 添加请求头
-    headers = {
-        "User-Agent": random.choice(user_agent_list),
-        "Connection": "keep-alive",
-        "Referer": "https://www.baidu.com/",
-        "Cookie": "lianjia_uuid=%s" % (uuid.uuid4()),
-    }
+    # headers = {
+    #     "User-Agent": random.choice(user_agent_list),
+    #     "Connection": "keep-alive",
+    #     "Referer": "sh.lianjia.com",
+    #     "Cookie": "lianjia_uuid=%s;lianjia_ssid=%s" % (uuid.uuid4(), uuid.uuid4()),
+    # }
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
     response = requests.get(url_re, headers=headers)
@@ -300,7 +300,7 @@ def fetch_house_info_s(url, item):
     return dict
 
 
-def fetch_houselist_s(url, page, complete_list):
+def fetch_houselist_s(url, page, complete_list, headers):
     datalist = []
     df_complete = pd.DataFrame(complete_list)
     dlist = []
@@ -312,12 +312,13 @@ def fetch_houselist_s(url, page, complete_list):
         retries = 0
         while retries < max_retries:
             time.sleep(random.randint(3, 5))
-            headers = {
-                "User-Agent": random.choice(user_agent_list),
-                "Connection": "keep-alive",
-                "Referer": "https://www.baidu.com/",
-                "Cookie": "lianjia_uuid=%s" % (uuid.uuid4()),
-            }
+            # headers = {
+            #     "User-Agent": random.choice(user_agent_list),
+            #     "Connection": "keep-alive",
+            #     "Referer": "sh.lianjia.com",
+            #     "Cookie": "lianjia_uuid=%s;lianjia_ssid=%s"
+            #     % (uuid.uuid4(), uuid.uuid4()),
+            # }
             url_re = url.replace("pgno", str(i))
             response = requests.get(url_re, headers=headers)
             logger.info("Url: %s retry: %s" % (url_re, retries))
@@ -390,13 +391,13 @@ def fetch_houselist_s(url, page, complete_list):
 
 
 @retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
-def get_max_page(url):
-    headers = {
-        "User-Agent": random.choice(user_agent_list),
-        "Connection": "keep-alive",
-        "Referer": "https://sh.lianjia.com/",
-        "Cookie": "lianjia_uuid=%s" % (uuid.uuid4()),
-    }
+def get_max_page(url, headers):
+    # headers = {
+    #     "User-Agent": random.choice(user_agent_list),
+    #     "Connection": "keep-alive",
+    #     "Referer": "www.baidu.com",
+    #     "Cookie": "lianjia_uuid=%s;lianjia_ssid=%s" % (uuid.uuid4(), uuid.uuid4()),
+    # }
     response = requests.get(url, headers=headers)
     time.sleep(random.randint(3, 5))  # 随机休眠
     # 检查请求是否成功
@@ -428,8 +429,8 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         os.remove(file_path_bk)
     # 发起HTTP请求
     district_list = [
-        "pudong",
         "huangpu",
+        "pudong",
         "xuhui",
         "changning",
         "jingan",
@@ -450,13 +451,19 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
     houselist = []
     complete_list = []
     count = 0
+    headers = {
+        "User-Agent": random.choice(user_agent_list),
+        "Connection": "keep-alive",
+        "Referer": "www.baidu.com",
+        "Cookie": "lianjia_uuid=%s;lianjia_ssid=%s" % (uuid.uuid4(), uuid.uuid4()),
+    }
     # url = "https://sh.lianjia.com/xiaoqu/district/pgpgnobp0ep100/"
     url = "https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
         url_default = url.replace("pgno", str(1)).replace("district", district)
-        max_page = get_max_page(url_default)
+        max_page = get_max_page(url_default, headers)
         url_re = url.replace("district", district)
-        houselist = fetch_houselist_s(url_re, max_page, complete_list)
+        houselist = fetch_houselist_s(url_re, max_page, complete_list, headers)
         complete_list.extend(houselist)
         t.progress_bar(len(district_list), idx + 1)
         print("complete list cnt is: ", len(houselist))
@@ -470,7 +477,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             # 提交任务并获取Future对象列表
             futures = [
-                executor.submit(fetch_house_info_s, url_detail, item)
+                executor.submit(fetch_house_info_s, url_detail, item, headers)
                 for item in houselist
             ]
 
@@ -606,7 +613,7 @@ if __name__ == "__main__":
     file_path_s = "./houseinfo/secondhandhouse.csv"
     file_path_s_bk = "./houseinfo/secondhandhouse_bk.csv"
     # # 新房
-    get_house_info_f(file_path, file_path_bk)
+    # get_house_info_f(file_path, file_path_bk)
     # # 二手
     houseinfo_to_csv_s(file_path_s, file_path_s_bk)
 
