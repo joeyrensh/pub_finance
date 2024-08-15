@@ -176,10 +176,10 @@ class BTStrategy(bt.Strategy):
             多头排列2, 均线多头排列，价格上穿短期均线
             """
             self.signals[d._name]["close_crossup_mashort"] = bt.And(
-                bt.Or(
-                    self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
-                    self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
-                ),
+                # bt.Or(
+                #     self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
+                #     self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
+                # ),
                 bt.indicators.crossover.CrossUp(d.close, self.inds[d._name]["emashort"])
                 == 1,
             )
@@ -236,9 +236,9 @@ class BTStrategy(bt.Strategy):
             """
             辅助指标：低点上移且高点上移
             """
-            self.signals[d._name]["higher"] = bt.And(
+            self.signals[d._name]["higher"] = bt.Or(
                 self.inds[d._name]["highest_high"](0)
-                > self.inds[d._name]["highest_high"](-1),
+                >= self.inds[d._name]["highest_high"](-1),
                 self.inds[d._name]["lowest_low"](0)
                 >= self.inds[d._name]["lowest_low"](-1),
             )
@@ -419,11 +419,6 @@ class BTStrategy(bt.Strategy):
 
             """ 如果没有仓位就判断是否买卖 """
             if not pos:
-                # 对购买的数量控制，大于10需要取10的倍数
-                # buy_size = (lambda num: 10 if num < 10 else (num // 10) * 10)(
-                #     self.getsizing(d)
-                # )
-
                 """噪声处理"""
                 # 低于年线的不看
                 # if d.close[0] < self.inds[d._name]["maannual"][0]:
@@ -434,7 +429,7 @@ class BTStrategy(bt.Strategy):
                     self.signals[d._name]["close_crossdown_mashort"]
                     .get(ago=-1, size=self.params.shortperiod)
                     .count(1)
-                    >= 2
+                    >= 3
                 ):
                     continue
                 # 最近20个交易日，dea下穿0轴2次，不进行交易
@@ -442,7 +437,7 @@ class BTStrategy(bt.Strategy):
                     self.signals[d._name]["dif_crossdown_dea"]
                     .get(ago=-1, size=self.params.shortperiod)
                     .count(1)
-                    >= 2
+                    >= 3
                 ):
                     continue
                 """
@@ -463,6 +458,15 @@ class BTStrategy(bt.Strategy):
                 )
                 diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y != 0]
                 diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y != 0]
+
+                # self.log(
+                #     "crossup %s higher %s angel %s"
+                #     % (
+                #         self.signals[d._name]["close_crossup_mashort"][0],
+                #         self.signals[d._name]["higher"][0],
+                #         self.signals[d._name]["reasonable_angle"][0],
+                #     )
+                # )
 
                 # 短期均线突破中期均线
                 if (
@@ -487,10 +491,10 @@ class BTStrategy(bt.Strategy):
                 # 均线多头，收盘价突破MA
                 elif (
                     self.signals[d._name]["close_crossup_mashort"][0] == 1
-                    and self.inds[d._name]["mashort"][0]
-                    > self.inds[d._name]["mashort"][-1]
+                    and self.inds[d._name]["emashort"][0]
+                    > self.inds[d._name]["emashort"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-self.params.shortperiod]
+                    # and d.close[0] > d.close[-self.params.shortperiod]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                     and (

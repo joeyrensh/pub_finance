@@ -168,9 +168,9 @@ class BTStrategyCNETF(bt.Strategy):
             """
             辅助指标：低点上移或者高点上移
             """
-            self.signals[d._name]["higher"] = bt.And(
+            self.signals[d._name]["higher"] = bt.Or(
                 self.inds[d._name]["highest_high"](0)
-                > self.inds[d._name]["highest_high"](-1),
+                >= self.inds[d._name]["highest_high"](-1),
                 self.inds[d._name]["lowest_low"](0)
                 >= self.inds[d._name]["lowest_low"](-1),
             )
@@ -231,10 +231,10 @@ class BTStrategyCNETF(bt.Strategy):
             多头排列2, 均线多头排列，价格上穿短期均线
             """
             self.signals[d._name]["close_crossup_mashort"] = bt.And(
-                bt.Or(
-                    self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
-                    self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
-                ),
+                # bt.Or(
+                #     self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
+                #     self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
+                # ),
                 bt.indicators.crossover.CrossUp(d.close, self.inds[d._name]["emashort"])
                 == 1,
             )
@@ -475,7 +475,7 @@ class BTStrategyCNETF(bt.Strategy):
                     and self.inds[d._name]["mashort"][0]
                     > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
-                    and d.close[0] > d.close[-self.params.shortperiod]
+                    # and d.close[0] > d.close[-self.params.shortperiod]
                     and self.signals[d._name]["higher"][0] == 1
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                     and (

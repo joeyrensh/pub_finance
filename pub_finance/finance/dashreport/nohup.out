@@ -4680,3 +4680,24 @@ Also, if you're using any of the table format helpers (e.g. Group), replace
 `from dash_table.Format import Group` with 
 `from dash.dash_table.Format import Group`
   import dash_table
+ERROR:app:Exception on /_dash-component-suites/dash/deps/react@16.v2_17_1m1721881945.14.0.js [GET]
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/dash.py", line 989, in serve_component_suites
+    _validate.validate_js_path(self.registered_paths, package_name, path_in_pkg)
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_validate.py", line 382, in validate_js_path
+    raise exceptions.DependencyException(
+dash.exceptions.DependencyException: "dash" is registered but the path requested is not valid.
+The path requested: "deps/react@16.14.0.js"
+List of registered paths: defaultdict(<class 'set'>, {'dash': {'dcc/async-dropdown.js', 'dcc/async-graph.js', 'dcc/dash_core_components.js.map', 'dash_table/async-highlight.js.map', 'dcc/async-markdown.js.map', 'dcc/async-highlight.js.map', 'deps/react@16.14.0.min.js', 'dcc/async-mathjax.js.map', 'dash_table/async-table.js', 'dash_table/async-export.js.map', 'dash-renderer/build/dash_renderer.min.js.map', 'dcc/dash_core_components.js', 'dcc/dash_core_components-shared.js', 'html/dash_html_components.min.js.map', 'dash_table/async-table.js.map', 'dash_table/bundle.js.map', 'dcc/dash_core_components-shared.js.map', 'dcc/async-slider.js', 'dash-renderer/build/dash_renderer.min.js', 'deps/prop-types@15.8.1.min.js', 'html/dash_html_components.min.js', 'dcc/async-markdown.js', 'dcc/async-dropdown.js.map', 'deps/polyfill@7.12.1.min.js', 'dcc/async-upload.js.map', 'dcc/async-upload.js', 'dcc/async-datepicker.js', 'dash_table/async-export.js', 'dash_table/bundle.js', 'dcc/async-highlight.js', 'dcc/async-graph.js.map', 'dash_table/async-highlight.js', 'dcc/async-slider.js.map', 'dcc/async-datepicker.js.map', 'dcc/async-mathjax.js', 'deps/react-dom@16.14.0.min.js'}, 'plotly': {'package_data/plotly.min.js'}})

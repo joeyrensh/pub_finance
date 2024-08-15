@@ -204,13 +204,14 @@ def get_house_info_f(file_path, file_path_bk):
         os.replace(file_path_bk, file_path)
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), before=after_retry)
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
 def fetch_house_info_s(url, item):
     # 添加请求头
     headers = {
         "User-Agent": random.choice(user_agent_list),
         "Connection": "keep-alive",
         "Referer": "https://www.baidu.com/",
+        "Cookie": "lianjia_uuid=%s" % (uuid.uuid4()),
     }
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
@@ -315,6 +316,7 @@ def fetch_houselist_s(url, page, complete_list):
                 "User-Agent": random.choice(user_agent_list),
                 "Connection": "keep-alive",
                 "Referer": "https://www.baidu.com/",
+                "Cookie": "lianjia_uuid=%s" % (uuid.uuid4()),
             }
             url_re = url.replace("pgno", str(i))
             response = requests.get(url_re, headers=headers)
@@ -387,12 +389,13 @@ def fetch_houselist_s(url, page, complete_list):
     return dlist
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), before=after_retry)
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
 def get_max_page(url):
     headers = {
         "User-Agent": random.choice(user_agent_list),
         "Connection": "keep-alive",
         "Referer": "https://sh.lianjia.com/",
+        "Cookie": "lianjia_uuid=%s" % (uuid.uuid4()),
     }
     response = requests.get(url, headers=headers)
     time.sleep(random.randint(3, 5))  # 随机休眠
