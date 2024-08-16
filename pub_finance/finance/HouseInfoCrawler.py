@@ -47,12 +47,7 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
 proxies = [
-    [
-        "http://115.223.31.74:27777",
-        "http://123.182.58.150:8089",
-        "http://36.111.166.193:8889",
-        "http://117.184.46.29:18080",
-    ]
+    "http://59.175.199.130:7777",
 ]
 
 
@@ -426,30 +421,31 @@ def get_max_page(url, headers, proxy):
     s.proxies = proxy
     try:
         response = s.get(url, timeout=5)
+
+        time.sleep(random.randint(3, 5))  # 随机休眠
+        # 检查请求是否成功
+        if response.status_code != 200:
+            print(f"Failed to retrieve data: {response.status_code}")
+            raise Exception(f"Failed to retrieve data: {response.status_code}")
+        tree = html.fromstring(response.content)
+
+        # 查找特定的div
+        # 假设我们要查找class为'target-div'的div
+        div = tree.xpath(
+            '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
+        )
+        if div:
+            cnt = div[0].text_content().strip()
+            page_no = math.ceil(int(cnt) / 30)
+            logger.info("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
+            print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
+        else:
+            logger.info("XPath query returned no results %s" % (proxy))
+            print("XPath query returned no results")
+            raise Exception("XPath query returned no results")
+        return page_no
     except requests.exceptions.RequestException as e:
         print(f"Error testing proxy {proxy}: {e}")
-    time.sleep(random.randint(3, 5))  # 随机休眠
-    # 检查请求是否成功
-    if response.status_code != 200:
-        print(f"Failed to retrieve data: {response.status_code}")
-        raise Exception(f"Failed to retrieve data: {response.status_code}")
-    tree = html.fromstring(response.content)
-
-    # 查找特定的div
-    # 假设我们要查找class为'target-div'的div
-    div = tree.xpath(
-        '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
-    )
-    if div:
-        cnt = div[0].text_content().strip()
-        page_no = math.ceil(int(cnt) / 30)
-        logger.info("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
-        print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
-    else:
-        logger.info("XPath query returned no results %s" % (proxy))
-        print("XPath query returned no results")
-        raise Exception("XPath query returned no results")
-    return page_no
 
 
 def houseinfo_to_csv_s(file_path, file_path_bk):

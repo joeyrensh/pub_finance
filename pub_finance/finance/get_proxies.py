@@ -51,6 +51,9 @@ def check_proxy_anonymity(url, headers, proxies):
                 '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
             )
             if div:
+                cnt = div[0].text_content().strip()
+                page_no = math.ceil(int(cnt) / 30)
+                print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
                 print("proxy %s有效" % (ip_port))
                 list.append(ip_port)
             else:
@@ -69,49 +72,7 @@ headers = {
 # 使用示例
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
 proxies = [
-    "http://36.99.35.138:82",
-    "http://125.77.25.177:8080",
-    "http://115.223.31.74:27777",
-    "http://183.60.141.41:443",
-    "http://60.12.168.114:9002",
-    "http://119.96.118.113:30000",
-    "http://123.182.58.150:8089",
-    "http://223.113.80.158:9091",
-    "http://125.77.25.177:8090",
-    "http://119.96.188.171:30000",
-    "http://36.111.166.193:8889",
-    "http://111.225.153.128:8089",
-    "http://115.223.11.212:50000",
-    "http://58.20.248.139:9002",
-    "http://125.77.25.178:8090",
-    "http://113.219.247.226:30000",
-    "http://117.68.38.166:24877",
-    "http://115.223.11.212:8103",
-    "http://183.238.165.170:9002",
-    "http://117.184.46.29:18080",
-    "http://112.51.96.118:9091",
-    "http://58.246.58.150:9002",
-    "http://111.225.152.238:8089",
-    "http://125.77.25.178:8080",
-    "http://117.68.38.174:36278",
-    "http://49.7.11.187:80",
-    "http://220.248.70.237:9002",
-    "http://123.182.58.191:8089",
-    "http://153.101.67.170:9002",
-    "http://221.6.139.190:9002",
-    "http://61.186.243.6:9002",
-    "http://118.117.189.45:8089",
-    "http://218.23.15.154:9002",
-    "http://155.126.176.23:11223",
-    "http://123.13.218.68:9002",
-    "http://222.88.167.22:9002",
-    "http://183.234.215.11:8443",
-    "http://119.96.113.193:30000",
-    "http://116.63.129.202:6000",
-    "http://183.238.163.8:9002",
-    "http://222.89.237.101:9002",
-    "http://111.59.4.88:9002",
-    "http://113.121.66.250:1080",
+    "http://59.175.199.130:7777",
 ]
 
 dlist = check_proxy_anonymity(url, headers, proxies)
