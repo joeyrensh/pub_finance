@@ -46,7 +46,7 @@ user_agent_list = [
 ]
 # https://proxyscrape.com/free-proxy-list
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
-proxies = ["http://111.225.152.57:8089"]
+proxies = ["http://45.92.177.60:8080"]
 
 
 logging.basicConfig(
@@ -485,10 +485,8 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
             "User-Agent": random.choice(user_agent_list),
             "Connection": "keep-alive",
         }
-        ip_port = random.choice(proxies)
-        proxy = {"https": ip_port, "http": ip_port}
         url_default = url.replace("pgno", str(1)).replace("district", district)
-        max_page = get_max_page(url_default, headers, proxy)
+        max_page = get_max_page(url_default, headers)
         url_re = url.replace("district", district)
         houselist = fetch_houselist_s(url_re, max_page, complete_list)
         complete_list.extend(houselist)
