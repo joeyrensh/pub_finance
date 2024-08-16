@@ -46,7 +46,12 @@ user_agent_list = [
 ]
 # https://proxyscrape.com/free-proxy-list
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
-proxies = ["http://115.223.31.53:32325"]
+proxies = [
+    "http://111.225.153.196:8089",
+    "http://111.225.152.57:8089",
+    "http://111.225.152.119:8089",
+    "http://123.182.59.192:8089",
+]
 
 
 logging.basicConfig(
@@ -414,13 +419,14 @@ def fetch_houselist_s(url, page, complete_list):
 
 
 @retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(3), after=after_retry)
-def get_max_page(url, headers, proxy):
+def get_max_page(url, headers):
     s = requests.Session()
     s.headers.update(headers)
+    ip_port = random.choice(proxies)
+    proxy = {"https": ip_port, "http": ip_port}
     s.proxies = proxy
     try:
         response = s.get(url, timeout=5)
-
         time.sleep(random.randint(3, 5))  # 随机休眠
         # 检查请求是否成功
         if response.status_code != 200:
