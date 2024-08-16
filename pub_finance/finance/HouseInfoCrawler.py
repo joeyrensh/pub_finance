@@ -49,6 +49,10 @@ user_agent_list = [
 proxies = [
     "http://123.103.51.22:3128",
     "http://52.82.123.144:3128",
+    "http://123.103.51.22:3128",
+    "http://114.229.218.92:34439",
+    "http://117.68.38.163:32325",
+    "http://59.175.199.130:7777",
 ]
 
 
@@ -414,6 +418,7 @@ def fetch_houselist_s(url, page, complete_list):
                     if retries == max_retries:
                         print(f"Max retries reached for page {i}, skipping...")
             except requests.exceptions.RequestException as e:
+                retries += 1
                 print(f"Error testing proxy {proxy}: {e}")
 
     return dlist
