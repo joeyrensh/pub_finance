@@ -46,9 +46,7 @@ user_agent_list = [
 ]
 # https://proxyscrape.com/free-proxy-list
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
-proxies = [
-    "http://59.175.199.130:7777",
-]
+proxies = ["http://115.223.31.53:32325"]
 
 
 logging.basicConfig(
@@ -71,19 +69,20 @@ def get_max_page_f(url, headers, proxy):
     s.proxies = proxy
     try:
         response = s.get(url, timeout=5)
+
+        time.sleep(random.randint(3, 5))  # 随机休眠
+        # 检查请求是否成功
+        if response.status_code != 200:
+            print(f"Failed to retrieve data: {response.status_code}")
+            raise Exception(f"Failed to retrieve data: {response.status_code}")
+        tree = html.fromstring(response.content)
+        count_div = tree.xpath(".//div[3]/div[2]/div/span[2]")
+        count = count_div[0].xpath("string(.)")
+        page_cnt = math.ceil(int(count) / 10)
+        logger.info("共找到房源:%s，页数:%s" % (count, page_cnt))
+        return page_cnt
     except requests.exceptions.RequestException as e:
         print(f"Error testing proxy {proxy}: {e}")
-    time.sleep(random.randint(3, 5))  # 随机休眠
-    # 检查请求是否成功
-    if response.status_code != 200:
-        print(f"Failed to retrieve data: {response.status_code}")
-        raise Exception(f"Failed to retrieve data: {response.status_code}")
-    tree = html.fromstring(response.content)
-    count_div = tree.xpath(".//div[3]/div[2]/div/span[2]")
-    count = count_div[0].xpath("string(.)")
-    page_cnt = math.ceil(int(count) / 10)
-    logger.info("共找到房源:%s，页数:%s" % (count, page_cnt))
-    return page_cnt
 
 
 def get_house_info_f(file_path, file_path_bk):
@@ -134,85 +133,84 @@ def get_house_info_f(file_path, file_path_bk):
             s.proxies = proxy
             try:
                 res = s.get(url_re, timeout=5)
+                logger.info("URL: %s, response: %s" % (url_re, res.status_code))
+                if res.status_code == 200:
+                    tree = html.fromstring(res.content)
+                    divs = tree.xpath(
+                        '//div[@class="resblock-list-container clearfix"]/ul[@class="resblock-list-wrapper"]/li'
+                    )
+                    for div in divs:
+                        name_div = div.xpath(
+                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/a'
+                        )
+                        name = name_div[0].xpath("string(.)")
+
+                        sale_status_div = div.xpath(
+                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[@class="sale-status"]'
+                        )
+                        sale_status = sale_status_div[0].xpath("string(.)")
+                        resblock_type_div = div.xpath(
+                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[@class="resblock-type"]'
+                        )
+                        resblock_type = resblock_type_div[0].xpath("string(.)")
+                        district_div = div.xpath(
+                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-location"]/span[1]'
+                        )
+                        district_name = district_div[0].xpath("string(.)")
+                        street_div = div.xpath(
+                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-location"]/span[2]'
+                        )
+                        street = street_div[0].xpath("string(.)")
+                        area_div = div.xpath(
+                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-area"]/span'
+                        )
+                        area = area_div[0].xpath("string(.)")
+                        unit_price_div = div.xpath(
+                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-price"]/div[@class="main-price"]/span[@class="number"]'
+                        )
+                        unit_price = unit_price_div[0].xpath("string(.)")
+                        href_div = div.xpath(".//a")
+                        href = href_div[0].get("href")
+
+                        url_detail = base_url + href
+
+                        res = s.get(url_detail, timeout=5)
+
+                        if res.status_code == 200:
+                            tree = html.fromstring(res.content)
+                            date_div = tree.xpath(
+                                "//div[2]/div[3]/div[2]/div/div[3]/ul/li[2]/div/span[2]"
+                            )
+
+                            # date = date_div[0].xpath("string(.)")
+                            if date_div:
+                                date = date_div[0].text_content().strip()
+                            else:
+                                date = ""
+                            longlat_div = tree.xpath("//div[2]/div[3]/div[1]/span")
+
+                            longitude = longlat_div[0].get("data-coord").split(",")[1]
+                            latitude = longlat_div[0].get("data-coord").split(",")[0]
+
+                            dict = {
+                                "title": name,
+                                "house_type": resblock_type,
+                                "district": district_name,
+                                "bizcircle_name": street,
+                                "avg_price": unit_price,
+                                "area_range": area,
+                                "sale_status": sale_status,
+                                "open_date": date,
+                                "longitude": longitude,
+                                "latitude": latitude,
+                                "index": i,
+                            }
+                            dlist.append(dict)
+                    df = pd.DataFrame(dlist)
+                    df.to_csv(file_path_bk, mode="a", index=False, header=(cnt == 0))
+                    cnt = cnt + 1
             except requests.exceptions.RequestException as e:
                 print(f"Error testing proxy {proxy}: {e}")
-            logger.info("URL: %s, response: %s" % (url_re, res.status_code))
-            if res.status_code == 200:
-                tree = html.fromstring(res.content)
-                divs = tree.xpath(
-                    '//div[@class="resblock-list-container clearfix"]/ul[@class="resblock-list-wrapper"]/li'
-                )
-                for div in divs:
-                    name_div = div.xpath(
-                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/a'
-                    )
-                    name = name_div[0].xpath("string(.)")
-
-                    sale_status_div = div.xpath(
-                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[@class="sale-status"]'
-                    )
-                    sale_status = sale_status_div[0].xpath("string(.)")
-                    resblock_type_div = div.xpath(
-                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[@class="resblock-type"]'
-                    )
-                    resblock_type = resblock_type_div[0].xpath("string(.)")
-                    district_div = div.xpath(
-                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-location"]/span[1]'
-                    )
-                    district_name = district_div[0].xpath("string(.)")
-                    street_div = div.xpath(
-                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-location"]/span[2]'
-                    )
-                    street = street_div[0].xpath("string(.)")
-                    area_div = div.xpath(
-                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-area"]/span'
-                    )
-                    area = area_div[0].xpath("string(.)")
-                    unit_price_div = div.xpath(
-                        './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-price"]/div[@class="main-price"]/span[@class="number"]'
-                    )
-                    unit_price = unit_price_div[0].xpath("string(.)")
-                    href_div = div.xpath(".//a")
-                    href = href_div[0].get("href")
-
-                    url_detail = base_url + href
-                    try:
-                        res = s.get(url_detail, timeout=5)
-                    except requests.exceptions.RequestException as e:
-                        print(f"Error testing proxy {proxy}: {e}")
-                    if res.status_code == 200:
-                        tree = html.fromstring(res.content)
-                        date_div = tree.xpath(
-                            "//div[2]/div[3]/div[2]/div/div[3]/ul/li[2]/div/span[2]"
-                        )
-
-                        # date = date_div[0].xpath("string(.)")
-                        if date_div:
-                            date = date_div[0].text_content().strip()
-                        else:
-                            date = ""
-                        longlat_div = tree.xpath("//div[2]/div[3]/div[1]/span")
-
-                        longitude = longlat_div[0].get("data-coord").split(",")[1]
-                        latitude = longlat_div[0].get("data-coord").split(",")[0]
-
-                        dict = {
-                            "title": name,
-                            "house_type": resblock_type,
-                            "district": district_name,
-                            "bizcircle_name": street,
-                            "avg_price": unit_price,
-                            "area_range": area,
-                            "sale_status": sale_status,
-                            "open_date": date,
-                            "longitude": longitude,
-                            "latitude": latitude,
-                            "index": i,
-                        }
-                        dlist.append(dict)
-                df = pd.DataFrame(dlist)
-                df.to_csv(file_path_bk, mode="a", index=False, header=(cnt == 0))
-                cnt = cnt + 1
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path_bk):
         os.replace(file_path_bk, file_path)
@@ -233,88 +231,88 @@ def fetch_house_info_s(url, item):
     s.proxies = proxy
     try:
         response = s.get(url_re, timeout=5)
+        time.sleep(random.randint(1, 3))  # 随机休眠
+        if response.status_code == 200:
+            logger.info("Url: %s, Proxy: %s" % (url_re, proxy))
+            tree = html.fromstring(response.content)
+            unit_price_div = tree.xpath(
+                '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
+            )
+            if len(unit_price_div) > 0:
+                unit_price = unit_price_div[0].xpath("string(.)")
+            else:
+                unit_price = ""
+                raise Exception("XPath query returned no results")
+            deal_price_div = tree.xpath(
+                '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]'
+            )
+            if len(deal_price_div) > 0:
+                deal_price = deal_price_div[0].xpath("string(.)")
+            else:
+                deal_price = ""
+            deal_date_div = tree.xpath(
+                '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealDate"]'
+            )
+            if len(deal_date_div) > 0:
+                deal_date = deal_date_div[0].xpath("string(.)")
+            else:
+                deal_date = ""
+            lanlong_div = tree.xpath(
+                '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemOneLine"]/div[@class="xiaoquInfoItem outerItem"][2]/span[@class="xiaoquInfoContent outer"]/span[@mendian]'
+            )
+            if len(lanlong_div) > 0:
+                lanlong = lanlong_div[0].get("xiaoqu")
+            else:
+                lanlong = ""
+            age_div = tree.xpath(
+                '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
+            )
+            if len(age_div) > 0:
+                age = age_div[0].xpath("string(.)")
+            else:
+                age = ""
+            house_type_div = tree.xpath(
+                '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
+            )
+            if len(house_type_div) > 0:
+                house_type = house_type_div[0].xpath("string(.)")
+            else:
+                house_type = ""
+            total_cnt_div = tree.xpath(
+                '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
+            )
+            if len(total_cnt_div) > 0:
+                total_cnt = total_cnt_div[0].xpath("string(.)")
+            else:
+                total_cnt = ""
+            structure_div = tree.xpath(
+                '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
+            )
+            if len(structure_div) > 0:
+                structure = structure_div[0].xpath("string(.)")
+            else:
+                structure = ""
+
+            dict = {
+                "data_id": item["data_id"],
+                "al_text": item["al_text"],
+                "sell_cnt": item["sell_cnt"],
+                "district": item["district"],
+                "unit_price": unit_price,
+                "deal_price": deal_price,
+                "deal_date": deal_date,
+                "lanlong": lanlong,
+                "age": age,
+                "total_cnt": total_cnt,
+                "structure": structure,
+                "house_type": house_type,
+            }
+        else:
+            logger.info("请求失败，状态码:", response.status_code)
+            print("请求失败，状态码:", response.status_code)
+            raise Exception(f"Failed to retrieve data: {response.status_code}")
     except requests.exceptions.RequestException as e:
         print(f"Error testing proxy {proxy}: {e}")
-    time.sleep(random.randint(1, 3))  # 随机休眠
-    if response.status_code == 200:
-        logger.info("Url: %s, Proxy: %s" % (url_re, proxy))
-        tree = html.fromstring(response.content)
-        unit_price_div = tree.xpath(
-            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
-        )
-        if len(unit_price_div) > 0:
-            unit_price = unit_price_div[0].xpath("string(.)")
-        else:
-            unit_price = ""
-            raise Exception("XPath query returned no results")
-        deal_price_div = tree.xpath(
-            '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]'
-        )
-        if len(deal_price_div) > 0:
-            deal_price = deal_price_div[0].xpath("string(.)")
-        else:
-            deal_price = ""
-        deal_date_div = tree.xpath(
-            '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealDate"]'
-        )
-        if len(deal_date_div) > 0:
-            deal_date = deal_date_div[0].xpath("string(.)")
-        else:
-            deal_date = ""
-        lanlong_div = tree.xpath(
-            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemOneLine"]/div[@class="xiaoquInfoItem outerItem"][2]/span[@class="xiaoquInfoContent outer"]/span[@mendian]'
-        )
-        if len(lanlong_div) > 0:
-            lanlong = lanlong_div[0].get("xiaoqu")
-        else:
-            lanlong = ""
-        age_div = tree.xpath(
-            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
-        )
-        if len(age_div) > 0:
-            age = age_div[0].xpath("string(.)")
-        else:
-            age = ""
-        house_type_div = tree.xpath(
-            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
-        )
-        if len(house_type_div) > 0:
-            house_type = house_type_div[0].xpath("string(.)")
-        else:
-            house_type = ""
-        total_cnt_div = tree.xpath(
-            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
-        )
-        if len(total_cnt_div) > 0:
-            total_cnt = total_cnt_div[0].xpath("string(.)")
-        else:
-            total_cnt = ""
-        structure_div = tree.xpath(
-            '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
-        )
-        if len(structure_div) > 0:
-            structure = structure_div[0].xpath("string(.)")
-        else:
-            structure = ""
-
-        dict = {
-            "data_id": item["data_id"],
-            "al_text": item["al_text"],
-            "sell_cnt": item["sell_cnt"],
-            "district": item["district"],
-            "unit_price": unit_price,
-            "deal_price": deal_price,
-            "deal_date": deal_date,
-            "lanlong": lanlong,
-            "age": age,
-            "total_cnt": total_cnt,
-            "structure": structure,
-            "house_type": house_type,
-        }
-    else:
-        logger.info("请求失败，状态码:", response.status_code)
-        print("请求失败，状态码:", response.status_code)
-        raise Exception(f"Failed to retrieve data: {response.status_code}")
 
     return dict
 
@@ -343,73 +341,74 @@ def fetch_houselist_s(url, page, complete_list):
             s.proxies = proxy
             try:
                 response = s.get(url_re, timeout=5)
-            except requests.exceptions.RequestException as e:
-                print(f"Error testing proxy {proxy}: {e}")
-            logger.info("Url: %s proxy: %s retry: %s" % (url_re, proxy, retries))
 
-            # 检查请求是否成功
-            if response.status_code == 200:
-                # 使用lxml解析HTML
-                tree = html.fromstring(response.content)
+                logger.info("Url: %s proxy: %s retry: %s" % (url_re, proxy, retries))
 
-                # 查找特定的div
-                # 假设我们要查找class为'target-div'的div
-                divs = tree.xpath(
-                    '//div[@class="content"]/div[@class="leftContent"]/ul[@class="listContent"]/li[@class="clear xiaoquListItem"]'
-                )
+                # 检查请求是否成功
+                if response.status_code == 200:
+                    # 使用lxml解析HTML
+                    tree = html.fromstring(response.content)
 
-                if divs:
-                    for div in divs:
-                        dict = {}
-                        # 获取data-id属性的值
-                        data_id = div.get("data-id")
-                        if data_id in datalist:
-                            continue
-                        if len(df_complete) > 0:
-                            if data_id in df_complete["data_id"].values:
+                    # 查找特定的div
+                    # 假设我们要查找class为'target-div'的div
+                    divs = tree.xpath(
+                        '//div[@class="content"]/div[@class="leftContent"]/ul[@class="listContent"]/li[@class="clear xiaoquListItem"]'
+                    )
+
+                    if divs:
+                        for div in divs:
+                            dict = {}
+                            # 获取data-id属性的值
+                            data_id = div.get("data-id")
+                            if data_id in datalist:
                                 continue
-                        # 查找<li>标签下的<img>标签，并获取alt属性的值
-                        img_tag = div.xpath('.//img[@class="lj-lazy"]')
-                        if img_tag:
-                            alt_text = img_tag[0].get("alt")
-                        else:
-                            continue
-                        sell_cnt_div = div.xpath(
-                            './/div[@class="xiaoquListItemRight"]/div[@class="xiaoquListItemSellCount"]/a/span'
-                        )
-                        if sell_cnt_div:
-                            sell_cnt = sell_cnt_div[0].xpath("string(.)")
-                        else:
-                            sell_cnt = ""
-                        district_div = div.xpath(
-                            './/div[@class="info"]/div[@class="positionInfo"]/a[@class="district"]'
-                        )
-                        if district_div:
-                            district = district_div[0].xpath("string(.)")
-                        else:
-                            district = ""
+                            if len(df_complete) > 0:
+                                if data_id in df_complete["data_id"].values:
+                                    continue
+                            # 查找<li>标签下的<img>标签，并获取alt属性的值
+                            img_tag = div.xpath('.//img[@class="lj-lazy"]')
+                            if img_tag:
+                                alt_text = img_tag[0].get("alt")
+                            else:
+                                continue
+                            sell_cnt_div = div.xpath(
+                                './/div[@class="xiaoquListItemRight"]/div[@class="xiaoquListItemSellCount"]/a/span'
+                            )
+                            if sell_cnt_div:
+                                sell_cnt = sell_cnt_div[0].xpath("string(.)")
+                            else:
+                                sell_cnt = ""
+                            district_div = div.xpath(
+                                './/div[@class="info"]/div[@class="positionInfo"]/a[@class="district"]'
+                            )
+                            if district_div:
+                                district = district_div[0].xpath("string(.)")
+                            else:
+                                district = ""
 
-                        dict = {
-                            "data_id": data_id,
-                            "al_text": alt_text,
-                            "sell_cnt": sell_cnt,
-                            "district": district,
-                        }
-                        dlist.append(dict)
-                        datalist.append(data_id)
-                    break  # 成功找到divs，退出while循环
+                            dict = {
+                                "data_id": data_id,
+                                "al_text": alt_text,
+                                "sell_cnt": sell_cnt,
+                                "district": district,
+                            }
+                            dlist.append(dict)
+                            datalist.append(data_id)
+                        break  # 成功找到divs，退出while循环
+                    else:
+                        retries += 1
+                        logger.info("未找到目标<ul>标签")
+                        print("未找到目标<ul>标签")
+                        if retries == max_retries:
+                            print(f"Max retries reached for page {i}, skipping...")
                 else:
                     retries += 1
-                    logger.info("未找到目标<ul>标签")
-                    print("未找到目标<ul>标签")
+                    logger.info("请求失败，状态码:", response.status_code)
+                    print("请求失败，状态码:", response.status_code)
                     if retries == max_retries:
                         print(f"Max retries reached for page {i}, skipping...")
-            else:
-                retries += 1
-                logger.info("请求失败，状态码:", response.status_code)
-                print("请求失败，状态码:", response.status_code)
-                if retries == max_retries:
-                    print(f"Max retries reached for page {i}, skipping...")
+            except requests.exceptions.RequestException as e:
+                print(f"Error testing proxy {proxy}: {e}")
 
     return dlist
 
@@ -494,7 +493,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         print("complete list cnt is: ", len(houselist))
 
         # 设置并发数上限为6
-        max_workers = 2
+        max_workers = 1
         data_batch_size = 10
         list = []
         url_detail = "https://sh.lianjia.com/xiaoqu/data_id/"
