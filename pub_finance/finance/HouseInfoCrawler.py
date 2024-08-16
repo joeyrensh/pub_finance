@@ -46,7 +46,10 @@ user_agent_list = [
 ]
 # https://proxyscrape.com/free-proxy-list
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
-proxies = ["http://45.92.177.60:8080"]
+proxies = [
+    "http://123.103.51.22:3128",
+    "http://52.82.123.144:3128",
+]
 
 
 logging.basicConfig(
@@ -315,6 +318,7 @@ def fetch_house_info_s(url, item):
             raise Exception(f"Failed to retrieve data: {response.status_code}")
     except requests.exceptions.RequestException as e:
         print(f"Error testing proxy {proxy}: {e}")
+        raise requests.exceptions.RequestException
 
     return dict
 
@@ -448,6 +452,7 @@ def get_max_page(url, headers):
         return page_no
     except requests.exceptions.RequestException as e:
         print(f"Error testing proxy {proxy}: {e}")
+        raise requests.exceptions.RequestException
 
 
 def houseinfo_to_csv_s(file_path, file_path_bk):
