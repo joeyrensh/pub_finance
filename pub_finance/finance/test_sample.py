@@ -115,15 +115,14 @@ url = "https://sh.lianjia.com/xiaoqu/pudong/pg1cro21/"
 headers = {
     "User-Agent": random.choice(user_agent_list),
     "Connection": "keep-alive",
-    "Referer": "http://www.google.com",
-    "Cookie": "lianjia_uuid=%s;" % (uuid.uuid4()),
+    # "Referer": "www.baidu.com",
+    # "Cookie": "lianjia_uuid=%s;" % (uuid.uuid4()),
 }
 proxies = [
-    "http://183.234.215.11:8443",
-    "http://115.223.31.44:20002",
-    "http://111.225.153.113:8089",
-    "http://111.225.153.43:8089",
-    "http://111.225.152.201:8089",
+    "http://221.230.7.45:9000",
+    "http://183.242.69.118:3218",
+    "http://101.126.44.74:8080",
+    "http://118.117.189.220:8089",
 ]
 proxy = {"http": random.choice(proxies)}
 print(proxy)

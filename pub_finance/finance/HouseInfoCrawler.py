@@ -35,24 +35,21 @@ user_agent_list = [
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/25.0 Chrome/121.0.0.0 Safari/537.3",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.3",
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.3",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.3",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Unique/100.7.6266.6",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 OPR/112.0.0.",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.",
     "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.3",
-    "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115."
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.3",
+    "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.3"
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
 ]
 # https://proxyscrape.com/free-proxy-list
 proxies = [
-    "http://112.3.21.226:8060",
-    "http://111.225.152.139:8089",
-    "http://183.134.101.18:3128",
-    "http://112.51.96.118:9091",
-    "http://111.38.73.92:9002",
+    "http://221.230.7.45:9000",
+    "http://183.242.69.118:3218",
+    "http://101.126.44.74:8080",
+    "http://118.117.189.220:8089",
 ]
 
 
@@ -117,8 +114,6 @@ def get_house_info_f(file_path, file_path_bk):
         headers = {
             "User-Agent": random.choice(user_agent_list),
             "Connection": "keep-alive",
-            "Referer": "sh.lianjia.com",
-            "Cookie": "lianjia_uuid=%s;" % (uuid.uuid4()),
         }
         proxy = {"http": random.choice(proxies)}
         url_default = url.replace("district", district).replace("pageno", str(1))
@@ -222,8 +217,6 @@ def fetch_house_info_s(url, item):
     headers = {
         "User-Agent": random.choice(user_agent_list),
         "Connection": "keep-alive",
-        "Referer": "sh.lianjia.com",
-        "Cookie": "lianjia_uuid=%s;" % (uuid.uuid4()),
     }
     proxy = {"http": random.choice(proxies)}
     s.headers.update(headers)
@@ -328,8 +321,6 @@ def fetch_houselist_s(url, page, complete_list):
             headers = {
                 "User-Agent": random.choice(user_agent_list),
                 "Connection": "keep-alive",
-                "Referer": "sh.lianjia.com",
-                "Cookie": "lianjia_uuid=%s;" % (uuid.uuid4()),
             }
             proxy = {"http": random.choice(proxies)}
             url_re = url.replace("pgno", str(i))
@@ -470,8 +461,6 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         headers = {
             "User-Agent": random.choice(user_agent_list),
             "Connection": "keep-alive",
-            "Referer": "sh.lianjia.com",
-            "Cookie": "lianjia_uuid=%s;" % (uuid.uuid4()),
         }
         proxy = {"http": random.choice(proxies)}
         url_default = url.replace("pgno", str(1)).replace("district", district)
@@ -628,7 +617,7 @@ if __name__ == "__main__":
     file_path_s_bk = "./houseinfo/secondhandhouse_bk.csv"
 
     # # 新房
-    get_house_info_f(file_path, file_path_bk)
+    # get_house_info_f(file_path, file_path_bk)
     # # 二手
     houseinfo_to_csv_s(file_path_s, file_path_s_bk)
 
