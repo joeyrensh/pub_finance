@@ -47,13 +47,12 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
 proxies = [
-    "http://101.126.44.74:8080",
-    "http://52.82.123.144:3128",
-    "http://123.103.51.22:3128",
-    "http://123.182.58.5:8089",
-    "http://111.225.153.62:8089",
-    "http://123.182.59.163:8089",
-    "http://49.70.190.127:8089",
+    [
+        "http://115.223.31.74:27777",
+        "http://123.182.58.150:8089",
+        "http://36.111.166.193:8889",
+        "http://117.184.46.29:18080",
+    ]
 ]
 
 
@@ -76,7 +75,7 @@ def get_max_page_f(url, headers, proxy):
     s.headers.update(headers)
     s.proxies = proxy
     try:
-        response = s.get(url, timeout=3)
+        response = s.get(url, timeout=5)
     except requests.exceptions.RequestException as e:
         print(f"Error testing proxy {proxy}: {e}")
     time.sleep(random.randint(3, 5))  # 随机休眠
@@ -139,7 +138,7 @@ def get_house_info_f(file_path, file_path_bk):
             proxy = {"https": ip_port, "http": ip_port}
             s.proxies = proxy
             try:
-                res = s.get(url_re, timeout=3)
+                res = s.get(url_re, timeout=5)
             except requests.exceptions.RequestException as e:
                 print(f"Error testing proxy {proxy}: {e}")
             logger.info("URL: %s, response: %s" % (url_re, res.status_code))
@@ -183,7 +182,7 @@ def get_house_info_f(file_path, file_path_bk):
 
                     url_detail = base_url + href
                     try:
-                        res = s.get(url_detail, timeout=3)
+                        res = s.get(url_detail, timeout=5)
                     except requests.exceptions.RequestException as e:
                         print(f"Error testing proxy {proxy}: {e}")
                     if res.status_code == 200:
@@ -238,7 +237,7 @@ def fetch_house_info_s(url, item):
     s.headers.update(headers)
     s.proxies = proxy
     try:
-        response = s.get(url_re, timeout=3)
+        response = s.get(url_re, timeout=5)
     except requests.exceptions.RequestException as e:
         print(f"Error testing proxy {proxy}: {e}")
     time.sleep(random.randint(1, 3))  # 随机休眠
@@ -348,7 +347,7 @@ def fetch_houselist_s(url, page, complete_list):
             s.headers.update(headers)
             s.proxies = proxy
             try:
-                response = s.get(url_re, timeout=3)
+                response = s.get(url_re, timeout=5)
             except requests.exceptions.RequestException as e:
                 print(f"Error testing proxy {proxy}: {e}")
             logger.info("Url: %s proxy: %s retry: %s" % (url_re, proxy, retries))
@@ -426,7 +425,7 @@ def get_max_page(url, headers, proxy):
     s.headers.update(headers)
     s.proxies = proxy
     try:
-        response = s.get(url, timeout=3)
+        response = s.get(url, timeout=5)
     except requests.exceptions.RequestException as e:
         print(f"Error testing proxy {proxy}: {e}")
     time.sleep(random.randint(3, 5))  # 随机休眠
