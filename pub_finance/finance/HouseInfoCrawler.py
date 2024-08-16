@@ -60,14 +60,11 @@ def after_retry(retry_state):
 
 
 @retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
-def get_max_page_f(url):
-    headers = {
-        "User-Agent": random.choice(user_agent_list),
-        "Connection": "keep-alive",
-        "Referer": "https://sh.fang.lianjia.com/",
-        "Cookie": "lianjia_uuid=%s" % (uuid.uuid4()),
-    }
-    response = requests.get(url, headers=headers)
+def get_max_page_f(url, headers, proxies):
+    s = requests.Session()
+    s.headers.update(headers)
+    s.proxies = proxies
+    response = s.get(url)
     time.sleep(random.randint(3, 5))  # 随机休眠
     # 检查请求是否成功
     if response.status_code != 200:
@@ -81,7 +78,7 @@ def get_max_page_f(url):
     return page_cnt
 
 
-def get_house_info_f(file_path, file_path_bk):
+def get_house_info_f(file_path, file_path_bk, headers, proxies):
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path_bk):
         os.remove(file_path_bk)
@@ -104,27 +101,22 @@ def get_house_info_f(file_path, file_path_bk):
         "chongming",
     ]
     cnt = 0
-    # t = ToolKit("策略执行中")
     url = "https://sh.fang.lianjia.com/loupan/district/nht1nht2nhs1co41pgpageno/"
     base_url = "https://sh.fang.lianjia.com"
     for idx, district in enumerate(district_list):
-        # t.progress_bar(len(district_list), idx + 1)
         url_default = url.replace("district", district).replace("pageno", str(1))
-        page = get_max_page_f(url_default)
+        page = get_max_page_f(url_default, headers, proxies)
         numbers = list(range(1, page + 1))
         random.shuffle(numbers)
         for i in numbers:
             time.sleep(random.randint(3, 5))
             dict = {}
             dlist = []
-            headers = {
-                "User-Agent": random.choice(user_agent_list),
-                "Connection": "keep-alive",
-                "Referer": "https://sh.fang.lianjia.com/",
-                "Cookie": "lianjia_uuid=%s" % (uuid.uuid4()),
-            }
             url_re = url.replace("district", district).replace("pageno", str(i))
-            res = requests.get(url_re, headers=headers)
+            s = requests.Session()
+            s.headers.update(headers)
+            s.proxies = proxies
+            res = s.get(url_re)
             logger.info("URL: %s, response: %s" % (url_re, res.status_code))
             if res.status_code == 200:
                 tree = html.fromstring(res.content)
@@ -165,7 +157,7 @@ def get_house_info_f(file_path, file_path_bk):
                     href = href_div[0].get("href")
 
                     url_detail = base_url + href
-                    res = requests.get(url_detail, headers=headers)
+                    res = s.get(url_detail)
                     if res.status_code == 200:
                         tree = html.fromstring(res.content)
                         date_div = tree.xpath(
@@ -205,7 +197,7 @@ def get_house_info_f(file_path, file_path_bk):
 
 
 @retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
-def fetch_house_info_s(url, item, headers):
+def fetch_house_info_s(url, item, headers, proxies):
     # 添加请求头
     # headers = {
     #     "User-Agent": random.choice(user_agent_list),
@@ -215,7 +207,10 @@ def fetch_house_info_s(url, item, headers):
     # }
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
-    response = requests.get(url_re, headers=headers)
+    s = requests.Session()
+    s.headers.update(headers)
+    s.proxies = proxies
+    response = s.get(url_re)
     time.sleep(random.randint(1, 3))  # 随机休眠
     if response.status_code == 200:
         logger.info("Url: %s" % (url_re))
@@ -300,7 +295,7 @@ def fetch_house_info_s(url, item, headers):
     return dict
 
 
-def fetch_houselist_s(url, page, complete_list, headers):
+def fetch_houselist_s(url, page, complete_list, headers, proxies):
     datalist = []
     df_complete = pd.DataFrame(complete_list)
     dlist = []
@@ -312,15 +307,12 @@ def fetch_houselist_s(url, page, complete_list, headers):
         retries = 0
         while retries < max_retries:
             time.sleep(random.randint(3, 5))
-            # headers = {
-            #     "User-Agent": random.choice(user_agent_list),
-            #     "Connection": "keep-alive",
-            #     "Referer": "sh.lianjia.com",
-            #     "Cookie": "lianjia_uuid=%s;lianjia_ssid=%s"
-            #     % (uuid.uuid4(), uuid.uuid4()),
-            # }
+
             url_re = url.replace("pgno", str(i))
-            response = requests.get(url_re, headers=headers)
+            s = requests.Session()
+            s.headers.update(headers)
+            s.proxies = proxies
+            response = s.get(url_re)
             logger.info("Url: %s retry: %s" % (url_re, retries))
 
             # 检查请求是否成功
@@ -391,14 +383,11 @@ def fetch_houselist_s(url, page, complete_list, headers):
 
 
 @retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
-def get_max_page(url, headers):
-    # headers = {
-    #     "User-Agent": random.choice(user_agent_list),
-    #     "Connection": "keep-alive",
-    #     "Referer": "www.baidu.com",
-    #     "Cookie": "lianjia_uuid=%s;lianjia_ssid=%s" % (uuid.uuid4(), uuid.uuid4()),
-    # }
-    response = requests.get(url, headers=headers)
+def get_max_page(url, headers, proxies):
+    s = requests.Session()
+    s.headers.update(headers)
+    s.proxies = proxies
+    response = s.get(url)
     time.sleep(random.randint(3, 5))  # 随机休眠
     # 检查请求是否成功
     if response.status_code != 200:
@@ -423,7 +412,7 @@ def get_max_page(url, headers):
     return page_no
 
 
-def houseinfo_to_csv_s(file_path, file_path_bk):
+def houseinfo_to_csv_s(file_path, file_path_bk, headers, proxies):
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path_bk):
         os.remove(file_path_bk)
@@ -451,19 +440,13 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
     houselist = []
     complete_list = []
     count = 0
-    headers = {
-        "User-Agent": random.choice(user_agent_list),
-        "Connection": "keep-alive",
-        "Referer": "www.baidu.com",
-        "Cookie": "lianjia_uuid=%s;lianjia_ssid=%s" % (uuid.uuid4(), uuid.uuid4()),
-    }
     # url = "https://sh.lianjia.com/xiaoqu/district/pgpgnobp0ep100/"
     url = "https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
         url_default = url.replace("pgno", str(1)).replace("district", district)
-        max_page = get_max_page(url_default, headers)
+        max_page = get_max_page(url_default, headers, proxies)
         url_re = url.replace("district", district)
-        houselist = fetch_houselist_s(url_re, max_page, complete_list, headers)
+        houselist = fetch_houselist_s(url_re, max_page, complete_list, headers, proxies)
         complete_list.extend(houselist)
         t.progress_bar(len(district_list), idx + 1)
         print("complete list cnt is: ", len(houselist))
@@ -477,7 +460,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             # 提交任务并获取Future对象列表
             futures = [
-                executor.submit(fetch_house_info_s, url_detail, item, headers)
+                executor.submit(fetch_house_info_s, url_detail, item, headers, proxies)
                 for item in houselist
             ]
 
@@ -612,10 +595,21 @@ if __name__ == "__main__":
     png_path_s3 = "./houseinfo/map_secondhouse3.png"
     file_path_s = "./houseinfo/secondhandhouse.csv"
     file_path_s_bk = "./houseinfo/secondhandhouse_bk.csv"
+    # https://proxyscrape.com/free-proxy-list
+    proxies = {
+        "http": "http://133.18.234.13:80",
+        # "https": "http://101.126.44.74:8080",
+    }
+    headers = {
+        "User-Agent": random.choice(user_agent_list),
+        "Connection": "keep-alive",
+        "Referer": "sh.lianjia.com",
+        "Cookie": "lianjia_uuid=%s;" % (uuid.uuid4()),
+    }
     # # 新房
-    # get_house_info_f(file_path, file_path_bk)
+    get_house_info_f(file_path, file_path_bk, headers, proxies)
     # # 二手
-    houseinfo_to_csv_s(file_path_s, file_path_s_bk)
+    houseinfo_to_csv_s(file_path_s, file_path_s_bk, headers, proxies)
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
