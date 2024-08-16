@@ -69,7 +69,7 @@ def after_retry(retry_state):
     logger.info(f"Retrying... attempt number {retry_state.attempt_number}")
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(3), after=after_retry)
 def get_max_page_f(url, headers, proxy):
     s = requests.Session()
     s.headers.update(headers)
@@ -214,7 +214,7 @@ def get_house_info_f(file_path, file_path_bk):
         os.replace(file_path_bk, file_path)
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(3), after=after_retry)
 def fetch_house_info_s(url, item):
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
@@ -321,7 +321,7 @@ def fetch_houselist_s(url, page, complete_list):
     random.shuffle(numbers)
     for i in numbers:
         # 重试计数器
-        max_retries = 20
+        max_retries = 3
         retries = 0
         while retries < max_retries:
             time.sleep(random.randint(3, 5))
@@ -406,7 +406,7 @@ def fetch_houselist_s(url, page, complete_list):
     return dlist
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(3), after=after_retry)
 def get_max_page(url, headers, proxy):
     s = requests.Session()
     s.headers.update(headers)
