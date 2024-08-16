@@ -46,12 +46,7 @@ user_agent_list = [
 ]
 # https://proxyscrape.com/free-proxy-list
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
-proxies = [
-    "http://111.225.153.196:8089",
-    "http://111.225.152.57:8089",
-    "http://111.225.152.119:8089",
-    "http://123.182.59.192:8089",
-]
+proxies = ["http://111.225.152.57:8089"]
 
 
 logging.basicConfig(
@@ -68,9 +63,11 @@ def after_retry(retry_state):
 
 
 @retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(3), after=after_retry)
-def get_max_page_f(url, headers, proxy):
+def get_max_page_f(url, headers):
     s = requests.Session()
     s.headers.update(headers)
+    ip_port = random.choice(proxies)
+    proxy = {"https": ip_port, "http": ip_port}
     s.proxies = proxy
     try:
         response = s.get(url, timeout=5)
@@ -123,7 +120,7 @@ def get_house_info_f(file_path, file_path_bk):
         ip_port = random.choice(proxies)
         proxy = {"https": ip_port, "http": ip_port}
         url_default = url.replace("district", district).replace("pageno", str(1))
-        page = get_max_page_f(url_default, headers, proxy)
+        page = get_max_page_f(url_default, headers)
         numbers = list(range(1, page + 1))
         random.shuffle(numbers)
         for i in numbers:

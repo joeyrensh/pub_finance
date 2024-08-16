@@ -72,12 +72,7 @@ headers = {
 
 # 使用示例
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
-proxies = [
-    "http://111.225.153.196:8089",
-    "http://111.225.152.57:8089",
-    "http://111.225.152.119:8089",
-    "http://123.182.59.192:8089",
-]
+proxies = ["http://111.225.152.57:8089"]
 
 dlist = check_proxy_anonymity(url, headers, proxies)
 print(dlist)
