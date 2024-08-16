@@ -45,11 +45,15 @@ user_agent_list = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.",
 ]
 # https://proxyscrape.com/free-proxy-list
+# https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
 proxies = [
-    "http://221.230.7.45:9000",
-    "http://183.242.69.118:3218",
     "http://101.126.44.74:8080",
-    "http://118.117.189.220:8089",
+    "http://52.82.123.144:3128",
+    "http://123.103.51.22:3128",
+    "http://123.182.58.5:8089",
+    "http://111.225.153.62:8089",
+    "http://123.182.59.163:8089",
+    "http://49.70.190.127:8089",
 ]
 
 
@@ -71,7 +75,10 @@ def get_max_page_f(url, headers, proxy):
     s = requests.Session()
     s.headers.update(headers)
     s.proxies = proxy
-    response = s.get(url)
+    try:
+        response = s.get(url, timeout=3)
+    except requests.exceptions.RequestException as e:
+        print(f"Error testing proxy {proxy}: {e}")
     time.sleep(random.randint(3, 5))  # 随机休眠
     # 检查请求是否成功
     if response.status_code != 200:
@@ -115,7 +122,8 @@ def get_house_info_f(file_path, file_path_bk):
             "User-Agent": random.choice(user_agent_list),
             "Connection": "keep-alive",
         }
-        proxy = {"http": random.choice(proxies)}
+        ip_port = random.choice(proxies)
+        proxy = {"https": ip_port, "http": ip_port}
         url_default = url.replace("district", district).replace("pageno", str(1))
         page = get_max_page_f(url_default, headers, proxy)
         numbers = list(range(1, page + 1))
@@ -127,9 +135,13 @@ def get_house_info_f(file_path, file_path_bk):
             url_re = url.replace("district", district).replace("pageno", str(i))
             s = requests.Session()
             s.headers.update(headers)
-            proxy = {"http": random.choice(proxies)}
+            ip_port = random.choice(proxies)
+            proxy = {"https": ip_port, "http": ip_port}
             s.proxies = proxy
-            res = s.get(url_re)
+            try:
+                res = s.get(url_re, timeout=3)
+            except requests.exceptions.RequestException as e:
+                print(f"Error testing proxy {proxy}: {e}")
             logger.info("URL: %s, response: %s" % (url_re, res.status_code))
             if res.status_code == 200:
                 tree = html.fromstring(res.content)
@@ -170,7 +182,10 @@ def get_house_info_f(file_path, file_path_bk):
                     href = href_div[0].get("href")
 
                     url_detail = base_url + href
-                    res = s.get(url_detail)
+                    try:
+                        res = s.get(url_detail, timeout=3)
+                    except requests.exceptions.RequestException as e:
+                        print(f"Error testing proxy {proxy}: {e}")
                     if res.status_code == 200:
                         tree = html.fromstring(res.content)
                         date_div = tree.xpath(
@@ -218,13 +233,17 @@ def fetch_house_info_s(url, item):
         "User-Agent": random.choice(user_agent_list),
         "Connection": "keep-alive",
     }
-    proxy = {"http": random.choice(proxies)}
+    ip_port = random.choice(proxies)
+    proxy = {"https": ip_port, "http": ip_port}
     s.headers.update(headers)
     s.proxies = proxy
-    response = s.get(url_re)
+    try:
+        response = s.get(url_re, timeout=3)
+    except requests.exceptions.RequestException as e:
+        print(f"Error testing proxy {proxy}: {e}")
     time.sleep(random.randint(1, 3))  # 随机休眠
     if response.status_code == 200:
-        logger.info("Url: %s" % (url_re))
+        logger.info("Url: %s, Proxy: %s" % (url_re, proxy))
         tree = html.fromstring(response.content)
         unit_price_div = tree.xpath(
             '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
@@ -322,13 +341,17 @@ def fetch_houselist_s(url, page, complete_list):
                 "User-Agent": random.choice(user_agent_list),
                 "Connection": "keep-alive",
             }
-            proxy = {"http": random.choice(proxies)}
+            ip_port = random.choice(proxies)
+            proxy = {"https": ip_port, "http": ip_port}
             url_re = url.replace("pgno", str(i))
             s = requests.Session()
             s.headers.update(headers)
             s.proxies = proxy
-            response = s.get(url_re)
-            logger.info("Url: %s retry: %s" % (url_re, retries))
+            try:
+                response = s.get(url_re, timeout=3)
+            except requests.exceptions.RequestException as e:
+                print(f"Error testing proxy {proxy}: {e}")
+            logger.info("Url: %s proxy: %s retry: %s" % (url_re, proxy, retries))
 
             # 检查请求是否成功
             if response.status_code == 200:
@@ -402,7 +425,10 @@ def get_max_page(url, headers, proxy):
     s = requests.Session()
     s.headers.update(headers)
     s.proxies = proxy
-    response = s.get(url)
+    try:
+        response = s.get(url, timeout=3)
+    except requests.exceptions.RequestException as e:
+        print(f"Error testing proxy {proxy}: {e}")
     time.sleep(random.randint(3, 5))  # 随机休眠
     # 检查请求是否成功
     if response.status_code != 200:
@@ -421,7 +447,7 @@ def get_max_page(url, headers, proxy):
         logger.info("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
         print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
     else:
-        logger.info("XPath query returned no results")
+        logger.info("XPath query returned no results %s" % (proxy))
         print("XPath query returned no results")
         raise Exception("XPath query returned no results")
     return page_no
@@ -462,7 +488,8 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
             "User-Agent": random.choice(user_agent_list),
             "Connection": "keep-alive",
         }
-        proxy = {"http": random.choice(proxies)}
+        ip_port = random.choice(proxies)
+        proxy = {"https": ip_port, "http": ip_port}
         url_default = url.replace("pgno", str(1)).replace("district", district)
         max_page = get_max_page(url_default, headers, proxy)
         url_re = url.replace("district", district)
