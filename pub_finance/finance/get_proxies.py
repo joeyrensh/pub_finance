@@ -5,7 +5,7 @@ import time
 import random
 import logging
 import sys
-
+import uuid
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -68,16 +68,17 @@ url = "http://sh.lianjia.com/xiaoqu/pudong/pg1cro21/"
 headers = {
     "User-Agent": random.choice(user_agent_list),
     "Connection": "keep-alive",
+    "cache-control": "max-age=0",
+    "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
 }
 
 # 使用示例
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
 proxies = [
-    "http://61.129.2.212:8080",
-    "http://175.178.179.214:10008",
-    "http://111.180.188.215:11200",
     "http://123.126.158.50:80",
-    "http://183.134.101.188:3128",
+    "http://117.50.108.90:7890",
+    "http://101.251.204.174:8080",
+    "http://175.178.179.214:10008",
 ]
 
 dlist = check_proxy_anonymity(url, headers, proxies)

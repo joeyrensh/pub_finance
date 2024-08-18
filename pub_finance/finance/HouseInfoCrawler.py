@@ -47,9 +47,8 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
 proxies = [
-    "http://61.129.2.212:8080",
+    "http://175.178.179.214:10008",
 ]
-
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -125,6 +124,8 @@ def get_house_info_f(file_path, file_path_bk):
         headers = {
             "User-Agent": random.choice(user_agent_list),
             "Connection": "keep-alive",
+            "cache-control": "max-age=0",
+            "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
         }
         s = requests.Session()
         s.headers.update(headers)
@@ -492,6 +493,8 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         headers = {
             "User-Agent": random.choice(user_agent_list),
             "Connection": "keep-alive",
+            "cache-control": "max-age=0",
+            "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
         }
         s = requests.Session()
         s.headers.update(headers)
