@@ -50,6 +50,10 @@ proxies = [
     "http://175.178.179.214:10008",
     "http://117.21.14.245:8000",
     "http://175.178.179.214:10008",
+    "http://14.23.152.222:9090",
+    "http://115.223.31.48:32650",
+    "http://59.175.199.130:7777",
+    "http://114.225.211.22:8118",
 ]
 
 logging.basicConfig(
@@ -80,10 +84,21 @@ def get_proxy(proxies):
     return proxies[next_index]
 
 
+def get_headers():
+    headers = {
+        "User-Agent": random.choice(user_agent_list),
+        "Connection": "keep-alive",
+        "cache-control": "max-age=0",
+        "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
+    }
+    return headers
+
+
 @retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
 def get_max_page_f(url, session):
     proxy = get_proxy(proxies)
     session.proxies = proxy
+    session.headers.update(get_headers())
     try:
         response = session.get(url, timeout=5)
 
@@ -155,6 +170,7 @@ def get_house_info_f(file_path, file_path_bk):
                     time.sleep(random.randint(3, 5))
                     proxy = get_proxy(proxies)
                     s.proxies = proxy
+                    s.headers.update(get_headers())
                     res = s.get(url_re, timeout=5)
                     logger.info("URL: %s, response: %s" % (url_re, res.status_code))
                     if res.status_code == 200:
@@ -260,6 +276,7 @@ def fetch_house_info_s(url, item, session):
     url_re = url.replace("data_id", item["data_id"])
     proxy = get_proxy(proxies)
     session.proxies = proxy
+    session.headers.update(get_headers())
     try:
         response = session.get(url_re, timeout=5)
         time.sleep(random.randint(3, 5))  # 随机休眠
@@ -363,6 +380,7 @@ def fetch_houselist_s(url, page, complete_list, session):
             url_re = url.replace("pgno", str(i))
             proxy = get_proxy(proxies)
             session.proxies = proxy
+            session.headers.update(get_headers())
             try:
                 response = session.get(url_re, timeout=5)
 
@@ -442,6 +460,7 @@ def fetch_houselist_s(url, page, complete_list, session):
 def get_max_page(url, session):
     proxy = get_proxy(proxies)
     session.proxies = proxy
+    session.headers.update(get_headers())
     try:
         response = session.get(url, timeout=5)
         time.sleep(random.randint(3, 5))  # 随机休眠
