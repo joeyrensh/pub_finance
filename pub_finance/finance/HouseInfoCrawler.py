@@ -69,20 +69,26 @@ def after_retry(retry_state):
     logger.info(f"Retrying... attempt number {retry_state.attempt_number}")
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(3), after=after_retry)
-def get_max_page_f(url, headers):
-    s = requests.Session()
-    s.headers.update(headers)
+def get_proxy():
     ip_port = random.choice(proxies)
-    proxy = {"https": ip_port, "http": ip_port}
-    s.proxies = proxy
+    if len(ip_port) > 0:
+        proxy = {"https": ip_port, "http": ip_port}
+        return proxy
+    else:
+        return None
+
+
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(3), after=after_retry)
+def get_max_page_f(url, session):
+    proxy = get_proxy()
+    session.proxies = proxy
     try:
-        response = s.get(url, timeout=5)
+        response = session.get(url, timeout=5)
 
         time.sleep(random.randint(3, 5))  # 随机休眠
         # 检查请求是否成功
         if response.status_code != 200:
-            print(f"Failed to retrieve data: {response.status_code}")
+            logger.info("请求失败，状态码:", response.status_code)
             raise Exception(f"Failed to retrieve data: {response.status_code}")
         tree = html.fromstring(response.content)
         count_div = tree.xpath(".//div[3]/div[2]/div/span[2]")
@@ -91,7 +97,8 @@ def get_max_page_f(url, headers):
         logger.info("共找到房源:%s，页数:%s" % (count, page_cnt))
         return page_cnt
     except requests.exceptions.RequestException as e:
-        print(f"Error testing proxy {proxy}: {e}")
+        logger.info("建立连接失败 %s", e)
+        raise requests.exceptions.RequestException
 
 
 def get_house_info_f(file_path, file_path_bk):
@@ -124,122 +131,133 @@ def get_house_info_f(file_path, file_path_bk):
             "User-Agent": random.choice(user_agent_list),
             "Connection": "keep-alive",
         }
-        ip_port = random.choice(proxies)
-        proxy = {"https": ip_port, "http": ip_port}
+        s = requests.Session()
+        s.headers.update(headers)
         url_default = url.replace("district", district).replace("pageno", str(1))
-        page = get_max_page_f(url_default, headers)
+        page = get_max_page_f(url_default, s)
         numbers = list(range(1, page + 1))
         random.shuffle(numbers)
         for i in numbers:
+            # 重试计数器
+            max_retries = 3
+            retries = 0
             time.sleep(random.randint(3, 5))
             dict = {}
             dlist = []
             url_re = url.replace("district", district).replace("pageno", str(i))
             s = requests.Session()
             s.headers.update(headers)
-            ip_port = random.choice(proxies)
-            proxy = {"https": ip_port, "http": ip_port}
+            proxy = get_proxy()
             s.proxies = proxy
-            try:
-                res = s.get(url_re, timeout=5)
-                logger.info("URL: %s, response: %s" % (url_re, res.status_code))
-                if res.status_code == 200:
-                    tree = html.fromstring(res.content)
-                    divs = tree.xpath(
-                        '//div[@class="resblock-list-container clearfix"]/ul[@class="resblock-list-wrapper"]/li'
-                    )
-                    for div in divs:
-                        name_div = div.xpath(
-                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/a'
+            while retries < max_retries:
+                try:
+                    res = s.get(url_re, timeout=5)
+                    logger.info("URL: %s, response: %s" % (url_re, res.status_code))
+                    if res.status_code == 200:
+                        tree = html.fromstring(res.content)
+                        divs = tree.xpath(
+                            '//div[@class="resblock-list-container clearfix"]/ul[@class="resblock-list-wrapper"]/li'
                         )
-                        name = name_div[0].xpath("string(.)")
-
-                        sale_status_div = div.xpath(
-                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[@class="sale-status"]'
-                        )
-                        sale_status = sale_status_div[0].xpath("string(.)")
-                        resblock_type_div = div.xpath(
-                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[@class="resblock-type"]'
-                        )
-                        resblock_type = resblock_type_div[0].xpath("string(.)")
-                        district_div = div.xpath(
-                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-location"]/span[1]'
-                        )
-                        district_name = district_div[0].xpath("string(.)")
-                        street_div = div.xpath(
-                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-location"]/span[2]'
-                        )
-                        street = street_div[0].xpath("string(.)")
-                        area_div = div.xpath(
-                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-area"]/span'
-                        )
-                        area = area_div[0].xpath("string(.)")
-                        unit_price_div = div.xpath(
-                            './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-price"]/div[@class="main-price"]/span[@class="number"]'
-                        )
-                        unit_price = unit_price_div[0].xpath("string(.)")
-                        href_div = div.xpath(".//a")
-                        href = href_div[0].get("href")
-
-                        url_detail = base_url + href
-
-                        res = s.get(url_detail, timeout=5)
-
-                        if res.status_code == 200:
-                            tree = html.fromstring(res.content)
-                            date_div = tree.xpath(
-                                "//div[2]/div[3]/div[2]/div/div[3]/ul/li[2]/div/span[2]"
+                        for div in divs:
+                            name_div = div.xpath(
+                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/a'
                             )
+                            name = name_div[0].xpath("string(.)")
 
-                            # date = date_div[0].xpath("string(.)")
-                            if date_div:
-                                date = date_div[0].text_content().strip()
-                            else:
-                                date = ""
-                            longlat_div = tree.xpath("//div[2]/div[3]/div[1]/span")
+                            sale_status_div = div.xpath(
+                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[@class="sale-status"]'
+                            )
+                            sale_status = sale_status_div[0].xpath("string(.)")
+                            resblock_type_div = div.xpath(
+                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[@class="resblock-type"]'
+                            )
+                            resblock_type = resblock_type_div[0].xpath("string(.)")
+                            district_div = div.xpath(
+                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-location"]/span[1]'
+                            )
+                            district_name = district_div[0].xpath("string(.)")
+                            street_div = div.xpath(
+                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-location"]/span[2]'
+                            )
+                            street = street_div[0].xpath("string(.)")
+                            area_div = div.xpath(
+                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-area"]/span'
+                            )
+                            area = area_div[0].xpath("string(.)")
+                            unit_price_div = div.xpath(
+                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-price"]/div[@class="main-price"]/span[@class="number"]'
+                            )
+                            unit_price = unit_price_div[0].xpath("string(.)")
+                            href_div = div.xpath(".//a")
+                            href = href_div[0].get("href")
 
-                            longitude = longlat_div[0].get("data-coord").split(",")[1]
-                            latitude = longlat_div[0].get("data-coord").split(",")[0]
+                            url_detail = base_url + href
 
-                            dict = {
-                                "title": name,
-                                "house_type": resblock_type,
-                                "district": district_name,
-                                "bizcircle_name": street,
-                                "avg_price": unit_price,
-                                "area_range": area,
-                                "sale_status": sale_status,
-                                "open_date": date,
-                                "longitude": longitude,
-                                "latitude": latitude,
-                                "index": i,
-                            }
-                            dlist.append(dict)
-                    df = pd.DataFrame(dlist)
-                    df.to_csv(file_path_bk, mode="a", index=False, header=(cnt == 0))
-                    cnt = cnt + 1
-            except requests.exceptions.RequestException as e:
-                print(f"Error testing proxy {proxy}: {e}")
+                            res = s.get(url_detail, timeout=5)
+
+                            if res.status_code == 200:
+                                tree = html.fromstring(res.content)
+                                date_div = tree.xpath(
+                                    "//div[2]/div[3]/div[2]/div/div[3]/ul/li[2]/div/span[2]"
+                                )
+
+                                if date_div:
+                                    date = date_div[0].text_content().strip()
+                                else:
+                                    date = ""
+                                longlat_div = tree.xpath("//div[2]/div[3]/div[1]/span")
+
+                                longitude = (
+                                    longlat_div[0].get("data-coord").split(",")[1]
+                                )
+                                latitude = (
+                                    longlat_div[0].get("data-coord").split(",")[0]
+                                )
+
+                                dict = {
+                                    "title": name,
+                                    "house_type": resblock_type,
+                                    "district": district_name,
+                                    "bizcircle_name": street,
+                                    "avg_price": unit_price,
+                                    "area_range": area,
+                                    "sale_status": sale_status,
+                                    "open_date": date,
+                                    "longitude": longitude,
+                                    "latitude": latitude,
+                                    "index": i,
+                                }
+                                dlist.append(dict)
+                        df = pd.DataFrame(dlist)
+                        df.to_csv(
+                            file_path_bk, mode="a", index=False, header=(cnt == 0)
+                        )
+                        cnt = cnt + 1
+                        break
+                    else:
+                        retries += 1
+                        logger.info("请求失败，状态码:", res.status_code)
+                        if retries == max_retries:
+                            print(f"Max retries reached for page {i}, skipping...")
+                except requests.exceptions.RequestException as e:
+                    retries += 1
+                    logger.info("建立连接失败 %s", e)
+                    if retries == max_retries:
+                        print(f"Max retries reached for page {i}, skipping...")
+
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path_bk):
         os.replace(file_path_bk, file_path)
 
 
 @retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(3), after=after_retry)
-def fetch_house_info_s(url, item):
+def fetch_house_info_s(url, item, session):
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
-    s = requests.Session()
-    headers = {
-        "User-Agent": random.choice(user_agent_list),
-        "Connection": "keep-alive",
-    }
-    ip_port = random.choice(proxies)
-    proxy = {"https": ip_port, "http": ip_port}
-    s.headers.update(headers)
-    s.proxies = proxy
+    proxy = get_proxy()
+    session.proxies = proxy
     try:
-        response = s.get(url_re, timeout=5)
+        response = session.get(url_re, timeout=5)
         time.sleep(random.randint(1, 3))  # 随机休眠
         if response.status_code == 200:
             logger.info("Url: %s, Proxy: %s" % (url_re, proxy))
@@ -318,16 +336,15 @@ def fetch_house_info_s(url, item):
             }
         else:
             logger.info("请求失败，状态码:", response.status_code)
-            print("请求失败，状态码:", response.status_code)
             raise Exception(f"Failed to retrieve data: {response.status_code}")
     except requests.exceptions.RequestException as e:
-        print(f"Error testing proxy {proxy}: {e}")
+        logger.info("建立连接失败 %s", e)
         raise requests.exceptions.RequestException
 
     return dict
 
 
-def fetch_houselist_s(url, page, complete_list):
+def fetch_houselist_s(url, page, complete_list, session):
     datalist = []
     df_complete = pd.DataFrame(complete_list)
     dlist = []
@@ -339,18 +356,11 @@ def fetch_houselist_s(url, page, complete_list):
         retries = 0
         while retries < max_retries:
             time.sleep(random.randint(3, 5))
-            headers = {
-                "User-Agent": random.choice(user_agent_list),
-                "Connection": "keep-alive",
-            }
-            ip_port = random.choice(proxies)
-            proxy = {"https": ip_port, "http": ip_port}
             url_re = url.replace("pgno", str(i))
-            s = requests.Session()
-            s.headers.update(headers)
-            s.proxies = proxy
+            proxy = get_proxy()
+            session.proxies = proxy
             try:
-                response = s.get(url_re, timeout=5)
+                response = session.get(url_re, timeout=5)
 
                 logger.info("Url: %s proxy: %s retry: %s" % (url_re, proxy, retries))
 
@@ -408,31 +418,28 @@ def fetch_houselist_s(url, page, complete_list):
                     else:
                         retries += 1
                         logger.info("未找到目标<ul>标签")
-                        print("未找到目标<ul>标签")
                         if retries == max_retries:
                             print(f"Max retries reached for page {i}, skipping...")
                 else:
                     retries += 1
                     logger.info("请求失败，状态码:", response.status_code)
-                    print("请求失败，状态码:", response.status_code)
                     if retries == max_retries:
                         print(f"Max retries reached for page {i}, skipping...")
             except requests.exceptions.RequestException as e:
                 retries += 1
-                print(f"Error testing proxy {proxy}: {e}")
+                logger.info("建立连接失败 %s", e)
+                if retries == max_retries:
+                    print(f"Max retries reached for page {i}, skipping...")
 
     return dlist
 
 
 @retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(3), after=after_retry)
-def get_max_page(url, headers):
-    s = requests.Session()
-    s.headers.update(headers)
-    ip_port = random.choice(proxies)
-    proxy = {"https": ip_port, "http": ip_port}
-    s.proxies = proxy
+def get_max_page(url, session):
+    proxy = get_proxy()
+    session.proxies = proxy
     try:
-        response = s.get(url, timeout=5)
+        response = session.get(url, timeout=5)
         time.sleep(random.randint(3, 5))  # 随机休眠
         # 检查请求是否成功
         if response.status_code != 200:
@@ -440,8 +447,6 @@ def get_max_page(url, headers):
             raise Exception(f"Failed to retrieve data: {response.status_code}")
         tree = html.fromstring(response.content)
 
-        # 查找特定的div
-        # 假设我们要查找class为'target-div'的div
         div = tree.xpath(
             '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
         )
@@ -449,14 +454,12 @@ def get_max_page(url, headers):
             cnt = div[0].text_content().strip()
             page_no = math.ceil(int(cnt) / 30)
             logger.info("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
-            print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
         else:
             logger.info("XPath query returned no results %s" % (proxy))
-            print("XPath query returned no results")
             raise Exception("XPath query returned no results")
         return page_no
     except requests.exceptions.RequestException as e:
-        print(f"Error testing proxy {proxy}: {e}")
+        logger.info("建立连接失败 %s", e)
         raise requests.exceptions.RequestException
 
 
@@ -495,10 +498,12 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
             "User-Agent": random.choice(user_agent_list),
             "Connection": "keep-alive",
         }
+        s = requests.Session()
+        s.headers.update(headers)
         url_default = url.replace("pgno", str(1)).replace("district", district)
-        max_page = get_max_page(url_default, headers)
+        max_page = get_max_page(url_default, s)
         url_re = url.replace("district", district)
-        houselist = fetch_houselist_s(url_re, max_page, complete_list)
+        houselist = fetch_houselist_s(url_re, max_page, complete_list, s)
         complete_list.extend(houselist)
         t.progress_bar(len(district_list), idx + 1)
         print("complete list cnt is: ", len(houselist))
@@ -512,7 +517,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             # 提交任务并获取Future对象列表
             futures = [
-                executor.submit(fetch_house_info_s, url_detail, item)
+                executor.submit(fetch_house_info_s, url_detail, item, s)
                 for item in houselist
             ]
 
@@ -649,9 +654,9 @@ if __name__ == "__main__":
     file_path_s_bk = "./houseinfo/secondhandhouse_bk.csv"
 
     # # 新房
-    # get_house_info_f(file_path, file_path_bk)
+    get_house_info_f(file_path, file_path_bk)
     # # 二手
-    houseinfo_to_csv_s(file_path_s, file_path_s_bk)
+    # houseinfo_to_csv_s(file_path_s, file_path_s_bk)
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
