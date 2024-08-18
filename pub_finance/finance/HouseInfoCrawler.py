@@ -47,10 +47,12 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
 proxies = [
-    # "http://52.82.123.144:3128",
-    # "http://118.117.189.223:8089",
-    # "http://59.175.199.130:7777",
-    # "http://61.129.2.212:8080",
+    "http://61.129.2.212:8080",
+    "http://118.117.189.223:8089",
+    "http://123.103.51.22:3128",
+    "http://117.68.38.180:22968",
+    "http://59.175.199.130:7777",
+    "http://118.117.189.101:8089",
 ]
 
 
@@ -144,11 +146,11 @@ def get_house_info_f(file_path, file_path_bk):
             url_re = url.replace("district", district).replace("pageno", str(i))
             s = requests.Session()
             s.headers.update(headers)
-            proxy = get_proxy()
-            s.proxies = proxy
             while retries < max_retries:
                 try:
                     time.sleep(random.randint(3, 5))
+                    proxy = get_proxy()
+                    s.proxies = proxy
                     res = s.get(url_re, timeout=5)
                     logger.info("URL: %s, response: %s" % (url_re, res.status_code))
                     if res.status_code == 200:
