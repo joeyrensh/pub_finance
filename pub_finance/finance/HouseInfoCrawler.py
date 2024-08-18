@@ -47,10 +47,10 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
 proxies = [
-    "http://52.82.123.144:3128",
-    "http://118.117.189.223:8089",
-    "http://59.175.199.130:7777",
-    "http://61.129.2.212:8080",
+    # "http://52.82.123.144:3128",
+    # "http://118.117.189.223:8089",
+    # "http://59.175.199.130:7777",
+    # "http://61.129.2.212:8080",
 ]
 
 
@@ -256,7 +256,7 @@ def fetch_house_info_s(url, item, session):
     session.proxies = proxy
     try:
         response = session.get(url_re, timeout=5)
-        time.sleep(random.randint(1, 3))  # 随机休眠
+        time.sleep(random.randint(3, 5))  # 随机休眠
         if response.status_code == 200:
             logger.info("Url: %s, Proxy: %s" % (url_re, proxy))
             tree = html.fromstring(response.content)
