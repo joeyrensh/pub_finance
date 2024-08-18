@@ -47,12 +47,10 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
 proxies = [
-    "http://123.103.51.22:3128",
     "http://52.82.123.144:3128",
-    "http://123.103.51.22:3128",
-    "http://114.229.218.92:34439",
-    "http://117.68.38.163:32325",
+    "http://118.117.189.223:8089",
     "http://59.175.199.130:7777",
+    "http://61.129.2.212:8080",
 ]
 
 
@@ -78,7 +76,7 @@ def get_proxy():
         return None
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(3), after=after_retry)
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
 def get_max_page_f(url, session):
     proxy = get_proxy()
     session.proxies = proxy
@@ -139,9 +137,8 @@ def get_house_info_f(file_path, file_path_bk):
         random.shuffle(numbers)
         for i in numbers:
             # 重试计数器
-            max_retries = 3
+            max_retries = 5
             retries = 0
-            time.sleep(random.randint(3, 5))
             dict = {}
             dlist = []
             url_re = url.replace("district", district).replace("pageno", str(i))
@@ -151,6 +148,7 @@ def get_house_info_f(file_path, file_path_bk):
             s.proxies = proxy
             while retries < max_retries:
                 try:
+                    time.sleep(random.randint(3, 5))
                     res = s.get(url_re, timeout=5)
                     logger.info("URL: %s, response: %s" % (url_re, res.status_code))
                     if res.status_code == 200:
@@ -250,7 +248,7 @@ def get_house_info_f(file_path, file_path_bk):
         os.replace(file_path_bk, file_path)
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(3), after=after_retry)
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
 def fetch_house_info_s(url, item, session):
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
@@ -352,7 +350,7 @@ def fetch_houselist_s(url, page, complete_list, session):
     random.shuffle(numbers)
     for i in numbers:
         # 重试计数器
-        max_retries = 3
+        max_retries = 5
         retries = 0
         while retries < max_retries:
             time.sleep(random.randint(3, 5))
@@ -434,7 +432,7 @@ def fetch_houselist_s(url, page, complete_list, session):
     return dlist
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(3), after=after_retry)
+@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
 def get_max_page(url, session):
     proxy = get_proxy()
     session.proxies = proxy
