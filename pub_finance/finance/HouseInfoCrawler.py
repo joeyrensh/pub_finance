@@ -48,11 +48,6 @@ user_agent_list = [
 # https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=20000
 proxies = [
     "http://61.129.2.212:8080",
-    "http://118.117.189.223:8089",
-    "http://123.103.51.22:3128",
-    "http://117.68.38.180:22968",
-    "http://59.175.199.130:7777",
-    "http://118.117.189.101:8089",
 ]
 
 
@@ -654,9 +649,9 @@ if __name__ == "__main__":
     file_path_s_bk = "./houseinfo/secondhandhouse_bk.csv"
 
     # # 新房
-    get_house_info_f(file_path, file_path_bk)
+    # get_house_info_f(file_path, file_path_bk)
     # # 二手
-    # houseinfo_to_csv_s(file_path_s, file_path_s_bk)
+    houseinfo_to_csv_s(file_path_s, file_path_s_bk)
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
