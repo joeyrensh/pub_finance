@@ -166,13 +166,19 @@ class BTStrategyVol(bt.Strategy):
             self.inds[d._name]["lowest_low"] = bt.indicators.Lowest(
                 d.low, period=self.params.shortperiod
             )
+            self.inds[d._name]["highest_high_fast"] = bt.indicators.Highest(
+                d.high, period=self.params.fastperiod
+            )
+            self.inds[d._name]["lowest_low_fast"] = bt.indicators.Lowest(
+                d.low, period=self.params.fastperiod
+            )
 
             """
             辅助指标：低点上移或者高点上移
             """
-            self.signals[d._name]["higher"] = bt.Or(
+            self.signals[d._name]["higher"] = bt.And(
                 self.inds[d._name]["highest_high"](0)
-                >= self.inds[d._name]["highest_high"](-1),
+                > self.inds[d._name]["highest_high"](-1),
                 self.inds[d._name]["lowest_low"](0)
                 >= self.inds[d._name]["lowest_low"](-1),
             )
@@ -182,6 +188,19 @@ class BTStrategyVol(bt.Strategy):
                 <= self.inds[d._name]["highest_high"](-1),
                 self.inds[d._name]["lowest_low"](0)
                 < self.inds[d._name]["lowest_low"](-1),
+            )
+            self.signals[d._name]["higher_fast"] = bt.And(
+                self.inds[d._name]["highest_high_fast"](0)
+                > self.inds[d._name]["highest_high_fast"](-1),
+                self.inds[d._name]["lowest_low_fast"](0)
+                >= self.inds[d._name]["lowest_low_fast"](-1),
+            )
+
+            self.signals[d._name]["lower_fast"] = bt.And(
+                self.inds[d._name]["highest_high_fast"](0)
+                <= self.inds[d._name]["highest_high_fast"](-1),
+                self.inds[d._name]["lowest_low_fast"](0)
+                < self.inds[d._name]["lowest_low_fast"](-1),
             )
 
             """
@@ -477,8 +496,10 @@ class BTStrategyVol(bt.Strategy):
                     and self.inds[d._name]["mashort"][0]
                     > self.inds[d._name]["mashort"][-1]
                     and d.close[0] > d.open[0]
-                    # and d.close[0] > d.close[-self.params.shortperiod]
-                    and self.signals[d._name]["higher"][0] == 1
+                    and (
+                        d.close[0] > d.close[-self.params.shortperiod]
+                        or self.signals[d._name]["higher_fast"][0] == 1
+                    )
                     and self.signals[d._name]["reasonable_angle"][0] == 1
                     and (
                         self.inds[d._name]["dif"][0] > 0

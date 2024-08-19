@@ -68,8 +68,8 @@ url = "http://sh.lianjia.com/xiaoqu/pudong/pg1cro21/"
 headers = {
     "User-Agent": random.choice(user_agent_list),
     "Connection": "keep-alive",
-    "cache-control": "max-age=0",
-    "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
+    # "cache-control": "max-age=0",
+    # "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
 }
 
 # 使用示例
@@ -129,4 +129,13 @@ proxies = [
     "http://113.121.66.250:1080",
 ]
 
-print(check_proxy_anonymity(url, headers, proxies))
+# print(check_proxy_anonymity(url, headers, proxies))
+
+url = "http://pubproxy.com/api/proxy?format=json&type=http&country=CN&speed=3"
+s = requests.Session()
+s.headers.update(headers)
+for i in range(0, 10):
+    time.sleep(1)
+    response = s.get(url, timeout=5)
+    print(response)
+    # print(response["data"][0]["ipPort"])
