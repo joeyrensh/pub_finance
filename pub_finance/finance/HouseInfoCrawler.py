@@ -63,14 +63,17 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+# 全局变量
+_last_index = None
+_max_attempt = 5
+_min_delay = 3
+_max_delay = 5
+_timeout = 5
 
 
 # 定义一个函数来打印重试次数
 def after_retry(retry_state):
     logger.info(f"Retrying... attempt number {retry_state.attempt_number}")
-
-
-_last_index = None
 
 
 def get_proxy(proxies):
@@ -96,15 +99,19 @@ def get_headers():
     return headers
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
+@retry(
+    wait=wait_random(min=_min_delay, max=_max_delay),
+    stop=stop_after_attempt(_max_attempt),
+    after=after_retry,
+)
 def get_max_page_f(url, session):
     proxy = get_proxy(proxies)
     session.proxies = proxy
     session.headers.update(get_headers())
     try:
-        response = session.get(url, timeout=5)
+        response = session.get(url, timeout=_timeout)
 
-        time.sleep(random.randint(3, 5))  # 随机休眠
+        time.sleep(random.randint(_min_delay, _max_delay))  # 随机休眠
         # 检查请求是否成功
         if response.status_code != 200:
             logger.info("请求失败，状态码:", response.status_code)
@@ -160,7 +167,7 @@ def get_house_info_f(file_path, file_path_bk):
         random.shuffle(numbers)
         for i in numbers:
             # 重试计数器
-            max_retries = 5
+            max_retries = _max_attempt
             retries = 0
             dict = {}
             dlist = []
@@ -169,11 +176,11 @@ def get_house_info_f(file_path, file_path_bk):
             s.headers.update(headers)
             while retries < max_retries:
                 try:
-                    time.sleep(random.randint(3, 5))
+                    time.sleep(random.randint(_min_delay, _max_delay))
                     proxy = get_proxy(proxies)
                     s.proxies = proxy
                     s.headers.update(get_headers())
-                    res = s.get(url_re, timeout=5)
+                    res = s.get(url_re, timeout=_timeout)
                     logger.info("URL: %s, response: %s" % (url_re, res.status_code))
                     if res.status_code == 200:
                         tree = html.fromstring(res.content)
@@ -215,7 +222,7 @@ def get_house_info_f(file_path, file_path_bk):
 
                             url_detail = base_url + href
 
-                            res = s.get(url_detail, timeout=5)
+                            res = s.get(url_detail, timeout=_timeout)
 
                             if res.status_code == 200:
                                 tree = html.fromstring(res.content)
@@ -272,7 +279,11 @@ def get_house_info_f(file_path, file_path_bk):
         os.replace(file_path_bk, file_path)
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
+@retry(
+    wait=wait_random(min=_min_delay, max=_max_delay),
+    stop=stop_after_attempt(_max_attempt),
+    after=after_retry,
+)
 def fetch_house_info_s(url, item, session):
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
@@ -280,8 +291,8 @@ def fetch_house_info_s(url, item, session):
     session.proxies = proxy
     session.headers.update(get_headers())
     try:
-        response = session.get(url_re, timeout=5)
-        time.sleep(random.randint(3, 5))  # 随机休眠
+        response = session.get(url_re, timeout=_timeout)
+        time.sleep(random.randint(_min_delay, _max_delay))  # 随机休眠
         if response.status_code == 200:
             logger.info("Url: %s, Proxy: %s" % (url_re, proxy))
             tree = html.fromstring(response.content)
@@ -375,16 +386,16 @@ def fetch_houselist_s(url, page, complete_list, session):
     random.shuffle(numbers)
     for i in numbers:
         # 重试计数器
-        max_retries = 5
+        max_retries = _max_attempt
         retries = 0
         while retries < max_retries:
-            time.sleep(random.randint(3, 5))
+            time.sleep(random.randint(_min_delay, _max_delay))
             url_re = url.replace("pgno", str(i))
             proxy = get_proxy(proxies)
             session.proxies = proxy
             session.headers.update(get_headers())
             try:
-                response = session.get(url_re, timeout=5)
+                response = session.get(url_re, timeout=_timeout)
 
                 logger.info("Url: %s proxy: %s retry: %s" % (url_re, proxy, retries))
 
@@ -458,14 +469,18 @@ def fetch_houselist_s(url, page, complete_list, session):
     return dlist
 
 
-@retry(wait=wait_random(min=3, max=5), stop=stop_after_attempt(5), after=after_retry)
+@retry(
+    wait=wait_random(min=_min_delay, max=_max_delay),
+    stop=stop_after_attempt(_max_attempt),
+    after=after_retry,
+)
 def get_max_page(url, session):
     proxy = get_proxy(proxies)
     session.proxies = proxy
     session.headers.update(get_headers())
     try:
-        response = session.get(url, timeout=5)
-        time.sleep(random.randint(3, 5))  # 随机休眠
+        response = session.get(url, timeout=_timeout)
+        time.sleep(random.randint(_min_delay, _max_delay))  # 随机休眠
         # 检查请求是否成功
         if response.status_code != 200:
             print(f"Failed to retrieve data: {response.status_code}")
