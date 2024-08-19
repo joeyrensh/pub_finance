@@ -535,7 +535,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         print("complete list cnt is: ", len(houselist))
 
         # 设置并发数上限为6
-        max_workers = 1
+        max_workers = 2
         data_batch_size = 10
         list = []
         url_detail = "https://sh.lianjia.com/xiaoqu/data_id/"
