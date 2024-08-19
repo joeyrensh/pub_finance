@@ -284,7 +284,11 @@ def create_layout(app):
                                                 ),
                                             )
                                         ],
-                                        style={"overflow-x": "auto", "height": 400},
+                                        style={
+                                            "overflow-x": "auto",
+                                            "max-height": 400,
+                                            "overflow-y": "auto",
+                                        },
                                         className="table",
                                     ),
                                 ],
@@ -310,7 +314,11 @@ def create_layout(app):
                                                 ),
                                             )
                                         ],
-                                        style={"overflow-x": "auto", "height": 400},
+                                        style={
+                                            "overflow-x": "auto",
+                                            "max-height": 400,
+                                            "overflow-y": "auto",
+                                        },
                                         className="table",
                                     ),
                                 ],
@@ -335,7 +343,11 @@ def create_layout(app):
                                                 ),
                                             )
                                         ],
-                                        style={"overflow-x": "auto", "height": 300},
+                                        style={
+                                            "overflow-x": "auto",
+                                            "max-height": 300,
+                                            "overflow-y": "auto",
+                                        },
                                         className="table",
                                     ),
                                 ],
@@ -361,7 +373,11 @@ def create_layout(app):
                                                 ),
                                             )
                                         ],
-                                        style={"overflow-x": "auto", "height": 400},
+                                        style={
+                                            "overflow-x": "auto",
+                                            "max-height": 300,
+                                            "overflow-y": "auto",
+                                        },
                                         className="table",
                                     ),
                                 ],

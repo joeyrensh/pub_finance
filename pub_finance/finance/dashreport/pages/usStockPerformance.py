@@ -242,7 +242,11 @@ def create_layout(app):
                                             )
                                         ],
                                         className="table",
-                                        style={"overflow-x": "auto", "height": 400},
+                                        style={
+                                            "overflow-x": "auto",
+                                            "max-height": 400,
+                                            "overflow-y": "auto",
+                                        },
                                     ),
                                 ],
                                 className="twelve columns",
@@ -268,7 +272,11 @@ def create_layout(app):
                                             )
                                         ],
                                         className="table",
-                                        style={"overflow-x": "auto", "height": 400},
+                                        style={
+                                            "overflow-x": "auto",
+                                            "max-height": 400,
+                                            "overflow-y": "auto",
+                                        },
                                     ),
                                 ],
                                 className="twelve columns",
@@ -293,7 +301,11 @@ def create_layout(app):
                                                 ),
                                             )
                                         ],
-                                        style={"overflow-x": "auto", "height": 300},
+                                        style={
+                                            "overflow-x": "auto",
+                                            "max-height": 300,
+                                            "overflow-y": "auto",
+                                        },
                                         className="table",
                                     ),
                                 ],
