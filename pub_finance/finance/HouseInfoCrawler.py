@@ -74,7 +74,8 @@ _last_index = None
 
 def get_proxy(proxies):
     global _last_index
-    print("last_index: %s", _last_index)
+    if len(proxies) == 0:
+        return None
     if _last_index is None:
         _last_index = 0
         return proxies[_last_index]

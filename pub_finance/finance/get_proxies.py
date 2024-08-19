@@ -128,4 +128,15 @@ proxies = [
     "http://113.121.66.250:1080",
 ]
 
-print(check_proxy_anonymity(url, headers, proxies))
+# print(check_proxy_anonymity(url, headers, proxies))
+proxies = [
+    # "http://175.178.179.214:10008",
+    # "http://117.21.14.245:8000",
+    # "http://175.178.179.214:10008",
+    # "http://14.23.152.222:9090",
+    # "http://115.223.31.48:32650",
+    # "http://59.175.199.130:7777",
+    # "http://114.225.211.22:8118",
+]
+
+print(len(proxies))
