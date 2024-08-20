@@ -188,6 +188,7 @@ def create_layout(app):
                                         style={
                                             "width": "100%",
                                             "overflow-x": "auto",
+                                            "overflow-y": "auto",
                                         },
                                         className="image",
                                     ),
@@ -209,6 +210,7 @@ def create_layout(app):
                                         style={
                                             "width": "100%",
                                             "overflow-x": "auto",
+                                            "overflow-y": "auto",
                                         },
                                     ),
                                 ],
@@ -226,6 +228,7 @@ def create_layout(app):
                                         style={
                                             "width": "100%",
                                             "overflow-x": "auto",
+                                            "overflow-y": "auto",
                                         },
                                     ),
                                 ],
@@ -244,6 +247,7 @@ def create_layout(app):
                                         style={
                                             "width": "100%",
                                             "overflow-x": "auto",
+                                            "overflow-y": "auto",
                                         },
                                     ),
                                 ],
@@ -260,6 +264,7 @@ def create_layout(app):
                                         style={
                                             "width": "100%",
                                             "overflow-x": "auto",
+                                            "overflow-y": "auto",
                                         },
                                     ),
                                 ],
