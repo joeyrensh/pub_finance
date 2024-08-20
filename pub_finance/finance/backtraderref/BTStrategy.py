@@ -243,7 +243,7 @@ class BTStrategy(bt.Strategy):
             """
             辅助指标：低点上移且高点上移
             """
-            self.signals[d._name]["higher"] = bt.And(
+            self.signals[d._name]["higher"] = bt.Or(
                 d.high == self.inds[d._name]["highest_high"](0),
                 self.inds[d._name]["lowest_low"](0)
                 >= self.inds[d._name]["lowest_low"](-1),
@@ -255,7 +255,7 @@ class BTStrategy(bt.Strategy):
                 d.low == self.inds[d._name]["lowest_low"](0),
             )
 
-            self.signals[d._name]["higher_fast"] = bt.And(
+            self.signals[d._name]["higher_fast"] = bt.Or(
                 d.high == self.inds[d._name]["highest_high_fast"](0),
                 self.inds[d._name]["lowest_low_fast"](0)
                 >= self.inds[d._name]["lowest_low_fast"](-1),
