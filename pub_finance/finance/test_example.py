@@ -5,7 +5,7 @@ from utility.ToolKit import ToolKit
 from datetime import datetime
 import pandas as pd
 import sys
-from backtraderref.BTStrategyVol import BTStrategyVol
+from backtraderref.BTStrategyCNETF import BTStrategyCNETF
 import backtrader as bt
 from utility.TickerInfo import TickerInfo
 from cncrawler.EMCNWebCrawler import EMCNWebCrawler
@@ -26,23 +26,23 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(BTStrategyVol, trade_date=date)
+    cerebro.addstrategy(BTStrategyCNETF, trade_date=date)
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=True)
     # cerebro.addobserver(bt.observers.BuySell)
 
     """ 初始资金100M """
-    cerebro.broker.setcash(1000000.0)
+    cerebro.broker.setcash(500000.0)
     cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
     # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
-    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
+    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=2)
     cerebro.addsizer(FixedAmount, amount=10000)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "cn").get_backtrader_data_feed()
+    list = TickerInfo(date, "cn").get_etf_backtrader_data_feed()
     """ 循环初始化数据进入cerebro """
     for h in list:
         """历史数据最早不超过2021-01-01"""
@@ -240,7 +240,7 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="black")
     ax2.spines["right"].set_color("black")
     fig.tight_layout()
-    plt.savefig("./images/CNTRdraw_light.png", transparent=True)
+    plt.savefig("./images/CNETFTRdraw_light.png", transparent=True)
     # Set the font color of the table cells to white
     for cell in table.get_celld().values():
         cell.set_text_props(color="white")
@@ -254,7 +254,7 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="white")
     ax2.spines["right"].set_color("white")
     fig.tight_layout()
-    plt.savefig("./images/CNTRdraw_dark.png", transparent=True)
+    plt.savefig("./images/CNETFTRdraw_dark.png", transparent=True)
 
     return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 
@@ -297,7 +297,7 @@ if __name__ == "__main__":
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
+    StockProposal("cn", trade_date).send_etf_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()
