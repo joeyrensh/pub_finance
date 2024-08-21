@@ -58,6 +58,17 @@ app.layout = html.Div(
                             "Login", id="login-button", className="login-button"
                         ),
                         html.Div(id="output-state"),
+                        # 添加备案号链接
+                        html.Div(
+                            className="备案号",  # 可以自定义一个类名用于样式
+                            children=[
+                                html.A(
+                                    "沪ICP备2024089333号",
+                                    href="https://beian.miit.gov.cn/",
+                                    target="_blank",
+                                )
+                            ],
+                        ),
                     ],
                 )
             ],
