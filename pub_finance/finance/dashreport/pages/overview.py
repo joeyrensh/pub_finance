@@ -234,7 +234,7 @@ def create_layout(app):
                                             )
                                         ],
                                         className="table",
-                                        style={"overflow-x": "auto", "height": 480},
+                                        style={"overflow-x": "auto", "height": 550},
                                     ),
                                 ],
                                 className="six columns",
@@ -316,7 +316,7 @@ def create_layout(app):
                                             )
                                         ],
                                         className="table",
-                                        style={"overflow-x": "auto", "height": 480},
+                                        style={"overflow-x": "auto", "height": 550},
                                     ),
                                 ],
                                 className="six columns",
