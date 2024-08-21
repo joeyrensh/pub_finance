@@ -459,7 +459,7 @@ class BTStrategyVol(bt.Strategy):
                     self.signals[d._name]["close_crossdown_mashort"]
                     .get(ago=-1, size=self.params.shortperiod)
                     .count(1)
-                    >= 3
+                    >= 2
                 ):
                     continue
                 # 最近20个交易日，dea下穿0轴2次，不进行交易
@@ -467,7 +467,7 @@ class BTStrategyVol(bt.Strategy):
                     self.signals[d._name]["dif_crossdown_dea"]
                     .get(ago=-1, size=self.params.shortperiod)
                     .count(1)
-                    >= 3
+                    >= 2
                 ):
                     continue
 
