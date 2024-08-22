@@ -68,19 +68,47 @@ url = "http://sh.lianjia.com/xiaoqu/pudong/pg1cro21/"
 headers = {
     "User-Agent": random.choice(user_agent_list),
     "Connection": "keep-alive",
-    # "cache-control": "max-age=0",
-    # "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
+    "cache-control": "max-age=0",
+    "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
 }
 
 # 使用示例
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://47.93.59.156:1080",
-    "http://123.126.158.50:80",
+    "http://119.96.188.171:30000",
+    "http://183.234.85.26:9002",
+    "http://118.117.189.83:8089",
+    "http://121.234.73.216:9002",
+    "http://117.68.38.145:29038",
+    "http://221.231.20.3:9002",
+    "http://117.68.38.140:22001",
+    "http://183.132.67.64:8085",
+    "http://52.82.123.144:3128",
+    "http://155.126.176.23:11223",
+    "http://155.126.176.23:8800",
+    "http://117.68.38.153:30474",
+    "http://112.3.21.226:8060",
+    "http://116.63.129.202:6000",
+    "http://123.13.218.68:9002",
+    "http://125.77.25.177:8080",
     "http://36.111.151.156:80",
-    "http://114.94.31.236:8800",
-    "http://175.178.179.214:10008",
+    "http://36.99.35.138:82",
+    "http://125.77.25.177:8090",
+    "http://118.117.189.39:8089",
+    "http://125.77.25.178:8080",
+    "http://222.88.167.22:9002",
+    "http://221.6.139.190:9002",
+    "http://203.110.176.69:8111",
+    "http://119.96.195.62:30000",
+    "http://117.68.38.137:33333",
+    "http://119.96.235.202:30000",
+    "http://125.77.25.178:8090",
+    "http://123.126.158.50:80",
+    "http://14.23.152.222:9090",
+    "http://222.89.237.101:9002",
+    "http://111.59.4.88:9002",
+    "http://113.121.66.250:1080",
 ]
 
 print(check_proxy_anonymity(url, headers, proxies))

@@ -53,9 +53,15 @@ proxies = [
     "http://36.111.151.156:80",
     "http://114.94.31.236:8800",
     "http://175.178.179.214:10008",
+    "http://117.68.38.145:29038",
+    "http://117.68.38.140:22001",
+    "http://52.82.123.144:3128",
+    "http://155.126.176.23:11223",
+    "http://155.126.176.23:8800",
+    "http://117.68.38.153:30474",
     "http://36.111.151.156:80",
-    "http://114.94.31.236:8800",
-    "http://175.178.179.214:10008",
+    "http://118.117.189.39:8089",
+    "http://14.23.152.222:9090",
 ]
 
 logging.basicConfig(
@@ -97,8 +103,8 @@ def get_headers():
     headers = {
         "User-Agent": random.choice(user_agent_list),
         "Connection": "keep-alive",
-        # "cache-control": "max-age=0",
-        # "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
+        "cache-control": "max-age=0",
+        "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
     }
     return headers
 
