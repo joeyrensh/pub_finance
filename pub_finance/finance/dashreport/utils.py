@@ -26,7 +26,7 @@ def get_header(app):
                                 "margin-top": "5px",
                             },
                             # className="logo",
-                            className="bounce-left-right",
+                            className="bounce",
                         ),
                         href="#",
                     ),

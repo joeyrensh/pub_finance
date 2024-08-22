@@ -115,8 +115,8 @@
 }
 
 .fa-spin {
-  -webkit-animation: fa-spin 5s infinite linear;
-  animation: fa-spin 5s infinite linear;
+  -webkit-animation: fa-spin 2s infinite linear;
+  animation: fa-spin 2s infinite linear;
 }
 
 .fa-pulse {
@@ -124,53 +124,47 @@
   animation: fa-spin 1s infinite steps(8);
 }
 
-.bounce-left-right {
-  -webkit-animation: bounce-left-right 5s infinite alternate;
-  animation: bounce-left-right 5s infinite alternate;
+.bounce {
+  -webkit-animation: bounce 2s infinite;
+  animation: bounce 2s infinite;
 }
 
 /* 定义动画 */
-@keyframes bounce-left-right {
+@keyframes bounce {
 
   0%,
+  20%,
+  50%,
+  80%,
   100% {
-    transform: translateX(0);
+    transform: translateY(0);
   }
 
-  25% {
-    transform: translateX(-20px);
-    /* 向左移动 */
+  40% {
+    transform: translateY(-30px);
   }
 
-  50% {
-    transform: translateX(0);
-  }
-
-  75% {
-    transform: translateX(20px);
-    /* 向右移动 */
+  60% {
+    transform: translateY(-15px);
   }
 }
 
-@-webkit-keyframes bounce-left-right {
+@-webkit-keyframes bounce {
 
   0%,
+  20%,
+  50%,
+  80%,
   100% {
-    transform: translateX(0);
+    transform: translateY(0);
   }
 
-  25% {
-    transform: translateX(-20px);
-    /* 向左移动 */
+  40% {
+    transform: translateY(-30px);
   }
 
-  50% {
-    transform: translateX(0);
-  }
-
-  75% {
-    transform: translateX(20px);
-    /* 向右移动 */
+  60% {
+    transform: translateY(-15px);
   }
 }
 
