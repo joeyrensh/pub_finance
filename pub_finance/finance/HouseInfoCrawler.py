@@ -48,13 +48,14 @@ user_agent_list = [
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://175.178.179.214:10008",
     "http://117.21.14.245:8000",
     "http://175.178.179.214:10008",
     "http://14.23.152.222:9090",
     "http://115.223.31.48:32650",
     "http://59.175.199.130:7777",
     "http://114.225.211.22:8118",
+    "http://114.94.31.236:8800",
+    "http://106.53.97.59:1024",
 ]
 
 logging.basicConfig(
@@ -69,6 +70,7 @@ _max_attempt = 5
 _min_delay = 3
 _max_delay = 5
 _timeout = 5
+_max_workers = 1
 
 
 # 定义一个函数来打印重试次数
@@ -551,7 +553,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         print("complete list cnt is: ", len(houselist))
 
         # 设置并发数上限为6
-        max_workers = 2
+        max_workers = _max_workers
         data_batch_size = 10
         list = []
         url_detail = "https://sh.lianjia.com/xiaoqu/data_id/"
@@ -698,7 +700,7 @@ if __name__ == "__main__":
     # # 新房
     get_house_info_f(file_path, file_path_bk)
     # # 二手
-    # houseinfo_to_csv_s(file_path_s, file_path_s_bk)
+    houseinfo_to_csv_s(file_path_s, file_path_s_bk)
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
