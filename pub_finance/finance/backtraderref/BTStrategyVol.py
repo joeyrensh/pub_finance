@@ -187,24 +187,20 @@ class BTStrategyVol(bt.Strategy):
             """
             辅助指标：低点上移且高点上移
             """
-            self.signals[d._name]["higher_fast"] = bt.Or(
-                self.inds[d._name]["highest_short"]
-                > self.inds[d._name]["highest_short"](-5),
-                self.inds[d._name]["lowest_short"]
-                > self.inds[d._name]["lowest_short"](-5),
+            self.signals[d._name]["higher_fast"] = bt.And(
+                d.close > self.inds[d._name]["lowest_short"],
+                self.inds[d._name]["lowest_short"] > self.inds[d._name]["lowest_mid"],
             )
-            self.signals[d._name]["higher"] = bt.Or(
-                self.inds[d._name]["highest_mid"]
-                > self.inds[d._name]["highest_mid"](-10),
-                self.inds[d._name]["lowest_mid"]
-                > self.inds[d._name]["lowest_mid"](-10),
+            self.signals[d._name]["higher"] = bt.And(
+                d.close > self.inds[d._name]["lowest_short"],
+                self.inds[d._name]["lowest_short"] > self.inds[d._name]["lowest_mid"],
+                self.inds[d._name]["lowest_short"] > self.inds[d._name]["lowest_long"],
             )
 
             self.signals[d._name]["lower"] = bt.Or(
-                self.inds[d._name]["lowest_short"]
-                < self.inds[d._name]["lowest_short"](-5),
-                self.inds[d._name]["lowest_mid"]
-                < self.inds[d._name]["lowest_mid"](-10),
+                d.close == self.inds[d._name]["lowest_short"],
+                self.inds[d._name]["lowest_short"] < self.inds[d._name]["lowest_mid"],
+                self.inds[d._name]["lowest_short"] < self.inds[d._name]["lowest_long"],
             )
 
             """
