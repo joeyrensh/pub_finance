@@ -48,17 +48,22 @@ user_agent_list = [
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://155.126.176.23:11223",
     "http://36.111.151.156:80",
-    "http://14.23.152.222:9090",
-    "http://117.21.14.245:8000",
-    "http://117.68.38.140:34567",
+    "http://114.94.31.236:8800",
+    "http://175.178.179.214:10008",
+    "http://39.104.87.157:82",
+    "http://119.96.100.63:30000",
     "http://121.230.210.211:8089",
     "http://119.96.118.113:30000",
     "http://114.225.211.22:8118",
     "http://111.224.213.192:8089",
     "http://155.126.176.23:8800",
     "http://119.96.100.63:30000",
+    "http://155.126.176.23:11223",
+    "http://36.111.151.156:80",
+    "http://14.23.152.222:9090",
+    "http://117.21.14.245:8000",
+    "http://117.68.38.140:34567",
 ]
 
 logging.basicConfig(
@@ -73,7 +78,7 @@ _max_attempt = 5
 _min_delay = 2
 _max_delay = 4
 _timeout = 5
-_max_workers = 1
+_max_workers = 2
 
 
 # 定义一个函数来打印重试次数
@@ -91,15 +96,17 @@ def get_proxy(proxies):
 
     next_index = (_last_index + 1) % len(proxies)
     _last_index = next_index
-    return proxies[next_index]
+    ip_port = proxies[next_index]
+    proxy = {"https": ip_port, "http": ip_port}
+    return proxy
 
 
 def get_headers():
     headers = {
         "User-Agent": random.choice(user_agent_list),
         "Connection": "keep-alive",
-        "cache-control": "max-age=0",
-        "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
+        # "cache-control": "max-age=0",
+        # "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
     }
     return headers
 
@@ -158,14 +165,8 @@ def get_house_info_f(file_path, file_path_bk):
     url = "https://sh.fang.lianjia.com/loupan/district/nht1nht2nhs1co41pgpageno/"
     base_url = "https://sh.fang.lianjia.com"
     for idx, district in enumerate(district_list):
-        headers = {
-            "User-Agent": random.choice(user_agent_list),
-            "Connection": "keep-alive",
-            "cache-control": "max-age=0",
-            "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
-        }
         s = requests.Session()
-        s.headers.update(headers)
+        s.headers.update(get_headers())
         url_default = url.replace("district", district).replace("pageno", str(1))
         page = get_max_page_f(url_default, s)
         numbers = list(range(1, page + 1))
@@ -178,7 +179,7 @@ def get_house_info_f(file_path, file_path_bk):
             dlist = []
             url_re = url.replace("district", district).replace("pageno", str(i))
             s = requests.Session()
-            s.headers.update(headers)
+            s.headers.update(get_headers())
             while retries < max_retries:
                 try:
                     time.sleep(random.randint(_min_delay, _max_delay))
@@ -539,14 +540,8 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
     # url = "https://sh.lianjia.com/xiaoqu/district/pgpgnobp0ep100/"
     url = "https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
-        headers = {
-            "User-Agent": random.choice(user_agent_list),
-            "Connection": "keep-alive",
-            "cache-control": "max-age=0",
-            "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
-        }
         s = requests.Session()
-        s.headers.update(headers)
+        s.headers.update(get_headers())
         url_default = url.replace("pgno", str(1)).replace("district", district)
         max_page = get_max_page(url_default, s)
         url_re = url.replace("district", district)
