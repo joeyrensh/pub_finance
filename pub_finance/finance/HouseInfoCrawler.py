@@ -52,16 +52,11 @@ proxies = [
     "http://14.23.152.222:9090",
     "http://36.111.151.156:80",
     "http://114.94.31.236:8800",
-    "http://175.178.179.214:10008",
     "http://117.68.38.145:29038",
     "http://117.68.38.140:22001",
     "http://52.82.123.144:3128",
-    "http://155.126.176.23:11223",
-    "http://155.126.176.23:8800",
     "http://117.68.38.153:30474",
-    "http://36.111.151.156:80",
     "http://118.117.189.39:8089",
-    "http://14.23.152.222:9090",
 ]
 
 logging.basicConfig(
@@ -133,7 +128,7 @@ def get_max_page_f(url, session):
         logger.info("共找到房源:%s，页数:%s" % (count, page_cnt))
         return page_cnt
     except requests.exceptions.RequestException as e:
-        logger.info("建立连接失败 %s", e)
+        logger.info("建立连接失败 %s, proxy: %s", e, proxy)
         raise requests.exceptions.RequestException
 
 
@@ -274,7 +269,7 @@ def get_house_info_f(file_path, file_path_bk):
                             print(f"Max retries reached for page {i}, skipping...")
                 except requests.exceptions.RequestException as e:
                     retries += 1
-                    logger.info("建立连接失败 %s", e)
+                    logger.info("建立连接失败 %s, proxy: %s", e, proxy)
                     if retries == max_retries:
                         print(f"Max retries reached for page {i}, skipping...")
 
@@ -376,7 +371,7 @@ def fetch_house_info_s(url, item, session):
             logger.info("请求失败，状态码:", response.status_code)
             raise Exception(f"Failed to retrieve data: {response.status_code}")
     except requests.exceptions.RequestException as e:
-        logger.info("建立连接失败 %s", e)
+        logger.info("建立连接失败 %s, proxy: %s", e, proxy)
         raise requests.exceptions.RequestException
 
     return dict
@@ -466,7 +461,7 @@ def fetch_houselist_s(url, page, complete_list, session):
                         print(f"Max retries reached for page {i}, skipping...")
             except requests.exceptions.RequestException as e:
                 retries += 1
-                logger.info("建立连接失败 %s", e)
+                logger.info("建立连接失败 %s, proxy: %s", e, proxy)
                 if retries == max_retries:
                     print(f"Max retries reached for page {i}, skipping...")
 
@@ -503,7 +498,7 @@ def get_max_page(url, session):
             raise Exception("XPath query returned no results")
         return page_no
     except requests.exceptions.RequestException as e:
-        logger.info("建立连接失败 %s", e)
+        logger.info("建立连接失败 %s, proxy: %s", e, proxy)
         raise requests.exceptions.RequestException
 
 
