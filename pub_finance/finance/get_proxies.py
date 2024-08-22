@@ -76,22 +76,11 @@ headers = {
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
+    "http://47.93.59.156:1080",
+    "http://123.126.158.50:80",
     "http://36.111.151.156:80",
     "http://114.94.31.236:8800",
     "http://175.178.179.214:10008",
-    "http://39.104.87.157:82",
-    "http://119.96.100.63:30000",
-    "http://121.230.210.211:8089",
-    "http://119.96.118.113:30000",
-    "http://114.225.211.22:8118",
-    "http://111.224.213.192:8089",
-    "http://155.126.176.23:8800",
-    "http://119.96.100.63:30000",
-    "http://155.126.176.23:11223",
-    "http://36.111.151.156:80",
-    "http://14.23.152.222:9090",
-    "http://117.21.14.245:8000",
-    "http://117.68.38.140:34567",
 ]
 
 print(check_proxy_anonymity(url, headers, proxies))
