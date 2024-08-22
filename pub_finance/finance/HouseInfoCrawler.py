@@ -48,14 +48,17 @@ user_agent_list = [
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://117.21.14.245:8000",
-    "http://175.178.179.214:10008",
+    "http://155.126.176.23:11223",
+    "http://36.111.151.156:80",
     "http://14.23.152.222:9090",
-    "http://115.223.31.48:32650",
-    "http://59.175.199.130:7777",
+    "http://117.21.14.245:8000",
+    "http://117.68.38.140:34567",
+    "http://121.230.210.211:8089",
+    "http://119.96.118.113:30000",
     "http://114.225.211.22:8118",
-    "http://114.94.31.236:8800",
-    "http://106.53.97.59:1024",
+    "http://111.224.213.192:8089",
+    "http://155.126.176.23:8800",
+    "http://119.96.100.63:30000",
 ]
 
 logging.basicConfig(
@@ -67,8 +70,8 @@ logger = logging.getLogger(__name__)
 # 全局变量
 _last_index = None
 _max_attempt = 5
-_min_delay = 3
-_max_delay = 5
+_min_delay = 2
+_max_delay = 4
 _timeout = 5
 _max_workers = 1
 
@@ -698,7 +701,7 @@ if __name__ == "__main__":
     file_path_s_bk = "./houseinfo/secondhandhouse_bk.csv"
 
     # # 新房
-    get_house_info_f(file_path, file_path_bk)
+    # get_house_info_f(file_path, file_path_bk)
     # # 二手
     houseinfo_to_csv_s(file_path_s, file_path_s_bk)
 
