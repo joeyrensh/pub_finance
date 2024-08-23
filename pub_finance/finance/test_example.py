@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-
-from usstrategy.UsStrategy import UsStrategy
-from tabulate import tabulate
 import progressbar
 from utility.ToolKit import ToolKit
 from datetime import datetime
 import pandas as pd
 import sys
-from backtraderref.BTStrategy import BTStrategy
+from backtraderref.BTStrategyTest import BTStrategyTest
 import backtrader as bt
 from utility.TickerInfo import TickerInfo
-from uscrawler.EMWebCrawler import EMWebCrawler
 from backtraderref.BTPandasDataExt import BTPandasDataExt
 from utility.StockProposal import StockProposal
 import matplotlib.pyplot as plt
@@ -23,23 +19,12 @@ from backtraderref.FixAmount import FixedAmount
 """ 执行策略 """
 
 
-def exec_strategy(date):
-    """小市值大波动策略-策略1"""
-    us_strate = UsStrategy(date)
-    df1 = us_strate.get_usstrategy1()
-    print(tabulate(df1, headers="keys", tablefmt="pretty"))
-    return df1
-
-
-""" backtrader策略 """
-
-
 def exec_btstrategy(date):
     """创建cerebro对象"""
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(BTStrategy, trade_date=date)
+    cerebro.addstrategy(BTStrategyTest, trade_date=date)
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=True)
@@ -297,12 +282,6 @@ if __name__ == "__main__":
     """ 爬取每日最新股票数据 """
     # em = EMWebCrawler()
     # em.get_us_daily_stock_info(trade_date)
-
-    # """ 执行策略 """
-    # df = exec_strategy(trade_date)
-    # """ 发送邮件 """
-    # if not df.empty:
-    #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
 
     """ 执行bt相关策略 """
     cash, final_value = exec_btstrategy(trade_date)
