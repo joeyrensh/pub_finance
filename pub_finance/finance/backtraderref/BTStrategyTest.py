@@ -196,41 +196,23 @@ class BTStrategyTest(bt.Strategy):
             """
 
             self.signals[d._name]["higher"] = bt.And(
-                d.close > self.inds[d._name]["lowest_short"],
-                self.inds[d._name]["lowest_short"] > self.inds[d._name]["lowest_mid"],
-                self.inds[d._name]["lowest_short"] > self.inds[d._name]["lowest_long"],
+                self.inds[d._name]["lowest_short"]
+                > self.inds[d._name]["lowest_short"](-5)
             )
 
-            self.signals[d._name]["lower"] = bt.Or(
-                d.close == self.inds[d._name]["lowest_short"],
-                self.inds[d._name]["lowest_short"] < self.inds[d._name]["lowest_mid"],
-                self.inds[d._name]["lowest_short"] < self.inds[d._name]["lowest_long"],
+            self.signals[d._name]["lower"] = bt.And(
+                self.inds[d._name]["lowest_short"]
+                < self.inds[d._name]["lowest_short"](-5)
             )
 
             self.signals[d._name]["higher_dif"] = bt.And(
                 self.inds[d._name]["lowest_dif_short"]
-                > self.inds[d._name]["lowest_dif_mid"],
-                self.inds[d._name]["lowest_dif_short"]
-                > self.inds[d._name]["lowest_dif_long"],
+                > self.inds[d._name]["lowest_dif_short"](-5)
             )
 
-            self.signals[d._name]["lower_dif"] = bt.Or(
-                d.close == self.inds[d._name]["lowest_short"],
+            self.signals[d._name]["lower_dif"] = bt.And(
                 self.inds[d._name]["lowest_dif_short"]
-                < self.inds[d._name]["lowest_dif_mid"],
-                self.inds[d._name]["lowest_dif_short"]
-                < self.inds[d._name]["lowest_dif_long"],
-            )
-
-            """
-            辅助指标：MACD是否钝化
-            """
-            self.inds[d._name]["highest_macd"] = bt.indicators.Highest(
-                self.inds[d._name]["macd"], period=self.params.shortperiod
-            )
-            self.signals[d._name]["invalid_macd"] = bt.And(
-                d.close == self.inds[d._name]["highest_long"],
-                self.inds[d._name]["macd"] < self.inds[d._name]["highest_macd"],
+                < self.inds[d._name]["lowest_dif_short"](-5)
             )
 
             """
@@ -243,7 +225,6 @@ class BTStrategyTest(bt.Strategy):
                         self.inds[d._name]["mashort"], self.inds[d._name]["mamid"]
                     )
                     == 1,
-                    self.signals[d._name]["higher"] == 1,
                     self.signals[d._name]["higher_dif"] == 1,
                     d.close > d.open,
                 ),
@@ -253,7 +234,6 @@ class BTStrategyTest(bt.Strategy):
                         self.inds[d._name]["emashort"], self.inds[d._name]["emamid"]
                     )
                     == 1,
-                    self.signals[d._name]["higher"] == 1,
                     self.signals[d._name]["higher_dif"] == 1,
                     d.close > d.open,
                 ),
@@ -264,37 +244,21 @@ class BTStrategyTest(bt.Strategy):
             """
             self.signals[d._name]["closecrossup"] = bt.Or(
                 bt.And(
-                    self.inds[d._name]["emamid"] >= self.inds[d._name]["emamid"](-1),
+                    # self.inds[d._name]["emamid"] >= self.inds[d._name]["emamid"](-1),
                     self.signals[d._name]["higher"] == 1,
-                    self.signals[d._name]["higher_dif"] == 1,
-                    bt.Or(
-                        self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
-                        self.inds[d._name]["dif"] > 0,
-                    ),
-                    bt.Or(
-                        bt.indicators.crossover.CrossUp(
-                            d.close, self.inds[d._name]["emashort"]
-                        )
-                        == 1,
-                        d.close >= self.inds[d._name]["emashort"],
-                    ),
+                    # bt.Or(
+                    #     self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
+                    #     self.inds[d._name]["dif"] > 0,
+                    # ),
                     d.close > d.open,
                 ),
                 bt.And(
-                    self.inds[d._name]["emamid"] >= self.inds[d._name]["emamid"](-1),
+                    # self.inds[d._name]["emamid"] >= self.inds[d._name]["emamid"](-1),
                     self.signals[d._name]["higher"] == 1,
-                    self.signals[d._name]["higher_dif"] == 1,
-                    bt.Or(
-                        self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
-                        self.inds[d._name]["dif"] > 0,
-                    ),
-                    bt.Or(
-                        bt.indicators.crossover.CrossUp(
-                            d.close, self.inds[d._name]["mashort"]
-                        )
-                        == 1,
-                        d.close >= self.inds[d._name]["mashort"],
-                    ),
+                    # bt.Or(
+                    #     self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
+                    #     self.inds[d._name]["dif"] > 0,
+                    # ),
                     d.close > d.open,
                 ),
             )
@@ -305,24 +269,20 @@ class BTStrategyTest(bt.Strategy):
             self.signals[d._name]["macrossdown"] = bt.Or(
                 bt.And(
                     self.inds[d._name]["emashort"] < self.inds[d._name]["emamid"],
-                    self.inds[d._name]["emamid"] < self.inds[d._name]["emamid"](-1),
                     bt.indicators.crossover.CrossDown(
                         self.inds[d._name]["mashort"], self.inds[d._name]["mamid"]
                     )
                     == 1,
                     d.close < d.open,
-                    self.signals[d._name]["lower"] == 1,
                     self.signals[d._name]["lower_dif"] == 1,
                 ),
                 bt.And(
                     self.inds[d._name]["mashort"] < self.inds[d._name]["mamid"],
-                    self.inds[d._name]["emamid"] < self.inds[d._name]["emamid"](-1),
                     bt.indicators.crossover.CrossDown(
                         self.inds[d._name]["emashort"], self.inds[d._name]["emamid"]
                     )
                     == 1,
                     d.close < d.open,
-                    self.signals[d._name]["lower"] == 1,
                     self.signals[d._name]["lower_dif"] == 1,
                 ),
             )
@@ -332,31 +292,13 @@ class BTStrategyTest(bt.Strategy):
             self.signals[d._name]["closecrossdown"] = bt.Or(
                 bt.And(
                     self.inds[d._name]["emamid"] < self.inds[d._name]["emamid"](-1),
-                    self.signals[d._name]["lower_dif"] == 1,
-                    bt.Or(
-                        bt.indicators.crossover.CrossDown(
-                            d.close, self.inds[d._name]["emashort"]
-                        )
-                        == 1,
-                        d.close < self.inds[d._name]["emashort"],
-                    ),
                     d.close < d.open,
                     self.signals[d._name]["lower"] == 1,
-                    self.signals[d._name]["lower_dif"] == 1,
                 ),
                 bt.And(
                     self.inds[d._name]["emamid"] < self.inds[d._name]["emamid"](-1),
-                    self.signals[d._name]["lower_dif"] == 1,
-                    bt.Or(
-                        bt.indicators.crossover.CrossDown(
-                            d.close, self.inds[d._name]["mashort"]
-                        )
-                        == 1,
-                        d.close < self.inds[d._name]["mashort"],
-                    ),
                     d.close < d.open,
                     self.signals[d._name]["lower"] == 1,
-                    self.signals[d._name]["lower_dif"] == 1,
                 ),
             )
 
