@@ -40,7 +40,8 @@ class BTStrategyTest(bt.Strategy):
 
     def start(self):
         trade_date = self.trade_date
-        file = FileInfo(trade_date, "us")
+        market = self.market
+        file = FileInfo(trade_date, market)
         """ 仓位文件地址 """
         file_path_position = file.get_file_path_position
         self.file_path_position = open(file_path_position, "w")
@@ -51,7 +52,7 @@ class BTStrategyTest(bt.Strategy):
         """ 板块文件地址 """
         self.file_industry = file.get_file_path_industry
 
-    def __init__(self, trade_date):
+    def __init__(self, trade_date, market):
         """
         将每日回测完的持仓数据存储文件
         方便后面打印输出
@@ -59,6 +60,7 @@ class BTStrategyTest(bt.Strategy):
 
         """ backtrader一些常用属性的初始化 """
         self.trade_date = trade_date
+        self.market = market
         self.trade = None
         self.order = dict()
         self.buyprice = None
@@ -156,7 +158,7 @@ class BTStrategyTest(bt.Strategy):
                 d.volume, period=self.params.vollongperiod
             )
 
-            """ 高点/低点 """
+            """ 收盘价高点/低点 """
             self.inds[d._name]["highest_short"] = bt.indicators.Highest(
                 d.close, period=self.params.hlshortperiod
             )
@@ -177,7 +179,7 @@ class BTStrategyTest(bt.Strategy):
             )
 
             """ 
-            DIFF高点/低点 
+            DIF高点/低点 
             """
             self.inds[d._name]["highest_dif_short"] = bt.indicators.Highest(
                 self.inds[d._name]["dif"], period=self.params.hlshortperiod
@@ -199,14 +201,12 @@ class BTStrategyTest(bt.Strategy):
             )
 
             """
-            辅助指标：低点上移且高点上移
+            辅助指标：高低点上移/下移
             """
 
             self.signals[d._name]["higher"] = bt.And(
                 self.inds[d._name]["lowest_short"]
-                > self.inds[d._name]["lowest_short"](-5),
-                self.inds[d._name]["highest_short"]
-                > self.inds[d._name]["highest_short"](-5),
+                > self.inds[d._name]["lowest_short"](-5)
             )
 
             self.signals[d._name]["lower"] = bt.And(
@@ -218,9 +218,7 @@ class BTStrategyTest(bt.Strategy):
 
             self.signals[d._name]["higher_dif"] = bt.And(
                 self.inds[d._name]["lowest_dif_short"]
-                > self.inds[d._name]["lowest_dif_short"](-5),
-                self.inds[d._name]["highest_dif_short"]
-                > self.inds[d._name]["highest_dif_short"](-5),
+                > self.inds[d._name]["lowest_dif_short"](-5)
             )
 
             self.signals[d._name]["lower_dif"] = bt.And(
@@ -558,11 +556,11 @@ class BTStrategyTest(bt.Strategy):
                 if dict["buy_date"] is None:
                     continue
                 t = ToolKit("最新交易日")
-                if self.datas[0].market[0] == 1:
+                if self.market == "us":
                     cur = datetime.strptime(t.get_us_latest_trade_date(0), "%Y%m%d")
                     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
                     interval = t.get_us_trade_off_days(cur, bef)
-                elif self.datas[0].market[0] == 2:
+                elif self.market == "cn":
                     cur = datetime.strptime(t.get_cn_latest_trade_date(0), "%Y%m%d")
                     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
                     interval = t.get_cn_trade_off_days(cur, bef)
