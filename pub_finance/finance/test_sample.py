@@ -5,7 +5,7 @@ from utility.ToolKit import ToolKit
 from datetime import datetime
 import pandas as pd
 import sys
-from backtraderref.BTStrategyTest import BTStrategyTest
+from backtraderref.BTStrategyV2 import BTStrategyV2
 import backtrader as bt
 from utility.TickerInfo import TickerInfo
 from backtraderref.BTPandasDataExt import BTPandasDataExt
@@ -24,7 +24,7 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(BTStrategyTest, trade_date=date, market="us")
+    cerebro.addstrategy(BTStrategyV2, trade_date=date, market="us")
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=True)
