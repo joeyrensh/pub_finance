@@ -160,19 +160,17 @@ class BTStrategyTest(bt.Strategy):
             self.inds[d._name]["highest_short"] = bt.indicators.Highest(
                 d.close, period=self.params.hlshortperiod
             )
-            self.inds[d._name]["lowest_short"] = bt.indicators.Lowest(
-                d.close, period=self.params.hlshortperiod
-            )
-
             self.inds[d._name]["highest_mid"] = bt.indicators.Highest(
                 d.close, period=self.params.hlmidperiod
             )
-            self.inds[d._name]["lowest_mid"] = bt.indicators.Lowest(
-                d.close, period=self.params.hlmidperiod
-            )
-
             self.inds[d._name]["highest_long"] = bt.indicators.Highest(
                 d.close, period=self.params.hllongperiod
+            )
+            self.inds[d._name]["lowest_short"] = bt.indicators.Lowest(
+                d.close, period=self.params.hlshortperiod
+            )
+            self.inds[d._name]["lowest_mid"] = bt.indicators.Lowest(
+                d.close, period=self.params.hlmidperiod
             )
             self.inds[d._name]["lowest_long"] = bt.indicators.Lowest(
                 d.close, period=self.params.hllongperiod
@@ -181,6 +179,15 @@ class BTStrategyTest(bt.Strategy):
             """ 
             DIFF高点/低点 
             """
+            self.inds[d._name]["highest_dif_short"] = bt.indicators.Highest(
+                self.inds[d._name]["dif"], period=self.params.hlshortperiod
+            )
+            self.inds[d._name]["highest_dif_mid"] = bt.indicators.Highest(
+                self.inds[d._name]["dif"], period=self.params.hlmidperiod
+            )
+            self.inds[d._name]["highest_dif_long"] = bt.indicators.Highest(
+                self.inds[d._name]["dif"], period=self.params.hllongperiod
+            )
             self.inds[d._name]["lowest_dif_short"] = bt.indicators.Lowest(
                 self.inds[d._name]["dif"], period=self.params.hlshortperiod
             )
@@ -197,22 +204,44 @@ class BTStrategyTest(bt.Strategy):
 
             self.signals[d._name]["higher"] = bt.And(
                 self.inds[d._name]["lowest_short"]
-                > self.inds[d._name]["lowest_short"](-5)
+                > self.inds[d._name]["lowest_short"](-5),
+                self.inds[d._name]["highest_short"]
+                > self.inds[d._name]["highest_short"](-5),
             )
 
             self.signals[d._name]["lower"] = bt.And(
                 self.inds[d._name]["lowest_short"]
-                < self.inds[d._name]["lowest_short"](-5)
+                < self.inds[d._name]["lowest_short"](-5),
+                self.inds[d._name]["highest_short"]
+                < self.inds[d._name]["highest_short"](-5),
             )
 
             self.signals[d._name]["higher_dif"] = bt.And(
                 self.inds[d._name]["lowest_dif_short"]
-                > self.inds[d._name]["lowest_dif_short"](-5)
+                > self.inds[d._name]["lowest_dif_short"](-5),
+                self.inds[d._name]["highest_dif_short"]
+                > self.inds[d._name]["highest_dif_short"](-5),
             )
 
             self.signals[d._name]["lower_dif"] = bt.And(
                 self.inds[d._name]["lowest_dif_short"]
-                < self.inds[d._name]["lowest_dif_short"](-5)
+                < self.inds[d._name]["lowest_dif_short"](-5),
+                self.inds[d._name]["highest_dif_short"]
+                < self.inds[d._name]["highest_dif_short"](-5),
+            )
+
+            """ 
+            辅助指标：波动过大，避免频繁交易
+            """
+            self.signals[d._name]["close_crossdown_mashort"] = (
+                bt.indicators.crossover.CrossDown(
+                    d.close, self.inds[d._name]["mashort"]
+                )
+            )
+            self.signals[d._name]["dif_crossdown_dea"] = (
+                bt.indicators.crossover.CrossDown(
+                    self.inds[d._name]["dif"], self.inds[d._name]["dea"]
+                )
             )
 
             """
@@ -242,24 +271,26 @@ class BTStrategyTest(bt.Strategy):
             """
             买入2: 线价关系
             """
-            self.signals[d._name]["closecrossup"] = bt.Or(
+            self.signals[d._name]["closecrossup"] = (
                 bt.And(
-                    # self.inds[d._name]["emamid"] >= self.inds[d._name]["emamid"](-1),
                     self.signals[d._name]["higher"] == 1,
-                    # bt.Or(
-                    #     self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
-                    #     self.inds[d._name]["dif"] > 0,
-                    # ),
                     d.close > d.open,
-                ),
-                bt.And(
-                    # self.inds[d._name]["emamid"] >= self.inds[d._name]["emamid"](-1),
-                    self.signals[d._name]["higher"] == 1,
-                    # bt.Or(
-                    #     self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
-                    #     self.inds[d._name]["dif"] > 0,
-                    # ),
-                    d.close > d.open,
+                    bt.Or(
+                        bt.indicators.crossover.CrossUp(
+                            d.close, self.inds[d._name]["emashort"]
+                        )
+                        == 1,
+                        bt.indicators.crossover.CrossUp(
+                            d.close, self.inds[d._name]["mashort"]
+                        )
+                        == 1,
+                        bt.indicators.crossover.CrossUp(
+                            self.inds[d._name]["dif"], self.inds[d._name]["dea"]
+                        )
+                        == 1,
+                        bt.indicators.crossover.CrossUp(self.inds[d._name]["dif"], 0)
+                        == 1,
+                    ),
                 ),
             )
 
@@ -289,16 +320,25 @@ class BTStrategyTest(bt.Strategy):
             """
             卖出2: 线价关系
             """
-            self.signals[d._name]["closecrossdown"] = bt.Or(
-                bt.And(
-                    self.inds[d._name]["emamid"] < self.inds[d._name]["emamid"](-1),
-                    d.close < d.open,
-                    self.signals[d._name]["lower"] == 1,
-                ),
-                bt.And(
-                    self.inds[d._name]["emamid"] < self.inds[d._name]["emamid"](-1),
-                    d.close < d.open,
-                    self.signals[d._name]["lower"] == 1,
+            self.signals[d._name]["closecrossdown"] = bt.And(
+                self.inds[d._name]["emamid"] < self.inds[d._name]["emamid"](-1),
+                d.close < d.open,
+                self.signals[d._name]["lower"] == 1,
+                bt.Or(
+                    bt.indicators.crossover.CrossDown(
+                        d.close, self.inds[d._name]["emashort"]
+                    )
+                    == 1,
+                    bt.indicators.crossover.CrossDown(
+                        d.close, self.inds[d._name]["mashort"]
+                    )
+                    == 1,
+                    bt.indicators.crossover.CrossDown(
+                        self.inds[d._name]["dif"], self.inds[d._name]["dea"]
+                    )
+                    == 1,
+                    bt.indicators.crossover.CrossDown(self.inds[d._name]["dif"], 0)
+                    == 1,
                 ),
             )
 
@@ -418,6 +458,22 @@ class BTStrategyTest(bt.Strategy):
             """ 如果没有仓位就判断是否买卖 """
             if not pos:
                 """噪声处理"""
+                # 均线密集判断，短期ema与中期ema近20日内密集排列
+                if (
+                    self.signals[d._name]["close_crossdown_mashort"]
+                    .get(ago=-1, size=self.params.shortperiod)
+                    .count(1)
+                    > 2
+                ):
+                    continue
+                # 最近20个交易日，dea下穿0轴2次，不进行交易
+                if (
+                    self.signals[d._name]["dif_crossdown_dea"]
+                    .get(ago=-1, size=self.params.shortperiod)
+                    .count(1)
+                    > 2
+                ):
+                    continue
 
                 if self.signals[d._name]["macrossup"][0] == 1:
                     """买入对应仓位"""
