@@ -308,6 +308,7 @@ class BTStrategyV2(bt.Strategy):
                     self.signals[d._name]["higher"] == 1,
                     d.close > d.open,
                     self.signals[d._name]["slope"] == 1,
+                    self.inds[d._name]["emamid"] > self.inds[d._name]["emamid"](-1),
                     bt.Or(
                         bt.indicators.crossover.CrossUp(
                             d.close, self.inds[d._name]["emashort"]
@@ -335,6 +336,7 @@ class BTStrategyV2(bt.Strategy):
                 self.signals[d._name]["slope"] == 1,
                 self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
                 self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
+                self.inds[d._name]["emamid"] > self.inds[d._name]["emamid"](-1),
             )
 
             """ 
@@ -413,6 +415,7 @@ class BTStrategyV2(bt.Strategy):
                 d.close < self.inds[d._name]["emashort"],
                 self.inds[d._name]["emashort"] < self.inds[d._name]["emamid"],
                 self.inds[d._name]["mashort"] < self.inds[d._name]["mamid"],
+                self.inds[d._name]["emamid"] < self.inds[d._name]["emamid"](-1),
             )
             """ 
             卖出5: 下穿年线
@@ -604,8 +607,8 @@ class BTStrategyV2(bt.Strategy):
                     self.myorder[d._name]["strategy"] = "上穿年线"
                 elif (
                     self.signals[d._name]["close_crossup_emashort"][0] == 1
-                    and sum(1 for value in diff_array if value < 2) > 5
-                    and sum(1 for value in diff_array2 if value < 2) > 5
+                    and sum(1 for value in diff_array if value < 2) > 4
+                    and sum(1 for value in diff_array2 if value < 2) > 4
                 ):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
