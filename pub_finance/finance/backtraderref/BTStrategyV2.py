@@ -343,7 +343,7 @@ class BTStrategyV2(bt.Strategy):
             self.signals[d._name]["vol_increase"] = bt.And(
                 self.inds[d._name]["mavolshort"] > self.inds[d._name]["mavolmid"],
                 self.inds[d._name]["mavolshort"] > self.inds[d._name]["mavollong"],
-                d.volume > self.inds[d._name]["mavolshort"],
+                d.volume > self.inds[d._name]["mavolshort"] * 2,
                 self.signals[d._name]["higher"] == 1,
                 self.signals[d._name]["slope"] == 1,
             )

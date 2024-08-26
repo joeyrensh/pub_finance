@@ -39,21 +39,18 @@ class TickerInfo:
         if self.market == "us":
             for index, i in df_n.iterrows():
                 """
-                美股：
-                单价超过2美金
-                日成交额超过1亿
-                A股：
-                单价超过2块
-                日成交额超过1亿
+                美股：10亿以上的公司
+                A股：100亿以上的公司
                 """
                 if (
-                    float(i["close"]) * float(i["volume"]) >= 100000000
-                    and float(i["close"]) > 2
-                    and float(i["close"]) < 10000
+                    float(i["close"]) * float(i["volume"]) >= 50000000
+                    and (
+                        (float(i["close"]) > 2 and float(i["close"]) < 10000)
+                        or float(i["total_value"]) >= 10000000000
+                    )
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
                     and float(i["low"]) > 0
-                    and float(i["total_value"]) >= 5000000000
                 ):
                     tickers.append(i["symbol"])
         elif self.market == "cn":
@@ -66,20 +63,6 @@ class TickerInfo:
                     and float(i["high"]) > 0
                     and float(i["low"]) > 0
                     and float(i["total_value"]) >= 10000000000
-                    # and (
-                    #     (
-                    #         float(i["total_value"]) >= 100000000000
-                    #         and float(i["close"]) * float(i["volume"]) * 100
-                    #         >= float(i["circulation_value"]) * 0.003
-                    #     )
-                    #     or (
-                    #         float(i["total_value"]) < 100000000000
-                    #         and float(i["close"]) * float(i["volume"]) * 100
-                    #         >= float(i["circulation_value"]) * 0.005
-                    #     )
-                    # )
-                    # and float(i["close"]) * float(i["volume"]) * 100
-                    # < float(i["circulation_value"]) * 0.5
                 ):
                     tickers.append(i["symbol"])
         return tickers
