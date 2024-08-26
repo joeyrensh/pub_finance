@@ -288,7 +288,7 @@ li {
 .logo {
   height: 30px;
   width: auto;
-  margin: 25px 25px;
+  /* margin: 25px 25px; */
 }
 
 a:link {

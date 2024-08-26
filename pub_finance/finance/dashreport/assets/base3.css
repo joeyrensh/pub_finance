@@ -129,6 +129,55 @@
   animation: bounce 2s infinite;
 }
 
+.pulse {
+  animation: pulse 2s infinite;
+  -webkit-animation: pulse 2s infinite;
+}
+
+.pulse-arrow {
+  animation: pulseArrow 2s infinite;
+}
+
+@keyframes pulseArrow {
+
+  0%,
+  100% {
+    fill-opacity: 0.4;
+  }
+
+  50% {
+    fill-opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+  }
+}
+
+@-webkit-keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+  }
+}
+
 /* 定义动画 */
 @keyframes bounce {
 
