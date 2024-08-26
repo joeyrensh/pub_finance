@@ -263,6 +263,17 @@ class BTStrategyV2(bt.Strategy):
                 self.signals[d._name]["higher"] == 1,
             )
 
+            """ 
+            辅助指标：乖离率判断
+            """
+            bias20 = (d.close - self.inds[d._name]["mashort"]) / self.inds[d._name][
+                "mashort"
+            ]
+            self.signals[d._name]["slope"] = bt.And(
+                bias20 >= -0.2,
+                bias20 <= 0.2,
+            )
+
             """
             买入1: 均线上穿
             """
@@ -275,6 +286,7 @@ class BTStrategyV2(bt.Strategy):
                     == 1,
                     self.signals[d._name]["higher_dif"] == 1,
                     d.close > d.open,
+                    self.signals[d._name]["slope"] == 1,
                 ),
                 bt.And(
                     self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
@@ -284,6 +296,7 @@ class BTStrategyV2(bt.Strategy):
                     == 1,
                     self.signals[d._name]["higher_dif"] == 1,
                     d.close > d.open,
+                    self.signals[d._name]["slope"] == 1,
                 ),
             )
 
@@ -294,6 +307,7 @@ class BTStrategyV2(bt.Strategy):
                 bt.And(
                     self.signals[d._name]["higher"] == 1,
                     d.close > d.open,
+                    self.signals[d._name]["slope"] == 1,
                     bt.Or(
                         bt.indicators.crossover.CrossUp(
                             d.close, self.inds[d._name]["emashort"]
@@ -318,6 +332,7 @@ class BTStrategyV2(bt.Strategy):
             """
             self.signals[d._name]["long_position"] = bt.And(
                 d.close >= self.inds[d._name]["emashort"],
+                self.signals[d._name]["slope"] == 1,
                 self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
                 self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
             )
@@ -330,6 +345,7 @@ class BTStrategyV2(bt.Strategy):
                 self.inds[d._name]["mavolshort"] > self.inds[d._name]["mavollong"],
                 d.volume > self.inds[d._name]["mavolshort"],
                 self.signals[d._name]["higher"] == 1,
+                self.signals[d._name]["slope"] == 1,
             )
 
             """
@@ -340,6 +356,7 @@ class BTStrategyV2(bt.Strategy):
                     d.close, self.inds[d._name]["maannual"]
                 ),
                 self.signals[d._name]["higher"] == 1,
+                self.signals[d._name]["slope"] == 1,
             )
 
             """
