@@ -9,14 +9,6 @@ def Header(app):
     return html.Div([get_header(app), html.Br([]), get_menu()])
 
 
-# SVG 字符串
-svg_string = """  
-<svg width="100" height="100">  
-  <circle cx="50" cy="50" r="40" stroke="red" stroke-width="4" fill="red" />  
-</svg>  
-"""
-
-
 def get_header(app):
     header = html.Div(
         [
