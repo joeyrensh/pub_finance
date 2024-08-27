@@ -20,7 +20,7 @@ from backtraderref.FixAmountCN import FixedAmount
 col_names = ["idx", "symbol", "date", "action", "price", "share", "strategy"]
 df = pd.read_csv(
     # "./usstockinfo/trade_20240823.csv",
-    "./cnstockinfo/trade_20240826.csv",
+    "./usstockinfo/trade_20240826.csv",
     usecols=[i for i in range(0, 7)],
     names=col_names,
 )
