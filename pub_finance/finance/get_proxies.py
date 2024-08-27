@@ -42,7 +42,7 @@ def check_proxy_anonymity(url, headers, proxies):
         try:
             proxy = {"https": ip_port, "http": ip_port}
             s.proxies = proxy
-            time.sleep(random.randint(1, 1))  # 随机休眠
+            # time.sleep(random.randint(1, 1))  # 随机休眠
             response = s.get(url, timeout=3)
             print("response code:", response.status_code)
             if response.status_code != 200:
@@ -76,14 +76,14 @@ headers = {
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://42.192.36.223:8888",
-    "http://58.22.61.222:57981",
-    "http://116.169.54.248:8080",
-    "http://122.189.225.91:8080",
-    "http://124.222.4.13:8000",
-    "http://47.98.97.31:80",
+    "http://101.126.17.117:443",
     "http://175.178.179.214:10008",
-    "http://14.204.150.68:8080",
+    "http://14.23.152.222:9090",
+    "http://49.235.131.16:80",
+    "http://111.6.43.154:3128",
 ]
 
 print(check_proxy_anonymity(url, headers, proxies))
+""" 
+"http://175.178.77.128:3128"
+ """
