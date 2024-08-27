@@ -336,6 +336,10 @@ def make_dash_format_table(df, cols_format):
         fill_width=True,
         editable=True,
         style_header={
+            "position": "sticky",
+            "top": "0",
+            # "background-color": "white",
+            "z-index": 1000,
             "fontWeight": "bold",
             "white-space": "normal",
             # "z-index": "10",
