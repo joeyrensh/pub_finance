@@ -288,6 +288,7 @@ li {
 .logo {
   height: 30px;
   width: auto;
+  box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
   /* margin: 25px 25px; */
 }
 
