@@ -244,9 +244,9 @@ li {
   background-color: #FF4136;
   color: white !important;
   font-size: medium;
-  padding: 15px 15px;
+  padding: 10px 10px;
   float: left;
-  margin-left: 75%;
+  margin-left: 72%;
   width: 35%;
   text-align: center;
   transition-duration: 1s;
@@ -362,7 +362,7 @@ a:active {
   padding-left: 15px;
   padding-right: 15px;
   text-transform: none;
-  margin: 25px 25px 0px 0px;
+  margin: 25px 20px 0px 0px;
 }
 
 /* for screens smaller than 768px */
@@ -383,8 +383,9 @@ a:active {
   .tab.first {
     display: inline-block;
     text-align: left;
-    /* margin-top: 5px;
-    padding: 5px 5px; */
+    margin-top: 5px;
+    /* padding: 5px 5px; */
+
   }
 
   .tab {
@@ -395,7 +396,7 @@ a:active {
 
   .all-tabs {
     text-align: left;
-    margin-top: 10px;
+    margin-top: 5px;
   }
 
   .tablast {
@@ -424,14 +425,19 @@ a:active {
   #learn-more-button {
     float: right;
     line-height: 0;
-    font-size: 10px;
+    font-size: 7px;
     height: 25px;
     /* margin: auto; */
-    margin-top: 15px;
-    padding: 2px;
+
+    padding: 1px;
+    margin-left: 0px;
+    margin-top: 10px;
+    margin-right: 13px;
+    margin-bottom: 10px;
+
     /* padding: auto; */
     /* border: 0; */
-    /* margin: 5px 5px 5px 5px; */
+    /* margin: 0px 0px 0px 0px; */
   }
 
   h5 {
@@ -440,6 +446,7 @@ a:active {
 
   .main-title {
     width: 55%;
+    margin-top: 10px;
     padding-left: 15px;
     border-left: 15px solid #FF4136;
   }
@@ -454,13 +461,15 @@ a:active {
 
   .full-view-link {
     font-size: small;
-    padding: 10px 10px;
-    width: 40%;
-    margin-left: 60%;
+    padding: 5px 5px;
+    width: 25%;
+    margin-left: 68%;
+    margin-top: 10px;
   }
 
   .row>.columns:not(:first-child) {
     padding: 0 0;
+    margin-top: 5px;
   }
 
   .svg-container {
@@ -485,8 +494,8 @@ a:active {
 
 @media only screen and (max-width: 400px) {
   .full-view-link {
-    width: 45%;
-    margin-left: 55%;
+    width: 40%;
+    margin-left: 52%;
   }
 }
 
