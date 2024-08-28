@@ -1,7 +1,6 @@
 import requests
 import math
 from lxml import html
-import time
 import random
 import logging
 import sys
