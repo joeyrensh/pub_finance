@@ -63,7 +63,7 @@ def check_proxy_anonymity(url, headers, proxies):
     return list
 
 
-url = "http://sh.lianjia.com/xiaoqu/pudong/pg1cro21/"
+url = "http://sh.lianjia.com/xiaoqu/xuhui/pg1cro21/"
 headers = {
     "User-Agent": random.choice(user_agent_list),
     "Connection": "keep-alive",
@@ -75,46 +75,13 @@ headers = {
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://49.7.11.187:80",
-    "http://125.77.25.178:8090",
-    "http://52.82.123.144:3128",
-    "http://223.113.80.158:9091",
-    "http://117.68.38.132:30510",
-    "http://111.59.4.88:9002",
-    "http://183.215.23.242:9091",
-    "http://112.51.96.118:9091",
-    "http://115.223.31.43:35460",
-    "http://36.99.35.138:82",
-    "http://58.20.248.139:9002",
-    "http://58.246.58.150:9002",
-    "http://61.129.2.212:8080",
-    "http://116.63.129.202:6000",
-    "http://220.248.70.237:9002",
-    "http://60.12.168.114:9002",
-    "http://153.101.67.170:9002",
-    "http://115.223.31.46:39593",
-    "http://119.96.118.113:30000",
-    "http://1.94.31.35:8888",
-    "http://115.223.31.61:32650",
-    "http://119.96.235.202:30000",
-    "http://117.40.32.133:8080",
-    "http://123.126.158.50:80",
-    "http://125.77.25.177:8080",
-    "http://218.23.15.154:9002",
-    "http://221.6.139.190:9002",
-    "http://155.126.176.23:11223",
     "http://14.23.152.222:9090",
-    "http://223.70.252.94:10008",
-    "http://114.236.93.203:22488",
-    "http://101.231.64.89:8443",
-    "http://115.223.31.76:32351",
-    "http://119.96.113.193:30000",
-    "http://115.223.31.62:20774",
-    "http://115.223.31.49:34686",
-    "http://119.96.195.62:30000",
-    "http://116.169.54.253:8080",
-    "http://182.46.96.179:1080",
-    "http://123.169.118.116:1080",
+    "http://112.246.244.197:8088",
+    "http://120.202.162.210:80",
+    "http://116.169.54.248:8080",
+    "http://122.234.202.152:8118",
+    "http://14.204.150.67:8080",
+    "http://116.169.54.254:8080",
 ]
 
 print(check_proxy_anonymity(url, headers, proxies))

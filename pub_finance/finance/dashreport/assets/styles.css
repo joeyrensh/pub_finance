@@ -3,7 +3,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #ffffff;
+  background-color: rgb(255, 255, 255);
   font-size: 1.2rem;
   line-height: 1.0;
 }
@@ -162,8 +162,8 @@ img {
   text-align: left;
   line-height: 0%;
   height: 100%;
-  margin: 0;
-  margin-bottom: -10px;
+  margin-left: -5px;
+  /* margin-bottom: -10px; */
   padding: 0;
 }
 
