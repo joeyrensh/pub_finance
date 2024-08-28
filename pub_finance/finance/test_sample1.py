@@ -17,11 +17,28 @@ import pyfolio as pf
 import gc
 from backtraderref.FixAmountCN import FixedAmount
 
-col_names = ["idx", "symbol", "date", "action", "price", "share", "strategy"]
-df = pd.read_csv(
-    # "./usstockinfo/trade_20240823.csv",
-    "./usstockinfo/trade_20240826.csv",
-    usecols=[i for i in range(0, 7)],
-    names=col_names,
-)
-print(df.groupby(["action", "strategy"]).count())
+district_list = [
+    "huangpu",
+    "pudong",
+    "xuhui",
+    "changning",
+    "jingan",
+    "putuo",
+    "hongkou",
+    "yangpu",
+    "minhang",
+    "baoshan",
+    "jiading",
+    "jinshan",
+    "songjiang",
+    "qingpu",
+    "fengxian",
+    "chongming",
+]
+
+str1 = "xuhui"
+index = district_list.index(str1)
+print(index)
+for idx, district in enumerate(district_list):
+    if idx == index:
+        print(district)

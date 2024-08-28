@@ -48,11 +48,10 @@ user_agent_list = [
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://101.126.17.117:443",
-    "http://175.178.179.214:10008",
-    "http://175.178.77.128:3128",
-    "http://49.235.131.16:80",
-    "http://111.6.43.154:3128",
+    "http://116.169.54.253:8080",
+    "http://117.40.32.133:8080",
+    "http://223.76.192.60:3128",
+    "http://123.126.158.50:80",
 ]
 
 logging.basicConfig(
@@ -449,18 +448,20 @@ def fetch_houselist_s(url, page, complete_list, session):
                         retries += 1
                         logger.info("未找到目标<ul>标签")
                         if retries == max_retries:
-                            print(f"Max retries reached for page {i}, skipping...")
+                            print(f"Max retries reached for page {i}, breaking...")
+                            return
                 else:
                     retries += 1
                     logger.info("请求失败，状态码:", response.status_code)
                     if retries == max_retries:
-                        print(f"Max retries reached for page {i}, skipping...")
+                        print(f"Max retries reached for page {i}, breaking...")
+                        return
             except requests.exceptions.RequestException as e:
                 retries += 1
                 logger.info("建立连接失败 %s, proxy: %s", e, proxy)
                 if retries == max_retries:
-                    print(f"Max retries reached for page {i}, skipping...")
-
+                    print(f"Max retries reached for page {i}, breaking...")
+                    return
     return dlist
 
 

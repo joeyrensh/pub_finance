@@ -1314,6 +1314,8 @@ class StockProposal:
         del dfdata7
         gc.collect()
 
+        font_size = 24
+        title_font_size = 28
         # TOP10热门行业
         sparkdata1 = spark.sql(
             """ 
@@ -1340,21 +1342,21 @@ class StockProposal:
             marker=dict(colors=colors, line=dict(width=1)),
             textinfo="value+percent",
             textfont=dict(
-                size=20,
+                size=font_size,
                 color="black",
             ),
             textposition="inside",
         )
         fig.update_layout(
             title="Top10 Position",
-            title_font=dict(size=20, color="black"),
+            title_font=dict(size=title_font_size, color="black"),
             legend=dict(
                 orientation="v",
                 yanchor="middle",
                 xanchor="right",
                 x=0.95,
                 y=0.8,
-                font=dict(size=20, color="black"),  # 调整图例字体大小
+                font=dict(size=font_size, color="black"),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
             ),
             margin=dict(t=50, b=50, l=100, r=20),
@@ -1387,7 +1389,7 @@ class StockProposal:
             marker=dict(colors=colors, line=dict(width=1)),
             textinfo="value+percent",
             textfont=dict(
-                size=20,
+                size=font_size,
                 color="white",
             ),
             textposition="inside",
@@ -1395,7 +1397,7 @@ class StockProposal:
         fig.update_layout(
             title="Top10 Position",
             title_font=dict(
-                size=20,
+                size=title_font_size,
                 color="white",
             ),
             legend=dict(
@@ -1404,7 +1406,7 @@ class StockProposal:
                 xanchor="right",
                 x=0.95,
                 y=0.8,
-                font=dict(size=20, color="white"),  # 调整图例字体大小
+                font=dict(size=font_size, color="white"),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
             ),
             margin=dict(t=50, b=50, l=100, r=20),
@@ -1456,7 +1458,7 @@ class StockProposal:
             marker=dict(colors=colors, line=dict(width=1)),
             textinfo="value+percent",
             textfont=dict(
-                size=20,
+                size=font_size,
                 color="black",
             ),
             textposition="inside",
@@ -1464,7 +1466,7 @@ class StockProposal:
         fig.update_layout(
             title="Top10 Profit",
             title_font=dict(
-                size=20,
+                size=title_font_size,
                 color="black",
             ),
             legend=dict(
@@ -1474,7 +1476,7 @@ class StockProposal:
                 x=0.95,
                 y=0.8,
                 font=dict(
-                    size=20,
+                    size=font_size,
                     color="black",
                 ),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
@@ -1504,7 +1506,7 @@ class StockProposal:
             marker=dict(colors=colors, line=dict(width=1)),
             textinfo="value+percent",
             textfont=dict(
-                size=20,
+                size=font_size,
                 color="white",
             ),
             textposition="inside",
@@ -1512,7 +1514,7 @@ class StockProposal:
         fig.update_layout(
             title="Top10 Profit",
             title_font=dict(
-                size=20,
+                size=title_font_size,
                 color="white",
             ),
             legend=dict(
@@ -1522,7 +1524,7 @@ class StockProposal:
                 x=0.95,
                 y=0.8,
                 font=dict(
-                    size=20,
+                    size=font_size,
                     color="white",
                 ),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
@@ -1617,35 +1619,35 @@ class StockProposal:
                 "x": 0.05,
                 "xanchor": "left",
                 "yanchor": "top",
-                "font": dict(family="Courier", size=20, color="black"),
+                "font": dict(size=title_font_size, color="black"),
             },
             xaxis=dict(
                 title="Trade Date",
-                titlefont=dict(family="Courier", size=20, color="black"),
+                titlefont=dict(size=title_font_size, color="black"),
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="black"),
+                tickfont=dict(color="black", size=font_size),
                 showline=True,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis=dict(
                 title="Total Positions",
-                titlefont=dict(family="Courier", size=20, color="black"),
+                titlefont=dict(size=title_font_size, color="black"),
                 side="left",
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="black"),
+                tickfont=dict(color="black", size=font_size),
                 showline=True,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis2=dict(
                 title="Positions per day",
-                titlefont=dict(family="Courier", size=20, color="black"),
+                titlefont=dict(size=title_font_size, color="black"),
                 side="right",
                 overlaying="y",
                 showgrid=False,
                 ticks="outside",
-                tickfont=dict(color="black"),
+                tickfont=dict(color="black", size=font_size),
             ),
             legend=dict(
                 orientation="h",
@@ -1653,7 +1655,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(family="Courier", size=20, color="black"),
+                font=dict(size=font_size, color="black"),
             ),
             barmode="stack",
             plot_bgcolor="rgba(0,0,0,0)",
@@ -1685,35 +1687,35 @@ class StockProposal:
                 "x": 0.05,
                 "xanchor": "left",
                 "yanchor": "top",
-                "font": dict(family="Courier", size=20, color="white"),
+                "font": dict(size=title_font_size, color="white"),
             },
             xaxis=dict(
                 title="Trade Date",
-                titlefont=dict(family="Courier", size=20, color="white"),
+                titlefont=dict(size=title_font_size, color="white"),
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="white"),
+                tickfont=dict(color="white", size=font_size),
                 showline=True,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
                 title="Total Positions",
-                titlefont=dict(family="Courier", size=20, color="white"),
+                titlefont=dict(size=title_font_size, color="white"),
                 side="left",
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="white"),
+                tickfont=dict(color="white", size=font_size),
                 showline=True,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
                 title="Positions per day",
-                titlefont=dict(family="Courier", size=20, color="white"),
+                titlefont=dict(size=title_font_size, color="white"),
                 side="right",
                 overlaying="y",
                 showgrid=False,
                 ticks="outside",
-                tickfont=dict(color="white"),
+                tickfont=dict(color="white", size=font_size),
             ),
             legend=dict(
                 orientation="h",
@@ -1721,7 +1723,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(family="Courier", size=20, color="white"),
+                font=dict(family="Courier", size=font_size, color="white"),
             ),
             barmode="stack",
             plot_bgcolor="rgba(0,0,0,0)",
@@ -1791,22 +1793,22 @@ class StockProposal:
         fig.update_xaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="black"),
+            tickfont=dict(color="black", size=font_size),
             showline=True,
             gridcolor="rgba(0, 0, 0, 0.5)",
-            title_font=dict(size=20, family="Courier", color="black"),
+            title_font=dict(size=title_font_size, family="Courier", color="black"),
         )
         fig.update_yaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="black"),
+            tickfont=dict(color="black", size=font_size),
             showline=True,
             gridcolor="rgba(0, 0, 0, 0.5)",
-            title_font=dict(size=20, family="Courier", color="black"),
+            title_font=dict(size=title_font_size, family="Courier", color="black"),
         )
         fig.update_layout(
             title="Last 60 days top5 positions ",
-            title_font=dict(size=20, color="black"),
+            title_font=dict(size=title_font_size, color="black"),
             legend_title_text="",
             legend=dict(
                 orientation="h",
@@ -1814,7 +1816,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=20, family="Courier", color="black"),
+                font=dict(size=font_size, family="Courier", color="black"),
             ),
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1838,22 +1840,22 @@ class StockProposal:
         fig.update_xaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="white"),
+            tickfont=dict(color="white", size=font_size),
             showline=True,
             gridcolor="rgba(255, 255, 255, 0.5)",
-            title_font=dict(size=20, family="Courier", color="white"),
+            title_font=dict(size=title_font_size, family="Courier", color="white"),
         )
         fig.update_yaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="white"),
+            tickfont=dict(color="white", size=font_size),
             showline=True,
             gridcolor="rgba(255, 255, 255, 0.5)",
-            title_font=dict(size=20, family="Courier", color="white"),
+            title_font=dict(size=title_font_size, family="Courier", color="white"),
         )
         fig.update_layout(
             title="Last 60 days top5 positions ",
-            title_font=dict(size=20, color="white"),
+            title_font=dict(size=title_font_size, color="white"),
             legend_title_text="",
             legend=dict(
                 orientation="h",
@@ -1861,7 +1863,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=20, family="Courier", color="white"),
+                font=dict(size=font_size, family="Courier", color="white"),
             ),
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1924,22 +1926,22 @@ class StockProposal:
         fig.update_xaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="black"),
+            tickfont=dict(color="black", size=font_size),
             showline=True,
             gridcolor="rgba(0, 0, 0, 0.5)",
-            title_font=dict(size=20, family="Courier", color="black"),
+            title_font=dict(size=title_font_size, family="Courier", color="black"),
         )
         fig.update_yaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="black"),
+            tickfont=dict(color="black", size=font_size),
             showline=True,
             gridcolor="rgba(0, 0, 0, 0.5)",
-            title_font=dict(size=20, family="Courier", color="black"),
+            title_font=dict(size=title_font_size, family="Courier", color="black"),
         )
         fig.update_layout(
             title="Last 60 days top5 pnl ",
-            title_font=dict(size=20, color="black"),
+            title_font=dict(size=title_font_size, color="black"),
             legend_title_text="",
             legend=dict(
                 orientation="h",
@@ -1947,7 +1949,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=20, family="Courier", color="black"),
+                font=dict(size=font_size, family="Courier", color="black"),
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1970,22 +1972,22 @@ class StockProposal:
         fig.update_xaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="white"),
+            tickfont=dict(color="white", size=font_size),
             showline=True,
             gridcolor="rgba(255, 255, 255, 0.5)",
-            title_font=dict(size=20, family="Courier", color="white"),
+            title_font=dict(size=title_font_size, family="Courier", color="white"),
         )
         fig.update_yaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="white"),
+            tickfont=dict(color="white", size=font_size),
             showline=True,
             gridcolor="rgba(255, 255, 255, 0.5)",
-            title_font=dict(size=20, family="Courier", color="white"),
+            title_font=dict(size=title_font_size, family="Courier", color="white"),
         )
         fig.update_layout(
             title="Last 60 days top5 pnl ",
-            title_font=dict(size=20, color="white"),
+            title_font=dict(size=title_font_size, color="white"),
             legend_title_text="",
             legend=dict(
                 orientation="h",
@@ -1993,7 +1995,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=20, family="Courier", color="white"),
+                font=dict(size=font_size, family="Courier", color="white"),
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0,0,0,0)",
