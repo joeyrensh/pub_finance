@@ -63,7 +63,7 @@ def check_proxy_anonymity(url, headers, proxies):
     return list
 
 
-url = "http://sh.lianjia.com/xiaoqu/xuhui/pg1cro21/"
+url = "http://sh.lianjia.com/huangpu/xuhui/pg1cro21/"
 headers = {
     "User-Agent": random.choice(user_agent_list),
     "Connection": "keep-alive",
@@ -75,13 +75,29 @@ headers = {
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://14.23.152.222:9090",
-    "http://112.246.244.197:8088",
-    "http://120.202.162.210:80",
-    "http://116.169.54.248:8080",
-    "http://122.234.202.152:8118",
-    "http://14.204.150.67:8080",
-    "http://116.169.54.254:8080",
+    "http://143.64.224.32:3128",
+    "http://116.169.54.253:8080",
+    "http://118.117.189.117:8089",
+    "http://117.40.32.133:8080",
+    "http://47.103.103.132:8443",
+    "http://39.104.87.157:82",
+    "http://47.113.111.60:12121",
+    "http://155.126.176.23:11145",
+    "http://155.126.176.23:11818",
+    "http://155.126.176.23:11554",
+    "http://155.126.176.23:11654",
+    "http://175.178.179.214:10008",
+    "http://155.126.176.23:11412",
+    "http://155.126.176.23:11714",
+    "http://155.126.176.23:11975",
+    "http://111.1.61.57:3128",
+    "http://115.223.31.52:39593",
+    "http://111.1.61.53:3128",
+    "http://111.1.61.51:3128",
+    "http://119.91.60.55:8790",
+    "http://155.126.176.23:11136",
+    "http://111.1.61.56:3128",
+    "http://183.134.101.187:3128",
 ]
 
 print(check_proxy_anonymity(url, headers, proxies))

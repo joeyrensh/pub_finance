@@ -46,15 +46,7 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = [
-    "http://14.23.152.222:9090",
-    "http://112.246.244.197:8088",
-    "http://120.202.162.210:80",
-    "http://116.169.54.248:8080",
-    "http://122.234.202.152:8118",
-    "http://14.204.150.67:8080",
-    "http://116.169.54.254:8080",
-]
+proxies = ["http://111.6.43.154:3128", "http://49.235.131.16:80"]
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -65,10 +57,10 @@ logger = logging.getLogger(__name__)
 # 全局变量
 _last_index = None
 _max_attempt = 5
-_min_delay = 2
-_max_delay = 4
+_min_delay = 1
+_max_delay = 2
 _timeout = 5
-_max_workers = 2
+_max_workers = 1
 
 
 # 定义一个函数来打印重试次数
