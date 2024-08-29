@@ -46,7 +46,12 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = ["http://14.23.152.222:9090"]
+proxies = [
+    "http://14.23.152.222:9090",
+    "http://112.246.244.197:8088",
+    "http://120.202.162.210:80",
+    "http://117.68.38.144:30000",
+]
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -685,7 +690,7 @@ if __name__ == "__main__":
     file_path_s_bk = "./houseinfo/secondhandhouse_bk.csv"
 
     # # 新房
-    # get_house_info_f(file_path, file_path_bk)
+    get_house_info_f(file_path, file_path_bk)
     # # 二手
     houseinfo_to_csv_s(file_path_s, file_path_s_bk)
 
