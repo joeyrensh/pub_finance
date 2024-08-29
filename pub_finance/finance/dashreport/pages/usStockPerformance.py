@@ -113,11 +113,10 @@ def create_layout(app):
             "ADJBASE",
             "PNL",
             "PNL RATIO",
-            "AVG TRANS",
             "AVG DAYS",
             "WIN RATE",
             "TOTAL PNL RATIO",
-            "Strategy",
+            "STRATEGY",
         ]
     ].copy()
     cols_format_detail_short = {
@@ -125,7 +124,6 @@ def create_layout(app):
         "ADJBASE": ("float",),
         "PNL": ("float", "format"),
         "PNL RATIO": ("ratio", "format"),
-        "AVG TRANS": ("float",),
         "AVG DAYS": ("float",),
         "WIN RATE": ("ratio", "format"),
         "TOTAL PNL RATIO": ("ratio", "format"),

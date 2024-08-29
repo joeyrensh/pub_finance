@@ -1046,7 +1046,6 @@ class StockProposal:
                     ORDER BY symbol
                         ,date
                         ,trade_type) t
-                WHERE date >= DATE_ADD('{}', -180)
             ), tmp11 AS (
                 SELECT symbol
                     ,l_date AS buy_date
@@ -1058,7 +1057,8 @@ class StockProposal:
                     ,size AS adj_size
                     ,strategy AS sell_strategy
                     ,ROW_NUMBER() OVER(PARTITION BY symbol ORDER BY l_date DESC) AS row_num
-                FROM tmp1 WHERE trade_type = 'sell'
+                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -180)
+                AND  symbol NOT IN (SELECT symbol FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL)
             ), tmp2 AS (
                 SELECT symbol
                     ,sell_date
@@ -1152,7 +1152,7 @@ class StockProposal:
                     "total_pnl_ratio": "TOTAL PNL RATIO",
                     "industry": "IND",
                     "name": "NAME",
-                    "sell_strategy": "Strategy",
+                    "sell_strategy": "STRATEGY",
                 },
                 inplace=True,
             )
@@ -1165,7 +1165,7 @@ class StockProposal:
             html2 = (
                 "<h2>Close Position List Last 5 Days</h2>"  # 添加标题
                 "<table>"
-                + dfdata9.style.hide(axis=1, subset=["PNL", "pnl_growth"])
+                + dfdata9.style.hide(axis=1, subset=["PNL", "pnl_growth", "AVG TRANS"])
                 .format(
                     {
                         "BASE": "{:.2f}",
