@@ -46,11 +46,7 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = [
-    "http://14.23.152.222:9090",
-    "http://116.196.87.108:12121",
-    "http://117.68.38.142:32351",
-]
+proxies = ["http://14.23.152.222:9090"]
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -76,15 +72,17 @@ def get_proxy(proxies):
     global _last_index
     if len(proxies) == 0:
         return None
-    if _last_index is None:
+    elif _last_index is None:
         _last_index = 0
-        return proxies[_last_index]
-
-    next_index = (_last_index + 1) % len(proxies)
-    _last_index = next_index
-    ip_port = proxies[next_index]
-    proxy = {"https": ip_port, "http": ip_port}
-    return proxy
+        ip_port = proxies[_last_index]
+        proxy = {"https": ip_port, "http": ip_port}
+        return proxy
+    else:
+        next_index = (_last_index + 1) % len(proxies)
+        _last_index = next_index
+        ip_port = proxies[next_index]
+        proxy = {"https": ip_port, "http": ip_port}
+        return proxy
 
 
 def get_headers():
@@ -111,15 +109,16 @@ def get_max_page_f(url, session):
 
         time.sleep(random.randint(_min_delay, _max_delay))  # 随机休眠
         # 检查请求是否成功
-        if response.status_code != 200:
+        if response.status_code == 200:
+            tree = html.fromstring(response.content)
+            count_div = tree.xpath(".//div[3]/div[2]/div/span[2]")
+            count = count_div[0].xpath("string(.)")
+            page_cnt = math.ceil(int(count) / 10)
+            logger.info("共找到房源:%s，页数:%s" % (count, page_cnt))
+            return page_cnt
+        else:
             logger.info("请求失败，状态码:", response.status_code)
             raise Exception(f"Failed to retrieve data: {response.status_code}")
-        tree = html.fromstring(response.content)
-        count_div = tree.xpath(".//div[3]/div[2]/div/span[2]")
-        count = count_div[0].xpath("string(.)")
-        page_cnt = math.ceil(int(count) / 10)
-        logger.info("共找到房源:%s，页数:%s" % (count, page_cnt))
-        return page_cnt
     except requests.exceptions.RequestException as e:
         logger.info("建立连接失败 %s, proxy: %s", e, proxy)
         raise requests.exceptions.RequestException
@@ -148,8 +147,8 @@ def get_house_info_f(file_path, file_path_bk):
         "chongming",
     ]
     cnt = 0
-    url = "https://sh.fang.lianjia.com/loupan/district/nht1nht2nhs1co41pgpageno/"
-    base_url = "https://sh.fang.lianjia.com"
+    url = "http://sh.fang.lianjia.com/loupan/district/nht1nht2nhs1co41pgpageno/"
+    base_url = "http://sh.fang.lianjia.com"
     for idx, district in enumerate(district_list):
         s = requests.Session()
         s.headers.update(get_headers())
@@ -471,27 +470,29 @@ def fetch_houselist_s(url, page, complete_list, session):
 def get_max_page(url, session):
     proxy = get_proxy(proxies)
     session.proxies = proxy
-    session.headers.update(get_headers())
+
     try:
         response = session.get(url, timeout=_timeout)
         time.sleep(random.randint(_min_delay, _max_delay))  # 随机休眠
         # 检查请求是否成功
-        if response.status_code != 200:
+        if response.status_code == 200:
+            tree = html.fromstring(response.content)
+
+            div = tree.xpath(
+                '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
+            )
+            if div:
+                cnt = div[0].text_content().strip()
+                page_no = math.ceil(int(cnt) / 30)
+                logger.info("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
+            else:
+                logger.info("XPath query returned no results %s" % (proxy))
+                raise Exception("XPath query returned no results")
+            return page_no
+        else:
             print(f"Failed to retrieve data: {response.status_code}")
             raise Exception(f"Failed to retrieve data: {response.status_code}")
-        tree = html.fromstring(response.content)
 
-        div = tree.xpath(
-            '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
-        )
-        if div:
-            cnt = div[0].text_content().strip()
-            page_no = math.ceil(int(cnt) / 30)
-            logger.info("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
-        else:
-            logger.info("XPath query returned no results %s" % (proxy))
-            raise Exception("XPath query returned no results")
-        return page_no
     except requests.exceptions.RequestException as e:
         logger.info("建立连接失败 %s, proxy: %s", e, proxy)
         raise requests.exceptions.RequestException
@@ -503,12 +504,12 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         os.remove(file_path_bk)
     # 发起HTTP请求
     district_list = [
-        "huangpu",
-        "pudong",
         "xuhui",
         "changning",
         "jingan",
         "putuo",
+        "huangpu",
+        "pudong",
         "hongkou",
         "yangpu",
         "minhang",
@@ -526,7 +527,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
     complete_list = []
     count = 0
     # url = "https://sh.lianjia.com/xiaoqu/district/pgpgnobp0ep100/"
-    url = "https://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
+    url = "http://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
         s = requests.Session()
         s.headers.update(get_headers())
@@ -542,7 +543,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         max_workers = _max_workers
         data_batch_size = 10
         list = []
-        url_detail = "https://sh.lianjia.com/xiaoqu/data_id/"
+        url_detail = "http://sh.lianjia.com/xiaoqu/data_id/"
         t = ToolKit("信息爬取")
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             # 提交任务并获取Future对象列表
