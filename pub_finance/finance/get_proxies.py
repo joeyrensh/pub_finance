@@ -35,69 +35,47 @@ user_agent_list = [
 def check_proxy_anonymity(url, headers, proxies):
     list = []
     s = requests.Session()
-    s.headers.update(headers)
 
     for ip_port in proxies:
         try:
             proxy = {"https": ip_port, "http": ip_port}
             s.proxies = proxy
+            s.headers.update(headers)
             # time.sleep(random.randint(1, 1))  # 随机休眠
             response = s.get(url, timeout=3)
             print("response code:", response.status_code)
-            if response.status_code != 200:
-                print(f"Failed to retrieve data: {response.status_code}")
-            tree = html.fromstring(response.content)
-            div = tree.xpath(
-                '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
-            )
-            if div:
-                cnt = div[0].text_content().strip()
-                page_no = math.ceil(int(cnt) / 30)
-                print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
-                print("proxy %s有效" % (ip_port))
-                list.append(ip_port)
+            if response.status_code == 200:
+                tree = html.fromstring(response.content)
+                div = tree.xpath(
+                    '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
+                )
+                if div:
+                    cnt = div[0].text_content().strip()
+                    page_no = math.ceil(int(cnt) / 30)
+                    print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
+                    print("proxy %s有效" % (ip_port))
+                    list.append(ip_port)
+                else:
+                    print("proxy无效")
             else:
-                print("proxy无效")
+                print(f"Failed to retrieve data: {response.status_code}")
+
         except requests.exceptions.RequestException as e:
             print(f"Error testing proxy {ip_port}: {e}")
     return list
 
 
-url = "http://sh.lianjia.com/huangpu/xuhui/pg1cro21/"
+url = "http://sh.lianjia.com/xiaoqu/xuhui/pg1cro21/"
 headers = {
     "User-Agent": random.choice(user_agent_list),
-    "Connection": "keep-alive",
-    "cache-control": "max-age=0",
+    # "Connection": "keep-alive",
+    # "cache-control": "max-age=0",
     "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
 }
 
 # 使用示例
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = [
-    "http://143.64.224.32:3128",
-    "http://116.169.54.253:8080",
-    "http://118.117.189.117:8089",
-    "http://117.40.32.133:8080",
-    "http://47.103.103.132:8443",
-    "http://39.104.87.157:82",
-    "http://47.113.111.60:12121",
-    "http://155.126.176.23:11145",
-    "http://155.126.176.23:11818",
-    "http://155.126.176.23:11554",
-    "http://155.126.176.23:11654",
-    "http://175.178.179.214:10008",
-    "http://155.126.176.23:11412",
-    "http://155.126.176.23:11714",
-    "http://155.126.176.23:11975",
-    "http://111.1.61.57:3128",
-    "http://115.223.31.52:39593",
-    "http://111.1.61.53:3128",
-    "http://111.1.61.51:3128",
-    "http://119.91.60.55:8790",
-    "http://155.126.176.23:11136",
-    "http://111.1.61.56:3128",
-    "http://183.134.101.187:3128",
-]
+proxies = ["http://14.23.152.222:9090"]
 
 print(check_proxy_anonymity(url, headers, proxies))
