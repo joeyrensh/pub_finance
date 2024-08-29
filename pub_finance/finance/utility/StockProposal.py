@@ -832,7 +832,7 @@ class StockProposal:
                 "total_pnl_ratio": "TOTAL PNL RATIO",
                 "industry": "IND",
                 "name": "NAME",
-                "buy_strategy": "Strategy",
+                "buy_strategy": "STRATEGY",
             },
             inplace=True,
         )
@@ -2406,7 +2406,7 @@ class StockProposal:
                 "win_rate": "WIN RATE",
                 "total_pnl_ratio": "TOTAL PNL RATIO",
                 "name": "NAME",
-                "buy_strategy": "Strategy",
+                "buy_strategy": "STRATEGY",
             },
             inplace=True,
         )
@@ -2680,7 +2680,7 @@ class StockProposal:
                     "win_rate": "WIN RATE",
                     "total_pnl_ratio": "TOTAL PNL RATIO",
                     "name": "NAME",
-                    "sell_strategy": "Strategy",
+                    "sell_strategy": "STRATEGY",
                 },
                 inplace=True,
             )

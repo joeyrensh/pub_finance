@@ -81,7 +81,7 @@ def create_layout(app):
             "AVG DAYS",
             "WIN RATE",
             "TOTAL PNL RATIO",
-            "Strategy",
+            "STRATEGY",
         ]
     ].copy()
     cols_format_detail = {
