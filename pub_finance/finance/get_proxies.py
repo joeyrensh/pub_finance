@@ -70,9 +70,9 @@ def check_proxy_anonymity(url, headers, proxies):
 url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
 headers = {
     "User-Agent": random.choice(user_agent_list),
-    # "Connection": "keep-alive",
-    # "cache-control": "max-age=0",
-    # "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
+    "Connection": "keep-alive",
+    "cache-control": "max-age=0",
+    "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
 }
 
 # 使用示例
