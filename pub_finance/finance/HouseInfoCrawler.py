@@ -28,29 +28,29 @@ import uuid
 
 # https://www.useragents.me/#most-common-desktop-useragents-json-csv 获取最新user agent
 user_agent_list = [
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.1",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.3",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.3",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/25.0 Chrome/121.0.0.0 Safari/537.3",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.3",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.3",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.3",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.3",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Unique/100.7.6266.6",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:129.0) Gecko/20100101 Firefox/129.",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 OPR/112.0.0.",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.",
-    "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.3",
-    "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.192 Safari/537.3"
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 Edg/124.0.0.",
+    "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/113.",
+    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.3",
+    "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.14"
+    "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.10",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.3",
 ]
 # https://proxyscrape.com/free-proxy-list
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://14.23.152.222:9090",
+    "http://124.222.4.13:8000",
     "http://112.246.244.197:8088",
     "http://120.202.162.210:80",
-    "http://117.68.38.144:30000",
 ]
 
 logging.basicConfig(
@@ -63,7 +63,7 @@ logger = logging.getLogger(__name__)
 _last_index = None
 _max_attempt = 5
 _min_delay = 2
-_max_delay = 3
+_max_delay = 4
 _timeout = 5
 _max_workers = 1
 
@@ -105,7 +105,8 @@ def get_headers():
     stop=stop_after_attempt(_max_attempt),
     after=after_retry,
 )
-def get_max_page_f(url, session):
+def get_max_page_f(url):
+    session = requests.Session()
     proxy = get_proxy(proxies)
     session.proxies = proxy
     session.headers.update(get_headers())
@@ -158,7 +159,7 @@ def get_house_info_f(file_path, file_path_bk):
         s = requests.Session()
         s.headers.update(get_headers())
         url_default = url.replace("district", district).replace("pageno", str(1))
-        page = get_max_page_f(url_default, s)
+        page = get_max_page_f(url_default)
         numbers = list(range(1, page + 1))
         random.shuffle(numbers)
         for i in numbers:
@@ -217,7 +218,9 @@ def get_house_info_f(file_path, file_path_bk):
                             href = href_div[0].get("href")
 
                             url_detail = base_url + href
-
+                            s = requests.Session()
+                            s.proxies = proxy
+                            s.headers.update(get_headers())
                             res = s.get(url_detail, timeout=_timeout)
 
                             if res.status_code == 200:
@@ -280,9 +283,10 @@ def get_house_info_f(file_path, file_path_bk):
     stop=stop_after_attempt(_max_attempt),
     after=after_retry,
 )
-def fetch_house_info_s(url, item, session):
+def fetch_house_info_s(url, item):
     dict = {}
     url_re = url.replace("data_id", item["data_id"])
+    session = requests.Session()
     proxy = get_proxy(proxies)
     session.proxies = proxy
     session.headers.update(get_headers())
@@ -374,7 +378,7 @@ def fetch_house_info_s(url, item, session):
     return dict
 
 
-def fetch_houselist_s(url, page, complete_list, session):
+def fetch_houselist_s(url, page, complete_list):
     datalist = []
     df_complete = pd.DataFrame(complete_list)
     dlist = []
@@ -387,6 +391,7 @@ def fetch_houselist_s(url, page, complete_list, session):
         while retries < max_retries:
             time.sleep(random.randint(_min_delay, _max_delay))
             url_re = url.replace("pgno", str(i))
+            session = requests.Session()
             proxy = get_proxy(proxies)
             session.proxies = proxy
             session.headers.update(get_headers())
@@ -472,9 +477,11 @@ def fetch_houselist_s(url, page, complete_list, session):
     stop=stop_after_attempt(_max_attempt),
     after=after_retry,
 )
-def get_max_page(url, session):
+def get_max_page(url):
+    session = requests.Session()
     proxy = get_proxy(proxies)
     session.proxies = proxy
+    session.headers.update(get_headers())
 
     try:
         response = session.get(url, timeout=_timeout)
@@ -534,12 +541,10 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
     # url = "https://sh.lianjia.com/xiaoqu/district/pgpgnobp0ep100/"
     url = "http://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
-        s = requests.Session()
-        s.headers.update(get_headers())
         url_default = url.replace("pgno", str(1)).replace("district", district)
-        max_page = get_max_page(url_default, s)
+        max_page = get_max_page(url_default)
         url_re = url.replace("district", district)
-        houselist = fetch_houselist_s(url_re, max_page, complete_list, s)
+        houselist = fetch_houselist_s(url_re, max_page, complete_list)
         complete_list.extend(houselist)
         t.progress_bar(len(district_list), idx + 1)
         print("complete list cnt is: ", len(houselist))
@@ -553,7 +558,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             # 提交任务并获取Future对象列表
             futures = [
-                executor.submit(fetch_house_info_s, url_detail, item, s)
+                executor.submit(fetch_house_info_s, url_detail, item)
                 for item in houselist
             ]
 
@@ -690,7 +695,7 @@ if __name__ == "__main__":
     file_path_s_bk = "./houseinfo/secondhandhouse_bk.csv"
 
     # # 新房
-    get_house_info_f(file_path, file_path_bk)
+    # get_house_info_f(file_path, file_path_bk)
     # # 二手
     houseinfo_to_csv_s(file_path_s, file_path_s_bk)
 

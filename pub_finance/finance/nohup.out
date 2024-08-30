@@ -53394,3 +53394,592 @@ identify trade date...
 
 draw line...
 Email sent successfully!
+
+列表生成...
+2024-08-30 15:18:42,103 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:18:42,104 - INFO - Retrying... attempt number 1
+2024-08-30 15:18:49,778 - INFO - 当前获取房源量为917,总页数为31
+2024-08-30 15:18:54,892 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg1cro21/ proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'} retry: 0
+2024-08-30 15:19:00,585 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg26cro21/ proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'} retry: 0
+2024-08-30 15:19:04,021 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg12cro21/ proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'} retry: 0
+2024-08-30 15:19:08,493 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg9cro21/ proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'} retry: 0
+2024-08-30 15:19:14,156 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg29cro21/ proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'} retry: 0
+2024-08-30 15:19:18,855 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg19cro21/ proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'} retry: 0
+2024-08-30 15:19:23,690 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg28cro21/ proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'} retry: 0
+2024-08-30 15:19:30,556 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg17cro21/ proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'} retry: 0
+2024-08-30 15:19:35,268 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg8cro21/ proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'} retry: 0
+2024-08-30 15:19:40,043 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg25cro21/ proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'} retry: 0
+2024-08-30 15:19:46,325 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg7cro21/ proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'} retry: 0
+2024-08-30 15:19:52,024 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg27cro21/ proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'} retry: 0
+2024-08-30 15:19:57,733 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg14cro21/ proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'} retry: 0
+2024-08-30 15:20:05,767 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:20:09,365 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg11cro21/ proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'} retry: 1
+2024-08-30 15:20:14,753 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg2cro21/ proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'} retry: 0
+2024-08-30 15:20:26,599 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg22cro21/ proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'} retry: 0
+2024-08-30 15:20:29,930 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg31cro21/ proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'} retry: 0
+2024-08-30 15:20:35,676 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg15cro21/ proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'} retry: 0
+2024-08-30 15:20:41,439 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg21cro21/ proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'} retry: 0
+2024-08-30 15:20:45,319 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg5cro21/ proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'} retry: 0
+2024-08-30 15:20:50,159 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg10cro21/ proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'} retry: 0
+2024-08-30 15:20:58,192 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:21:02,017 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg4cro21/ proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'} retry: 1
+2024-08-30 15:21:07,761 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg3cro21/ proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'} retry: 0
+2024-08-30 15:21:14,916 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg16cro21/ proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'} retry: 0
+2024-08-30 15:21:20,569 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg30cro21/ proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'} retry: 0
+2024-08-30 15:21:25,639 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg20cro21/ proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'} retry: 0
+2024-08-30 15:21:31,372 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg13cro21/ proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'} retry: 0
+2024-08-30 15:21:37,211 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg24cro21/ proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'} retry: 0
+2024-08-30 15:21:42,939 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg18cro21/ proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'} retry: 0
+2024-08-30 15:21:49,969 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:21:55,684 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg6cro21/ proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'} retry: 1
+2024-08-30 15:22:01,452 - INFO - Url: http://sh.lianjia.com/xiaoqu/xuhui/pg23cro21/ proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'} retry: 0
+[2J[H列表生成: 6%:  ▋▋▋▋▋▋complete list cnt is:  916
+
+信息爬取...
+2024-08-30 15:22:08,263 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000019227/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:22:12,088 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011333/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:22:15,893 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017791/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:22:23,805 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000005279/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:22:29,018 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000004822/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:22:32,578 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011102207272/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:22:37,599 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:22:37,599 - INFO - Retrying... attempt number 1
+2024-08-30 15:22:45,200 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012248/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:22:48,922 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017677/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:22:55,102 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014088/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:23:01,008 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012818/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:23:06,882 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013452/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:23:16,598 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012794/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:23:21,664 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000009191/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:23:27,401 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016223/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:23:39,603 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008466/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:23:45,304 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000006253/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:23:51,309 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012030/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:23:56,329 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:23:56,329 - INFO - Retrying... attempt number 1
+2024-08-30 15:24:04,082 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012430/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:24:08,157 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014593/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:24:14,834 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015316/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:24:20,716 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013490/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:24:25,575 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014629/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:24:35,073 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013311/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:24:40,942 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011926/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:24:44,565 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012806/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:24:49,584 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:24:49,584 - INFO - Retrying... attempt number 1
+2024-08-30 15:24:58,522 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014243/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:25:03,235 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000009441/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:25:11,496 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014616/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:25:17,641 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012016/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:25:21,479 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016526/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:25:28,208 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012517/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:25:32,092 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008574/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:25:36,720 - INFO - Url: http://sh.lianjia.com/xiaoqu/5016389506369941/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:25:41,739 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:25:41,739 - INFO - Retrying... attempt number 1
+2024-08-30 15:25:48,595 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015910/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:25:53,366 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015903/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:25:58,385 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:25:58,385 - INFO - Retrying... attempt number 1
+2024-08-30 15:26:05,519 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008555/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:26:11,416 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008701/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:26:17,636 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017246/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:26:21,193 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017607/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:26:27,012 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000018293/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:26:33,472 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008928/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:26:36,819 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007334/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:26:41,577 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008744/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:26:48,505 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012178/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:26:52,047 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007671/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:26:56,664 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017535/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:27:07,127 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008729/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:27:12,577 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000005627/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:27:16,278 - INFO - Url: http://sh.lianjia.com/xiaoqu/509821540319351/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:27:21,299 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:27:21,299 - INFO - Retrying... attempt number 1
+2024-08-30 15:27:29,381 - INFO - Url: http://sh.lianjia.com/xiaoqu/5016389506369940/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:27:33,889 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011188/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:27:41,620 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015892/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:27:47,368 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015527/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:27:51,237 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000006460/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:27:56,897 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015867/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:28:00,679 - INFO - Url: http://sh.lianjia.com/xiaoqu/5020035272700043/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:28:05,502 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007342/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:28:11,656 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010485/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:28:15,492 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015502/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:28:25,952 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015258/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:28:31,981 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:28:31,981 - INFO - Retrying... attempt number 1
+2024-08-30 15:28:39,475 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008771/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:28:45,266 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000020074/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:28:51,305 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:28:51,305 - INFO - Retrying... attempt number 1
+2024-08-30 15:28:58,502 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015561/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:29:04,470 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015976/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:29:11,963 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015750/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:29:17,988 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014993/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:29:23,912 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017919/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:29:32,391 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013370/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:29:38,426 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016927/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:29:42,336 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000002995/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:29:47,356 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:29:47,356 - INFO - Retrying... attempt number 1
+2024-08-30 15:29:54,706 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008722/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:29:58,707 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016154/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:30:03,729 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:30:03,730 - INFO - Retrying... attempt number 1
+2024-08-30 15:30:14,067 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014998/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:30:17,842 - INFO - Url: http://sh.lianjia.com/xiaoqu/5010028379025566/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:30:23,731 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014218/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:30:27,901 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012755/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:30:31,373 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013086/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:30:38,922 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013797/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:30:42,542 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011727/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:30:47,444 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017932/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:30:52,809 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015359/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:30:59,040 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017322/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:31:03,770 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000005701/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:31:09,676 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010986/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:31:14,849 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013730/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:31:18,886 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016870/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:31:29,675 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017880/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:31:34,778 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017433/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:31:40,720 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008755/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:31:49,132 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015705/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:31:52,594 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000000056/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:31:56,439 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000005403/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:32:03,243 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010018/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:32:07,043 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010672/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:32:12,959 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014201/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:32:18,988 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:32:18,988 - INFO - Retrying... attempt number 1
+2024-08-30 15:32:26,733 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000019985/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:32:32,868 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012784/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:32:43,017 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000002399/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:32:48,835 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015549/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:32:52,884 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000009456/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:33:03,635 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000001057/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:33:08,526 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012206/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:33:12,476 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012488/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:33:17,500 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:33:17,500 - INFO - Retrying... attempt number 1
+2024-08-30 15:33:26,113 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007908/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:33:29,935 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017690/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:33:37,532 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000018791/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:33:43,052 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013634/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:33:46,416 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000003436/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:33:52,987 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000006643/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:33:57,759 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015251/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:34:02,622 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016539/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:34:07,684 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015291/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:34:12,788 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016567/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:34:17,889 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000020026/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:34:24,205 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015482/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:34:30,291 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015611/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:34:35,982 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000004391/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:34:43,004 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011354/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:34:47,578 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015402/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:34:53,313 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017136/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:34:58,333 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:34:58,333 - INFO - Retrying... attempt number 1
+2024-08-30 15:35:06,314 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016504/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:35:10,911 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000006024/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:35:17,439 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015234/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:35:22,761 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010278/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:35:27,542 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015270/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:35:35,149 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008157/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:35:39,763 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000018076/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:35:45,739 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017094/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:35:54,112 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017189/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:35:59,797 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007495/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:36:03,753 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008731/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:36:10,689 - INFO - Url: http://sh.lianjia.com/xiaoqu/5020030770332377/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:36:14,656 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008681/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:36:20,734 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016413/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:36:29,496 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000001714/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:36:34,886 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011063203505/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:36:39,932 - INFO - Url: http://sh.lianjia.com/xiaoqu/50000000088140/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:36:46,429 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017926/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:36:51,357 - INFO - Url: http://sh.lianjia.com/xiaoqu/5020050857772387/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:36:55,205 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000001785/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:37:07,466 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000018299/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:37:13,239 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015895/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:37:19,206 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000009451/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:37:30,062 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015524/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:37:33,851 - INFO - Url: http://sh.lianjia.com/xiaoqu/509870371991514/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:37:39,636 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000006665/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:37:45,454 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000002829/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:37:51,221 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011909/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:37:55,968 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017077/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:38:00,973 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015012/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:38:06,732 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007051/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:38:10,562 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016898/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:38:25,228 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017354/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:38:31,276 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012049/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:38:36,936 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012494/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:38:36,939 - INFO - Retrying... attempt number 1
+2024-08-30 15:38:47,840 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012494/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:38:47,844 - INFO - Retrying... attempt number 2
+2024-08-30 15:38:55,379 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012494/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:38:55,382 - INFO - Retrying... attempt number 3
+2024-08-30 15:39:00,506 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012494/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:39:00,509 - INFO - Retrying... attempt number 4
+2024-08-30 15:39:14,259 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012494/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:39:14,263 - INFO - Retrying... attempt number 5
+获取详细信息时出错: RetryError[<Future at 0x7f2335a32210 state=finished raised Exception>]
+2024-08-30 15:39:19,283 - INFO - 建立连接失败 HTTPConnectionPool(host='112.246.244.197', port=8088): Read timed out. (read timeout=5), proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:39:19,284 - INFO - Retrying... attempt number 1
+2024-08-30 15:39:28,755 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012613/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:39:35,710 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017460/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:39:39,759 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015262/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:39:44,525 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014534/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:39:48,739 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007538/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:39:53,726 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014512/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:39:57,717 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015191/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:40:05,402 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015760/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:40:11,256 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017360/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:40:17,215 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000009002/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:40:23,653 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015490/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:40:27,937 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000005838/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:40:31,951 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011784/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:40:38,648 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000001010/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:40:42,513 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015631/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:40:46,795 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015596/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:40:54,915 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008185/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:40:59,016 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012515/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:41:02,706 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015511/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:41:10,326 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015014/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:41:13,987 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007335/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:41:17,735 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017905/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:41:24,510 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016195/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:41:30,330 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017466/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:41:35,223 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000009563/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:41:43,660 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007340/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:41:48,725 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016754/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:41:52,743 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008703/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:41:57,760 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:41:57,760 - INFO - Retrying... attempt number 1
+2024-08-30 15:42:07,263 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008727/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:42:12,327 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011730/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:42:19,556 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010296/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:42:22,963 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000005650/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:42:28,969 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000018129/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:42:37,675 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017898/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:42:43,578 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000009928/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:42:47,528 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000006655/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:42:54,852 - INFO - Url: http://sh.lianjia.com/xiaoqu/5020047711481894/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:42:58,580 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017954/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:43:04,414 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007350/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:43:12,309 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000003576/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:43:17,152 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010280/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:43:21,035 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016106/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:43:28,168 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011102207759/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:43:33,754 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010082/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:43:39,403 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010508/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:43:47,012 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000020123/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:43:53,168 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007150/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:43:56,944 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000009542/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:44:06,740 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015104/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:44:12,758 - INFO - Url: http://sh.lianjia.com/xiaoqu/5020053824632818/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:44:18,662 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000005689/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:44:29,776 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000005606/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:44:35,429 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010438/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:44:41,361 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016958/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:44:46,380 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:44:46,381 - INFO - Retrying... attempt number 1
+2024-08-30 15:44:54,410 - INFO - Url: http://sh.lianjia.com/xiaoqu/509821540057210/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:44:59,410 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016147/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:45:04,430 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:45:04,430 - INFO - Retrying... attempt number 1
+2024-08-30 15:45:12,707 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000009272/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:45:17,691 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000000385/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:45:24,408 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000005699/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:45:30,284 - INFO - Url: http://sh.lianjia.com/xiaoqu/5012225019129921/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:45:36,196 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015029/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:45:44,939 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014729/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:45:50,546 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011800/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:45:54,367 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015343/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:46:03,122 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015499/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:46:07,243 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017573/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:46:11,019 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015331/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:46:22,033 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000001602/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:46:25,947 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011219/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:46:30,013 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017533/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:46:39,281 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016071/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:46:43,168 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014714/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:46:47,200 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012100/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:46:54,889 - INFO - Url: http://sh.lianjia.com/xiaoqu/509821540319484/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:47:01,060 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014253/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:47:05,828 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015530/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:47:12,420 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017332/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:47:17,931 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008442/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:47:21,524 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017220/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:47:29,953 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007679/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:47:34,669 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017742/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:47:40,559 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016208/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:47:48,674 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000004333/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:47:52,477 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016073/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:47:57,458 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000006879/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:48:03,994 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017589/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:48:09,808 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016007/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:48:14,039 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013697/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:48:21,076 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011165/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:48:24,710 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011882222596584/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:48:29,254 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017612/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:48:42,959 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014153/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:48:46,735 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014419/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:48:51,710 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000018468/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:48:57,243 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016915/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:49:04,138 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015817/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:49:09,902 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000009457/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:49:17,637 - INFO - 建立连接失败 HTTPSConnectionPool(host='sh.lianjia.com', port=443): Max retries exceeded with url: /xiaoqu/5011000002997/ (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('_ssl.c:983: The handshake operation timed out'))), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:49:17,637 - INFO - Retrying... attempt number 1
+2024-08-30 15:49:24,263 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000002997/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:49:29,269 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000004121/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:49:39,689 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008151/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:49:45,693 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000002824/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:49:50,572 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000002451/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:49:56,860 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008879/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:50:00,607 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014982/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:50:04,569 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017853/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:50:09,654 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000009273/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:50:14,499 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014700/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:50:20,485 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017137/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:50:27,391 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013844/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:50:32,167 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000001051/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:50:37,118 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007540/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:50:43,735 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015740/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:50:47,557 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000000073/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:50:52,533 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012761/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:50:58,699 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013144/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:51:02,660 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008642/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:51:06,245 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007676/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:51:11,186 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008734/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:51:16,112 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017394/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:51:22,022 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015534/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:51:31,023 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017740/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:51:35,477 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000006644/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:51:41,378 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007549/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:51:49,544 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000003030/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:51:55,322 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000002957/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:51:58,876 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000001916/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:52:06,096 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007309/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:52:11,848 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013495/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:52:16,835 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016074/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:52:20,799 - INFO - Url: http://sh.lianjia.com/xiaoqu/50000000065604/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:52:25,304 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011063203074/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:52:29,973 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017391/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:52:37,301 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015090/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:52:42,196 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007343/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:52:46,980 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008943/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:52:53,780 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007286/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:52:58,616 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000006246/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:53:04,555 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000001929/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:53:10,526 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000009623/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:53:15,311 - INFO - Url: http://sh.lianjia.com/xiaoqu/50000000078590/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:53:21,305 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015036/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:53:32,876 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017938/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:53:38,723 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008761/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:53:43,310 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000006850/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:53:49,604 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007919/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:53:55,683 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008868/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:53:59,578 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015831/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:54:06,835 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010862/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:54:10,718 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012530/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:54:16,563 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014202/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:54:29,424 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016068/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:54:35,425 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012943/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:54:40,603 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014023/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:54:49,958 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000006712/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:54:55,842 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011102207291/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:55:01,793 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015512/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:55:10,005 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015812/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:55:13,786 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013506/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:55:19,867 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012110/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:55:27,641 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014478/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:55:33,467 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000006873/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:55:39,380 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015039/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:55:45,515 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016338/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:55:50,226 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015150/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:55:54,993 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014600/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:56:05,120 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000002073/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:56:10,425 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017994/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:56:15,451 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011265/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:56:25,617 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013561/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:56:29,621 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015785/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:56:35,202 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000002860/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:56:40,453 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016235/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:56:45,131 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015883/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:56:50,657 - INFO - Url: http://sh.lianjia.com/xiaoqu/509821540058073/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:56:57,550 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000009812/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:57:03,113 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015345/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:57:06,687 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000005659/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:57:13,023 - INFO - Url: http://sh.lianjia.com/xiaoqu/5016389506369937/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:57:16,857 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000006236/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:57:21,748 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016051/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:57:28,452 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016194/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:57:33,382 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015321/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:57:39,184 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011862/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:57:45,084 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015463/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:57:50,873 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000007685/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:57:56,463 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008665/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:58:02,712 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015984/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:58:07,587 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016462/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:58:14,103 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008579/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:58:24,706 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017284/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:58:28,693 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017278/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:58:34,377 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013924/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:58:39,397 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:58:39,397 - INFO - Retrying... attempt number 1
+2024-08-30 15:58:46,709 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000018031/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:58:51,202 - INFO - Url: http://sh.lianjia.com/xiaoqu/5020027088274592/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:59:00,347 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000013282/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:59:05,366 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000005626/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:59:11,174 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015230/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:59:18,798 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014863/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:59:23,597 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014387/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:59:29,122 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008654/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:59:36,960 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017894/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:59:41,857 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015726/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 15:59:45,727 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000018125/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 15:59:50,749 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 15:59:50,749 - INFO - Retrying... attempt number 1
+2024-08-30 15:59:58,175 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000018370/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:00:03,013 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000018255/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:00:08,439 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000004425/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:00:12,214 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000015715/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:00:18,109 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000003646/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:00:24,948 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011743/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:00:24,950 - INFO - Retrying... attempt number 1
+2024-08-30 16:00:30,135 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011743/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:00:30,136 - INFO - Retrying... attempt number 2
+2024-08-30 16:00:37,684 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011743/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:00:37,686 - INFO - Retrying... attempt number 3
+2024-08-30 16:00:45,456 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011743/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:00:45,458 - INFO - Retrying... attempt number 4
+2024-08-30 16:00:51,282 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000011743/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:00:51,284 - INFO - Retrying... attempt number 5
+获取详细信息时出错: RetryError[<Future at 0x7f2335d4e630 state=finished raised Exception>]
+2024-08-30 16:00:54,033 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010635/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:00:54,035 - INFO - Retrying... attempt number 1
+2024-08-30 16:01:02,253 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010635/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:01:02,255 - INFO - Retrying... attempt number 2
+2024-08-30 16:01:08,616 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010635/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:01:08,618 - INFO - Retrying... attempt number 3
+2024-08-30 16:01:15,773 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010635/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:01:15,775 - INFO - Retrying... attempt number 4
+2024-08-30 16:01:24,628 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000010635/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:01:24,631 - INFO - Retrying... attempt number 5
+获取详细信息时出错: RetryError[<Future at 0x7f23349600b0 state=finished raised Exception>]
+2024-08-30 16:01:27,231 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014996/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:01:27,233 - INFO - Retrying... attempt number 1
+2024-08-30 16:01:33,266 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014996/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:01:33,268 - INFO - Retrying... attempt number 2
+2024-08-30 16:01:44,335 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014996/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:01:44,339 - INFO - Retrying... attempt number 3
+2024-08-30 16:01:49,677 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014996/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:01:49,679 - INFO - Retrying... attempt number 4
+2024-08-30 16:01:56,266 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000014996/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:01:56,267 - INFO - Retrying... attempt number 5
+获取详细信息时出错: RetryError[<Future at 0x7f2334960470 state=finished raised Exception>]
+2024-08-30 16:02:05,928 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011068115005935/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:02:05,930 - INFO - Retrying... attempt number 1
+2024-08-30 16:02:12,722 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011068115005935/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:02:12,724 - INFO - Retrying... attempt number 2
+2024-08-30 16:02:20,500 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011068115005935/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:02:20,503 - INFO - Retrying... attempt number 3
+2024-08-30 16:02:33,988 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011068115005935/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:02:33,991 - INFO - Retrying... attempt number 4
+2024-08-30 16:02:41,183 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011068115005935/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:02:41,185 - INFO - Retrying... attempt number 5
+获取详细信息时出错: RetryError[<Future at 0x7f23352ba5d0 state=finished raised Exception>]
+2024-08-30 16:02:44,836 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012429/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:02:44,838 - INFO - Retrying... attempt number 1
+2024-08-30 16:02:52,455 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012429/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:02:52,458 - INFO - Retrying... attempt number 2
+2024-08-30 16:02:59,737 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012429/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:02:59,739 - INFO - Retrying... attempt number 3
+2024-08-30 16:03:06,295 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012429/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:03:06,297 - INFO - Retrying... attempt number 4
+2024-08-30 16:03:15,540 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012429/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:03:15,542 - INFO - Retrying... attempt number 5
+获取详细信息时出错: RetryError[<Future at 0x7f23352baba0 state=finished raised Exception>]
+2024-08-30 16:03:19,232 - INFO - Url: http://sh.lianjia.com/xiaoqu/50000000015330/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:03:19,234 - INFO - Retrying... attempt number 1
+2024-08-30 16:03:25,872 - INFO - Url: http://sh.lianjia.com/xiaoqu/50000000015330/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:03:25,874 - INFO - Retrying... attempt number 2
+2024-08-30 16:03:35,362 - INFO - Url: http://sh.lianjia.com/xiaoqu/50000000015330/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:03:35,365 - INFO - Retrying... attempt number 3
+2024-08-30 16:03:41,747 - INFO - Url: http://sh.lianjia.com/xiaoqu/50000000015330/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:03:41,749 - INFO - Retrying... attempt number 4
+2024-08-30 16:03:48,084 - INFO - Url: http://sh.lianjia.com/xiaoqu/50000000015330/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:03:48,086 - INFO - Retrying... attempt number 5
+获取详细信息时出错: RetryError[<Future at 0x7f2334a06e70 state=finished raised Exception>]
+2024-08-30 16:03:53,100 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:03:53,100 - INFO - Retrying... attempt number 1
+2024-08-30 16:04:00,357 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008730/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:04:00,359 - INFO - Retrying... attempt number 2
+2024-08-30 16:04:07,100 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008730/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:04:07,102 - INFO - Retrying... attempt number 3
+2024-08-30 16:04:17,831 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008730/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:04:17,833 - INFO - Retrying... attempt number 4
+2024-08-30 16:04:24,711 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008730/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:04:24,714 - INFO - Retrying... attempt number 5
+获取详细信息时出错: RetryError[<Future at 0x7f23352ba720 state=finished raised Exception>]
+2024-08-30 16:04:28,415 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008741/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:04:28,417 - INFO - Retrying... attempt number 1
+2024-08-30 16:04:35,424 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008741/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:04:35,427 - INFO - Retrying... attempt number 2
+2024-08-30 16:04:40,545 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008741/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:04:40,547 - INFO - Retrying... attempt number 3
+2024-08-30 16:04:46,003 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000008741/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:04:46,005 - INFO - Retrying... attempt number 4
+2024-08-30 16:04:53,971 - INFO - 建立连接失败 HTTPConnectionPool(host='124.222.4.13', port=8000): Read timed out. (read timeout=5), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:04:53,971 - INFO - Retrying... attempt number 5
+获取详细信息时出错: RetryError[<Future at 0x7f233484ca70 state=finished raised RequestException>]
+2024-08-30 16:04:57,551 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016866/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:04:57,553 - INFO - Retrying... attempt number 1
+2024-08-30 16:05:02,543 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016866/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:05:02,546 - INFO - Retrying... attempt number 2
+2024-08-30 16:05:10,165 - INFO - 建立连接失败 HTTPSConnectionPool(host='hip.lianjia.com', port=443): Max retries exceeded with url: /captcha?location=https%3A%2F%2Fsh.lianjia.com%2Fxiaoqu%2F5011000016866%2F&ext=QiEEmVk1BELkSV2q92wVaXNjSDzhVUiZrVd1J_vFTo7g2iZ-BdBADZcZINuH_mmCeeVg9h4vRFO1PgHBmqL2q1W02pSqxDCug4ZdlRYUaZWl8v04aXl1571sdJCPT0m4qLj_4ONw4vusR9n0jUNLugOX2_hbYyNOackNljeM9fU7AUatH0aB (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('_ssl.c:983: The handshake operation timed out'))), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:05:10,165 - INFO - Retrying... attempt number 3
+2024-08-30 16:05:15,226 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016866/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:05:15,227 - INFO - Retrying... attempt number 4
+2024-08-30 16:05:23,171 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016866/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:05:23,173 - INFO - Retrying... attempt number 5
+获取详细信息时出错: RetryError[<Future at 0x7f2335922390 state=finished raised Exception>]
+2024-08-30 16:05:26,627 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012775/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:05:26,628 - INFO - Retrying... attempt number 1
+2024-08-30 16:05:32,203 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012775/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:05:32,205 - INFO - Retrying... attempt number 2
+2024-08-30 16:05:37,903 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012775/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:05:37,906 - INFO - Retrying... attempt number 3
+2024-08-30 16:05:48,618 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012775/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:05:48,621 - INFO - Retrying... attempt number 4
+2024-08-30 16:05:55,444 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000012775/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:05:55,447 - INFO - Retrying... attempt number 5
+获取详细信息时出错: RetryError[<Future at 0x7f233530f6b0 state=finished raised Exception>]
+2024-08-30 16:05:58,075 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016038/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:05:58,076 - INFO - Retrying... attempt number 1
+2024-08-30 16:06:09,205 - INFO - 建立连接失败 HTTPSConnectionPool(host='sh.lianjia.com', port=443): Max retries exceeded with url: /xiaoqu/5011000016038/ (Caused by ProxyError('Cannot connect to proxy.', TimeoutError('_ssl.c:983: The handshake operation timed out'))), proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:06:09,205 - INFO - Retrying... attempt number 2
+2024-08-30 16:06:16,056 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016038/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:06:16,058 - INFO - Retrying... attempt number 3
+2024-08-30 16:06:22,025 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016038/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:06:22,027 - INFO - Retrying... attempt number 4
+2024-08-30 16:06:31,572 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000016038/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:06:31,574 - INFO - Retrying... attempt number 5
+获取详细信息时出错: RetryError[<Future at 0x7f233490aae0 state=finished raised Exception>]
+2024-08-30 16:06:36,260 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017295/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:06:36,262 - INFO - Retrying... attempt number 1
+2024-08-30 16:06:41,024 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017295/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:06:41,027 - INFO - Retrying... attempt number 2
+2024-08-30 16:06:47,559 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017295/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:06:47,561 - INFO - Retrying... attempt number 3
+2024-08-30 16:06:53,691 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017295/, Proxy: {'https': 'http://112.246.244.197:8088', 'http': 'http://112.246.244.197:8088'}
+2024-08-30 16:06:53,693 - INFO - Retrying... attempt number 4
+2024-08-30 16:07:01,094 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000017295/, Proxy: {'https': 'http://120.202.162.210:80', 'http': 'http://120.202.162.210:80'}
+2024-08-30 16:07:01,095 - INFO - Retrying... attempt number 5
+获取详细信息时出错: RetryError[<Future at 0x7f233492eab0 state=finished raised Exception>]
+2024-08-30 16:07:07,647 - INFO - Url: http://sh.lianjia.com/xiaoqu/5011000003911/, Proxy: {'https': 'http://124.222.4.13:8000', 'http': 'http://124.222.4.13:8000'}
+2024-08-30 16:07:07,649 - INFO - Retrying... attempt number 1
