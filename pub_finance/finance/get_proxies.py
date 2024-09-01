@@ -66,8 +66,8 @@ def check_proxy_anonymity(url, headers, proxies):
     return list
 
 
-# url = "http://sh.lianjia.com/xiaoqu/xuhui/pg1cro21/"
-url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
+url = "http://sh.lianjia.com/xiaoqu/xuhui/pg1cro21/"
+# url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
 headers = {
     "User-Agent": random.choice(user_agent_list),
     "Connection": "keep-alive",
@@ -79,9 +79,7 @@ headers = {
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://124.222.4.13:8000",
-    "http://112.246.244.197:8088",
-    "http://120.202.162.210:80",
+    "http://39.106.192.29:8443",
 ]
 
 print(check_proxy_anonymity(url, headers, proxies))

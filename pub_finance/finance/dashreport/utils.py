@@ -51,7 +51,7 @@ def get_header(app):
             html.Div(
                 [
                     html.Div(
-                        [html.H5("房产以及股市大数据分析")],
+                        [html.H5("股市以及房产大数据分析")],
                         className="seven columns main-title",
                     ),
                     html.Div(
@@ -78,18 +78,18 @@ def get_menu():
     menu = html.Div(
         [
             dcc.Link(
-                "上海房产数据分析",
-                href="/dash-financial-report/overview",
-                className="tab first",
-            ),
-            dcc.Link(
                 "A股市场数据分析",
                 href="/dash-financial-report/cn-stock-performance",
-                className="tab",
+                className="tab first",
             ),
             dcc.Link(
                 "美股市场数据分析",
                 href="/dash-financial-report/us-stock-performance",
+                className="tab",
+            ),
+            dcc.Link(
+                "上海房产数据分析",
+                href="/dash-financial-report/overview",
                 className="tab",
             ),
             dcc.Link(

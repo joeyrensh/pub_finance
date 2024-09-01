@@ -140,13 +140,13 @@ def update_page_content(pathname):
         return newsReviews.create_layout(app)
     elif pathname == "/dash-financial-report/full-view":
         return [
-            overview.create_layout(app),
             cnStockPerformance.create_layout(app),
             usStockPerformance.create_layout(app),
+            overview.create_layout(app),
             newsReviews.create_layout(app),
         ]
     else:
-        return overview.create_layout(app)
+        return (cnStockPerformance.create_layout(app),)
 
 
 if __name__ == "__main__":

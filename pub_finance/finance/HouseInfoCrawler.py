@@ -48,9 +48,16 @@ user_agent_list = [
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://124.222.4.13:8000",
-    "http://112.246.244.197:8088",
+    "http://43.138.208.113:5051",
+    "http://47.98.172.116:80",
+    "http://39.101.132.59:8443",
+    "http://49.233.156.20:80",
     "http://120.202.162.210:80",
+    "http://1.13.91.180:22",
+    "http://49.235.131.16:80",
+    "http://106.53.97.59:1024",
+    "http://112.246.244.197:8088",
+    "http://39.106.192.29:8443",
 ]
 
 logging.basicConfig(
