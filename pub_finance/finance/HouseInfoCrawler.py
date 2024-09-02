@@ -49,6 +49,7 @@ user_agent_list = [
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
     "http://14.204.150.66:8080",
+    "http://49.235.131.16:80",
 ]
 
 logging.basicConfig(
