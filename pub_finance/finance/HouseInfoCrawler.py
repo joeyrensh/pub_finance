@@ -47,7 +47,7 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = ["http://115.223.31.40:32768", "http://14.204.150.66:8080"]
+proxies = ["http://14.204.150.66:8080"]
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -62,6 +62,38 @@ _min_delay = 2
 _max_delay = 4
 _timeout = 5
 _max_workers = 1
+
+
+# 定义映射关系，模拟枚举值到值的映射
+mapping = {
+    "huangpu": "黄浦",
+    "xuhui": "徐汇",
+    "changning": "长宁",
+    "jingan": "静安",
+    "putuo": "普陀",
+    "pudong": "浦东",
+    "hongkou": "虹口",
+    "yangpu": "杨浦",
+    "minhang": "闵行",
+    "baoshan": "宝山",
+    "jiading": "嘉定",
+    "jinshan": "静安",
+    "songjiang": "松江",
+    "qingpu": "青浦",
+    "fengxian": "奉贤",
+    "chongming": "崇明",
+}
+
+
+def map_value(input_value, default=None):
+    """
+    根据预定义的映射关系返回对应的值。
+
+    :param input_value: 输入值，期望在映射字典中存在。
+    :param default: 如果输入值不在映射中，则返回此默认值（默认为None）。
+    :return: 映射后的值或默认值。
+    """
+    return mapping.get(input_value, default)
 
 
 # 定义一个函数来打印重试次数
@@ -556,7 +588,10 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
             houselist = df_cp.to_dict(orient="records")
             if os.path.isfile(file_path_bk):
                 df_info_cp = pd.read_csv(file_path_bk)
-                data_id_list = df_info_cp["data_id"].tolist()
+
+                data_id_list = df_info_cp.loc[
+                    df_info_cp["district"] == map_value(marker), ["data_id"]
+                ].tolist()
                 filtered_list = [
                     item for item in houselist if item["data_id"] not in data_id_list
                 ]
