@@ -84,31 +84,6 @@ headers = {
 # 使用示例
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = [
-    "http://120.205.70.102:8060",
-    "http://222.89.237.101:9002",
-    "http://115.223.31.49:30102",
-    "http://118.117.189.29:8089",
-    "http://183.215.23.242:9091",
-    "http://153.101.67.170:9002",
-    "http://125.77.25.178:8080",
-    "http://125.77.25.177:8080",
-    "http://118.117.188.189:8089",
-    "http://221.6.139.190:9002",
-    "http://223.113.80.158:9091",
-    "http://14.204.150.68:8080",
-    "http://183.238.163.8:9002",
-    "http://116.169.54.253:8080",
-    "http://117.40.32.133:8080",
-    "http://117.68.38.140:22001",
-    "http://222.88.167.22:9002",
-    "http://116.63.129.202:6000",
-    "http://123.126.158.50:80",
-    "http://14.204.150.67:8080",
-    "http://61.129.2.212:8080",
-    "http://36.99.35.138:82",
-    "http://182.46.96.179:1080",
-    "http://123.169.118.116:1080",
-]
+proxies = ["http://1.13.91.180:22"]
 
 print(check_proxy_anonymity(url, headers, proxies))
