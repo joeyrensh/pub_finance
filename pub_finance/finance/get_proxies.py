@@ -84,6 +84,6 @@ headers = {
 # 使用示例
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = ["http://1.13.91.180:22"]
+proxies = ["http://117.68.38.186:32351", "http://117.68.38.142:23739"]
 
 print(check_proxy_anonymity(url, headers, proxies))
