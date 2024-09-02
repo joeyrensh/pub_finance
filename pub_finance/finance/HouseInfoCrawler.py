@@ -638,10 +638,6 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 count += 1
                 if count % data_batch_size == 0:
                     # 每处理完一批数据后，将数据写入CSV文件
-                    print(
-                        "count: %s, data_batch_size: %s, idx: %s, data_id_len: %s"
-                        % (count, data_batch_size, idx, len(data_id_list))
-                    )
                     df = pd.DataFrame(list)
                     df.to_csv(
                         file_path_bk,
