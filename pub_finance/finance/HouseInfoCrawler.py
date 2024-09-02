@@ -611,7 +611,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 url_re, max_page, complete_list, district, file_path_s_cp
             )
         complete_list.extend(houselist)
-        # t.progress_bar(len(district_list), idx + 1)
+        t.progress_bar(len(district_list), idx + 1)
         print("complete list cnt is: ", len(houselist))
 
         # 设置并发数上限为6
@@ -619,7 +619,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
         data_batch_size = 10
         list = []
         url_detail = "http://sh.lianjia.com/xiaoqu/data_id/"
-        # t = ToolKit("信息爬取")
+        t = ToolKit("信息爬取")
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             # 提交任务并获取Future对象列表
             futures = [
