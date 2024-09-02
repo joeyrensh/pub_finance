@@ -48,7 +48,6 @@ user_agent_list = [
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://14.204.150.66:8080",
     "http://49.235.131.16:80",
 ]
 
@@ -601,6 +600,8 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 houselist = filtered_list.copy()
                 if len(houselist) == 0:
                     continue
+            else:
+                data_id_list = []
 
         else:
             url_default = url.replace("pgno", str(1)).replace("district", district)
@@ -610,7 +611,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 url_re, max_page, complete_list, district, file_path_s_cp
             )
         complete_list.extend(houselist)
-        t.progress_bar(len(district_list), idx + 1)
+        # t.progress_bar(len(district_list), idx + 1)
         print("complete list cnt is: ", len(houselist))
 
         # 设置并发数上限为6
@@ -618,7 +619,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
         data_batch_size = 10
         list = []
         url_detail = "http://sh.lianjia.com/xiaoqu/data_id/"
-        t = ToolKit("信息爬取")
+        # t = ToolKit("信息爬取")
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             # 提交任务并获取Future对象列表
             futures = [
@@ -637,19 +638,34 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 count += 1
                 if count % data_batch_size == 0:
                     # 每处理完一批数据后，将数据写入CSV文件
+                    print(
+                        "count: %s, data_batch_size: %s, idx: %s, data_id_len: %s"
+                        % (count, data_batch_size, idx, len(data_id_list))
+                    )
                     df = pd.DataFrame(list)
                     df.to_csv(
                         file_path_bk,
                         mode="a",
                         index=False,
-                        header=(count == data_batch_size & idx == 0),
+                        header=(
+                            count == data_batch_size
+                            and idx == 0
+                            and len(data_id_list) == 0
+                        ),
                     )
                     list = []  # 清空列表以继续下一批数据的处理
 
         # 处理剩余的数据
         if list:
             df = pd.DataFrame(list)
-            df.to_csv(file_path_bk, mode="a", index=False, header=False)
+            df.to_csv(
+                file_path_bk,
+                mode="a",
+                index=False,
+                header=(
+                    count < data_batch_size and idx == 0 and len(data_id_list) == 0
+                ),
+            )
 
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path_bk):
