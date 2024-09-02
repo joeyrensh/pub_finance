@@ -47,11 +47,7 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = [
-    "http://116.204.97.47:7890",
-    "http://49.235.131.16:80",
-    "http://1.13.91.180:22",
-]
+proxies = ["http://115.223.31.40:32768", "http://14.204.150.66:8080"]
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -560,11 +556,12 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
             houselist = df_cp.to_dict(orient="records")
             if os.path.isfile(file_path_bk):
                 df_info_cp = pd.read_csv(file_path_bk)
-                data_id_list = set(df_info_cp["data_id"])
+                data_id_list = df_info_cp["data_id"].tolist()
                 filtered_list = [
                     item for item in houselist if item["data_id"] not in data_id_list
                 ]
                 houselist = filtered_list.copy()
+                print("houselist: ", houselist)
                 if len(houselist) == 0:
                     continue
 
@@ -576,7 +573,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 url_re, max_page, complete_list, district, file_path_s_cp
             )
         complete_list.extend(houselist)
-        t.progress_bar(len(district_list), idx + 1)
+        # t.progress_bar(len(district_list), idx + 1)
         print("complete list cnt is: ", len(houselist))
 
         # 设置并发数上限为6
