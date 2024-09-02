@@ -39,12 +39,15 @@ def check_proxy_anonymity(url, headers, proxies):
     for ip_port in proxies:
         try:
             proxy = {"https": ip_port, "http": ip_port}
+            # proxy = {"http": ip_port}
             s = requests.Session()
             s.proxies = proxy
             s.headers.update(headers)
             # time.sleep(random.randint(1, 1))  # 随机休眠
-            response = s.get(url, timeout=3)
+            response = s.get(url, timeout=5, headers=headers)
             print("response code:", response.status_code)
+            # print("cookies:", requests.cookies)
+            print("response cookies:", response.cookies)
             if response.status_code == 200:
                 tree = html.fromstring(response.content)
                 div = tree.xpath(
@@ -67,19 +70,26 @@ def check_proxy_anonymity(url, headers, proxies):
 
 
 url = "http://sh.lianjia.com/xiaoqu/xuhui/pg1cro21/"
+base_url = "http://sh.lianjia.com/xiaoqu/xuhui/"
 # url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
 headers = {
     "User-Agent": random.choice(user_agent_list),
+    "Referer": "sh.lianjia.com",
     "Connection": "keep-alive",
-    "cache-control": "max-age=0",
-    "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "Accept-encoding": "gzip, deflate, br, zstd",
+    "Accept-language": "zh-CN,zh;q=0.9",
+    "Cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
 }
 
 # 使用示例
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://39.106.192.29:8443",
+    "http://116.204.97.47:7890",
+    "http://49.235.131.16:80",
+    "http://1.13.91.180:22",
+    "http://112.246.244.197:8088",
 ]
 
 print(check_proxy_anonymity(url, headers, proxies))

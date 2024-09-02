@@ -48,16 +48,9 @@ user_agent_list = [
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://43.138.208.113:5051",
-    "http://47.98.172.116:80",
-    "http://39.101.132.59:8443",
-    "http://49.233.156.20:80",
-    "http://120.202.162.210:80",
-    "http://1.13.91.180:22",
+    "http://116.204.97.47:7890",
     "http://49.235.131.16:80",
-    "http://106.53.97.59:1024",
-    "http://112.246.244.197:8088",
-    "http://39.106.192.29:8443",
+    "http://1.13.91.180:22",
 ]
 
 logging.basicConfig(
@@ -100,9 +93,12 @@ def get_proxy(proxies):
 def get_headers():
     headers = {
         "User-Agent": random.choice(user_agent_list),
+        "Referer": "sh.lianjia.com",
         "Connection": "keep-alive",
-        "cache-control": "max-age=0",
-        "cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "Accept-encoding": "gzip, deflate, br, zstd",
+        "Accept-language": "zh-CN,zh;q=0.9",
+        "Cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
     }
     return headers
 
@@ -292,16 +288,17 @@ def get_house_info_f(file_path, file_path_bk):
 )
 def fetch_house_info_s(url, item):
     dict = {}
-    url_re = url.replace("data_id", item["data_id"])
+    url_re = url.replace("data_id", str(item["data_id"]))
+
     session = requests.Session()
     proxy = get_proxy(proxies)
     session.proxies = proxy
     session.headers.update(get_headers())
     try:
         response = session.get(url_re, timeout=_timeout)
+        logger.info("Url: %s, Proxy: %s" % (url_re, proxy))
         time.sleep(random.randint(_min_delay, _max_delay))  # 随机休眠
         if response.status_code == 200:
-            logger.info("Url: %s, Proxy: %s" % (url_re, proxy))
             tree = html.fromstring(response.content)
             unit_price_div = tree.xpath(
                 '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
@@ -385,7 +382,7 @@ def fetch_house_info_s(url, item):
     return dict
 
 
-def fetch_houselist_s(url, page, complete_list):
+def fetch_houselist_s(url, page, complete_list, district_marker, file_path_s_cp):
     datalist = []
     df_complete = pd.DataFrame(complete_list)
     dlist = []
@@ -454,6 +451,7 @@ def fetch_houselist_s(url, page, complete_list):
                                 "al_text": alt_text,
                                 "sell_cnt": sell_cnt,
                                 "district": district,
+                                "marker": district_marker,
                             }
                             dlist.append(dict)
                             datalist.append(data_id)
@@ -476,6 +474,8 @@ def fetch_houselist_s(url, page, complete_list):
                 if retries == max_retries:
                     print(f"Max retries reached for page {i}, breaking...")
                     return
+    df_cp = pd.DataFrame(dlist)
+    df_cp.to_csv(file_path_s_cp, mode="w", header=True)
     return dlist
 
 
@@ -517,12 +517,13 @@ def get_max_page(url):
         raise requests.exceptions.RequestException
 
 
-def houseinfo_to_csv_s(file_path, file_path_bk):
+def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path_bk):
         os.remove(file_path_bk)
     # 发起HTTP请求
     district_list = [
+        "chongming",
         "xuhui",
         "changning",
         "jingan",
@@ -538,20 +539,32 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
         "songjiang",
         "qingpu",
         "fengxian",
-        "chongming",
     ]
     max_page = 100
     t = ToolKit("列表生成")
     houselist = []
     complete_list = []
     count = 0
+    idx_cp = -1
+    if os.path.isfile(file_path_s_cp):
+        df_cp = pd.read_csv(file_path_s_cp)
+        marker = df_cp.loc[0, "marker"]
+        idx_cp = district_list.index(marker)
+
     # url = "https://sh.lianjia.com/xiaoqu/district/pgpgnobp0ep100/"
     url = "http://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
-        url_default = url.replace("pgno", str(1)).replace("district", district)
-        max_page = get_max_page(url_default)
-        url_re = url.replace("district", district)
-        houselist = fetch_houselist_s(url_re, max_page, complete_list)
+        if idx < idx_cp:
+            continue
+        elif idx == idx_cp:
+            houselist = df_cp.to_dict(orient="records")
+        else:
+            url_default = url.replace("pgno", str(1)).replace("district", district)
+            max_page = get_max_page(url_default)
+            url_re = url.replace("district", district)
+            houselist = fetch_houselist_s(
+                url_re, max_page, complete_list, district, file_path_s_cp
+            )
         complete_list.extend(houselist)
         t.progress_bar(len(district_list), idx + 1)
         print("complete list cnt is: ", len(houselist))
@@ -597,6 +610,8 @@ def houseinfo_to_csv_s(file_path, file_path_bk):
     # 如果文件存在，则删除文件
     if os.path.isfile(file_path_bk):
         os.replace(file_path_bk, file_path)
+    if os.path.isfile(file_path_s_cp):
+        os.remove(file_path_s_cp)
 
 
 def map_plot(df, legend_title, legend_fmt, png_path, k, col_formats):
@@ -700,11 +715,12 @@ if __name__ == "__main__":
     png_path_s3 = "./houseinfo/map_secondhouse3.png"
     file_path_s = "./houseinfo/secondhandhouse.csv"
     file_path_s_bk = "./houseinfo/secondhandhouse_bk.csv"
+    file_path_s_cp = "./houseinfo/secondhandhouselist_cp.csv"
 
     # # 新房
     # get_house_info_f(file_path, file_path_bk)
     # # 二手
-    houseinfo_to_csv_s(file_path_s, file_path_s_bk)
+    houseinfo_to_csv_s(file_path_s, file_path_s_bk, file_path_s_cp)
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
