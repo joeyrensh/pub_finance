@@ -519,8 +519,8 @@ def get_max_page(url):
 
 def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
     # 如果文件存在，则删除文件
-    if os.path.isfile(file_path_bk):
-        os.remove(file_path_bk)
+    # if os.path.isfile(file_path_bk):
+    #     os.remove(file_path_bk)
     # 发起HTTP请求
     district_list = [
         "chongming",
