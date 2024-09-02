@@ -296,6 +296,15 @@ li {
   /* margin: 25px 25px; */
 }
 
+.company-logo {
+  width: 30%;
+  height: 40%;
+  margin-left: 2px;
+  margin-top: 5px;
+  background-color: rgb(255, 255, 255);
+  box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+}
+
 a:link {
   color: #8b0202;
   /*#8b0202*/
@@ -382,6 +391,15 @@ a:active {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  .company-logo {
+    width: 40%;
+    height: 50%;
+    margin-left: 2px;
+    margin-top: 5px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
   }
 
   .table {

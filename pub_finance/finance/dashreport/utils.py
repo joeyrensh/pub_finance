@@ -19,13 +19,13 @@ def get_header(app):
                             src=app.get_asset_url(
                                 "buyahouse-background-transparent.png"
                             ),
-                            style={
-                                "width": "30%",
-                                "height": "40%",
-                                "margin-left": "2px",
-                                "margin-top": "5px",
-                            },
-                            className="logo",
+                            # style={
+                            #     "width": "40%",
+                            #     "height": "50%",
+                            #     "margin-left": "2px",
+                            #     "margin-top": "5px",
+                            # },
+                            className="company-logo",
                             # className="pulse",
                         ),
                         href="#",
