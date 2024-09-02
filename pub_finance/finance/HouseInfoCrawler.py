@@ -592,7 +592,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 df_info_cp = pd.read_csv(file_path_bk)
 
                 data_id_list = df_info_cp.loc[
-                    df_info_cp["district"] == map_value(marker), ["data_id"]
+                    df_info_cp["district"] == map_value(marker), "data_id"
                 ].tolist()
                 filtered_list = [
                     item for item in houselist if item["data_id"] not in data_id_list
