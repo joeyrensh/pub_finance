@@ -558,6 +558,16 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
             continue
         elif idx == idx_cp:
             houselist = df_cp.to_dict(orient="records")
+            if os.path.isfile(file_path_bk):
+                df_info_cp = pd.read_csv(file_path_bk)
+                data_id_list = set(df_info_cp["data_id"])
+                filtered_list = [
+                    item for item in houselist if item["data_id"] not in data_id_list
+                ]
+                houselist = filtered_list.copy()
+                if len(houselist) == 0:
+                    continue
+
         else:
             url_default = url.replace("pgno", str(1)).replace("district", district)
             max_page = get_max_page(url_default)
@@ -598,7 +608,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                         file_path_bk,
                         mode="a",
                         index=False,
-                        header=(count == data_batch_size),
+                        header=(count == data_batch_size & idx == 0),
                     )
                     list = []  # 清空列表以继续下一批数据的处理
 
