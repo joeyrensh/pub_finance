@@ -47,7 +47,9 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = ["http://14.204.150.66:8080"]
+proxies = [
+    "http://14.204.150.66:8080",
+]
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -596,7 +598,6 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                     item for item in houselist if item["data_id"] not in data_id_list
                 ]
                 houselist = filtered_list.copy()
-                print("houselist: ", houselist)
                 if len(houselist) == 0:
                     continue
 
@@ -608,7 +609,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 url_re, max_page, complete_list, district, file_path_s_cp
             )
         complete_list.extend(houselist)
-        # t.progress_bar(len(district_list), idx + 1)
+        t.progress_bar(len(district_list), idx + 1)
         print("complete list cnt is: ", len(houselist))
 
         # 设置并发数上限为6
