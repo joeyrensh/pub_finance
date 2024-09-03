@@ -5,6 +5,8 @@ import random
 import logging
 import sys
 import uuid
+import json
+import time
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -32,59 +34,6 @@ user_agent_list = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.3",
 ]
 
-
-def check_proxy_anonymity(url, headers, proxies):
-    list = []
-
-    for ip_port in proxies:
-        try:
-            proxy = {"https": ip_port, "http": ip_port}
-            # proxy = {"http": ip_port}
-            s = requests.Session()
-            s.proxies = proxy
-            s.headers.update(headers)
-            # time.sleep(random.randint(1, 1))  # 随机休眠
-            response = s.get(url, timeout=5)
-            print("response code:", response.status_code)
-            # print("cookies:", requests.cookies)
-            print("response cookies:", response.cookies)
-            if response.status_code == 200:
-                tree = html.fromstring(response.content)
-                div = tree.xpath(
-                    '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
-                )
-                if div:
-                    cnt = div[0].text_content().strip()
-                    page_no = math.ceil(int(cnt) / 30)
-                    print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
-                    print("proxy %s有效" % (ip_port))
-                    list.append(ip_port)
-                else:
-                    print("proxy无效")
-            else:
-                print(f"Failed to retrieve data: {response.status_code}")
-
-        except requests.exceptions.RequestException as e:
-            print(f"Error testing proxy {ip_port}: {e}")
-    return list
-
-
-def generate_proxies():
-    s = requests.session()
-    response = s.get("https://api.openproxylist.xyz/http.txt", timeout=3)
-    if response.status_code == 200:
-        proxy_list = [
-            "http://" + proxy
-            for proxy in response.content.decode("utf-8").strip().split("\n")
-        ]
-        return proxy_list
-    else:
-        print("proxy get failed..")
-        return
-
-
-url = "http://sh.lianjia.com/xiaoqu/yangpu/pg1cro21/"
-# url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
 headers = {
     "User-Agent": random.choice(user_agent_list),
     "Referer": "www.lianjia.com",
@@ -95,9 +44,90 @@ headers = {
     "Cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
 }
 
+
+def check_proxy_anonymity(url, headers, proxy):
+    try:
+        s = requests.Session()
+        s.proxies = proxy
+        s.headers.update(headers)
+        response = s.get(url, timeout=5)
+        if response.status_code == 200:
+            tree = html.fromstring(response.content)
+            div = tree.xpath(
+                '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
+            )
+            if div:
+                cnt = div[0].text_content().strip()
+                page_no = math.ceil(int(cnt) / 30)
+                print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
+                print("proxy %s有效" % (proxy))
+                return True
+            else:
+                print("proxy无效")
+                return False
+        else:
+            print(f"Failed to retrieve data: {response.status_code}")
+            return False
+
+    except requests.exceptions.RequestException as e:
+        print(f"{proxy}: {e}")
+        return False
+
+
+# ZDY: https://api.openproxylist.xyz/http.txt
+def get_proxies_listv1(url):
+    proxy_url = "https://api.openproxylist.xyz/http.txt"
+    count = 0
+    dlist = []
+    target = 1
+    while count < target:
+        s = requests.session()
+        response = s.get(proxy_url, timeout=3)
+        if response.status_code == 200:
+            proxy_list = [
+                "http://" + proxy
+                for proxy in response.content.decode("utf-8").strip().split("\n")
+            ]
+            for item in proxy_list:
+                proxy = {"https": item, "http": item}
+                if check_proxy_anonymity(url, headers, proxy):
+                    dlist.append(item)
+                    count = count + 1
+                if count == target:
+                    break
+        else:
+            print("proxy get failed..")
+            return
+    print(dlist)
+
+
+# https://getproxy.bzpl.tech/get/
+def get_proxies_listv2(url):
+    proxy_url = "https://getproxy.bzpl.tech/get/"
+    count = 0
+    dlist = []
+    target = 1
+    while count < target:
+        s = requests.session()
+        time.sleep(random.randint(1, 3))  # 随机休眠
+        response = s.get(proxy_url, timeout=3)
+        if response.status_code == 200:
+            json_str = response.content.decode("utf-8")
+            json_data = json.loads(json_str)
+            proxy = {
+                "https": "http://" + json_data["proxy"],
+                "http": "http://" + json_data["proxy"],
+            }
+            if check_proxy_anonymity(url, headers, proxy):
+                dlist.append("http://" + json_data["proxy"])
+                count = count + 1
+    print(dlist)
+
+
 # 使用示例
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = generate_proxies()
 
-print("valid proxy list as below:\n", check_proxy_anonymity(url, headers, proxies))
+# url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
+url = "http://sh.lianjia.com/xiaoqu/yangpu/pg1cro21/"
+get_proxies_listv2(url)
