@@ -128,6 +128,22 @@ def get_proxies_listv2(url):
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 
+proxies_list = []
+
+
+def get_proxies_listv3(proxies_list, url):
+    count = 0
+    dlist = []
+
+    for item in proxies_list:
+        proxy = {"https": item, "http": item}
+        if check_proxy_anonymity(url, headers, proxy):
+            dlist.append(item)
+            count = count + 1
+
+    print(dlist)
+
+
 # url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
 url = "http://sh.lianjia.com/xiaoqu/yangpu/pg1cro21/"
 get_proxies_listv2(url)
