@@ -69,7 +69,21 @@ def check_proxy_anonymity(url, headers, proxies):
     return list
 
 
-url = "http://sh.lianjia.com/xiaoqu/pudong/pg1cro21/"
+def generate_proxies():
+    s = requests.session()
+    response = s.get("https://api.openproxylist.xyz/http.txt", timeout=3)
+    if response.status_code == 200:
+        proxy_list = [
+            "http://" + proxy
+            for proxy in response.content.decode("utf-8").strip().split("\n")
+        ]
+        return proxy_list
+    else:
+        print("proxy get failed..")
+        return
+
+
+url = "http://sh.lianjia.com/xiaoqu/yangpu/pg1cro21/"
 # url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
 headers = {
     "User-Agent": random.choice(user_agent_list),
@@ -84,11 +98,6 @@ headers = {
 # 使用示例
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = [
-    "http://117.40.32.135:8080",
-    "http://117.68.38.134:31672",
-    "http://49.235.131.16:80",
-    "http://1.13.91.180:22",
-]
+proxies = generate_proxies()
 
-print(check_proxy_anonymity(url, headers, proxies))
+print("valid proxy list as below:\n", check_proxy_anonymity(url, headers, proxies))
