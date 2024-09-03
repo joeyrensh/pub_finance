@@ -36,12 +36,12 @@ user_agent_list = [
 
 headers = {
     "User-Agent": random.choice(user_agent_list),
-    "Referer": "www.lianjia.com",
+    "Referer": "www.baidu.com",
     "Connection": "keep-alive",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "Accept-encoding": "gzip, deflate, br, zstd",
     "Accept-language": "zh-CN,zh;q=0.9",
-    "Cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
+    # "Cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
 }
 
 
@@ -142,7 +142,7 @@ def get_proxies_listv3(proxies_list, url):
 
 # url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
 url = "http://sh.lianjia.com/xiaoqu/yangpu/pg1cro21/"
-proxies_list = ["http://175.178.179.214:10008"]
-get_proxies_listv2(url)
+proxies_list = ["http://117.68.38.136:37391", "http://117.68.38.162:30474"]
+get_proxies_listv3(proxies_list, url)
+# get_proxies_listv2(url)
 # get_proxies_listv1(url)
-# get_proxies_listv3(proxies_list, url)
