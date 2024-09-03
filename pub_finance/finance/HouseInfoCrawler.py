@@ -47,7 +47,11 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = ["http://49.235.131.16:80"]
+proxies = [
+    "http://49.235.131.16:80",
+    "http://1.13.91.180:22",
+]
+
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -582,24 +586,24 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
     # url = "https://sh.lianjia.com/xiaoqu/district/pgpgnobp0ep100/"
     url = "http://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
+        if os.path.isfile(file_path_bk):
+            df_info_cp = pd.read_csv(file_path_bk)
+
+            data_id_list = df_info_cp.loc[
+                df_info_cp["district"] == map_value(marker), "data_id"
+            ].tolist()
+        else:
+            data_id_list = []
         if idx < idx_cp:
             continue
         elif idx == idx_cp:
             houselist = df_cp.to_dict(orient="records")
-            if os.path.isfile(file_path_bk):
-                df_info_cp = pd.read_csv(file_path_bk)
-
-                data_id_list = df_info_cp.loc[
-                    df_info_cp["district"] == map_value(marker), "data_id"
-                ].tolist()
-                filtered_list = [
-                    item for item in houselist if item["data_id"] not in data_id_list
-                ]
-                houselist = filtered_list.copy()
-                if len(houselist) == 0:
-                    continue
-            else:
-                data_id_list = []
+            filtered_list = [
+                item for item in houselist if item["data_id"] not in data_id_list
+            ]
+            houselist = filtered_list.copy()
+            if len(houselist) == 0:
+                continue
 
         else:
             url_default = url.replace("pgno", str(1)).replace("district", district)
@@ -608,6 +612,12 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
             houselist = fetch_houselist_s(
                 url_re, max_page, complete_list, district, file_path_s_cp
             )
+            filtered_list = [
+                item for item in houselist if item["data_id"] not in data_id_list
+            ]
+            houselist = filtered_list.copy()
+            if len(houselist) == 0:
+                continue
         complete_list.extend(houselist)
         t.progress_bar(len(district_list), idx + 1)
         print("complete list cnt is: ", len(houselist))

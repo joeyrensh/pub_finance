@@ -73,7 +73,7 @@ url = "http://sh.lianjia.com/xiaoqu/pudong/pg1cro21/"
 # url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
 headers = {
     "User-Agent": random.choice(user_agent_list),
-    "Referer": "sh.lianjia.com",
+    "Referer": "www.lianjia.com",
     "Connection": "keep-alive",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "Accept-encoding": "gzip, deflate, br, zstd",
@@ -84,6 +84,8 @@ headers = {
 # 使用示例
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = ["http://49.235.131.16:80"]
+proxies = [
+    "http://111.59.4.88:9002",
+]
 
 print(check_proxy_anonymity(url, headers, proxies))
