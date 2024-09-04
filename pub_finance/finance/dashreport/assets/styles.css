@@ -243,7 +243,7 @@ li {
   /* background: linear-gradient(to right, #ffffff, transparent); */
   color: #FF4136;
   border-radius: 2px;
-  box-shadow: 0 0 10px lightgrey;
+  box-shadow: 0 0 2px lightgrey;
   font-size: 1.5rem;
   font-weight: bold;
 }
@@ -380,6 +380,9 @@ a:active {
   padding-right: 15px;
   text-transform: none;
   margin: 25px 20px 0px 0px;
+  border: 0.5px;
+  border-color: lightgrey;
+  border-style: solid;
 }
 
 /* for screens smaller than 768px */
@@ -400,14 +403,14 @@ a:active {
   .product {
     position: relative;
     height: 15%;
-    padding: 10px;
+    padding: 2px;
     margin-bottom: 5px;
     /* background: #FF4136; */
     /*#8b0202*/
     /* color: #ffffff; */
     color: #FF4136;
     border-radius: 2px;
-    box-shadow: 0 0 10px lightgrey;
+    box-shadow: 0 0 2px lightgrey;
     font-size: 1.2rem;
   }
 
@@ -484,6 +487,9 @@ a:active {
     margin-top: 10px;
     margin-right: 13px;
     margin-bottom: 10px;
+    border: 0.5px;
+    border-color: lightgrey;
+    border-style: solid;
 
     /* padding: auto; */
     /* border: 0; */

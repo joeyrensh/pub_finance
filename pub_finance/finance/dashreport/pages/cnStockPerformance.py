@@ -199,7 +199,6 @@ def create_layout(app):
                                             "overflow-x": "auto",
                                             "overflow-y": "auto",
                                         },
-                                        className="image",
                                     ),
                                 ],
                                 className="twelve columns",
