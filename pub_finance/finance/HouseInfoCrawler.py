@@ -48,9 +48,10 @@ user_agent_list = [
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    "http://117.40.32.135:8080",
+    # "http://117.40.32.135:8080",
+    # "http://82.157.143.14:8080",
     "http://1.13.91.180:22",
-    "http://82.157.143.14:8080",
+    "http://49.235.131.16:80",
 ]
 
 
@@ -785,7 +786,7 @@ if __name__ == "__main__":
     # # 新房
     # get_house_info_f(file_path, file_path_bk)
     # # 二手
-    # houseinfo_to_csv_s(file_path_s, file_path_s_bk, file_path_s_cp)
+    houseinfo_to_csv_s(file_path_s, file_path_s_bk, file_path_s_cp)
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
