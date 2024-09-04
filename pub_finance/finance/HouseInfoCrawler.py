@@ -57,6 +57,8 @@ proxies = [
     "http://123.121.211.32:8000",
     "http://180.88.111.187:3128",
     "http://49.233.156.20:80",
+    "http://115.223.31.83:25245",
+    "http://115.223.31.51:20201",
 ]
 
 
@@ -651,6 +653,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                     print(f"获取详细信息时出错: {e}")
 
                 count += 1
+                t.progress_bar(len(houselist), count)
                 if count % data_batch_size == 0:
                     # 每处理完一批数据后，将数据写入CSV文件
                     df = pd.DataFrame(list)
