@@ -14,7 +14,11 @@ def create_layout(app):
     # get relative data folder
     PATH = pathlib.Path(__file__).parent
     HOUSE_PATH = PATH.joinpath("../../houseinfo").resolve()
-
+    # Overall 信息
+    df_overall = pd.read_csv(
+        HOUSE_PATH.joinpath("df_result.csv"),
+        usecols=[i for i in range(1, 5)],
+    )
     # 新房数据
     df_new_house = pd.read_csv(
         HOUSE_PATH.joinpath("newhouse.csv"), usecols=[i for i in range(0, 8)]
@@ -188,10 +192,8 @@ def create_layout(app):
                                     html.H5("上海房价概览"),
                                     html.Br([]),
                                     html.P(
-                                        "\
-                                    数据基于网上开放数据，针对上海行政区划，对在售新房以及挂牌二手房做数据分布, \
-                                    在售新房主要关注联动均价中位数在各板块的数据分布，\
-                                    二手房主要关注挂牌价、最近成交价以及挂牌量中位数在各板块的数据分布。",
+                                        f"新房在售楼盘量为{df_overall.at[0, 'nhouse_cnt']}, 二手房小区共有{df_overall.at[0, 'shouse_cnt']} \
+                                        , 二手房总套数为{df_overall.at[0, 'total_cnt']}, 二手房挂牌套数为{df_overall.at[0, 'sell_cnt']}"
                                     ),
                                 ],
                                 className="product",

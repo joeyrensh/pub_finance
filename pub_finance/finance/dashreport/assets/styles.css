@@ -237,11 +237,15 @@ li {
   height: 15%;
   padding: 10px;
   margin-bottom: 5px;
-  background: #FF4136;
+  /* background: #FF4136; */
   /*#8b0202*/
-  color: #ffffff;
+  /* color: #ffffff; */
+  /* background: linear-gradient(to right, #ffffff, transparent); */
+  color: #FF4136;
   border-radius: 2px;
   box-shadow: 0 0 10px lightgrey;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 .full-view-link {
@@ -391,6 +395,20 @@ a:active {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  .product {
+    position: relative;
+    height: 15%;
+    padding: 10px;
+    margin-bottom: 5px;
+    /* background: #FF4136; */
+    /*#8b0202*/
+    /* color: #ffffff; */
+    color: #FF4136;
+    border-radius: 2px;
+    box-shadow: 0 0 10px lightgrey;
+    font-size: 1.2rem;
   }
 
   .company-logo {

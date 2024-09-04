@@ -50,7 +50,7 @@ user_agent_list = [
 proxies = [
     "http://117.40.32.135:8080",
     "http://1.13.91.180:22",
-    "http://117.68.38.136:37391",
+    "http://82.157.143.14:8080",
 ]
 
 
@@ -785,7 +785,7 @@ if __name__ == "__main__":
     # # 新房
     # get_house_info_f(file_path, file_path_bk)
     # # 二手
-    houseinfo_to_csv_s(file_path_s, file_path_s_bk, file_path_s_cp)
+    # houseinfo_to_csv_s(file_path_s, file_path_s_bk, file_path_s_cp)
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
@@ -924,6 +924,16 @@ if __name__ == "__main__":
     lst_deal_price = lst_deal_price.iloc[0]
     lst_deal_date = lst_deal_date.iloc[0]
     x_sell_cnt = x_sell_cnt.iloc[0]
+    result = [
+        {
+            "nhouse_cnt": new_house_cnt,
+            "shouse_cnt": second_house_cnt,
+            "sell_cnt": sell_cnt,
+            "total_cnt": total_cnt,
+        }
+    ]
+    df_result = pd.DataFrame.from_dict(result)
+    df_result.to_csv("./houseinfo/df_result.csv", header=True)
     html_txt = """
                 <!DOCTYPE html>
                 <html>

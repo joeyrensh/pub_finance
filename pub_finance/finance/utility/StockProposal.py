@@ -2179,6 +2179,15 @@ class StockProposal:
                     """.format(
             cash=cash, final_value=final_value, stock_cnt=len(stock_list)
         )
+        result = [
+            {
+                "cash": cash,
+                "final_value": final_value,
+                "stock_cnt": len(stock_list),
+            }
+        ]
+        df_result = pd.DataFrame.from_dict(result)
+        df_result.to_csv(f"./images/{self.market}_df_result.csv", header=True)
 
         MyEmail().send_email_embedded_image(
             subject, html_txt + html + html_img + html1 + html2, image_path

@@ -142,7 +142,9 @@ def get_proxies_listv3(proxies_list, url):
 
 # url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
 url = "http://sh.lianjia.com/xiaoqu/yangpu/pg1cro21/"
-proxies_list = ["http://117.68.38.136:37391", "http://117.68.38.162:30474"]
+proxies_list = [
+    "http://180.103.181.10:80",
+]
 get_proxies_listv3(proxies_list, url)
 # get_proxies_listv2(url)
 # get_proxies_listv1(url)

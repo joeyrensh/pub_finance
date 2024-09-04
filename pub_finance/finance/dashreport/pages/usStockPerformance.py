@@ -30,6 +30,12 @@ def create_layout(app):
     with open(IMAGE_PATH.joinpath("us_postion_byindustry&p&l_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_bypl_date = base64.b64encode(image_data).decode("utf-8")
+
+    # Overall 信息
+    df_overall = pd.read_csv(
+        IMAGE_PATH.joinpath("us_df_result.csv"),
+        usecols=[i for i in range(1, 4)],
+    )
     # 板块数据
     df = pd.read_csv(
         IMAGE_PATH.joinpath("us_category.csv"), usecols=[i for i in range(1, 16)]
@@ -142,10 +148,8 @@ def create_layout(app):
                                     html.H5("美股主板全市场分析"),
                                     html.Br([]),
                                     html.P(
-                                        "\
-                                    数据基于网上开放数据，数据T+1更新，跟踪板块及板块内个股近期走势 \
-                                    包括板块及个股涨跌情况，包括纽交所，纳斯达克以及美国证券交易所\
-                                    本分析基于个人理解及大数据分析，只做参考不做推荐。",
+                                        f"最新回测所剩Cash为{df_overall.at[0, 'cash']}, 账户总资产为{df_overall.at[0, 'final_value']} \
+                                        , 参与本次回测的股票数量为{df_overall.at[0, 'stock_cnt']}"
                                     ),
                                 ],
                                 className="product",
