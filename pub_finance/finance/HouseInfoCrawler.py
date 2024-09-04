@@ -47,19 +47,15 @@ user_agent_list = [
 # https://proxyscrape.com/free-proxy-list
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
-proxies = [
-    "http://117.40.32.135:8080",
-    "http://82.157.143.14:8080",
-    "http://1.13.91.180:22",
-    "http://114.229.218.109:34780",
-    "http://42.192.36.223:8888",
-    "http://49.235.131.16:80",
-    "http://123.121.211.32:8000",
-    "http://180.88.111.187:3128",
-    "http://49.233.156.20:80",
-    "http://115.223.31.83:25245",
-    "http://115.223.31.51:20201",
-]
+proxies = []
+
+
+def update_proxies():
+    df = pd.read_csv("./houseinfo/proxies.csv", names=["proxy"])
+
+    global proxies
+    proxies = df["proxy"].tolist()
+    print("proxies已更新!!!")
 
 
 logging.basicConfig(
@@ -200,6 +196,7 @@ def get_house_info_f(file_path, file_path_bk):
     url = "http://sh.fang.lianjia.com/loupan/district/nht1nht2nhs1co41pgpageno/"
     base_url = "http://sh.fang.lianjia.com"
     for idx, district in enumerate(district_list):
+        update_proxies()
         s = requests.Session()
         s.headers.update(get_headers())
         url_default = url.replace("district", district).replace("pageno", str(1))
@@ -595,6 +592,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
     # url = "https://sh.lianjia.com/xiaoqu/district/pgpgnobp0ep100/"
     url = "http://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
+        update_proxies()
         if os.path.isfile(file_path_bk):
             df_info_cp = pd.read_csv(file_path_bk)
 
