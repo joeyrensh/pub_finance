@@ -48,11 +48,15 @@ user_agent_list = [
 # proxyscrape.com免费proxy: https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&country=cn&protocol=http&proxy_format=protocolipport&format=text&anonymity=Elite,Anonymous&timeout=3000
 # 站大爷免费proxy: https://www.zdaye.com/free/?ip=&adr=&checktime=&sleep=3&cunhuo=&dengji=&nadr=&https=1&yys=&post=&px=
 proxies = [
-    # "http://117.40.32.135:8080",
-    # "http://82.157.143.14:8080",
-    # "http://1.13.91.180:22",
-    # "http://49.235.131.16:80",
-    # "http://114.229.218.109:34780",
+    "http://117.40.32.135:8080",
+    "http://82.157.143.14:8080",
+    "http://1.13.91.180:22",
+    "http://114.229.218.109:34780",
+    "http://42.192.36.223:8888",
+    "http://49.235.131.16:80",
+    "http://123.121.211.32:8000",
+    "http://180.88.111.187:3128",
+    "http://49.233.156.20:80",
 ]
 
 
@@ -68,7 +72,7 @@ _max_attempt = 5
 _min_delay = 2
 _max_delay = 5
 _timeout = 5
-_max_workers = 1
+_max_workers = 2
 
 
 # 定义映射关系，模拟枚举值到值的映射
@@ -128,7 +132,7 @@ def get_proxy(proxies):
 def get_headers():
     headers = {
         "User-Agent": random.choice(user_agent_list),
-        "Referer": "sh.lianjia.com",
+        "Referer": "www.baidu.com",
         "Connection": "keep-alive",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
         "Accept-encoding": "gzip, deflate, br, zstd",
