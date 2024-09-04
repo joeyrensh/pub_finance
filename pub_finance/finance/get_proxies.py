@@ -41,7 +41,7 @@ headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
     "Accept-encoding": "gzip, deflate, br, zstd",
     "Accept-language": "zh-CN,zh;q=0.9",
-    # "Cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
+    "Cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
 }
 
 
@@ -71,6 +71,9 @@ def check_proxy_anonymity(url, headers, proxy):
 
     except requests.exceptions.RequestException as e:
         print(f"{proxy}: {e}")
+        return False
+    except Exception as e:
+        print(f"发生了未知错误: {e}")
         return False
 
 
@@ -143,26 +146,46 @@ def get_proxies_listv3(proxies_list, url):
 # url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
 url = "http://sh.lianjia.com/xiaoqu/yangpu/pg1cro21/"
 proxies_list = [
-    "http://175.178.179.214:10008",
-    "http://42.193.147.88:443",
-    "http://1.13.91.180:22",
-    "http://114.115.149.51:8081",
-    "http://39.107.33.254:8090",
-    "http://139.9.119.20:80",
-    "http://111.26.177.28:9091",
-    "http://116.63.129.202:6000",
-    "http://183.247.199.51:30001",
-    "http://111.3.102.207:30001",
-    "http://120.25.220.179:8118",
-    "http://119.96.195.62:30000",
-    "http://39.175.75.53:30001",
-    "http://123.56.1.50:3129",
-    "http://42.193.179.113:8118",
-    "http://101.37.22.207:3128",
-    "http://218.75.102.198:8000",
-    "http://183.247.211.41:30001",
-    "http://39.175.89.211:30001",
-    "http://42.192.36.223:8888",
+    "http://117.71.132.21:8089",
+    "http://47.92.242.45:8999",
+    "http://203.19.38.114:1080",
+    "http://223.111.245.249:80",
+    "http://113.121.39.222:9999",
+    "http://114.231.42.85:8089",
+    "http://223.111.245.250:80",
+    "http://183.166.170.138:41122",
+    "http://183.164.243.160:8089",
+    "http://114.231.82.170:8089",
+    "http://114.231.82.49:8089",
+    "http://112.111.1.217:4430",
+    "http://117.71.154.184:8089",
+    "http://114.231.42.244:8089",
+    "http://117.71.155.247:8089",
+    "http://36.6.145.225:8089",
+    "http://123.182.58.53:8089",
+    "http://116.62.32.11:80",
+    "http://113.121.42.158:9999",
+    "http://113.223.212.83:8089",
+    "http://60.174.0.197:8089",
+    "http://114.231.42.49:8089",
+    "http://42.63.65.80:80",
+    "http://47.96.38.129:80",
+    "http://117.69.232.28:8089",
+    "http://117.71.154.229:8089",
+    "http://114.231.45.28:8888",
+    "http://113.124.85.145:9999",
+    "http://117.93.180.215:9000",
+    "http://117.69.233.34:8089",
+    "http://42.63.65.43:80",
+    "http://42.63.65.42:80",
+    "http://183.164.242.59:8089",
+    "http://117.69.233.99:8089",
+    "http://113.121.20.68:9999",
+    "http://114.231.42.161:8089",
+    "http://114.232.110.129:8089",
+    "http://123.182.59.166:8089",
+    "http://120.82.174.128:9091",
+    "http://49.71.119.71:8089",
 ]
 get_proxies_listv3(proxies_list, url)
 # get_proxies_listv2(url)
