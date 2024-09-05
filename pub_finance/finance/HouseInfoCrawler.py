@@ -51,7 +51,7 @@ proxies = []
 
 
 def update_proxies():
-    df = pd.read_csv("./houseinfo/proxies.csv", names=["proxy"])
+    df = pd.read_csv("./houseinfo/proxies.csv", names=["proxy"], comment="#")
 
     global proxies
     proxies = df["proxy"].tolist()
