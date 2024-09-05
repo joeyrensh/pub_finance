@@ -192,10 +192,6 @@ def create_layout(app):
                                     html.H5("上海房价概览"),
                                     html.Br([]),
                                     html.P(
-                                        f"新房在售楼盘量为{df_overall.at[0, 'nhouse_cnt']}, 二手房小区共有{df_overall.at[0, 'shouse_cnt']} \
-                                        , 二手房总套数为{df_overall.at[0, 'total_cnt']}, 二手房挂牌套数为{df_overall.at[0, 'sell_cnt']}"
-                                    ),
-                                    html.P(
                                         [
                                             html.Span(
                                                 "新房在售楼盘量为",
