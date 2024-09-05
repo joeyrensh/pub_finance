@@ -297,7 +297,7 @@ if __name__ == "__main__":
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(1281654.0, 3516071.01)
+    StockProposal("cn", trade_date).send_btstrategy_by_email(0, 0)
 
     """ 结束进度条 """
     pbar.finish()

@@ -1314,8 +1314,8 @@ class StockProposal:
         del dfdata7
         gc.collect()
 
-        font_size = 24
-        title_font_size = 28
+        font_size = 28
+        title_font_size = 32
         # TOP10热门行业
         sparkdata1 = spark.sql(
             """ 
@@ -1354,12 +1354,12 @@ class StockProposal:
                 orientation="v",
                 yanchor="middle",
                 xanchor="right",
-                x=0.95,
+                x=0.99,
                 y=0.8,
-                font=dict(size=font_size, color="black"),  # 调整图例字体大小
-                bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
+                font=dict(size=font_size, color="black"),
+                bgcolor="rgba(0,0,0,0)",
             ),
-            margin=dict(t=50, b=50, l=100, r=20),
+            margin=dict(t=30, b=0, l=0, r=0),  # 增加右侧边距
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1404,12 +1404,12 @@ class StockProposal:
                 orientation="v",
                 yanchor="middle",
                 xanchor="right",
-                x=0.95,
+                x=0.99,
                 y=0.8,
                 font=dict(size=font_size, color="white"),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
             ),
-            margin=dict(t=50, b=50, l=100, r=20),
+            margin=dict(t=30, b=0, l=0, r=0),  # 增加右侧边距
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1473,7 +1473,7 @@ class StockProposal:
                 orientation="v",
                 yanchor="middle",
                 xanchor="right",
-                x=0.95,
+                x=0.99,
                 y=0.8,
                 font=dict(
                     size=font_size,
@@ -1481,7 +1481,7 @@ class StockProposal:
                 ),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
             ),
-            margin=dict(t=50, b=50, l=100, r=20),
+            margin=dict(t=30, b=0, l=0, r=0),  # 增加右侧边距
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1521,7 +1521,7 @@ class StockProposal:
                 orientation="v",
                 yanchor="middle",
                 xanchor="right",
-                x=0.95,
+                x=0.99,
                 y=0.8,
                 font=dict(
                     size=font_size,
@@ -1529,7 +1529,7 @@ class StockProposal:
                 ),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
             ),
-            margin=dict(t=50, b=50, l=100, r=20),
+            margin=dict(t=30, b=0, l=0, r=0),  # 增加右侧边距
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1615,7 +1615,7 @@ class StockProposal:
         fig.update_layout(
             title={
                 "text": "Last 60 days trade info",
-                "y": 0.95,
+                "y": 0.99,
                 "x": 0.05,
                 "xanchor": "left",
                 "yanchor": "top",
@@ -1683,7 +1683,7 @@ class StockProposal:
         fig.update_layout(
             title={
                 "text": "Last 60 days trade info",
-                "y": 0.95,
+                "y": 0.99,
                 "x": 0.05,
                 "xanchor": "left",
                 "yanchor": "top",
