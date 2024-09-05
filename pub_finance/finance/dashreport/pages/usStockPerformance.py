@@ -148,8 +148,27 @@ def create_layout(app):
                                     html.H5("美股主板全市场分析"),
                                     html.Br([]),
                                     html.P(
-                                        f"最新回测所剩Cash为{df_overall.at[0, 'cash']}, 账户总资产为{df_overall.at[0, 'final_value']} \
-                                        , 参与本次回测的股票数量为{df_overall.at[0, 'stock_cnt']}"
+                                        [
+                                            html.Span(
+                                                "最新回测所剩Cash为",
+                                                style={"color": "black"},
+                                            ),
+                                            html.Span(f"{df_overall.at[0, 'cash']}, "),
+                                            html.Span(
+                                                "账户总资产为",
+                                                style={"color": "black"},
+                                            ),
+                                            html.Span(
+                                                f"{df_overall.at[0, 'final_value']}, "
+                                            ),
+                                            html.Span(
+                                                "参与本次回测的股票数量为",
+                                                style={"color": "black"},
+                                            ),
+                                            html.Span(
+                                                f"{df_overall.at[0, 'stock_cnt']}"
+                                            ),
+                                        ]
                                     ),
                                 ],
                                 className="product",
