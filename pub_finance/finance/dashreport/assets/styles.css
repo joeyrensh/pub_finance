@@ -245,7 +245,7 @@ li {
   border-radius: 2px;
   box-shadow: 0 0 2px lightgrey;
   font-size: 1.5rem;
-  font-weight: bold;
+  /* font-weight: bold; */
 }
 
 .full-view-link {
