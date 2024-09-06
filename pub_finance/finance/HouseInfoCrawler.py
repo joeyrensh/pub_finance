@@ -636,11 +636,14 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
         if os.path.isfile(file_path_bk):
             df_info_cp = pd.read_csv(file_path_bk)
 
-            data_id_list = df_info_cp.loc[
-                df_info_cp["district"] == map_value(district),
-                "data_id",
-            ].tolist()
-            print("data_id_list: ", data_id_list)
+            data_id_list = (
+                df_info_cp.loc[
+                    df_info_cp["district"] == map_value(district),
+                    "data_id",
+                ]
+                .astype(str)
+                .tolist()
+            )
         else:
             data_id_list = []
         if idx < idx_cp:
@@ -648,7 +651,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
         elif idx == idx_cp:
             houselist = df_cp.to_dict(orient="records")
             filtered_list = [
-                item for item in houselist if item["data_id"] not in data_id_list
+                item for item in houselist if str(item["data_id"]) not in data_id_list
             ]
             houselist = filtered_list.copy()
             if len(houselist) == 0:
@@ -666,7 +669,6 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
             filtered_list = [
                 item for item in houselist if str(item["data_id"]) not in data_id_list
             ]
-            print("filtered_list: ", filtered_list)
             houselist = filtered_list.copy()
             if len(houselist) == 0:
                 continue
