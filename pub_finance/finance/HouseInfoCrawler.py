@@ -630,7 +630,6 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
     # url = "https://sh.lianjia.com/xiaoqu/district/pgpgnobp0ep100/"
     url = "http://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
-        update_proxies()
         if os.path.isfile(file_path_bk):
             df_info_cp = pd.read_csv(file_path_bk)
 
@@ -649,8 +648,10 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
             houselist = filtered_list.copy()
             if len(houselist) == 0:
                 continue
+            update_proxies()
 
         else:
+            update_proxies()
             url_default = url.replace("pgno", str(1)).replace("district", district)
             max_page = get_max_page(url_default)
             url_re = url.replace("district", district)
@@ -690,7 +691,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
 
                 count += 1
                 t1.progress_bar(len(houselist), count)
-                if count % 100 == 0:
+                if count % 200 == 0:
                     update_proxies()
                 if count % data_batch_size == 0:
                     # 每处理完一批数据后，将数据写入CSV文件
