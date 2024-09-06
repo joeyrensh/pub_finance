@@ -632,12 +632,12 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
     for idx, district in enumerate(district_list):
         # 计数器
         counter = 0
+
         if os.path.isfile(file_path_bk):
             df_info_cp = pd.read_csv(file_path_bk)
 
             data_id_list = df_info_cp.loc[
-                df_info_cp["district"]
-                == map_value(lambda x: marker if marker else x)("district"),
+                df_info_cp["district"] == map_value(district),
                 "data_id",
             ].tolist()
         else:
