@@ -634,7 +634,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
         data_batch_size = 10
         list = []
         url_detail = "http://sh.lianjia.com/xiaoqu/data_id/"
-        t = ToolKit("信息爬取")
+        t1 = ToolKit("信息爬取")
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             # 提交任务并获取Future对象列表
             futures = [
@@ -651,7 +651,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                     print(f"获取详细信息时出错: {e}")
 
                 count += 1
-                t.progress_bar(len(houselist), count)
+                t1.progress_bar(len(houselist), count)
                 if count % data_batch_size == 0:
                     # 每处理完一批数据后，将数据写入CSV文件
                     df = pd.DataFrame(list)
