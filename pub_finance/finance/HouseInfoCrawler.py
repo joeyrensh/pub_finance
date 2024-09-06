@@ -68,9 +68,9 @@ def check_proxy_anonymity(url, headers, proxy):
         else:
             return False
 
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException:
         return False
-    except Exception as e:
+    except Exception:
         return False
 
 
