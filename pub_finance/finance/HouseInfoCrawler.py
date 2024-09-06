@@ -637,7 +637,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
 
             data_id_list = df_info_cp.loc[
                 df_info_cp["district"]
-                == map_value(lambda x: marker if marker else district),
+                == map_value(lambda x: marker if marker else x)("district"),
                 "data_id",
             ].tolist()
         else:
@@ -670,7 +670,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 continue
         complete_list.extend(houselist)
         t.progress_bar(len(district_list), idx + 1)
-        print("complete list cnt is: ", len(houselist))
+        print("house list cnt is: ", len(houselist))
 
         # 设置并发数上限为6
         max_workers = _max_workers
