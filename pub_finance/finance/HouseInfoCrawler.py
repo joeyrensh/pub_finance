@@ -62,23 +62,15 @@ def check_proxy_anonymity(url, headers, proxy):
                 '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
             )
             if div:
-                cnt = div[0].text_content().strip()
-                page_no = math.ceil(int(cnt) / 30)
-                print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
-                print("proxy %s有效" % (proxy))
                 return True
             else:
-                print("proxy无效")
                 return False
         else:
-            print(f"Failed to retrieve data: {response.status_code}")
             return False
 
     except requests.exceptions.RequestException as e:
-        print(f"{proxy}: {e}")
         return False
     except Exception as e:
-        print(f"发生了未知错误: {e}")
         return False
 
 
@@ -101,6 +93,7 @@ def update_proxies():
     proxies = get_proxies_listv3(pre_proxies, url)
 
     print("proxies已更新!!!")
+    print(proxies)
 
 
 logging.basicConfig(
