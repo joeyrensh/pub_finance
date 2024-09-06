@@ -50,11 +50,56 @@ user_agent_list = [
 proxies = []
 
 
+def check_proxy_anonymity(url, headers, proxy):
+    try:
+        s = requests.Session()
+        s.proxies = proxy
+        s.headers.update(headers)
+        response = s.get(url, timeout=5)
+        if response.status_code == 200:
+            tree = html.fromstring(response.content)
+            div = tree.xpath(
+                '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
+            )
+            if div:
+                cnt = div[0].text_content().strip()
+                page_no = math.ceil(int(cnt) / 30)
+                print("当前获取房源量为%s,总页数为%s" % (cnt, page_no))
+                print("proxy %s有效" % (proxy))
+                return True
+            else:
+                print("proxy无效")
+                return False
+        else:
+            print(f"Failed to retrieve data: {response.status_code}")
+            return False
+
+    except requests.exceptions.RequestException as e:
+        print(f"{proxy}: {e}")
+        return False
+    except Exception as e:
+        print(f"发生了未知错误: {e}")
+        return False
+
+
+def get_proxies_listv3(proxies_list, url):
+    dlist = []
+
+    for item in proxies_list:
+        proxy = {"https": item, "http": item}
+        if check_proxy_anonymity(url, get_headers(), proxy):
+            dlist.append(item)
+
+    return dlist
+
+
 def update_proxies():
     df = pd.read_csv("./houseinfo/proxies.csv", names=["proxy"], comment="#")
-
+    pre_proxies = df["proxy"].tolist()
+    url = "http://sh.lianjia.com/xiaoqu/xuhui/pg1cro21/"
     global proxies
-    proxies = df["proxy"].tolist()
+    proxies = get_proxies_listv3(pre_proxies, url)
+
     print("proxies已更新!!!")
 
 
@@ -652,6 +697,8 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
 
                 count += 1
                 t1.progress_bar(len(houselist), count)
+                if count % 100 == 0:
+                    update_proxies()
                 if count % data_batch_size == 0:
                     # 每处理完一批数据后，将数据写入CSV文件
                     df = pd.DataFrame(list)
