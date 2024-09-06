@@ -630,6 +630,8 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
     # url = "https://sh.lianjia.com/xiaoqu/district/pgpgnobp0ep100/"
     url = "http://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
+        # 计数器
+        counter = 0
         if os.path.isfile(file_path_bk):
             df_info_cp = pd.read_csv(file_path_bk)
 
@@ -690,8 +692,9 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                     print(f"获取详细信息时出错: {e}")
 
                 count += 1
-                t1.progress_bar(len(houselist), count)
-                if count % 200 == 0:
+                counter += 1
+                t1.progress_bar(len(houselist), counter)
+                if counter % 200 == 0:
                     update_proxies()
                 if count % data_batch_size == 0:
                     # 每处理完一批数据后，将数据写入CSV文件
