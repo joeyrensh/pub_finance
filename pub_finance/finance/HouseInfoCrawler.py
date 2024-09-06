@@ -640,6 +640,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 df_info_cp["district"] == map_value(district),
                 "data_id",
             ].tolist()
+            print("data_id_list: ", data_id_list)
         else:
             data_id_list = []
         if idx < idx_cp:
@@ -663,8 +664,9 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 url_re, max_page, complete_list, district, file_path_s_cp
             )
             filtered_list = [
-                item for item in houselist if item["data_id"] not in data_id_list
+                item for item in houselist if str(item["data_id"]) not in data_id_list
             ]
+            print("filtered_list: ", filtered_list)
             houselist = filtered_list.copy()
             if len(houselist) == 0:
                 continue
