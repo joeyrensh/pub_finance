@@ -3,6 +3,10 @@ from utils import Header, make_dash_format_table
 import pandas as pd
 import pathlib
 import base64
+from dash import Dash, dcc
+import plotly.express as px
+import plotly.graph_objects as go
+import plotly.io as pio
 
 
 # 定义全局变量 df_detail
@@ -13,8 +17,207 @@ def create_layout(app):
     # get relative data folder
     PATH = pathlib.Path(__file__).parent
 
-    # 收益率曲线
     IMAGE_PATH = PATH.joinpath("../../images").resolve()
+    # TOP10行业
+    # font_size = 12
+    # pio.config.displayModeBar = False
+
+    # df_top10ind = pd.read_csv(
+    #     IMAGE_PATH.joinpath("us_top10ind.csv"),
+    #     usecols=[i for i in range(1, 3)],
+    # )
+    # fig_top10ind = go.Figure(
+    #     data=[
+    #         go.Pie(
+    #             labels=df_top10ind["industry"],
+    #             values=df_top10ind["cnt"],
+    #             pull=[0.1, 0.1, 0.1, 0.1, 0.1],
+    #         )
+    #     ]
+    # )
+    # fig_top10ind.update_traces(
+    #     title="Top10 Position",
+    #     textinfo="value+percent",
+    #     textposition="inside",
+    # )
+    # fig_top10ind.update_layout(
+    #     legend=dict(
+    #         orientation="h",
+    #         xanchor="auto",
+    #         bgcolor="rgba(0,0,0,0)",
+    #     ),
+    #     margin=dict(t=0, b=0, l=20, r=20),  # 增加右侧边距
+    #     autosize=True,
+    #     plot_bgcolor="rgba(0,0,0,0)",
+    #     paper_bgcolor="rgba(0,0,0,0)",
+    # )
+    # # TOP10盈利
+    # df_top10pl = pd.read_csv(
+    #     IMAGE_PATH.joinpath("us_top10pl.csv"),
+    #     usecols=[i for i in range(1, 3)],
+    # )
+    # fig_top10pl = go.Figure(
+    #     data=[
+    #         go.Pie(
+    #             labels=df_top10pl["industry"],
+    #             values=df_top10pl["pl"],
+    #             pull=[0.1, 0.1, 0.1, 0.1, 0.1],
+    #         )
+    #     ]
+    # )
+    # # fig1 = px.pie(df_top10pl, values="pl", names="industry", title="Top10 Profit")
+    # fig_top10pl.update_traces(
+    #     title="Top10 Profit",
+    #     textinfo="value+percent",
+    #     textposition="inside",
+    # )
+    # fig_top10pl.update_layout(
+    #     legend=dict(
+    #         orientation="h",
+    #         xanchor="auto",
+    #         bgcolor="rgba(0,0,0,0)",
+    #     ),
+    #     margin=dict(t=0, b=0, l=20, r=20),  # 增加右侧边距
+    #     autosize=True,
+    #     plot_bgcolor="rgba(0,0,0,0)",
+    #     paper_bgcolor="rgba(0,0,0,0)",
+    # )
+    # # 交易明细
+    # df_trade_detail = pd.read_csv(
+    #     IMAGE_PATH.joinpath("us_trade_detail.csv"),
+    #     usecols=[i for i in range(1, 5)],
+    # )
+    # fig_trade_detail = go.Figure()
+    # fig_trade_detail.add_trace(
+    #     go.Scatter(
+    #         x=df_trade_detail["buy_date"],
+    #         y=df_trade_detail["total_cnt"],
+    #         mode="lines+markers",
+    #         name="total stock",
+    #         line=dict(color="red", width=3),
+    #         yaxis="y",
+    #     )
+    # )
+    # fig_trade_detail.add_trace(
+    #     go.Bar(
+    #         x=df_trade_detail["buy_date"],
+    #         y=df_trade_detail["buy_cnt"],
+    #         name="long",
+    #         marker_color="red",
+    #         yaxis="y2",
+    #     )
+    # )
+    # fig_trade_detail.add_trace(
+    #     go.Bar(
+    #         x=df_trade_detail["buy_date"],
+    #         y=df_trade_detail["sell_cnt"],
+    #         name="short",
+    #         marker_color="green",
+    #         yaxis="y2",
+    #     )
+    # )
+    # fig_trade_detail.update_layout(
+    #     title={
+    #         "text": "Last 60 days trade info",
+    #         "xanchor": "left",
+    #         "yanchor": "top",
+    #         "font": dict(size=font_size, color="black"),
+    #     },
+    #     xaxis=dict(
+    #         mirror=False,
+    #         ticks="inside",
+    #         showline=True,
+    #         gridcolor="rgba(0, 0, 0, 0.5)",
+    #         tickfont=dict(color="black", size=font_size),
+    #     ),
+    #     yaxis=dict(
+    #         # title="Total Positions",
+    #         # titlefont=dict(size=font_size, color="black"),
+    #         side="left",
+    #         mirror=False,
+    #         ticks="inside",
+    #         showline=True,
+    #         gridcolor="rgba(0, 0, 0, 0.5)",
+    #         tickfont=dict(color="black", size=font_size),
+    #     ),
+    #     yaxis2=dict(
+    #         # title="Positions per day",
+    #         # titlefont=dict(size=font_size, color="black"),
+    #         side="right",
+    #         overlaying="y",
+    #         showgrid=False,
+    #         ticks="inside",
+    #         tickfont=dict(color="black", size=font_size),
+    #     ),
+    #     legend=dict(
+    #         orientation="h",
+    #         yanchor="bottom",
+    #         y=-0.3,
+    #         xanchor="center",
+    #         x=0.5,
+    #         font=dict(color="black", size=font_size),
+    #     ),
+    #     barmode="stack",
+    #     autosize=True,
+    #     plot_bgcolor="rgba(0,0,0,0)",
+    #     paper_bgcolor="rgba(0,0,0,0)",
+    #     margin=dict(l=0, r=0, t=20, b=0),  # 设置较小的边距
+    # )
+    # # 盈利趋势
+    # df_pnltrend = pd.read_csv(
+    #     IMAGE_PATH.joinpath("us_top5_pnltrend.csv"),
+    #     usecols=[i for i in range(1, 4)],
+    # )
+    # fig_pnltrend = px.area(
+    #     df_pnltrend,
+    #     x="buy_date",
+    #     y="pnl",
+    #     color="industry",
+    #     line_group="industry",
+    #     text=None,
+    # )
+    # fig_pnltrend.update_layout(
+    #     title={
+    #         "text": "Last 60 days top5 pnl",
+    #         "xanchor": "left",
+    #         "yanchor": "top",
+    #         "font": dict(size=font_size, color="black"),
+    #     },
+    #     xaxis=dict(
+    #         mirror=False,
+    #         ticks="inside",
+    #         showline=True,
+    #         gridcolor="rgba(0, 0, 0, 0.5)",
+    #         tickfont=dict(color="black", size=font_size),
+    #         # title="",
+    #     ),
+    #     yaxis=dict(
+    #         mirror=False,
+    #         ticks="outside",
+    #         side="left",
+    #         showline=True,
+    #         gridcolor="rgba(0, 0, 0, 0.5)",
+    #         tickfont=dict(color="black", size=font_size),
+    #         # title="",
+    #     ),
+    #     legend_title_text="",
+    #     legend=dict(
+    #         orientation="h",
+    #         yanchor="bottom",
+    #         y=-0.3,
+    #         xanchor="center",
+    #         x=0.5,
+    #         font=dict(color="black", size=font_size),
+    #     ),
+    #     xaxis_title="",  # 隐藏x轴标签
+    #     yaxis_title="",  # 隐藏y轴标签
+    #     autosize=True,
+    #     plot_bgcolor="rgba(0, 0, 0, 0)",
+    #     paper_bgcolor="rgba(0,0,0,0)",
+    #     margin=dict(l=0, r=0, t=20, b=0),  # 设置较小的边距
+    # )
+
+    # 收益率曲线
     with open(IMAGE_PATH.joinpath("TRdraw_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_trdraw = base64.b64encode(image_data).decode("utf-8")
@@ -234,6 +437,7 @@ def create_layout(app):
                                 className="six columns",
                             ),
                         ],
+                        className="row",
                     ),
                     # Row 2
                     html.Div(
@@ -270,6 +474,7 @@ def create_layout(app):
                                 className="six columns",
                             ),
                         ],
+                        className="row",
                     ),
                     # Row 3
                     html.Div(

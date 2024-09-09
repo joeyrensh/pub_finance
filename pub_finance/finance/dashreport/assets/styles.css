@@ -12,6 +12,27 @@ body {
   line-height: 1.0 !important;
 }
 
+.fig_custom {
+  width: 100%;
+  /* 假设容器宽度占满其父元素 */
+  padding-top: 70%;
+  /* 9 / 16 = 0.5625，转换为百分比 */
+  position: relative;
+  /* 通常需要设置为relative，以便子元素可以绝对定位 */
+  overflow: auto;
+  /* 防止内容溢出容器 */
+
+}
+
+.fig_custom>* {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* 子元素填充整个容器 */
+}
+
 * {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -528,13 +549,13 @@ a:active {
     margin-top: 5px;
   }
 
-  .svg-container {
+  /* .svg-container {
     width: 255px !important;
-  }
+  } */
 
-  .main-svg {
+  /* .main-svg {
     width: 255px !important;
-  }
+  } */
 
   .three.columns {
     text-align: left;

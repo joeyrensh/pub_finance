@@ -104,7 +104,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 # 全局变量
 _last_index = None
-_max_attempt = 5
+_max_attempt = 10 
 _min_delay = 2
 _max_delay = 5
 _timeout = 5
