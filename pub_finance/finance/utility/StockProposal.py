@@ -1343,7 +1343,7 @@ class StockProposal:
         colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
         # light mode
         fig.update_traces(
-            marker=dict(colors=colors, line=dict(width=1)),
+            marker=dict(colors=colors, line=dict(width=2)),
             textinfo="value+percent",
             textfont=dict(
                 size=font_size,
@@ -1390,7 +1390,7 @@ class StockProposal:
             )
         # dark mode
         fig.update_traces(
-            marker=dict(colors=colors, line=dict(width=1)),
+            marker=dict(colors=colors, line=dict(width=2)),
             textinfo="value+percent",
             textfont=dict(
                 size=font_size,
@@ -1463,7 +1463,7 @@ class StockProposal:
         colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
         # light mode
         fig.update_traces(
-            marker=dict(colors=colors, line=dict(width=1)),
+            marker=dict(colors=colors, line=dict(width=2)),
             textinfo="value+percent",
             textfont=dict(
                 size=font_size,
@@ -1511,7 +1511,7 @@ class StockProposal:
             )
         # dark mode
         fig.update_traces(
-            marker=dict(colors=colors, line=dict(width=1)),
+            marker=dict(colors=colors, line=dict(width=2)),
             textinfo="value+percent",
             textfont=dict(
                 size=font_size,
