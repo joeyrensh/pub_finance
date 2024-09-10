@@ -86,15 +86,13 @@ def get_proxies_listv3(proxies_list, url):
 
 
 def update_proxies():
-    print("proxies检测中!!!")
+    logger.info("proxies检测中!!!")
     df = pd.read_csv("./houseinfo/proxies.csv", names=["proxy"], comment="#")
     pre_proxies = df["proxy"].tolist()
     url = "http://sh.ke.com/xiaoqu/xuhui/pg1cro21/"
     global proxies
     proxies = get_proxies_listv3(pre_proxies, url)
-
-    print("proxies已更新!!!")
-    print(proxies)
+    logger.info("proxies已更新!!!共找到%s个proxy" % (len(proxies)))
 
 
 logging.basicConfig(
