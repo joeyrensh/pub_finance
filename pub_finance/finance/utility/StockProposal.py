@@ -1345,7 +1345,7 @@ class StockProposal:
         # light mode
         fig.update_traces(
             marker=dict(colors=colors, line=dict(width=2)),
-            textinfo="value+percent",
+            textinfo="label+value+percent",
             textfont=dict(
                 size=font_size,
                 color="black",
@@ -1355,15 +1355,16 @@ class StockProposal:
         fig.update_layout(
             title="Top10 Position",
             title_font=dict(size=title_font_size, color="black"),
-            legend=dict(
-                orientation="v",
-                yanchor="middle",
-                xanchor="right",
-                x=0.99,
-                y=0.8,
-                font=dict(size=font_size, color="black"),
-                bgcolor="rgba(0,0,0,0)",
-            ),
+            showlegend=False,
+            # legend=dict(
+            #     orientation="v",
+            #     yanchor="middle",
+            #     xanchor="right",
+            #     x=0.99,
+            #     y=0.8,
+            #     font=dict(size=font_size, color="black"),
+            #     bgcolor="rgba(0,0,0,0)",
+            # ),
             margin=dict(t=80, b=0, l=0, r=0),  # 增加右侧边距
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
@@ -1392,7 +1393,7 @@ class StockProposal:
         # dark mode
         fig.update_traces(
             marker=dict(colors=colors, line=dict(width=2)),
-            textinfo="value+percent",
+            textinfo="label+value+percent",
             textfont=dict(
                 size=font_size,
                 color="white",
@@ -1405,15 +1406,16 @@ class StockProposal:
                 size=title_font_size,
                 color="white",
             ),
-            legend=dict(
-                orientation="v",
-                yanchor="middle",
-                xanchor="right",
-                x=0.99,
-                y=0.8,
-                font=dict(size=font_size, color="white"),  # 调整图例字体大小
-                bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
-            ),
+            showlegend=False,
+            # legend=dict(
+            #     orientation="v",
+            #     yanchor="middle",
+            #     xanchor="right",
+            #     x=0.99,
+            #     y=0.8,
+            #     font=dict(size=font_size, color="white"),  # 调整图例字体大小
+            #     bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
+            # ),
             margin=dict(t=80, b=0, l=0, r=0),  # 增加右侧边距
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
@@ -1466,7 +1468,7 @@ class StockProposal:
         # light mode
         fig.update_traces(
             marker=dict(colors=colors, line=dict(width=2)),
-            textinfo="value+percent",
+            textinfo="label+value+percent",
             textfont=dict(
                 size=font_size,
                 color="black",
@@ -1479,18 +1481,19 @@ class StockProposal:
                 size=title_font_size,
                 color="black",
             ),
-            legend=dict(
-                orientation="v",
-                yanchor="middle",
-                xanchor="right",
-                x=0.99,
-                y=0.8,
-                font=dict(
-                    size=font_size,
-                    color="black",
-                ),  # 调整图例字体大小
-                bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
-            ),
+            showlegend=False,
+            # legend=dict(
+            #     orientation="v",
+            #     yanchor="middle",
+            #     xanchor="right",
+            #     x=0.99,
+            #     y=0.8,
+            #     font=dict(
+            #         size=font_size,
+            #         color="black",
+            #     ),  # 调整图例字体大小
+            #     bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
+            # ),
             margin=dict(t=80, b=0, l=0, r=0),  # 增加右侧边距
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
@@ -1514,7 +1517,7 @@ class StockProposal:
         # dark mode
         fig.update_traces(
             marker=dict(colors=colors, line=dict(width=2)),
-            textinfo="value+percent",
+            textinfo="label+value+percent",
             textfont=dict(
                 size=font_size,
                 color="white",
@@ -1527,18 +1530,19 @@ class StockProposal:
                 size=title_font_size,
                 color="white",
             ),
-            legend=dict(
-                orientation="v",
-                yanchor="middle",
-                xanchor="right",
-                x=0.99,
-                y=0.8,
-                font=dict(
-                    size=font_size,
-                    color="white",
-                ),  # 调整图例字体大小
-                bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
-            ),
+            showlegend=False,
+            # legend=dict(
+            #     orientation="v",
+            #     yanchor="middle",
+            #     xanchor="right",
+            #     x=0.99,
+            #     y=0.8,
+            #     font=dict(
+            #         size=font_size,
+            #         color="white",
+            #     ),  # 调整图例字体大小
+            #     bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
+            # ),
             margin=dict(t=80, b=0, l=0, r=0),  # 增加右侧边距
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
