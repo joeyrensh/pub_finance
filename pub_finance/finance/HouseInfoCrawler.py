@@ -88,7 +88,7 @@ def get_proxies_listv3(proxies_list, url):
 def update_proxies():
     df = pd.read_csv("./houseinfo/proxies.csv", names=["proxy"], comment="#")
     pre_proxies = df["proxy"].tolist()
-    url = "http://sh.lianjia.com/xiaoqu/xuhui/pg1cro21/"
+    url = "http://sh.ke.com/xiaoqu/xuhui/pg1cro21/"
     global proxies
     proxies = get_proxies_listv3(pre_proxies, url)
 
@@ -104,7 +104,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 # 全局变量
 _last_index = None
-_max_attempt = 10 
+_max_attempt = 10
 _min_delay = 2
 _max_delay = 5
 _timeout = 5
@@ -231,8 +231,8 @@ def get_house_info_f(file_path, file_path_bk):
         "chongming",
     ]
     cnt = 0
-    url = "http://sh.fang.lianjia.com/loupan/district/nht1nht2nhs1co41pgpageno/"
-    base_url = "http://sh.fang.lianjia.com"
+    url = "http://sh.fang.ke.com/loupan/district/nht1nht2nhs1co41pgpageno/"
+    base_url = "http://sh.fang.ke.com"
     for idx, district in enumerate(district_list):
         update_proxies()
         s = requests.Session()
@@ -628,7 +628,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
         idx_cp = district_list.index(marker)
 
     # url = "https://sh.lianjia.com/xiaoqu/district/pgpgnobp0ep100/"
-    url = "http://sh.lianjia.com/xiaoqu/district/pgpgnocro21/"
+    url = "http://sh.ke.com/xiaoqu/district/pgpgnocro21/"
     for idx, district in enumerate(district_list):
         # 计数器
         counter = 0
@@ -680,7 +680,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
         max_workers = _max_workers
         data_batch_size = 10
         list = []
-        url_detail = "http://sh.lianjia.com/xiaoqu/data_id/"
+        url_detail = "http://sh.ke.com/xiaoqu/data_id/"
         t1 = ToolKit("信息爬取")
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             # 提交任务并获取Future对象列表
