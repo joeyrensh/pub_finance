@@ -1336,7 +1336,7 @@ class StockProposal:
                 go.Pie(
                     labels=dfdata1["industry"],
                     values=dfdata1["cnt"],
-                    pull=[0.1, 0.1, 0.1, 0.1, 0.1],
+                    # pull=[0.1, 0.1, 0.1, 0.1, 0.1],
                 )
             ]
         )
@@ -1456,7 +1456,7 @@ class StockProposal:
                 go.Pie(
                     labels=dfdata2["industry"],
                     values=dfdata2["pl"],
-                    pull=[0.1, 0.1, 0.1, 0.1, 0.1],
+                    # pull=[0.1, 0.1, 0.1, 0.1, 0.1],
                 )
             ]
         )
