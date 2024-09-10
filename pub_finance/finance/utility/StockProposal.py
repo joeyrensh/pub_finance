@@ -1363,15 +1363,15 @@ class StockProposal:
                 font=dict(size=font_size, color="black"),
                 bgcolor="rgba(0,0,0,0)",
             ),
-            margin=dict(t=30, b=0, l=0, r=0),  # 增加右侧边距
+            margin=dict(t=80, b=0, l=0, r=0),  # 增加右侧边距
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
         )
         # 设置图像的宽度和高度（例如，1920x1080像素）
-        fig_width, fig_height = 1280, 768
+        fig_width, fig_height = 1440, 1000
         # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
-        scale_factor = 1
+        scale_factor = 1.2
 
         # htmltest = io.to_html(fig, full_html=False)
         if self.market == "us":
@@ -1413,7 +1413,7 @@ class StockProposal:
                 font=dict(size=font_size, color="white"),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
             ),
-            margin=dict(t=30, b=0, l=0, r=0),  # 增加右侧边距
+            margin=dict(t=80, b=0, l=0, r=0),  # 增加右侧边距
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1489,7 +1489,7 @@ class StockProposal:
                 ),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
             ),
-            margin=dict(t=30, b=0, l=0, r=0),  # 增加右侧边距
+            margin=dict(t=80, b=0, l=0, r=0),  # 增加右侧边距
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1537,7 +1537,7 @@ class StockProposal:
                 ),  # 调整图例字体大小
                 bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
             ),
-            margin=dict(t=30, b=0, l=0, r=0),  # 增加右侧边距
+            margin=dict(t=80, b=0, l=0, r=0),  # 增加右侧边距
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1674,9 +1674,9 @@ class StockProposal:
             paper_bgcolor="rgba(0,0,0,0)",
         )
         # 设置图像的宽度和高度（例如，1920x1080像素）
-        fig_width, fig_height = 1280, 768
+        # fig_width, fig_height = 1280, 768
         # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
-        scale_factor = 1
+        # scale_factor = 1
         if self.market == "us":
             fig.write_image(
                 "./images/us_postion_bydate_light.png",
