@@ -86,6 +86,7 @@ def get_proxies_listv3(proxies_list, url):
 
 
 def update_proxies():
+    print("proxies检测中!!!")
     df = pd.read_csv("./houseinfo/proxies.csv", names=["proxy"], comment="#")
     pre_proxies = df["proxy"].tolist()
     url = "http://sh.ke.com/xiaoqu/xuhui/pg1cro21/"
