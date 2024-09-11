@@ -413,8 +413,8 @@ def fetch_house_info_s(url, item):
                 lanlong = lanlong_div[0].get("xiaoqu")
             else:
                 logger.info("Failed to retrieve house detail!!!!")
-                raise Exception("Failed to retrieve house detail!!!!")
                 lanlong = ""
+                raise Exception("Failed to retrieve house detail!!!!")
             age_div = tree.xpath(
                 '//div[@class="xiaoquDetailPage"]/div[@data-component="info"]/div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
             )
@@ -710,7 +710,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 count += 1
                 counter += 1
                 t1.progress_bar(len(houselist), counter)
-                if counter % 200 == 0:
+                if counter % 100 == 0:
                     update_proxies()
                 if count % data_batch_size == 0:
                     # 每处理完一批数据后，将数据写入CSV文件
