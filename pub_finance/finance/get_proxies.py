@@ -55,7 +55,7 @@ def check_proxy_anonymity(url, headers, proxy):
         if response.status_code == 200:
             tree = html.fromstring(response.content)
             div = tree.xpath(
-                '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
+                '//div[@class="xiaoquListPage"]/div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
             )
             if div:
                 cnt = div[0].text_content().strip()

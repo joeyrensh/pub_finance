@@ -59,7 +59,7 @@ def check_proxy_anonymity(url, headers, proxy):
         if response.status_code == 200:
             tree = html.fromstring(response.content)
             div = tree.xpath(
-                '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
+                '//div[@class="xiaoquListPage"]/div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
             )
             if div:
                 return True
@@ -194,7 +194,9 @@ def get_max_page_f(url):
         # 检查请求是否成功
         if response.status_code == 200:
             tree = html.fromstring(response.content)
-            count_div = tree.xpath(".//div[3]/div[2]/div/span[2]")
+            count_div = tree.xpath(
+                '//div[@class="resblock-list-container clearfix"]/div[@class="resblock-have-find"]/span[@class="value"]'
+            )
             count = count_div[0].xpath("string(.)")
             page_cnt = math.ceil(int(count) / 10)
             logger.info("共找到房源:%s，页数:%s" % (count, page_cnt))
@@ -212,12 +214,12 @@ def get_house_info_f(file_path, file_path_bk):
     if os.path.isfile(file_path_bk):
         os.remove(file_path_bk)
     district_list = [
+        "putuo",
+        "pudong",
+        "jingan",
         "huangpu",
         "xuhui",
         "changning",
-        "jingan",
-        "putuo",
-        "pudong",
         "hongkou",
         "yangpu",
         "minhang",
@@ -232,8 +234,8 @@ def get_house_info_f(file_path, file_path_bk):
     cnt = 0
     url = "http://sh.fang.ke.com/loupan/district/nht1nht2nhs1co41pgpageno/"
     base_url = "http://sh.fang.ke.com"
+    update_proxies()
     for idx, district in enumerate(district_list):
-        update_proxies()
         s = requests.Session()
         s.headers.update(get_headers())
         url_default = url.replace("district", district).replace("pageno", str(1))
@@ -260,7 +262,7 @@ def get_house_info_f(file_path, file_path_bk):
                     if res.status_code == 200:
                         tree = html.fromstring(res.content)
                         divs = tree.xpath(
-                            '//div[@class="resblock-list-container clearfix"]/ul[@class="resblock-list-wrapper"]/li'
+                            '//div[@class="resblock-list-container clearfix"]/ul[@class="resblock-list-wrapper"]/li[@class="resblock-list post_ulog_exposure_scroll has-results"]'
                         )
                         for div in divs:
                             name_div = div.xpath(
@@ -269,29 +271,37 @@ def get_house_info_f(file_path, file_path_bk):
                             name = name_div[0].xpath("string(.)")
 
                             sale_status_div = div.xpath(
-                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[@class="sale-status"]'
+                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[1]'
                             )
                             sale_status = sale_status_div[0].xpath("string(.)")
                             resblock_type_div = div.xpath(
-                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[@class="resblock-type"]'
+                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-name"]/span[2]'
                             )
                             resblock_type = resblock_type_div[0].xpath("string(.)")
                             district_div = div.xpath(
-                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-location"]/span[1]'
+                                './/div[@class="resblock-desc-wrapper"]/a[@class="resblock-location"]'
                             )
-                            district_name = district_div[0].xpath("string(.)")
-                            street_div = div.xpath(
-                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-location"]/span[2]'
+                            district_name = (
+                                district_div[0].xpath("string(.)").strip().split("/")[0]
                             )
-                            street = street_div[0].xpath("string(.)")
+
+                            street = (
+                                district_div[0].xpath("string(.)").strip().split("/")[1]
+                            )
                             area_div = div.xpath(
-                                './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-area"]/span'
+                                './/div[@class="resblock-desc-wrapper"]/a[@class="resblock-room"]/span[@class="area"]'
                             )
-                            area = area_div[0].xpath("string(.)")
+                            if area_div:
+                                area = area_div[0].xpath("string(.)")
+                            else:
+                                area = None
                             unit_price_div = div.xpath(
                                 './/div[@class="resblock-desc-wrapper"]/div[@class="resblock-price"]/div[@class="main-price"]/span[@class="number"]'
                             )
-                            unit_price = unit_price_div[0].xpath("string(.)")
+                            if unit_price_div:
+                                unit_price = unit_price_div[0].xpath("string(.)")
+                            else:
+                                unit_price = None
                             href_div = div.xpath(".//a")
                             href = href_div[0].get("href")
 
@@ -304,7 +314,7 @@ def get_house_info_f(file_path, file_path_bk):
                             if res.status_code == 200:
                                 tree = html.fromstring(res.content)
                                 date_div = tree.xpath(
-                                    "//div[2]/div[3]/div[2]/div/div[3]/ul/li[2]/div/span[2]"
+                                    "//div[2]/div[5]/div/div/div[2]/div/div/div[3]/ul/li[2]/div/span[2]"
                                 )
 
                                 if date_div:
@@ -376,57 +386,56 @@ def fetch_house_info_s(url, item):
         if response.status_code == 200:
             tree = html.fromstring(response.content)
             unit_price_div = tree.xpath(
-                '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
+                '//div[@class="xiaoquDetailPage"]/div[@data-component="info"]/div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquPrice clear"]/div[@class="fl"]/span[@class="xiaoquUnitPrice"]'
             )
             if len(unit_price_div) > 0:
                 unit_price = unit_price_div[0].xpath("string(.)")
             else:
                 unit_price = ""
-                raise Exception("XPath query returned no results")
             deal_price_div = tree.xpath(
-                '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]'
+                '//div[@class="xiaoquDetailPage"]/div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@data-component="deal"]/div[@id="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]'
             )
             if len(deal_price_div) > 0:
-                deal_price = deal_price_div[0].xpath("string(.)")
+                deal_price = deal_price_div[0].xpath("string(.)").strip()
             else:
                 deal_price = ""
             deal_date_div = tree.xpath(
-                '//div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@class="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealDate"]'
+                '//div[@class="xiaoquDetailPage"]/div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@data-component="deal"]/div[@id="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealDate"]'
             )
             if len(deal_date_div) > 0:
                 deal_date = deal_date_div[0].xpath("string(.)")
             else:
                 deal_date = ""
             lanlong_div = tree.xpath(
-                '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemOneLine"]/div[@class="xiaoquInfoItem outerItem"][2]/span[@class="xiaoquInfoContent outer"]/span[@mendian]'
+                '//div[@class="xiaoquDetailPage"]/div[@data-component="info"]/div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemOneLine"]/div[@class="xiaoquInfoItem outerItem"][2]/span[@class="xiaoquInfoContent outer"]/span[@mendian]'
             )
             if len(lanlong_div) > 0:
                 lanlong = lanlong_div[0].get("xiaoqu")
             else:
                 lanlong = ""
             age_div = tree.xpath(
-                '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
+                '//div[@class="xiaoquDetailPage"]/div[@data-component="info"]/div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
             )
             if len(age_div) > 0:
                 age = age_div[0].xpath("string(.)")
             else:
                 age = ""
             house_type_div = tree.xpath(
-                '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
+                '//div[@class="xiaoquDetailPage"]/div[@data-component="info"]/div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
             )
             if len(house_type_div) > 0:
                 house_type = house_type_div[0].xpath("string(.)")
             else:
                 house_type = ""
             total_cnt_div = tree.xpath(
-                '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
+                '//div[@class="xiaoquDetailPage"]/div[@data-component="info"]/div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
             )
             if len(total_cnt_div) > 0:
                 total_cnt = total_cnt_div[0].xpath("string(.)")
             else:
                 total_cnt = ""
             structure_div = tree.xpath(
-                '//div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
+                '//div[@class="xiaoquDetailPage"]/div[@data-component="info"]/div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][1]/div[@class="xiaoquInfoItem"][1]/span[@class="xiaoquInfoContent"]'
             )
             if len(structure_div) > 0:
                 structure = structure_div[0].xpath("string(.)")
@@ -487,7 +496,7 @@ def fetch_houselist_s(url, page, complete_list, district_marker, file_path_s_cp)
                     # 查找特定的div
                     # 假设我们要查找class为'target-div'的div
                     divs = tree.xpath(
-                        '//div[@class="content"]/div[@class="leftContent"]/ul[@class="listContent"]/li[@class="clear xiaoquListItem"]'
+                        '//div[@class="xiaoquListPage"]/div[@class="content"]/div[@class="leftContent"]/div/ul[@class="listContent"]/li'
                     )
 
                     if divs:
@@ -501,7 +510,7 @@ def fetch_houselist_s(url, page, complete_list, district_marker, file_path_s_cp)
                                 if data_id in df_complete["data_id"].values:
                                     continue
                             # 查找<li>标签下的<img>标签，并获取alt属性的值
-                            img_tag = div.xpath('.//img[@class="lj-lazy"]')
+                            img_tag = div.xpath(".//a/img")
                             if img_tag:
                                 alt_text = img_tag[0].get("alt")
                             else:
@@ -573,7 +582,7 @@ def get_max_page(url):
             tree = html.fromstring(response.content)
 
             div = tree.xpath(
-                '//div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
+                '//div[@class="xiaoquListPage"]/div[@class="content"]/div[@class="leftContent"]/div[@class="resultDes clear"]/h2[@class="total fl"]/span'
             )
             if div:
                 cnt = div[0].text_content().strip()
