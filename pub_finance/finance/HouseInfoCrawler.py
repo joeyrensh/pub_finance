@@ -692,15 +692,11 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             # 计数器
             counter = 0
-            futures = []
-            for item in houselist:
-                if counter % 100 == 0 and counter > 0:
-                    update_proxies()
-                # 提交任务并获取Future对象列表
-                future = executor.submit(fetch_house_info_s, url_detail, item)
-                futures.append(future)
-                counter += 1
-                t1.progress_bar(len(houselist), counter)
+            # 提交任务并获取Future对象列表
+            futures = [
+                executor.submit(fetch_house_info_s, url_detail, item)
+                for item in houselist
+            ]
 
             # 获取已完成的任务的结果
             for future in concurrent.futures.as_completed(futures):
@@ -711,7 +707,11 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                     print(f"获取详细信息时出错: {e}")
 
                 count += 1
+                counter += 1
 
+                if counter % 100 == 0:
+                    update_proxies()
+                t1.progress_bar(len(houselist), counter)
                 if count % data_batch_size == 0:
                     # 每处理完一批数据后，将数据写入CSV文件
                     df = pd.DataFrame(list)
