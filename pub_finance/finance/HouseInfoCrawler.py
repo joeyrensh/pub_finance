@@ -700,6 +700,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 future = executor.submit(fetch_house_info_s, url_detail, item)
                 futures.append(future)
                 counter += 1
+                t1.progress_bar(len(houselist), counter)
 
             # 获取已完成的任务的结果
             for future in concurrent.futures.as_completed(futures):
@@ -711,7 +712,6 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
 
                 count += 1
 
-                t1.progress_bar(len(houselist), counter)
                 if count % data_batch_size == 0:
                     # 每处理完一批数据后，将数据写入CSV文件
                     df = pd.DataFrame(list)
