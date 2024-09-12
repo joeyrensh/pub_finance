@@ -412,9 +412,8 @@ def fetch_house_info_s(url, item):
             if len(lanlong_div) > 0:
                 lanlong = lanlong_div[0].get("xiaoqu")
             else:
-                logger.info("Failed to retrieve house detail!!!!")
                 lanlong = ""
-                raise Exception("Failed to retrieve house detail!!!!")
+
             age_div = tree.xpath(
                 '//div[@class="xiaoquDetailPage"]/div[@data-component="info"]/div[@class="xiaoquOverview"]/div[@class="xiaoquDescribe fr"]/div[@class="xiaoquInfo"]/div[@class="xiaoquInfoItemMulty"]/div[@class="xiaoquInfoItemCol"][2]/div[@class="xiaoquInfoItem"][2]/span[@class="xiaoquInfoContent"]'
             )
@@ -443,6 +442,10 @@ def fetch_house_info_s(url, item):
                 structure = structure_div[0].xpath("string(.)")
             else:
                 structure = ""
+
+            if len(lanlong_div) <= 0 and len(unit_price_div) <= 0:
+                logger.info("Failed to retrieve house detail!!!!")
+                raise Exception("Failed to retrieve house detail!!!!")
 
             dict = {
                 "data_id": item["data_id"],
