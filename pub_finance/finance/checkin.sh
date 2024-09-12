@@ -1,5 +1,6 @@
 \cp -rf ./pub_finance/finance ./git-repo/pub_finance/pub_finance/
 rm -rf ./git-repo/pub_finance/pub_finance/finance/*.log
+rm -rf ./git-repo/pub_finance/pub_finance/finance/nohup.out
 rm -rf ./git-repo/pub_finance/pub_finance/finance/usstockinfo/*
 rm -rf ./git-repo/pub_finance/pub_finance/finance/cnstockinfo/*
 rm -rf ./git-repo/pub_finance/pub_finance/finance/ta-lib-0.4.0-src.tar.gz
