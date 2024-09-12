@@ -855,7 +855,7 @@ if __name__ == "__main__":
     # # 新房
     # get_house_info_f(file_path, file_path_bk)
     # # 二手
-    houseinfo_to_csv_s(file_path_s, file_path_s_bk, file_path_s_cp)
+    # houseinfo_to_csv_s(file_path_s, file_path_s_bk, file_path_s_cp)
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
@@ -871,7 +871,7 @@ if __name__ == "__main__":
     gdf_merged = gpd.sjoin(
         geo_data_f, gdf_new_house, how="inner", predicate="intersects"
     )
-    gdf_agg = gdf_merged.groupby("adcode").median({"avg_price": "avg_price"}).round(-2)
+    gdf_agg = gdf_merged.groupby("adcode").median({"avg_price": "avg_price"}).round(0)
     result = geo_data_f.merge(gdf_agg, how="left", left_on="adcode", right_on="adcode")
     col_formats = {"count": "avg_price"}
     map_plot(result, "单价", "0f", png_path, 8, col_formats)
@@ -940,9 +940,7 @@ if __name__ == "__main__":
     )
     # 二手房挂牌价分析
     gdf_merged = gdf_merged[gdf_merged["unit_price"] > 0]
-    gdf_agg = (
-        gdf_merged.groupby("adcode").median({"unit_price": "unit_price"}).round(-2)
-    )
+    gdf_agg = gdf_merged.groupby("adcode").median({"unit_price": "unit_price"}).round(0)
     result = geo_data_s.merge(gdf_agg, how="left", left_on="adcode", right_on="adcode")
     col_formats = {"count": "unit_price"}
     map_plot(result, "挂牌价", "0f", png_path_s, 8, col_formats)
@@ -952,9 +950,7 @@ if __name__ == "__main__":
     #     geo_data_s, gdf_second_hand_house, how="inner", predicate="intersects"
     # )
     # gdf_merged = gdf_merged[gdf_merged["deal_price"] > 0]
-    gdf_agg = (
-        gdf_merged.groupby("adcode").median({"deal_price": "deal_price"}).round(-2)
-    )
+    gdf_agg = gdf_merged.groupby("adcode").median({"deal_price": "deal_price"}).round(0)
     result = geo_data_s.merge(gdf_agg, how="left", left_on="adcode", right_on="adcode")
     col_formats = {"count": "deal_price"}
     map_plot(result, "最近成交价", "0f", png_path_s2, 8, col_formats)
