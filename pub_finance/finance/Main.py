@@ -222,7 +222,7 @@ def exec_btstrategy(date):
         rot=0,
         fontsize=20,
         grid=True,
-        color="#d65f5f",
+        color="#FF4136",
     )
     ax2.set_facecolor("none")
 
