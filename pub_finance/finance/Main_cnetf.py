@@ -97,6 +97,8 @@ def exec_btstrategy(date):
 
     perf_stats = pd.concat([perf_stats_year, perf_stats_all.T], axis=0)
 
+    perf_stats = perf_stats.drop(columns=["Sortino ratio", "Tail ratio"])
+
     perf_stats_ = perf_stats.reset_index()
     perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
         lambda x: x.map(lambda y: f"{y*100:.2f}%")
@@ -153,10 +155,10 @@ def exec_btstrategy(date):
         "Stability",
         "Max\ndrawdown",
         "Omega\nratio",
-        "Sortino\nratio",
+        # "Sortino\nratio",
         "Skew",
         "Kurtosis",
-        "Tail\nratio",
+        # "Tail\nratio",
         "Daily value\nat risk",
     ]
 
@@ -183,7 +185,7 @@ def exec_btstrategy(date):
 
     # Set the font size of the table title
     table.auto_set_font_size(False)
-    table.set_fontsize(17)
+    table.set_fontsize(20)
 
     # 绘制累计收益曲线
     ax2 = ax1.twinx()
@@ -197,7 +199,7 @@ def exec_btstrategy(date):
         ax=ax1,
         label="drawdown (right)",
         rot=0,
-        alpha=0.8,
+        alpha=1,
         fontsize=20,
         grid=False,
         color="#3D9970",
