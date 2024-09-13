@@ -159,7 +159,7 @@ def exec_btstrategy(date):
     cols_names = [
         "date",
         "Annual\nreturn",
-        "Cumulative\nreturns",
+        "Cum\nreturns",
         "Annual\nvolatility",
         "Sharpe\nratio",
         "Calmar\nratio",
