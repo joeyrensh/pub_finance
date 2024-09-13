@@ -2206,6 +2206,7 @@ class StockProposal:
                 "cash": cash,
                 "final_value": final_value,
                 "stock_cnt": len(stock_list),
+                "end_date": end_date
             }
         ]
         df_result = pd.DataFrame.from_dict(result)

@@ -237,7 +237,7 @@ def create_layout(app):
     # Overall 信息
     df_overall = pd.read_csv(
         IMAGE_PATH.joinpath("us_df_result.csv"),
-        usecols=[i for i in range(1, 4)],
+        usecols=[i for i in range(1, 5)],
     )
     # 板块数据
     df = pd.read_csv(
@@ -369,7 +369,14 @@ def create_layout(app):
                                                 style={"color": "black"},
                                             ),
                                             html.Span(
-                                                f"{df_overall.at[0, 'stock_cnt']}"
+                                                f"{df_overall.at[0, 'stock_cnt']}, "
+                                            ),
+                                            html.Span(
+                                                "数据更新至",
+                                                style={"color": "black"},
+                                            ),
+                                            html.Span(
+                                                f"{df_overall.at[0, 'end_date']}"
                                             ),
                                         ]
                                     ),
