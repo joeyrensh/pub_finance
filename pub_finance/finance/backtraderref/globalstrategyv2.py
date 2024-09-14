@@ -7,7 +7,7 @@ import pandas as pd
 from utility.fileinfo import FileInfo
 
 
-class BTStrategyV2(bt.Strategy):
+class GlobalStrategy(bt.Strategy):
     """
     自定义均线的时间间隔
     目前定义了MA/EMA/MACD三类指标的时间区间
