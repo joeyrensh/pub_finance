@@ -73,3 +73,32 @@ Also, if you're using any of the table format helpers (e.g. Group), replace
 `from dash_table.Format import Group` with 
 `from dash.dash_table.Format import Group`
   import dash_table
+ERROR:app:Exception on /_dash-update-component [POST]
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/dash.py", line 1373, in dispatch
+    ctx.run(
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 465, in add_context
+    output_value = _invoke_callback(func, *func_args, **func_kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/dash/_callback.py", line 40, in _invoke_callback
+    return func(*args, **kwargs)  # %% callback invoked %%
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/app.py", line 134, in update_page_content
+    return cnstock_performance.create_layout(app)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pub_finance/finance/dashreport/pages/cnstock_performance.py", line 15, in create_layout
+    with open(IMAGE_PATH.joinpath("cntrdraw_light.png"), "rb") as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/root/pub_finance/finance/images/cntrdraw_light.png'
