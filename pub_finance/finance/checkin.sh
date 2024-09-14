@@ -10,8 +10,8 @@ rm -rf ./git-repo/pub_finance/pub_finance/finance/*.png
 rm -rf ./git-repo/pub_finance/pub_finance/finance/houseinfo/*.csv
 rm -rf ./git-repo/pub_finance/pub_finance/finance/images/*
 echo -e "mail_name,mail_password\nmail_name1" > ./git-repo/pub_finance/pub_finance/finance/mail.conf
-\cp -rf ./pub_finance/finance/usstockinfo/USStockMarketClosed.config ./git-repo/pub_finance/pub_finance/finance/usstockinfo/
-\cp -rf ./pub_finance/finance/cnstockinfo/CNStockMarketClosed.config ./git-repo/pub_finance/pub_finance/finance/cnstockinfo/
+\cp -rf ./pub_finance/finance/usstockinfo/marketclosed.config ./git-repo/pub_finance/pub_finance/finance/usstockinfo/
+\cp -rf ./pub_finance/finance/cnstockinfo/marketclosed.config ./git-repo/pub_finance/pub_finance/finance/cnstockinfo/
 cd ./git-repo/pub_finance/pub_finance/
 git add *
 git commit -a -m "update"

@@ -45,9 +45,9 @@ class ToolKit:
         """ 
         utc_us = datetime.fromisoformat('2021-01-18 01:00:00')
         美股休市日，https://www.nyse.com/markets/hours-calendars
-        USStockMarketClosed.config 是2021和2022两年的美股法定休市配置文件 
+        marketclosed.config 是2021和2022两年的美股法定休市配置文件 
         """
-        f = open("./usstockinfo/USStockMarketClosed.config").readlines()
+        f = open("./usstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(re.sub(",.*\n", "", i))
@@ -69,11 +69,11 @@ class ToolKit:
         """
         utc_us = datetime.fromisoformat('2021-01-18 01:00:00')
         美股休市日，https://www.nyse.com/markets/hours-calendars
-        USStockMarketClosed.config 是2021和2022两年的美股法定休市配置文件
+        marketclosed.config 是2021和2022两年的美股法定休市配置文件
         """
         if offset == 0:
             return str(datetime.now() - timedelta(hours=12))[0:10].replace("-", "")
-        f = open("./usstockinfo/USStockMarketClosed.config").readlines()
+        f = open("./usstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(re.sub(",.*\n", "", i))
@@ -100,7 +100,7 @@ class ToolKit:
         取两个交易日起之间的交易天数，用来过滤塞选滞胀的股票
         cur, before都需是datetime类型
         """
-        f = open("./usstockinfo/USStockMarketClosed.config").readlines()
+        f = open("./usstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(re.sub(",.*\n", "", i))
@@ -126,9 +126,9 @@ class ToolKit:
         """
         utc_cn = datetime.fromisoformat('2021-01-18 01:00:00')
         A股休市日
-        CNStockMarketClosed.config 是2021和2022两年的美股法定休市配置文件 
+        marketclosed.config 是2021和2022两年的美股法定休市配置文件 
         """
-        f = open("./cnstockinfo/CNStockMarketClosed.config").readlines()
+        f = open("./cnstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(re.sub(",.*\n", "", i))
@@ -149,7 +149,7 @@ class ToolKit:
     def get_cn_latest_trade_date(offset) -> str | None:
         if offset == 0:
             return str(datetime.now())[0:10].replace("-", "")
-        f = open("./cnstockinfo/CNStockMarketClosed.config").readlines()
+        f = open("./cnstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(re.sub(",.*\n", "", i))
@@ -176,7 +176,7 @@ class ToolKit:
         取两个交易日起之间的交易天数，用来过滤塞选滞胀的股票
         cur, before都需是datetime类型
         """
-        f = open("./cnstockinfo/CNStockMarketClosed.config").readlines()
+        f = open("./cnstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(re.sub(",.*\n", "", i))

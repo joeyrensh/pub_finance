@@ -2043,8 +2043,8 @@ class StockProposal:
 
         if self.market == "us":
             subject = "US Stock Market Trends"
-            image_path_return_light = "./images/TRdraw_light.png"
-            image_path_return_dark = "./images/TRdraw_dark.png"
+            image_path_return_light = "./images/trdraw_light.png"
+            image_path_return_dark = "./images/trdraw_dark.png"
             image_path = [
                 "./images/us_postion_byindustry_light.png",
                 "./images/us_postion_byindustry_dark.png",
@@ -2061,8 +2061,8 @@ class StockProposal:
             ]
         elif self.market == "cn":
             subject = "CN Stock Market Trends"
-            image_path_return_light = "./images/CNTRdraw_light.png"
-            image_path_return_dark = "./images/CNTRdraw_dark.png"
+            image_path_return_light = "./images/cntrdraw_light.png"
+            image_path_return_dark = "./images/cntrdraw_dark.png"
             image_path = [
                 "./images/cn_postion_byindustry_light.png",
                 "./images/cn_postion_byindustry_dark.png",
@@ -3040,12 +3040,12 @@ class StockProposal:
 
         if self.market == "us":
             subject = "US Stock Market ETF Trends"
-            image_path_return_light = "./images/ETFTRdraw_light.png"
-            image_path_return_dark = "./images/ETFTRdraw_dark.png"
+            image_path_return_light = "./images/etftrdraw_light.png"
+            image_path_return_dark = "./images/etftrdraw_dark.png"
         elif self.market == "cn":
             subject = "CN Stock Market ETF Trends"
-            image_path_return_light = "./images/CNETFTRdraw_light.png"
-            image_path_return_dark = "./images/CNETFTRdraw_dark.png"
+            image_path_return_light = "./images/cnetftrdraw_light.png"
+            image_path_return_dark = "./images/cnetftrdraw_dark.png"
         image_path = [
             "./images/cnetf_postion_bydate_light.png",
             "./images/cnetf_postion_bydate_dark.png",
