@@ -12,7 +12,7 @@ def create_layout(app):
     # 收益率曲线
     IMAGE_PATH = PATH.joinpath("../../images").resolve()
     DATA_PATH = PATH.joinpath("../../data").resolve()
-    with open(IMAGE_PATH.joinpath("CNTRdraw_light.png"), "rb") as f:
+    with open(IMAGE_PATH.joinpath("cntrdraw_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_trdraw = base64.b64encode(image_data).decode("utf-8")
     with open(IMAGE_PATH.joinpath("cn_postion_byindustry_light.png"), "rb") as f:
