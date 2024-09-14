@@ -3,11 +3,9 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
+from pages import cnstock_performance, news_reviews, usstock_performance
 from pages import (
     overview,
-    cnStockPerformance,
-    usStockPerformance,
-    newsReviews,
 )
 from flask import Flask
 from flask_compress import Compress
@@ -133,20 +131,20 @@ def update_page_content(pathname):
     if pathname == "/dash-financial-report/overview":
         return overview.create_layout(app)
     elif pathname == "/dash-financial-report/cn-stock-performance":
-        return cnStockPerformance.create_layout(app)
+        return cnstock_performance.create_layout(app)
     elif pathname == "/dash-financial-report/us-stock-performance":
-        return usStockPerformance.create_layout(app)
+        return usstock_performance.create_layout(app)
     elif pathname == "/dash-financial-report/news-and-reviews":
-        return newsReviews.create_layout(app)
+        return news_reviews.create_layout(app)
     elif pathname == "/dash-financial-report/full-view":
         return [
-            cnStockPerformance.create_layout(app),
-            usStockPerformance.create_layout(app),
+            cnstock_performance.create_layout(app),
+            usstock_performance.create_layout(app),
             overview.create_layout(app),
-            newsReviews.create_layout(app),
+            news_reviews.create_layout(app),
         ]
     else:
-        return (cnStockPerformance.create_layout(app),)
+        return (cnstock_performance.create_layout(app),)
 
 
 if __name__ == "__main__":
