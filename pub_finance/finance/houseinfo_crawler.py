@@ -172,7 +172,7 @@ def get_headers():
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
         "Accept-encoding": "gzip, deflate, br, zstd",
         "Accept-language": "zh-CN,zh;q=0.9",
-        "Cookie": ("lianjia_uuid=%s;") % (uuid.uuid4()),
+        "Cookie": ("ke_uuid=%s;") % (uuid.uuid4()),
     }
     return headers
 
@@ -855,7 +855,7 @@ if __name__ == "__main__":
     # # 新房
     # get_house_info_f(file_path, file_path_bk)
     # # 二手
-    # houseinfo_to_csv_s(file_path_s, file_path_s_bk, file_path_s_cp)
+    # houseinfo_to_csv_s(file_path_s, file_path_s_bk, file_path_s_cp)行·
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
