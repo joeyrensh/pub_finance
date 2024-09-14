@@ -834,7 +834,7 @@ def map_plot(df, legend_title, legend_fmt, png_path, k, col_formats):
                     rect2 = text2.get_window_extent(renderer=renderer)
 
     check_and_adjust_annotations(texts)
-    plt.savefig(png_path, dpi=250, bbox_inches="tight", pad_inches=0)
+    plt.savefig(png_path, dpi=300, bbox_inches="tight", pad_inches=0)
 
 
 # 主程序入口
@@ -855,7 +855,7 @@ if __name__ == "__main__":
     # # 新房
     # get_house_info_f(file_path, file_path_bk)
     # # 二手
-    houseinfo_to_csv_s(file_path_s, file_path_s_bk, file_path_s_cp)
+    # houseinfo_to_csv_s(file_path_s, file_path_s_bk, file_path_s_cp)
 
     # 新房数据分析
     geo_data = gpd.read_file(geo_path, engine="pyogrio")
