@@ -1,7 +1,0 @@
-{
-    "jupyter.jupyterServerType": "remote",
-    "python.analysis.extraPaths": [
-        "./finance"
-    ],
-    "inlineSQL.lintSQLFiles": false
-}
