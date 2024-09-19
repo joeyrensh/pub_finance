@@ -62,6 +62,7 @@ def exec_btstrategy(date):
 
     # 节约内存
     del list
+    del data
     gc.collect()
 
     """ 运行cerebro """
