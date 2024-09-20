@@ -340,6 +340,7 @@ class GlobalStrategy(bt.Strategy):
                 self.signals[d._name]["slope"] == 1,
                 self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
                 self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
+                self.inds[d._name]["emashort"] > self.inds[d._name]["emashort"](-1),
                 self.inds[d._name]["emamid"] > self.inds[d._name]["emamid"](-1),
             )
 
@@ -357,11 +358,14 @@ class GlobalStrategy(bt.Strategy):
             """
             买入5: 穿越年线
             """
-            self.signals[d._name]["closs_crossup_annualline"] = (
+            self.signals[d._name]["closs_crossup_annualline"] = bt.And(
                 bt.indicators.crossover.CrossUp(
                     d.close, self.inds[d._name]["maannual"]
                 ),
-                self.signals[d._name]["higher"] == 1,
+                bt.Or(
+                    self.signals[d._name]["higher"] == 1,
+                    self.signals[d._name]["higher_dif"] == 1,
+                ),
                 self.signals[d._name]["slope"] == 1,
             )
 
@@ -420,15 +424,19 @@ class GlobalStrategy(bt.Strategy):
                 self.inds[d._name]["emashort"] < self.inds[d._name]["emamid"],
                 self.inds[d._name]["mashort"] < self.inds[d._name]["mamid"],
                 self.inds[d._name]["emamid"] < self.inds[d._name]["emamid"](-1),
+                self.inds[d._name]["emashort"] < self.inds[d._name]["emashort"](-1),
             )
             """ 
             卖出5: 下穿年线
             """
-            self.signals[d._name]["closs_crossdown_annualline"] = (
+            self.signals[d._name]["closs_crossdown_annualline"] = bt.And(
                 bt.indicators.crossover.CrossDown(
                     d.close, self.inds[d._name]["maannual"]
                 ),
-                self.signals[d._name]["lower"] == 1,
+                bt.Or(
+                    self.signals[d._name]["lower"] == 1,
+                    self.signals[d._name]["lower_dif"] == 1,
+                ),
             )
             """ indicators以及signals初始化进度打印 """
             t.progress_bar(len(self.datas), i)

@@ -853,7 +853,7 @@ if __name__ == "__main__":
     file_path_s_cp = "./houseinfo/secondhandhouselist_cp.csv"
 
     # # 新房
-    get_house_info_f(file_path, file_path_bk)
+    # get_house_info_f(file_path, file_path_bk)
     # # 二手
     houseinfo_to_csv_s(file_path_s, file_path_s_bk, file_path_s_cp)
 
