@@ -9,6 +9,7 @@ rm -rf ./git-repo/pub_finance/pub_finance/finance/houseinfo/*.png
 rm -rf ./git-repo/pub_finance/pub_finance/finance/*.png
 rm -rf ./git-repo/pub_finance/pub_finance/finance/houseinfo/*.csv
 rm -rf ./git-repo/pub_finance/pub_finance/finance/images/*
+rm -rf ./git-repo/pub_finance/pub_finance/finance/data/*
 echo -e "mail_name,mail_password\nmail_name1" > ./git-repo/pub_finance/pub_finance/finance/mail.conf
 \cp -rf ./pub_finance/finance/houseinfo/proxies.csv ./git-repo/pub_finance/pub_finance/finance/houseinfo/
 \cp -rf ./pub_finance/finance/usstockinfo/marketclosed.config ./git-repo/pub_finance/pub_finance/finance/usstockinfo/
