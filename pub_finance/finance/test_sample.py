@@ -18,13 +18,9 @@ import gc
 from backtraderref.cnfixedamount import FixedAmount
 
 
-# df = pd.read_csv(
-#     "./usstockinfo/trade_20240923.csv",
-#     header=None,
-# )
-# df.columns = ["index", "symbol", "date", "action", "base", "volume", "strategy"]
-# result = df.groupby(["action", "strategy"])["symbol"].count()
-# print(result)
+""" backtrader策略 """
+
+
 def exec_btstrategy(date):
     """创建cerebro对象"""
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
@@ -308,3 +304,12 @@ if __name__ == "__main__":
 
     """ 结束进度条 """
     pbar.finish()
+
+
+# df = pd.read_csv(
+#     "./cnstockinfo/trade_20240923.csv",
+#     header=None,
+# )
+# df.columns = ["index", "symbol", "date", "action", "base", "volume", "strategy"]
+# result = df.groupby(["action", "strategy"])["symbol"].count()
+# print(result)

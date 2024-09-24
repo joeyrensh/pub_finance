@@ -595,6 +595,7 @@ class GlobalStrategy(bt.Strategy):
                 )
                 diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y != 0]
                 diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y != 0]
+                diff_array3 = [abs((x - y) * 100 / y) for x, y in zip(x1, x2) if y != 0]
 
                 if self.signals[d._name]["macrossup"][0] == 1:
                     """买入对应仓位"""
@@ -630,6 +631,7 @@ class GlobalStrategy(bt.Strategy):
                     self.signals[d._name]["close_crossup_emashort"][0] == 1
                     and sum(1 for value in diff_array if value < 1) == 10
                     and sum(1 for value in diff_array2 if value < 1) == 10
+                    and sum(1 for value in diff_array3 if value < 1) == 10
                 ):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
