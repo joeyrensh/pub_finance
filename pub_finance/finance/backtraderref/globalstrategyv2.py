@@ -215,10 +215,18 @@ class GlobalStrategy(bt.Strategy):
             """
 
             self.signals[d._name]["higher"] = bt.Or(
-                self.inds[d._name]["lowest_short"]
-                > self.inds[d._name]["lowest_short"](-5),
-                self.inds[d._name]["highest_short"]
-                > self.inds[d._name]["highest_short"](-5),
+                bt.And(
+                    self.inds[d._name]["lowest_short"]
+                    > self.inds[d._name]["lowest_short"](-5),
+                    self.inds[d._name]["lowest_short"]
+                    > self.inds[d._name]["lowest_long"],
+                ),
+                bt.And(
+                    self.inds[d._name]["highest_short"]
+                    > self.inds[d._name]["highest_short"](-5),
+                    self.inds[d._name]["highest_short"]
+                    > self.inds[d._name]["highest_long"],
+                ),
             )
 
             self.signals[d._name]["lower"] = bt.And(
@@ -313,6 +321,7 @@ class GlobalStrategy(bt.Strategy):
                     d.close > d.open,
                     self.signals[d._name]["slope"] == 1,
                     self.inds[d._name]["emamid"] > self.inds[d._name]["emamid"](-1),
+                    self.inds[d._name]["emashort"] > self.inds[d._name]["emashort"](-1),
                     bt.Or(
                         bt.indicators.crossover.CrossUp(
                             d.close, self.inds[d._name]["emashort"]
@@ -336,10 +345,10 @@ class GlobalStrategy(bt.Strategy):
             买入3: 均线多头排列
             """
             self.signals[d._name]["long_position"] = bt.And(
-                d.close >= self.inds[d._name]["emashort"],
+                d.close > self.inds[d._name]["emashort"],
                 self.signals[d._name]["slope"] == 1,
-                self.inds[d._name]["emashort"] >= self.inds[d._name]["emamid"],
-                self.inds[d._name]["mashort"] >= self.inds[d._name]["mamid"],
+                self.inds[d._name]["emashort"] > self.inds[d._name]["emamid"],
+                self.inds[d._name]["mashort"] > self.inds[d._name]["mamid"],
                 self.inds[d._name]["emashort"] > self.inds[d._name]["emashort"](-1),
                 self.inds[d._name]["emamid"] > self.inds[d._name]["emamid"](-1),
             )
@@ -573,16 +582,16 @@ class GlobalStrategy(bt.Strategy):
 
                 # 均线密集判断，短期ema与中期ema近20日内密集排列
                 x1 = self.inds[d._name]["emashort"].get(
-                    ago=-1, size=self.params.shortperiod
+                    ago=-1, size=self.params.fastperiod
                 )
                 y1 = self.inds[d._name]["emamid"].get(
-                    ago=-1, size=self.params.shortperiod
+                    ago=-1, size=self.params.fastperiod
                 )
                 x2 = self.inds[d._name]["mashort"].get(
-                    ago=-1, size=self.params.shortperiod
+                    ago=-1, size=self.params.fastperiod
                 )
                 y2 = self.inds[d._name]["mamid"].get(
-                    ago=-1, size=self.params.shortperiod
+                    ago=-1, size=self.params.fastperiod
                 )
                 diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y != 0]
                 diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y != 0]
@@ -619,8 +628,8 @@ class GlobalStrategy(bt.Strategy):
                     self.myorder[d._name]["strategy"] = "上穿年线"
                 elif (
                     self.signals[d._name]["close_crossup_emashort"][0] == 1
-                    and sum(1 for value in diff_array if value < 2) > 4
-                    and sum(1 for value in diff_array2 if value < 2) > 4
+                    and sum(1 for value in diff_array if value < 1) == 10
+                    and sum(1 for value in diff_array2 if value < 1) == 10
                 ):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
