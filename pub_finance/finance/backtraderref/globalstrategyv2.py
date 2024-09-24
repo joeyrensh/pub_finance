@@ -346,6 +346,7 @@ class GlobalStrategy(bt.Strategy):
             """
             self.signals[d._name]["long_position"] = bt.And(
                 d.close > self.inds[d._name]["emashort"],
+                self.signals[d._name]["higher_dif"] == 1,
                 self.signals[d._name]["slope"] == 1,
                 self.inds[d._name]["emashort"] > self.inds[d._name]["emamid"],
                 self.inds[d._name]["mashort"] > self.inds[d._name]["mamid"],
