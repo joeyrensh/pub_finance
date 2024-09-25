@@ -1327,10 +1327,10 @@ class StockProposal:
         )
 
         dfdata1 = sparkdata1.toPandas()
-        if self.market == "us":
-            dfdata1.to_csv("./data/us_top10ind.csv", header=True)
-        else:
-            dfdata1.to_csv("./data/cn_top10ind.csv", header=True)
+        # if self.market == "us":
+        #     dfdata1.to_csv("./data/us_top10ind.csv", header=True)
+        # else:
+        #     dfdata1.to_csv("./data/cn_top10ind.csv", header=True)
         fig = go.Figure(
             data=[
                 go.Pie(
@@ -1450,10 +1450,10 @@ class StockProposal:
         )
 
         dfdata2 = sparkdata2.toPandas()
-        if self.market == "us":
-            dfdata2.to_csv("./data/us_top10pl.csv", header=True)
-        else:
-            dfdata2.to_csv("./data/us_top10pl.csv", header=True)
+        # if self.market == "us":
+        #     dfdata2.to_csv("./data/us_top10pl.csv", header=True)
+        # else:
+        #     dfdata2.to_csv("./data/us_top10pl.csv", header=True)
         fig = go.Figure(
             data=[
                 go.Pie(
@@ -1596,10 +1596,10 @@ class StockProposal:
             """.format(end_date, end_date)
         )
         dfdata3 = sparkdata3.toPandas()
-        if self.market == "us":
-            dfdata3.to_csv("./data/us_trade_detail.csv", header=True)
-        else:
-            dfdata3.to_csv("./data/cn_trade_detail.csv", header=True)
+        # if self.market == "us":
+        #     dfdata3.to_csv("./data/us_trade_detail.csv", header=True)
+        # else:
+        #     dfdata3.to_csv("./data/cn_trade_detail.csv", header=True)
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
@@ -1933,10 +1933,10 @@ class StockProposal:
             """.format(end_date)
         )
         dfdata6 = sparkdata6.toPandas()
-        if self.market == "us":
-            dfdata6.to_csv("./data/us_top5_pnltrend.csv", header=True)
-        else:
-            dfdata6.to_csv("./data/cn_top5_pnltrend.csv", header=True)
+        # if self.market == "us":
+        #     dfdata6.to_csv("./data/us_top5_pnltrend.csv", header=True)
+        # else:
+        #     dfdata6.to_csv("./data/cn_top5_pnltrend.csv", header=True)
         dfdata6.sort_values(
             by=["buy_date", "pnl"], ascending=[False, False], inplace=True
         )
