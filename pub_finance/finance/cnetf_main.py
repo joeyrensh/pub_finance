@@ -33,7 +33,7 @@ def exec_btstrategy(date):
     # cerebro.addobserver(bt.observers.BuySell)
 
     """ 初始资金100M """
-    cerebro.broker.setcash(500000.0)
+    cerebro.broker.setcash(2000000.0)
     cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
     # cerebro.addsizer(bt.sizers.FixedSize, stake=100)

@@ -45,7 +45,7 @@ def exec_btstrategy(date):
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=True)
     # cerebro.addobserver(bt.observers.BuySell)
     """ 初始资金100M """
-    cerebro.broker.setcash(1000000.0)
+    cerebro.broker.setcash(2000000.0)
     """ 每手10股 """
     # cerebro.addsizer(bt.sizers.FixedSize, stake=10)
     # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)

@@ -24,7 +24,7 @@ class GlobalStrategy(bt.Strategy):
         ("volmidperiod", 10),
         ("vollongperiod", 20),
         ("annualperiod", 250),
-        ("availablecash", 1000000),
+        ("availablecash", 2000000),
         ("hlshortperiod", 5),
         ("hlmidperiod", 10),
         ("hllongperiod", 20),
