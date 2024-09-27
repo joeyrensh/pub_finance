@@ -287,8 +287,8 @@ if __name__ == "__main__":
 
     print("trade_date is :", trade_date)
 
-    """ 东方财经爬虫 """
-    """ 爬取每日最新股票数据 """
+    # """ 东方财经爬虫 """
+    # """ 爬取每日最新股票数据 """
     # em = EMCNWebCrawler()
     # em.get_cn_daily_stock_info(trade_date)
 

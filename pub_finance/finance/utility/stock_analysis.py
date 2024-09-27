@@ -1592,6 +1592,10 @@ class StockProposal:
             """.format(end_date)
         )
         dfdata_strategy_track = sparkdata_strategy_track.toPandas()
+        df_grouped = dfdata_strategy_track.groupby("date")[
+            "pnl"
+        ].sum()  # 按日期分组并求和
+        max_pnl = df_grouped.max()  # 获取分组求和值的最大值
         fig = go.Figure()
         for i, (strategy, data) in enumerate(dfdata_strategy_track.groupby("strategy")):
             fig.add_trace(
@@ -1600,7 +1604,7 @@ class StockProposal:
                     y=data["success_rate"],
                     mode="lines",
                     name=strategy,
-                    line=dict(width=3, color=strategy_colors[i]),
+                    line=dict(width=3, color=strategy_colors[i], shape="spline"),
                     yaxis="y",
                 )
             )
@@ -1652,6 +1656,7 @@ class StockProposal:
                 showgrid=False,
                 ticks="outside",
                 tickfont=dict(color="black", size=font_size),
+                range=[0, max_pnl * 1.5],
             ),
             legend=dict(
                 orientation="h",
