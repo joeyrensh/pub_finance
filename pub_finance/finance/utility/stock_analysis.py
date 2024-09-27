@@ -1600,7 +1600,7 @@ class StockProposal:
                     y=data["success_rate"],
                     mode="lines",
                     name=strategy,
-                    line=dict(width=2, color=strategy_colors[i]),
+                    line=dict(width=3, color=strategy_colors[i]),
                     yaxis="y",
                 )
             )
