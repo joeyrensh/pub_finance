@@ -219,7 +219,7 @@ def create_layout(app):
                                 [
                                     # html.Br([]),
                                     html.H6(
-                                        ["策略近60日收益跟踪"],
+                                        ["A股年化收益率分析"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(
@@ -242,7 +242,7 @@ def create_layout(app):
                                 [
                                     # html.Br([]),
                                     html.H6(
-                                        ["A股年化收益率分析"],
+                                        ["策略近60日收益跟踪"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(
