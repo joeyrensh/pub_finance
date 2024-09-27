@@ -1592,6 +1592,10 @@ class StockProposal:
             """.format(end_date)
         )
         dfdata_strategy_track = sparkdata_strategy_track.toPandas()
+        dfdata_strategy_track["date"] = pd.to_datetime(dfdata_strategy_track["date"])
+        dfdata_strategy_track["ema_success_rate"] = (
+            dfdata_strategy_track["success_rate"].ewm(span=5, adjust=False).mean()
+        )
         df_grouped = dfdata_strategy_track.groupby("date")[
             "pnl"
         ].sum()  # 按日期分组并求和
@@ -1601,7 +1605,7 @@ class StockProposal:
             fig.add_trace(
                 go.Scatter(
                     x=data["date"],
-                    y=data["success_rate"],
+                    y=data["ema_success_rate"],
                     mode="lines",
                     name=strategy,
                     line=dict(width=3, color=strategy_colors[i], shape="spline"),
