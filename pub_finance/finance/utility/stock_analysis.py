@@ -1584,7 +1584,7 @@ class StockProposal:
             SELECT date
                     ,strategy
                     ,SUM(pnl) AS pnl
-                    ,IF(COUNT(symbol) > 0, SUM(CASE WHEN pnl >= 0 THEN 1 ELSE 0 END) / COUNT(symbol), 0) AS success_rate
+                    ,IF(COUNT(symbol) > 0, SUM(CASE WHEN pnl > 0 THEN 1 ELSE 0 END) / COUNT(symbol), 0) AS success_rate
             FROM tmp1
             WHERE rn = 1
             GROUP BY date, strategy
@@ -1715,6 +1715,9 @@ class StockProposal:
             """.format(end_date, end_date)
         )
         dfdata3 = sparkdata3.toPandas()
+        df_grouped = dfdata3.groupby("buy_date")[["buy_cnt", "sell_cnt"]].sum()
+
+        max_sum = df_grouped.sum(axis=1).max()  # 获取求和值的最大值
         # if self.market == "us":
         #     dfdata3.to_csv("./data/us_trade_detail.csv", header=True)
         # else:
@@ -1785,6 +1788,7 @@ class StockProposal:
                 showgrid=False,
                 ticks="outside",
                 tickfont=dict(color="black", size=font_size),
+                range=[0, max_sum * 1.2],
             ),
             legend=dict(
                 orientation="h",
