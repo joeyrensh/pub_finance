@@ -1679,14 +1679,14 @@ class StockProposal:
                 "./images/us_strategy_tracking.png",
                 width=fig_width,
                 height=fig_height,
-                scale=scale_factor,
+                scale=1.5,
             )
         else:
             fig.write_image(
                 "./images/cn_strategy_tracking.png",
                 width=fig_width,
                 height=fig_height,
-                scale=scale_factor,
+                scale=1.5,
             )
 
         # 60天内交易明细分析
