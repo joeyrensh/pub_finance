@@ -31,6 +31,9 @@ def create_layout(app):
     with open(IMAGE_PATH.joinpath("us_postion_byindustry&p&l_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_bypl_date = base64.b64encode(image_data).decode("utf-8")
+    with open(IMAGE_PATH.joinpath("us_strategy_tracking.png"), "rb") as f:
+        image_data = f.read()
+        encoded_image_strategy = base64.b64encode(image_data).decode("utf-8")
 
     # Overall 信息
     df_overall = pd.read_csv(
@@ -194,6 +197,28 @@ def create_layout(app):
                                     ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_trdraw}",
+                                        style={
+                                            "overflow-x": "auto",
+                                            "width": "100%",
+                                            "overflow-y": "auto",
+                                        },
+                                    ),
+                                ],
+                                className="twelve columns",
+                            )
+                        ],
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    # html.Br([]),
+                                    html.H6(
+                                        ["策略近60日收益跟踪"],
+                                        className="subtitle padded",
+                                    ),
+                                    html.Img(
+                                        src=f"data:image/png;base64,{encoded_image_strategy}",
                                         style={
                                             "overflow-x": "auto",
                                             "width": "100%",

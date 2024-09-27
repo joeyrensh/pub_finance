@@ -11,6 +11,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import gc
 from utility.toolkit import ToolKit
+import plotly.colors
 
 
 # mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
@@ -1565,6 +1566,119 @@ class StockProposal:
 
         del dfdata2
         gc.collect()
+
+        # 60天内策略交易概率
+        # 获取不同策略的颜色列表
+        strategy_colors = plotly.colors.qualitative.G10
+        sparkdata_strategy_track = spark.sql(
+            """ 
+            WITH tmp1 AS (
+                SELECT t1.date
+                    ,t1.symbol
+                    ,t1.pnl
+                    ,t2.strategy
+                    ,ROW_NUMBER() OVER(PARTITION BY t1.date, t1.symbol ORDER BY ABS(t1.date - t2.date) ASC, t2.date DESC) AS rn
+                FROM temp3 t1 LEFT JOIN temp1 t2 ON t1.symbol = t2.symbol AND t1.date >= t2.date AND t2.trade_type = 'buy'
+                WHERE t1.date >= DATE_ADD('{}', -60) 
+            )
+            SELECT date
+                    ,strategy
+                    ,SUM(pnl) AS pnl
+                    ,IF(COUNT(symbol) > 0, SUM(CASE WHEN pnl >= 0 THEN 1 ELSE 0 END) / COUNT(symbol), 0) AS success_rate
+            FROM tmp1
+            WHERE rn = 1
+            GROUP BY date, strategy
+            ORDER BY date, strategy
+            """.format(end_date)
+        )
+        dfdata_strategy_track = sparkdata_strategy_track.toPandas()
+        fig = go.Figure()
+        for i, (strategy, data) in enumerate(dfdata_strategy_track.groupby("strategy")):
+            fig.add_trace(
+                go.Scatter(
+                    x=data["date"],
+                    y=data["success_rate"],
+                    mode="lines",
+                    name=strategy,
+                    line=dict(width=2, color=strategy_colors[i]),
+                    yaxis="y",
+                )
+            )
+
+            fig.add_trace(
+                go.Bar(
+                    x=data["date"],
+                    y=data["pnl"],
+                    # name=strategy + " - pnl",
+                    marker=dict(color=strategy_colors[i]),
+                    yaxis="y2",
+                    showlegend=False,
+                )
+            )
+        # light mode
+        fig.update_layout(
+            title={
+                "text": "Last 60 days strategy track",
+                "y": 0.99,
+                "x": 0.05,
+                "xanchor": "left",
+                "yanchor": "top",
+                "font": dict(size=title_font_size, color="black"),
+            },
+            xaxis=dict(
+                # title="Trade Date",
+                # titlefont=dict(size=title_font_size, color="black"),
+                mirror=True,
+                ticks="outside",
+                tickfont=dict(color="black", size=font_size),
+                showline=True,
+                gridcolor="rgba(0, 0, 0, 0.5)",
+            ),
+            yaxis=dict(
+                title="Success Rate",
+                titlefont=dict(size=title_font_size, color="black"),
+                side="left",
+                mirror=True,
+                ticks="outside",
+                tickfont=dict(color="black", size=font_size),
+                showline=True,
+                gridcolor="rgba(0, 0, 0, 0.5)",
+            ),
+            yaxis2=dict(
+                title="Pnl per day",
+                titlefont=dict(size=title_font_size, color="black"),
+                side="right",
+                overlaying="y",
+                showgrid=False,
+                ticks="outside",
+                tickfont=dict(color="black", size=font_size),
+            ),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=-0.2,
+                xanchor="center",
+                x=0.5,
+                font=dict(size=font_size, color="black"),
+            ),
+            barmode="stack",
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+        )
+        if self.market == "us":
+            fig.write_image(
+                "./images/us_strategy_tracking.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
+        else:
+            fig.write_image(
+                "./images/cn_strategy_tracking.png",
+                width=fig_width,
+                height=fig_height,
+                scale=scale_factor,
+            )
 
         # 60天内交易明细分析
         sparkdata3 = spark.sql(

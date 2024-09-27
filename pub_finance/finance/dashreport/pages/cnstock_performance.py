@@ -27,6 +27,9 @@ def create_layout(app):
     with open(IMAGE_PATH.joinpath("cn_postion_byindustry&p&l_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_bypl_date = base64.b64encode(image_data).decode("utf-8")
+    with open(IMAGE_PATH.joinpath("cn_strategy_tracking.png"), "rb") as f:
+        image_data = f.read()
+        encoded_image_strategy = base64.b64encode(image_data).decode("utf-8")
     # Overall 信息
     df_overall = pd.read_csv(
         DATA_PATH.joinpath("cn_df_result.csv"),
@@ -216,11 +219,34 @@ def create_layout(app):
                                 [
                                     # html.Br([]),
                                     html.H6(
-                                        ["A股年化收益率分析"],
+                                        ["策略近60日收益跟踪"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_trdraw}",
+                                        style={
+                                            "width": "100%",
+                                            "overflow-x": "auto",
+                                            "overflow-y": "auto",
+                                        },
+                                    ),
+                                ],
+                                className="twelve columns",
+                            )
+                        ],
+                        className="row ",
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    # html.Br([]),
+                                    html.H6(
+                                        ["A股年化收益率分析"],
+                                        className="subtitle padded",
+                                    ),
+                                    html.Img(
+                                        src=f"data:image/png;base64,{encoded_image_strategy}",
                                         style={
                                             "width": "100%",
                                             "overflow-x": "auto",
