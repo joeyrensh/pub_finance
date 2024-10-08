@@ -169,7 +169,7 @@ def get_proxy(proxies):
 def get_headers():
     headers = {
         "User-Agent": random.choice(user_agent_list),
-        "Referer": "www.baidu.com",
+        "Referer": "sh.ke.com",
         "Host": "sh.ke.com",
         "Connection": "keep-alive",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
