@@ -94,6 +94,7 @@ def update_proxies():
     global proxies
     proxies = get_proxies_listv3(pre_proxies, url)
     logger.info("proxies已更新!!!共找到%s个proxy" % (len(proxies)))
+    print("proxies已更新!!!共找到%s个proxy" % (len(proxies)))
 
 
 logging.basicConfig(
