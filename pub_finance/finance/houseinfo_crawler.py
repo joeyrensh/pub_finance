@@ -715,7 +715,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
                 count += 1
                 counter += 1
 
-                if counter % 100 == 0:
+                if counter % 200 == 0:
                     update_proxies()
                 t1.progress_bar(len(houselist), counter)
                 if count % data_batch_size == 0:
