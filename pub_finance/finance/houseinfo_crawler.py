@@ -56,7 +56,7 @@ def check_proxy_anonymity(url, headers, proxy):
         s = requests.Session()
         s.proxies = proxy
         s.headers.update(headers)
-        response = s.get(url, timeout=5)
+        response = s.get(url, timeout=3)
         if response.status_code == 200:
             tree = html.fromstring(response.content)
             div = tree.xpath(
@@ -396,14 +396,14 @@ def fetch_house_info_s(url, item):
             else:
                 unit_price = ""
             deal_price_div = tree.xpath(
-                '//div[@class="xiaoquDetailPage"]/div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@data-component="deal"]/div[@id="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]'
+                '//div[@class="xiaoquDetailPage"]/div/div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@data-component="deal"]/div[@id="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealUnitPrice"]'
             )
             if len(deal_price_div) > 0:
                 deal_price = deal_price_div[0].xpath("string(.)").strip()
             else:
                 deal_price = ""
             deal_date_div = tree.xpath(
-                '//div[@class="xiaoquDetailPage"]/div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@data-component="deal"]/div[@id="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealDate"]'
+                '//div[@class="xiaoquDetailPage"]/div/div[@class="m-content"]/div[@class="box-l xiaoquMainContent"]/div[@data-component="deal"]/div[@id="frameDeal"]/div[@class="frameDealList"]/ol[@class="frameDealListItem"]/li[1]/div[@class="frameDealDate"]'
             )
             if len(deal_date_div) > 0:
                 deal_date = deal_date_div[0].xpath("string(.)")
@@ -616,10 +616,10 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
     # 发起HTTP请求
     district_list = [
         "chongming",
+        "putuo",
         "xuhui",
         "changning",
         "jingan",
-        "putuo",
         "huangpu",
         "pudong",
         "hongkou",
