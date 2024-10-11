@@ -108,7 +108,7 @@ _last_index = None
 _max_attempt = 3
 _min_delay = 2
 _max_delay = 5
-_timeout = 5
+_timeout = 3
 _max_workers = 2
 
 
