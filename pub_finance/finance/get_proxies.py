@@ -152,6 +152,7 @@ def get_proxies_listv3(proxies_list, url):
                 df_result.to_csv(
                     "./houseinfo/proxies.csv", mode="a", header=False, index=False
                 )
+                pre_proxies.append(item)
                 dlist.append(item)
         t1.progress_bar(len(proxies_list), idx)
 
