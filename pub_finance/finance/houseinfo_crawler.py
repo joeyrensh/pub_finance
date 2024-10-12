@@ -77,11 +77,12 @@ def check_proxy_anonymity(url, headers, proxy):
 
 def get_proxies_listv3(proxies_list, url):
     dlist = []
-
-    for item in proxies_list:
+    t1 = ToolKit("检验中......")
+    for idx, item in enumerate(proxies_list):
         proxy = {"https": item, "http": item}
         if check_proxy_anonymity(url, get_headers(), proxy):
             dlist.append(item)
+        t1.progress_bar(len(proxies_list), idx)
 
     return dlist
 
