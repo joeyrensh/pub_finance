@@ -1665,7 +1665,7 @@ class StockProposal:
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
-                y=-0.2,
+                y=-0.1,
                 xanchor="center",
                 x=0.5,
                 font=dict(size=20, color="black"),
