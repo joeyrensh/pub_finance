@@ -206,7 +206,7 @@ def get_max_page_f(url):
             logger.info("共找到房源:%s，页数:%s" % (count, page_cnt))
             return page_cnt
         else:
-            logger.info("请求失败，状态码:", response.status_code)
+            logger.info("请求失败，状态码: %s", response.status_code)
             raise Exception(f"Failed to retrieve data: {response.status_code}")
     except requests.exceptions.RequestException as e:
         logger.info("建立连接失败 %s, proxy: %s", e, proxy)
@@ -356,7 +356,7 @@ def get_house_info_f(file_path, file_path_bk):
                         break
                     else:
                         retries += 1
-                        logger.info("请求失败，状态码:", res.status_code)
+                        logger.info("请求失败，状态码: %s", res.status_code)
                         if retries == max_retries:
                             print(f"Max retries reached for page {i}, skipping...")
                 except requests.exceptions.RequestException as e:
@@ -466,7 +466,7 @@ def fetch_house_info_s(url, item):
                 "house_type": house_type,
             }
         else:
-            logger.info("请求失败，状态码:", response.status_code)
+            logger.info("请求失败，状态码: %s", response.status_code)
             raise Exception(f"Failed to retrieve data: {response.status_code}")
     except requests.exceptions.RequestException as e:
         logger.info("建立连接失败 %s, proxy: %s", e, proxy)
@@ -557,7 +557,7 @@ def fetch_houselist_s(url, page, complete_list, district_marker, file_path_s_cp)
                             return
                 else:
                     retries += 1
-                    logger.info("请求失败，状态码:", response.status_code)
+                    logger.info("请求失败，状态码: %s", response.status_code)
                     if retries == max_retries:
                         print(f"Max retries reached for page {i}, breaking...")
                         return
