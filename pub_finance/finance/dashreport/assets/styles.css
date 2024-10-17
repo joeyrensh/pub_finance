@@ -190,6 +190,10 @@ img {
   padding: 0;
 }
 
+#idAssignedToDataTable .dash-spreadsheet-container .dash-spreadsheet-inner .column-header-name {
+  font-weight: normal;
+}
+
 td {
   padding: 0px 0px;
 }
