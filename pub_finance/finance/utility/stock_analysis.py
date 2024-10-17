@@ -1660,7 +1660,7 @@ class StockProposal:
                 showgrid=False,
                 ticks="outside",
                 tickfont=dict(color="black", size=20),
-                range=[0, max_pnl * 1.5],
+                range=[0, max_pnl * 1.2],
             ),
             legend=dict(
                 orientation="h",
