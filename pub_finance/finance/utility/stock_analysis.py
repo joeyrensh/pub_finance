@@ -12,6 +12,7 @@ import plotly.express as px
 import gc
 from utility.toolkit import ToolKit
 import plotly.colors
+from plotly.subplots import make_subplots
 
 
 # mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
@@ -1600,8 +1601,19 @@ class StockProposal:
             "pnl"
         ].sum()  # 按日期分组并求和
         max_pnl = df_grouped.max()  # 获取分组求和值的最大值
-        fig = go.Figure()
+
+        # 创建带有两个 y 轴的子图布局
+        fig = make_subplots(
+            rows=2,
+            cols=1,
+            shared_xaxes=True,
+            vertical_spacing=0.01,  # 调整两个子图之间的垂直间距
+            specs=[[{"secondary_y": False}], [{"secondary_y": True}]],
+            subplot_titles=("Success Rate", "Pnl per day"),  # 子图标题
+        )
+        # 遍历每个策略并添加数据
         for i, (strategy, data) in enumerate(dfdata_strategy_track.groupby("strategy")):
+            # 添加成功率的折线图到第一个子图
             fig.add_trace(
                 go.Scatter(
                     x=data["date"],
@@ -1609,33 +1621,38 @@ class StockProposal:
                     mode="lines",
                     name=strategy,
                     line=dict(width=3, color=strategy_colors[i], shape="spline"),
-                    yaxis="y",
-                )
+                    yaxis="y1",  # 注意这里的 y 轴标签
+                ),
+                row=1,
+                col=1,
             )
 
+            # 添加 Pnl 的柱状图到第二个子图，但使用 y2 轴
             fig.add_trace(
                 go.Bar(
                     x=data["date"],
                     y=data["pnl"],
-                    # name=strategy + " - pnl",
                     marker=dict(color=strategy_colors[i]),
-                    yaxis="y2",
+                    yaxis="y2",  # 注意这里的 y 轴标签
                     showlegend=False,
-                )
+                    offsetgroup=1,
+                ),
+                row=2,
+                col=1,
             )
-        # light mode
+
+        # 更新布局以隐藏第二个子图的 x 轴和第一个子图的 y2 轴（如果存在）
         fig.update_layout(
-            title={
-                "text": "Last 60 days strategy track",
-                "y": 0.99,
-                "x": 0.05,
-                "xanchor": "left",
-                "yanchor": "top",
-                "font": dict(size=20, color="black"),
-            },
+            xaxis_title="",
+            xaxis2_title="",  # 隐藏第二个子图的 x 轴标题
             xaxis=dict(
-                # title="Trade Date",
-                # titlefont=dict(size=title_font_size, color="black"),
+                mirror=True,
+                ticks="outside",
+                tickfont=dict(color="black", size=20),
+                showline=True,
+                gridcolor="rgba(0, 0, 0, 0.5)",
+            ),
+            xaxis2=dict(
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="black", size=20),
@@ -1650,30 +1667,120 @@ class StockProposal:
                 ticks="outside",
                 tickfont=dict(color="black", size=20),
                 showline=True,
+                showgrid=True,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis2=dict(
                 title="Pnl per day",
                 titlefont=dict(size=20, color="black"),
-                side="right",
-                overlaying="y",
-                showgrid=False,
+                side="left",
+                mirror=True,
                 ticks="outside",
                 tickfont=dict(color="black", size=20),
-                range=[0, max_pnl * 1.2],
+                showline=True,
+                showgrid=True,
+                gridcolor="rgba(0, 0, 0, 0.5)",
+                # range=[0, max_pnl * 1.2],
             ),
             legend=dict(
                 orientation="h",
-                yanchor="bottom",
-                y=-0.1,
+                yanchor="top",
+                y=1.02,  # 调整位置以适应布局
                 xanchor="center",
                 x=0.5,
                 font=dict(size=20, color="black"),
             ),
-            barmode="stack",
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
+            barmode="stack",
+            margin=dict(t=60, r=10, l=10, b=10),  # 调整边距以适应标题和标签
+            title={
+                "text": "Last 60 days strategy track",
+                "y": 0.99,
+                "x": 0.05,
+                "xanchor": "left",
+                "yanchor": "top",
+                "font": dict(size=20, color="black"),
+            },
         )
+
+        # fig = go.Figure()
+        # for i, (strategy, data) in enumerate(dfdata_strategy_track.groupby("strategy")):
+        #     fig.add_trace(
+        #         go.Scatter(
+        #             x=data["date"],
+        #             y=data["ema_success_rate"],
+        #             mode="lines",
+        #             name=strategy,
+        #             line=dict(width=3, color=strategy_colors[i], shape="spline"),
+        #             yaxis="y",
+        #         )
+        #     )
+
+        #     fig.add_trace(
+        #         go.Bar(
+        #             x=data["date"],
+        #             y=data["pnl"],
+        #             # name=strategy + " - pnl",
+        #             marker=dict(color=strategy_colors[i]),
+        #             yaxis="y2",
+        #             showlegend=False,
+        #             offsetgroup=1,
+        #         )
+        #     )
+        # # light mode
+        # fig.update_layout(
+        #     title={
+        #         "text": "Last 60 days strategy track",
+        #         "y": 0.99,
+        #         "x": 0.05,
+        #         "xanchor": "left",
+        #         "yanchor": "top",
+        #         "font": dict(size=20, color="black"),
+        #     },
+        #     xaxis=dict(
+        #         # title="Trade Date",
+        #         # titlefont=dict(size=title_font_size, color="black"),
+        #         mirror=True,
+        #         ticks="outside",
+        #         tickfont=dict(color="black", size=20),
+        #         showline=True,
+        #         gridcolor="rgba(0, 0, 0, 0.5)",
+        #     ),
+        #     yaxis=dict(
+        #         title="Success Rate",
+        #         titlefont=dict(size=20, color="black"),
+        #         side="left",
+        #         mirror=True,
+        #         ticks="outside",
+        #         tickfont=dict(color="black", size=20),
+        #         showline=True,
+        #         gridcolor="rgba(0, 0, 0, 0.5)",
+        #     ),
+        #     yaxis2=dict(
+        #         title="Pnl per day",
+        #         titlefont=dict(size=20, color="black"),
+        #         # side="right",
+        #         side="left",
+        #         overlaying="y",
+        #         showgrid=False,
+        #         ticks="outside",
+        #         tickfont=dict(color="black", size=20),
+        #         # range=[0, max_pnl * 1.2],
+        #     ),
+        #     legend=dict(
+        #         orientation="h",
+        #         yanchor="bottom",
+        #         y=-0.1,
+        #         xanchor="center",
+        #         x=0.5,
+        #         font=dict(size=20, color="black"),
+        #     ),
+        #     barmode="stack",
+        #     plot_bgcolor="rgba(0,0,0,0)",
+        #     paper_bgcolor="rgba(0,0,0,0)",
+        # )
+
         if self.market == "us":
             fig.write_image(
                 "./images/us_strategy_tracking.png",
