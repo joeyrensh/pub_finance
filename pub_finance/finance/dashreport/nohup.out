@@ -592,3 +592,15 @@ WARNING:waitress.queue:Task queue depth is 1
 WARNING:waitress.queue:Task queue depth is 1
 WARNING:waitress.queue:Task queue depth is 2
 WARNING:waitress.queue:Task queue depth is 1
+ERROR:waitress:Socket error
+Traceback (most recent call last):
+  File "/root/miniconda3/lib/python3.12/site-packages/waitress/channel.py", line 132, in _flush_exception
+    return (flush(do_close=do_close), False)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/waitress/channel.py", line 270, in _flush_some
+    num_sent = self.send(chunk, do_close=do_close)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/miniconda3/lib/python3.12/site-packages/waitress/wasyncore.py", line 430, in send
+    result = self.socket.send(data)
+             ^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: [Errno 110] Connection timed out
