@@ -87,11 +87,11 @@ def get_menu():
                 href="/dash-financial-report/us-stock-performance",
                 className="tab",
             ),
-            dcc.Link(
-                "上海房产数据分析",
-                href="/dash-financial-report/overview",
-                className="tab",
-            ),
+            # dcc.Link(
+            #     "上海房产数据分析",
+            #     href="/dash-financial-report/overview",
+            #     className="tab",
+            # ),
             dcc.Link(
                 "News & Reviews",
                 href="/dash-financial-report/news-and-reviews",

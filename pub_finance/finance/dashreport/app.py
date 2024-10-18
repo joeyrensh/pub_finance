@@ -129,7 +129,8 @@ def handle_login(n_clicks, username, password):
 )
 def update_page_content(pathname):
     if pathname == "/dash-financial-report/overview":
-        return overview.create_layout(app)
+        # return overview.create_layout(app)
+        return cnstock_performance.create_layout(app)
     elif pathname == "/dash-financial-report/cn-stock-performance":
         return cnstock_performance.create_layout(app)
     elif pathname == "/dash-financial-report/us-stock-performance":
@@ -140,7 +141,7 @@ def update_page_content(pathname):
         return [
             cnstock_performance.create_layout(app),
             usstock_performance.create_layout(app),
-            overview.create_layout(app),
+            # overview.create_layout(app),
             news_reviews.create_layout(app),
         ]
     else:
