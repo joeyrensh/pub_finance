@@ -290,7 +290,7 @@ li {
 
 .all-tabs {
   text-align: center;
-  font-size: 13px;
+  font-size: 15px;
   margin-top: 10px;
 
 }
@@ -478,6 +478,7 @@ a:active {
   .all-tabs {
     text-align: left;
     margin-top: 5px;
+    font-size: 12px;
   }
 
   .tablast {
