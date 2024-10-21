@@ -1607,7 +1607,7 @@ class StockProposal:
             rows=2,
             cols=1,
             shared_xaxes=True,
-            vertical_spacing=0.01,  # 调整两个子图之间的垂直间距
+            vertical_spacing=0,  # 调整两个子图之间的垂直间距
             specs=[[{"secondary_y": False}], [{"secondary_y": True}]],
             subplot_titles=("Success Rate", "Pnl per day"),  # 子图标题
         )
@@ -1649,7 +1649,7 @@ class StockProposal:
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="black", size=20),
-                showline=True,
+                showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             xaxis2=dict(
