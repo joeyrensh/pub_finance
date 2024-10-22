@@ -15,8 +15,8 @@ class GlobalStrategy(bt.Strategy):
 
     params = (
         ("fastperiod", 10),
-        ("slowperiod", 20),
-        ("signalperiod", 7),
+        ("slowperiod", 22),
+        ("signalperiod", 8),
         ("shortperiod", 20),
         ("midperiod", 60),
         # ("longperiod", 120),
