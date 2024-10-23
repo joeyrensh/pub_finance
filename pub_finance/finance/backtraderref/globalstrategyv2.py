@@ -156,7 +156,7 @@ class GlobalStrategy(bt.Strategy):
             )
 
             """
-            MAVOL5、10、30成交量均线
+            MAVOL5、10、20成交量均线
             """
             self.inds[d._name]["mavolshort"] = bt.indicators.EMA(
                 d.volume, period=self.params.volshortperiod
@@ -219,13 +219,13 @@ class GlobalStrategy(bt.Strategy):
                     self.inds[d._name]["lowest_short"]
                     > self.inds[d._name]["lowest_short"](-5),
                     self.inds[d._name]["lowest_short"]
-                    > self.inds[d._name]["lowest_long"],
+                    >= self.inds[d._name]["lowest_long"],
                 ),
                 bt.And(
                     self.inds[d._name]["highest_short"]
                     > self.inds[d._name]["highest_short"](-5),
                     self.inds[d._name]["highest_short"]
-                    > self.inds[d._name]["highest_long"],
+                    >= self.inds[d._name]["highest_long"],
                 ),
             )
 
@@ -343,6 +343,10 @@ class GlobalStrategy(bt.Strategy):
                         == 1,
                         bt.indicators.crossover.CrossUp(self.inds[d._name]["dif"], 0)
                         == 1,
+                        bt.And(
+                            self.inds[d._name]["dif"] > 0,
+                            self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
+                        ),
                     ),
                 ),
             )
@@ -413,6 +417,7 @@ class GlobalStrategy(bt.Strategy):
             """
             self.signals[d._name]["closecrossdown"] = bt.And(
                 self.inds[d._name]["emamid"] < self.inds[d._name]["emamid"](-1),
+                self.inds[d._name]["emashort"] < self.inds[d._name]["emashort"](-1),
                 d.close < d.open,
                 self.signals[d._name]["lower"] == 1,
                 bt.Or(
@@ -430,6 +435,10 @@ class GlobalStrategy(bt.Strategy):
                     == 1,
                     bt.indicators.crossover.CrossDown(self.inds[d._name]["dif"], 0)
                     == 1,
+                    bt.Or(
+                        self.inds[d._name]["dif"] < 0,
+                        self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
+                    ),
                 ),
             )
             """ 
@@ -570,22 +579,22 @@ class GlobalStrategy(bt.Strategy):
             """ 如果没有仓位就判断是否买卖 """
             if not pos:
                 """噪声处理"""
-                # 均线密集判断，短期ema与中期ema近20日内密集排列
-                if (
-                    self.signals[d._name]["close_crossdown_mashort"]
-                    .get(ago=-1, size=self.params.shortperiod)
-                    .count(1)
-                    > 2
-                ):
-                    continue
-                # 最近20个交易日，dea下穿0轴2次，不进行交易
-                if (
-                    self.signals[d._name]["dif_crossdown_dea"]
-                    .get(ago=-1, size=self.params.shortperiod)
-                    .count(1)
-                    > 2
-                ):
-                    continue
+                # # 均线密集判断，短期ema与中期ema近20日内密集排列
+                # if (
+                #     self.signals[d._name]["close_crossdown_mashort"]
+                #     .get(ago=-1, size=self.params.shortperiod)
+                #     .count(1)
+                #     > 2
+                # ):
+                #     continue
+                # # 最近20个交易日，dea下穿0轴2次，不进行交易
+                # if (
+                #     self.signals[d._name]["dif_crossdown_dea"]
+                #     .get(ago=-1, size=self.params.shortperiod)
+                #     .count(1)
+                #     > 2
+                # ):
+                #     continue
 
                 # 均线密集判断，短期ema与中期ema近20日内密集排列
                 x1 = self.inds[d._name]["emashort"].get(
