@@ -343,10 +343,7 @@ class GlobalStrategy(bt.Strategy):
                         == 1,
                         bt.indicators.crossover.CrossUp(self.inds[d._name]["dif"], 0)
                         == 1,
-                        bt.And(
-                            self.inds[d._name]["dif"] > 0,
-                            self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
-                        ),
+                        self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
                     ),
                 ),
             )
@@ -435,10 +432,7 @@ class GlobalStrategy(bt.Strategy):
                     == 1,
                     bt.indicators.crossover.CrossDown(self.inds[d._name]["dif"], 0)
                     == 1,
-                    bt.Or(
-                        self.inds[d._name]["dif"] < 0,
-                        self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
-                    ),
+                    self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
                 ),
             )
             """ 
