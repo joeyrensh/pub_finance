@@ -237,10 +237,16 @@ class GlobalStrategy(bt.Strategy):
             )
 
             self.signals[d._name]["higher_dif"] = bt.Or(
-                self.inds[d._name]["lowest_dif_short"]
-                > self.inds[d._name]["lowest_dif_short"](-5),
-                self.inds[d._name]["highest_dif_short"]
-                > self.inds[d._name]["highest_dif_short"](-5),
+                bt.And(
+                    self.inds[d._name]["lowest_dif_short"]
+                    > self.inds[d._name]["lowest_dif_short"](-5),
+                    self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
+                ),
+                bt.And(
+                    self.inds[d._name]["highest_dif_short"]
+                    > self.inds[d._name]["highest_dif_short"](-5),
+                    self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
+                ),
             )
 
             self.signals[d._name]["lower_dif"] = bt.And(

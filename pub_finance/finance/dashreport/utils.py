@@ -36,14 +36,14 @@ def get_header(app):
                             id="learn-more-button",
                             style={"margin-left": "-10px"},
                         ),
-                        href="#",
+                        href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
                     ),
                     html.A(
                         html.Button(
                             "Source Code",
                             id="learn-more-button",
                         ),
-                        href="#",
+                        href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
                     ),
                 ],
                 className="row",
