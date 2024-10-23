@@ -267,7 +267,8 @@ def make_dash_format_table(df, cols_format):
                         column=col + "_o", value=date_threshold
                     ),
                 },
-                "backgroundColor": "RebeccaPurple",
+                # "backgroundColor": "RebeccaPurple",
+                "backgroundColor": "coral",
                 "color": "white",
             }
             for col in df.columns
