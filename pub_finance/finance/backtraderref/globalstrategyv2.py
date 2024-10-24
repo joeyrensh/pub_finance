@@ -328,6 +328,7 @@ class GlobalStrategy(bt.Strategy):
                     self.signals[d._name]["slope"] == 1,
                     self.inds[d._name]["emamid"] > self.inds[d._name]["emamid"](-1),
                     self.inds[d._name]["emashort"] > self.inds[d._name]["emashort"](-1),
+                    self.inds[d._name]["mavolshort"] > self.inds[d._name]["mavollong"],
                     bt.Or(
                         bt.indicators.crossover.CrossUp(
                             d.close, self.inds[d._name]["emashort"]
