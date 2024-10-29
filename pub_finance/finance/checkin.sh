@@ -10,6 +10,14 @@ rm -rf ./git-repo/pub_finance/pub_finance/finance/*.png
 rm -rf ./git-repo/pub_finance/pub_finance/finance/houseinfo/*.csv
 rm -rf ./git-repo/pub_finance/pub_finance/finance/images/*.png
 rm -rf ./git-repo/pub_finance/pub_finance/finance/data/*.csv
+rm -rf ./git-repo/pub_finance/pub_finance/finance/.vscode
+rm -rf ./git-repo/pub_finance/pub_finance/finance/backtraderref/__pycache__
+rm -rf ./git-repo/pub_finance/pub_finance/finance/cncrawler/__pycache__
+rm -rf ./git-repo/pub_finance/pub_finance/finance/dashreport/__pycache__
+rm -rf ./git-repo/pub_finance/pub_finance/finance/dashreport/pages/__pycache__
+rm -rf ./git-repo/pub_finance/pub_finance/finance/uscrawler/__pycache__
+rm -rf ./git-repo/pub_finance/pub_finance/finance/usstrategy/__pycache__
+rm -rf ./git-repo/pub_finance/pub_finance/finance/utility/__pycache__
 echo -e "mail_name,mail_password\nmail_name1" > ./git-repo/pub_finance/pub_finance/finance/mail.conf
 \cp -rf ./pub_finance/finance/houseinfo/proxies.csv ./git-repo/pub_finance/pub_finance/finance/houseinfo/
 \cp -rf ./pub_finance/finance/usstockinfo/marketclosed.config ./git-repo/pub_finance/pub_finance/finance/usstockinfo/
