@@ -2369,20 +2369,20 @@ class StockProposal:
                 z=dfdata100["s_pnl"],
                 # 定义自定义颜色比例
                 colorscale=[
-                    [0, "#228B22"],  # 深绿色，表示最小负值
+                    [0, "#008B00"],
                     [
                         (mid_val - min_val) / (max_val - min_val) / 2,
-                        "#98FB98",
-                    ],  # 浅绿色，表示较小负值
+                        "#00EE76",
+                    ],
                     [
                         (mid_val - min_val) / (max_val - min_val),
                         "rgba(0, 0, 0, 0)",
                     ],
                     [
                         1 - (max_val - mid_val) / (max_val - min_val) / 2,
-                        "#FFB6C1",
-                    ],  # 浅红色，表示较小正值
-                    [1, "#FF4500"],  # 深红色，表示最大正值
+                        "#FF6347",
+                    ],
+                    [1, "#FF0000"],
                 ],
                 zmin=min_val,
                 zmax=max_val,

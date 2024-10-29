@@ -44,7 +44,7 @@ df_timeseries_spark = spark.createDataFrame(
 
 df_timeseries_spark.createOrReplaceTempView("temp_timeseries")
 
-file = FileInfo(trade_date, "us")
+file = FileInfo(trade_date, "cn")
 
 # 行业明细
 file_path_indus = file.get_file_path_industry
@@ -154,10 +154,10 @@ fig.add_trace(
         z=dfdata100["s_pnl"],
         # 定义自定义颜色比例
         colorscale=[
-            [0, "#228B22"],
+            [0, "#008B00"],
             [
                 (mid_val - min_val) / (max_val - min_val) / 2,
-                "#98FB98",
+                "#00EE76",
             ],
             [
                 (mid_val - min_val) / (max_val - min_val),
@@ -165,9 +165,9 @@ fig.add_trace(
             ],
             [
                 1 - (max_val - mid_val) / (max_val - min_val) / 2,
-                "#FF4040",
+                "#FF6347",
             ],
-            [1, "#FF3030"],
+            [1, "#FF0000"],
         ],
         zmin=min_val,
         zmax=max_val,
