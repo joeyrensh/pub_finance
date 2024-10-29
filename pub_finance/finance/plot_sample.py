@@ -1,7 +1,6 @@
 import plotly.graph_objects as go
 import pandas as pd
 from utility.fileinfo import FileInfo
-from utility.tickerinfo import TickerInfo
 from pyspark.sql import SparkSession
 from utility.toolkit import ToolKit
 
@@ -116,8 +115,6 @@ sparkdata100 = spark.sql(
 )
 
 dfdata100 = sparkdata100.toPandas()
-
-print(dfdata100)
 print(dfdata100["s_pnl"].max())
 print(dfdata100["s_pnl"].min())
 
@@ -157,17 +154,20 @@ fig.add_trace(
         z=dfdata100["s_pnl"],
         # 定义自定义颜色比例
         colorscale=[
-            [0, "#228B22"],  # 深绿色，表示最小负值
+            [0, "#228B22"],
             [
                 (mid_val - min_val) / (max_val - min_val) / 2,
                 "#98FB98",
-            ],  # 浅绿色，表示较小负值
-            [(mid_val - min_val) / (max_val - min_val), "white"],  # 白色，表示零
+            ],
+            [
+                (mid_val - min_val) / (max_val - min_val),
+                "rgba(0, 0, 0, 0)",
+            ],
             [
                 1 - (max_val - mid_val) / (max_val - min_val) / 2,
-                "#FFB6C1",
-            ],  # 浅红色，表示较小正值
-            [1, "#FF4500"],  # 深红色，表示最大正值
+                "#FF4040",
+            ],
+            [1, "#FF3030"],
         ],
         zmin=min_val,
         zmax=max_val,

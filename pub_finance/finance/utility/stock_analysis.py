@@ -1600,7 +1600,6 @@ class StockProposal:
         df_grouped = dfdata_strategy_track.groupby("date")[
             "pnl"
         ].sum()  # 按日期分组并求和
-        max_pnl = df_grouped.max()  # 获取分组求和值的最大值
 
         # 创建带有两个 y 轴的子图布局
         fig = make_subplots(
@@ -2377,8 +2376,8 @@ class StockProposal:
                     ],  # 浅绿色，表示较小负值
                     [
                         (mid_val - min_val) / (max_val - min_val),
-                        "white",
-                    ],  # 白色，表示零
+                        "rgba(0, 0, 0, 0)",
+                    ],
                     [
                         1 - (max_val - mid_val) / (max_val - min_val) / 2,
                         "#FFB6C1",
@@ -2441,7 +2440,6 @@ class StockProposal:
             day_of_week = row["day_of_week"]
             week_order = row["week_order"]
             col2_values = row["industry_top3"]
-            col3_value = row["s_pnl"]
             date = row["date"].strftime("%Y-%m-%d")
 
             # 将col2的list按3行展示
