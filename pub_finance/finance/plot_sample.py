@@ -45,7 +45,7 @@ df_timeseries_spark = spark.createDataFrame(
 
 df_timeseries_spark.createOrReplaceTempView("temp_timeseries")
 
-file = FileInfo(trade_date, "cn")
+file = FileInfo(trade_date, "us")
 
 # 行业明细
 file_path_indus = file.get_file_path_industry
@@ -117,6 +117,9 @@ sparkdata100 = spark.sql(
 
 dfdata100 = sparkdata100.toPandas()
 
+print(dfdata100)
+print(dfdata100["s_pnl"].max())
+print(dfdata100["s_pnl"].min())
 
 # 计算每个日期的周和星期几
 dfdata100["date"] = pd.to_datetime(dfdata100["date"])
@@ -141,20 +144,33 @@ dfdata100["week_order"] = dfdata100["week_start"].map(week_mapping)
 # 创建日历图
 fig = go.Figure()
 
+# 假设 s_pnl 的最小值为负，最大值为正
+min_val = dfdata100["s_pnl"].min()
+max_val = dfdata100["s_pnl"].max()
+mid_val = 0  # 中间值，用于白色
+
 # 添加热力图
 fig.add_trace(
     go.Heatmap(
         x=dfdata100["day_of_week"],  # 每行显示7天
         y=dfdata100["week_order"],  # 每7天增加一行
         z=dfdata100["s_pnl"],
-        # colorscale=[[0, "green"], [0.5, "white"], [1, "red"]],  # 负值为绿色，正值为红色
+        # 定义自定义颜色比例
         colorscale=[
-            [0, "#228B22"],
-            [0.5, "white"],
-            [1, "#FF4500"],
-        ],  # 负值为绿色，正值为红色
-        zmin=dfdata100["s_pnl"].min(),
-        zmax=dfdata100["s_pnl"].max(),
+            [0, "#228B22"],  # 深绿色，表示最小负值
+            [
+                (mid_val - min_val) / (max_val - min_val) / 2,
+                "#98FB98",
+            ],  # 浅绿色，表示较小负值
+            [(mid_val - min_val) / (max_val - min_val), "white"],  # 白色，表示零
+            [
+                1 - (max_val - mid_val) / (max_val - min_val) / 2,
+                "#FFB6C1",
+            ],  # 浅红色，表示较小正值
+            [1, "#FF4500"],  # 深红色，表示最大正值
+        ],
+        zmin=min_val,
+        zmax=max_val,
         colorbar=dict(
             title="Total PnL",
             titleside="top",  # 将颜色条标题放在顶部
