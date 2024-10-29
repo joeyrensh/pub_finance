@@ -198,7 +198,7 @@ fig.update_layout(
             "Sunday",
         ],
         showgrid=True,
-        gridcolor="orange",  # 网格线颜色
+        gridcolor="rgba(0, 0, 0, 0.5)",
         zeroline=False,
         showticklabels=True,
         dtick=1,  # 每天显示一个刻度
@@ -206,7 +206,7 @@ fig.update_layout(
     ),
     yaxis=dict(
         showgrid=True,
-        gridcolor="orange",  # 网格线颜色
+        gridcolor="rgba(0, 0, 0, 0.5)",
         showticklabels=False,
         # title="Week",
         autorange="reversed",  # 反转Y轴，使得最新的一周在最下方
