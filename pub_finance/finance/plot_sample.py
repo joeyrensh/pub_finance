@@ -172,7 +172,7 @@ fig.add_trace(
         zmin=min_val,
         zmax=max_val,
         colorbar=dict(
-            title="Total PnL",
+            title="PnL",
             titleside="top",  # 将颜色条标题放在顶部
             tickfont=dict(size=16),  # 调整颜色条刻度字体大小
             thickness=20,  # 增加颜色条厚度
@@ -213,12 +213,12 @@ fig.update_layout(
     ),
     plot_bgcolor="rgba(0, 0, 0, 0)",
     paper_bgcolor="rgba(0, 0, 0, 0)",
-    # margin=dict(
-    #     l=50,  # 左边距
-    #     r=50,  # 右边距
-    #     t=100,  # 上边距（为颜色条留出空间）
-    #     b=50,  # 下边距
-    # ),
+    margin=dict(
+        l=10,  # 左边距
+        r=10,  # 右边距
+        t=10,  # 上边距（为颜色条留出空间）
+        b=10,  # 下边距
+    ),
 )
 
 # 在每个单元格中添加文本
