@@ -2376,7 +2376,7 @@ class StockProposal:
                     ],
                     [
                         (mid_val - min_val) / (max_val - min_val),
-                        "rgba(0, 0, 0, 0)",
+                        "white",
                     ],
                     [
                         1 - (max_val - mid_val) / (max_val - min_val) / 2,
