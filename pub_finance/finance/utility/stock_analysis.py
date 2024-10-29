@@ -2450,14 +2450,14 @@ class StockProposal:
                 "./images/us_industry_trend.png",
                 width=fig_width,
                 height=fig_height,
-                scale=scale_factor,
+                scale=2,
             )
         else:
             fig.write_image(
                 "./images/cn_industry_trend.png",
                 width=fig_width,
                 height=fig_height,
-                scale=scale_factor,
+                scale=2,
             )
 
         spark.stop()
