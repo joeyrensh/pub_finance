@@ -30,6 +30,9 @@ def create_layout(app):
     with open(IMAGE_PATH.joinpath("cn_strategy_tracking.png"), "rb") as f:
         image_data = f.read()
         encoded_image_strategy = base64.b64encode(image_data).decode("utf-8")
+    with open(IMAGE_PATH.joinpath("cn_industry_trend.png"), "rb") as f:
+        image_data = f.read()
+        encoded_image_ind_trend = base64.b64encode(image_data).decode("utf-8")
     # Overall 信息
     df_overall = pd.read_csv(
         DATA_PATH.joinpath("cn_df_result.csv"),
@@ -224,6 +227,29 @@ def create_layout(app):
                                     ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_trdraw}",
+                                        style={
+                                            "width": "100%",
+                                            "overflow-x": "auto",
+                                            "overflow-y": "auto",
+                                        },
+                                    ),
+                                ],
+                                className="twelve columns",
+                            )
+                        ],
+                        className="row ",
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    # html.Br([]),
+                                    html.H6(
+                                        ["Top3板块每日跟踪"],
+                                        className="subtitle padded",
+                                    ),
+                                    html.Img(
+                                        src=f"data:image/png;base64,{encoded_image_ind_trend}",
                                         style={
                                             "width": "100%",
                                             "overflow-x": "auto",
