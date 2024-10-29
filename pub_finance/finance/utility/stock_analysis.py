@@ -2427,12 +2427,6 @@ class StockProposal:
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0, 0, 0, 0)",
-            margin=dict(
-                l=50,  # 左边距
-                r=50,  # 右边距
-                t=100,  # 上边距（为颜色条留出空间）
-                b=50,  # 下边距
-            ),
         )
 
         # 在每个单元格中添加文本
