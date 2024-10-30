@@ -2440,22 +2440,42 @@ class StockProposal:
             day_of_week = row["day_of_week"]
             week_order = row["week_order"]
             col2_values = row["industry_top3"]
+            col3_value = row["s_pnl"]
             date = row["date"].strftime("%Y-%m-%d")
 
-            # 将col2的list按3行展示
-            text = f"<b>{date}</b><br>" + "<br>".join(col2_values[:3])
+            # 根据s_pnl的值确定文本颜色
+            # 假设当s_pnl接近min_val时，我们使用深色背景（绿色系），接近max_val时，我们使用浅色背景（红色系）
+            # 这里简单地使用阈值来判断，但您可以根据实际需求调整逻辑
+            text_color = "black"  # 默认黑色
+            if (
+                col3_value <= min_val + (max_val - min_val) * 0.1
+            ):  # 当s_pnl非常小时（接近最小值）
+                text_color = (
+                    "white" if max_val > 0 else "black"
+                )  # 如果最大值大于0，则使用白色，否则保持黑色（避免全黑背景）
+            elif (
+                col3_value >= max_val - (max_val - min_val) * 0.1
+            ):  # 当s_pnl非常大时（接近最大值）
+                text_color = "white"  # 使用白色
+
+            # 将col2的list按3行展示（这里可能需要根据实际情况调整）
+            text = f"<b>{date}</b><br>" + "<br>".join(
+                col2_values[:3]
+            )  # 假设我们只展示前三个行业
+
             fig.add_annotation(
                 x=day_of_week,
                 y=week_order,
                 text=text,
                 showarrow=False,
-                font=dict(color="black", size=16),  # 调整文本字体大小和颜色
+                font=dict(color=text_color, size=16),  # 根据s_pnl值动态设置字体颜色
                 align="center",
                 xanchor="center",
                 yanchor="middle",
-                # bordercolor="white",  # 添加白色边框以提高可读性（可选）
-                # borderwidth=1,  # 设置边框宽度（可选）
-                # bgcolor="rgba(255, 255, 255, 0.7)",  # 设置背景色为半透明白色（可选）
+                # 以下选项是可选的，用于提高可读性
+                # bordercolor="white",  # 添加白色边框
+                # borderwidth=1,  # 设置边框宽度
+                # bgcolor="rgba(255, 255, 255, 0.7)",  # 设置背景色为半透明白色
             )
 
         if self.market == "us":
