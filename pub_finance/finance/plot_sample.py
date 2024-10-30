@@ -21,7 +21,7 @@ spark = (
 )
 spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
 
-trade_date = "20241028"
+trade_date = "20241029"
 # 生成时间序列，用于时间序列补齐
 end_date = pd.to_datetime(trade_date).strftime("%Y-%m-%d")
 start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
@@ -44,7 +44,7 @@ df_timeseries_spark = spark.createDataFrame(
 
 df_timeseries_spark.createOrReplaceTempView("temp_timeseries")
 
-file = FileInfo(trade_date, "cn")
+file = FileInfo(trade_date, "us")
 
 # 行业明细
 file_path_indus = file.get_file_path_industry
@@ -234,13 +234,13 @@ for i, row in dfdata100.iterrows():
     # 这里简单地使用阈值来判断，但您可以根据实际需求调整逻辑
     text_color = "black"  # 默认黑色
     if (
-        col3_value <= min_val + (max_val - min_val) * 0.1
+        col3_value <= min_val + (max_val - min_val) * 0.01
     ):  # 当s_pnl非常小时（接近最小值）
         text_color = (
             "white" if max_val > 0 else "black"
         )  # 如果最大值大于0，则使用白色，否则保持黑色（避免全黑背景）
     elif (
-        col3_value >= max_val - (max_val - min_val) * 0.1
+        col3_value >= max_val - (max_val - min_val) * 0.01
     ):  # 当s_pnl非常大时（接近最大值）
         text_color = "white"  # 使用白色
 
