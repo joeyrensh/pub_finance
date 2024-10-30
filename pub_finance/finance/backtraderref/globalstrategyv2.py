@@ -548,7 +548,7 @@ class GlobalStrategy(bt.Strategy):
 
     def prenext(self):
         print("current period:", len(self), "current date", self.datetime.date())
-        self.next()
+
         # 增加cash
         if (
             len(self) < self.data.buflen() - 1
@@ -559,6 +559,7 @@ class GlobalStrategy(bt.Strategy):
                 "cash is not enough %s, add cash %s"
                 % (self.broker.cash, self.params.availablecash - self.broker.cash)
             )
+        self.next()
 
     def next(self):
         # 策略执行进度
