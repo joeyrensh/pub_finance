@@ -1673,14 +1673,14 @@ class StockProposal:
             yaxis2=dict(
                 title="Pnl per day",
                 titlefont=dict(size=20, color="black"),
-                side="left",
+                side="right",
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="black", size=20),
                 showline=True,
                 showgrid=True,
                 gridcolor="rgba(0, 0, 0, 0.5)",
-                domain=[0, 0.6],
+                domain=[0, 0.7],
                 # range=[0, max_pnl * 1.2],
             ),
             legend=dict(
