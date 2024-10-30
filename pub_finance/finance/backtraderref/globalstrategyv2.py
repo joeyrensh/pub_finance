@@ -24,7 +24,8 @@ class GlobalStrategy(bt.Strategy):
         ("volmidperiod", 10),
         ("vollongperiod", 20),
         ("annualperiod", 250),
-        ("availablecash", 2000000),
+        ("availablecash", 4000000),
+        ("restcash", 1000000),
         ("hlshortperiod", 5),
         ("hlmidperiod", 10),
         ("hllongperiod", 20),
@@ -683,12 +684,12 @@ class GlobalStrategy(bt.Strategy):
         # 最后一日剔除多余现金
         if (
             len(self) == self.data.buflen() - 1
-            and self.broker.cash > self.params.availablecash
+            and self.broker.cash > self.params.restcash
         ):
-            self.broker.add_cash(self.params.availablecash - self.broker.cash)
+            self.broker.add_cash(self.params.restcash - self.broker.cash)
             self.log(
                 "cash is too much %s, add cash %s"
-                % (self.broker.cash, self.params.availablecash - self.broker.cash)
+                % (self.broker.cash, self.params.restcash - self.broker.cash)
             )
         t.progress_bar(self.data.buflen(), len(self))
 
