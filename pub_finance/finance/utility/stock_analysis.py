@@ -2448,13 +2448,13 @@ class StockProposal:
             # 这里简单地使用阈值来判断，但您可以根据实际需求调整逻辑
             text_color = "black"  # 默认黑色
             if (
-                col3_value <= min_val + (max_val - min_val) * 0.01
+                col3_value <= min_val + (max_val - min_val) * 0.05
             ):  # 当s_pnl非常小时（接近最小值）
                 text_color = (
                     "white" if max_val > 0 else "black"
                 )  # 如果最大值大于0，则使用白色，否则保持黑色（避免全黑背景）
             elif (
-                col3_value >= max_val - (max_val - min_val) * 0.01
+                col3_value >= max_val - (max_val - min_val) * 0.05
             ):  # 当s_pnl非常大时（接近最大值）
                 text_color = "white"  # 使用白色
 
