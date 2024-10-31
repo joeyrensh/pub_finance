@@ -29,11 +29,11 @@ def exec_btstrategy(date):
     cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cn")
 
     # 回测时需要添加 TimeReturn 分析器
-    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=True)
+    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
     # cerebro.addobserver(bt.observers.BuySell)
 
     """ 初始资金100M """
-    cerebro.broker.setcash(2000000.0)
+    cerebro.broker.setcash(20000000.0)
     cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
     # cerebro.addsizer(bt.sizers.FixedSize, stake=100)

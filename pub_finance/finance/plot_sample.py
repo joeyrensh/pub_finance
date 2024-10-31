@@ -154,10 +154,10 @@ fig.add_trace(
         z=dfdata100["s_pnl"],
         # 定义自定义颜色比例
         colorscale=[
-            [0, "#003f00"],
+            [0, "#065906"],
             [
                 (mid_val - min_val) / (max_val - min_val) / 2,
-                "#008B00",
+                "#0b9e0b",
             ],
             [
                 (mid_val - min_val) / (max_val - min_val),
@@ -165,9 +165,9 @@ fig.add_trace(
             ],
             [
                 1 - (max_val - mid_val) / (max_val - min_val) / 2,
-                "#FF0000",
+                "#d43737",
             ],
-            [1, "#b30000"],
+            [1, "#cf0c0c"],
         ],
         zmin=min_val,
         zmax=max_val,
@@ -212,7 +212,7 @@ fig.update_layout(
         autorange="reversed",  # 反转Y轴，使得最新的一周在最下方
     ),
     plot_bgcolor="rgba(0, 0, 0, 0)",
-    paper_bgcolor="rgba(0, 0, 0, 0)",
+    paper_bgcolor="white",
     margin=dict(
         l=10,  # 左边距
         r=10,  # 右边距

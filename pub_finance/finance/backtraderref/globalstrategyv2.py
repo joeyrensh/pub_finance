@@ -548,17 +548,6 @@ class GlobalStrategy(bt.Strategy):
 
     def prenext(self):
         print("current period:", len(self), "current date", self.datetime.date())
-
-        # 增加cash
-        if (
-            len(self) < self.data.buflen() - 1
-            and self.broker.cash < self.params.availablecash
-        ):
-            self.broker.add_cash(self.params.availablecash - self.broker.cash)
-            self.log(
-                "cash is not enough %s, add cash %s"
-                % (self.broker.cash, self.params.availablecash - self.broker.cash)
-            )
         self.next()
 
     def next(self):
@@ -692,16 +681,16 @@ class GlobalStrategy(bt.Strategy):
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
         df.to_csv(self.file_path_position_detail, header=None)
-        # 最后一日剔除多余现金
-        if (
-            len(self) == self.data.buflen() - 1
-            and self.broker.cash > self.params.restcash
-        ):
-            self.broker.add_cash(self.params.restcash - self.broker.cash)
-            self.log(
-                "cash is too much %s, add cash %s"
-                % (self.broker.cash, self.params.restcash - self.broker.cash)
-            )
+        # # 最后一日剔除多余现金
+        # if (
+        #     len(self) == self.data.buflen() - 1
+        #     and self.broker.cash > self.params.restcash
+        # ):
+        #     self.broker.add_cash(self.params.restcash - self.broker.cash)
+        #     self.log(
+        #         "cash is too much %s, add cash %s"
+        #         % (self.broker.cash, self.params.restcash - self.broker.cash)
+        #     )
         t.progress_bar(self.data.buflen(), len(self))
 
     def stop(self):

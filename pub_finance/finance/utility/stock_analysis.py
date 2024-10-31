@@ -2371,10 +2371,10 @@ class StockProposal:
                 z=dfdata100["s_pnl"],
                 # 定义自定义颜色比例
                 colorscale=[
-                    [0, "#003f00"],
+                    [0, "#065906"],
                     [
                         (mid_val - min_val) / (max_val - min_val) / 2,
-                        "#008B00",
+                        "#0b9e0b",
                     ],
                     [
                         (mid_val - min_val) / (max_val - min_val),
@@ -2382,9 +2382,9 @@ class StockProposal:
                     ],
                     [
                         1 - (max_val - mid_val) / (max_val - min_val) / 2,
-                        "#FF0000",
+                        "#d43737",
                     ],
-                    [1, "#b30000"],
+                    [1, "#cf0c0c"],
                 ],
                 zmin=min_val,
                 zmax=max_val,
