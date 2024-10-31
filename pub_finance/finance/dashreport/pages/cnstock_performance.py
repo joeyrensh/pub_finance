@@ -12,25 +12,25 @@ def create_layout(app):
     # 收益率曲线
     IMAGE_PATH = PATH.joinpath("../../images").resolve()
     DATA_PATH = PATH.joinpath("../../data").resolve()
-    with open(IMAGE_PATH.joinpath("cntrdraw_light.png"), "rb") as f:
+    with open(IMAGE_PATH.joinpath("cn_tr_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_trdraw = base64.b64encode(image_data).decode("utf-8")
     with open(IMAGE_PATH.joinpath("cn_postion_byindustry_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_by_postion = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath("cn_postion_byp&l_light.png"), "rb") as f:
+    with open(IMAGE_PATH.joinpath("cn_pl_byindustry_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_by_pl = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath("cn_postion_bydate_light.png"), "rb") as f:
+    with open(IMAGE_PATH.joinpath("cn_trade_trend_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_by_positiondate = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath("cn_postion_byindustry&p&l_light.png"), "rb") as f:
+    with open(IMAGE_PATH.joinpath("cn_top_industry_pl_trend_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_bypl_date = base64.b64encode(image_data).decode("utf-8")
     with open(IMAGE_PATH.joinpath("cn_strategy_tracking.png"), "rb") as f:
         image_data = f.read()
         encoded_image_strategy = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath("cn_industry_trend.png"), "rb") as f:
+    with open(IMAGE_PATH.joinpath("cn_industry_trend_heatmap.png"), "rb") as f:
         image_data = f.read()
         encoded_image_ind_trend = base64.b64encode(image_data).decode("utf-8")
     # Overall 信息
