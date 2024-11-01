@@ -682,10 +682,7 @@ class GlobalStrategy(bt.Strategy):
         df.reset_index(inplace=True, drop=True)
         df.to_csv(self.file_path_position_detail, header=None)
         # # 最后一日剔除多余现金
-        # if (
-        #     len(self) == self.data.buflen() - 1
-        #     and self.broker.cash > self.params.restcash
-        # ):
+        # if len(self) == self.data.buflen() - 1 and self.broker.cash > self.params.restcash:
         #     self.broker.add_cash(self.params.restcash - self.broker.cash)
         #     self.log(
         #         "cash is too much %s, add cash %s"

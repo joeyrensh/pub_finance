@@ -31,9 +31,6 @@ def exec_btstrategy(date):
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
     # cerebro.addobserver(bt.observers.BuySell)
-
-    """ 初始资金100M """
-    cerebro.broker.setcash(2000000.0)
     cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
     # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
@@ -43,6 +40,9 @@ def exec_btstrategy(date):
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
     list = TickerInfo(date, "cn").get_etf_backtrader_data_feed()
+    """ 初始资金100M """
+    start_cash = len(list) * 10000
+    cerebro.broker.setcash(start_cash)
     """ 循环初始化数据进入cerebro """
     for h in list:
         """历史数据最早不超过2021-01-01"""
