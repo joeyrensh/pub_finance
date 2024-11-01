@@ -53,10 +53,9 @@ def exec_btstrategy(date):
     cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 添加股票当日即历史数据 """
     list = TickerInfo(date, "us").get_backtrader_data_feed()
-    """ 初始资金100M """
-    start_cash = len(list) * 10000
-    cerebro.broker.setcash(start_cash)
+
     """ 循环初始化数据进入cerebro """
+    counter = 0
     for h in list:
         """历史数据最早不超过2021-01-01"""
         data = BTPandasDataExt(
@@ -68,9 +67,12 @@ def exec_btstrategy(date):
             timeframe=bt.TimeFrame.Days,
         )
         cerebro.adddata(data, name=h["symbol"][0])
+        counter = counter + 1
         # 周数据
         # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
     """ 起始资金池 """
+    start_cash = counter * 10000
+    cerebro.broker.setcash(start_cash)
     print("\nStarting Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
     # 节约内存
