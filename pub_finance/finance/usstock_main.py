@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-from usstrategy.usstrategy import UsStrategy
 from tabulate import tabulate
 import progressbar
 from utility.toolkit import ToolKit
@@ -21,16 +20,6 @@ import gc
 from backtraderref.usfixedamount import FixedAmount
 
 """ 执行策略 """
-
-
-def exec_strategy(date):
-    """小市值大波动策略-策略1"""
-    us_strate = UsStrategy(date)
-    df1 = us_strate.get_usstrategy1()
-    print(tabulate(df1, headers="keys", tablefmt="pretty"))
-    return df1
-
-
 """ backtrader策略 """
 
 

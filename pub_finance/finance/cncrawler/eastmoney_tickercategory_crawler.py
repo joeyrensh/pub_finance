@@ -90,13 +90,18 @@ class EMCNTickerCategoryCrawler:
                 json_object = json.loads(res)
             except ValueError:
                 continue
-            if "jbzl" in json_object and "sshy" in json_object["jbzl"]:
+            if (
+                json_object is not None
+                and "jbzl" in json_object
+                and json_object["jbzl"] is not None
+                and "sshy" in json_object["jbzl"]
+            ):
                 if json_object["jbzl"]["sshy"] == "--":
                     continue
                 # print(json_object["jbzl"]["sshy"])
                 dict = {"symbol": i["symbol"], "industry": json_object["jbzl"]["sshy"]}
                 list.append(dict)
-                print(dict)
+                # print(dict)
             tool.progress_bar(len(tick_list), tick_list.index(i))
         df = pd.DataFrame(list)
         df.drop_duplicates(subset=["symbol", "industry"], keep="last", inplace=True)
