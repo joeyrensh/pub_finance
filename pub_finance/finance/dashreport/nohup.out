@@ -1274,3 +1274,4 @@ Traceback (most recent call last):
 FileNotFoundError: [Errno 2] No such file or directory: '/home/ubuntu/pub_finance/finance/data/cn_etf.csv'
 WARNING:waitress.queue:Task queue depth is 1
 WARNING:waitress.queue:Task queue depth is 2
+WARNING:waitress.queue:Task queue depth is 1
