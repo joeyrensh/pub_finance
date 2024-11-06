@@ -15,8 +15,8 @@ class GlobalStrategy(bt.Strategy):
 
     params = (
         ("fastperiod", 10),
-        ("slowperiod", 22),
-        ("signalperiod", 8),
+        ("slowperiod", 20),
+        ("signalperiod", 7),
         ("shortperiod", 20),
         ("midperiod", 60),
         # ("longperiod", 120),
@@ -189,28 +189,6 @@ class GlobalStrategy(bt.Strategy):
                 d.close, period=self.params.hllongperiod
             )
 
-            """ 
-            DIF高点/低点 
-            """
-            self.inds[d._name]["highest_dif_short"] = bt.indicators.Highest(
-                self.inds[d._name]["dif"], period=self.params.hlshortperiod
-            )
-            self.inds[d._name]["highest_dif_mid"] = bt.indicators.Highest(
-                self.inds[d._name]["dif"], period=self.params.hlmidperiod
-            )
-            self.inds[d._name]["highest_dif_long"] = bt.indicators.Highest(
-                self.inds[d._name]["dif"], period=self.params.hllongperiod
-            )
-            self.inds[d._name]["lowest_dif_short"] = bt.indicators.Lowest(
-                self.inds[d._name]["dif"], period=self.params.hlshortperiod
-            )
-            self.inds[d._name]["lowest_dif_mid"] = bt.indicators.Lowest(
-                self.inds[d._name]["dif"], period=self.params.hlmidperiod
-            )
-            self.inds[d._name]["lowest_dif_long"] = bt.indicators.Lowest(
-                self.inds[d._name]["dif"], period=self.params.hllongperiod
-            )
-
             """
             辅助指标：高低点上移/下移
             """
@@ -220,13 +198,13 @@ class GlobalStrategy(bt.Strategy):
                     self.inds[d._name]["lowest_short"]
                     > self.inds[d._name]["lowest_short"](-5),
                     self.inds[d._name]["lowest_short"]
-                    >= self.inds[d._name]["lowest_long"],
+                    >= self.inds[d._name]["lowest_mid"],
                 ),
                 bt.And(
                     self.inds[d._name]["highest_short"]
                     > self.inds[d._name]["highest_short"](-5),
                     self.inds[d._name]["highest_short"]
-                    >= self.inds[d._name]["highest_long"],
+                    >= self.inds[d._name]["highest_mid"],
                 ),
             )
 
@@ -235,26 +213,6 @@ class GlobalStrategy(bt.Strategy):
                 < self.inds[d._name]["lowest_short"](-5),
                 self.inds[d._name]["highest_short"]
                 < self.inds[d._name]["highest_short"](-5),
-            )
-
-            self.signals[d._name]["higher_dif"] = bt.Or(
-                bt.And(
-                    self.inds[d._name]["lowest_dif_short"]
-                    > self.inds[d._name]["lowest_dif_short"](-5),
-                    self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
-                ),
-                bt.And(
-                    self.inds[d._name]["highest_dif_short"]
-                    > self.inds[d._name]["highest_dif_short"](-5),
-                    self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
-                ),
-            )
-
-            self.signals[d._name]["lower_dif"] = bt.And(
-                self.inds[d._name]["lowest_dif_short"]
-                < self.inds[d._name]["lowest_dif_short"](-5),
-                self.inds[d._name]["highest_dif_short"]
-                < self.inds[d._name]["highest_dif_short"](-5),
             )
 
             """ 
@@ -303,9 +261,8 @@ class GlobalStrategy(bt.Strategy):
                         self.inds[d._name]["mashort"], self.inds[d._name]["mamid"]
                     )
                     == 1,
-                    # self.signals[d._name]["higher_dif"] == 1,
-                    # self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
-                    self.signals[d._name]["higher"] == 1,
+                    self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
+                    self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
                     d.close > d.open,
                     self.signals[d._name]["slope"] == 1,
                 ),
@@ -315,9 +272,8 @@ class GlobalStrategy(bt.Strategy):
                         self.inds[d._name]["emashort"], self.inds[d._name]["emamid"]
                     )
                     == 1,
-                    # self.signals[d._name]["higher_dif"] == 1,
-                    # self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
-                    self.signals[d._name]["higher"] == 1,
+                    self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
+                    self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
                     d.close > d.open,
                     self.signals[d._name]["slope"] == 1,
                 ),
@@ -349,7 +305,10 @@ class GlobalStrategy(bt.Strategy):
                         == 1,
                         bt.indicators.crossover.CrossUp(self.inds[d._name]["dif"], 0)
                         == 1,
-                        self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
+                        bt.And(
+                            self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
+                            self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
+                        ),
                     ),
                 ),
             )
@@ -359,9 +318,8 @@ class GlobalStrategy(bt.Strategy):
             """
             self.signals[d._name]["long_position"] = bt.And(
                 d.close > self.inds[d._name]["emashort"],
-                # self.signals[d._name]["higher_dif"] == 1,
-                # self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
-                self.signals[d._name]["higher"] == 1,
+                self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
+                self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
                 self.signals[d._name]["slope"] == 1,
                 self.inds[d._name]["emashort"] > self.inds[d._name]["emamid"],
                 self.inds[d._name]["mashort"] > self.inds[d._name]["mamid"],
@@ -389,8 +347,10 @@ class GlobalStrategy(bt.Strategy):
                 ),
                 bt.Or(
                     self.signals[d._name]["higher"] == 1,
-                    # self.signals[d._name]["higher_dif"] == 1,
-                    # self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
+                    bt.And(
+                        self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
+                        self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
+                    ),
                 ),
                 self.signals[d._name]["slope"] == 1,
             )
@@ -406,9 +366,8 @@ class GlobalStrategy(bt.Strategy):
                     )
                     == 1,
                     d.close < d.open,
-                    # self.signals[d._name]["lower_dif"] == 1,
-                    # self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
-                    self.signals[d._name]["lower"] == 1,
+                    self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
+                    self.inds[d._name]["dif"] < self.inds[d._name]["dif"](-1),
                 ),
                 bt.And(
                     self.inds[d._name]["mashort"] < self.inds[d._name]["mamid"],
@@ -417,9 +376,8 @@ class GlobalStrategy(bt.Strategy):
                     )
                     == 1,
                     d.close < d.open,
-                    # self.signals[d._name]["lower_dif"] == 1,
-                    # self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
-                    self.signals[d._name]["lower"] == 1,
+                    self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
+                    self.inds[d._name]["dif"] < self.inds[d._name]["dif"](-1),
                 ),
             )
             """
@@ -445,7 +403,10 @@ class GlobalStrategy(bt.Strategy):
                     == 1,
                     bt.indicators.crossover.CrossDown(self.inds[d._name]["dif"], 0)
                     == 1,
-                    self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
+                    bt.And(
+                        self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
+                        self.inds[d._name]["dif"] < self.inds[d._name]["dif"](-1),
+                    ),
                 ),
             )
             """ 
@@ -457,6 +418,8 @@ class GlobalStrategy(bt.Strategy):
                 self.inds[d._name]["mashort"] < self.inds[d._name]["mamid"],
                 self.inds[d._name]["emamid"] < self.inds[d._name]["emamid"](-1),
                 self.inds[d._name]["emashort"] < self.inds[d._name]["emashort"](-1),
+                self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
+                self.inds[d._name]["dif"] < self.inds[d._name]["dif"](-1),
             )
             """ 
             卖出5: 下穿年线
@@ -467,8 +430,10 @@ class GlobalStrategy(bt.Strategy):
                 ),
                 bt.Or(
                     self.signals[d._name]["lower"] == 1,
-                    # self.signals[d._name]["lower_dif"] == 1,
-                    # self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
+                    bt.And(
+                        self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
+                        self.inds[d._name]["dif"] < self.inds[d._name]["dif"](-1),
+                    ),
                 ),
             )
             """ indicators以及signals初始化进度打印 """
