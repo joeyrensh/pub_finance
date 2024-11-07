@@ -183,6 +183,13 @@ def create_layout(app):
                                     html.P(
                                         [
                                             html.Span(
+                                                "观海不语指数为",
+                                                style={"color": "black"},
+                                            ),
+                                            html.Span(
+                                                f"{int(round(df_overall.at[0, 'final_value'] / 1000 - df_overall.at[0, 'cash'] / 1000, 0))}, "
+                                            ),
+                                            html.Span(
                                                 "最新回测所剩Cash为",
                                                 style={"color": "black"},
                                             ),
