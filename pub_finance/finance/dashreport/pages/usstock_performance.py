@@ -157,7 +157,7 @@ def create_layout(app):
                                     html.P(
                                         [
                                             html.Span(
-                                                "观海不语指数为",
+                                                "海风卓越指数为",
                                                 style={"color": "black"},
                                             ),
                                             html.Span(
