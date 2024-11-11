@@ -1680,3 +1680,60 @@ WARNING:waitress.queue:Task queue depth is 1
 WARNING:waitress.queue:Task queue depth is 1
 WARNING:waitress.queue:Task queue depth is 1
 WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 2
+WARNING:waitress.queue:Task queue depth is 2
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+ERROR:waitress:Socket error
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/lib/python3.12/site-packages/waitress/channel.py", line 125, in _flush_exception
+    return (flush(do_close=do_close), False)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/lib/python3.12/site-packages/waitress/channel.py", line 272, in _flush_some
+    num_sent = self.send(chunk, do_close=do_close)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/lib/python3.12/site-packages/waitress/wasyncore.py", line 397, in send
+    result = self.socket.send(data)
+             ^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: [Errno 110] Connection timed out
+ERROR:waitress:Socket error
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/lib/python3.12/site-packages/waitress/channel.py", line 125, in _flush_exception
+    return (flush(do_close=do_close), False)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/lib/python3.12/site-packages/waitress/channel.py", line 272, in _flush_some
+    num_sent = self.send(chunk, do_close=do_close)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/lib/python3.12/site-packages/waitress/wasyncore.py", line 397, in send
+    result = self.socket.send(data)
+             ^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: [Errno 110] Connection timed out
+ERROR:waitress:Socket error
+Traceback (most recent call last):
+  File "/home/ubuntu/miniconda3/lib/python3.12/site-packages/waitress/channel.py", line 125, in _flush_exception
+    return (flush(do_close=do_close), False)
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/lib/python3.12/site-packages/waitress/channel.py", line 272, in _flush_some
+    num_sent = self.send(chunk, do_close=do_close)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/miniconda3/lib/python3.12/site-packages/waitress/wasyncore.py", line 397, in send
+    result = self.socket.send(data)
+             ^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: [Errno 110] Connection timed out
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 1
