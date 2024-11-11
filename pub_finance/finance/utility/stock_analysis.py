@@ -1669,7 +1669,7 @@ class StockProposal:
                 showgrid=True,
                 gridcolor="rgba(0, 0, 0, 0.5)",
                 domain=[0.5, 1],
-                dtick=0.1,
+                # dtick=0.1,
             ),
             yaxis2=dict(
                 title="Pnl per day",
@@ -1683,8 +1683,8 @@ class StockProposal:
                 gridcolor="rgba(0, 0, 0, 0.5)",
                 domain=[0, 0.7],
                 # range=[0, max_pnl * 1.2],
-                dtick=max_pnl / 10 if max_pnl else 1,
-                range=[0, max_pnl * 1.1],
+                # dtick=max_pnl / 10 if max_pnl else 1,
+                # range=[0, max_pnl],
             ),
             legend=dict(
                 orientation="h",
