@@ -1600,7 +1600,7 @@ class StockProposal:
         df_grouped = dfdata_strategy_track.groupby("date")[
             "pnl"
         ].sum()  # 按日期分组并求和
-
+        max_pnl = dfdata_strategy_track["pnl"].max()
         # 创建带有两个 y 轴的子图布局
         fig = make_subplots(
             rows=2,
@@ -1669,6 +1669,7 @@ class StockProposal:
                 showgrid=True,
                 gridcolor="rgba(0, 0, 0, 0.5)",
                 domain=[0.5, 1],
+                dtick=0.1,
             ),
             yaxis2=dict(
                 title="Pnl per day",
@@ -1682,6 +1683,8 @@ class StockProposal:
                 gridcolor="rgba(0, 0, 0, 0.5)",
                 domain=[0, 0.7],
                 # range=[0, max_pnl * 1.2],
+                dtick=max_pnl / 10 if max_pnl else 1,
+                range=[0, max_pnl * 1.1],
             ),
             legend=dict(
                 orientation="h",
