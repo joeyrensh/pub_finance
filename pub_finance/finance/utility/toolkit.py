@@ -210,24 +210,24 @@ class ToolKit:
                 ax.plot(
                     [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=2
                 )
-                ax.fill_between([i, i + 1], [data[i], data[i + 1]], color=fill_color)
+                # ax.fill_between([i, i + 1], [data[i], data[i + 1]], color=fill_color)
             elif data[i] < 0 and data[i + 1] < 0:
                 line_color = colors[1]
                 fill_color = colors[3]
                 ax.plot(
                     [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=2
                 )
-                ax.fill_between([i, i + 1], [data[i], data[i + 1]], color=fill_color)
+                # ax.fill_between([i, i + 1], [data[i], data[i + 1]], color=fill_color)
             elif data[i] >= 0 and data[i + 1] < 0:
                 ax.plot([i, i], [data[i], 0], color="#FF0000", linewidth=2)
-                ax.fill_between([i, i], [data[i], 0], color="#FFCCCC")
+                # ax.fill_between([i, i], [data[i], 0], color="#FFCCCC")
                 ax.plot([i, i + 1], [0, data[i + 1]], color="#009900", linewidth=2)
-                ax.fill_between([i, i + 1], [0, data[i + 1]], color="#CCFFCC")
+                # ax.fill_between([i, i + 1], [0, data[i + 1]], color="#CCFFCC")
             elif data[i] < 0 and data[i + 1] >= 0:
                 ax.plot([i, i], [data[i], 0], color="#009900", linewidth=2)
-                ax.fill_between([i, i], [data[i], 0], color="#CCFFCC")
+                # ax.fill_between([i, i], [data[i], 0], color="#CCFFCC")
                 ax.plot([i, i + 1], [0, data[i + 1]], color="#FF0000", linewidth=2)
-                ax.fill_between([i, i + 1], [0, data[i + 1]], color="#00CC00")
+                # ax.fill_between([i, i + 1], [0, data[i + 1]], color="#00CC00")
             else:
                 line_color = "#808080"
                 ax.plot(
