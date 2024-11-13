@@ -181,7 +181,7 @@ table {
   margin: 0;
   padding: 0;
   border: 0px solid #050505;
-  filter: brightness(110%);
+  /* filter: brightness(110%); */
 }
 
 img {
