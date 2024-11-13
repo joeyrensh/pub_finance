@@ -186,8 +186,7 @@ table {
 
 img {
   /* box-shadow: 0 0 2px lightgrey; */
-  filter: brightness(120%);
-
+  filter: brightness(120%) drop-shadow(8px 8px 5px rgba(0, 0, 0, 0.5));
 }
 
 #idAssignedToDataTable .dash-filter input:not([type=radio]):not([type=checkbox]) {
