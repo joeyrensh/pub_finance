@@ -66,7 +66,7 @@ body {
   margin: 10mm auto;
   border: 1px #d3d3d3 solid;
   border-radius: 5px;
-  background: white;
+  background: rgb(255, 255, 255);
 }
 
 .sub_page {
@@ -181,10 +181,13 @@ table {
   margin: 0;
   padding: 0;
   border: 0px solid #050505;
+  filter: brightness(110%);
 }
 
 img {
-  box-shadow: 0 0 2px lightgrey;
+  /* box-shadow: 0 0 2px lightgrey; */
+  filter: brightness(120%);
+
 }
 
 #idAssignedToDataTable .dash-filter input:not([type=radio]):not([type=checkbox]) {
