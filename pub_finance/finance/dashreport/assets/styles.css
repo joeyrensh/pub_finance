@@ -185,11 +185,6 @@ table {
 }
 
 img {
-  /* box-shadow: 0 0 2px lightgrey; */
-  /* filter: brightness(120%) drop-shadow(10px 10px 5px rgba(255, 0, 0, 0.3)); */
-  display: block;
-  /* 居中并添加外边距 */
-  transition: transform 0.3s ease, filter 0.3s ease;
   /* 添加过渡效果 */
   filter: brightness(120%) contrast(105%) saturate(105%) drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.5));
   /* 调整亮度、对比度和饱和度 */
