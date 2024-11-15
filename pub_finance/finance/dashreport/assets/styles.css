@@ -185,12 +185,14 @@ table {
 }
 
 img {
-  /* 添加过渡效果 */
-  filter: brightness(120%) contrast(105%) saturate(105%) drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.5));
-  /* 调整亮度、对比度和饱和度 */
+  /* /* filter: brightness(120%) contrast(105%) saturate(105%) drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.5)); */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  /* 添加轻微阴影 */
+  /* box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3); */
+  filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(120%) contrast(105%) saturate(105%);
+  /* transform: rotateX(5deg) rotateY(3deg) scale(1.05); */
+  /* transition: transform 0.3s ease; */
 }
+
 
 #idAssignedToDataTable .dash-filter input:not([type=radio]):not([type=checkbox]) {
   color: rgb(11, 11, 11);
