@@ -1695,7 +1695,7 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             barmode="stack",
-            margin=dict(t=60, r=10, l=10, b=10),  # 调整边距以适应标题和标签
+            margin=dict(t=60, r=0, l=10, b=10),  # 调整边距以适应标题和标签
             title={
                 "text": "Last 60 days strategy track",
                 "y": 0.99,
