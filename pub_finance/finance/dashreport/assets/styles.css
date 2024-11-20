@@ -344,8 +344,8 @@ li {
 }
 
 .company-logo {
-  width: 30%;
-  height: 40%;
+  width: 50%;
+  height: 30%;
   margin-left: 2px;
   margin-top: 5px;
   background-color: transparent;
@@ -461,8 +461,8 @@ a:active {
   }
 
   .company-logo {
-    width: 40%;
-    height: 50%;
+    width: 50%;
+    height: 30%;
     margin-left: 2px;
     margin-top: 5px;
     background-color: rgb(255, 255, 255);
