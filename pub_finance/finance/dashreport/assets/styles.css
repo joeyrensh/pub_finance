@@ -288,7 +288,6 @@ li {
   border-radius: 2px;
   box-shadow: 0 0 2px lightgrey;
   font-size: 1.5rem;
-  /* font-weight: bold; */
 }
 
 .full-view-link {
@@ -314,6 +313,7 @@ li {
   position: relative;
   color: #FF4136;
   font-size: 1.5rem;
+  font-weight: bold;
   width: 80%;
   border-left: 20px solid #FF4136;
   /*#8b0202*/
@@ -552,6 +552,7 @@ a:active {
     padding-left: 10px;
     border-left: 15px solid #FF4136;
     font-size: 1.2rem;
+    font-weight: bold;
   }
 
   .five.columns {
