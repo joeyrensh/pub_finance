@@ -318,7 +318,7 @@ li {
   border-left: 20px solid #FF4136;
   /*#8b0202*/
   background: #ffffff;
-  padding-left: 30px;
+  padding-left: 10px;
 }
 
 .subtitle {
@@ -549,7 +549,7 @@ a:active {
   .main-title {
     width: 55%;
     margin-top: 10px;
-    padding-left: 15px;
+    padding-left: 10px;
     border-left: 15px solid #FF4136;
   }
 

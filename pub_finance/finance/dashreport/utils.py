@@ -51,7 +51,7 @@ def get_header(app):
             html.Div(
                 [
                     html.Div(
-                        [html.H5("股市以及房产大数据分析")],
+                        [html.H5("Data-Driven Empowering Investments")],
                         className="seven columns main-title",
                     ),
                     html.Div(
