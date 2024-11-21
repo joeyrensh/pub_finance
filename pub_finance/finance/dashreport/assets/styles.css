@@ -7,13 +7,20 @@ body {
   /* background-color: black; */
   font-size: 1.2rem;
   line-height: 1.0;
-  font-weight: 400;
+  font-weight: 500;
   /* font-family: inherit; */
   /* font-family: "Helvetica Neue"; */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system;
+  /* 使用苹果系统的默认字体 */
+  letter-spacing: -.03rem;
+  /* 字母间距微调 */
+  -webkit-font-smoothing: antialiased !important;
+  /* 在Webkit浏览器中启用字体抗锯齿 */
+  text-rendering: optimizeLegibility;
+  /* 优化文本可读性 */
+
   /* 使用系统字体 */
   /* color: #333; */
-
 }
 
 .dash-spreadsheet-container {
