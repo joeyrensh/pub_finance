@@ -113,6 +113,7 @@ body {
 
 .background {
   background-image: url('/assets/buyahouse-background-transparent.png');
+  /* background-image: url('/assets/background.jpeg'); */
   background-position: bottom;
   background-position-x: 48%;
   background-position-y: 85%;

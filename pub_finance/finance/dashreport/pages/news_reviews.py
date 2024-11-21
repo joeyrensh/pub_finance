@@ -1,5 +1,13 @@
 import dash_html_components as html
 from utils import Header
+import pathlib
+import base64
+
+PATH = pathlib.Path(__file__).parent
+IMAGE_PATH = PATH.joinpath("../assets").resolve()
+with open(IMAGE_PATH.joinpath("background.jpeg"), "rb") as f:
+    image_data = f.read()
+    encoded_image_bg = base64.b64encode(image_data).decode("utf-8")
 
 
 def create_layout(app):
@@ -19,7 +27,7 @@ def create_layout(app):
                                     html.Div(
                                         [
                                             html.P(
-                                                "欢迎加入我们，本公司诚聘保安和保洁各2名"
+                                                "Life was like a box of chocolates, you never know what you're gonna get."
                                             ),
                                         ],
                                         style={"color": "#7a7a7a"},
@@ -33,17 +41,29 @@ def create_layout(app):
                                     html.Br([]),
                                     html.Div(
                                         [
-                                            html.Li("公司成立于1894年"),
-                                            html.Li("受朝廷督办，致力于构建百年企业"),
+                                            html.Li(
+                                                "You have got to put the past behind you before you can move on."
+                                            ),
+                                            html.Li("Miracles happen every day."),
                                         ],
                                         id="reviews-bullet-pts",
                                     ),
                                     html.Div(
                                         [
                                             html.Br([]),
-                                            html.P("商务加盟，请联系妙木"),
+                                            html.P(
+                                                "You are no different than anybody else is."
+                                            ),
                                         ],
                                         style={"color": "#7a7a7a"},
+                                    ),
+                                    html.Img(
+                                        src=f"data:image/png;base64,{encoded_image_bg}",
+                                        style={
+                                            "width": "100%",
+                                            "overflow-x": "auto",
+                                            "overflow-y": "auto",
+                                        },
                                     ),
                                 ],
                                 className="row",
