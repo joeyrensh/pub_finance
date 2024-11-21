@@ -7,7 +7,7 @@ body {
   /* background-color: black; */
   font-size: 1.2rem;
   line-height: 1.0;
-  font-weight: 500;
+  font-weight: 400;
   /* font-family: inherit; */
   /* font-family: "Helvetica Neue"; */
   font-family: -apple-system;
@@ -324,7 +324,7 @@ li {
   position: relative;
   color: #FF4136;
   font-size: 1.5rem;
-  font-weight: bold;
+  /* font-weight: 800; */
   width: 80%;
   border-left: 20px solid #FF4136;
   /*#8b0202*/
