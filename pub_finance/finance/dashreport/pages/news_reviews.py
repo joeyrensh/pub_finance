@@ -45,17 +45,11 @@ def create_layout(app):
                                                 "You have got to put the past behind you before you can move on."
                                             ),
                                             html.Li("Miracles happen every day."),
-                                        ],
-                                        id="reviews-bullet-pts",
-                                    ),
-                                    html.Div(
-                                        [
-                                            html.Br([]),
-                                            html.P(
+                                            html.Li(
                                                 "You are no different than anybody else is."
                                             ),
                                         ],
-                                        style={"color": "#7a7a7a"},
+                                        id="reviews-bullet-pts",
                                     ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_bg}",
