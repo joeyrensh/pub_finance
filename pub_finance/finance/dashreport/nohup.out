@@ -2607,3 +2607,22 @@ Also, if you're using any of the table format helpers (e.g. Group), replace
   import dash_table
 WARNING:waitress.queue:Task queue depth is 1
 WARNING:waitress.queue:Task queue depth is 1
+/home/ubuntu/pub_finance/finance/dashreport/app.py:3: UserWarning: 
+The dash_core_components package is deprecated. Please replace
+`import dash_core_components as dcc` with `from dash import dcc`
+  import dash_core_components as dcc
+/home/ubuntu/pub_finance/finance/dashreport/app.py:4: UserWarning: 
+The dash_html_components package is deprecated. Please replace
+`import dash_html_components as html` with `from dash import html`
+  import dash_html_components as html
+/home/ubuntu/pub_finance/finance/dashreport/utils.py:4: UserWarning: 
+The dash_table package is deprecated. Please replace
+`import dash_table` with `from dash import dash_table`
+
+Also, if you're using any of the table format helpers (e.g. Group), replace 
+`from dash_table.Format import Group` with 
+`from dash.dash_table.Format import Group`
+  import dash_table
+WARNING:waitress.queue:Task queue depth is 1
+WARNING:waitress.queue:Task queue depth is 2
+WARNING:waitress.queue:Task queue depth is 1
