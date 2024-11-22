@@ -78,12 +78,12 @@ def get_menu():
     menu = html.Div(
         [
             dcc.Link(
-                "A股市场数据分析",
+                "A Stock Market",
                 href="/dash-financial-report/cn-stock-performance",
                 className="tab first",
             ),
             dcc.Link(
-                "美股市场数据分析",
+                "US Stock Market",
                 href="/dash-financial-report/us-stock-performance",
                 className="tab",
             ),
