@@ -244,7 +244,7 @@ class TickerInfo:
                 if (
                     "ETF" in str(i["name"]).upper()
                     # and float(i["close"]) * float(i["volume"]) * 100 >= 500000000
-                    and float(i["total_value"]) >= 10000000000
+                    and float(i["total_value"]) >= 5000000000
                 ):
                     tickers.append(i["symbol"])
         return tickers
