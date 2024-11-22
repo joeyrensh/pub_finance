@@ -112,6 +112,7 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  filter: brightness(120%) contrast(105%) saturate(105%);
 }
 
 .login-button:hover {
