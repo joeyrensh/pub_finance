@@ -176,10 +176,12 @@ def create_layout(app):
                 [
                     html.Div(
                         [
+                            html.H6(
+                                ["Market Trends and Index Summary"],
+                                className="subtitle padded",
+                            ),
                             html.Div(
                                 [
-                                    html.H5("A股主板全市场分析"),
-                                    html.Br([]),
                                     html.P(
                                         [
                                             html.Span(
@@ -219,7 +221,7 @@ def create_layout(app):
                                     ),
                                 ],
                                 className="product",
-                            )
+                            ),
                         ],
                         className="row",
                     ),
@@ -229,7 +231,7 @@ def create_layout(app):
                                 [
                                     # html.Br([]),
                                     html.H6(
-                                        ["A股年化收益率分析"],
+                                        ["年化收益率分析"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(
