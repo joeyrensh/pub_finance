@@ -204,7 +204,7 @@ def create_layout(app):
                                 [
                                     # html.Br([]),
                                     html.H6(
-                                        ["年化收益率分析"],
+                                        ["Annual Return Analysis"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(
@@ -226,7 +226,7 @@ def create_layout(app):
                                 [
                                     # html.Br([]),
                                     html.H6(
-                                        ["Top3板块每日跟踪"],
+                                        ["Top3 Industries Tracking"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(
@@ -248,7 +248,7 @@ def create_layout(app):
                                 [
                                     # html.Br([]),
                                     html.H6(
-                                        ["策略近60日收益跟踪"],
+                                        ["Strategy Tracking for the Past 60 Days"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(
@@ -270,7 +270,9 @@ def create_layout(app):
                             html.Div(
                                 [
                                     # html.Br([]),
-                                    html.H6(["持仓占比"], className="subtitle padded"),
+                                    html.H6(
+                                        ["Position Weight"], className="subtitle padded"
+                                    ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_by_postion}",
                                         style={
@@ -286,7 +288,7 @@ def create_layout(app):
                                 [
                                     # html.Br([]),
                                     html.H6(
-                                        ["盈利占比"],
+                                        ["Earnings Weight"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(
@@ -308,7 +310,9 @@ def create_layout(app):
                         [
                             html.Div(
                                 [
-                                    html.H6(["持仓趋势"], className="subtitle padded"),
+                                    html.H6(
+                                        ["Position Trend"], className="subtitle padded"
+                                    ),
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_by_positiondate}",
                                         style={
@@ -323,7 +327,7 @@ def create_layout(app):
                             html.Div(
                                 [
                                     html.H6(
-                                        ["盈利趋势"],
+                                        ["Earnings Trend"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(
@@ -346,7 +350,7 @@ def create_layout(app):
                             html.Div(
                                 [
                                     html.H6(
-                                        "美股板块分析",
+                                        "Industries Analysis",
                                         className="subtitle padded",
                                     ),
                                     html.Div(
@@ -376,7 +380,7 @@ def create_layout(app):
                             html.Div(
                                 [
                                     html.H6(
-                                        "美股持仓分析",
+                                        "Position Analysis",
                                         className="subtitle padded",
                                     ),
                                     html.Div(
@@ -405,7 +409,7 @@ def create_layout(app):
                             html.Div(
                                 [
                                     html.H6(
-                                        "美股近5日减仓分析",
+                                        "Position Reduction in the Past 5 Days",
                                         className="subtitle padded",
                                     ),
                                     html.Div(
