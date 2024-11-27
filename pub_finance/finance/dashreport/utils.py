@@ -201,8 +201,8 @@ def data_bars(df, column):
                     linear-gradient(90deg,
                     dodgerblue 0%,
                     dodgerblue {max_bound_percentage}%,
-                    white {max_bound_percentage}%,
-                    white 100%)
+                    transparent {max_bound_percentage}%,
+                    transparent 100%)
                 """.format(max_bound_percentage=max_bound_percentage)
                 ),
                 "paddingBottom": 2,
@@ -339,7 +339,7 @@ def make_dash_format_table(df, cols_format):
         style_header={
             "position": "sticky",
             "top": "0",
-            # "background-color": "white",
+            "background-color": "transparent",
             "z-index": 1000,
             "fontWeight": "bold",
             "white-space": "normal",
@@ -349,6 +349,7 @@ def make_dash_format_table(df, cols_format):
             "textAlign": "left",
             "overflow": "hidden",
             "textOverflow": "ellipsis",
+            "background-color": "transparent",
             # "font-size": "1rem",
             "margin": "0px",
             "margin-bottom": "-20px",

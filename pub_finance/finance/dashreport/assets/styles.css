@@ -3,7 +3,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: rgba(57, 152, 216, 0.238);
+  background-color: rgba(16, 137, 217, 0.482);
   /* background-color: black; */
   font-size: 1.2rem;
   line-height: 1.0;
@@ -25,6 +25,11 @@ body {
 
 .dash-spreadsheet-container {
   line-height: 1.0 !important;
+
+}
+
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
+  background: none;
 }
 
 .fig_custom {
@@ -73,7 +78,7 @@ body {
   margin: 10mm auto;
   border: 1px #d3d3d3 solid;
   border-radius: 5px;
-  background: rgb(255, 255, 255);
+  /* background: rgb(255, 255, 255); */
 }
 
 .sub_page {
@@ -330,7 +335,7 @@ li {
   width: 80%;
   border-left: 20px solid #FF4136;
   /*#8b0202*/
-  background: #ffffff;
+  /* background: #ffffff; */
   padding-left: 10px;
 }
 
@@ -342,7 +347,7 @@ li {
   margin: 0mm;
   border-left: 5px solid #FF4136;
   /*#8b0202*/
-  background: #ffffff;
+  /* background: #ffffff; */
   padding-top: 1px;
   padding-bottom: 1px;
   padding-left: 30px;
@@ -496,6 +501,7 @@ a:active {
     margin: 0;
     padding: 0;
     border: 0px solid #050505;
+    background-color: transparent;
   }
 
   .tab.first {

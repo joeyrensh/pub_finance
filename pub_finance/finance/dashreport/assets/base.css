@@ -5,7 +5,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #fafafa;
+  /* background-color: #fafafa; */
   font-size: 1.1rem;
   /* line-height: 1.3; */
   line-height: 1.0;
@@ -24,7 +24,7 @@ body {
   margin: 1mm auto;
   /* border: 1px #D3D3D3 solid; */
   border-radius: 5px;
-  background: white;
+  /* background: white; */
   /* box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); */
 }
 
@@ -122,12 +122,12 @@ tr:nth-child(even) {
 }
 
 table.reversed tr:nth-child(odd) {
-  background-color: #d7dbe1;
+  /* background-color: #d7dbe1; */
   -webkit-print-color-adjust: exact;
 }
 
 table.reversed tr:nth-child(even) {
-  background-color: white;
+  /* background-color: white; */
 }
 
 table {
