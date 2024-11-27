@@ -3,7 +3,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: rgb(255, 255, 255);
+  background-color: rgba(57, 152, 216, 0.238);
   /* background-color: black; */
   font-size: 1.2rem;
   line-height: 1.0;
@@ -60,7 +60,7 @@ body {
   padding: 0mm;
   margin: 2mm auto;
   /* background: rgb(255, 255, 255); */
-  background-color: rgb(255, 255, 255);
+  /* background-color: rgb(255, 255, 255); */
   border-radius: 5px;
   box-shadow: 0 0 10px lightgrey;
 }
