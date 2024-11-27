@@ -78,15 +78,18 @@ app.layout = html.Div(
                 dcc.Loading(
                     id="loading",
                     type="dot",
-                    fullscreen=True,
+                    fullscreen=False,
                     color="#119DFF",
                     style={"zIndex": "1000"},
                     children=[
                         html.Div(id="page-content"),
                     ],
+                    className="loading-dot",
                 ),
             ],
-            style={"display": "none"},
+            style={
+                "display": "block",
+            },
         ),
     ],
 )

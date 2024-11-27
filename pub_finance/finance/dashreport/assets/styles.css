@@ -3,8 +3,8 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: rgba(16, 137, 217, 0.482);
-  /* background-color: black; */
+  background-color: rgba(28, 188, 183, 0.2);
+  /* background-color: transparent; */
   font-size: 1.2rem;
   line-height: 1.0;
   font-weight: 400;
@@ -30,6 +30,13 @@ body {
 
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
   background: none;
+}
+
+.loading-dot {
+  border-radius: 50%;
+  position: fixed;
+  top: 50%;
+  left: 50%;
 }
 
 .fig_custom {
