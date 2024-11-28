@@ -269,6 +269,7 @@ def make_dash_format_table(df, cols_format):
                     "filter_query": "{{{column}}} >= {value} and {{{column}}} != 'nan'".format(
                         column=col + "_o", value=date_threshold
                     ),
+                    "column_id": col,
                 },
                 # "backgroundColor": "RebeccaPurple",
                 "backgroundColor": "coral",
