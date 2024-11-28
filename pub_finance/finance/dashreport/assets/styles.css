@@ -36,7 +36,10 @@ body {
   border-radius: 50%;
   position: fixed;
   top: 50%;
-  left: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* 将元素的中心对齐到视口的中心 */
+
 }
 
 .fig_custom {
