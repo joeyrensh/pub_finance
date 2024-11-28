@@ -201,7 +201,7 @@ def exec_btstrategy(date):
         ax=ax1,
         label="drawdown (right)",
         rot=0,
-        alpha=1,
+        alpha=0.8,
         fontsize=20,
         grid=False,
         color="green",

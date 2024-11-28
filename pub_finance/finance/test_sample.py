@@ -201,10 +201,10 @@ def exec_btstrategy(date):
         ax=ax1,
         label="drawdown (right)",
         rot=0,
-        alpha=1,
+        alpha=0.8,
         fontsize=20,
         grid=False,
-        color="#0b9e0b",
+        color="green",
     )
 
     # 绘制累计收益曲线
@@ -286,8 +286,8 @@ if __name__ == "__main__":
     """ 创建进度条并开始运行 """
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
-    """ 东方财经爬虫 """
-    """ 爬取每日最新股票数据 """
+    # """ 东方财经爬虫 """
+    # """ 爬取每日最新股票数据 """
     # em = EMWebCrawler()
     # em.get_us_daily_stock_info(trade_date)
 
@@ -298,37 +298,14 @@ if __name__ == "__main__":
     #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
 
     """ 执行bt相关策略 """
-    # cash, final_value = exec_btstrategy(trade_date)
+    cash, final_value = exec_btstrategy(trade_date)
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("us", trade_date).send_btstrategy_by_email(3337908.65, 11876002.6)
+    StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()
-
-
-# df_trade = pd.read_csv(
-#     "./usstockinfo/trade_20241023.csv",
-#     header=None,
-# )
-# df_trade.columns = ["index", "symbol", "date", "action", "base", "volume", "strategy"]
-
-# # 按symbol分组，按date倒序排序，然后保留每个分组中date最大的记录
-# trade_result = df_trade.sort_values(
-#     by=["symbol", "date"], ascending=[True, False]
-# ).drop_duplicates(subset="symbol", keep="first")
-# trade_result = trade_result[trade_result["action"] == "buy"]
-
-# std_trade_result = trade_result.groupby(["strategy"])["symbol"].count()
-
-
-# df_pos = pd.read_csv(
-#     "./usstockinfo/position_20241023.csv",
-# )
-
-# result = df_pos[df_pos["p&l"] > 0].count()
-# print(std_trade_result)
