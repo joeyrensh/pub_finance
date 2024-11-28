@@ -2290,7 +2290,7 @@ class StockProposal:
                     WHERE row_num = 21 )
                 GROUP BY t1.date, t2.industry
             ), tmp1 AS (
-            SELECT t.date,
+            SELECT t.date
                 ,t.industry
                 ,t.pnl
                 ,t.l_pnl
