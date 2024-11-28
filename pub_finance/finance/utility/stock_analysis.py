@@ -2287,7 +2287,7 @@ class StockProposal:
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
-                    WHERE row_num = 20 )
+                    WHERE row_num = 21 )
                 GROUP BY t1.date, t2.industry
             ), tmp1 AS (
             SELECT
@@ -2297,6 +2297,7 @@ class StockProposal:
                 ,LAG(pnl) OVER (PARTITION BY industry ORDER BY date) AS l_pnl
             FROM tmp
             ORDER BY date, industry
+            LIMIT 20
             ), tmp2 AS (
             SELECT 
                 date
