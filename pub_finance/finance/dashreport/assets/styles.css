@@ -3,7 +3,10 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  /* background-color: green; */
+  /* background-image: url('./background.jpeg');
+  background-size: cover;
+  background-position: center;
+  margin: 0; */
   background-color: #f6f8f9;
   font-size: 1.2rem;
   line-height: 1.0;
