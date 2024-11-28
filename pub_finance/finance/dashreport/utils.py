@@ -148,7 +148,10 @@ def make_dash_table(df):
             "placeholder_text": None,
             "case": "insensitive",
         },
-        style_filter={"color": "white", "ling-height": "1px"},
+        style_filter={
+            # "color": "white",
+            "ling-height": "1px"
+        },
         markdown_options={"html": True},
         fill_width=True,
         editable=True,
@@ -207,7 +210,7 @@ def data_bars(df, column):
                 ),
                 "paddingBottom": 2,
                 "paddingTop": 2,
-                "color": "black",
+                # "color": "black",
             }
         )
 
