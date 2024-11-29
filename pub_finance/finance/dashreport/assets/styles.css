@@ -8,9 +8,10 @@ body {
   background-position: center;
   margin: 0; */
   background-color: #f6f8f9;
+
   font-size: 1.2rem;
   line-height: 1.0;
-  font-weight: 400;
+  /* font-weight: 500; */
   /* font-family: inherit; */
   /* font-family: "Helvetica Neue"; */
   font-family: -apple-system;
@@ -236,7 +237,7 @@ img {
 }
 
 #idAssignedToDataTable .dash-spreadsheet-container .dash-spreadsheet-inner .column-header-name {
-  font-weight: normal;
+  /* font-weight: normal; */
   font-family: Raleway, HelveticaNeue, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
