@@ -246,6 +246,10 @@ img {
   background-color: #19537057 !important
 }
 
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th.dash-filter {
+  background: none !important;
+}
+
 td {
   padding: 0px 0px;
 }
