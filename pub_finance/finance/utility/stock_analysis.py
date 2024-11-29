@@ -2381,21 +2381,37 @@ class StockProposal:
                 y=dfdata100["week_order"],  # 每7天增加一行
                 z=dfdata100["s_pnl"],
                 # 定义自定义颜色比例
+                # colorscale=[
+                #     [0, "#065906"],
+                #     [
+                #         (mid_val - min_val) / (max_val - min_val) / 2,
+                #         "#0b9e0b",
+                #     ],
+                #     [
+                #         (mid_val - min_val) / (max_val - min_val),
+                #         "white",
+                #     ],
+                #     [
+                #         1 - (max_val - mid_val) / (max_val - min_val) / 2,
+                #         "#d43737",
+                #     ],
+                #     [1, "#cf0c0c"],
+                # ],
                 colorscale=[
-                    [0, "#065906"],
+                    [0, "rgba(6, 89, 6, 0.7)"],
                     [
                         (mid_val - min_val) / (max_val - min_val) / 2,
-                        "#0b9e0b",
+                        "rgba(11, 158, 11, 0.7)",
                     ],
                     [
                         (mid_val - min_val) / (max_val - min_val),
-                        "white",
+                        "rgba(255, 255, 255, 0.7)",
                     ],
                     [
                         1 - (max_val - mid_val) / (max_val - min_val) / 2,
-                        "#d43737",
+                        "rgba(212, 55, 55, 0.7)",
                     ],
-                    [1, "#cf0c0c"],
+                    [1, "rgba(207, 12, 12, 0.7)"],
                 ],
                 zmin=min_val,
                 zmax=max_val,
