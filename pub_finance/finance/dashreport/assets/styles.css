@@ -242,6 +242,10 @@ img {
   font-family: Raleway, HelveticaNeue, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+.dash-table-container .dash-spreadsheet-container th {
+  background-color: #19537057 !important
+}
+
 td {
   padding: 0px 0px;
 }
