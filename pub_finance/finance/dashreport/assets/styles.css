@@ -468,7 +468,7 @@ a:active {
   padding-left: 15px;
   padding-right: 15px;
   text-transform: none;
-  margin: 10px 20px 0px 0px;
+  margin: 10px 10px 10px 0px;
   border: 0.5px;
   border-color: lightgrey;
   border-style: solid;
@@ -510,8 +510,8 @@ a:active {
   .company-logo {
     width: 40%;
     height: 20%;
-    margin-left: 2px;
-    margin-top: 10px;
+    margin-left: 15px;
+    margin-top: 15px;
     /* background-color: rgb(255, 255, 255);
      */
     filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(120%) contrast(105%) saturate(105%);
