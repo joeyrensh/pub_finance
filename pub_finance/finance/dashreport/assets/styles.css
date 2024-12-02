@@ -140,7 +140,7 @@ body {
 }
 
 .background {
-  background-image: url('/assets/buyahouse-background-transparent.png');
+  background-image: url('/assets/buyahouse-background-logo.png');
   /* background-image: url('/assets/background.jpeg'); */
   background-position: bottom;
   background-position-x: 50%;
@@ -390,7 +390,7 @@ li {
   width: 40%;
   height: 20%;
   margin-left: 2px;
-  margin-top: 5px;
+  margin-top: 10px;
   background-color: transparent;
   filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(120%) contrast(105%) saturate(105%);
   box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
@@ -468,7 +468,7 @@ a:active {
   padding-left: 15px;
   padding-right: 15px;
   text-transform: none;
-  margin: 25px 20px 0px 0px;
+  margin: 10px 20px 0px 0px;
   border: 0.5px;
   border-color: lightgrey;
   border-style: solid;
@@ -478,7 +478,7 @@ a:active {
 @media only screen and (max-width: 550px) {
 
   .background {
-    background-image: url('/assets/buyahouse-background-transparent.png');
+    background-image: url('/assets/buyahouse-background-logo.png');
     background-position: bottom;
     background-position-x: 50%;
     background-position-y: 95%;
@@ -508,10 +508,10 @@ a:active {
   }
 
   .company-logo {
-    width: 30%;
+    width: 40%;
     height: 20%;
     margin-left: 2px;
-    margin-top: 5px;
+    margin-top: 10px;
     /* background-color: rgb(255, 255, 255);
      */
     filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(120%) contrast(105%) saturate(105%);
