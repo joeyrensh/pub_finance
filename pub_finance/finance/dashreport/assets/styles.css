@@ -468,7 +468,7 @@ a:active {
   padding-left: 15px;
   padding-right: 15px;
   text-transform: none;
-  margin: 10px 10px 10px 0px;
+  margin: 15px 15px 10px 5px;
   border: 0.5px;
   border-color: lightgrey;
   border-style: solid;
@@ -578,7 +578,7 @@ a:active {
     height: 25px;
     /* margin: auto; */
 
-    padding: 1px;
+    padding: 5px;
     margin-left: 0px;
     margin-top: 10px;
     margin-right: 13px;
