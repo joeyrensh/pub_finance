@@ -337,9 +337,10 @@ li {
   color: white !important;
   font-size: medium;
   padding: 10px 10px;
-  float: left;
-  margin-left: 72%;
-  width: 35%;
+  float: right;
+  /* margin-left: 72%; */
+  width: 15%;
+  margin-right: 15px;
   text-align: center;
   transition-duration: 1s;
 }
@@ -531,7 +532,7 @@ a:active {
   .tab.first {
     display: inline-block;
     text-align: left;
-    margin-top: 5px;
+    margin-top: 0px;
     /* padding: 5px 5px; */
 
   }
@@ -544,7 +545,7 @@ a:active {
 
   .all-tabs {
     text-align: center;
-    margin-top: 5px;
+    margin-top: 0px;
     font-size: 12px;
   }
 
@@ -597,7 +598,7 @@ a:active {
   }
 
   .main-title {
-    width: 55%;
+    /* width: 55%; */
     /* margin-top: 10px; */
     padding-left: 10px;
     border-left: 15px solid #FF4136;
@@ -614,11 +615,14 @@ a:active {
   }
 
   .full-view-link {
-    font-size: small;
-    padding: 6px 6px;
-    width: 25%;
-    margin-left: 68%;
-    /* margin-top: 10px; */
+    font-size: 0.8em;
+    padding: 3px 3px;
+    width: 15%;
+    /* margin-left: 68%; */
+    float: right;
+    margin-top: 5px;
+    margin-left: 0px;
+    margin-right: 12px;
   }
 
   .row>.columns:not(:first-child) {
@@ -648,14 +652,17 @@ a:active {
 
 @media only screen and (max-width: 400px) {
   .full-view-link {
-    width: 40%;
-    margin-left: 52%;
+    width: 15%;
+    margin-left: 0px;
+    margin-top: 5px;
+    margin-right: 12px;
+    float: right;
   }
 }
 
 @media only screen and (max-width: 350px) {
   .full-view-link {
-    width: 50%;
+    width: 40%;
     margin-left: 50%;
   }
 }
