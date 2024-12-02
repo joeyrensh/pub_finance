@@ -143,7 +143,7 @@ body {
   background-image: url('/assets/buyahouse-background-transparent.png');
   /* background-image: url('/assets/background.jpeg'); */
   background-position: bottom;
-  background-position-x: 48%;
+  background-position-x: 50%;
   background-position-y: 85%;
   background-size: 20%;
   background-repeat: no-repeat;
@@ -480,7 +480,7 @@ a:active {
   .background {
     background-image: url('/assets/buyahouse-background-transparent.png');
     background-position: bottom;
-    background-position-x: 20%;
+    background-position-x: 50%;
     background-position-y: 95%;
     background-size: 80%;
     background-repeat: no-repeat;
