@@ -41,7 +41,7 @@ def exec_btstrategy(date):
     """ 添加股票当日即历史数据 """
     list = TickerInfo(date, "cn").get_etf_backtrader_data_feed()
     """ 初始资金100M """
-    start_cash = len(list) * 10000
+    start_cash = len(list) * 20000
     cerebro.broker.setcash(start_cash)
     """ 循环初始化数据进入cerebro """
     for h in list:
