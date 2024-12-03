@@ -509,7 +509,7 @@ a:active {
   }
 
   .company-logo {
-    width: 40%;
+    width: 50%;
     height: 20%;
     margin-left: 15px;
     margin-top: 15px;
@@ -575,13 +575,13 @@ a:active {
   #learn-more-button {
     float: right;
     line-height: 0;
-    font-size: 8px;
-    height: 25px;
+    font-size: 6px;
+    height: 15px;
     /* margin: auto; */
 
     padding: 5px;
     margin-left: 0px;
-    margin-top: 10px;
+    margin-top: 20px;
     margin-right: 13px;
     /* margin-bottom: 10px; */
     border: 0.5px;
