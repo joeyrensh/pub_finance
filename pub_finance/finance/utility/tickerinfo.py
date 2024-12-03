@@ -47,9 +47,9 @@ class TickerInfo:
                         (
                             float(i["close"]) * float(i["volume"]) >= 100000000
                             and float(i["total_value"]) >= 1000000000
-                            and float(i["total_value"]) < 10000000000
+                            and float(i["total_value"]) < 5000000000
                         )
-                        or float(i["total_value"]) >= 10000000000
+                        or float(i["total_value"]) >= 5000000000
                     )
                     and float(i["close"]) > 2
                     and float(i["close"]) < 10000
@@ -61,15 +61,7 @@ class TickerInfo:
         elif self.market == "cn":
             for index, i in df_n.iterrows():
                 if (
-                    # (
-                    #     (
-                    #         float(i["close"]) * float(i["volume"]) * 100 >= 100000000
-                    #         and float(i["total_value"]) >= 5000000000
-                    #         and float(i["total_value"]) < 10000000000
-                    #     )
-                    #     or float(i["total_value"]) >= 10000000000
-                    # )
-                    float(i["total_value"]) >= 10000000000
+                    float(i["total_value"]) >= 5000000000
                     and float(i["close"]) > 3
                     and float(i["close"]) < 10000
                     and float(i["open"]) > 0
