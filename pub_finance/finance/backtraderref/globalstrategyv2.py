@@ -592,12 +592,6 @@ class GlobalStrategy(bt.Strategy):
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "均线破线"
-                elif self.signals[d._name]["long_position"][0] == 1:
-                    """买入对应仓位"""
-                    self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d)
-                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "均线多头"
                 elif self.signals[d._name]["vol_increase"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
@@ -620,6 +614,12 @@ class GlobalStrategy(bt.Strategy):
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "均线密集突破"
+                elif self.signals[d._name]["long_position"][0] == 1:
+                    """买入对应仓位"""
+                    self.broker.cancel(self.order[d._name])
+                    self.order[d._name] = self.buy(data=d)
+                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
+                    self.myorder[d._name]["strategy"] = "均线多头"
                 elif self.signals[d._name]["closecrossup"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
@@ -642,14 +642,14 @@ class GlobalStrategy(bt.Strategy):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "均线破位"
-                elif self.signals[d._name]["short_position"][0] == 1:
-                    self.order[d._name] = self.close(data=d)
-                    self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "均线空头"
                 elif self.signals[d._name]["closs_crossdown_annualline"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "下穿年线"
+                elif self.signals[d._name]["short_position"][0] == 1:
+                    self.order[d._name] = self.close(data=d)
+                    self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
+                    self.myorder[d._name]["strategy"] = "均线空头"
                 elif self.signals[d._name]["closecrossdown"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
