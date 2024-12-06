@@ -1374,7 +1374,6 @@ class StockProposal:
         )
         # 设置图像的宽度和高度（例如，1920x1080像素）
         fig_width, fig_height = 1440, 900
-        # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
         scale_factor = 1.2
 
         # htmltest = io.to_html(fig, full_html=False)
@@ -1782,6 +1781,8 @@ class StockProposal:
         #     plot_bgcolor="rgba(0,0,0,0)",
         #     paper_bgcolor="rgba(0,0,0,0)",
         # )
+        fig_width, fig_height = 1440, 720
+        scale_factor = 1.2
 
         if self.market == "us":
             fig.write_image(
@@ -1915,10 +1916,8 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
         )
-        # 设置图像的宽度和高度（例如，1920x1080像素）
-        # fig_width, fig_height = 1280, 768
-        # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
-        # scale_factor = 1
+        fig_width, fig_height = 1440, 900
+        scale_factor = 1.2
         if self.market == "us":
             fig.write_image(
                 "./images/us_trade_trend_light.png",
@@ -2506,6 +2505,8 @@ class StockProposal:
                 # borderwidth=1,  # 设置边框宽度
                 # bgcolor="rgba(255, 255, 255, 0.7)",  # 设置背景色为半透明白色
             )
+        fig_width, fig_height = 1440, 720
+        scale_factor = 1.2
 
         if self.market == "us":
             fig.write_image(
