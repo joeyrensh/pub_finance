@@ -223,7 +223,6 @@ def exec_btstrategy(date):
 
     # 主轴定位器：每 5 个月显示一个日期：根据具体天数来做排版
     ax2.xaxis.set_major_locator(ticker.MultipleLocator(120))
-
     # 同时绘制双轴的图例
     h1, l1 = ax1.get_legend_handles_labels()
 
