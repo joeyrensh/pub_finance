@@ -239,13 +239,16 @@ img {
 
 #idAssignedToDataTable .dash-spreadsheet-container .dash-spreadsheet-inner .column-header-name {
   font-weight: normal;
-  color: #2d4fdc;
+  /* color: #2d4fdc; */
+  color: #ffffff;
   font-family: Raleway, HelveticaNeue, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .dash-table-container .dash-spreadsheet-container th {
   /* background-color: #19537057 !important */
-  background-color: #FFFAE6 !important
+  /* background-color: #FFFAE6 !important */
+  background-color: #105469 !important;
+
 }
 
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th.dash-filter {
