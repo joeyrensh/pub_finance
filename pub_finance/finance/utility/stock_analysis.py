@@ -1605,9 +1605,9 @@ class StockProposal:
             rows=2,
             cols=1,
             shared_xaxes=True,
-            vertical_spacing=0.05,  # 调整两个子图之间的垂直间距
+            vertical_spacing=0.01,  # 调整两个子图之间的垂直间距
             specs=[[{"secondary_y": False}], [{"secondary_y": True}]],
-            subplot_titles=("Success Rate", "Pnl per day"),  # 子图标题
+            # subplot_titles=("Success Rate", "Pnl per day"),  # 子图标题
         )
         # 遍历每个策略并添加数据
         for i, (strategy, data) in enumerate(dfdata_strategy_track.groupby("strategy")):
@@ -1658,7 +1658,8 @@ class StockProposal:
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis=dict(
-                title="Success Rate",
+                # title="Success Rate",
+                title="",
                 titlefont=dict(size=20, color="black"),
                 # side="left",
                 # mirror=True,
@@ -1671,7 +1672,8 @@ class StockProposal:
                 gridwidth=1,
             ),
             yaxis2=dict(
-                title="Pnl per day",
+                # title="Pnl per day",
+                title="",
                 titlefont=dict(size=20, color="black"),
                 # side="right",
                 # mirror=True,
@@ -1694,9 +1696,10 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             barmode="stack",
-            margin=dict(t=60, r=0, l=0, b=10),  # 调整边距以适应标题和标签
+            margin=dict(t=0, r=0, l=0, b=0),  # 调整边距以适应标题和标签
             title={
-                "text": "Last 60 days strategy track",
+                # "text": "Last 60 days strategy track",
+                "text": "",
                 "y": 0.99,
                 "x": 0.05,
                 "xanchor": "left",
@@ -1705,82 +1708,6 @@ class StockProposal:
             },
         )
 
-        # fig = go.Figure()
-        # for i, (strategy, data) in enumerate(dfdata_strategy_track.groupby("strategy")):
-        #     fig.add_trace(
-        #         go.Scatter(
-        #             x=data["date"],
-        #             y=data["ema_success_rate"],
-        #             mode="lines",
-        #             name=strategy,
-        #             line=dict(width=3, color=strategy_colors[i], shape="spline"),
-        #             yaxis="y",
-        #         )
-        #     )
-
-        #     fig.add_trace(
-        #         go.Bar(
-        #             x=data["date"],
-        #             y=data["pnl"],
-        #             # name=strategy + " - pnl",
-        #             marker=dict(color=strategy_colors[i]),
-        #             yaxis="y2",
-        #             showlegend=False,
-        #             offsetgroup=1,
-        #         )
-        #     )
-        # # light mode
-        # fig.update_layout(
-        #     title={
-        #         "text": "Last 60 days strategy track",
-        #         "y": 0.99,
-        #         "x": 0.05,
-        #         "xanchor": "left",
-        #         "yanchor": "top",
-        #         "font": dict(size=20, color="black"),
-        #     },
-        #     xaxis=dict(
-        #         # title="Trade Date",
-        #         # titlefont=dict(size=title_font_size, color="black"),
-        #         mirror=True,
-        #         ticks="outside",
-        #         tickfont=dict(color="black", size=20),
-        #         showline=True,
-        #         gridcolor="rgba(0, 0, 0, 0.5)",
-        #     ),
-        #     yaxis=dict(
-        #         title="Success Rate",
-        #         titlefont=dict(size=20, color="black"),
-        #         side="left",
-        #         mirror=True,
-        #         ticks="outside",
-        #         tickfont=dict(color="black", size=20),
-        #         showline=True,
-        #         gridcolor="rgba(0, 0, 0, 0.5)",
-        #     ),
-        #     yaxis2=dict(
-        #         title="Pnl per day",
-        #         titlefont=dict(size=20, color="black"),
-        #         # side="right",
-        #         side="left",
-        #         overlaying="y",
-        #         showgrid=False,
-        #         ticks="outside",
-        #         tickfont=dict(color="black", size=20),
-        #         # range=[0, max_pnl * 1.2],
-        #     ),
-        #     legend=dict(
-        #         orientation="h",
-        #         yanchor="bottom",
-        #         y=-0.1,
-        #         xanchor="center",
-        #         x=0.5,
-        #         font=dict(size=20, color="black"),
-        #     ),
-        #     barmode="stack",
-        #     plot_bgcolor="rgba(0,0,0,0)",
-        #     paper_bgcolor="rgba(0,0,0,0)",
-        # )
         fig_width, fig_height = 1440, 720
         scale_factor = 1.2
 
@@ -1789,14 +1716,14 @@ class StockProposal:
                 "./images/us_strategy_tracking.png",
                 width=fig_width,
                 height=fig_height,
-                scale=1.5,
+                scale=2,
             )
         else:
             fig.write_image(
                 "./images/cn_strategy_tracking.png",
                 width=fig_width,
                 height=fig_height,
-                scale=1.5,
+                scale=2,
             )
 
         # 60天内交易明细分析
@@ -1869,10 +1796,10 @@ class StockProposal:
         fig.update_layout(
             title={
                 "text": "Last 60 days trade info",
-                "y": 0.99,
-                "x": 0.05,
-                "xanchor": "left",
-                "yanchor": "top",
+                "y": 0.9,
+                "x": 0.5,
+                # "xanchor": "left",
+                # "yanchor": "top",
                 "font": dict(size=title_font_size, color="black"),
             },
             xaxis=dict(
@@ -1915,6 +1842,7 @@ class StockProposal:
             barmode="stack",
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
+            margin=dict(t=0, b=0, l=0, r=0),
         )
         fig_width, fig_height = 1440, 900
         scale_factor = 1.2
@@ -1936,10 +1864,10 @@ class StockProposal:
         fig.update_layout(
             title={
                 "text": "Last 60 days trade info",
-                "y": 0.99,
-                "x": 0.05,
-                "xanchor": "left",
-                "yanchor": "top",
+                "y": 0.9,
+                "x": 0.5,
+                # "xanchor": "left",
+                # "yanchor": "top",
                 "font": dict(size=title_font_size, color="white"),
             },
             xaxis=dict(
@@ -1981,6 +1909,7 @@ class StockProposal:
             barmode="stack",
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
+            margin=dict(t=0, b=0, l=0, r=0),
         )
 
         if self.market == "us":
@@ -2199,6 +2128,8 @@ class StockProposal:
         fig.update_layout(
             title="Last 60 days top5 pnl ",
             title_font=dict(size=title_font_size, color="black"),
+            title_x=0.5,
+            title_y=0.9,
             legend_title_text="",
             legend=dict(
                 orientation="h",
@@ -2210,6 +2141,7 @@ class StockProposal:
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0,0,0,0)",
+            margin=dict(t=0, b=0, l=0, r=0),
         )
         if self.market == "us":
             fig.write_image(
@@ -2245,6 +2177,8 @@ class StockProposal:
         fig.update_layout(
             title="Last 60 days top5 pnl ",
             title_font=dict(size=title_font_size, color="white"),
+            title_x=0.5,
+            title_y=0.9,
             legend_title_text="",
             legend=dict(
                 orientation="h",
@@ -2256,6 +2190,7 @@ class StockProposal:
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0,0,0,0)",
+            margin=dict(t=0, b=0, l=0, r=0),
         )
         if self.market == "us":
             fig.write_image(
@@ -2456,10 +2391,10 @@ class StockProposal:
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0, 0, 0, 0)",
             margin=dict(
-                l=10,  # 左边距
-                r=10,  # 右边距
-                t=10,  # 上边距（为颜色条留出空间）
-                b=10,  # 下边距
+                l=0,  # 左边距
+                r=0,  # 右边距
+                t=0,  # 上边距（为颜色条留出空间）
+                b=0,  # 下边距
             ),
         )
 
