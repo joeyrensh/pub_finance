@@ -1708,7 +1708,7 @@ class StockProposal:
             },
         )
 
-        fig_width, fig_height = 1440, 720
+        fig_width, fig_height = 1440, 800
         scale_factor = 1.2
 
         if self.market == "us":
