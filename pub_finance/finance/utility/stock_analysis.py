@@ -2440,7 +2440,7 @@ class StockProposal:
                 # borderwidth=1,  # 设置边框宽度
                 # bgcolor="rgba(255, 255, 255, 0.7)",  # 设置背景色为半透明白色
             )
-        fig_width, fig_height = 1440, 720
+        fig_width, fig_height = 1440, 800
         scale_factor = 1.2
 
         if self.market == "us":
