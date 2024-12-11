@@ -1599,13 +1599,13 @@ class StockProposal:
         df_grouped = dfdata_strategy_track.groupby("date")[
             "pnl"
         ].sum()  # 按日期分组并求和
-        max_pnl = dfdata_strategy_track["pnl"].max()
+        # max_pnl = dfdata_strategy_track["pnl"].max()
         # 创建带有两个 y 轴的子图布局
         fig = make_subplots(
             rows=2,
             cols=1,
             shared_xaxes=True,
-            vertical_spacing=0.01,  # 调整两个子图之间的垂直间距
+            vertical_spacing=0.1,  # 调整两个子图之间的垂直间距
             specs=[[{"secondary_y": False}], [{"secondary_y": True}]],
             # subplot_titles=("Success Rate", "Pnl per day"),  # 子图标题
         )
