@@ -1605,7 +1605,7 @@ class StockProposal:
             rows=2,
             cols=1,
             shared_xaxes=True,
-            vertical_spacing=0.1,  # 调整两个子图之间的垂直间距
+            vertical_spacing=0.05,  # 调整两个子图之间的垂直间距
             specs=[[{"secondary_y": False}], [{"secondary_y": True}]],
             # subplot_titles=("Success Rate", "Pnl per day"),  # 子图标题
         )
