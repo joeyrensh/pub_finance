@@ -2119,7 +2119,7 @@ class StockProposal:
         )
         fig.update_yaxes(
             mirror=True,
-            ticks="outside",
+            ticks="inside",
             tickfont=dict(color="black", size=font_size),
             showline=True,
             gridcolor="rgba(0, 0, 0, 0.5)",
@@ -2169,7 +2169,7 @@ class StockProposal:
         )
         fig.update_yaxes(
             mirror=True,
-            ticks="outside",
+            ticks="inside",
             tickfont=dict(color="white", size=font_size),
             showline=True,
             gridcolor="rgba(255, 255, 255, 0.5)",
