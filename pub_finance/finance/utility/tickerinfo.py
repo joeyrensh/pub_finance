@@ -63,7 +63,7 @@ class TickerInfo:
                 if (
                     (
                         (
-                            float(i["close"]) * float(i["volume"]) * 100 >= 150000000
+                            float(i["close"]) * float(i["volume"]) * 100 >= 200000000
                             and float(i["total_value"]) >= 2000000000
                             and float(i["total_value"]) < 10000000000
                         )
