@@ -2124,6 +2124,7 @@ class StockProposal:
             showline=True,
             gridcolor="rgba(0, 0, 0, 0.5)",
             title_font=dict(size=title_font_size, family="Courier", color="black"),
+            title="",  # 设置为空字符串以隐藏y轴标题
         )
         fig.update_layout(
             title="Last 60 days top5 pnl ",
@@ -2141,7 +2142,7 @@ class StockProposal:
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            margin=dict(t=0, b=0, l=0, r=0),
+            margin=dict(t=0, b=0, l=0, r=20),
         )
         if self.market == "us":
             fig.write_image(
@@ -2173,6 +2174,7 @@ class StockProposal:
             showline=True,
             gridcolor="rgba(255, 255, 255, 0.5)",
             title_font=dict(size=title_font_size, family="Courier", color="white"),
+            title="",  # 设置为空字符串以隐藏y轴标题
         )
         fig.update_layout(
             title="Last 60 days top5 pnl ",
@@ -2190,7 +2192,7 @@ class StockProposal:
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            margin=dict(t=0, b=0, l=0, r=0),
+            margin=dict(t=0, b=0, l=0, r=20),
         )
         if self.market == "us":
             fig.write_image(
