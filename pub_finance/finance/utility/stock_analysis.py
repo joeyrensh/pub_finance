@@ -1687,8 +1687,8 @@ class StockProposal:
             ),
             legend=dict(
                 orientation="h",
-                yanchor="top",
-                y=1.02,  # 调整位置以适应布局
+                yanchor="bottom",
+                y=-0.15,  # 调整位置以适应布局
                 xanchor="center",
                 x=0.5,
                 font=dict(size=20, color="black"),
