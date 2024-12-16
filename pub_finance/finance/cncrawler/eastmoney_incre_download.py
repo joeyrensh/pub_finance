@@ -21,7 +21,7 @@ class EMCNWebCrawler:
         self.__url = (
             "http://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery&pn=i&pz=20000"
             "&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:market"
-            "&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
+            "&fields=f2,f3,f4,f5,f6,f7,f9,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
         )
 
     """ 获取数据列表 """
@@ -52,9 +52,9 @@ class EMCNWebCrawler:
                     break
                 """
                 f12: 股票代码, f14: 公司名称, f2: 最新报价, f3: 涨跌幅, f4: 涨跌额, f5: 成交量, f6: 成交额
-                f7: 振幅, f15: 最高, f16: 最低, f17: 今开, f18: 昨收, f20:总市值 f21:流通值
+                f7: 振幅, f9: 市盈率, f15: 最高, f16: 最低, f17: 今开, f18: 昨收, f20:总市值 f21:流通值
                 f12: symbol, f14: name, f2: close, f3: chg, f4: change, f5: volume, f6: turnover
-                f7: amplitude, f15: high, f16: low, f17: open, f18: preclose, f20: total_value, f21: circulation_value
+                f7: amplitude, f9: pe, f15: high, f16: low, f17: open, f18: preclose, f20: total_value, f21: circulation_value
                 """
 
                 def market_code(x):
@@ -89,6 +89,7 @@ class EMCNWebCrawler:
                         "preclose": i["f18"],
                         "total_value": i["f20"],
                         "circulation_value": i["f21"],
+                        "pe": i["f9"],
                     }
                     list.append(dict)
         """ 获取A股数据文件地址 """

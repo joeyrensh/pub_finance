@@ -24,6 +24,10 @@ class FileInfo:
         self._file_path_latest = (
             base_path + "/" + f"{market}stockinfo" + "/" + f"stock_{trade_date}.csv"
         )
+        # 10年期国债每日数据存储文件
+        self._file_path_gz = (
+            base_path + "/" + f"{market}stockinfo" + "/" + f"gz_{trade_date}.csv"
+        )
         # stock目录
         self._file_path_dir = base_path + "/" + f"{market}stockinfo/"
         # talib策略文件
@@ -76,6 +80,10 @@ class FileInfo:
     @property
     def get_file_path_latest(self):
         return self._file_path_latest
+
+    @property
+    def get_file_path_gz(self):
+        return self._file_path_gz
 
     """ 返回数据文件路径，用来查找数据文件列表 """
 

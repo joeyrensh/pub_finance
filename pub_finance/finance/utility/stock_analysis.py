@@ -155,6 +155,7 @@ class StockProposal:
             "preclose",
             "total_value",
             "circulation_value",
+            "pe",
             "date",
         ]
         df4 = spark.read.csv(file_name_day, header=None, inferSchema=True)
@@ -2695,6 +2696,7 @@ class StockProposal:
             "preclose",
             "total_value",
             "circulation_value",
+            "pe",
             "date",
         ]
         df4 = spark.read.csv(file_name_day, header=None, inferSchema=True)

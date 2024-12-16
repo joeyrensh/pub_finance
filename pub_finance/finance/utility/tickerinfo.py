@@ -30,7 +30,7 @@ class TickerInfo:
 
     def get_stock_list(self):
         tickers = list()
-        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 16)])
+        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 17)])
         df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
         df.sort_values(by=["symbol"], ascending=True, inplace=True)
         """ 匹配行业信息 """
@@ -81,7 +81,7 @@ class TickerInfo:
     """ 获取最新一天股票数据 """
 
     def get_stock_data_for_day(self):
-        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 16)])
+        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 17)])
         df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
         """ 匹配行业信息 """
         df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
@@ -235,7 +235,7 @@ class TickerInfo:
 
     def get_etf_list(self):
         tickers = list()
-        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 16)])
+        df = pd.read_csv(self.file_day, usecols=[i for i in range(1, 17)])
         df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
         df.sort_values(by=["symbol"], ascending=True, inplace=True)
         if self.market == "cn":
