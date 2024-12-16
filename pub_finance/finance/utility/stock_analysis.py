@@ -119,7 +119,7 @@ class StockProposal:
         # 国债信息
         file_gz = file.get_file_path_gz
         cols = ["code", "name", "date", "new"]
-        df200 = spark.read.csv(file_gz, header=None, inferSchema=True)
+        df200 = spark.read.csv(file_gz, header=True, inferSchema=True)
         df200 = df200.toDF(*cols)
         df200.createOrReplaceTempView("temp200")
         # 持仓明细, pandas读取
@@ -164,7 +164,7 @@ class StockProposal:
             "pe",
             "date",
         ]
-        df4 = spark.read.csv(file_name_day, header=None, inferSchema=True)
+        df4 = spark.read.csv(file_name_day, header=True, inferSchema=True)
         df4 = df4.toDF(*cols)
         df4.createOrReplaceTempView("temp4")
 
@@ -785,6 +785,9 @@ class StockProposal:
                 , (t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / ( COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0) + t1.pos_cnt + t1.neg_cnt) AS win_rate
                 , (COALESCE(t2.his_pnl,0) + (t1.adjbase - t1.price) * t1.size) / (COALESCE(t2.his_base_price,0) + t1.price * t1.size) AS total_pnl_ratio
                 , t2.buy_strategy
+                , CASE WHEN t3.pe IS NULL OR t3.pe = '' OR t3.pe = '-'
+                    OR NOT t3.pe RLIKE '^-?[0-9]+(\.[0-9]+)?$' THEN '-'
+                  ELSE ROUND((1/CAST(t3.pe AS INT) - t4.new / 100) * 100,1) END AS epr
             FROM (
                 SELECT symbol
                 , buy_date
@@ -799,6 +802,8 @@ class StockProposal:
                 , IF(adjbase < price, 1, 0) AS neg_cnt
                 FROM tmp3
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol
+                LEFT JOIN temp4 t3 ON t1.symbol = t3.symbol
+                LEFT JOIN temp200 t4 ON 1=1
             """.format(end_date, end_date)
         )
 
@@ -830,6 +835,7 @@ class StockProposal:
         dfdata8.rename(
             columns={
                 "symbol": "SYMBOL",
+                "epr": "EPR",
                 "buy_date": "OPEN DATE",
                 "price": "BASE",
                 "adjbase": "ADJBASE",
@@ -2705,7 +2711,7 @@ class StockProposal:
             "pe",
             "date",
         ]
-        df4 = spark.read.csv(file_name_day, header=None, inferSchema=True)
+        df4 = spark.read.csv(file_name_day, header=True, inferSchema=True)
         df4 = df4.toDF(*cols)
         df4.createOrReplaceTempView("temp4")
 
