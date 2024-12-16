@@ -115,7 +115,7 @@ class EMWebCrawler:
                     # 将这些字段添加到一个新的列表中，准备写入CSV文件
                     filtered_rows.append([code, name, date, new])
 
-        output_filename = FileInfo("trade_date", "us").get_file_path_gz
+        output_filename = FileInfo(trade_date, "us").get_file_path_gz
         with open(output_filename, mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
 
