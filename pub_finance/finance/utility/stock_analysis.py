@@ -116,6 +116,12 @@ class StockProposal:
         # 最新一日股票信息
         file_name_day = file.get_file_path_latest
         df_d = pd.read_csv(file_name_day, usecols=[i for i in range(1, 3)])
+        # 国债信息
+        file_gz = file.get_file_path_gz
+        cols = ["code", "name", "date", "new"]
+        df200 = spark.read.csv(file_gz, header=None, inferSchema=True)
+        df200 = df200.toDF(*cols)
+        df200.createOrReplaceTempView("temp200")
         # 持仓明细, pandas读取
         file_cur_p = file.get_file_path_position
         df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 9)])
