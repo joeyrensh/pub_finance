@@ -786,7 +786,7 @@ class StockProposal:
                 , (COALESCE(t2.his_pnl,0) + (t1.adjbase - t1.price) * t1.size) / (COALESCE(t2.his_base_price,0) + t1.price * t1.size) AS total_pnl_ratio
                 , t2.buy_strategy
                 , CASE WHEN t3.pe IS NULL OR t3.pe = '' OR t3.pe = '-'
-                    OR NOT t3.pe RLIKE '^-?[0-9]+(\.[0-9]+)?$' OR t4.new IS NULL THEN '-'
+                    OR NOT t3.pe RLIKE '^-?[0-9]+(\\.[0-9]+)?$' OR t4.new IS NULL THEN '-'
                   ELSE ROUND((1/CAST(t3.pe AS INT) - t4.new / 100) * 100, 1) END AS epr
             FROM (
                 SELECT symbol
@@ -1110,7 +1110,7 @@ class StockProposal:
                 , COALESCE(t2.his_pnl,0) / COALESCE(t2.his_base_price,0) AS total_pnl_ratio
                 , t2.sell_strategy
                 , CASE WHEN t4.pe IS NULL OR t4.pe = '' OR t4.pe = '-'
-                    OR NOT t4.pe RLIKE '^-?[0-9]+(\.[0-9]+)?$' OR t5.new IS NULL THEN '-'
+                    OR NOT t4.pe RLIKE '^-?[0-9]+(\\.[0-9]+)?$' OR t5.new IS NULL THEN '-'
                   ELSE ROUND((1/CAST(t4.pe AS INT) - t5.new / 100) * 100, 1) END AS epr                
             FROM (
                 SELECT symbol
