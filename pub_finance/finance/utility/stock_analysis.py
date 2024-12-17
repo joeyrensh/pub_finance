@@ -1160,6 +1160,7 @@ class StockProposal:
             dfdata9.rename(
                 columns={
                     "symbol": "SYMBOL",
+                    "epr": "EPR",
                     "buy_date": "OPEN DATE",
                     "sell_date": "CLOSE DATE",
                     "price": "BASE",
@@ -1173,7 +1174,6 @@ class StockProposal:
                     "industry": "IND",
                     "name": "NAME",
                     "sell_strategy": "STRATEGY",
-                    "epr": "EPR",
                 },
                 inplace=True,
             )
