@@ -787,7 +787,7 @@ class StockProposal:
                 , t2.buy_strategy
                 , CASE WHEN t3.pe IS NULL OR t3.pe = '' OR t3.pe = '-'
                     OR NOT t3.pe RLIKE '^-?[0-9]+(\.[0-9]+)?$' THEN '-'
-                  ELSE ROUND((1/CAST(t3.pe AS INT) - t4.new / 100) * 100,1) END AS epr
+                  ELSE ROUND((1/CAST(t3.pe AS INT) - t4.new / 100) * 100, 1) END AS epr
             FROM (
                 SELECT symbol
                 , buy_date
