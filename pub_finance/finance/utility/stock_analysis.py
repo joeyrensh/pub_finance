@@ -1109,6 +1109,9 @@ class StockProposal:
                 , COALESCE(t2.pos_cnt,0) / (COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0)) AS win_rate
                 , COALESCE(t2.his_pnl,0) / COALESCE(t2.his_base_price,0) AS total_pnl_ratio
                 , t2.sell_strategy
+                , CASE WHEN t4.pe IS NULL OR t4.pe = '' OR t4.pe = '-'
+                    OR NOT t4.pe RLIKE '^-?[0-9]+(\.[0-9]+)?$' THEN '-'
+                  ELSE ROUND((1/CAST(t4.pe AS INT) - t5.new / 100) * 100, 1) END AS epr                
             FROM (
                 SELECT symbol
                     , buy_date
@@ -1123,6 +1126,8 @@ class StockProposal:
                                                 ) tt WHERE row_num = 5)
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol AND t1.sell_date = t2.sell_date
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
+                LEFT JOIN temp4 t4 ON t1.symbol = t4.symbol
+                LEFT JOIN temp200 t5 ON 1=1             
             """.format(end_date)
         )
 
@@ -1168,6 +1173,7 @@ class StockProposal:
                     "industry": "IND",
                     "name": "NAME",
                     "sell_strategy": "STRATEGY",
+                    "epr": "EPR",
                 },
                 inplace=True,
             )

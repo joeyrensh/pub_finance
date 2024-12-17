@@ -121,6 +121,7 @@ def create_layout(app):
             "SYMBOL",
             "IND",
             "NAME",
+            "EPR",
             "OPEN DATE",
             "CLOSE DATE",
             "BASE",
