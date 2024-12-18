@@ -371,7 +371,7 @@ li {
 
 .subtitle {
   position: relative;
-  color: #3a3a3a;
+  color: #000000;
   left: 0;
   height: 20%;
   margin: 0mm;
@@ -413,7 +413,7 @@ a:link {
 
 /* visited link */
 a:visited {
-  color: #696969;
+  color: #000000;
   text-decoration: none;
 }
 
