@@ -250,22 +250,22 @@ class StockProposal:
                         ,trade_type) t
             ), tmp11 AS (
                 SELECT symbol
-                    ,l_date as buy_date
-                    ,l_price as base_price
-                    ,l_size as base_size
-                    ,date as sell_date
-                    ,price as adj_price
-                    ,size as adj_size
+                    ,l_date AS buy_date
+                    ,l_price AS base_price
+                    ,l_size AS base_size
+                    ,date AS sell_date
+                    ,price AS adj_price
+                    ,size AS adj_size
                 FROM 
-                tmp1 WHERE trade_type = 'sell' and date >= DATE_ADD('{}', -180)
+                tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -180)
                 UNION ALL
                 SELECT symbol
-                    ,date as buy_date
-                    ,price as base_price
-                    ,size as base_size
-                    ,null as sell_date
-                    ,null as adj_price
-                    ,null as adj_size
+                    ,date AS buy_date
+                    ,price AS base_price
+                    ,size AS base_size
+                    ,null AS sell_date
+                    ,null AS adj_price
+                    ,null AS adj_size
                 FROM 
                 tmp1 WHERE trade_type = 'buy' AND l_date IS NULL
             ), tmp2 AS (
@@ -766,8 +766,8 @@ class StockProposal:
                     , price
                     , adjbase
                     , size
-                    , `p&l` as pnl
-                    , `p&l_ratio` as pnl_ratio
+                    , `p&l` AS pnl
+                    , `p&l_ratio` AS pnl_ratio
                     , industry
                     , name
                 FROM temp_symbol
