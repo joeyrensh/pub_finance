@@ -184,10 +184,8 @@ class StockProposal:
         # 将日期转换为字符串格式 'YYYYMMDD'
         df_timeseries["trade_date"] = df_timeseries["buy_date"].dt.strftime("%Y%m%d")
 
-        # 假设您的ToolKit类已经定义好了，并且可以检查交易日期
-        toolkit = ToolKit("identify trade date")
-
         # 根据市场类型过滤非交易日
+        toolkit = ToolKit("identify trade date")
         if self.market == "us":
             df_timeseries = df_timeseries[
                 df_timeseries["trade_date"].apply(toolkit.is_us_trade_date)
@@ -317,27 +315,7 @@ class StockProposal:
             ORDER BY COALESCE(t2.p_pnl,0) DESC
             """.format(end_date, end_date)
         )
-        # # 5日前行业盈亏情况
-        # sparkdata71 = spark.sql(
-        #     """
-        #     WITH tmp AS (
-        #         SELECT t2.industry
-        #             ,SUM(t1.pnl) AS pnl
-        #         FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
-        #         WHERE t1.date = (
-        #             SELECT buy_date FROM (
-        #             SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
-        #             FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
-        #             WHERE row_num = 5 )
-        #         GROUP BY t2.industry
-        #     )
-        #     SELECT industry
-        #         ,pnl
-        #     FROM tmp
-        #     ORDER BY pnl DESC
-        #     """
-        # )
-        # dfdata71 = sparkdata71.toPandas()
+
         sparkdata71 = spark.sql(
             """
             WITH tmp AS (
@@ -413,7 +391,6 @@ class StockProposal:
         dfdata72 = sparkdata72.toPandas()
         dfdata7 = sparkdata7.toPandas()
 
-        # 合并并按照 df2 的 col3 进行排序
         result_df = (
             dfdata7.merge(dfdata71, on="industry", how="inner")
             .sort_values(by="pnl_growth", ascending=False)
@@ -435,25 +412,18 @@ class StockProposal:
                 "pnl_growth",
             ]
         ].copy()
-        # Create a dictionary to store the index differences
         index_diff_dict = {}
-
-        # Iterate over each row in df1
         for index, row in dfdata7.iterrows():
             industry = row["industry"]
 
-            # Check if the industry value exists in df2
             if industry in dfdata72["industry"].values:
-                # Get the corresponding index differences from df2
                 index_diff = (
                     dfdata72[dfdata72["industry"] == industry].index.values - index
                 )[0]
                 index_diff_dict[index] = index_diff
 
-        # Add the index differences to df1 as a new column
         dfdata7["index_diff"] = dfdata7.index.map(index_diff_dict)
 
-        # Define a function to create the trend arrows
         def create_arrow(value):
             if pd.isnull(value):
                 return ""
@@ -464,7 +434,6 @@ class StockProposal:
             else:
                 return ""
 
-        # Apply the create_arrow function to the index_diff column and update the "industry" column
         dfdata7["industry_new"] = dfdata7["industry"]
         dfdata7["industry"] = dfdata7.apply(
             lambda row: f"{row['industry']} {create_arrow(row['index_diff'])}",
@@ -493,8 +462,6 @@ class StockProposal:
             dfdata7.to_csv("./data/us_category.csv", header=True)
         else:
             dfdata7.to_csv("./data/cn_category.csv", header=True)
-
-        # cm = sns.color_palette("seagreen", as_cmap=True)
         cm = sns.light_palette("seagreen", as_cmap=True)
 
         html = (
@@ -562,7 +529,7 @@ class StockProposal:
                     dict(
                         selector="th",
                         props=[
-                            ("border", "1px solid #ccc"),  # 设置边框粗细
+                            ("border", "1px solid #ccc"),
                             ("text-align", "left"),
                             ("padding", "5px"),
                             ("font-size", "24px"),
@@ -862,7 +829,6 @@ class StockProposal:
         new_date_str = str(
             df_timeseries_sorted.iloc[4]["buy_date"].strftime("%Y-%m-%d")
         )
-        # new_date_str = new_date.strftime("%Y-%m-%d")
 
         def highlight_row(row):
             if row["OPEN DATE"] >= new_date_str:
@@ -870,11 +836,8 @@ class StockProposal:
             else:
                 return [""] * len(row)
 
-        # 将样式函数应用于DataFrame
-        # styled_df = df.style.apply(highlight_row, axis=1)
-
         html1 = (
-            "<h2>Open Position List</h2>"  # 添加标题
+            "<h2>Open Position List</h2>"
             "<table>"
             + dfdata8.style.hide(axis=1, subset=["PNL", "pnl_growth"])
             .format(
@@ -920,8 +883,8 @@ class StockProposal:
                         props=[
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
-                            ("padding", "8px"),  # 增加填充以便更易点击和阅读
-                            ("font-size", "18px"),  # 在PC端使用较大字体
+                            ("padding", "8px"),
+                            ("font-size", "18px"),
                         ],
                     ),
                     # 表格数据单元格样式
@@ -934,7 +897,7 @@ class StockProposal:
                             (
                                 "font-size",
                                 "18px",
-                            ),  # 同样适用较大字体以提高移动端可读性
+                            ),
                         ],
                     ),
                 ]
@@ -1152,10 +1115,6 @@ class StockProposal:
 
             # 删除添加的'combined_df2'列
             dfdata9.drop(columns=["combined", "industry_new"], inplace=True)
-            # 提取括号内的数字
-            # dfdata9["col_sort"] = (
-            #     dfdata9["industry"].str.extract(r"\((\d+)\)").astype(int)
-            # )
 
             dfdata9.rename(
                 columns={
@@ -1184,7 +1143,7 @@ class StockProposal:
                 dfdata9.to_csv("./data/cn_stockdetail_short.csv", header=True)
             cm = sns.light_palette("seagreen", as_cmap=True)
             html2 = (
-                "<h2>Close Position List Last 5 Days</h2>"  # 添加标题
+                "<h2>Close Position List Last 5 Days</h2>"
                 "<table>"
                 + dfdata9.style.hide(axis=1, subset=["PNL", "pnl_growth", "AVG TRANS"])
                 .format(
@@ -1229,8 +1188,8 @@ class StockProposal:
                             props=[
                                 ("border", "1px solid #ccc"),
                                 ("text-align", "left"),
-                                ("padding", "8px"),  # 增加填充以便更易点击和阅读
-                                ("font-size", "18px"),  # 在PC端使用较大字体
+                                ("padding", "8px"),
+                                ("font-size", "18px"),
                             ],
                         ),
                         # 表格数据单元格样式
@@ -1243,7 +1202,7 @@ class StockProposal:
                                 (
                                     "font-size",
                                     "18px",
-                                ),  # 同样适用较大字体以提高移动端可读性
+                                ),
                             ],
                         ),
                     ]
@@ -1348,10 +1307,6 @@ class StockProposal:
         )
 
         dfdata1 = sparkdata1.toPandas()
-        # if self.market == "us":
-        #     dfdata1.to_csv("./data/us_top10ind.csv", header=True)
-        # else:
-        #     dfdata1.to_csv("./data/cn_top10ind.csv", header=True)
         fig = go.Figure(
             data=[
                 go.Pie(
@@ -1377,16 +1332,7 @@ class StockProposal:
             title="Top10 Position",
             title_font=dict(size=title_font_size, color="black"),
             showlegend=False,
-            # legend=dict(
-            #     orientation="v",
-            #     yanchor="middle",
-            #     xanchor="right",
-            #     x=0.99,
-            #     y=0.8,
-            #     font=dict(size=font_size, color="black"),
-            #     bgcolor="rgba(0,0,0,0)",
-            # ),
-            margin=dict(t=80, b=0, l=0, r=0),  # 增加右侧边距
+            margin=dict(t=80, b=0, l=0, r=0),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1394,8 +1340,6 @@ class StockProposal:
         # 设置图像的宽度和高度（例如，1920x1080像素）
         fig_width, fig_height = 1440, 900
         scale_factor = 1.2
-
-        # htmltest = io.to_html(fig, full_html=False)
         if self.market == "us":
             fig.write_image(
                 "./images/us_postion_byindustry_light.png",
@@ -1427,16 +1371,7 @@ class StockProposal:
                 color="white",
             ),
             showlegend=False,
-            # legend=dict(
-            #     orientation="v",
-            #     yanchor="middle",
-            #     xanchor="right",
-            #     x=0.99,
-            #     y=0.8,
-            #     font=dict(size=font_size, color="white"),  # 调整图例字体大小
-            #     bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
-            # ),
-            margin=dict(t=80, b=0, l=0, r=0),  # 增加右侧边距
+            margin=dict(t=80, b=0, l=0, r=0),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1470,10 +1405,6 @@ class StockProposal:
         )
 
         dfdata2 = sparkdata2.toPandas()
-        # if self.market == "us":
-        #     dfdata2.to_csv("./data/us_top10pl.csv", header=True)
-        # else:
-        #     dfdata2.to_csv("./data/us_top10pl.csv", header=True)
         fig = go.Figure(
             data=[
                 go.Pie(
@@ -1502,19 +1433,7 @@ class StockProposal:
                 color="black",
             ),
             showlegend=False,
-            # legend=dict(
-            #     orientation="v",
-            #     yanchor="middle",
-            #     xanchor="right",
-            #     x=0.99,
-            #     y=0.8,
-            #     font=dict(
-            #         size=font_size,
-            #         color="black",
-            #     ),  # 调整图例字体大小
-            #     bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
-            # ),
-            margin=dict(t=80, b=0, l=0, r=0),  # 增加右侧边距
+            margin=dict(t=80, b=0, l=0, r=0),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1551,19 +1470,7 @@ class StockProposal:
                 color="white",
             ),
             showlegend=False,
-            # legend=dict(
-            #     orientation="v",
-            #     yanchor="middle",
-            #     xanchor="right",
-            #     x=0.99,
-            #     y=0.8,
-            #     font=dict(
-            #         size=font_size,
-            #         color="white",
-            #     ),  # 调整图例字体大小
-            #     bgcolor="rgba(0,0,0,0)",  # 设置图例背景为完全透明
-            # ),
-            margin=dict(t=80, b=0, l=0, r=0),  # 增加右侧边距
+            margin=dict(t=80, b=0, l=0, r=0),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1618,7 +1525,6 @@ class StockProposal:
         df_grouped = dfdata_strategy_track.groupby("date")[
             "pnl"
         ].sum()  # 按日期分组并求和
-        # max_pnl = dfdata_strategy_track["pnl"].max()
         # 创建带有两个 y 轴的子图布局
         fig = make_subplots(
             rows=2,
@@ -1638,7 +1544,7 @@ class StockProposal:
                     mode="lines",
                     name=strategy,
                     line=dict(width=3, color=strategy_colors[i], shape="spline"),
-                    yaxis="y1",  # 注意这里的 y 轴标签
+                    yaxis="y1",
                 ),
                 row=1,
                 col=1,
@@ -1650,7 +1556,7 @@ class StockProposal:
                     x=data["date"],
                     y=data["pnl"],
                     marker=dict(color=strategy_colors[i]),
-                    yaxis="y2",  # 注意这里的 y 轴标签
+                    yaxis="y2",
                     showlegend=False,
                     offsetgroup=1,
                 ),
@@ -1707,7 +1613,7 @@ class StockProposal:
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
-                y=-0.15,  # 调整位置以适应布局
+                y=-0.15,
                 xanchor="center",
                 x=0.5,
                 font=dict(size=20, color="black"),
@@ -1715,7 +1621,7 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             barmode="stack",
-            margin=dict(t=0, r=0, l=0, b=0),  # 调整边距以适应标题和标签
+            margin=dict(t=0, r=0, l=0, b=0),
             title={
                 # "text": "Last 60 days strategy track",
                 "text": "",
@@ -1777,11 +1683,7 @@ class StockProposal:
         dfdata3 = sparkdata3.toPandas()
         df_grouped = dfdata3.groupby("buy_date")[["buy_cnt", "sell_cnt"]].sum()
 
-        max_sum = df_grouped.sum(axis=1).max()  # 获取求和值的最大值
-        # if self.market == "us":
-        #     dfdata3.to_csv("./data/us_trade_detail.csv", header=True)
-        # else:
-        #     dfdata3.to_csv("./data/cn_trade_detail.csv", header=True)
+        max_sum = df_grouped.sum(axis=1).max()
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
@@ -2116,10 +2018,6 @@ class StockProposal:
             """.format(end_date)
         )
         dfdata6 = sparkdata6.toPandas()
-        # if self.market == "us":
-        #     dfdata6.to_csv("./data/us_top5_pnltrend.csv", header=True)
-        # else:
-        #     dfdata6.to_csv("./data/cn_top5_pnltrend.csv", header=True)
         dfdata6.sort_values(
             by=["buy_date", "pnl"], ascending=[False, False], inplace=True
         )
@@ -2337,22 +2235,6 @@ class StockProposal:
                 y=dfdata100["week_order"],  # 每7天增加一行
                 z=dfdata100["s_pnl"],
                 # 定义自定义颜色比例
-                # colorscale=[
-                #     [0, "#065906"],
-                #     [
-                #         (mid_val - min_val) / (max_val - min_val) / 2,
-                #         "#0b9e0b",
-                #     ],
-                #     [
-                #         (mid_val - min_val) / (max_val - min_val),
-                #         "white",
-                #     ],
-                #     [
-                #         1 - (max_val - mid_val) / (max_val - min_val) / 2,
-                #         "#d43737",
-                #     ],
-                #     [1, "#cf0c0c"],
-                # ],
                 colorscale=[
                     [0, "rgba(6, 89, 6, 0.7)"],
                     [
@@ -2374,7 +2256,7 @@ class StockProposal:
                 colorbar=dict(
                     title="PnL",
                     titleside="top",  # 将颜色条标题放在顶部
-                    tickfont=dict(size=16),  # 调整颜色条刻度字体大小
+                    tickfont=dict(size=16),
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
                 ),
@@ -2401,7 +2283,7 @@ class StockProposal:
                 zeroline=False,
                 showticklabels=True,
                 dtick=1,  # 每天显示一个刻度
-                tickfont=dict(size=20),  # 调整x轴刻度字体大小
+                tickfont=dict(size=20),
             ),
             yaxis=dict(
                 showgrid=True,
@@ -2413,10 +2295,10 @@ class StockProposal:
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0, 0, 0, 0)",
             margin=dict(
-                l=0,  # 左边距
-                r=0,  # 右边距
-                t=0,  # 上边距（为颜色条留出空间）
-                b=0,  # 下边距
+                l=0,
+                r=0,
+                t=0,
+                b=0,
             ),
         )
 
@@ -2731,10 +2613,9 @@ class StockProposal:
         # 将日期转换为字符串格式 'YYYYMMDD'
         df_timeseries["trade_date"] = df_timeseries["buy_date"].dt.strftime("%Y%m%d")
 
-        # 假设您的ToolKit类已经定义好了，并且可以检查交易日期
+        # 根据市场类型过滤非交易日
         toolkit = ToolKit("identify trade date")
 
-        # 根据市场类型过滤非交易日
         if self.market == "us":
             df_timeseries = df_timeseries[
                 df_timeseries["trade_date"].apply(toolkit.is_us_trade_date)
@@ -2895,9 +2776,6 @@ class StockProposal:
             df_timeseries_sorted.iloc[4]["buy_date"].strftime("%Y-%m-%d")
         )
 
-        # 将新日期转换为字符串
-        # new_date_str = new_date.strftime("%Y-%m-%d")
-
         def highlight_row(row):
             if row["OPEN DATE"] >= new_date_str:
                 return ["background-color: orange"] * len(row)
@@ -2905,7 +2783,7 @@ class StockProposal:
                 return [""] * len(row)
 
         html = (
-            "<h2>Open Position List</h2>"  # 添加标题
+            "<h2>Open Position List</h2>"
             "<table>"
             + dfdata8.style.hide(axis=1, subset=["PNL"])
             .format(
@@ -2951,8 +2829,8 @@ class StockProposal:
                         props=[
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
-                            ("padding", "8px"),  # 增加填充以便更易点击和阅读
-                            ("font-size", "18px"),  # 在PC端使用较大字体
+                            ("padding", "8px"),
+                            ("font-size", "18px"),
                         ],
                     ),
                     # 表格数据单元格样式
@@ -2965,7 +2843,7 @@ class StockProposal:
                             (
                                 "font-size",
                                 "18px",
-                            ),  # 同样适用较大字体以提高移动端可读性
+                            ),
                         ],
                     ),
                 ]
@@ -3161,7 +3039,7 @@ class StockProposal:
             cm = sns.light_palette("seagreen", as_cmap=True)
 
             html2 = (
-                "<h2>Close Position List Last 5 Days</h2>"  # 添加标题
+                "<h2>Close Position List Last 5 Days</h2>"
                 "<table>"
                 + dfdata9.style.hide(axis=1, subset=["PNL"])
                 .format(
@@ -3206,8 +3084,8 @@ class StockProposal:
                             props=[
                                 ("border", "1px solid #ccc"),
                                 ("text-align", "left"),
-                                ("padding", "8px"),  # 增加填充以便更易点击和阅读
-                                ("font-size", "18px"),  # 在PC端使用较大字体
+                                ("padding", "8px"),
+                                ("font-size", "18px"),
                             ],
                         ),
                         # 表格数据单元格样式
@@ -3220,7 +3098,7 @@ class StockProposal:
                                 (
                                     "font-size",
                                     "18px",
-                                ),  # 同样适用较大字体以提高移动端可读性
+                                ),
                             ],
                         ),
                     ]
@@ -3329,7 +3207,6 @@ class StockProposal:
 
         # 设置图像的宽度和高度（例如，1920x1080像素）
         fig_width, fig_height = 1440, 900
-        # 设置缩放系数，例如2，3等，这将相应地增加图像的分辨率
         scale_factor = 1
         fig = go.Figure()
         fig.add_trace(
