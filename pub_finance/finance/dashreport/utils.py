@@ -329,7 +329,7 @@ def make_dash_format_table(df, cols_format):
         columns=columns,
         filter_action="native",
         filter_options={
-            "placeholder_text": "......",
+            "placeholder_text": "Search",
             "case": "insensitive",
         },
         style_filter={
