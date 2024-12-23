@@ -363,6 +363,7 @@ class GlobalStrategy(bt.Strategy):
             self.signals[d._name]["macrossdown"] = bt.Or(
                 bt.And(
                     self.inds[d._name]["emashort"] < self.inds[d._name]["emamid"],
+                    self.inds[d._name]["emashort"] < self.inds[d._name]["emashort"](-1),
                     bt.indicators.crossover.CrossDown(
                         self.inds[d._name]["mashort"], self.inds[d._name]["mamid"]
                     )
@@ -373,6 +374,7 @@ class GlobalStrategy(bt.Strategy):
                 ),
                 bt.And(
                     self.inds[d._name]["mashort"] < self.inds[d._name]["mamid"],
+                    self.inds[d._name]["mashort"] < self.inds[d._name]["mashort"](-1),
                     bt.indicators.crossover.CrossDown(
                         self.inds[d._name]["emashort"], self.inds[d._name]["emamid"]
                     )
