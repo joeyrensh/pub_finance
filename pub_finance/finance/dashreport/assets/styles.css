@@ -222,7 +222,7 @@ img {
   /* box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3); */
   filter:
     /* drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3))  */
-    brightness(110%) contrast(105%) saturate(105%);
+    brightness(110%) contrast(120%) saturate(120%);
   /* transform: rotateX(5deg) rotateY(3deg) scale(1.05); */
   /* transition: transform 0.3s ease; */
 }
