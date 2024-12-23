@@ -255,7 +255,7 @@ class StockProposal:
                     ,price AS adj_price
                     ,size AS adj_size
                 FROM 
-                tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -180)
+                tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -90)
                 UNION ALL
                 SELECT symbol
                     ,date AS buy_date
@@ -704,7 +704,7 @@ class StockProposal:
                     ,price AS adj_price
                     ,size AS adj_size
                     ,strategy AS sell_strategy
-                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -180)
+                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -90)
                 UNION ALL
                 SELECT symbol
                     ,date AS buy_date
@@ -1035,7 +1035,7 @@ class StockProposal:
                     ,size AS adj_size
                     ,strategy AS sell_strategy
                     ,ROW_NUMBER() OVER(PARTITION BY symbol ORDER BY l_date DESC) AS row_num
-                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -180)
+                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -90)
                 AND  symbol NOT IN (SELECT symbol FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL)
             ), tmp2 AS (
                 SELECT symbol
@@ -2684,7 +2684,7 @@ class StockProposal:
                     ,price AS adj_price
                     ,size AS adj_size
                     ,strategy AS sell_strategy
-                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -180)
+                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -90)
                 UNION ALL
                 SELECT symbol
                     ,date AS buy_date
@@ -2954,7 +2954,7 @@ class StockProposal:
                     ORDER BY symbol
                         ,date
                         ,trade_type) t
-                WHERE date >= DATE_ADD('{}', -180)
+                WHERE date >= DATE_ADD('{}', -90)
             ), tmp11 AS (
                 SELECT symbol
                     ,l_date AS buy_date
