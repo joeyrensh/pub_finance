@@ -148,20 +148,20 @@ def exec_btstrategy(date):
     """
 
     cols_names = [
-        "date",
-        "Annual\nreturn",
-        "Cum\nreturns",
-        "Annual\nvolatility",
-        "Sharpe\nratio",
-        "Calmar\nratio",
+        "Date",
+        "AnnualR",
+        "CumR",
+        "AnnualV",
+        "SharpeR",
+        "CalmarR",
         "Stability",
-        "Max\ndrawdown",
-        "Omega\nratio",
+        "MaxDD",
+        "OmegaR",
         # "Sortino\nratio",
         "Skew",
         "Kurtosis",
         # "Tail\nratio",
-        "Daily value\nat risk",
+        "DailyRisk",
     ]
 
     # 绘制表格

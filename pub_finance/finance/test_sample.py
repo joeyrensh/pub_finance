@@ -148,20 +148,20 @@ def exec_btstrategy(date):
     """
 
     cols_names = [
-        "date",
-        "Annual\nreturn",
-        "Cum\nreturns",
-        "Annual\nvolatility",
-        "Sharpe\nratio",
-        "Calmar\nratio",
+        "Date",
+        "AnnualR",
+        "CumR",
+        "AnnualV",
+        "SharpeR",
+        "CalmarR",
         "Stability",
-        "Max\ndrawdown",
-        "Omega\nratio",
+        "MaxDD",
+        "OmegaR",
         # "Sortino\nratio",
         "Skew",
         "Kurtosis",
         # "Tail\nratio",
-        "Daily value\nat risk",
+        "DailyRisk",
     ]
 
     # 绘制表格
@@ -266,7 +266,7 @@ def exec_btstrategy(date):
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc-4"""
-    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(1)
+    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
