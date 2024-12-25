@@ -610,9 +610,9 @@ class GlobalStrategy(bt.Strategy):
                     self.myorder[d._name]["strategy"] = "上穿年线"
                 elif (
                     self.signals[d._name]["close_crossup_emashort"][0] == 1
-                    and sum(1 for value in diff_array if value < 1) == 10
-                    and sum(1 for value in diff_array2 if value < 1) == 10
-                    and sum(1 for value in diff_array3 if value < 1) == 10
+                    and sum(1 for value in diff_array if value < 1) == 5
+                    and sum(1 for value in diff_array2 if value < 1) == 5
+                    and sum(1 for value in diff_array3 if value < 1) == 5
                 ):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
