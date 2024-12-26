@@ -1543,7 +1543,7 @@ class StockProposal:
                     y=data["ema_success_rate"],
                     mode="lines",
                     name=strategy,
-                    line=dict(width=3, color=strategy_colors[i], shape="spline"),
+                    line=dict(width=2, color=strategy_colors[i], shape="spline"),
                     yaxis="y1",
                 ),
                 row=1,
@@ -1691,7 +1691,7 @@ class StockProposal:
                 y=dfdata3["total_cnt"],
                 mode="lines+markers",
                 name="total stock",
-                line=dict(color="red", width=3),
+                line=dict(color="red", width=2),
                 yaxis="y",
             )
         )
@@ -3215,7 +3215,7 @@ class StockProposal:
                 y=dfdata3["total_cnt"],
                 mode="lines+markers",
                 name="total stock",
-                line=dict(color="red", width=3),
+                line=dict(color="red", width=2),
                 yaxis="y",
             )
         )
