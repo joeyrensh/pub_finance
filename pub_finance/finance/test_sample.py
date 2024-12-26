@@ -201,7 +201,7 @@ def exec_btstrategy(date):
         ax=ax1,
         label="drawdown (right)",
         rot=0,
-        alpha=0.8,
+        alpha=0.7,
         fontsize=20,
         grid=False,
         color="green",
@@ -210,7 +210,7 @@ def exec_btstrategy(date):
     # 绘制累计收益曲线
     (cumulative).plot(
         ax=ax2,
-        lw=4.0,
+        lw=2.0,
         label="cumret (left)",
         rot=0,
         fontsize=20,
@@ -266,7 +266,7 @@ def exec_btstrategy(date):
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc-4"""
-    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(0)
+    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
