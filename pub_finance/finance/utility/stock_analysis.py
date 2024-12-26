@@ -1552,13 +1552,14 @@ class StockProposal:
 
             # 添加 Pnl 的柱状图到第二个子图，但使用 y2 轴
             fig.add_trace(
-                go.Bar(
+                go.Scatter(
                     x=data["date"],
                     y=data["pnl"],
+                    mode="lines",  # 只绘制线条
+                    fill="tonexty",  # 填充到下方的线
                     marker=dict(color=strategy_colors[i]),
                     yaxis="y2",
                     showlegend=False,
-                    offsetgroup=1,
                 ),
                 row=2,
                 col=1,
@@ -1620,7 +1621,9 @@ class StockProposal:
             ),
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            barmode="stack",
+            # barmode="stack",
+            # bargap=0.5,
+            # bargroupgap=0.5,
             margin=dict(t=0, r=0, l=0, b=0),
             title={
                 # "text": "Last 60 days strategy track",
@@ -1761,6 +1764,8 @@ class StockProposal:
                 font=dict(size=font_size, color="black"),
             ),
             barmode="stack",
+            bargap=0.5,
+            bargroupgap=0.5,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
@@ -1828,6 +1833,8 @@ class StockProposal:
                 font=dict(family="Courier", size=font_size, color="white"),
             ),
             barmode="stack",
+            bargap=0.5,
+            bargroupgap=0.5,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
@@ -2022,7 +2029,7 @@ class StockProposal:
             by=["buy_date", "pnl"], ascending=[False, False], inplace=True
         )
 
-        fig = px.area(
+        fig = px.line(
             dfdata6, x="buy_date", y="pnl", color="industry", line_group="industry"
         )
         # light mode

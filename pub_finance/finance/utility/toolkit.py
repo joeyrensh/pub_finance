@@ -198,6 +198,7 @@ class ToolKit:
         data = list(data)
         set_matplotlib_formats("svg")
         colors = ["#FF0000", "#009900", "#FFCCCC", "#CCFFCC"]
+        line_width = 1
 
         # initialise the plot as you usually would
         fig, ax = plt.subplots(1, 1, figsize=(3, 1), facecolor="none")
@@ -208,30 +209,43 @@ class ToolKit:
                 line_color = colors[0]
                 fill_color = colors[2]
                 ax.plot(
-                    [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=2
+                    [i, i + 1],
+                    [data[i], data[i + 1]],
+                    color=line_color,
+                    linewidth=line_width,
                 )
                 # ax.fill_between([i, i + 1], [data[i], data[i + 1]], color=fill_color)
             elif data[i] < 0 and data[i + 1] < 0:
                 line_color = colors[1]
                 fill_color = colors[3]
                 ax.plot(
-                    [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=2
+                    [i, i + 1],
+                    [data[i], data[i + 1]],
+                    color=line_color,
+                    linewidth=line_width,
                 )
                 # ax.fill_between([i, i + 1], [data[i], data[i + 1]], color=fill_color)
             elif data[i] >= 0 and data[i + 1] < 0:
-                ax.plot([i, i], [data[i], 0], color="#FF0000", linewidth=2)
+                ax.plot([i, i], [data[i], 0], color="#FF0000", linewidth=line_width)
                 # ax.fill_between([i, i], [data[i], 0], color="#FFCCCC")
-                ax.plot([i, i + 1], [0, data[i + 1]], color="#009900", linewidth=2)
+                ax.plot(
+                    [i, i + 1], [0, data[i + 1]], color="#009900", linewidth=line_width
+                )
                 # ax.fill_between([i, i + 1], [0, data[i + 1]], color="#CCFFCC")
             elif data[i] < 0 and data[i + 1] >= 0:
-                ax.plot([i, i], [data[i], 0], color="#009900", linewidth=2)
+                ax.plot([i, i], [data[i], 0], color="#009900", linewidth=line_width)
                 # ax.fill_between([i, i], [data[i], 0], color="#CCFFCC")
-                ax.plot([i, i + 1], [0, data[i + 1]], color="#FF0000", linewidth=2)
+                ax.plot(
+                    [i, i + 1], [0, data[i + 1]], color="#FF0000", linewidth=line_width
+                )
                 # ax.fill_between([i, i + 1], [0, data[i + 1]], color="#00CC00")
             else:
                 line_color = "#808080"
                 ax.plot(
-                    [i, i + 1], [data[i], data[i + 1]], color=line_color, linewidth=2
+                    [i, i + 1],
+                    [data[i], data[i + 1]],
+                    color=line_color,
+                    linewidth=line_width,
                 )
 
         # turn on zero axis
@@ -261,7 +275,7 @@ class ToolKit:
         img = BytesIO()
 
         # store the above plot to this Bytes object
-        fig.savefig(img, format="png", dpi=150)
+        fig.savefig(img, format="png", dpi=120)
 
         # Encode object as base64 byte string
         encoded = b64encode(img.getvalue())
