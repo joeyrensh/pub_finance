@@ -279,7 +279,7 @@ def create_layout(app):
                                 [
                                     # html.Br([]),
                                     html.H6(
-                                        ["Strategy Tracking for the Past 60 Days"],
+                                        ["Strategy Tracking for the Past 120 Days"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(

@@ -176,7 +176,7 @@ class StockProposal:
 
         # 生成时间序列，用于时间序列补齐
         end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
-        start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
+        start_date = pd.to_datetime(end_date) - pd.DateOffset(days=120)
         date_range = pd.date_range(
             start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
         )
@@ -255,7 +255,7 @@ class StockProposal:
                     ,price AS adj_price
                     ,size AS adj_size
                 FROM 
-                tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -90)
+                tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -120)
                 UNION ALL
                 SELECT symbol
                     ,date AS buy_date
@@ -704,7 +704,7 @@ class StockProposal:
                     ,price AS adj_price
                     ,size AS adj_size
                     ,strategy AS sell_strategy
-                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -90)
+                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -120)
                 UNION ALL
                 SELECT symbol
                     ,date AS buy_date
@@ -1035,7 +1035,7 @@ class StockProposal:
                     ,size AS adj_size
                     ,strategy AS sell_strategy
                     ,ROW_NUMBER() OVER(PARTITION BY symbol ORDER BY l_date DESC) AS row_num
-                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -90)
+                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -120)
                 AND  symbol NOT IN (SELECT symbol FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL)
             ), tmp2 AS (
                 SELECT symbol
@@ -1493,7 +1493,7 @@ class StockProposal:
         del dfdata2
         gc.collect()
 
-        # 60天内策略交易概率
+        # 120天内策略交易概率
         # 获取不同策略的颜色列表
         strategy_colors = plotly.colors.qualitative.G10
         sparkdata_strategy_track = spark.sql(
@@ -1505,7 +1505,7 @@ class StockProposal:
                     ,t2.strategy
                     ,ROW_NUMBER() OVER(PARTITION BY t1.date, t1.symbol ORDER BY ABS(t1.date - t2.date) ASC, t2.date DESC) AS rn
                 FROM temp3 t1 LEFT JOIN temp1 t2 ON t1.symbol = t2.symbol AND t1.date >= t2.date AND t2.trade_type = 'buy'
-                WHERE t1.date >= DATE_ADD('{}', -60) 
+                WHERE t1.date >= DATE_ADD('{}', -120) 
             )
             SELECT date
                     ,strategy
@@ -1625,7 +1625,7 @@ class StockProposal:
             bargroupgap=0.4,
             margin=dict(t=0, r=0, l=0, b=0),
             title={
-                # "text": "Last 60 days strategy track",
+                # "text": "Last 120 days strategy track",
                 "text": "",
                 "y": 0.99,
                 "x": 0.05,
@@ -1653,14 +1653,14 @@ class StockProposal:
                 scale=2,
             )
 
-        # 60天内交易明细分析
+        # 120天内交易明细分析
         sparkdata3 = spark.sql(
             """ 
             WITH tmp1 AS (
                 SELECT date
                     ,COUNT(symbol) AS total_cnt
                 FROM temp3
-                WHERE date >= DATE_ADD('{}', -60)
+                WHERE date >= DATE_ADD('{}', -120)
                 GROUP BY date
             ), tmp11 AS (
                 SELECT temp_timeseries.buy_date
@@ -1672,7 +1672,7 @@ class StockProposal:
                     ,SUM(IF(trade_type = 'buy', 1, 0)) AS buy_cnt
                     ,SUM(IF(trade_type = 'sell', 1, 0)) AS sell_cnt
                 FROM temp1 
-                WHERE date >= DATE_ADD('{}', -60)
+                WHERE date >= DATE_ADD('{}', -120)
                 GROUP BY date
             )
             SELECT t1.buy_date AS buy_date
@@ -1718,7 +1718,7 @@ class StockProposal:
         # light mode
         fig.update_layout(
             title={
-                "text": "Last 60 days trade info",
+                "text": "Last 120 days trade info",
                 "y": 0.9,
                 "x": 0.5,
                 # "xanchor": "left",
@@ -1788,7 +1788,7 @@ class StockProposal:
         # dark mode
         fig.update_layout(
             title={
-                "text": "Last 60 days trade info",
+                "text": "Last 120 days trade info",
                 "y": 0.9,
                 "x": 0.5,
                 # "xanchor": "left",
@@ -1877,7 +1877,7 @@ class StockProposal:
                     ,t1.date
                     ,t1.pnl
                 FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
-                WHERE t1.date >= DATE_ADD('{}', -60)
+                WHERE t1.date >= DATE_ADD('{}', -120)
             ) 
             SELECT t1.buy_date
                 ,t1.industry
@@ -1916,7 +1916,7 @@ class StockProposal:
             title_font=dict(size=title_font_size, family="Courier", color="black"),
         )
         fig.update_layout(
-            title="Last 60 days top5 positions ",
+            title="Last 120 days top5 positions ",
             title_font=dict(size=title_font_size, color="black"),
             legend_title_text="",
             legend=dict(
@@ -1963,7 +1963,7 @@ class StockProposal:
             title_font=dict(size=title_font_size, family="Courier", color="white"),
         )
         fig.update_layout(
-            title="Last 60 days top5 positions ",
+            title="Last 120 days top5 positions ",
             title_font=dict(size=title_font_size, color="white"),
             legend_title_text="",
             legend=dict(
@@ -2014,7 +2014,7 @@ class StockProposal:
                     ,t1.date
                     ,t1.pnl
                 FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
-                WHERE t1.date >= DATE_ADD('{}', -60)
+                WHERE t1.date >= DATE_ADD('{}', -120)
             )   
             SELECT t1.buy_date
                 ,t1.industry
@@ -2051,7 +2051,7 @@ class StockProposal:
             title="",  # 设置为空字符串以隐藏y轴标题
         )
         fig.update_layout(
-            title="Last 60 days top5 pnl ",
+            title="Last 120 days top5 pnl ",
             title_font=dict(size=title_font_size, color="black"),
             title_x=0.5,
             title_y=0.9,
@@ -2102,7 +2102,7 @@ class StockProposal:
             title="",  # 设置为空字符串以隐藏y轴标题
         )
         fig.update_layout(
-            title="Last 60 days top5 pnl ",
+            title="Last 120 days top5 pnl ",
             title_font=dict(size=title_font_size, color="white"),
             title_x=0.5,
             title_y=0.9,
@@ -2612,7 +2612,7 @@ class StockProposal:
 
         # 生成时间序列，用于时间序列补齐
         end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
-        start_date = pd.to_datetime(end_date) - pd.DateOffset(days=60)
+        start_date = pd.to_datetime(end_date) - pd.DateOffset(days=120)
         date_range = pd.date_range(
             start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
         )
@@ -2691,7 +2691,7 @@ class StockProposal:
                     ,price AS adj_price
                     ,size AS adj_size
                     ,strategy AS sell_strategy
-                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -90)
+                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -120)
                 UNION ALL
                 SELECT symbol
                     ,date AS buy_date
@@ -2961,7 +2961,7 @@ class StockProposal:
                     ORDER BY symbol
                         ,date
                         ,trade_type) t
-                WHERE date >= DATE_ADD('{}', -90)
+                WHERE date >= DATE_ADD('{}', -120)
             ), tmp11 AS (
                 SELECT symbol
                     ,l_date AS buy_date
@@ -3180,14 +3180,14 @@ class StockProposal:
         del dfdata8
         gc.collect()
 
-        # 60天内交易明细分析
+        # 120天内交易明细分析
         sparkdata3 = spark.sql(
             """ 
             WITH tmp1 AS (
                 SELECT date
                     ,COUNT(symbol) AS total_cnt
                 FROM temp3
-                WHERE date >= DATE_ADD('{}', -60)
+                WHERE date >= DATE_ADD('{}', -120)
                 GROUP BY date
             ), tmp11 AS (
                 SELECT temp_timeseries.buy_date
@@ -3200,7 +3200,7 @@ class StockProposal:
                     ,SUM(IF(trade_type = 'buy', 1, 0)) AS buy_cnt
                     ,SUM(IF(trade_type = 'sell', 1, 0)) AS sell_cnt
                 FROM temp1 
-                WHERE date >= DATE_ADD('{}', -60)
+                WHERE date >= DATE_ADD('{}', -120)
                 GROUP BY date
             )
             SELECT t1.buy_date AS buy_date
@@ -3247,7 +3247,7 @@ class StockProposal:
         # light mode
         fig.update_layout(
             title={
-                "text": "Last 60 days trade info",
+                "text": "Last 120 days trade info",
                 "y": 0.95,
                 "x": 0.05,
                 "xanchor": "left",
@@ -3304,7 +3304,7 @@ class StockProposal:
         # dark mode
         fig.update_layout(
             title={
-                "text": "Last 60 days trade info",
+                "text": "Last 120 days trade info",
                 "y": 0.95,
                 "x": 0.05,
                 "xanchor": "left",
