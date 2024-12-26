@@ -1320,7 +1320,7 @@ class StockProposal:
         colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
         # light mode
         fig.update_traces(
-            marker=dict(colors=colors, line=dict(width=2)),
+            marker=dict(colors=colors, line=dict(width=3)),
             textinfo="label+value+percent",
             textfont=dict(
                 size=font_size,
@@ -1356,7 +1356,7 @@ class StockProposal:
             )
         # dark mode
         fig.update_traces(
-            marker=dict(colors=colors, line=dict(width=2)),
+            marker=dict(colors=colors, line=dict(width=3)),
             textinfo="label+value+percent",
             textfont=dict(
                 size=font_size,
@@ -1418,7 +1418,7 @@ class StockProposal:
         colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
         # light mode
         fig.update_traces(
-            marker=dict(colors=colors, line=dict(width=2)),
+            marker=dict(colors=colors, line=dict(width=3)),
             textinfo="label+value+percent",
             textfont=dict(
                 size=font_size,
@@ -1455,7 +1455,7 @@ class StockProposal:
             )
         # dark mode
         fig.update_traces(
-            marker=dict(colors=colors, line=dict(width=2)),
+            marker=dict(colors=colors, line=dict(width=3)),
             textinfo="label+value+percent",
             textfont=dict(
                 size=font_size,
@@ -1537,6 +1537,7 @@ class StockProposal:
         # 遍历每个策略并添加数据
         for i, (strategy, data) in enumerate(dfdata_strategy_track.groupby("strategy")):
             # 添加成功率的折线图到第一个子图
+            # 添加成功率的折线图到第一个子图
             fig.add_trace(
                 go.Scatter(
                     x=data["date"],
@@ -1552,19 +1553,17 @@ class StockProposal:
 
             # 添加 Pnl 的柱状图到第二个子图，但使用 y2 轴
             fig.add_trace(
-                go.Scatter(
+                go.Bar(
                     x=data["date"],
                     y=data["pnl"],
-                    mode="lines",  # 只绘制线条
-                    fill="tonexty",  # 填充到下方的线
                     marker=dict(color=strategy_colors[i]),
                     yaxis="y2",
                     showlegend=False,
+                    offsetgroup=1,
                 ),
                 row=2,
                 col=1,
             )
-
         # 更新布局以隐藏第二个子图的 x 轴和第一个子图的 y2 轴（如果存在）
         fig.update_layout(
             xaxis_title="",
@@ -1621,9 +1620,9 @@ class StockProposal:
             ),
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            # barmode="stack",
-            # bargap=0.5,
-            # bargroupgap=0.5,
+            barmode="stack",
+            bargap=0.4,
+            bargroupgap=0.4,
             margin=dict(t=0, r=0, l=0, b=0),
             title={
                 # "text": "Last 60 days strategy track",
@@ -1694,7 +1693,7 @@ class StockProposal:
                 y=dfdata3["total_cnt"],
                 mode="lines+markers",
                 name="total stock",
-                line=dict(color="red", width=2),
+                line=dict(color="red", width=3),
                 yaxis="y",
             )
         )
@@ -2032,6 +2031,7 @@ class StockProposal:
         fig = px.line(
             dfdata6, x="buy_date", y="pnl", color="industry", line_group="industry"
         )
+        fig.update_traces(line=dict(width=3))  # 设置线条宽度为2
         # light mode
         fig.update_xaxes(
             mirror=True,
@@ -3222,7 +3222,7 @@ class StockProposal:
                 y=dfdata3["total_cnt"],
                 mode="lines+markers",
                 name="total stock",
-                line=dict(color="red", width=2),
+                line=dict(color="red", width=3),
                 yaxis="y",
             )
         )

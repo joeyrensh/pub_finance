@@ -198,7 +198,7 @@ class ToolKit:
         data = list(data)
         set_matplotlib_formats("svg")
         colors = ["#FF0000", "#009900", "#FFCCCC", "#CCFFCC"]
-        line_width = 1
+        line_width = 1.5
 
         # initialise the plot as you usually would
         fig, ax = plt.subplots(1, 1, figsize=(3, 1), facecolor="none")

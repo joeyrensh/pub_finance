@@ -210,7 +210,7 @@ def exec_btstrategy(date):
     # 绘制累计收益曲线
     (cumulative).plot(
         ax=ax2,
-        lw=2.0,
+        lw=3.0,
         label="cumret (left)",
         rot=0,
         fontsize=20,
