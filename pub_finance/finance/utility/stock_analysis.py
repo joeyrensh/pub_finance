@@ -1320,7 +1320,7 @@ class StockProposal:
         colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
         # light mode
         fig.update_traces(
-            marker=dict(colors=colors, line=dict(width=3)),
+            marker=dict(colors=colors, line=dict(width=2)),
             textinfo="label+value+percent",
             textfont=dict(
                 size=font_size,
@@ -1418,7 +1418,7 @@ class StockProposal:
         colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
         # light mode
         fig.update_traces(
-            marker=dict(colors=colors, line=dict(width=3)),
+            marker=dict(colors=colors, line=dict(width=2)),
             textinfo="label+value+percent",
             textfont=dict(
                 size=font_size,
@@ -1536,7 +1536,6 @@ class StockProposal:
         )
         # 遍历每个策略并添加数据
         for i, (strategy, data) in enumerate(dfdata_strategy_track.groupby("strategy")):
-            # 添加成功率的折线图到第一个子图
             # 添加成功率的折线图到第一个子图
             fig.add_trace(
                 go.Scatter(
