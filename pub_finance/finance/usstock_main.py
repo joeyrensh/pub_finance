@@ -128,7 +128,7 @@ def exec_btstrategy(date):
     # plt.style.use('dark_background')
 
     fig, (ax0, ax1) = plt.subplots(
-        1, 2, gridspec_kw={"width_ratios": [1, 3]}, figsize=(20, 10)
+        1, 2, gridspec_kw={"width_ratios": [1, 4]}, figsize=(20, 8)
     )
 
     """ 
@@ -170,14 +170,16 @@ def exec_btstrategy(date):
     # 绘制表格
     ax0.set_axis_off()
     # 除去坐标轴
+    perf_stats_transposed = perf_stats_.T
     table = ax0.table(
-        cellText=perf_stats_.values,
+        cellText=perf_stats_transposed.values,
         bbox=(0, 0, 1, 1),
         # 设置表格位置， (x0, y0, width, height)
         rowLoc="left",
         # 行标题居中
         cellLoc="left",
-        colLabels=cols_names,
+        # colLabels=perf_stats_transposed.columns,
+        rowLabels=cols_names,
         # 设置列标题
         colLoc="left",
         # 列标题居中
