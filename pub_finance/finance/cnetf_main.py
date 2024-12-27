@@ -98,7 +98,19 @@ def exec_btstrategy(date):
 
     perf_stats = pd.concat([perf_stats_year, perf_stats_all.T], axis=0)
 
-    perf_stats = perf_stats.drop(columns=["Sortino ratio", "Tail ratio"])
+    perf_stats = perf_stats.drop(
+        columns=[
+            "Annual volatility",
+            "Sortino ratio",
+            "Tail ratio",
+            "Sharpe ratio",
+            "Calmar ratio",
+            "Stability",
+            "Omega ratio",
+            "Skew",
+            "Kurtosis",
+        ]
+    )
 
     perf_stats_ = perf_stats.reset_index()
     perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
@@ -115,7 +127,7 @@ def exec_btstrategy(date):
     # plt.style.use('dark_background')
 
     fig, (ax0, ax1) = plt.subplots(
-        2, 1, gridspec_kw={"height_ratios": [1, 3]}, figsize=(20, 10)
+        1, 2, gridspec_kw={"width_ratios": [1, 3]}, figsize=(20, 10)
     )
 
     """ 
@@ -150,30 +162,23 @@ def exec_btstrategy(date):
         "Date",
         "AnnualR",
         "CumR",
-        "AnnualV",
-        "SharpeR",
-        "CalmarR",
-        "Stability",
         "MaxDD",
-        "OmegaR",
-        # "Sortino\nratio",
-        "Skew",
-        "Kurtosis",
-        # "Tail\nratio",
         "DailyRisk",
     ]
 
     # 绘制表格
     ax0.set_axis_off()
     # 除去坐标轴
+    perf_stats_transposed = perf_stats_.T
     table = ax0.table(
-        cellText=perf_stats_.values,
+        cellText=perf_stats_transposed.values,
         bbox=(0, 0, 1, 1),
         # 设置表格位置， (x0, y0, width, height)
         rowLoc="left",
         # 行标题居中
         cellLoc="left",
-        colLabels=cols_names,
+        # colLabels=perf_stats_transposed.columns,
+        rowLabels=cols_names,
         # 设置列标题
         colLoc="left",
         # 列标题居中

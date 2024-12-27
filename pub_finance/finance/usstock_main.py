@@ -99,7 +99,19 @@ def exec_btstrategy(date):
 
     perf_stats = pd.concat([perf_stats_year, perf_stats_all.T], axis=0)
 
-    perf_stats = perf_stats.drop(columns=["Sortino ratio", "Tail ratio"])
+    perf_stats = perf_stats.drop(
+        columns=[
+            "Annual volatility",
+            "Sortino ratio",
+            "Tail ratio",
+            "Sharpe ratio",
+            "Calmar ratio",
+            "Stability",
+            "Omega ratio",
+            "Skew",
+            "Kurtosis",
+        ]
+    )
 
     perf_stats_ = perf_stats.reset_index()
     perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
@@ -116,7 +128,7 @@ def exec_btstrategy(date):
     # plt.style.use('dark_background')
 
     fig, (ax0, ax1) = plt.subplots(
-        2, 1, gridspec_kw={"height_ratios": [1, 3]}, figsize=(20, 10)
+        1, 2, gridspec_kw={"width_ratios": [1, 3]}, figsize=(20, 10)
     )
 
     """ 
@@ -151,16 +163,7 @@ def exec_btstrategy(date):
         "Date",
         "AnnualR",
         "CumR",
-        "AnnualV",
-        "SharpeR",
-        "CalmarR",
-        "Stability",
         "MaxDD",
-        "OmegaR",
-        # "Sortino\nratio",
-        "Skew",
-        "Kurtosis",
-        # "Tail\nratio",
         "DailyRisk",
     ]
 

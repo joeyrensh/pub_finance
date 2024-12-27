@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-
-from tabulate import tabulate
 import progressbar
 from utility.toolkit import ToolKit
 from datetime import datetime
@@ -10,16 +8,16 @@ import sys
 from backtraderref.globalstrategyv2 import GlobalStrategy
 import backtrader as bt
 from utility.tickerinfo import TickerInfo
-from uscrawler.eastmoney_incre_crawler import EMWebCrawler
+from cncrawler.eastmoney_incre_download import EMCNWebCrawler
 from backtraderref.pandasdata_ext import BTPandasDataExt
 from utility.stock_analysis import StockProposal
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pyfolio as pf
 import gc
-from backtraderref.usfixedamount import FixedAmount
+from backtraderref.cnfixedamount import FixedAmount
 
-""" 执行策略 """
+
 """ backtrader策略 """
 
 
@@ -28,22 +26,22 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="us")
+    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cnetf")
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
     # cerebro.addobserver(bt.observers.BuySell)
+    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
-    # cerebro.addsizer(bt.sizers.FixedSize, stake=10)
-    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
+    # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
+    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=2)
     cerebro.addsizer(FixedAmount, amount=10000)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
-    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "us").get_backtrader_data_feed()
+    list = TickerInfo(date, "cn").get_etf_backtrader_data_feed()
     """ 初始资金100M """
-    start_cash = len(list) * 10000
+    start_cash = len(list) * 20000
     cerebro.broker.setcash(start_cash)
     """ 循环初始化数据进入cerebro """
     for h in list:
@@ -56,7 +54,7 @@ def exec_btstrategy(date):
             datetime=-1,
             timeframe=bt.TimeFrame.Days,
         )
-        cerebro.adddata(data, name=h["symbol"][0])
+        cerebro.adddata(data)
         # 周数据
         # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
     """ 起始资金池 """
@@ -69,6 +67,7 @@ def exec_btstrategy(date):
 
     """ 运行cerebro """
     result = cerebro.run()
+
     """ 最终资金池 """
     print("\n当前现金持有: ", cerebro.broker.get_cash())
     print("\nFinal Portfolio Value: %.2f" % cerebro.broker.getvalue())
@@ -99,7 +98,19 @@ def exec_btstrategy(date):
 
     perf_stats = pd.concat([perf_stats_year, perf_stats_all.T], axis=0)
 
-    perf_stats = perf_stats.drop(columns=["Sortino ratio", "Tail ratio"])
+    perf_stats = perf_stats.drop(
+        columns=[
+            "Annual volatility",
+            "Sortino ratio",
+            "Tail ratio",
+            "Sharpe ratio",
+            "Calmar ratio",
+            "Stability",
+            "Omega ratio",
+            "Skew",
+            "Kurtosis",
+        ]
+    )
 
     perf_stats_ = perf_stats.reset_index()
     perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
@@ -116,65 +127,32 @@ def exec_btstrategy(date):
     # plt.style.use('dark_background')
 
     fig, (ax0, ax1) = plt.subplots(
-        2, 1, gridspec_kw={"height_ratios": [1, 3]}, figsize=(20, 10)
+        1, 2, gridspec_kw={"width_ratios": [1, 3]}, figsize=(20, 10)
     )
-
-    """ 
-    年度回报率 (Annual return)：衡量投资组合或股票在一年内的收益率。它通常以百分比表示，计算方法是将期末价值减去期初价值，再除以期初价值，并乘以100。
-
-    累积回报率 (Cumulative returns)：衡量投资组合或股票在一段时间内的总收益率。它表示从投资开始到目前为止的总回报，可以用于评估长期投资的表现。
-
-    年度波动率 (Annual volatility)：衡量股票或投资组合价格波动的程度。它是标准差的年化值，标准差衡量价格变动相对于其平均值的离散程度。较高的波动率意味着价格变动幅度较大。
-
-    夏普比率 (Sharpe ratio)：衡量投资组合或股票每承担一单位风险所获得的超额回报。它是超额回报与波动率的比率，用于评估风险调整后的回报。
-
-    卡尔马比率 (Calmar ratio)：衡量投资组合或股票的风险调整回报率。它是年度回报率与最大回撤之比，用于评估投资组合的风险收益特征。
-
-    稳定性 (Stability)：衡量股票或投资组合价格的稳定性。较高的稳定性意味着价格波动较小。
-
-    最大回撤 (Max drawdown)：衡量投资组合或股票价格从峰值到谷底的最大跌幅。它用于评估投资组合的风险承受能力和潜在损失。
-
-    Omega比率 (Omega ratio)：衡量投资组合或股票正收益和负收益之间的比率。它将正收益的比例与负收益的比例进行比较，用于评估投资组合的收益分布特征。
-
-    Sortino比率 (Sortino ratio)：类似于夏普比率，但只考虑下行风险，即价格下跌的风险。它是超额回报与下行波动率的比率，用于评估投资组合的风险调整后的回报。
-
-    偏度 (Skew)：衡量股票或投资组合收益分布的偏斜程度。正偏度表示收益分布偏向较高的收益，负偏度表示偏向较低的收益。
-
-    峰度 (Kurtosis)：衡量股票或投资组合收益分布的尖峰程度。它衡量收益分布相对于正态分布的尖峰或扁平程度。
-
-    尾部比率 (Tail ratio)：衡量股票或投资组合收益分布的尾部风险。它是正尾部与负尾部之比，用于评估收益分布的不对称性和尾部风险。
-
-    日风险价值 (Daily value at risk)：衡量股票或投资组合在一天内可能面临的最大损失。它是在给定置信水平下的损失金额，用于评估投资组合的风险暴露。 
-    """
 
     cols_names = [
         "Date",
         "AnnualR",
         "CumR",
-        "AnnualV",
-        "SharpeR",
-        "CalmarR",
-        "Stability",
         "MaxDD",
-        "OmegaR",
-        # "Sortino\nratio",
-        "Skew",
-        "Kurtosis",
-        # "Tail\nratio",
         "DailyRisk",
     ]
 
     # 绘制表格
     ax0.set_axis_off()
     # 除去坐标轴
+    # 设置新的列标题
+    perf_stats_transposed = perf_stats_.T
+
     table = ax0.table(
-        cellText=perf_stats_.values,
+        cellText=perf_stats_transposed.values,
         bbox=(0, 0, 1, 1),
         # 设置表格位置， (x0, y0, width, height)
         rowLoc="left",
         # 行标题居中
         cellLoc="left",
-        colLabels=cols_names,
+        # colLabels=perf_stats_transposed.columns,
+        rowLabels=cols_names,
         # 设置列标题
         colLoc="left",
         # 列标题居中
@@ -210,7 +188,7 @@ def exec_btstrategy(date):
     # 绘制累计收益曲线
     (cumulative).plot(
         ax=ax2,
-        lw=2.0,
+        lw=3.0,
         label="cumret (left)",
         rot=0,
         fontsize=20,
@@ -224,7 +202,6 @@ def exec_btstrategy(date):
 
     # 主轴定位器：每 5 个月显示一个日期：根据具体天数来做排版
     ax2.xaxis.set_major_locator(ticker.MultipleLocator(120))
-
     # 同时绘制双轴的图例
     h1, l1 = ax1.get_legend_handles_labels()
 
@@ -232,20 +209,8 @@ def exec_btstrategy(date):
 
     plt.legend(h1 + h2, l1 + l2, fontsize=20, loc="upper left", ncol=1)
     # Set the font color of the table cells to white
-    for cell in table.get_celld().values():
-        cell.set_text_props(color="black")
-    # Set the font color of the trend graph
-    ax1.tick_params(axis="x", colors="black")
-    for label in ax1.get_xticklabels():
-        label.set_color("black")
-    ax2.yaxis.label.set_color("black")
-    ax2.tick_params(axis="y", colors="black")
-    ax1.yaxis.label.set_color("black")
-    ax1.tick_params(axis="y", colors="black")
-    ax2.spines["right"].set_color("black")
-    fig.tight_layout()
-    plt.savefig("./images/us_tr_light.png", transparent=True)
-    # Set the font color of the table cells to white
+    # for key, cell in table.get_celld().items():
+    #     cell.PAD = 0.1  # 设置单元格边距
     for cell in table.get_celld().values():
         cell.set_text_props(color="white")
     # Set the font color of the trend graph
@@ -258,18 +223,18 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="white")
     ax2.spines["right"].set_color("white")
     fig.tight_layout()
-    plt.savefig("./images/us_tr_dark.png", transparent=True)
+    plt.savefig("./images/performance_report.png", transparent=True)
 
     return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 
 
 # 主程序入口
 if __name__ == "__main__":
-    """美股交易日期 utc-4"""
-    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(1)
+    """美股交易日期 utc+8"""
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
-    if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
+    if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
         pass
     else:
         sys.exit()
@@ -286,26 +251,22 @@ if __name__ == "__main__":
     """ 创建进度条并开始运行 """
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
+    print("trade_date is :", trade_date)
+
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
-    # em = EMWebCrawler()
-    # em.get_us_daily_stock_info(trade_date)
-
-    # """ 执行策略 """
-    # df = exec_strategy(trade_date)
-    # """ 发送邮件 """
-    # if not df.empty:
-    #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
+    em = EMCNWebCrawler()
+    em.get_cn_daily_stock_info(trade_date)
 
     """ 执行bt相关策略 """
-    # cash, final_value = exec_btstrategy(trade_date)
+    cash, final_value = exec_btstrategy(trade_date)
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("us", trade_date).send_btstrategy_by_email(6665654.71, 10440637.59)
+    StockProposal("cn", trade_date).send_etf_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()
