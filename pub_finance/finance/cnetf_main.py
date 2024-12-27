@@ -169,20 +169,14 @@ def exec_btstrategy(date):
     # 绘制表格
     ax0.set_axis_off()
     # 除去坐标轴
-    perf_stats_transposed = perf_stats_.T
     table = ax0.table(
-        cellText=perf_stats_transposed.values,
-        bbox=(0, 0, 1, 1),
-        # 设置表格位置， (x0, y0, width, height)
+        cellText=perf_stats_.T.values,
+        bbox=[0, 0, 1, 1],
         rowLoc="left",
-        # 行标题居中
-        cellLoc="left",
-        # colLabels=perf_stats_transposed.columns,
+        cellLoc="center",
         rowLabels=cols_names,
-        # 设置列标题
-        colLoc="left",
-        # 列标题居中
-        edges="open",  # 不显示表格边框
+        colLoc="center",
+        edges="horizontal",
     )
 
     # # Access the cells and modify font properties
@@ -199,15 +193,17 @@ def exec_btstrategy(date):
     ax1.yaxis.set_ticks_position("right")
     # 将回撤曲线的 y 轴移至右侧
     ax2.yaxis.set_ticks_position("left")
+    ax1.set_axis_off()
+    ax2.set_axis_off()
     # 将累计收益曲线的 y 轴移至左侧
     # 绘制回撤曲线
-    drawdown.plot.area(
+    drawdown.plot(
         ax=ax1,
         label="drawdown (right)",
         rot=0,
-        alpha=0.7,
+        lw=2.0,
         fontsize=20,
-        grid=False,
+        grid=True,
         color="green",
     )
 
