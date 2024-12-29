@@ -319,10 +319,10 @@ h6 {
 }
 
 li {
-  color: #0f0101ed;
+  /* color: #0f0101ed; */
   list-style: square;
   padding-left: 0;
-  font-size: 1.425rem;
+  font-size: 1.3rem;
 }
 
 .product {
