@@ -1561,7 +1561,7 @@ class StockProposal:
                 titlefont=dict(size=16, color="black"),
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="black", size=font_size),
+                tickfont=dict(color="black", size=16),
                 showline=True,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
