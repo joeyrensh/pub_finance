@@ -206,6 +206,7 @@ def exec_btstrategy(date):
         fontsize=20,
         grid=True,
         color="green",
+        linestyle="--",
     )
 
     # 绘制累计收益曲线
@@ -217,6 +218,7 @@ def exec_btstrategy(date):
         fontsize=20,
         grid=True,
         color="#FF4136",
+        linestyle="-",
     )
     ax2.set_facecolor("none")
 
