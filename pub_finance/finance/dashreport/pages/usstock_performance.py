@@ -206,7 +206,7 @@ def create_layout(app):
                                 [
                                     # html.Br([]),
                                     html.H6(
-                                        ["Annual Return Analysis"],
+                                        ["Annual Return"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(
@@ -228,7 +228,7 @@ def create_layout(app):
                                 [
                                     # html.Br([]),
                                     html.H6(
-                                        ["Top3 Industries Tracking"],
+                                        ["Industries Tracking"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(
@@ -250,7 +250,7 @@ def create_layout(app):
                                 [
                                     # html.Br([]),
                                     html.H6(
-                                        ["Strategy Tracking for the Past 120 Days"],
+                                        ["Strategy Tracking"],
                                         className="subtitle padded",
                                     ),
                                     html.Img(
@@ -352,7 +352,7 @@ def create_layout(app):
                             html.Div(
                                 [
                                     html.H6(
-                                        "Industries Analysis",
+                                        "Industries List",
                                         className="subtitle padded",
                                     ),
                                     html.Div(
@@ -382,7 +382,7 @@ def create_layout(app):
                             html.Div(
                                 [
                                     html.H6(
-                                        "Position Analysis",
+                                        "Position Holding",
                                         className="subtitle padded",
                                     ),
                                     html.Div(
@@ -411,7 +411,7 @@ def create_layout(app):
                             html.Div(
                                 [
                                     html.H6(
-                                        "Position Reduction in the Past 5 Days",
+                                        "Position Reduction",
                                         className="subtitle padded",
                                     ),
                                     html.Div(
