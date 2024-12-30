@@ -1525,6 +1525,7 @@ class StockProposal:
         df_grouped = dfdata_strategy_track.groupby("date")[
             "pnl"
         ].sum()  # 按日期分组并求和
+        max_sum = df_grouped.sum(axis=1).max()
         # 创建带有两个 y 轴的子图布局
 
         fig = go.Figure()
@@ -1583,7 +1584,7 @@ class StockProposal:
                 showgrid=False,
                 ticks="outside",
                 tickfont=dict(color="black", size=16),
-                # range=[0, max_sum * 1.2],
+                range=[0, max_sum * 2],
             ),
             legend=dict(
                 orientation="h",
