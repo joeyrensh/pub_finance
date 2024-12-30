@@ -1522,9 +1522,9 @@ class StockProposal:
         dfdata_strategy_track["ema_success_rate"] = (
             dfdata_strategy_track["success_rate"].ewm(span=5, adjust=False).mean()
         )
-        df_grouped = dfdata_strategy_track.groupby("date")[
-            "pnl"
-        ].sum()  # 按日期分组并求和
+        df_grouped = (
+            dfdata_strategy_track.groupby("date")["pnl"].sum().reset_index()
+        )  # 按日期分组并求和
         max_pnl = df_grouped["pnl"].max()
 
         # 创建带有两个 y 轴的子图布局
