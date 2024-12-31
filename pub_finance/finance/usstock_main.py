@@ -172,7 +172,7 @@ def exec_btstrategy(date):
     # 除去坐标轴
     table = ax0.table(
         cellText=perf_stats_.T.values,
-        bbox=[0, 0, 1, 1],
+        bbox=[0, 0.1, 1, 0.8],
         rowLoc="left",
         cellLoc="center",
         rowLabels=cols_names,

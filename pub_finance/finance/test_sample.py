@@ -171,7 +171,8 @@ def exec_btstrategy(date):
     # 除去坐标轴
     table = ax0.table(
         cellText=perf_stats_.T.values,
-        bbox=[0, 0, 1, 1],
+        # bbox=[0, 0, 1, 1],
+        bbox=[0, 0.1, 1, 0.8],
         rowLoc="left",
         cellLoc="center",
         rowLabels=cols_names,
@@ -249,7 +250,7 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="black")
     ax2.spines["right"].set_color("black")
     fig.tight_layout()
-    plt.savefig("./images/cn_tr_light.png", transparent=True, dpi=600)
+    plt.savefig("./images/performance_report.png", transparent=True, dpi=600)
 
     return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 
