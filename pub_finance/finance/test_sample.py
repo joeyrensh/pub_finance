@@ -167,13 +167,13 @@ def exec_btstrategy(date):
     ]
 
     # 绘制表格
-    ax0.set_axis_off()
+    # ax0.set_axis_off()
     # 除去坐标轴
     table = ax0.table(
         cellText=perf_stats_.T.values,
         bbox=[0, 0, 1, 1],
         rowLoc="left",
-        cellLoc="center",
+        cellLoc="left",
         rowLabels=cols_names,
         colLoc="center",
         edges="horizontal",
@@ -184,7 +184,7 @@ def exec_btstrategy(date):
     #     cell.set_fontsize(18)  # Adjust the font size as per your preference
 
     # Set the font size of the table title
-    table.auto_set_font_size(False)
+    # table.auto_set_font_size(True)
     table.set_fontsize(20)
 
     # 绘制累计收益曲线
@@ -205,7 +205,7 @@ def exec_btstrategy(date):
         fontsize=20,
         grid=True,
         color="green",
-        linestyle=":",
+        linestyle="-",
     )
 
     # 绘制累计收益曲线
@@ -245,7 +245,7 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="white")
     ax2.spines["right"].set_color("white")
     fig.tight_layout()
-    plt.savefig("./images/performance_report.png", transparent=True)
+    plt.savefig("./images/performance_report.png", transparent=True, dpi=300)
 
     return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 
@@ -277,8 +277,8 @@ if __name__ == "__main__":
 
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
-    # em = EMCNWebCrawler()
-    # em.get_cn_daily_stock_info(trade_date)
+    em = EMCNWebCrawler()
+    em.get_cn_daily_stock_info(trade_date)
 
     """ 执行bt相关策略 """
     cash, final_value = exec_btstrategy(trade_date)

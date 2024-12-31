@@ -246,7 +246,7 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="black")
     ax2.spines["right"].set_color("black")
     fig.tight_layout()
-    plt.savefig("./images/cn_tr_light.png", transparent=True)
+    plt.savefig("./images/cn_tr_light.png", transparent=True, dpi=300)
     # Set the font color of the table cells to white
     for cell in table.get_celld().values():
         cell.set_text_props(color="white")
@@ -260,7 +260,7 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="white")
     ax2.spines["right"].set_color("white")
     fig.tight_layout()
-    plt.savefig("./images/cn_tr_dark.png", transparent=True)
+    plt.savefig("./images/cn_tr_dark.png", transparent=True, dpi=300)
 
     return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 
