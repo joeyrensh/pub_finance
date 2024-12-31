@@ -190,27 +190,26 @@ def exec_btstrategy(date):
     # 绘制累计收益曲线
     ax2 = ax1.twinx()
 
-    ax1.yaxis.set_ticks_position("right")
-    # 将回撤曲线的 y 轴移至右侧
     ax2.yaxis.set_ticks_position("left")
-    ax1.set_axis_off()
+    ax1.yaxis.set_ticks_position("right")
     ax2.set_axis_off()
+    # ax2.set_axis_off()
     # 将累计收益曲线的 y 轴移至左侧
     # 绘制回撤曲线
     drawdown.plot(
-        ax=ax1,
+        ax=ax2,
         label="drawdown (right)",
         rot=0,
         lw=2.0,
         fontsize=20,
-        grid=True,
+        grid=False,
         color="green",
         linestyle="-",
     )
 
     # 绘制累计收益曲线
     (cumulative).plot(
-        ax=ax2,
+        ax=ax1,
         lw=3.0,
         label="cumret (left)",
         rot=0,
@@ -218,11 +217,13 @@ def exec_btstrategy(date):
         grid=True,
         color="#FF4136",
         linestyle="-",
+        # gridcolor="rgba(255, 255, 255, 0.5)",
     )
     ax2.set_facecolor("none")
 
     # 不然 x 轴留有空白
-    ax2.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
+    ax1.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
+    ax1.grid(True, color=(0, 0, 0, 0.5), linestyle="-", linewidth=1.0)
 
     # 主轴定位器：每 5 个月显示一个日期：根据具体天数来做排版
     ax2.xaxis.set_major_locator(ticker.MultipleLocator(120))
@@ -233,6 +234,8 @@ def exec_btstrategy(date):
     h2, l2 = ax2.get_legend_handles_labels()
 
     plt.legend(h1 + h2, l1 + l2, fontsize=20, loc="upper left", ncol=1)
+    for spine in ax1.spines.values():
+        spine.set_visible(False)
     # Set the font color of the table cells to white
     for cell in table.get_celld().values():
         cell.set_text_props(color="black")
@@ -246,7 +249,7 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="black")
     ax2.spines["right"].set_color("black")
     fig.tight_layout()
-    plt.savefig("./images/cn_tr_light.png", transparent=True, dpi=300)
+    plt.savefig("./images/cn_tr_light.png", transparent=True, dpi=600)
     # Set the font color of the table cells to white
     for cell in table.get_celld().values():
         cell.set_text_props(color="white")
@@ -260,7 +263,7 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="white")
     ax2.spines["right"].set_color("white")
     fig.tight_layout()
-    plt.savefig("./images/cn_tr_dark.png", transparent=True, dpi=300)
+    plt.savefig("./images/cn_tr_dark.png", transparent=True, dpi=600)
 
     return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 

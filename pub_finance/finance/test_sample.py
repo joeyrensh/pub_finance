@@ -167,13 +167,13 @@ def exec_btstrategy(date):
     ]
 
     # 绘制表格
-    # ax0.set_axis_off()
+    ax0.set_axis_off()
     # 除去坐标轴
     table = ax0.table(
         cellText=perf_stats_.T.values,
         bbox=[0, 0, 1, 1],
         rowLoc="left",
-        cellLoc="left",
+        cellLoc="center",
         rowLabels=cols_names,
         colLoc="center",
         edges="horizontal",
@@ -184,33 +184,33 @@ def exec_btstrategy(date):
     #     cell.set_fontsize(18)  # Adjust the font size as per your preference
 
     # Set the font size of the table title
-    # table.auto_set_font_size(True)
-    table.set_fontsize(20)
+    # 调整字体大小
+    table.auto_set_font_size(False)  # 关闭自动调整字体大小
+    table.set_fontsize(20)  # 设置字体大小为 12，可以根据需要调整
 
     # 绘制累计收益曲线
     ax2 = ax1.twinx()
 
-    ax1.yaxis.set_ticks_position("right")
-    # 将回撤曲线的 y 轴移至右侧
     ax2.yaxis.set_ticks_position("left")
-    ax1.set_axis_off()
+    ax1.yaxis.set_ticks_position("right")
     ax2.set_axis_off()
+    # ax2.set_axis_off()
     # 将累计收益曲线的 y 轴移至左侧
     # 绘制回撤曲线
     drawdown.plot(
-        ax=ax1,
+        ax=ax2,
         label="drawdown (right)",
         rot=0,
         lw=2.0,
         fontsize=20,
-        grid=True,
+        grid=False,
         color="green",
         linestyle="-",
     )
 
     # 绘制累计收益曲线
     (cumulative).plot(
-        ax=ax2,
+        ax=ax1,
         lw=3.0,
         label="cumret (left)",
         rot=0,
@@ -218,34 +218,38 @@ def exec_btstrategy(date):
         grid=True,
         color="#FF4136",
         linestyle="-",
+        # gridcolor="rgba(255, 255, 255, 0.5)",
     )
     ax2.set_facecolor("none")
 
     # 不然 x 轴留有空白
-    ax2.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
+    ax1.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
+    ax1.grid(True, color=(0, 0, 0, 0.5), linestyle="-", linewidth=1.0)
 
     # 主轴定位器：每 5 个月显示一个日期：根据具体天数来做排版
-    ax2.xaxis.set_major_locator(ticker.MultipleLocator(120))
+    ax1.xaxis.set_major_locator(ticker.MultipleLocator(120))
     # 同时绘制双轴的图例
     h1, l1 = ax1.get_legend_handles_labels()
 
     h2, l2 = ax2.get_legend_handles_labels()
 
     plt.legend(h1 + h2, l1 + l2, fontsize=20, loc="upper left", ncol=1)
+    for spine in ax1.spines.values():
+        spine.set_visible(False)
     # Set the font color of the table cells to white
     for cell in table.get_celld().values():
-        cell.set_text_props(color="white")
+        cell.set_text_props(color="black")
     # Set the font color of the trend graph
-    ax1.tick_params(axis="x", colors="white")
+    ax1.tick_params(axis="x", colors="black")
     for label in ax1.get_xticklabels():
-        label.set_color("white")
-    ax2.yaxis.label.set_color("white")
-    ax2.tick_params(axis="y", colors="white")
-    ax1.yaxis.label.set_color("white")
-    ax1.tick_params(axis="y", colors="white")
-    ax2.spines["right"].set_color("white")
+        label.set_color("black")
+    ax2.yaxis.label.set_color("black")
+    ax2.tick_params(axis="y", colors="black")
+    ax1.yaxis.label.set_color("black")
+    ax1.tick_params(axis="y", colors="black")
+    ax2.spines["right"].set_color("black")
     fig.tight_layout()
-    plt.savefig("./images/performance_report.png", transparent=True, dpi=300)
+    plt.savefig("./images/cn_tr_light.png", transparent=True, dpi=600)
 
     return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 
