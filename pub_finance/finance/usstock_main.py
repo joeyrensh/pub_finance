@@ -95,9 +95,11 @@ def exec_btstrategy(date):
     )
 
     # 统计所有时间段的收益指标
-    perf_stats_all = pf.timeseries.perf_stats((pnl)).to_frame(name="All")
+    # perf_stats_all = pf.timeseries.perf_stats((pnl)).to_frame(name="All")
 
-    perf_stats = pd.concat([perf_stats_year, perf_stats_all.T], axis=0)
+    # perf_stats = pd.concat([perf_stats_year, perf_stats_all.T], axis=0)
+
+    perf_stats = pd.concat([perf_stats_year], axis=0)
 
     perf_stats = perf_stats.drop(
         columns=[
