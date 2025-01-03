@@ -2340,7 +2340,7 @@ class StockProposal:
                 colorbar=dict(
                     title="PnL",
                     titleside="top",  # 将颜色条标题放在顶部
-                    tickfont=dict(size=20),
+                    tickfont=dict(size=18),
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
                 ),
