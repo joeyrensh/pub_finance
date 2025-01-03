@@ -2419,7 +2419,7 @@ class StockProposal:
                 y=week_order,
                 text=text,
                 showarrow=False,
-                font=dict(color=text_color, size=20),  # 根据s_pnl值动态设置字体颜色
+                font=dict(color=text_color, size=18),  # 根据s_pnl值动态设置字体颜色
                 align="center",
                 xanchor="center",
                 yanchor="middle",
