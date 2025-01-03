@@ -51,7 +51,7 @@ class TickerInfo:
                         )
                         or float(i["total_value"]) >= 10000000000
                     )
-                    and float(i["close"]) > 2
+                    and float(i["close"]) > 1
                     and float(i["close"]) < 10000
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
@@ -69,7 +69,7 @@ class TickerInfo:
                         )
                         or float(i["total_value"]) >= 10000000000
                     )
-                    and float(i["close"]) > 3
+                    and float(i["close"]) > 1
                     and float(i["close"]) < 10000
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
