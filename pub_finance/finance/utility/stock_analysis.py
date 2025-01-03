@@ -1573,7 +1573,7 @@ class StockProposal:
                 side="left",
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="black", size=16),
+                tickfont=dict(color="black", size=20),
                 showline=True,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
@@ -1584,7 +1584,7 @@ class StockProposal:
                 overlaying="y",
                 showgrid=False,
                 ticks="outside",
-                tickfont=dict(color="black", size=16),
+                tickfont=dict(color="black", size=20),
                 range=[0, max_pnl * 2],
             ),
             legend=dict(
@@ -2340,7 +2340,7 @@ class StockProposal:
                 colorbar=dict(
                     title="PnL",
                     titleside="top",  # 将颜色条标题放在顶部
-                    tickfont=dict(size=16),
+                    tickfont=dict(size=20),
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
                 ),
@@ -2419,7 +2419,7 @@ class StockProposal:
                 y=week_order,
                 text=text,
                 showarrow=False,
-                font=dict(color=text_color, size=16),  # 根据s_pnl值动态设置字体颜色
+                font=dict(color=text_color, size=20),  # 根据s_pnl值动态设置字体颜色
                 align="center",
                 xanchor="center",
                 yanchor="middle",

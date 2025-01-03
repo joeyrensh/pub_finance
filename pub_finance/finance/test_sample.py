@@ -26,7 +26,7 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cnetf")
+    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cn")
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
@@ -34,14 +34,14 @@ def exec_btstrategy(date):
     cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
     # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
-    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=2)
+    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
     cerebro.addsizer(FixedAmount, amount=10000)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "cn").get_etf_backtrader_data_feed()
+    list = TickerInfo(date, "cn").get_backtrader_data_feed()
     """ 初始资金100M """
-    start_cash = len(list) * 20000
+    start_cash = len(list) * 10000
     cerebro.broker.setcash(start_cash)
     """ 循环初始化数据进入cerebro """
     for h in list:
@@ -173,7 +173,6 @@ def exec_btstrategy(date):
     # 除去坐标轴
     table = ax0.table(
         cellText=perf_stats_.T.values,
-        # bbox=[0, 0, 1, 1],
         bbox=[0, 0.1, 1, 0.8],
         rowLoc="left",
         cellLoc="center",
@@ -187,9 +186,8 @@ def exec_btstrategy(date):
     #     cell.set_fontsize(18)  # Adjust the font size as per your preference
 
     # Set the font size of the table title
-    # 调整字体大小
-    table.auto_set_font_size(False)  # 关闭自动调整字体大小
-    table.set_fontsize(20)  # 设置字体大小为 12，可以根据需要调整
+    table.auto_set_font_size(False)
+    table.set_fontsize(20)
 
     # 绘制累计收益曲线
     ax2 = ax1.twinx()
@@ -230,7 +228,8 @@ def exec_btstrategy(date):
     ax1.grid(True, color=(0, 0, 0, 0.5), linestyle="-", linewidth=1.0)
 
     # 主轴定位器：每 5 个月显示一个日期：根据具体天数来做排版
-    ax1.xaxis.set_major_locator(ticker.MultipleLocator(120))
+    ax2.xaxis.set_major_locator(ticker.MultipleLocator(120))
+
     # 同时绘制双轴的图例
     h1, l1 = ax1.get_legend_handles_labels()
 
@@ -252,7 +251,21 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="black")
     ax2.spines["right"].set_color("black")
     fig.tight_layout()
-    plt.savefig("./images/performance_report.png", transparent=True, dpi=600)
+    plt.savefig("./images/cn_tr_light.png", transparent=True, dpi=600)
+    # Set the font color of the table cells to white
+    for cell in table.get_celld().values():
+        cell.set_text_props(color="white")
+    # Set the font color of the trend graph
+    ax1.tick_params(axis="x", colors="white")
+    for label in ax1.get_xticklabels():
+        label.set_color("white")
+    ax2.yaxis.label.set_color("white")
+    ax2.tick_params(axis="y", colors="white")
+    ax1.yaxis.label.set_color("white")
+    ax1.tick_params(axis="y", colors="white")
+    ax2.spines["right"].set_color("white")
+    fig.tight_layout()
+    plt.savefig("./images/cn_tr_dark.png", transparent=True, dpi=600)
 
     return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 
@@ -284,18 +297,18 @@ if __name__ == "__main__":
 
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
-    em = EMCNWebCrawler()
-    em.get_cn_daily_stock_info(trade_date)
+    # em = EMCNWebCrawler()
+    # em.get_cn_daily_stock_info(trade_date)
 
     """ 执行bt相关策略 """
-    cash, final_value = exec_btstrategy(trade_date)
+    # cash, final_value = exec_btstrategy(trade_date)
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_etf_btstrategy_by_email(cash, final_value)
+    StockProposal("cn", trade_date).send_btstrategy_by_email(9900372.01, 17057093.0)
 
     """ 结束进度条 """
     pbar.finish()
