@@ -165,7 +165,7 @@ class TickerInfo:
         过滤历史数据不完整的股票
         小于120天的股票暂时不进入回测列表
         """
-        if len(group_obj) < 251:
+        if len(group_obj) < 241:
             return pd.DataFrame()
         """ 适配BackTrader数据结构 """
         if self.market == "us":
