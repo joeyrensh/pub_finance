@@ -204,7 +204,7 @@ def data_bars(df, column):
                     """
                     linear-gradient(90deg,
                     #2196f324 0%,
-                    #BBDEFB {max_bound_percentage}%,
+                    #4d9bdc {max_bound_percentage}%,
                     transparent {max_bound_percentage}%,
                     transparent 100%)
                 """.format(max_bound_percentage=max_bound_percentage)
