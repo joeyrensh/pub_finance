@@ -1313,7 +1313,7 @@ class StockProposal:
                     labels=dfdata1["industry"],
                     values=dfdata1["cnt"],
                     hole=0.3,
-                    pull=[0.1],
+                    pull=[0.1] * 5,
                 )
             ]
         )
@@ -1411,7 +1411,7 @@ class StockProposal:
                     labels=dfdata2["industry"],
                     values=dfdata2["pl"],
                     hole=0.3,
-                    pull=[0.1],
+                    pull=[0.1] * 5,
                 )
             ]
         )
