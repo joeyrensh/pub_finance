@@ -2318,6 +2318,8 @@ class StockProposal:
                 x=dfdata100["day_of_week"],  # 每行显示7天
                 y=dfdata100["week_order"],  # 每7天增加一行
                 z=dfdata100["s_pnl"],
+                xgap=10,  # 设置列之间的间隙为5像素
+                ygap=10,  # 设置行之间的间隙为10像素
                 # 定义自定义颜色比例
                 colorscale=[
                     [0, "rgba(6, 89, 6, 0.7)"],
