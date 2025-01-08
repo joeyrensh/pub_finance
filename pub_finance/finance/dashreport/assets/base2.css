@@ -581,7 +581,6 @@ hr {
   on small devices, paste the mobile query code up in the buttons section and style it
   there.
   */
-
 /* Larger than mobile */
 @media (min-width: 400px) {}
 

@@ -70,6 +70,7 @@ class EMUsTickerCategoryCrawler:
 
         https://emweb.eastmoney.com/pc_usf10/CompanyInfo/PageAjax?fullCode=WISH.O
         """
+
         list = []
         dict = {}
         tool = ToolKit("行业下载进度")

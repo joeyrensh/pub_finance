@@ -74,7 +74,7 @@ body {
 
 .page {
   position: relative;
-  width: 240mm;
+  /* width: 240mm; */
   min-height: 300mm;
   padding: 0mm;
   margin: 2mm auto;
@@ -483,6 +483,7 @@ a:active {
   border-color: lightgrey;
   border-style: solid;
 }
+
 
 /* for screens smaller than 768px */
 @media only screen and (max-width: 550px) {
