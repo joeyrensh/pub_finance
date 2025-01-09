@@ -214,6 +214,8 @@ table {
   padding: 0;
   border: 0px solid #050505;
   /* filter: brightness(110%); */
+  filter:
+    contrast(105%) saturate(110%) brightness(105%);
 }
 
 img {
@@ -537,6 +539,8 @@ a:active {
     padding: 0;
     border: 0px solid #050505;
     background-color: transparent;
+    filter:
+      contrast(105%) saturate(110%) brightness(105%);
   }
 
   .tab.first {
