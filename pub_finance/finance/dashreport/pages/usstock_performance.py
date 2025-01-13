@@ -161,7 +161,7 @@ def create_layout(app):
                                     html.P(
                                         [
                                             html.Span(
-                                                "海风卓越指数为",
+                                                "SWDI指数为",
                                                 style={"color": "black"},
                                             ),
                                             html.Span(
