@@ -41,6 +41,7 @@ body {
 
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
   background: none;
+  --hover: #d3d3d382;
 }
 
 .loading-dot {
