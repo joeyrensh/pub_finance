@@ -446,11 +446,11 @@ class StockProposal:
             columns={
                 "industry": "IND",
                 "p_cnt": "OPEN",
+                "long_ratio": "LRATIO",
                 "l5_p_cnt": "L5 OPEN",
                 "l5_close": "L5 CLOSE",
                 "pnl": "PROFIT",
                 "pnl_ratio": "PNL RATIO",
-                "long_ratio": "LRATIO",
                 "avg_his_trade_cnt": "AVG TRANS",
                 "avg_days": "AVG DAYS",
                 "win_rate": "WIN RATE",
@@ -473,17 +473,16 @@ class StockProposal:
                     "pnl_array",
                     "index_diff",
                     "industry_new",
-                    "AVG TRANS",
                     "pnl_growth",
                 ],
             )
             .format(
                 {
                     "OPEN": "{:.2f}",
+                    "LRATIO": "{:.2%}",
                     "L5 OPEN": "{:.2f}",
                     "L5 CLOSE": "{:.2f}",
                     "PROFIT": "{:.2f}",
-                    "LRATIO": "{:.2%}",
                     "PNL RATIO": "{:.2%}",
                     "AVG TRANS": "{:.2f}",
                     "AVG DAYS": "{:.0f}",
@@ -802,6 +801,8 @@ class StockProposal:
         dfdata8.rename(
             columns={
                 "symbol": "SYMBOL",
+                "industry": "IND",
+                "name": "NAME",
                 "epr": "EPR",
                 "buy_date": "OPEN DATE",
                 "price": "BASE",
@@ -812,8 +813,6 @@ class StockProposal:
                 "avg_days": "AVG DAYS",
                 "win_rate": "WIN RATE",
                 "total_pnl_ratio": "TOTAL PNL RATIO",
-                "industry": "IND",
-                "name": "NAME",
                 "buy_strategy": "STRATEGY",
             },
             inplace=True,

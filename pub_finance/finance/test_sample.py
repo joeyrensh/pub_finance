@@ -116,7 +116,7 @@ def exec_btstrategy(date):
 
     perf_stats_ = perf_stats.reset_index()
     perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
-        lambda x: x.map(lambda y: f"{y*100:.2f}%")
+        lambda x: x.map(lambda y: f"{y * 100:.2f}%")
     )
 
     # 绘制图形
@@ -308,7 +308,7 @@ if __name__ == "__main__":
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(13249685.01, 17656403.01)
+    StockProposal("cn", trade_date).send_btstrategy_by_email(13074388.01, 17350695.02)
 
     """ 结束进度条 """
     pbar.finish()
