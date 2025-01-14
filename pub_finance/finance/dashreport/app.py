@@ -15,7 +15,7 @@ server = Flask(__name__)
 Compress(server)
 
 VALID_USERNAME_PASSWORD_PAIRS = {"admin": "123"}
-
+theme = "dark"
 app = dash.Dash(
     __name__,
     meta_tags=[
@@ -133,22 +133,22 @@ def handle_login(n_clicks, username, password):
 def update_page_content(pathname):
     if pathname == "/dash-financial-report/overview":
         # return overview.create_layout(app)
-        return cnstock_performance.create_layout(app)
+        return cnstock_performance.create_layout(app, theme)
     elif pathname == "/dash-financial-report/cn-stock-performance":
-        return cnstock_performance.create_layout(app)
+        return cnstock_performance.create_layout(app, theme)
     elif pathname == "/dash-financial-report/us-stock-performance":
-        return usstock_performance.create_layout(app)
+        return usstock_performance.create_layout(app, theme)
     elif pathname == "/dash-financial-report/news-and-reviews":
         return news_reviews.create_layout(app)
     elif pathname == "/dash-financial-report/full-view":
         return [
-            cnstock_performance.create_layout(app),
-            usstock_performance.create_layout(app),
+            cnstock_performance.create_layout(app, theme),
+            usstock_performance.create_layout(app, theme),
             # overview.create_layout(app),
             news_reviews.create_layout(app),
         ]
     else:
-        return (cnstock_performance.create_layout(app),)
+        return (cnstock_performance.create_layout(app, theme),)
 
 
 if __name__ == "__main__":

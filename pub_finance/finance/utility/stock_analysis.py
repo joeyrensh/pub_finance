@@ -1633,7 +1633,7 @@ class StockProposal:
                 ticks="outside",
                 tickfont=dict(color="white", size=20),
                 showline=True,
-                gridcolor="rgba(0, 0, 0, 0.5)",
+                gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
                 title="Success Rate",
@@ -1643,7 +1643,7 @@ class StockProposal:
                 ticks="outside",
                 tickfont=dict(color="white", size=20),
                 showline=True,
-                gridcolor="rgba(0, 0, 0, 0.5)",
+                gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
                 title="Pnl",
@@ -2305,6 +2305,8 @@ class StockProposal:
                 text=dfdata100["industry_top3"].apply(lambda x: "<br>".join(x)),
             )
         )
+
+        # light mode
         # 设置图表布局
         fig.update_layout(
             # title="Calendar",
@@ -2343,7 +2345,6 @@ class StockProposal:
                 b=0,
             ),
         )
-        # light mode
         # 在每个单元格中添加文本
         for i, row in dfdata100.iterrows():
             day_of_week = row["day_of_week"]
@@ -2405,6 +2406,88 @@ class StockProposal:
             )
 
         # dark mode
+        # 创建日历图
+        fig = go.Figure()
+
+        # 假设 s_pnl 的最小值为负，最大值为正
+        min_val = dfdata100["s_pnl"].min()
+        max_val = dfdata100["s_pnl"].max()
+        mid_val = 0  # 中间值，用于白色
+
+        # 添加热力图
+        fig.add_trace(
+            go.Heatmap(
+                x=dfdata100["day_of_week"],  # 每行显示7天
+                y=dfdata100["week_order"],  # 每7天增加一行
+                z=dfdata100["s_pnl"],
+                xgap=10,  # 设置列之间的间隙为5像素
+                ygap=10,  # 设置行之间的间隙为10像素
+                # 定义自定义颜色比例
+                colorscale=[
+                    [0, "rgba(6, 89, 6, 0.7)"],
+                    [
+                        (mid_val - min_val) / (max_val - min_val) / 2,
+                        "rgba(11, 158, 11, 0.5)",
+                    ],
+                    [
+                        (mid_val - min_val) / (max_val - min_val),
+                        "rgba(255, 255, 255, 0.5)",
+                    ],
+                    [
+                        1 - (max_val - mid_val) / (max_val - min_val) / 2,
+                        "rgba(212, 55, 55, 0.5)",
+                    ],
+                    [1, "rgba(207, 12, 12, 0.7)"],
+                ],
+                zmin=min_val,
+                zmax=max_val,
+                colorbar=dict(
+                    title="PnL",
+                    titleside="top",  # 将颜色条标题放在顶部
+                    tickfont=dict(size=18, color="white"),
+                    thickness=20,  # 增加颜色条厚度
+                    len=0.5,  # 调整颜色条长度以适应布局
+                ),
+                text=dfdata100["industry_top3"].apply(lambda x: "<br>".join(x)),
+            )
+        )
+        fig.update_layout(
+            # title="Calendar",
+            xaxis=dict(
+                tickmode="array",
+                tickvals=[0, 1, 2, 3, 4, 5, 6],
+                ticktext=[
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                    "Sunday",
+                ],
+                showgrid=True,
+                gridcolor="rgba(255, 255, 255, 0.5)",
+                zeroline=False,
+                showticklabels=True,
+                dtick=1,  # 每天显示一个刻度
+                tickfont=dict(size=20, color="white"),
+            ),
+            yaxis=dict(
+                showgrid=True,
+                gridcolor="rgba(255, 255, 255, 0.5)",
+                showticklabels=False,
+                # title="Week",
+                autorange="reversed",  # 反转Y轴，使得最新的一周在最下方
+            ),
+            plot_bgcolor="rgba(0, 0, 0, 0)",
+            paper_bgcolor="rgba(0, 0, 0, 0)",
+            margin=dict(
+                l=0,
+                r=0,
+                t=0,
+                b=0,
+            ),
+        )
         # 在每个单元格中添加文本
         for i, row in dfdata100.iterrows():
             day_of_week = row["day_of_week"]

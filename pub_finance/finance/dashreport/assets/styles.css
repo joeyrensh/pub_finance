@@ -7,7 +7,14 @@ body {
   background-size: cover;
   background-position: center;
   margin: 0; */
+
+  /* light mode不需要指定背景色和字体颜色 */
   /* background-color: #f6f8f9; */
+  /* color: #333; */
+
+  /* dark mode*/
+  background-color: #000000;
+  color: #ffffff;
 
   font-size: 1.2rem;
   line-height: 1.0;
@@ -24,7 +31,7 @@ body {
   /* 优化文本可读性 */
 
   /* 使用系统字体 */
-  /* color: #333; */
+
 }
 
 .dash-spreadsheet-container {
@@ -343,6 +350,20 @@ li {
   filter: contrast(105%) saturate(105%);
 }
 
+/* light mode */
+/* .text_color {
+  color: black;
+} */
+
+/* dark mode */
+.text_color {
+  color: white;
+}
+
+.number_color {
+  color: #FF4136;
+}
+
 .full-view-link {
   background-color: #FF4136;
   color: white !important;
@@ -377,7 +398,10 @@ li {
 
 .subtitle {
   position: relative;
-  color: #000000;
+  /* light mode */
+  /* color: #000000; */
+  /* dark mode */
+  color: #ffffff;
   left: 0;
   height: 20%;
   margin: 0mm;
@@ -419,7 +443,10 @@ a:link {
 
 /* visited link */
 a:visited {
-  color: #000000;
+  /* light mode */
+  /* color: #000000; */
+  /* dark mode */
+  color: #ffffff;
   text-decoration: none;
 }
 

@@ -8,33 +8,43 @@ import base64
 df_detail = None
 
 
-def create_layout(app):
+def create_layout(app, theme):
     # get relative data folder
     PATH = pathlib.Path(__file__).parent
+    # 根据 css_class 动态选择图像文件名后缀
+    image_suffix = "_light" if theme == "light" else "_dark"
 
     IMAGE_PATH = PATH.joinpath("../../images").resolve()
     DATA_PATH = PATH.joinpath("../../data").resolve()
 
     # 收益率曲线
-    with open(IMAGE_PATH.joinpath("us_tr_light.png"), "rb") as f:
+    with open(IMAGE_PATH.joinpath(f"us_tr{image_suffix}.png"), "rb") as f:
         image_data = f.read()
         encoded_image_trdraw = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath("us_postion_byindustry_light.png"), "rb") as f:
+    with open(
+        IMAGE_PATH.joinpath(f"us_postion_byindustry{image_suffix}.png"), "rb"
+    ) as f:
         image_data = f.read()
         encoded_image_by_postion = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath("us_pl_byindustry_light.png"), "rb") as f:
+    with open(IMAGE_PATH.joinpath(f"us_pl_byindustry{image_suffix}.png"), "rb") as f:
         image_data = f.read()
         encoded_image_by_pl = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath("us_trade_trend_light.png"), "rb") as f:
+    with open(IMAGE_PATH.joinpath(f"us_trade_trend{image_suffix}.png"), "rb") as f:
         image_data = f.read()
         encoded_image_by_positiondate = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath("us_top_industry_pl_trend_light.png"), "rb") as f:
+    with open(
+        IMAGE_PATH.joinpath(f"us_top_industry_pl_trend{image_suffix}.png"), "rb"
+    ) as f:
         image_data = f.read()
         encoded_image_bypl_date = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath("us_strategy_tracking_light.png"), "rb") as f:
+    with open(
+        IMAGE_PATH.joinpath(f"us_strategy_tracking{image_suffix}.png"), "rb"
+    ) as f:
         image_data = f.read()
         encoded_image_strategy = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath("us_industry_trend_heatmap_light.png"), "rb") as f:
+    with open(
+        IMAGE_PATH.joinpath(f"us_industry_trend_heatmap{image_suffix}.png"), "rb"
+    ) as f:
         image_data = f.read()
         encoded_image_ind_trend = base64.b64encode(image_data).decode("utf-8")
 
@@ -162,36 +172,43 @@ def create_layout(app):
                                         [
                                             html.Span(
                                                 "SWDI指数为",
-                                                style={"color": "black"},
+                                                className="text_color",
                                             ),
                                             html.Span(
-                                                f"{int(round(df_overall.at[0, 'final_value'] / 1000 - df_overall.at[0, 'cash'] / 1000, 0))}, "
+                                                f"{int(round(df_overall.at[0, 'final_value'] / 1000 - df_overall.at[0, 'cash'] / 1000, 0))}, ",
+                                                className="number_color",
                                             ),
                                             html.Span(
                                                 "最新回测所剩Cash为",
-                                                style={"color": "black"},
+                                                className="text_color",
                                             ),
-                                            html.Span(f"{df_overall.at[0, 'cash']}, "),
+                                            html.Span(
+                                                f"{df_overall.at[0, 'cash']}, ",
+                                                className="number_color",
+                                            ),
                                             html.Span(
                                                 "账户总资产为",
-                                                style={"color": "black"},
+                                                className="text_color",
                                             ),
                                             html.Span(
-                                                f"{df_overall.at[0, 'final_value']}, "
+                                                f"{df_overall.at[0, 'final_value']}, ",
+                                                className="number_color",
                                             ),
                                             html.Span(
                                                 "参与本次回测的股票数量为",
-                                                style={"color": "black"},
+                                                className="text_color",
                                             ),
                                             html.Span(
-                                                f"{df_overall.at[0, 'stock_cnt']}, "
+                                                f"{df_overall.at[0, 'stock_cnt']}, ",
+                                                className="number_color",
                                             ),
                                             html.Span(
                                                 "数据更新至",
-                                                style={"color": "black"},
+                                                className="text_color",
                                             ),
                                             html.Span(
-                                                f"{df_overall.at[0, 'end_date']}"
+                                                f"{df_overall.at[0, 'end_date']}",
+                                                className="number_color",
                                             ),
                                         ]
                                     ),

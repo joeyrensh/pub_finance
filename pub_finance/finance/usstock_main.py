@@ -117,7 +117,7 @@ def exec_btstrategy(date):
 
     perf_stats_ = perf_stats.reset_index()
     perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
-        lambda x: x.map(lambda y: f"{y*100:.2f}%")
+        lambda x: x.map(lambda y: f"{y * 100:.2f}%")
     )
 
     # 绘制图形
@@ -253,6 +253,11 @@ def exec_btstrategy(date):
     ax2.spines["right"].set_color("black")
     fig.tight_layout()
     plt.savefig("./images/us_tr_light.png", transparent=True, dpi=600)
+    # 更改表格的网格颜色
+    for key, cell in table.get_celld().items():
+        cell.set_edgecolor("white")
+    ax1.grid(color="white")
+    ax2.grid(color="white")
     # Set the font color of the table cells to white
     for cell in table.get_celld().values():
         cell.set_text_props(color="white")
