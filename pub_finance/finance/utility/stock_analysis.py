@@ -1603,128 +1603,84 @@ class StockProposal:
             margin=dict(t=0, b=0, l=0, r=0),
         )
 
-        # fig = make_subplots(
-        #     rows=2,
-        #     cols=1,
-        #     shared_xaxes=True,
-        #     vertical_spacing=0.05,  # 调整两个子图之间的垂直间距
-        #     specs=[[{"secondary_y": False}], [{"secondary_y": True}]],
-        #     # subplot_titles=("Success Rate", "Pnl per day"),  # 子图标题
-        # )
-
-        # # 遍历每个策略并添加数据
-        # for i, (strategy, data) in enumerate(dfdata_strategy_track.groupby("strategy")):
-        #     # 添加成功率的折线图到第一个子图
-        #     fig.add_trace(
-        #         go.Scatter(
-        #             x=data["date"],
-        #             y=data["ema_success_rate"],
-        #             mode="lines",
-        #             name=strategy,
-        #             line=dict(width=2, color=strategy_colors[i], shape="spline"),
-        #             yaxis="y1",
-        #         ),
-        #         row=1,
-        #         col=1,
-        #     )
-
-        #     # 添加 Pnl 的柱状图到第二个子图，但使用 y2 轴
-        #     fig.add_trace(
-        #         go.Bar(
-        #             x=data["date"],
-        #             y=data["pnl"],
-        #             marker=dict(color=strategy_colors[i]),
-        #             yaxis="y2",
-        #             showlegend=False,
-        #             offsetgroup=1,
-        #         ),
-        #         row=2,
-        #         col=1,
-        #     )
-        # # 更新布局以隐藏第二个子图的 x 轴和第一个子图的 y2 轴（如果存在）
-        # fig.update_layout(
-        #     xaxis_title="",
-        #     xaxis2_title="",  # 隐藏第二个子图的 x 轴标题
-        #     xaxis=dict(
-        #         mirror=True,
-        #         ticks="outside",
-        #         tickfont=dict(color="black", size=20),
-        #         showline=False,
-        #         gridcolor="rgba(0, 0, 0, 0.5)",
-        #     ),
-        #     xaxis2=dict(
-        #         mirror=True,
-        #         ticks="outside",
-        #         tickfont=dict(color="black", size=20),
-        #         showline=True,
-        #         gridcolor="rgba(0, 0, 0, 0.5)",
-        #     ),
-        #     yaxis=dict(
-        #         # title="Success Rate",
-        #         title="",
-        #         titlefont=dict(size=20, color="black"),
-        #         # side="left",
-        #         # mirror=True,
-        #         ticks="outside",
-        #         tickfont=dict(color="black", size=20),
-        #         # showline=True,
-        #         showgrid=True,
-        #         gridcolor="rgba(0, 0, 0, 0.5)",
-        #         # domain=[0.5, 1],
-        #         gridwidth=1,
-        #     ),
-        #     yaxis2=dict(
-        #         # title="Pnl per day",
-        #         title="",
-        #         titlefont=dict(size=20, color="black"),
-        #         # side="right",
-        #         # mirror=True,
-        #         ticks="outside",
-        #         tickfont=dict(color="black", size=20),
-        #         # showline=True,
-        #         showgrid=True,
-        #         gridcolor="rgba(0, 0, 0, 0.5)",
-        #         # domain=[0, 0.7],
-        #         gridwidth=1,
-        #     ),
-        #     legend=dict(
-        #         orientation="h",
-        #         yanchor="bottom",
-        #         y=-0.15,
-        #         xanchor="center",
-        #         x=0.5,
-        #         font=dict(size=20, color="black"),
-        #     ),
-        #     plot_bgcolor="rgba(0,0,0,0)",
-        #     paper_bgcolor="rgba(0,0,0,0)",
-        #     barmode="stack",
-        #     bargap=0.4,
-        #     bargroupgap=0.4,
-        #     margin=dict(t=0, r=0, l=0, b=0),
-        #     title={
-        #         # "text": "Last 120 days strategy track",
-        #         "text": "",
-        #         "y": 0.99,
-        #         "x": 0.05,
-        #         "xanchor": "left",
-        #         "yanchor": "top",
-        #         "font": dict(size=20, color="black"),
-        #     },
-        # )
-
         fig_width, fig_height = 1440, 700
         scale_factor = 1.2
 
         if self.market == "us":
             fig.write_image(
-                "./images/us_strategy_tracking.png",
+                "./images/us_strategy_tracking_light.png",
                 width=fig_width,
                 height=fig_height,
                 scale=2,
             )
         else:
             fig.write_image(
-                "./images/cn_strategy_tracking.png",
+                "./images/cn_strategy_tracking_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=2,
+            )
+
+        # dark mode
+        fig.update_layout(
+            title={
+                "text": "",
+            },
+            xaxis=dict(
+                title="",
+                # titlefont=dict(size=20, color="black"),
+                mirror=True,
+                ticks="outside",
+                tickfont=dict(color="white", size=20),
+                showline=True,
+                gridcolor="rgba(0, 0, 0, 0.5)",
+            ),
+            yaxis=dict(
+                title="Success Rate",
+                titlefont=dict(size=20, color="white"),
+                side="left",
+                mirror=True,
+                ticks="outside",
+                tickfont=dict(color="white", size=20),
+                showline=True,
+                gridcolor="rgba(0, 0, 0, 0.5)",
+            ),
+            yaxis2=dict(
+                title="Pnl",
+                titlefont=dict(size=20, color="white"),
+                side="right",
+                overlaying="y",
+                showgrid=False,
+                ticks="outside",
+                tickfont=dict(color="white", size=20),
+                range=[0, max_pnl * 2],
+            ),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=-0.2,
+                xanchor="center",
+                x=0.5,
+                font=dict(size=20, color="white"),
+            ),
+            barmode="stack",
+            bargap=0.5,
+            bargroupgap=0.5,
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            margin=dict(t=0, b=0, l=0, r=0),
+        )
+
+        if self.market == "us":
+            fig.write_image(
+                "./images/us_strategy_tracking_dark.png",
+                width=fig_width,
+                height=fig_height,
+                scale=2,
+            )
+        else:
+            fig.write_image(
+                "./images/cn_strategy_tracking_dark.png",
                 width=fig_width,
                 height=fig_height,
                 scale=2,
@@ -2387,7 +2343,7 @@ class StockProposal:
                 b=0,
             ),
         )
-
+        # light mode
         # 在每个单元格中添加文本
         for i, row in dfdata100.iterrows():
             day_of_week = row["day_of_week"]
@@ -2435,14 +2391,65 @@ class StockProposal:
 
         if self.market == "us":
             fig.write_image(
-                "./images/us_industry_trend_heatmap.png",
+                "./images/us_industry_trend_heatmap_light.png",
                 width=fig_width,
                 height=fig_height,
                 scale=2,
             )
         else:
             fig.write_image(
-                "./images/cn_industry_trend_heatmap.png",
+                "./images/cn_industry_trend_heatmap_light.png",
+                width=fig_width,
+                height=fig_height,
+                scale=2,
+            )
+
+        # dark mode
+        # 在每个单元格中添加文本
+        for i, row in dfdata100.iterrows():
+            day_of_week = row["day_of_week"]
+            week_order = row["week_order"]
+            col2_values = row["industry_top3"]
+            col3_value = row["s_pnl"]
+            date = row["date"].strftime("%Y-%m-%d")
+
+            # 根据s_pnl的值确定文本颜色
+            # 假设当s_pnl接近min_val时，我们使用深色背景（绿色系），接近max_val时，我们使用浅色背景（红色系）
+            # 这里简单地使用阈值来判断，但您可以根据实际需求调整逻辑
+            text_color = "white"  # 默认白色
+
+            # 将col2的list按3行展示（这里可能需要根据实际情况调整）
+            text = f"<b>{date}</b><br>" + "<br>".join(
+                col2_values[:3]
+            )  # 假设我们只展示前三个行业
+
+            fig.add_annotation(
+                x=day_of_week,
+                y=week_order,
+                text=text,
+                showarrow=False,
+                font=dict(color=text_color, size=18),  # 根据s_pnl值动态设置字体颜色
+                align="center",
+                xanchor="center",
+                yanchor="middle",
+                # 以下选项是可选的，用于提高可读性
+                # bordercolor="white",  # 添加白色边框
+                # borderwidth=1,  # 设置边框宽度
+                # bgcolor="rgba(255, 255, 255, 0.7)",  # 设置背景色为半透明白色
+            )
+        fig_width, fig_height = 1440, 700
+        scale_factor = 1.2
+
+        if self.market == "us":
+            fig.write_image(
+                "./images/us_industry_trend_heatmap_dark.png",
+                width=fig_width,
+                height=fig_height,
+                scale=2,
+            )
+        else:
+            fig.write_image(
+                "./images/cn_industry_trend_heatmap_dark.png",
                 width=fig_width,
                 height=fig_height,
                 scale=2,
@@ -2465,6 +2472,10 @@ class StockProposal:
                 "./images/us_top_industry_position_trend_dark.png",
                 "./images/us_top_industry_pl_trend_light.png",
                 "./images/us_top_industry_pl_trend_dark.png",
+                "./images/us_industry_trend_heatmap_light.png",
+                "./images/us_industry_trend_heatmap_dark.png",
+                "./images/us_strategy_tracking_light.png",
+                "./images/us_strategy_tracking_dark.png",
                 image_path_return_light,
                 image_path_return_dark,
             ]
@@ -2483,6 +2494,10 @@ class StockProposal:
                 "./images/cn_top_industry_position_trend_dark.png",
                 "./images/cn_top_industry_pl_trend_light.png",
                 "./images/cn_top_industry_pl_trend_dark.png",
+                "./images/cn_industry_trend_heatmap_light.png",
+                "./images/cn_industry_trend_heatmap_dark.png",
+                "./images/cn_strategy_tracking_light.png",
+                "./images/cn_strategy_tracking_dark.png",
                 image_path_return_light,
                 image_path_return_dark,
             ]
@@ -2584,9 +2599,25 @@ class StockProposal:
                         </picture>
                         <picture>
                             <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image11" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%"/>
+                            <source srcset="cid:image11" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top3 industries:" style="width:100%"/>
                             <!-- 默认模式下的图片 -->
-                            <img src="cid:image10" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%">
+                            <img src="cid:image10" alt="The diagram shows the last x days top3 industries:" style="width:100%">
+                            <figcaption>The diagram shows the last x days top3 industries, to track last x days
+                                        the top3 industries</figcaption>
+                        </picture>
+                        <picture>
+                            <!-- 深色模式下的图片 -->
+                            <source srcset="cid:image13" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days strategy success ratio:" style="width:100%"/>
+                            <!-- 默认模式下的图片 -->
+                            <img src="cid:image12" alt="The diagram shows the last x days strategy success ratio:" style="width:100%">
+                            <figcaption>The diagram shows the last x days strategy success ratio, to track last x days
+                                        the strategy success ratio</figcaption>
+                        </picture>                                                   
+                        <picture>
+                            <!-- 深色模式下的图片 -->
+                            <source srcset="cid:image15" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%"/>
+                            <!-- 默认模式下的图片 -->
+                            <img src="cid:image14" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%">
                             <figcaption>The diagram shows the last x years cumulative return and max drawdown trend,
                                         to track the stock market and stategy execution information</figcaption>
                         </picture>

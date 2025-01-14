@@ -27,10 +27,10 @@ def create_layout(app):
     with open(IMAGE_PATH.joinpath("cn_top_industry_pl_trend_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_bypl_date = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath("cn_strategy_tracking.png"), "rb") as f:
+    with open(IMAGE_PATH.joinpath("cn_strategy_tracking_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_strategy = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath("cn_industry_trend_heatmap.png"), "rb") as f:
+    with open(IMAGE_PATH.joinpath("cn_industry_trend_heatmap_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_ind_trend = base64.b64encode(image_data).decode("utf-8")
     # Overall 信息
