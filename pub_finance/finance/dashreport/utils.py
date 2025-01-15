@@ -207,11 +207,24 @@ def data_bars(df, column):
                     #0074d9 {max_bound_percentage}%,
                     transparent {max_bound_percentage}%,
                     transparent 100%)
-                """.format(max_bound_percentage=max_bound_percentage)
+                    """.format(max_bound_percentage=max_bound_percentage)
                 ),
                 "paddingBottom": 2,
                 "paddingTop": 2,
-                # "color": "black",
+            }
+        )
+        # 添加对负值的样式
+        styles.append(
+            {
+                "if": {
+                    "filter_query": (
+                        "{{{column}}} <= 0"  # 只对负值应用样式
+                    ).format(column=col_n),
+                    "column_id": column,
+                },
+                "background": "none",  # 负值背景色设置为透明
+                "paddingBottom": 2,
+                "paddingTop": 2,
             }
         )
 
