@@ -325,6 +325,26 @@ def make_dash_format_table(df, cols_format):
             and cols_format[col][0] == "float"
             and cols_format[col][1] == "format"
         ]
+        + [
+            {
+                "if": {
+                    "column_id": col,
+                },
+                "backgroundColor": "initial",
+            }
+            for col in df.columns
+            if col in cols_format and len(cols_format[col]) == 1
+        ]
+        + [
+            {
+                "if": {
+                    "column_id": col,
+                },
+                "backgroundColor": "initial",
+            }
+            for col in df.columns
+            if col not in cols_format
+        ]
     )
 
     for col in df.columns:
@@ -335,15 +355,6 @@ def make_dash_format_table(df, cols_format):
             and cols_format[col][1] == "format"
         ):
             style_data_conditional.extend(data_bars(df, col))
-        elif col not in cols_format:
-            style_data_conditional.extend(
-                {
-                    "if": {
-                        "column_id": col,
-                    },
-                    "backgroundColor": "transparent",
-                }
-            )
 
     return dash_table.DataTable(
         id="idAssignedToDataTable",
