@@ -78,7 +78,7 @@ body {
   /* light mode */
   /* box-shadow: 0 0 10px lightgrey; */
   /* dark mode */
-  box-shadow: 0 8px 16px 0 #2196F3, 0 16px 32px 0 #2196F3;
+  box-shadow: 0 4px 8px 0 #2196F3, 0 4px 8px 0 #2196F3;
 }
 
 .pagetwo {
