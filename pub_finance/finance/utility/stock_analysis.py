@@ -1495,7 +1495,15 @@ class StockProposal:
 
         # 120天内策略交易概率
         # 获取不同策略的颜色列表
-        strategy_colors = plotly.colors.qualitative.Bold
+        # strategy_colors = plotly.colors.qualitative.Bold
+        strategy_colors = [
+            "rgb(166,206,227)",
+            "rgb(31,120,180)",
+            "rgb(51,160,44)",
+            "rgb(251,154,153)",
+            "rgb(215,89,88)",
+            "rgb(227,26,28)",
+        ]
         sparkdata_strategy_track = spark.sql(
             """ 
             WITH tmp1 AS (
