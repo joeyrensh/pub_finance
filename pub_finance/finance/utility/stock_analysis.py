@@ -2092,7 +2092,7 @@ class StockProposal:
             title="",  # 设置为空字符串以隐藏y轴标题
         )
         fig.update_layout(
-            title="Last 120 days top5 pnl ",
+            title="Last 120 days top5 pnl",
             title_font=dict(size=title_font_size, color="black"),
             title_x=0.5,
             title_y=0.9,
@@ -2106,7 +2106,7 @@ class StockProposal:
                 font=dict(size=font_size, family="Courier", color="black"),
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
-            paper_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0, 0, 0, 0)",
             margin=dict(t=0, b=0, l=0, r=20),
             autosize=True,
         )
@@ -2125,6 +2125,10 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
+        fig = px.line(
+            dfdata6, x="buy_date", y="pnl", color="industry", line_group="industry"
+        )
+        fig.update_traces(line=dict(width=3))  # 设置线条宽度为2
         fig.update_xaxes(
             mirror=True,
             ticks="outside",
@@ -2143,7 +2147,7 @@ class StockProposal:
             title="",  # 设置为空字符串以隐藏y轴标题
         )
         fig.update_layout(
-            title="Last 120 days top5 pnl ",
+            title="Last 120 days top5 pnl",
             title_font=dict(size=title_font_size, color="white"),
             title_x=0.5,
             title_y=0.9,
@@ -2157,8 +2161,9 @@ class StockProposal:
                 font=dict(size=font_size, family="Courier", color="white"),
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
-            paper_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0, 0, 0, 0)",
             margin=dict(t=0, b=0, l=0, r=20),
+            autosize=True,
         )
         if self.market == "us":
             fig.write_image(

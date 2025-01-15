@@ -112,6 +112,7 @@ body {
   /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
   /* dark mode */
   box-shadow: 0 0 10px #607D8B;
+
   filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(110%) contrast(105%) saturate(105%);
   text-align: center;
 }
