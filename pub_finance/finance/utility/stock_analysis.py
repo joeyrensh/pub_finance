@@ -2296,7 +2296,12 @@ class StockProposal:
                 zmin=min_val,
                 zmax=max_val,
                 colorbar=dict(
-                    title="PnL",
+                    title=dict(
+                        text="PnL",
+                        font=dict(
+                            color="black", size=18
+                        ),  # 设置颜色条标题的颜色和字体大小
+                    ),
                     titleside="top",  # 将颜色条标题放在顶部
                     tickfont=dict(size=18),
                     thickness=20,  # 增加颜色条厚度
@@ -2332,6 +2337,7 @@ class StockProposal:
             yaxis=dict(
                 showgrid=True,
                 gridcolor="rgba(0, 0, 0, 0.5)",
+                zeroline=False,
                 showticklabels=False,
                 # title="Week",
                 autorange="reversed",  # 反转Y轴，使得最新的一周在最下方
@@ -2442,7 +2448,12 @@ class StockProposal:
                 zmin=min_val,
                 zmax=max_val,
                 colorbar=dict(
-                    title="PnL",
+                    title=dict(
+                        text="PnL",
+                        font=dict(
+                            color="white", size=18
+                        ),  # 设置颜色条标题的颜色和字体大小
+                    ),
                     titleside="top",  # 将颜色条标题放在顶部
                     tickfont=dict(size=18, color="white"),
                     thickness=20,  # 增加颜色条厚度
@@ -2475,6 +2486,7 @@ class StockProposal:
             yaxis=dict(
                 showgrid=True,
                 gridcolor="rgba(255, 255, 255, 0.5)",
+                zeroline=False,
                 showticklabels=False,
                 # title="Week",
                 autorange="reversed",  # 反转Y轴，使得最新的一周在最下方
