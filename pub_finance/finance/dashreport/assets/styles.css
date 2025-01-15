@@ -3,12 +3,9 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  /* background-image: url('./seeking.png');
-  background-size: cover;
-  background-position: center;
-  margin: 0; */
 
-  /* light mode不需要指定背景色和字体颜色 */
+  /* light mode */
+  /* 不需要指定背景色和字体颜色 */
   /* background-color: #f6f8f9; */
   /* color: #333; */
 
@@ -28,9 +25,6 @@ body {
   -webkit-font-smoothing: antialiased !important;
   /* 在Webkit浏览器中启用字体抗锯齿 */
   text-rendering: optimizeLegibility;
-  /* 优化文本可读性 */
-
-  /* 使用系统字体 */
 
 }
 
@@ -81,7 +75,10 @@ body {
   /* background: rgb(255, 255, 255); */
   /* background-color: rgb(255, 255, 255); */
   border-radius: 5px;
-  box-shadow: 0 0 10px lightgrey;
+  /* light mode */
+  /* box-shadow: 0 0 10px lightgrey; */
+  /* dark mode */
+  box-shadow: 0 8px 16px 0 #2196F3, 0 16px 32px 0 #2196F3;
 }
 
 .pagetwo {
@@ -401,10 +398,12 @@ li {
 
 .subtitle {
   position: relative;
+
   /* light mode */
   /* color: #000000; */
   /* dark mode */
   color: #ffffff;
+
   left: 0;
   height: 20%;
   margin: 0mm;
@@ -446,10 +445,12 @@ a:link {
 
 /* visited link */
 a:visited {
+
   /* light mode */
   /* color: #000000; */
   /* dark mode */
   color: #ffffff;
+
   text-decoration: none;
 }
 
