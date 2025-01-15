@@ -510,7 +510,7 @@ def create_layout(app, theme):
                             ),
                         ],
                         className="row",
-                        style={"margin-bottom": "35px"},
+                        # style={"margin-bottom": "35px"},
                     ),
                 ],
                 className="sub_page",
