@@ -335,6 +335,15 @@ def make_dash_format_table(df, cols_format):
             and cols_format[col][1] == "format"
         ):
             style_data_conditional.extend(data_bars(df, col))
+        elif col not in cols_format:
+            style_data_conditional.extend(
+                {
+                    "if": {
+                        "column_id": col,
+                    },
+                    "backgroundColor": "transparent",
+                }
+            )
 
     return dash_table.DataTable(
         id="idAssignedToDataTable",
@@ -357,7 +366,7 @@ def make_dash_format_table(df, cols_format):
         style_header={
             "position": "sticky",
             "top": "0",
-            "background-color": "transparent",
+            "backgroundColor": "transparent",
             "z-index": 1000,
             "fontWeight": "bold",
             "white-space": "normal",
@@ -367,11 +376,14 @@ def make_dash_format_table(df, cols_format):
             "textAlign": "left",
             "overflow": "hidden",
             "textOverflow": "ellipsis",
-            "background-color": "transparent",
+            "backgroundColor": "transparent",
             # "font-size": "1rem",
             "margin": "0px",
             "margin-bottom": "-20px",
             "padding": "0px",
+        },
+        style_data={
+            "backgroundColor": "transparent",
         },
         style_data_conditional=style_data_conditional,
     )

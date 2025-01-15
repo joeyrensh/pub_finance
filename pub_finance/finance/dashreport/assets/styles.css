@@ -34,16 +34,7 @@ body {
 
 }
 
-.dash-spreadsheet-container {
-  line-height: 1.0 !important;
 
-}
-
-.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
-  background: none;
-  background-color: transparent;
-  --hover: #d3d3d382;
-}
 
 .loading-dot {
   border-radius: 50%;
@@ -236,6 +227,16 @@ img {
     brightness(110%) contrast(120%) saturate(120%);
   /* transform: rotateX(5deg) rotateY(3deg) scale(1.05); */
   /* transition: transform 0.3s ease; */
+}
+
+.dash-spreadsheet-container {
+  line-height: 1.0 !important;
+
+}
+
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
+  background: none;
+  --hover: #d3d3d382;
 }
 
 
