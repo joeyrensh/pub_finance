@@ -1501,7 +1501,7 @@ class StockProposal:
             "rgb(31,120,180)",
             "rgb(51,160,44)",
             "rgb(251,154,153)",
-            "rgb(215,89,88)",
+            "rgb(242,51,53)",
             "rgb(227,26,28)",
         ]
         sparkdata_strategy_track = spark.sql(
@@ -3466,11 +3466,11 @@ class StockProposal:
         fig.update_layout(
             title={
                 "text": "Last 120 days trade info",
-                "y": 0.95,
-                "x": 0.05,
-                "xanchor": "left",
-                "yanchor": "top",
-                "font": dict(family="Courier", size=20, color="black"),
+                "y": 0.9,
+                "x": 0.5,
+                # "xanchor": "left",
+                # "yanchor": "top",
+                "font": dict(size=20, color="black"),
             },
             xaxis=dict(
                 title="Trade Date",
@@ -3509,8 +3509,11 @@ class StockProposal:
                 font=dict(family="Courier", size=20, color="black"),
             ),
             barmode="stack",
+            bargap=0.5,
+            bargroupgap=0.5,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
+            margin=dict(t=0, b=0, l=0, r=0),
         )
 
         fig.write_image(
@@ -3523,11 +3526,11 @@ class StockProposal:
         fig.update_layout(
             title={
                 "text": "Last 120 days trade info",
-                "y": 0.95,
-                "x": 0.05,
-                "xanchor": "left",
-                "yanchor": "top",
-                "font": dict(family="Courier", size=20, color="white"),
+                "y": 0.9,
+                "x": 0.5,
+                # "xanchor": "left",
+                # "yanchor": "top",
+                "font": dict(size=20, color="white"),
             },
             xaxis=dict(
                 title="Trade Date",
@@ -3566,8 +3569,11 @@ class StockProposal:
                 font=dict(family="Courier", size=20, color="white"),
             ),
             barmode="stack",
+            bargap=0.5,
+            bargroupgap=0.5,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
+            margin=dict(t=0, b=0, l=0, r=0),
         )
 
         fig.write_image(
