@@ -551,7 +551,7 @@ a:active {
     color: #FF4136;
     border-radius: 2px;
     box-shadow: 0 0 2px lightgrey;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     filter: contrast(105%) saturate(105%);
   }
 
@@ -567,7 +567,7 @@ a:active {
 
   .table {
     width: 100%;
-    font-size: 1rem;
+    font-size: 0.9rem;
     border-spacing: 0;
     border-collapse: collapse;
     margin: 0;
