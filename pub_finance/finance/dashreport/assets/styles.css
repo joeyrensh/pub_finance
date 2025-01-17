@@ -24,14 +24,7 @@ body {
 
 }
 
-/* 针对暗模式的样式 */
-@media (prefers-color-scheme: dark) {
-  body {
-    /* dark mode*/
-    background-color: #0e1012;
-    color: #ffffff;
-  }
-}
+
 
 
 
@@ -85,13 +78,7 @@ body {
 
 }
 
-/* 针对暗模式的样式 */
-@media (prefers-color-scheme: dark) {
-  .page {
-    /* dark mode */
-    box-shadow: 0 0 10px #2196f3;
-  }
-}
+
 
 .pagetwo {
   position: relative;
@@ -127,13 +114,6 @@ body {
   text-align: center;
 }
 
-/* 针对暗模式的样式 */
-@media (prefers-color-scheme: dark) {
-  .login-box {
-    /* dark mode */
-    box-shadow: 0 0 10px #607D8B;
-  }
-}
 
 .input-box {
   width: 100%;
@@ -377,14 +357,7 @@ li {
   color: black;
 }
 
-/* 针对暗模式的样式 */
-@media (prefers-color-scheme: dark) {
 
-  /* dark mode */
-  .text_color {
-    color: white;
-  }
-}
 
 
 .number_color {
@@ -442,14 +415,7 @@ li {
   padding-right: 60px;
 }
 
-/* 针对暗模式的样式 */
-@media (prefers-color-scheme: dark) {
 
-  /* dark mode */
-  .subtitle {
-    color: white;
-  }
-}
 
 .logo {
   height: 30px;
@@ -488,14 +454,7 @@ a:visited {
   text-decoration: none;
 }
 
-/* 针对暗模式的样式 */
-@media (prefers-color-scheme: dark) {
 
-  a:visited {
-    /* dark mode */
-    color: #ffffff;
-  }
-}
 
 /* mouse over link */
 a:hover {
@@ -560,6 +519,41 @@ a:active {
   border-style: solid;
 }
 
+
+
+/* 针对暗模式的样式 */
+@media (prefers-color-scheme: dark) {
+  body {
+    /* dark mode*/
+    background-color: #0e1012;
+    color: #ffffff;
+  }
+
+  .page {
+    /* dark mode */
+    box-shadow: 0 0 10px #2196f3;
+  }
+
+  .login-box {
+    /* dark mode */
+    box-shadow: 0 0 10px #607D8B;
+  }
+
+  /* dark mode */
+  .text_color {
+    color: white;
+  }
+
+  /* dark mode */
+  .subtitle {
+    color: white;
+  }
+
+  a:visited {
+    /* dark mode */
+    color: #ffffff;
+  }
+}
 
 /* for screens smaller than 768px */
 @media only screen and (max-width: 550px) {
