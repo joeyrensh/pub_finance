@@ -9,13 +9,14 @@ from pages import (
 )
 from flask import Flask
 from flask_compress import Compress
+from urllib.parse import urlparse, parse_qs
 
 
 server = Flask(__name__)
 Compress(server)
 
 VALID_USERNAME_PASSWORD_PAIRS = {"admin": "123"}
-theme = "dark"
+# theme = "dark"
 app = dash.Dash(
     __name__,
     meta_tags=[
@@ -126,11 +127,15 @@ def handle_login(n_clicks, username, password):
 
 @app.callback(
     Output("page-content", "children"),
-    [
-        Input("url", "pathname"),
-    ],
+    [Input("url", "pathname"), State("url", "search")],
 )
-def update_page_content(pathname):
+def update_page_content(pathname, search):
+    # 解析查询字符串以获取 theme 参数
+    parsed_url = urlparse(search)
+    query_params = parse_qs(parsed_url.query)
+    theme = query_params.get("theme", ["dark"])[
+        0
+    ]  # 如果没有指定 theme，默认为 'default'
     if pathname == "/dash-financial-report/overview":
         # return overview.create_layout(app)
         return cnstock_performance.create_layout(app, theme)
