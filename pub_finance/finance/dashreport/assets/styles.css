@@ -6,12 +6,8 @@ body {
 
   /* light mode */
   /* 不需要指定背景色和字体颜色 */
-  /* background-color: #f6f8f9; */
-  /* color: #333; */
-
-  /* dark mode*/
-  background-color: #0e1012;
-  color: #ffffff;
+  background-color: #f6f8f9;
+  color: #333;
 
   font-size: 1.2rem;
   line-height: 1.0;
@@ -26,6 +22,15 @@ body {
   /* 在Webkit浏览器中启用字体抗锯齿 */
   text-rendering: optimizeLegibility;
 
+}
+
+/* 针对暗模式的样式 */
+@media (prefers-color-scheme: dark) {
+  body {
+    /* dark mode*/
+    background-color: #0e1012;
+    color: #ffffff;
+  }
 }
 
 
@@ -76,9 +81,16 @@ body {
   /* background-color: rgb(255, 255, 255); */
   border-radius: 5px;
   /* light mode */
-  /* box-shadow: 0 0 10px lightgrey; */
-  /* dark mode */
-  box-shadow: 0 0 10px #2196f3;
+  box-shadow: 0 0 10px lightgrey;
+
+}
+
+/* 针对暗模式的样式 */
+@media (prefers-color-scheme: dark) {
+  .page {
+    /* dark mode */
+    box-shadow: 0 0 10px #2196f3;
+  }
 }
 
 .pagetwo {
@@ -109,12 +121,18 @@ body {
   padding: 20px;
   border-radius: 10px;
   /* light mode */
-  /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
-  /* dark mode */
-  box-shadow: 0 0 10px #607D8B;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 
   filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(110%) contrast(105%) saturate(105%);
   text-align: center;
+}
+
+/* 针对暗模式的样式 */
+@media (prefers-color-scheme: dark) {
+  .login-box {
+    /* dark mode */
+    box-shadow: 0 0 10px #607D8B;
+  }
 }
 
 .input-box {
@@ -355,14 +373,19 @@ li {
 }
 
 /* light mode */
-/* .text_color {
-  color: black;
-} */
-
-/* dark mode */
 .text_color {
-  color: white;
+  color: black;
 }
+
+/* 针对暗模式的样式 */
+@media (prefers-color-scheme: dark) {
+
+  /* dark mode */
+  .text_color {
+    color: white;
+  }
+}
+
 
 .number_color {
   color: #FF4136;
@@ -404,9 +427,8 @@ li {
   position: relative;
 
   /* light mode */
-  /* color: #000000; */
-  /* dark mode */
-  color: #ffffff;
+  color: #000000;
+
 
   left: 0;
   height: 20%;
@@ -418,6 +440,15 @@ li {
   padding-bottom: 1px;
   padding-left: 30px;
   padding-right: 60px;
+}
+
+/* 针对暗模式的样式 */
+@media (prefers-color-scheme: dark) {
+
+  /* dark mode */
+  .subtitle {
+    color: white;
+  }
 }
 
 .logo {
@@ -451,11 +482,19 @@ a:link {
 a:visited {
 
   /* light mode */
-  /* color: #000000; */
-  /* dark mode */
-  color: #ffffff;
+  color: #000000;
+
 
   text-decoration: none;
+}
+
+/* 针对暗模式的样式 */
+@media (prefers-color-scheme: dark) {
+
+  a:visited {
+    /* dark mode */
+    color: #ffffff;
+  }
 }
 
 /* mouse over link */
