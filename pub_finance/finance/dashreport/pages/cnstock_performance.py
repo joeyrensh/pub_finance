@@ -183,7 +183,7 @@ def create_layout(app, theme):
     }
     return html.Div(
         [
-            Header(app),
+            Header(app, theme),
             # page 2
             html.Div(
                 [
