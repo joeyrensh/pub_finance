@@ -130,7 +130,7 @@ def exec_btstrategy(date):
     # plt.style.use('dark_background')
 
     fig, (ax0, ax1) = plt.subplots(
-        1, 2, gridspec_kw={"width_ratios": [1, 4]}, figsize=(20, 8)
+        1, 2, gridspec_kw={"width_ratios": [1, 4]}, figsize=(20, 10)
     )
 
     """ 
