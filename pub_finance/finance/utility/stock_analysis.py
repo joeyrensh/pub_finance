@@ -1611,9 +1611,6 @@ class StockProposal:
             margin=dict(t=0, b=0, l=0, r=0),
         )
 
-        fig_width, fig_height = 1440, 700
-        scale_factor = 1.2
-
         if self.market == "us":
             fig.write_image(
                 "./images/us_strategy_tracking_light.png",
@@ -1810,8 +1807,7 @@ class StockProposal:
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
         )
-        fig_width, fig_height = 1440, 900
-        scale_factor = 1.2
+
         if self.market == "us":
             fig.write_image(
                 "./images/us_trade_trend_light.png",
@@ -2406,8 +2402,6 @@ class StockProposal:
                 # borderwidth=1,  # 设置边框宽度
                 # bgcolor="rgba(255, 255, 255, 0.7)",  # 设置背景色为半透明白色
             )
-        fig_width, fig_height = 1440, 700
-        scale_factor = 1.2
 
         if self.market == "us":
             fig.write_image(
@@ -2545,8 +2539,6 @@ class StockProposal:
                 # borderwidth=1,  # 设置边框宽度
                 # bgcolor="rgba(255, 255, 255, 0.7)",  # 设置背景色为半透明白色
             )
-        fig_width, fig_height = 1440, 700
-        scale_factor = 1.2
 
         if self.market == "us":
             fig.write_image(
@@ -3432,7 +3424,7 @@ class StockProposal:
 
         # 设置图像的宽度和高度（例如，1920x1080像素）
         fig_width, fig_height = 1440, 900
-        scale_factor = 1
+        scale_factor = 1.2
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
