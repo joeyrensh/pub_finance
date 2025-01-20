@@ -17,6 +17,7 @@ Compress(server)
 
 VALID_USERNAME_PASSWORD_PAIRS = {"admin": "123"}
 # theme = "dark"
+
 app = dash.Dash(
     __name__,
     meta_tags=[
