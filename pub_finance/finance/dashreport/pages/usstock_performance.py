@@ -257,12 +257,8 @@ def create_layout(app, theme):
                                         },
                                     ),
                                 ],
-                                className="twelve columns",
-                            )
-                        ],
-                    ),
-                    html.Div(
-                        [
+                                className="six columns",
+                            ),
                             html.Div(
                                 [
                                     # html.Br([]),
@@ -279,8 +275,8 @@ def create_layout(app, theme):
                                         },
                                     ),
                                 ],
-                                className="twelve columns",
-                            )
+                                className="six columns",
+                            ),
                         ],
                     ),
                     # Row
