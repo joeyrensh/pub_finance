@@ -134,7 +134,7 @@ def update_page_content(pathname, search):
     # 解析查询字符串以获取 theme 参数
     parsed_url = urlparse(search)
     query_params = parse_qs(parsed_url.query)
-    theme = query_params.get("theme", ["dark"])[
+    theme = query_params.get("theme", ["light"])[
         0
     ]  # 如果没有指定 theme，默认为 'default'
     if pathname == "/dash-financial-report/overview":
