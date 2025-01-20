@@ -10,7 +10,7 @@ def create_layout(app, theme):
     PATH = pathlib.Path(__file__).parent
 
     # 根据 css_class 动态选择图像文件名后缀
-    image_suffix = "_light" if theme == "light" else "_dark"
+    image_suffix = "_dark" if theme == "dark" else "_light"
 
     # 收益率曲线
     IMAGE_PATH = PATH.joinpath("../../images").resolve()
