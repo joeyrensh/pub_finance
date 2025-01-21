@@ -9,7 +9,7 @@ body {
   background-color: #f6f8f9;
   color: #333;
 
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   line-height: 1.0;
   /* font-weight: 500; */
   /* font-family: inherit; */
@@ -206,7 +206,7 @@ p.padded {
 
 table {
   width: 100%;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   border-spacing: 0;
   border-collapse: collapse;
   margin: 0;
@@ -321,7 +321,7 @@ h5 {
 }
 
 h6 {
-  font-size: 1.425rem;
+  font-size: 1.5rem;
 }
 
 .risk-reward {
@@ -600,7 +600,7 @@ a:active {
 
   .table {
     width: 100%;
-    font-size: 0.9rem;
+    font-size: 1rem;
     border-spacing: 0;
     border-collapse: collapse;
     margin: 0;
@@ -677,6 +677,10 @@ a:active {
 
   h5 {
     font-size: 1.5rem;
+  }
+
+  h6 {
+    font-size: 1.2rem;
   }
 
   .main-title {
