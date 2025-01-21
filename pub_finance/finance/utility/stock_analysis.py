@@ -1572,7 +1572,7 @@ class StockProposal:
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="black", size=20),
-                showline=True,
+                showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis=dict(
@@ -1582,7 +1582,7 @@ class StockProposal:
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="black", size=20),
-                showline=True,
+                showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis2=dict(
@@ -1637,7 +1637,7 @@ class StockProposal:
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="white", size=20),
-                showline=True,
+                showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
@@ -1647,7 +1647,7 @@ class StockProposal:
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="white", size=20),
-                showline=True,
+                showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
@@ -1769,7 +1769,7 @@ class StockProposal:
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="black", size=font_size),
-                showline=True,
+                showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis=dict(
@@ -1779,7 +1779,7 @@ class StockProposal:
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="black", size=font_size),
-                showline=True,
+                showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis2=dict(
@@ -1838,7 +1838,7 @@ class StockProposal:
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="white", size=font_size),
-                showline=True,
+                showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
@@ -1848,7 +1848,7 @@ class StockProposal:
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="white", size=font_size),
-                showline=True,
+                showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
@@ -1940,7 +1940,7 @@ class StockProposal:
             mirror=True,
             ticks="outside",
             tickfont=dict(color="black", size=font_size),
-            showline=True,
+            showline=False,
             gridcolor="rgba(0, 0, 0, 0.5)",
             title_font=dict(size=title_font_size, family="Courier", color="black"),
         )
@@ -1948,7 +1948,7 @@ class StockProposal:
             mirror=True,
             ticks="outside",
             tickfont=dict(color="black", size=font_size),
-            showline=True,
+            showline=False,
             gridcolor="rgba(0, 0, 0, 0.5)",
             title_font=dict(size=title_font_size, family="Courier", color="black"),
         )
@@ -1987,7 +1987,7 @@ class StockProposal:
             mirror=True,
             ticks="outside",
             tickfont=dict(color="white", size=font_size),
-            showline=True,
+            showline=False,
             gridcolor="rgba(255, 255, 255, 0.5)",
             title_font=dict(size=title_font_size, family="Courier", color="white"),
         )
@@ -1995,7 +1995,7 @@ class StockProposal:
             mirror=True,
             ticks="outside",
             tickfont=dict(color="white", size=font_size),
-            showline=True,
+            showline=False,
             gridcolor="rgba(255, 255, 255, 0.5)",
             title_font=dict(size=title_font_size, family="Courier", color="white"),
         )
@@ -2074,7 +2074,7 @@ class StockProposal:
             mirror=True,
             ticks="outside",
             tickfont=dict(color="black", size=font_size),
-            showline=True,
+            showline=False,
             gridcolor="rgba(0, 0, 0, 0.5)",
             title_font=dict(size=title_font_size, family="Courier", color="black"),
         )
@@ -2082,7 +2082,7 @@ class StockProposal:
             mirror=True,
             ticks="inside",
             tickfont=dict(color="black", size=font_size),
-            showline=True,
+            showline=False,
             gridcolor="rgba(0, 0, 0, 0.5)",
             title_font=dict(size=title_font_size, family="Courier", color="black"),
             title="",  # 设置为空字符串以隐藏y轴标题
@@ -2129,7 +2129,7 @@ class StockProposal:
             mirror=True,
             ticks="outside",
             tickfont=dict(color="white", size=font_size),
-            showline=True,
+            showline=False,
             gridcolor="rgba(255, 255, 255, 0.5)",
             title_font=dict(size=title_font_size, family="Courier", color="white"),
         )
@@ -2137,7 +2137,7 @@ class StockProposal:
             mirror=True,
             ticks="inside",
             tickfont=dict(color="white", size=font_size),
-            showline=True,
+            showline=False,
             gridcolor="rgba(255, 255, 255, 0.5)",
             title_font=dict(size=title_font_size, family="Courier", color="white"),
             title="",  # 设置为空字符串以隐藏y轴标题
@@ -3470,7 +3470,7 @@ class StockProposal:
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="black"),
-                showline=True,
+                showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis=dict(
@@ -3480,7 +3480,7 @@ class StockProposal:
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="black"),
-                showline=True,
+                showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis2=dict(
@@ -3530,7 +3530,7 @@ class StockProposal:
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="white"),
-                showline=True,
+                showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
@@ -3540,7 +3540,7 @@ class StockProposal:
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="white"),
-                showline=True,
+                showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
