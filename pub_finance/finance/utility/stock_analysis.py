@@ -2437,20 +2437,20 @@ class StockProposal:
                 ygap=10,  # 设置行之间的间隙为10像素
                 # 定义自定义颜色比例
                 colorscale=[
-                    [0, "rgba(6, 89, 6, 0.7)"],
+                    [0, "rgba(60, 140, 60, 0.8)"],  # 更亮的绿色，增加透明度
                     [
                         (mid_val - min_val) / (max_val - min_val) / 2,
-                        "rgba(11, 158, 11, 0.5)",
+                        "rgba(140, 220, 140, 0.6)",  # 更亮的浅绿色，降低透明度
                     ],
                     [
                         (mid_val - min_val) / (max_val - min_val),
-                        "rgba(255, 255, 255, 0.5)",
+                        "rgba(0, 0, 0, 0.7)",  # 更亮的白色，增加透明度
                     ],
                     [
                         1 - (max_val - mid_val) / (max_val - min_val) / 2,
-                        "rgba(212, 55, 55, 0.5)",
+                        "rgba(240, 80, 80, 0.6)",  # 更亮的红色，降低透明度
                     ],
-                    [1, "rgba(207, 12, 12, 0.7)"],
+                    [1, "rgba(220, 40, 40, 0.8)"],  # 更亮的深红色，增加透明度
                 ],
                 zmin=min_val,
                 zmax=max_val,
