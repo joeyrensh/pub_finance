@@ -556,7 +556,7 @@ a:active {
 }
 
 /* for screens smaller than 768px */
-@media only screen and (max-width: 550px) {
+@media only screen and (max-width: 900px) {
 
   .background {
     background-image: url('/assets/buyahouse-background-logo.png');
