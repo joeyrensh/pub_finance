@@ -1039,12 +1039,8 @@ class StockProposal:
             ), tmp2 AS (
                 SELECT symbol
                     ,sell_date
-                    ,COUNT(symbol) AS his_trade_cnt
                     ,SUM(DATEDIFF(sell_date, buy_date)) AS his_days
-                    ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price >=0, 1, 0)) AS pos_cnt
-                    ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price < 0, 1, 0)) AS neg_cnt
                     ,SUM(IF(sell_date IS NOT NULL, adj_price * (-adj_size) - base_price * base_size, 0)) AS his_pnl
-                    ,SUM(IF(sell_date IS NOT NULL, base_price * base_size, 0)) AS his_base_price
                     ,MAX(sell_strategy) AS sell_strategy
                 FROM  tmp11
                 GROUP BY symbol, sell_date
@@ -1066,10 +1062,7 @@ class StockProposal:
                 , t1.pnl_ratio
                 , t3.industry
                 , t3.name
-                , COALESCE(t2.his_trade_cnt, 0) AS avg_trans
-                , COALESCE(t2.his_days, 0) / t2.his_trade_cnt AS avg_days
-                , COALESCE(t2.pos_cnt,0) / (COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0)) AS win_rate
-                , COALESCE(t2.his_pnl,0) / COALESCE(t2.his_base_price,0) AS total_pnl_ratio
+                , COALESCE(t2.his_days, 0) AS his_days
                 , t2.sell_strategy
                 , CASE WHEN t4.pe IS NULL OR t4.pe = '' OR t4.pe = '-'
                     OR NOT t4.pe RLIKE '^-?[0-9]+(\\.[0-9]+)?$' OR t5.new IS NULL THEN '-'
@@ -1125,10 +1118,7 @@ class StockProposal:
                     "adjbase": "ADJBASE",
                     "pnl": "PNL",
                     "pnl_ratio": "PNL RATIO",
-                    "avg_trans": "AVG TRANS",
-                    "avg_days": "AVG DAYS",
-                    "win_rate": "WIN RATE",
-                    "total_pnl_ratio": "TOTAL PNL RATIO",
+                    "his_days": "HIS DAYS",
                     "industry": "IND",
                     "name": "NAME",
                     "sell_strategy": "STRATEGY",
@@ -1144,31 +1134,21 @@ class StockProposal:
             html2 = (
                 "<h2>Close Position List Last 5 Days</h2>"
                 "<table>"
-                + dfdata9.style.hide(axis=1, subset=["PNL", "pnl_growth", "AVG TRANS"])
+                + dfdata9.style.hide(axis=1, subset=["PNL", "pnl_growth"])
                 .format(
                     {
                         "BASE": "{:.2f}",
                         "ADJBASE": "{:.2f}",
+                        "HIS DAYS": "{:.2f}",
                         "PNL RATIO": "{:.2%}",
-                        "AVG TRANS": "{:.2f}",
-                        "AVG DAYS": "{:.0f}",
-                        "WIN RATE": "{:.2%}",
-                        "TOTAL PNL RATIO": "{:.2%}",
                     }
                 )
                 .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
                 .bar(
-                    subset=["PNL RATIO", "TOTAL PNL RATIO"],
+                    subset=["PNL RATIO"],
                     align="mid",
                     color=["#99CC66", "#FF6666"],
                     vmin=-0.8,
-                    vmax=0.8,
-                )
-                .bar(
-                    subset=["WIN RATE"],
-                    align="left",
-                    color=["#99CC66", "#FF6666"],
-                    vmin=0,
                     vmax=0.8,
                 )
                 .set_properties(
@@ -3171,7 +3151,6 @@ class StockProposal:
                     ORDER BY symbol
                         ,date
                         ,trade_type) t
-                WHERE date >= DATE_ADD('{}', -120)
             ), tmp11 AS (
                 SELECT symbol
                     ,l_date AS buy_date
@@ -3183,18 +3162,16 @@ class StockProposal:
                     ,size AS adj_size
                     ,strategy AS sell_strategy
                     ,ROW_NUMBER() OVER(PARTITION BY symbol ORDER BY l_date DESC) AS row_num
-                FROM tmp1 WHERE trade_type = 'sell'
+                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -120)
+                AND  symbol NOT IN (SELECT symbol FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL)
             ), tmp2 AS (
                 SELECT symbol
-                    ,COUNT(symbol) AS his_trade_cnt
+                    ,sell_date
                     ,SUM(DATEDIFF(sell_date, buy_date)) AS his_days
-                    ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price >=0, 1, 0)) AS pos_cnt
-                    ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price < 0, 1, 0)) AS neg_cnt
                     ,SUM(IF(sell_date IS NOT NULL, adj_price * (-adj_size) - base_price * base_size, 0)) AS his_pnl
-                    ,SUM(IF(sell_date IS NOT NULL, base_price * base_size, 0)) AS his_base_price
                     ,MAX(sell_strategy) AS sell_strategy
                 FROM  tmp11
-                GROUP BY symbol
+                GROUP BY symbol, sell_date
             ), tmp3 AS (
                 SELECT symbol
                     ,name
@@ -3210,11 +3187,8 @@ class StockProposal:
                 , t1.pnl
                 , t1.pnl_ratio
                 , t3.name
-                , COALESCE(t2.his_trade_cnt, 0) AS avg_trans
-                , COALESCE(t2.his_days, 0) / t2.his_trade_cnt AS avg_days
-                , COALESCE(t2.pos_cnt,0) / (COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0)) AS win_rate
-                , COALESCE(t2.his_pnl,0) / COALESCE(t2.his_base_price,0) AS total_pnl_ratio
-                , t2.sell_strategy
+                , COALESCE(t2.his_days, 0) AS his_days
+                , t2.sell_strategy AS sell_strategy           
             FROM (
                 SELECT symbol
                     , buy_date
@@ -3227,7 +3201,7 @@ class StockProposal:
                                                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
                                                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t 
                                                 ) tt WHERE row_num = 5)
-                ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol 
+                ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol AND t1.sell_date = t2.sell_date
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
             """.format(end_date)
         )
@@ -3244,10 +3218,7 @@ class StockProposal:
                     "adjbase": "ADJBASE",
                     "pnl": "PNL",
                     "pnl_ratio": "PNL RATIO",
-                    "avg_trans": "AVG TRANS",
-                    "avg_days": "AVG DAYS",
-                    "win_rate": "WIN RATE",
-                    "total_pnl_ratio": "TOTAL PNL RATIO",
+                    "his_days": "HIS DAYS",
                     "name": "NAME",
                     "sell_strategy": "STRATEGY",
                 },
@@ -3264,25 +3235,15 @@ class StockProposal:
                         "BASE": "{:.2f}",
                         "ADJBASE": "{:.2f}",
                         "PNL RATIO": "{:.2%}",
-                        "AVG TRANS": "{:.2f}",
-                        "AVG DAYS": "{:.0f}",
-                        "WIN RATE": "{:.2%}",
-                        "TOTAL PNL RATIO": "{:.2%}",
+                        "HIS DAYS": "{:.0f}",
                     }
                 )
                 .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
                 .bar(
-                    subset=["PNL RATIO", "TOTAL PNL RATIO"],
+                    subset=["PNL RATIO"],
                     align="mid",
                     color=["#99CC66", "#FF6666"],
                     vmin=-0.8,
-                    vmax=0.8,
-                )
-                .bar(
-                    subset=["WIN RATE"],
-                    align="left",
-                    color=["#99CC66", "#FF6666"],
-                    vmin=0,
                     vmax=0.8,
                 )
                 .set_properties(

@@ -117,7 +117,7 @@ def create_layout(app, theme):
     # 减仓明细
     df_detail_short = pd.read_csv(
         DATA_PATH.joinpath("cn_stockdetail_short.csv"),
-        usecols=[i for i in range(1, 16)],
+        usecols=[i for i in range(1, 14)],
     )
     df_detail_short["INDEX"] = df_detail_short.index
     df_detail_short = df_detail_short[
@@ -133,9 +133,7 @@ def create_layout(app, theme):
             "ADJBASE",
             "PNL",
             "PNL RATIO",
-            "AVG DAYS",
-            "WIN RATE",
-            "TOTAL PNL RATIO",
+            "HIS DAYS",
             "STRATEGY",
         ]
     ].copy()
@@ -144,9 +142,7 @@ def create_layout(app, theme):
         "ADJBASE": ("float",),
         "PNL": ("float", "format"),
         "PNL RATIO": ("ratio", "format"),
-        "AVG DAYS": ("float",),
-        "WIN RATE": ("ratio", "format"),
-        "TOTAL PNL RATIO": ("ratio", "format"),
+        "HIS DAYS": ("float",),
     }
     # ETF持仓明细
     df_etf = pd.read_csv(
