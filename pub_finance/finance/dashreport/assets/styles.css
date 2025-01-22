@@ -558,6 +558,7 @@ a:active {
 /* for screens smaller than 768px */
 @media only screen and (max-width: 900px) {
 
+
   .background {
     background-image: url('/assets/buyahouse-background-logo.png');
     background-position: bottom;
@@ -736,7 +737,7 @@ a:active {
 
 }
 
-@media only screen and (max-width: 400px) {
+/* @media only screen and (max-width: 400px) {
   .full-view-link {
     width: 15%;
     margin-left: 0px;
@@ -751,4 +752,4 @@ a:active {
     width: 40%;
     margin-left: 50%;
   }
-}
+} */
