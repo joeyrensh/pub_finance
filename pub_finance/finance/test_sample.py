@@ -26,7 +26,7 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cn")
+    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cnetf")
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
@@ -34,14 +34,14 @@ def exec_btstrategy(date):
     cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
     # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
-    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
+    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=2)
     cerebro.addsizer(FixedAmount, amount=10000)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "cn").get_backtrader_data_feed()
+    list = TickerInfo(date, "cn").get_etf_backtrader_data_feed()
     """ 初始资金100M """
-    start_cash = len(list) * 10000
+    start_cash = len(list) * 20000
     cerebro.broker.setcash(start_cash)
     """ 循环初始化数据进入cerebro """
     for h in list:
@@ -229,7 +229,6 @@ def exec_btstrategy(date):
 
     # 主轴定位器：每 5 个月显示一个日期：根据具体天数来做排版
     ax2.xaxis.set_major_locator(ticker.MultipleLocator(120))
-
     # 同时绘制双轴的图例
     h1, l1 = ax1.get_legend_handles_labels()
 
@@ -251,7 +250,7 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="black")
     ax2.spines["right"].set_color("black")
     fig.tight_layout()
-    plt.savefig("./images/cn_tr_light.png", transparent=True, dpi=600)
+    plt.savefig("./images/cnetf_tr_light.png", transparent=True, dpi=600)
     # 更改表格的网格颜色
     for key, cell in table.get_celld().items():
         cell.set_edgecolor("white")
@@ -270,7 +269,7 @@ def exec_btstrategy(date):
     ax1.tick_params(axis="y", colors="white")
     ax2.spines["right"].set_color("white")
     fig.tight_layout()
-    plt.savefig("./images/cn_tr_dark.png", transparent=True, dpi=600)
+    plt.savefig("./images/cnetf_tr_dark.png", transparent=True, dpi=600)
 
     return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 
@@ -306,14 +305,14 @@ if __name__ == "__main__":
     # em.get_cn_daily_stock_info(trade_date)
 
     """ 执行bt相关策略 """
-    # cash, final_value = exec_btstrategy(trade_date)
+    cash, final_value = exec_btstrategy(trade_date)
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(11389289.99, 20377850.99)
+    StockProposal("cn", trade_date).send_etf_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()
