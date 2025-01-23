@@ -520,52 +520,6 @@ a:active {
   color: #000000;
 }
 
-
-
-/* 针对暗模式的样式 */
-@media (prefers-color-scheme: dark) {
-  body {
-    /* dark mode*/
-    background-color: #171b26;
-    /* background: linear-gradient(0deg, #009688 0%, #17151a 100%); */
-    color: #ffffff;
-  }
-
-  .page {
-    /* dark mode */
-    box-shadow: 0 0 10px #607D8B;
-  }
-
-  .login-box {
-    /* dark mode */
-    box-shadow: 0 0 10px #607D8B;
-  }
-
-  /* dark mode */
-  .text_color {
-    color: white;
-  }
-
-  /* dark mode */
-  .subtitle {
-    color: white;
-  }
-
-  a:visited {
-    /* dark mode */
-    color: #ffffff;
-  }
-
-  #learn-more-button {
-    color: #9fa6b7
-  }
-
-  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
-    border-color: rgba(255, 255, 255, 0.5) !important;
-  }
-
-}
-
 @media only screen and (max-device-width: 1200px) {
   body {
     -webkit-text-size-adjust: 100%;
@@ -625,7 +579,7 @@ a:active {
     border-collapse: collapse;
     margin: 0;
     padding: 0;
-    border: 0px solid #050505;
+    /* border: 0px solid #050505; */
     background-color: transparent;
     filter:
       contrast(105%) saturate(110%);
@@ -893,6 +847,49 @@ a:active {
 
 }
 
+/* 针对暗模式的样式 */
+@media (prefers-color-scheme: dark) {
+  body {
+    /* dark mode*/
+    background-color: #171b26;
+    /* background: linear-gradient(0deg, #009688 0%, #17151a 100%); */
+    color: #ffffff;
+  }
+
+  .page {
+    /* dark mode */
+    box-shadow: 0 0 10px #607D8B;
+  }
+
+  .login-box {
+    /* dark mode */
+    box-shadow: 0 0 10px #607D8B;
+  }
+
+  /* dark mode */
+  .text_color {
+    color: white;
+  }
+
+  /* dark mode */
+  .subtitle {
+    color: white;
+  }
+
+  a:visited {
+    /* dark mode */
+    color: #ffffff;
+  }
+
+  #learn-more-button {
+    color: #9fa6b7
+  }
+
+  .dash-table-container * {
+    border-color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+}
 
 /* @media only screen and (max-width: 400px) {
   .full-view-link {
