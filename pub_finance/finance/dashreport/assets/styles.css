@@ -517,6 +517,7 @@ a:active {
   border: 0.5px;
   border-color: lightgrey;
   border-style: solid;
+  color: #000000;
 }
 
 
@@ -551,6 +552,10 @@ a:active {
 
   a:visited {
     /* dark mode */
+    color: #ffffff;
+  }
+
+  #learn-more-button {
     color: #ffffff;
   }
 }
