@@ -526,7 +526,8 @@ a:active {
 @media (prefers-color-scheme: dark) {
   body {
     /* dark mode*/
-    background-color: #0e1012;
+    background-color: #182028;
+    /* background: linear-gradient(0deg, #009688 0%, #17151a 100%); */
     color: #ffffff;
   }
 
