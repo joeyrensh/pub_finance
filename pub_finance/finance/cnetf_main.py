@@ -254,8 +254,8 @@ def exec_btstrategy(date):
     # 更改表格的网格颜色
     for key, cell in table.get_celld().items():
         cell.set_edgecolor("white")
-    ax1.grid(color="white")
-    ax2.grid(color="white")
+    ax1.grid(color="white", linestyle="-", linewidth=1.0)
+    ax2.grid(color="white", linestyle="-", linewidth=1.0)
     # Set the font color of the table cells to white
     for cell in table.get_celld().values():
         cell.set_text_props(color="white")
