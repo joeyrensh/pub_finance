@@ -761,7 +761,7 @@ a:active {
     border-collapse: collapse;
     margin: 0;
     padding: 0;
-    border: 0px solid #050505;
+    /* border: 0px solid #050505; */
     background-color: transparent;
     filter:
       contrast(105%) saturate(110%);
@@ -885,7 +885,7 @@ a:active {
     color: #9fa6b7
   }
 
-  .dash-table-container * {
+  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
     border-color: rgba(255, 255, 255, 0.5) !important;
   }
 
