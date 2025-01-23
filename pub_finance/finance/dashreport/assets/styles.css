@@ -715,7 +715,7 @@ a:active {
     width: 15%;
     /* margin-left: 68%; */
     float: right;
-    margin-top: 5px;
+    margin-top: 0px;
     margin-left: 0px;
     margin-right: 12px;
   }
@@ -875,7 +875,7 @@ a:active {
     width: 15%;
     /* margin-left: 68%; */
     float: right;
-    margin-top: 5px;
+    margin-top: -5px;
     margin-left: 0px;
     margin-right: 12px;
   }
