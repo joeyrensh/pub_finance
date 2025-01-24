@@ -887,7 +887,7 @@ a:active {
   }
 
   .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
-    border-color: rgba(255, 255, 255, 0.4) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
   }
 
 }
