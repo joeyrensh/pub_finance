@@ -225,7 +225,8 @@ def exec_btstrategy(date):
 
     # 不然 x 轴留有空白
     ax1.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
-    ax1.grid(True, color=(0, 0, 0, 0.5), linestyle="-", linewidth=0.7)
+    ax1.grid(color="black", linestyle="-", linewidth=0.5)
+    ax2.grid(color="black", linestyle="-", linewidth=0.5)
 
     # 主轴定位器：每 5 个月显示一个日期：根据具体天数来做排版
     ax2.xaxis.set_major_locator(ticker.MultipleLocator(120))
@@ -245,6 +246,7 @@ def exec_btstrategy(date):
     ax2.tick_params(axis="y", colors="black")
     for cell in table.get_celld().values():
         cell.set_text_props(color="black")
+        cell.set_linewidth(0.5)
     for label in ax1.get_xticklabels():
         label.set_color("black")
     ax2.yaxis.label.set_color("black")
@@ -257,10 +259,10 @@ def exec_btstrategy(date):
     # 修改为深色主题
     for cell in table.get_celld().values():
         cell.set_edgecolor("white")
-        cell.set_linewidth(0.7)
+        cell.set_linewidth(0.5)
         cell.set_text_props(color="white")
-    ax1.grid(color="white", linestyle="-", linewidth=0.7)
-    ax2.grid(color="white", linestyle="-", linewidth=0.7)
+    ax1.grid(color="white", linestyle="-", linewidth=0.5)
+    ax2.grid(color="white", linestyle="-", linewidth=0.5)
     ax1.tick_params(axis="x", colors="white")
     for label in ax1.get_xticklabels():
         label.set_color("white")
