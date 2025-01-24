@@ -236,6 +236,7 @@ img {
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
   background: none;
   --hover: #d3d3d382;
+  border-width: 0.7px !important;
 }
 
 
