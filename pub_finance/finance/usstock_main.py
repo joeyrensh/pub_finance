@@ -264,6 +264,7 @@ def exec_btstrategy(date):
     ax1.grid(color="white", linestyle="-", linewidth=0.5)
     ax2.grid(color="white", linestyle="-", linewidth=0.5)
     ax1.tick_params(axis="x", colors="white")
+    ax1.tick_params(axis="y", colors="white")
     for label in ax1.get_xticklabels():
         label.set_color("white")
     ax2.yaxis.label.set_color("white")
