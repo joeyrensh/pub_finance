@@ -2274,7 +2274,7 @@ class StockProposal:
                     ],
                     [
                         (mid_val - min_val) / (max_val - min_val),
-                        "rgba(255, 255, 255, 0.5)",
+                        "rgba(0, 0, 0, 0)",
                     ],
                     [
                         1 - (max_val - mid_val) / (max_val - min_val) / 2,
@@ -2424,7 +2424,7 @@ class StockProposal:
                     ],
                     [
                         (mid_val - min_val) / (max_val - min_val),
-                        "rgba(0, 0, 0, 0.7)",  # 更亮的白色，增加透明度
+                        "rgba(0, 0, 0, 0)",  # 更亮的白色，增加透明度
                     ],
                     [
                         1 - (max_val - mid_val) / (max_val - min_val) / 2,

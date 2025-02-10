@@ -26,7 +26,7 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cnetf")
+    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cn")
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
@@ -34,14 +34,14 @@ def exec_btstrategy(date):
     cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
     # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
-    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=2)
+    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
     cerebro.addsizer(FixedAmount, amount=10000)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "cn").get_etf_backtrader_data_feed()
+    list = TickerInfo(date, "cn").get_backtrader_data_feed()
     """ 初始资金100M """
-    start_cash = len(list) * 20000
+    start_cash = len(list) * 10000
     cerebro.broker.setcash(start_cash)
     """ 循环初始化数据进入cerebro """
     for h in list:
@@ -195,7 +195,6 @@ def exec_btstrategy(date):
     ax2.yaxis.set_ticks_position("left")
     ax1.yaxis.set_ticks_position("right")
     ax2.set_axis_off()
-    # ax2.set_axis_off()
     # 将累计收益曲线的 y 轴移至左侧
     # 绘制回撤曲线
     drawdown.plot(
@@ -225,51 +224,54 @@ def exec_btstrategy(date):
 
     # 不然 x 轴留有空白
     ax1.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
-    ax1.grid(True, color=(0, 0, 0, 0.5), linestyle="-", linewidth=1.0)
+    ax1.grid(color="black", linestyle="-", linewidth=0.8)
+    ax2.grid(color="black", linestyle="-", linewidth=0.8)
 
     # 主轴定位器：每 5 个月显示一个日期：根据具体天数来做排版
     ax2.xaxis.set_major_locator(ticker.MultipleLocator(120))
     # 同时绘制双轴的图例
     h1, l1 = ax1.get_legend_handles_labels()
-
     h2, l2 = ax2.get_legend_handles_labels()
-
     plt.legend(h1 + h2, l1 + l2, fontsize=20, loc="upper left", ncol=1)
+
+    # 设置轴样式
     for spine in ax1.spines.values():
         spine.set_visible(False)
-    # Set the font color of the table cells to white
+    ax2.spines["right"].set_color("black")
+
+    # 设置轴和标签颜色
+    ax1.tick_params(axis="x", colors="black")
+    ax1.tick_params(axis="y", colors="black")
+    ax2.tick_params(axis="y", colors="black")
     for cell in table.get_celld().values():
         cell.set_text_props(color="black")
-    # Set the font color of the trend graph
-    ax1.tick_params(axis="x", colors="black")
+        cell.set_linewidth(0.8)
     for label in ax1.get_xticklabels():
         label.set_color("black")
     ax2.yaxis.label.set_color("black")
-    ax2.tick_params(axis="y", colors="black")
     ax1.yaxis.label.set_color("black")
-    ax1.tick_params(axis="y", colors="black")
-    ax2.spines["right"].set_color("black")
+
+    # 浅色主题
     fig.tight_layout()
-    plt.savefig("./images/cnetf_tr_light.png", transparent=True, dpi=600)
-    # 更改表格的网格颜色
-    for key, cell in table.get_celld().items():
-        cell.set_edgecolor("white")
-    ax1.grid(color="white")
-    ax2.grid(color="white")
-    # Set the font color of the table cells to white
+    plt.savefig("./images/cn_tr_light.png", transparent=True, dpi=600)
+
+    # 修改为深色主题
     for cell in table.get_celld().values():
+        cell.set_edgecolor("white")
+        cell.set_linewidth(0.5)
         cell.set_text_props(color="white")
-    # Set the font color of the trend graph
+    ax1.grid(color="white", linestyle="-", linewidth=0.5)
+    ax2.grid(color="white", linestyle="-", linewidth=0.5)
     ax1.tick_params(axis="x", colors="white")
+    ax1.tick_params(axis="y", colors="white")
     for label in ax1.get_xticklabels():
         label.set_color("white")
     ax2.yaxis.label.set_color("white")
     ax2.tick_params(axis="y", colors="white")
     ax1.yaxis.label.set_color("white")
-    ax1.tick_params(axis="y", colors="white")
     ax2.spines["right"].set_color("white")
     fig.tight_layout()
-    plt.savefig("./images/cnetf_tr_dark.png", transparent=True, dpi=600)
+    plt.savefig("./images/cn_tr_dark.png", transparent=True, dpi=600)
 
     return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 
@@ -301,18 +303,18 @@ if __name__ == "__main__":
 
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
-    # em = EMCNWebCrawler()
-    # em.get_cn_daily_stock_info(trade_date)
+    em = EMCNWebCrawler()
+    em.get_cn_daily_stock_info(trade_date)
 
     """ 执行bt相关策略 """
-    cash, final_value = exec_btstrategy(trade_date)
+    # cash, final_value = exec_btstrategy(trade_date)
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_etf_btstrategy_by_email(cash, final_value)
+    StockProposal("cn", trade_date).send_btstrategy_by_email(9567863.01, 22224800.01)
 
     """ 结束进度条 """
     pbar.finish()
