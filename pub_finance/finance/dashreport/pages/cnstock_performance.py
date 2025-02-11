@@ -15,77 +15,76 @@ def create_layout(app):
 
     """ annual return """
     # dark mode
-    with open(IMAGE_PATH.joinpath("cn_tr_dark.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_trdraw_dark = base64.b64encode(image_data).decode("utf-8")
+    encoded_image_trdraw_dark = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_tr_dark.png").read_bytes()
+    ).decode("utf-8")
+
     # light mode
-    with open(IMAGE_PATH.joinpath("cn_tr_light.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_trdraw = base64.b64encode(image_data).decode("utf-8")
+    encoded_image_trdraw = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_tr_light.png").read_bytes()
+    ).decode("utf-8")
 
     """ position weight """
     # dark mode
-    with open(IMAGE_PATH.joinpath("cn_postion_byindustry_dark.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_by_postion_dark = base64.b64encode(image_data).decode("utf-8")
+    encoded_image_by_postion_dark = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_postion_byindustry_dark.png").read_bytes()
+    ).decode("utf-8")
 
     # light mode
-    with open(IMAGE_PATH.joinpath("cn_postion_byindustry_light.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_by_postion = base64.b64encode(image_data).decode("utf-8")
+    encoded_image_by_postion = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_postion_byindustry_light.png").read_bytes()
+    ).decode("utf-8")
 
     """ earnings weight """
     # dark mode
-    with open(IMAGE_PATH.joinpath("cn_pl_byindustry_dark.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_by_pl_dark = base64.b64encode(image_data).decode("utf-8")
+    encoded_image_by_pl_dark = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_pl_byindustry_dark.png").read_bytes()
+    ).decode("utf-8")
 
     # light mode
-    with open(IMAGE_PATH.joinpath("cn_pl_byindustry_light.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_by_pl = base64.b64encode(image_data).decode("utf-8")
+    encoded_image_by_pl = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_pl_byindustry_light.png").read_bytes()
+    ).decode("utf-8")
 
     """ position trend """
     # dark mode
-    with open(IMAGE_PATH.joinpath("cn_trade_trend_dark.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_by_positiondate_dark = base64.b64encode(image_data).decode(
-            "utf-8"
-        )
+    encoded_image_by_positiondate_dark = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_trade_trend_dark.png").read_bytes()
+    ).decode("utf-8")
     # light mode
-    with open(IMAGE_PATH.joinpath("cn_trade_trend_light.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_by_positiondate = base64.b64encode(image_data).decode("utf-8")
+    encoded_image_by_positiondate = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_trade_trend_light.png").read_bytes()
+    ).decode("utf-8")
 
     """ earnings trend """
     # dark mode
-    with open(IMAGE_PATH.joinpath("cn_top_industry_pl_trend_dark.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_bypl_date_dark = base64.b64encode(image_data).decode("utf-8")
+    encoded_image_bypl_date_dark = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_top_industry_pl_trend_dark.png").read_bytes()
+    ).decode("utf-8")
     # light mode
-    with open(IMAGE_PATH.joinpath("cn_top_industry_pl_trend_light.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_bypl_date = base64.b64encode(image_data).decode("utf-8")
+    encoded_image_bypl_date = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_top_industry_pl_trend_light.png").read_bytes()
+    ).decode("utf-8")
 
     """ strategy tracking """
     # dark mode
-    with open(IMAGE_PATH.joinpath("cn_strategy_tracking_dark.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_strategy_dark = base64.b64encode(image_data).decode("utf-8")
+    encoded_image_strategy_dark = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_strategy_tracking_dark.png").read_bytes()
+    ).decode("utf-8")
     # light mode
-    with open(IMAGE_PATH.joinpath("cn_strategy_tracking_light.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_strategy = base64.b64encode(image_data).decode("utf-8")
+    encoded_image_strategy = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_strategy_tracking_light.png").read_bytes()
+    ).decode("utf-8")
 
     """ industry trend """
     # dark mode
-    with open(IMAGE_PATH.joinpath("cn_industry_trend_heatmap_dark.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_ind_trend_dark = base64.b64encode(image_data).decode("utf-8")
+    encoded_image_ind_trend_dark = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_industry_trend_heatmap_dark.png").read_bytes()
+    ).decode("utf-8")
     # light mode
-    with open(IMAGE_PATH.joinpath("cn_industry_trend_heatmap_light.png"), "rb") as f:
-        image_data = f.read()
-        encoded_image_ind_trend = base64.b64encode(image_data).decode("utf-8")
+    encoded_image_ind_trend = base64.b64encode(
+        IMAGE_PATH.joinpath("cn_industry_trend_heatmap_light.png").read_bytes()
+    ).decode("utf-8")
 
     # Overall 信息
     df_overall = pd.read_csv(
