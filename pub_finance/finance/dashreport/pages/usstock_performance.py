@@ -226,9 +226,9 @@ def create_layout(app, theme):
                                         src=f"data:image/png;base64,{encoded_image_trdraw}",
                                         style={
                                             "overflow-x": "auto",
-                                            "width": "100%",
                                             "overflow-y": "auto",
                                         },
+                                        className="firstimg",
                                     ),
                                 ],
                                 className="twelve columns",

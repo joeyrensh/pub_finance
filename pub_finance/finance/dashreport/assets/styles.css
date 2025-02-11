@@ -228,6 +228,12 @@ img {
   /* transition: transform 0.3s ease; */
 }
 
+.firstimg {
+  width: 90%;
+  display: block;
+  margin: 0 auto;
+}
+
 .dash-spreadsheet-container {
   line-height: 1.0 !important;
 
@@ -571,6 +577,12 @@ a:active {
     /* background-color: rgb(255, 255, 255);
      */
     filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(120%) contrast(105%) saturate(105%);
+  }
+
+  .firstimg {
+    width: 100%;
+    display: block;
+    margin: 0 auto;
   }
 
   .table {

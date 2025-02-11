@@ -253,10 +253,10 @@ def create_layout(app, theme):
                                     html.Img(
                                         src=f"data:image/png;base64,{encoded_image_trdraw}",
                                         style={
-                                            "width": "100%",
                                             "overflow-x": "auto",
                                             "overflow-y": "auto",
                                         },
+                                        className="firstimg",
                                     ),
                                 ],
                                 className="twelve columns",
