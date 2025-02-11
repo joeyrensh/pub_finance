@@ -16,7 +16,6 @@ server = Flask(__name__)
 Compress(server)
 
 VALID_USERNAME_PASSWORD_PAIRS = {"admin": "123"}
-# theme = "dark"
 
 app = dash.Dash(
     __name__,
@@ -129,33 +128,27 @@ def handle_login(n_clicks, username, password):
 
 @app.callback(
     Output("page-content", "children"),
-    [Input("url", "pathname"), State("url", "search")],
+    [Input("url", "pathname")],
 )
-def update_page_content(pathname, search):
-    # 解析查询字符串以获取 theme 参数
-    parsed_url = urlparse(search)
-    query_params = parse_qs(parsed_url.query)
-    theme = query_params.get("theme", ["light"])[
-        0
-    ]  # 如果没有指定 theme，默认为 'default'
+def update_page_content(pathname):
     if pathname == "/dash-financial-report/overview":
         # return overview.create_layout(app)
-        return cnstock_performance.create_layout(app, theme)
+        return cnstock_performance.create_layout(app)
     elif pathname == "/dash-financial-report/cn-stock-performance":
-        return cnstock_performance.create_layout(app, theme)
+        return cnstock_performance.create_layout(app)
     elif pathname == "/dash-financial-report/us-stock-performance":
-        return usstock_performance.create_layout(app, theme)
+        return usstock_performance.create_layout(app)
     elif pathname == "/dash-financial-report/news-and-reviews":
-        return news_reviews.create_layout(app, theme)
+        return news_reviews.create_layout(app)
     elif pathname == "/dash-financial-report/full-view":
         return [
-            cnstock_performance.create_layout(app, theme),
-            usstock_performance.create_layout(app, theme),
+            cnstock_performance.create_layout(app),
+            usstock_performance.create_layout(app),
             # overview.create_layout(app),
-            news_reviews.create_layout(app, theme),
+            news_reviews.create_layout(app),
         ]
     else:
-        return (cnstock_performance.create_layout(app, theme),)
+        return (cnstock_performance.create_layout(app),)
 
 
 if __name__ == "__main__":

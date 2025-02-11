@@ -5,8 +5,8 @@ import dash_table
 from datetime import datetime, timedelta
 
 
-def Header(app, theme):
-    return html.Div([get_header(app), html.Br([]), get_menu(theme)])
+def Header(app):
+    return html.Div([get_header(app), html.Br([]), get_menu()])
 
 
 def get_header(app):
@@ -75,17 +75,17 @@ def get_header(app):
     return header
 
 
-def get_menu(theme):
+def get_menu():
     menu = html.Div(
         [
             dcc.Link(
                 "A Stock Market",
-                href=f"/dash-financial-report/cn-stock-performance?theme={theme}",
+                href="/dash-financial-report/cn-stock-performance",
                 className="tab first",
             ),
             dcc.Link(
                 "US Stock Market",
-                href=f"/dash-financial-report/us-stock-performance?theme={theme}",
+                href="/dash-financial-report/us-stock-performance",
                 className="tab",
             ),
             # dcc.Link(
@@ -95,7 +95,7 @@ def get_menu(theme):
             # ),
             dcc.Link(
                 "News & Reviews",
-                href=f"/dash-financial-report/news-and-reviews?theme={theme}",
+                href="/dash-financial-report/news-and-reviews",
                 className="tab",
             ),
         ],

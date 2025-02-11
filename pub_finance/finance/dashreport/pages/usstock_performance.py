@@ -8,43 +8,80 @@ import base64
 df_detail = None
 
 
-def create_layout(app, theme):
+def create_layout(app):
     # get relative data folder
     PATH = pathlib.Path(__file__).parent
-    # 根据 css_class 动态选择图像文件名后缀
-    image_suffix = "_dark" if theme == "dark" else "_light"
-
     IMAGE_PATH = PATH.joinpath("../../images").resolve()
     DATA_PATH = PATH.joinpath("../../data").resolve()
-
-    # 收益率曲线
-    with open(IMAGE_PATH.joinpath(f"us_tr{image_suffix}.png"), "rb") as f:
+    """ annual return """
+    # dark mode
+    with open(IMAGE_PATH.joinpath("us_tr_dark.png"), "rb") as f:
+        image_data = f.read()
+        encoded_image_trdraw_dark = base64.b64encode(image_data).decode("utf-8")
+    # light mode
+    with open(IMAGE_PATH.joinpath("us_tr_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_trdraw = base64.b64encode(image_data).decode("utf-8")
-    with open(
-        IMAGE_PATH.joinpath(f"us_postion_byindustry{image_suffix}.png"), "rb"
-    ) as f:
+
+    """ position weight """
+    # dark mode
+    with open(IMAGE_PATH.joinpath("us_postion_byindustry_dark.png"), "rb") as f:
+        image_data = f.read()
+        encoded_image_by_postion_dark = base64.b64encode(image_data).decode("utf-8")
+    # light mode
+    with open(IMAGE_PATH.joinpath("us_postion_byindustry_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_by_postion = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath(f"us_pl_byindustry{image_suffix}.png"), "rb") as f:
+
+    """ earnings weight """
+    # dark mode
+    with open(IMAGE_PATH.joinpath("us_pl_byindustry_dark.png"), "rb") as f:
+        image_data = f.read()
+        encoded_image_by_pl_dark = base64.b64encode(image_data).decode("utf-8")
+    # light mode
+    with open(IMAGE_PATH.joinpath("us_pl_byindustry_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_by_pl = base64.b64encode(image_data).decode("utf-8")
-    with open(IMAGE_PATH.joinpath(f"us_trade_trend{image_suffix}.png"), "rb") as f:
+
+    """ position trend """
+    # dark mode
+    with open(IMAGE_PATH.joinpath("us_trade_trend_dark.png"), "rb") as f:
+        image_data = f.read()
+        encoded_image_by_positiondate_dark = base64.b64encode(image_data).decode(
+            "utf-8"
+        )
+    # light mode
+    with open(IMAGE_PATH.joinpath("us_trade_trend_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_by_positiondate = base64.b64encode(image_data).decode("utf-8")
-    with open(
-        IMAGE_PATH.joinpath(f"us_top_industry_pl_trend{image_suffix}.png"), "rb"
-    ) as f:
+
+    """ earnings trend """
+    # dark mode
+    with open(IMAGE_PATH.joinpath("us_top_industry_pl_trend_dark.png"), "rb") as f:
+        image_data = f.read()
+        encoded_image_bypl_date_dark = base64.b64encode(image_data).decode("utf-8")
+    # light mode
+    with open(IMAGE_PATH.joinpath("us_top_industry_pl_trend_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_bypl_date = base64.b64encode(image_data).decode("utf-8")
-    with open(
-        IMAGE_PATH.joinpath(f"us_strategy_tracking{image_suffix}.png"), "rb"
-    ) as f:
+
+    """ strategy tracking """
+    # dark mode
+    with open(IMAGE_PATH.joinpath("us_strategy_tracking_dark.png"), "rb") as f:
+        image_data = f.read()
+        encoded_image_strategy_dark = base64.b64encode(image_data).decode("utf-8")
+    # light mode
+    with open(IMAGE_PATH.joinpath("us_strategy_tracking_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_strategy = base64.b64encode(image_data).decode("utf-8")
-    with open(
-        IMAGE_PATH.joinpath(f"us_industry_trend_heatmap{image_suffix}.png"), "rb"
-    ) as f:
+
+    """ industry trend """
+    # dark mode
+    with open(IMAGE_PATH.joinpath("us_industry_trend_heatmap_dark.png"), "rb") as f:
+        image_data = f.read()
+        encoded_image_ind_trend_dark = base64.b64encode(image_data).decode("utf-8")
+    # light mode
+    with open(IMAGE_PATH.joinpath("us_industry_trend_heatmap_light.png"), "rb") as f:
         image_data = f.read()
         encoded_image_ind_trend = base64.b64encode(image_data).decode("utf-8")
 
@@ -152,7 +189,7 @@ def create_layout(app, theme):
 
     return html.Div(
         [
-            Header(app, theme),
+            Header(app),
             # page 2
             html.Div(
                 [
@@ -222,13 +259,23 @@ def create_layout(app, theme):
                                         ["Annual Return"],
                                         className="subtitle padded",
                                     ),
-                                    html.Img(
-                                        src=f"data:image/png;base64,{encoded_image_trdraw}",
-                                        style={
-                                            "overflow-x": "auto",
-                                            "overflow-y": "auto",
-                                        },
-                                        className="firstimg",
+                                    html.Picture(
+                                        [
+                                            # 深色模式下的图片
+                                            html.Source(
+                                                srcSet=f"data:image/png;base64,{encoded_image_trdraw_dark}",
+                                                media="(prefers-color-scheme: dark)",
+                                                className="firstimg",
+                                            ),
+                                            html.Img(
+                                                src=f"data:image/png;base64,{encoded_image_trdraw}",
+                                                style={
+                                                    "overflow-x": "auto",
+                                                    "overflow-y": "auto",
+                                                },
+                                                className="firstimg",
+                                            ),
+                                        ],
                                     ),
                                 ],
                                 className="twelve columns",
@@ -244,13 +291,22 @@ def create_layout(app, theme):
                                         ["Industries Tracking"],
                                         className="subtitle padded",
                                     ),
-                                    html.Img(
-                                        src=f"data:image/png;base64,{encoded_image_ind_trend}",
-                                        style={
-                                            "overflow-x": "auto",
-                                            "width": "100%",
-                                            "overflow-y": "auto",
-                                        },
+                                    html.Picture(
+                                        [
+                                            # 深色模式下的图片
+                                            html.Source(
+                                                srcSet=f"data:image/png;base64,{encoded_image_ind_trend_dark}",
+                                                media="(prefers-color-scheme: dark)",
+                                            ),
+                                            html.Img(
+                                                src=f"data:image/png;base64,{encoded_image_ind_trend}",
+                                                style={
+                                                    "overflow-x": "auto",
+                                                    "width": "100%",
+                                                    "overflow-y": "auto",
+                                                },
+                                            ),
+                                        ]
                                     ),
                                 ],
                                 className="six columns",
@@ -262,13 +318,22 @@ def create_layout(app, theme):
                                         ["Strategy Tracking"],
                                         className="subtitle padded",
                                     ),
-                                    html.Img(
-                                        src=f"data:image/png;base64,{encoded_image_strategy}",
-                                        style={
-                                            "overflow-x": "auto",
-                                            "width": "100%",
-                                            "overflow-y": "auto",
-                                        },
+                                    html.Picture(
+                                        [
+                                            # 深色模式下的图片
+                                            html.Source(
+                                                srcSet=f"data:image/png;base64,{encoded_image_strategy_dark}",
+                                                media="(prefers-color-scheme: dark)",
+                                            ),
+                                            html.Img(
+                                                src=f"data:image/png;base64,{encoded_image_strategy}",
+                                                style={
+                                                    "overflow-x": "auto",
+                                                    "width": "100%",
+                                                    "overflow-y": "auto",
+                                                },
+                                            ),
+                                        ]
                                     ),
                                 ],
                                 className="six columns",
@@ -284,13 +349,22 @@ def create_layout(app, theme):
                                     html.H6(
                                         ["Position Weight"], className="subtitle padded"
                                     ),
-                                    html.Img(
-                                        src=f"data:image/png;base64,{encoded_image_by_postion}",
-                                        style={
-                                            "overflow-x": "auto",
-                                            "width": "100%",
-                                            "overflow-y": "auto",
-                                        },
+                                    html.Picture(
+                                        [
+                                            # 深色模式下的图片
+                                            html.Source(
+                                                srcSet=f"data:image/png;base64,{encoded_image_by_postion_dark}",
+                                                media="(prefers-color-scheme: dark)",
+                                            ),
+                                            html.Img(
+                                                src=f"data:image/png;base64,{encoded_image_by_postion}",
+                                                style={
+                                                    "overflow-x": "auto",
+                                                    "width": "100%",
+                                                    "overflow-y": "auto",
+                                                },
+                                            ),
+                                        ]
                                     ),
                                 ],
                                 className="six columns",
@@ -302,13 +376,22 @@ def create_layout(app, theme):
                                         ["Earnings Weight"],
                                         className="subtitle padded",
                                     ),
-                                    html.Img(
-                                        src=f"data:image/png;base64,{encoded_image_by_pl}",
-                                        style={
-                                            "overflow-x": "auto",
-                                            "width": "100%",
-                                            "overflow-y": "auto",
-                                        },
+                                    html.Picture(
+                                        [
+                                            # 深色模式下的图片
+                                            html.Source(
+                                                srcSet=f"data:image/png;base64,{encoded_image_by_pl_dark}",
+                                                media="(prefers-color-scheme: dark)",
+                                            ),
+                                            html.Img(
+                                                src=f"data:image/png;base64,{encoded_image_by_pl}",
+                                                style={
+                                                    "overflow-x": "auto",
+                                                    "width": "100%",
+                                                    "overflow-y": "auto",
+                                                },
+                                            ),
+                                        ]
                                     ),
                                 ],
                                 className="six columns",
@@ -324,13 +407,22 @@ def create_layout(app, theme):
                                     html.H6(
                                         ["Position Trend"], className="subtitle padded"
                                     ),
-                                    html.Img(
-                                        src=f"data:image/png;base64,{encoded_image_by_positiondate}",
-                                        style={
-                                            "overflow-x": "auto",
-                                            "width": "100%",
-                                            "overflow-y": "auto",
-                                        },
+                                    html.Picture(
+                                        [
+                                            # 深色模式下的图片
+                                            html.Source(
+                                                srcSet=f"data:image/png;base64,{encoded_image_by_positiondate_dark}",
+                                                media="(prefers-color-scheme: dark)",
+                                            ),
+                                            html.Img(
+                                                src=f"data:image/png;base64,{encoded_image_by_positiondate}",
+                                                style={
+                                                    "overflow-x": "auto",
+                                                    "width": "100%",
+                                                    "overflow-y": "auto",
+                                                },
+                                            ),
+                                        ]
                                     ),
                                 ],
                                 className="six columns",
@@ -341,13 +433,22 @@ def create_layout(app, theme):
                                         ["Earnings Trend"],
                                         className="subtitle padded",
                                     ),
-                                    html.Img(
-                                        src=f"data:image/png;base64,{encoded_image_bypl_date}",
-                                        style={
-                                            "overflow-x": "auto",
-                                            "width": "100%",
-                                            "overflow-y": "auto",
-                                        },
+                                    html.Picture(
+                                        [
+                                            # 深色模式下的图片
+                                            html.Source(
+                                                srcSet=f"data:image/png;base64,{encoded_image_bypl_date_dark}",
+                                                media="(prefers-color-scheme: dark)",
+                                            ),
+                                            html.Img(
+                                                src=f"data:image/png;base64,{encoded_image_bypl_date}",
+                                                style={
+                                                    "overflow-x": "auto",
+                                                    "width": "100%",
+                                                    "overflow-y": "auto",
+                                                },
+                                            ),
+                                        ]
                                     ),
                                 ],
                                 className="six columns",

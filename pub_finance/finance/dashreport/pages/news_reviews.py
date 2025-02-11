@@ -10,10 +10,10 @@ with open(IMAGE_PATH.joinpath("background.jpeg"), "rb") as f:
     encoded_image_bg = base64.b64encode(image_data).decode("utf-8")
 
 
-def create_layout(app, theme):
+def create_layout(app):
     return html.Div(
         [
-            Header(app, theme),
+            Header(app),
             # page 6
             html.Div(
                 [
