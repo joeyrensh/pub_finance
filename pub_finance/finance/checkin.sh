@@ -9,7 +9,7 @@ rm -rf ./git-repo/pub_finance/pub_finance/finance/ta-lib
 rm -rf ./git-repo/pub_finance/pub_finance/finance/houseinfo/*.png
 rm -rf ./git-repo/pub_finance/pub_finance/finance/*.png
 rm -rf ./git-repo/pub_finance/pub_finance/finance/houseinfo/*.csv
-rm -rf ./git-repo/pub_finance/pub_finance/finance/images/*.png
+rm -rf ./git-repo/pub_finance/pub_finance/finance/dashreport/assets/images/*.png
 rm -rf ./git-repo/pub_finance/pub_finance/finance/data/*.csv
 rm -rf ./git-repo/pub_finance/pub_finance/finance/.vscode
 rm -rf ./git-repo/pub_finance/pub_finance/finance/backtraderref/__pycache__
