@@ -15,73 +15,87 @@ def create_layout(app):
     DATA_PATH = PATH.joinpath("../../data").resolve()
     """ annual return """
     # dark mode
-    encoded_image_trdraw_dark = base64.b64encode(
-        IMAGE_PATH.joinpath("us_tr_dark.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_trdraw_dark = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_tr_dark.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_trdraw_dark = "/assets/images/us_tr_dark.png"
     # light mode
-    encoded_image_trdraw = base64.b64encode(
-        IMAGE_PATH.joinpath("us_tr_light.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_trdraw = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_tr_light.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_trdraw = "/assets/images/us_tr_light.png"
 
     """ position weight """
     # dark mode
-    encoded_image_by_postion_dark = base64.b64encode(
-        IMAGE_PATH.joinpath("us_postion_byindustry_dark.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_by_postion_dark = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_postion_byindustry_dark.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_by_postion_dark = "/assets/images/us_postion_byindustry_dark.png"
     # light mode
-    encoded_image_by_postion = base64.b64encode(
-        IMAGE_PATH.joinpath("us_postion_byindustry_light.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_by_postion = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_postion_byindustry_light.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_by_postion = "/assets/images/us_postion_byindustry_light.png"
 
     """ earnings weight """
     # dark mode
-    encoded_image_by_pl_dark = base64.b64encode(
-        IMAGE_PATH.joinpath("us_pl_byindustry_dark.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_by_pl_dark = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_pl_byindustry_dark.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_by_pl_dark = "/assets/images/us_pl_byindustry_dark.png"
     # light mode
-    encoded_image_by_pl = base64.b64encode(
-        IMAGE_PATH.joinpath("us_pl_byindustry_light.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_by_pl = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_pl_byindustry_light.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_by_pl = "/assets/images/us_pl_byindustry_light.png"
 
     """ position trend """
     # dark mode
-    encoded_image_by_positiondate_dark = base64.b64encode(
-        IMAGE_PATH.joinpath("us_trade_trend_dark.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_by_positiondate_dark = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_trade_trend_dark.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_by_positiondate_dark = "/assets/images/us_trade_trend_dark.png"
     # light mode
-    encoded_image_by_positiondate = base64.b64encode(
-        IMAGE_PATH.joinpath("us_trade_trend_light.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_by_positiondate = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_trade_trend_light.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_by_positiondate = "/assets/images/us_trade_trend_light.png"
 
     """ earnings trend """
     # dark mode
-    encoded_image_bypl_date_dark = base64.b64encode(
-        IMAGE_PATH.joinpath("us_top_industry_pl_trend_dark.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_bypl_date_dark = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_top_industry_pl_trend_dark.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_bypl_date_dark = "/assets/images/us_top_industry_pl_trend_dark.png"
     # light mode
-    encoded_image_bypl_date = base64.b64encode(
-        IMAGE_PATH.joinpath("us_top_industry_pl_trend_light.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_bypl_date = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_top_industry_pl_trend_light.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_bypl_date = "/assets/images/us_top_industry_pl_trend_light.png"
 
     """ strategy tracking """
     # dark mode
-    encoded_image_strategy_dark = base64.b64encode(
-        IMAGE_PATH.joinpath("us_strategy_tracking_dark.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_strategy_dark = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_strategy_tracking_dark.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_strategy_dark = "/assets/images/us_strategy_tracking_dark.png"
     # light mode
-    encoded_image_strategy = base64.b64encode(
-        IMAGE_PATH.joinpath("us_strategy_tracking_light.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_strategy = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_strategy_tracking_light.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_strategy = "/assets/images/us_strategy_tracking_light.png"
 
     """ industry trend """
     # dark mode
-    encoded_image_ind_trend_dark = base64.b64encode(
-        IMAGE_PATH.joinpath("us_industry_trend_heatmap_dark.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_ind_trend_dark = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_industry_trend_heatmap_dark.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_ind_trend_dark = "/assets/images/us_industry_trend_heatmap_dark.png"
     # light mode
-    encoded_image_ind_trend = base64.b64encode(
-        IMAGE_PATH.joinpath("us_industry_trend_heatmap_light.png").read_bytes()
-    ).decode("utf-8")
+    # encoded_image_ind_trend = base64.b64encode(
+    #     IMAGE_PATH.joinpath("us_industry_trend_heatmap_light.png").read_bytes()
+    # ).decode("utf-8")
+    encoded_image_ind_trend = "/assets/images/us_industry_trend_heatmap_light.png"
 
     # Overall 信息
     df_overall = pd.read_csv(
@@ -261,12 +275,14 @@ def create_layout(app):
                                         [
                                             # 深色模式下的图片
                                             html.Source(
-                                                srcSet=f"data:image/png;base64,{encoded_image_trdraw_dark}",
+                                                # srcSet=f"data:image/png;base64,{encoded_image_trdraw_dark}",
+                                                srcSet=encoded_image_trdraw_dark,
                                                 media="(prefers-color-scheme: dark)",
                                                 className="firstimg",
                                             ),
                                             html.Img(
-                                                src=f"data:image/png;base64,{encoded_image_trdraw}",
+                                                # src=f"data:image/png;base64,{encoded_image_trdraw}",
+                                                src=encoded_image_trdraw,
                                                 style={
                                                     "overflow-x": "auto",
                                                     "overflow-y": "auto",
@@ -293,11 +309,13 @@ def create_layout(app):
                                         [
                                             # 深色模式下的图片
                                             html.Source(
-                                                srcSet=f"data:image/png;base64,{encoded_image_ind_trend_dark}",
+                                                # srcSet=f"data:image/png;base64,{encoded_image_ind_trend_dark}",
+                                                srcSet=encoded_image_ind_trend_dark,
                                                 media="(prefers-color-scheme: dark)",
                                             ),
                                             html.Img(
-                                                src=f"data:image/png;base64,{encoded_image_ind_trend}",
+                                                # src=f"data:image/png;base64,{encoded_image_ind_trend}",
+                                                src=encoded_image_ind_trend,
                                                 style={
                                                     "overflow-x": "auto",
                                                     "width": "100%",
@@ -320,11 +338,13 @@ def create_layout(app):
                                         [
                                             # 深色模式下的图片
                                             html.Source(
-                                                srcSet=f"data:image/png;base64,{encoded_image_strategy_dark}",
+                                                # srcSet=f"data:image/png;base64,{encoded_image_strategy_dark}",
+                                                srcSet=encoded_image_strategy_dark,
                                                 media="(prefers-color-scheme: dark)",
                                             ),
                                             html.Img(
-                                                src=f"data:image/png;base64,{encoded_image_strategy}",
+                                                # src=f"data:image/png;base64,{encoded_image_strategy}",
+                                                src=encoded_image_strategy,
                                                 style={
                                                     "overflow-x": "auto",
                                                     "width": "100%",
@@ -351,11 +371,13 @@ def create_layout(app):
                                         [
                                             # 深色模式下的图片
                                             html.Source(
-                                                srcSet=f"data:image/png;base64,{encoded_image_by_postion_dark}",
+                                                # srcSet=f"data:image/png;base64,{encoded_image_by_postion_dark}",
+                                                srcSet=encoded_image_by_postion_dark,
                                                 media="(prefers-color-scheme: dark)",
                                             ),
                                             html.Img(
-                                                src=f"data:image/png;base64,{encoded_image_by_postion}",
+                                                # src=f"data:image/png;base64,{encoded_image_by_postion}",
+                                                src=encoded_image_by_postion,
                                                 style={
                                                     "overflow-x": "auto",
                                                     "width": "100%",
@@ -378,11 +400,13 @@ def create_layout(app):
                                         [
                                             # 深色模式下的图片
                                             html.Source(
-                                                srcSet=f"data:image/png;base64,{encoded_image_by_pl_dark}",
+                                                # srcSet=f"data:image/png;base64,{encoded_image_by_pl_dark}",
+                                                srcSet=encoded_image_by_pl_dark,
                                                 media="(prefers-color-scheme: dark)",
                                             ),
                                             html.Img(
-                                                src=f"data:image/png;base64,{encoded_image_by_pl}",
+                                                # src=f"data:image/png;base64,{encoded_image_by_pl}",
+                                                src=encoded_image_by_pl,
                                                 style={
                                                     "overflow-x": "auto",
                                                     "width": "100%",
@@ -409,11 +433,13 @@ def create_layout(app):
                                         [
                                             # 深色模式下的图片
                                             html.Source(
-                                                srcSet=f"data:image/png;base64,{encoded_image_by_positiondate_dark}",
+                                                # srcSet=f"data:image/png;base64,{encoded_image_by_positiondate_dark}",
+                                                srcSet=encoded_image_by_positiondate_dark,
                                                 media="(prefers-color-scheme: dark)",
                                             ),
                                             html.Img(
-                                                src=f"data:image/png;base64,{encoded_image_by_positiondate}",
+                                                # src=f"data:image/png;base64,{encoded_image_by_positiondate}",
+                                                src=encoded_image_by_positiondate,
                                                 style={
                                                     "overflow-x": "auto",
                                                     "width": "100%",
@@ -435,11 +461,13 @@ def create_layout(app):
                                         [
                                             # 深色模式下的图片
                                             html.Source(
-                                                srcSet=f"data:image/png;base64,{encoded_image_bypl_date_dark}",
+                                                # srcSet=f"data:image/png;base64,{encoded_image_bypl_date_dark}",
+                                                srcSet=encoded_image_bypl_date_dark,
                                                 media="(prefers-color-scheme: dark)",
                                             ),
                                             html.Img(
-                                                src=f"data:image/png;base64,{encoded_image_bypl_date}",
+                                                # src=f"data:image/png;base64,{encoded_image_bypl_date}",
+                                                src=encoded_image_bypl_date,
                                                 style={
                                                     "overflow-x": "auto",
                                                     "width": "100%",

@@ -5,9 +5,10 @@ import base64
 
 PATH = pathlib.Path(__file__).parent
 IMAGE_PATH = PATH.joinpath("../assets").resolve()
-encoded_image_bg = base64.b64encode(
-    IMAGE_PATH.joinpath("background.jpeg").read_bytes()
-).decode("utf-8")
+# encoded_image_bg = base64.b64encode(
+#     IMAGE_PATH.joinpath("background.jpeg").read_bytes()
+# ).decode("utf-8")
+encoded_image_bg = "/assets/background.jpeg"
 
 
 def create_layout(app):
@@ -51,7 +52,8 @@ def create_layout(app):
                                         id="reviews-bullet-pts",
                                     ),
                                     html.Img(
-                                        src=f"data:image/png;base64,{encoded_image_bg}",
+                                        # src=f"data:image/png;base64,{encoded_image_bg}",
+                                        src=encoded_image_bg,
                                         style={
                                             "width": "100%",
                                             "overflow-x": "auto",
