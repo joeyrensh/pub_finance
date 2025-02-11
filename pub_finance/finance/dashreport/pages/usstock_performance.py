@@ -46,7 +46,7 @@ def create_layout(app):
     """ position trend """
     # dark mode
     encoded_image_by_positiondate_dark = base64.b64encode(
-        IMAGE_PATH.joinpath("us_trade_trend_dark.png").read_bytes
+        IMAGE_PATH.joinpath("us_trade_trend_dark.png").read_bytes()
     ).decode("utf-8")
     # light mode
     encoded_image_by_positiondate = base64.b64encode(
