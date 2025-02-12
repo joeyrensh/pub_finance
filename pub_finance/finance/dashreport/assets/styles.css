@@ -1,10 +1,16 @@
 :root {
-  --color-primary: rgb(125, 207, 255);
+  --data-bar-color: rgb(125, 207, 255);
+  --date-bg-color: rgba(255, 127, 80, 0.73);
+  --negative-value-bg-color: #3d9970d4;
+  --positive-value-bg-color: #ff4036c7;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-primary: #0074d9;
+    --data-bar-color: #0074d9;
+    --date-bg-color: coral;
+    --negative-value-bg-color: #3D9970;
+    --positive-value-bg-color: #FF4136;
   }
 }
 

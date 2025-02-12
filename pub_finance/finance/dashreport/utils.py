@@ -203,8 +203,8 @@ def data_bars(df, column):
                 "background": (
                     """
                     linear-gradient(90deg,
-                    var(--color-primary) 0%,
-                    var(--color-primary) {max_bound_percentage}%,
+                    var(--data-bar-color) 0%,
+                    var(--data-bar-color) {max_bound_percentage}%,
                     transparent {max_bound_percentage}%,
                     transparent 100%)
                     """.format(max_bound_percentage=max_bound_percentage)
@@ -286,8 +286,9 @@ def make_dash_format_table(df, cols_format):
                     "column_id": col,
                 },
                 # "backgroundColor": "RebeccaPurple",
-                "backgroundColor": "coral",
-                "color": "white",
+                # "backgroundColor": "coral",
+                "backgroundColor": ("""var(--date-bg-color)"""),
+                # "color": "white",
             }
             for col in df.columns
             if col in cols_format
@@ -301,8 +302,9 @@ def make_dash_format_table(df, cols_format):
                     "filter_query": "{{{}}} < 0".format(col + "_o"),
                     "column_id": col,
                 },
-                "backgroundColor": "#3D9970",
-                "color": "white",
+                # "backgroundColor": "#3D9970",
+                "backgroundColor": ("""var(--negative-value-bg-color)"""),
+                # "color": "white",
             }
             for col in df.columns
             if col in cols_format
@@ -316,8 +318,9 @@ def make_dash_format_table(df, cols_format):
                     "filter_query": "{{{}}} > 0".format(col + "_o"),
                     "column_id": col,
                 },
-                "backgroundColor": "#FF4136",
-                "color": "white",
+                # "backgroundColor": "#FF4136",
+                "backgroundColor": ("""var(--positive-value-bg-color)"""),
+                # "color": "white",
             }
             for col in df.columns
             if col in cols_format
