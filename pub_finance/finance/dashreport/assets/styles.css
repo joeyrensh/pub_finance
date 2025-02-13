@@ -86,7 +86,7 @@ body {
   /* background-color: rgb(255, 255, 255); */
   border-radius: 5px;
   /* light mode */
-  box-shadow: 0 0 10px lightgrey;
+  /* box-shadow: 0 0 10px lightgrey; */
 
 }
 
@@ -877,7 +877,7 @@ a:active {
 
   .page {
     /* dark mode */
-    box-shadow: 0 0 10px #607D8B;
+    /* box-shadow: 0 0 10px #607D8B; */
   }
 
   .login-box {
