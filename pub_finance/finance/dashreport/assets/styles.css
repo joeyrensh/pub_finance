@@ -1,16 +1,36 @@
 :root {
+  /* table浅色样式 */
   --data-bar-color: rgb(125, 207, 255);
   --date-bg-color: rgba(255, 127, 80, 0.73);
   --negative-value-bg-color: #3d9970d4;
   --positive-value-bg-color: #ff4036c7;
+
+  /* 浅色通用样式 */
+  --background-color: #f6f8f9;
+  --text-color: #333;
+  --login-box-shadow-color: rgba(0, 0, 0, 0.1);
+  --subtitle-color: #000000;
+  --a-visited-color: #000000;
+  --learn-more-button-color: #000000;
+  --dash-table-border-color: lightgrey;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* table深色样式 */
     --data-bar-color: #0074d9;
     --date-bg-color: coral;
     --negative-value-bg-color: #3D9970;
     --positive-value-bg-color: #FF4136;
+
+    /* 深色通用样式 */
+    --background-color: #171b26;
+    --text-color: #ffffff;
+    --login-box-shadow-color: #607D8B;
+    --subtitle-color: white;
+    --a-visited-color: #ffffff;
+    --learn-more-button-color: #9fa6b7;
+    --dash-table-border-color: rgba(255, 255, 255, 0.3)
   }
 }
 
@@ -22,8 +42,8 @@ body {
 
   /* light mode */
   /* 不需要指定背景色和字体颜色 */
-  background-color: #f6f8f9;
-  color: #333;
+  background-color: var(--background-color);
+  color: var(--text-color);
 
   font-size: 1.3rem;
   line-height: 1.0;
@@ -120,9 +140,9 @@ body {
   padding: 20px;
   border-radius: 10px;
   /* light mode */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 5px var(--login-box-shadow-color);
 
-  filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(110%) contrast(105%) saturate(105%);
+  filter: drop-shadow(5px 5px 5px var(--login-box-shadow-color)) brightness(110%) contrast(105%) saturate(105%);
   text-align: center;
 }
 
@@ -249,6 +269,7 @@ img {
   background: none;
   --hover: #d3d3d382;
   border-width: 0.7px !important;
+  border-color: var(--dash-table-border-color) !important;
 }
 
 
@@ -367,7 +388,7 @@ li {
 
 /* light mode */
 .text_color {
-  color: black;
+  color: var(--text-color);
 }
 
 
@@ -413,7 +434,7 @@ li {
   position: relative;
 
   /* light mode */
-  color: #000000;
+  color: var(--subtitle-color);
 
 
   left: 0;
@@ -461,7 +482,7 @@ a:link {
 a:visited {
 
   /* light mode */
-  color: #000000;
+  color: var(--a-visited-color);
 
 
   text-decoration: none;
@@ -530,7 +551,7 @@ a:active {
   border: 0.5px;
   border-color: lightgrey;
   border-style: solid;
-  color: #000000;
+  color: var(--learn-more-button-color);
 }
 
 @media only screen and (max-device-width: 1200px) {
@@ -866,49 +887,7 @@ a:active {
 
 }
 
-/* 针对暗模式的样式 */
-@media (prefers-color-scheme: dark) {
-  body {
-    /* dark mode*/
-    background-color: #171b26;
-    /* background: linear-gradient(0deg, #009688 0%, #17151a 100%); */
-    color: #ffffff;
-  }
 
-  .page {
-    /* dark mode */
-    /* box-shadow: 0 0 10px #607D8B; */
-  }
-
-  .login-box {
-    /* dark mode */
-    box-shadow: 0 0 10px #607D8B;
-  }
-
-  /* dark mode */
-  .text_color {
-    color: white;
-  }
-
-  /* dark mode */
-  .subtitle {
-    color: white;
-  }
-
-  a:visited {
-    /* dark mode */
-    color: #ffffff;
-  }
-
-  #learn-more-button {
-    color: #9fa6b7
-  }
-
-  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
-    border-color: rgba(255, 255, 255, 0.3) !important;
-  }
-
-}
 
 /* @media only screen and (max-width: 400px) {
   .full-view-link {
