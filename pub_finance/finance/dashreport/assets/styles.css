@@ -142,7 +142,7 @@ body {
   /* light mode */
   box-shadow: 0 0 5px var(--login-box-shadow-color);
 
-  filter: drop-shadow(5px 5px 5px var(--login-box-shadow-color)) brightness(110%) contrast(105%) saturate(105%);
+  filter: drop-shadow(2px 2px 2px var(--login-box-shadow-color)) brightness(110%) contrast(105%) saturate(105%);
   text-align: center;
 }
 
