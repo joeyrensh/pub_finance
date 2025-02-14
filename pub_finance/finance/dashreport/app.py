@@ -10,12 +10,18 @@ from pages import (
 from flask import Flask
 from flask_compress import Compress
 from urllib.parse import urlparse, parse_qs
+import configparser
 
 
 server = Flask(__name__)
 Compress(server)
 
-VALID_USERNAME_PASSWORD_PAIRS = {"admin": "123"}
+# 读取配置文件
+config = configparser.ConfigParser()
+config.read("login.ini")
+
+VALID_USERNAME = config["credentials"]["username"]
+VALID_PASSWORD = config["credentials"]["password"]
 
 app = dash.Dash(
     __name__,
@@ -113,10 +119,7 @@ def handle_login(n_clicks, username, password):
     if n_clicks is None:
         return "", {"display": "flex"}, {"display": "none"}
 
-    if (
-        username in VALID_USERNAME_PASSWORD_PAIRS
-        and password == VALID_USERNAME_PASSWORD_PAIRS[username]
-    ):
+    if username == VALID_USERNAME and password == VALID_PASSWORD:
         return "", {"display": "none"}, {"display": "block"}
     else:
         return (
