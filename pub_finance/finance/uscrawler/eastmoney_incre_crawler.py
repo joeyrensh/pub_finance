@@ -21,7 +21,7 @@ class EMWebCrawler:
         107:美国交易所 AMEX
         """
         self.__url = (
-            "http://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery&pn=i&pz=20000"
+            "http://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery&pn=i&pz=200"
             "&po=1&np=1&ut=&fltt=2&invt=2&fid=f3&fs=m:105,m:106,m:107"
             "&fields=f2,f3,f4,f5,f6,f7,f9,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
         )
