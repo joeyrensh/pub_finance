@@ -5,7 +5,7 @@ from utility.toolkit import ToolKit
 from datetime import datetime
 import pandas as pd
 import sys
-from backtraderref.globalstrategyv2 import GlobalStrategy
+from backtraderref.globalstrategyv3 import GlobalStrategy
 import backtrader as bt
 from utility.tickerinfo import TickerInfo
 from cncrawler.eastmoney_incre_download import EMCNWebCrawler
