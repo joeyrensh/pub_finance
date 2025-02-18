@@ -444,6 +444,7 @@ li {
   padding-bottom: 1px;
   padding-left: 30px;
   padding-right: 60px;
+  text-transform: uppercase;
 }
 
 
@@ -512,6 +513,7 @@ a:active {
   border-top-style: none;
   border-right-style: none;
   padding: 5px 10px;
+  text-transform: uppercase;
 }
 
 .rowrow {
