@@ -216,6 +216,6 @@ class EMCNHistoryDataDownload:
 
 emc = EMCNHistoryDataDownload()
 start_date = "20240101"
-end_date = "20241231"
-file_path = "./cnstockinfo/stock_20241231.csv"
+end_date = "20250218"
+file_path = "./cnstockinfo/stock_20250218.csv"
 emc.set_his_tick_info_to_csv(start_date, end_date, file_path)
