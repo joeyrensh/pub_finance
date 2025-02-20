@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import re
 import dash_table
 from datetime import datetime, timedelta
+from dash.dash_table.Format import Format, Scheme, Trim
 
 
 def Header(app):
@@ -237,8 +238,18 @@ def make_dash_format_table(df, cols_format):
         {
             "name": col,
             "id": col,
-            "type": "numeric" if col in cols_format else "text",
-            "presentation": "markdown",
+            "type": "numeric"
+            if col in cols_format and cols_format[col][0] in ("ratio", "float")
+            else "text",
+            "format": Format(
+                precision=2,
+                scheme=Scheme.percentage,
+            )
+            if col in cols_format and cols_format[col][0] == "ratio"
+            else None,
+            "presentation": None
+            if col in cols_format and cols_format[col][0] == "ratio"
+            else "markdown",
         }
         for col in df.columns
     ]
@@ -258,8 +269,9 @@ def make_dash_format_table(df, cols_format):
             return f"{value}"
         elif value_type == "float":
             return f"{value:.2f}"
-        elif value_type == "ratio":
-            return f"{value * 100:.2f}%"
+        # elif value_type == "ratio":
+        # return value * 100
+        # return f"{value * 100:.2f}%"
         else:
             return value
 

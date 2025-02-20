@@ -270,6 +270,7 @@ img {
   --hover: #d3d3d382;
   border-width: 0.7px !important;
   border-color: var(--dash-table-border-color) !important;
+  font-family: Raleway, HelveticaNeue, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 
