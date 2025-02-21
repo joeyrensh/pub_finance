@@ -254,7 +254,10 @@ def exec_btstrategy(date):
     # 浅色主题
     fig.tight_layout()
     plt.savefig(
-        "./dashreport/assets/images/cnetf_tr_light.png", transparent=True, dpi=600
+        "./dashreport/assets/images/cnetf_tr_light.png",
+        transparent=True,
+        dpi=300,
+        bbox_inches="tight",
     )
 
     # 修改为深色主题
@@ -274,7 +277,10 @@ def exec_btstrategy(date):
     ax2.spines["right"].set_color("white")
     fig.tight_layout()
     plt.savefig(
-        "./dashreport/assets/images/cnetf_tr_dark.png", transparent=True, dpi=600
+        "./dashreport/assets/images/cnetf_tr_dark.png",
+        transparent=True,
+        dpi=300,
+        bbox_inches="tight",
     )
 
     return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
