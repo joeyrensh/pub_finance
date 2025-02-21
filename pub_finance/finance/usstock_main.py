@@ -279,7 +279,7 @@ def exec_btstrategy(date):
             labels + labels2,
             loc="upper left",
             frameon=False,
-            fontsize=12,
+            fontsize=14,
         )
         for text in legend.get_texts():
             text.set_color(colors["legend_text"])
