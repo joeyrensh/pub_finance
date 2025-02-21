@@ -257,7 +257,7 @@ def exec_btstrategy(date):
     plt.savefig(
         "./dashreport/assets/images/us_tr_light.png",
         transparent=True,
-        dpi=300,
+        dpi=600,
         bbox_inches="tight",
     )
 
@@ -280,7 +280,7 @@ def exec_btstrategy(date):
     plt.savefig(
         "./dashreport/assets/images/us_tr_dark.png",
         transparent=True,
-        dpi=300,
+        dpi=600,
         bbox_inches="tight",
     )
 
