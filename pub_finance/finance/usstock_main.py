@@ -163,6 +163,7 @@ def exec_btstrategy(date):
                 "drawdown": "#D9534F",  # 红色
                 "table_edge": "#333333",
                 "table_header": "#F5F5F5",
+                "legend_text": "#333333",
             },
             "dark": {
                 "text": "#FFFFFF",
@@ -172,6 +173,7 @@ def exec_btstrategy(date):
                 "drawdown": "#FF6B6B",  # 亮红
                 "table_edge": "#FFFFFF",
                 "table_header": "#404040",
+                "legend_text": "#FFFFFF",
             },
         }
         colors = theme_config[theme]
@@ -272,13 +274,15 @@ def exec_btstrategy(date):
         # 图例合并
         lines, labels = ax_chart.get_legend_handles_labels()
         lines2, labels2 = ax_drawdown.get_legend_handles_labels()
-        ax_chart.legend(
+        legend = ax_chart.legend(
             lines + lines2,
             labels + labels2,
             loc="upper left",
             frameon=False,
-            fontsize=10,
+            fontsize=12,
         )
+        for text in legend.get_texts():
+            text.set_color(colors["legend_text"])
 
         # 隐藏冗余边框
         for spine in ax_chart.spines.values():
