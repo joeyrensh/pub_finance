@@ -18,6 +18,7 @@ import matplotlib.ticker as ticker
 import pyfolio as pf
 import gc
 from backtraderref.usfixedamount import FixedAmount
+from matplotlib import rcParams
 
 """ 执行策略 """
 """ backtrader策略 """
@@ -119,20 +120,7 @@ def exec_btstrategy(date):
     perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
         lambda x: x.map(lambda y: f"{y * 100:.2f}%")
     )
-
     # 绘制图形
-
-    plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
-
-    # 导入设置坐标轴的模块
-    # sns.set()
-    # plt.style.use("seaborn")
-    # plt.style.use('dark_background')
-
-    fig, (ax0, ax1) = plt.subplots(
-        1, 2, gridspec_kw={"width_ratios": [1, 4]}, figsize=(20, 10)
-    )
-
     """ 
     年度回报率 (Annual return)：衡量投资组合或股票在一年内的收益率。它通常以百分比表示，计算方法是将期末价值减去期初价值，再除以期初价值，并乘以100。
 
@@ -160,129 +148,155 @@ def exec_btstrategy(date):
 
     日风险价值 (Daily value at risk)：衡量股票或投资组合在一天内可能面临的最大损失。它是在给定置信水平下的损失金额，用于评估投资组合的风险暴露。 
     """
+    # ----------------------------
+    # 绘图部分优化
+    # ----------------------------
 
-    cols_names = [
-        "Date",
-        "AnnualR",
-        "CumR",
-        "MaxDD",
-        "DailyRisk",
-    ]
+    def configure_theme(theme="light"):
+        """统一配置主题颜色和样式"""
+        theme_config = {
+            "light": {
+                "text": "#333333",
+                "background": "white",
+                "grid": "#333333",
+                "cumret": "#2A5CAA",  # 深蓝
+                "drawdown": "#D9534F",  # 红色
+                "table_edge": "#333333",
+                "table_header": "#F5F5F5",
+            },
+            "dark": {
+                "text": "#FFFFFF",
+                "background": "black",
+                "grid": "#FFFFFF",
+                "cumret": "#4C8BF5",  # 亮蓝
+                "drawdown": "#FF6B6B",  # 亮红
+                "table_edge": "#FFFFFF",
+                "table_header": "#404040",
+            },
+        }
+        colors = theme_config[theme]
 
-    # 绘制表格
-    ax0.set_axis_off()
-    # 除去坐标轴
-    table = ax0.table(
-        cellText=perf_stats_.T.values,
-        bbox=[0, 0.1, 1, 0.8],
-        rowLoc="left",
-        cellLoc="center",
-        rowLabels=cols_names,
-        colLoc="center",
-        edges="horizontal",
-    )
+        # 全局样式设置
+        rcParams.update(
+            {
+                "font.size": 14,
+                "axes.labelcolor": colors["text"],
+                "axes.edgecolor": colors["text"],
+                "xtick.color": colors["text"],
+                "ytick.color": colors["text"],
+                "grid.color": colors["grid"],
+                "grid.linestyle": "-",
+                "grid.alpha": 1,
+                "grid.linewidth": 1.5,
+                "figure.facecolor": colors["background"],
+                "savefig.transparent": True,
+            }
+        )
+        return colors
 
-    # # Access the cells and modify font properties
-    # for cell in table.get_celld().values():
-    #     cell.set_fontsize(18)  # Adjust the font size as per your preference
+    def plot_chart(theme="light"):
+        """绘制图表（含表格和曲线）"""
+        cols_names = [
+            "Date",
+            "AnnualR",
+            "CumR",
+            "MaxDD",
+            "DailyRisk",
+        ]
+        plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
+        colors = configure_theme(theme)
 
-    # Set the font size of the table title
-    table.auto_set_font_size(False)
-    table.set_fontsize(20)
+        # 创建画布和子图
+        fig, (ax_table, ax_chart) = plt.subplots(
+            1,
+            2,
+            gridspec_kw={"width_ratios": [1, 4]},
+            figsize=(20, 10),
+            facecolor=colors["background"],
+        )
+        fig.subplots_adjust(wspace=0.1)
 
-    # 绘制累计收益曲线
-    ax2 = ax1.twinx()
+        # ----------------------------
+        # 绘制表格
+        # ----------------------------
+        ax_table.axis("off")
+        table = ax_table.table(
+            cellText=perf_stats_.T.values,
+            rowLabels=cols_names,
+            bbox=[0, 0, 1, 1],
+            cellLoc="center",
+            edges="horizontal",
+            # colColours=[colors["table_header"]] * len(cols_names),
+        )
+        # 统一单元格样式
+        for cell in table.get_celld().values():
+            cell.set_text_props(color=colors["text"], fontsize=18)
+            cell.set_edgecolor(colors["table_edge"])
+            cell.set_linewidth(1)
 
-    ax2.yaxis.set_ticks_position("left")
-    ax1.yaxis.set_ticks_position("right")
-    ax2.set_axis_off()
-    # 将累计收益曲线的 y 轴移至左侧
-    # 绘制回撤曲线
-    drawdown.plot(
-        ax=ax2,
-        label="drawdown (right)",
-        rot=0,
-        lw=2.0,
-        fontsize=20,
-        grid=False,
-        color="green",
-        linestyle="-",
-    )
+        # ----------------------------
+        # 绘制双轴曲线
+        # ----------------------------
+        # 累计收益曲线（左轴）
+        ax_chart.plot(
+            cumulative.index,
+            cumulative.values,
+            color=colors["cumret"],
+            label="Cumulative Return",
+            linewidth=2.5,
+        )
+        ax_chart.set_ylabel("Cumulative Return", color=colors["cumret"])
+        ax_chart.tick_params(axis="y", colors=colors["cumret"])
+        ax_chart.grid(True, alpha=0.4)
 
-    # 绘制累计收益曲线
-    (cumulative).plot(
-        ax=ax1,
-        lw=3.0,
-        label="cumret (left)",
-        rot=0,
-        fontsize=20,
-        grid=True,
-        color="#FF4136",
-        linestyle="-",
-        # gridcolor="rgba(255, 255, 255, 0.5)",
-    )
-    ax2.set_facecolor("none")
+        # 回撤曲线（右轴）
+        ax_drawdown = ax_chart.twinx()
+        ax_drawdown.plot(
+            drawdown.index,
+            drawdown.values,
+            color=colors["drawdown"],
+            label="Drawdown",
+            linewidth=2,
+            alpha=0.8,
+        )
+        ax_drawdown.set_ylabel("Drawdown", color=colors["drawdown"])
+        ax_drawdown.tick_params(axis="y", colors=colors["drawdown"])
+        ax_drawdown.grid(False)
 
-    # 不然 x 轴留有空白
-    ax1.set_xbound(lower=cumulative.index.min(), upper=cumulative.index.max())
-    ax1.grid(color="black", linestyle="-", linewidth=0.8)
-    ax2.grid(color="black", linestyle="-", linewidth=0.8)
+        # ----------------------------
+        # 图表美化
+        # ----------------------------
+        # X轴日期格式化
+        ax_chart.xaxis.set_major_locator(ticker.AutoLocator())
 
-    # 主轴定位器：每 5 个月显示一个日期：根据具体天数来做排版
-    ax2.xaxis.set_major_locator(ticker.MultipleLocator(120))
-    # 同时绘制双轴的图例
-    h1, l1 = ax1.get_legend_handles_labels()
-    h2, l2 = ax2.get_legend_handles_labels()
-    plt.legend(h1 + h2, l1 + l2, fontsize=20, loc="upper left", ncol=1)
+        # 图例合并
+        lines, labels = ax_chart.get_legend_handles_labels()
+        lines2, labels2 = ax_drawdown.get_legend_handles_labels()
+        ax_chart.legend(
+            lines + lines2,
+            labels + labels2,
+            loc="upper left",
+            frameon=False,
+            fontsize=10,
+        )
 
-    # 设置轴样式
-    for spine in ax1.spines.values():
-        spine.set_visible(False)
-    ax2.spines["right"].set_color("black")
+        # 隐藏冗余边框
+        for spine in ax_chart.spines.values():
+            spine.set_visible(False)
+        for spine in ax_drawdown.spines.values():
+            spine.set_visible(False)
 
-    # 设置轴和标签颜色
-    ax1.tick_params(axis="x", colors="black")
-    ax1.tick_params(axis="y", colors="black")
-    ax2.tick_params(axis="y", colors="black")
-    for cell in table.get_celld().values():
-        cell.set_text_props(color="black")
-        cell.set_linewidth(0.8)
-    for label in ax1.get_xticklabels():
-        label.set_color("black")
-    ax2.yaxis.label.set_color("black")
-    ax1.yaxis.label.set_color("black")
+        # 保存图片
+        plt.savefig(
+            f"./dashreport/assets/images/us_tr_{theme}.png",
+            dpi=600,
+            bbox_inches="tight",
+        )
+        plt.close()
 
-    # 浅色主题
-    fig.tight_layout()
-    plt.savefig(
-        "./dashreport/assets/images/us_tr_light.png",
-        transparent=True,
-        dpi=600,
-        bbox_inches="tight",
-    )
-
-    # 修改为深色主题
-    for cell in table.get_celld().values():
-        cell.set_edgecolor("white")
-        cell.set_linewidth(0.5)
-        cell.set_text_props(color="white")
-    ax1.grid(color="white", linestyle="-", linewidth=0.5)
-    ax2.grid(color="white", linestyle="-", linewidth=0.5)
-    ax1.tick_params(axis="x", colors="white")
-    ax1.tick_params(axis="y", colors="white")
-    for label in ax1.get_xticklabels():
-        label.set_color("white")
-    ax2.yaxis.label.set_color("white")
-    ax2.tick_params(axis="y", colors="white")
-    ax1.yaxis.label.set_color("white")
-    ax2.spines["right"].set_color("white")
-    fig.tight_layout()
-    plt.savefig(
-        "./dashreport/assets/images/us_tr_dark.png",
-        transparent=True,
-        dpi=600,
-        bbox_inches="tight",
-    )
+    # 生成两种主题图表
+    plot_chart(theme="light")
+    plot_chart(theme="dark")
 
     return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 
