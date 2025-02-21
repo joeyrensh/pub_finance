@@ -376,6 +376,7 @@ def make_dash_format_table(df, cols_format):
         data=data,
         columns=columns,
         filter_action="native",
+        sort_action="native",
         filter_options={
             "placeholder_text": "Search",
             # "case": "insensitive",
