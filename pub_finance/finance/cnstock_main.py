@@ -158,8 +158,8 @@ def exec_btstrategy(date):
                 "text": "#333333",
                 "background": "white",
                 "grid": "#333333",
-                "cumret": "#2A5CAA",  # 深蓝
-                "drawdown": "#D9534F",  # 红色
+                "cumret": "#D9534F",  # 深蓝
+                "drawdown": "#228B22",  # 红色
                 "table_edge": "#333333",
                 "table_header": "#F5F5F5",
                 "legend_text": "#333333",
@@ -168,8 +168,8 @@ def exec_btstrategy(date):
                 "text": "#FFFFFF",
                 "background": "black",
                 "grid": "#FFFFFF",
-                "cumret": "#4C8BF5",  # 亮蓝
-                "drawdown": "#FF6B6B",  # 亮红
+                "cumret": "#FF6B6B",  # 亮蓝
+                "drawdown": "#7CFC00",  # 亮红
                 "table_edge": "#FFFFFF",
                 "table_header": "#404040",
                 "legend_text": "#FFFFFF",
@@ -231,7 +231,7 @@ def exec_btstrategy(date):
         )
         # 统一单元格样式
         for cell in table.get_celld().values():
-            cell.set_text_props(color=colors["text"], fontsize=18)
+            cell.set_text_props(color=colors["text"], fontsize=20)
             cell.set_edgecolor(colors["table_edge"])
             cell.set_linewidth(1)
 
@@ -244,7 +244,7 @@ def exec_btstrategy(date):
             cumulative.values,
             color=colors["cumret"],
             label="Cumulative Return",
-            linewidth=2.5,
+            linewidth=3.5,
         )
         ax_chart.set_ylabel("Cumulative Return", color=colors["cumret"])
         ax_chart.tick_params(axis="y", colors=colors["cumret"])
@@ -257,8 +257,8 @@ def exec_btstrategy(date):
             drawdown.values,
             color=colors["drawdown"],
             label="Drawdown",
-            linewidth=2,
-            alpha=0.8,
+            linewidth=2.5,
+            alpha=1,
         )
         ax_drawdown.set_ylabel("Drawdown", color=colors["drawdown"])
         ax_drawdown.tick_params(axis="y", colors=colors["drawdown"])
