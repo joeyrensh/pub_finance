@@ -258,7 +258,7 @@ def exec_btstrategy(date):
             drawdown.values,
             color=colors["drawdown"],
             label="Drawdown",
-            linewidth=2.5,
+            linewidth=2,
             alpha=1,
         )
         ax_drawdown.set_ylabel("Drawdown", color=colors["drawdown"])
