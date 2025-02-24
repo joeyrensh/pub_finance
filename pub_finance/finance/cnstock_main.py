@@ -180,7 +180,7 @@ def exec_btstrategy(date):
         # 全局样式设置
         rcParams.update(
             {
-                "font.size": 14,
+                "font.size": 16,
                 "axes.labelcolor": colors["text"],
                 "axes.edgecolor": colors["text"],
                 "xtick.color": colors["text"],
@@ -278,7 +278,7 @@ def exec_btstrategy(date):
             labels + labels2,
             loc="upper left",
             frameon=False,
-            fontsize=14,
+            fontsize=16,
         )
         for text in legend.get_texts():
             text.set_color(colors["legend_text"])
