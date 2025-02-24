@@ -12,7 +12,9 @@ import plotly.express as px
 import gc
 from utility.toolkit import ToolKit
 import plotly.colors
-from plotly.subplots import make_subplots
+import numpy as np
+from matplotlib.colors import to_rgb
+import re
 
 
 # mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
@@ -1296,14 +1298,40 @@ class StockProposal:
                 )
             ]
         )
+
         # colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
         # colorscale = "Viridis"
+        def get_text_color(hex_color, theme):
+            """根据颜色亮度返回黑色或白色文本"""
+            try:
+                # 处理 RGB/RGBA 字符串（如 'rgb(235,74,64)' 或 'rgba(235,74,64,0.5)'）
+                if isinstance(hex_color, str) and hex_color.startswith(("rgb", "rgba")):
+                    # 提取数值部分
+                    values = re.findall(r"\d+\.?\d*", hex_color)
+                    # 转换为归一化 RGB 元组（忽略 Alpha 通道）
+                    rgb = tuple(float(x) / 255 for x in values[:3])
+                else:
+                    # 直接转换其他格式（十六进制、颜色名称等）
+                    rgb = to_rgb(hex_color)
+                brightness = np.dot(rgb, [0.299, 0.587, 0.114])  # RGB亮度公式
+                return "#000000" if brightness > 0.5 else "#FFFFFF"
+            except ValueError:
+                # 如果颜色格式无效，返回默认颜色
+                if theme == "light":
+                    return "#000000"
+                else:
+                    return "#FFFFFF"
+
         # light mode
+        # 生成动态文本颜色列表（适用于所有区块）
+        hex_colors = px.colors.sequential.Peach_r
+        text_colors = [get_text_color(color, "light") for color in hex_colors]
         fig.update_traces(
             # marker=dict(colors=colorscale, line=dict(width=2)),
             textinfo="label+value+percent",
-            textfont=dict(size=font_size, color="black", family="Arial"),
+            textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
+            marker=dict(colors=hex_colors, line=dict(color="white", width=2)),
         )
         fig.update_layout(
             title="Top10 Position",
@@ -1332,11 +1360,14 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
+        hex_colors = px.colors.sequential.Reds_r
+        text_colors = [get_text_color(color, "dark") for color in hex_colors]
         fig.update_traces(
             # marker=dict(colors=colorscale, line=dict(width=3)),
             textinfo="label+value+percent",
-            textfont=dict(size=font_size, color="white", family="Arial"),
+            textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
+            marker=dict(colors=hex_colors, line=dict(color="white", width=2)),
         )
         fig.update_layout(
             title="Top10 Position",
@@ -1388,11 +1419,14 @@ class StockProposal:
         )
         # colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
         # light mode
+        hex_colors = px.colors.sequential.Peach_r
+        text_colors = [get_text_color(color, "light") for color in hex_colors]
         fig.update_traces(
             # marker=dict(colors=colors, line=dict(width=2)),
             textinfo="label+value+percent",
-            textfont=dict(size=font_size, color="black", family="Arial"),
+            textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
+            marker=dict(colors=hex_colors, line=dict(color="white", width=2)),
         )
         fig.update_layout(
             title="Top10 Profit",
@@ -1419,11 +1453,14 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
+        hex_colors = px.colors.sequential.Reds_r
+        text_colors = [get_text_color(color, "dark") for color in hex_colors]
         fig.update_traces(
             # marker=dict(colors=colors, line=dict(width=3)),
             textinfo="label+value+percent",
-            textfont=dict(size=font_size, color="white", family="Arial"),
+            textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
+            marker=dict(colors=hex_colors, line=dict(color="white", width=2)),
         )
         fig.update_layout(
             title="Top10 Profit",
