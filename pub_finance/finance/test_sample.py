@@ -170,7 +170,7 @@ def exec_btstrategy(date):
                 "background": "black",
                 "grid": "#FFFFFF",
                 "cumret": "#FF6B6B",  # 亮蓝
-                "drawdown": "#7CFC00",  # 亮红
+                "drawdown": "#32CD32",  # 亮红
                 "table_edge": "#FFFFFF",
                 "table_header": "#404040",
                 "legend_text": "#FFFFFF",
@@ -258,7 +258,7 @@ def exec_btstrategy(date):
             drawdown.values,
             color=colors["drawdown"],
             label="Drawdown",
-            linewidth=2.5,
+            linewidth=2,
             alpha=1,
         )
         ax_drawdown.set_ylabel("Drawdown", color=colors["drawdown"])
