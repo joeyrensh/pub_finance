@@ -16,6 +16,7 @@ import numpy as np
 from matplotlib.colors import to_rgb
 import re
 import matplotlib.colors as mcolors
+from plotly.colors import sample_colorscale
 
 
 # mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
@@ -1330,7 +1331,12 @@ class StockProposal:
 
         # light mode
         # 生成动态文本颜色列表（适用于所有区块）
-        hex_colors = px.colors.sequential.RdBu
+        hex_colors = sample_colorscale(
+            px.colors.sequential.Peach_r,  # 原始色阶
+            samplepoints=np.linspace(0, 1, 10),  # 生成 10 个等间距点
+            colortype="rgb",  # 输出为十六进制
+        )
+        # hex_colors = px.colors.sequential.RdBu
         text_colors = [get_text_color(color, "light") for color in hex_colors]
         fig.update_traces(
             # marker=dict(colors=colorscale, line=dict(width=2)),
