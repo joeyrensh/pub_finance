@@ -1324,7 +1324,7 @@ class StockProposal:
 
         # light mode
         # 生成动态文本颜色列表（适用于所有区块）
-        hex_colors = px.colors.sequential.Peach_r
+        hex_colors = px.colors.diverging.RdBu
         text_colors = [get_text_color(color, "light") for color in hex_colors]
         fig.update_traces(
             # marker=dict(colors=colorscale, line=dict(width=2)),
@@ -1360,7 +1360,7 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
-        hex_colors = px.colors.sequential.Reds_r
+        hex_colors = px.colors.diverging.RdBu
         text_colors = [get_text_color(color, "dark") for color in hex_colors]
         fig.update_traces(
             # marker=dict(colors=colorscale, line=dict(width=3)),
@@ -1419,7 +1419,7 @@ class StockProposal:
         )
         # colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
         # light mode
-        hex_colors = px.colors.sequential.Peach_r
+        hex_colors = px.colors.diverging.RdBu
         text_colors = [get_text_color(color, "light") for color in hex_colors]
         fig.update_traces(
             # marker=dict(colors=colors, line=dict(width=2)),
@@ -1453,7 +1453,7 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
-        hex_colors = px.colors.sequential.Reds_r
+        hex_colors = px.colors.diverging.RdBu
         text_colors = [get_text_color(color, "dark") for color in hex_colors]
         fig.update_traces(
             # marker=dict(colors=colors, line=dict(width=3)),
