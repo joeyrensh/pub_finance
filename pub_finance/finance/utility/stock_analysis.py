@@ -15,6 +15,7 @@ import plotly.colors
 import numpy as np
 from matplotlib.colors import to_rgb
 import re
+import matplotlib.colors as mcolors
 
 
 # mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
@@ -1314,7 +1315,10 @@ class StockProposal:
                     # 直接转换其他格式（十六进制、颜色名称等）
                     rgb = to_rgb(hex_color)
                 brightness = np.dot(rgb, [0.299, 0.587, 0.114])  # RGB亮度公式
-                return "#000000" if brightness > 0.5 else "#FFFFFF"
+                if brightness > 0.7:
+                    return "#000000"
+                else:
+                    return "#000000" if theme == "light" else "#FFFFFF"
             except ValueError:
                 # 如果颜色格式无效，返回默认颜色
                 if theme == "light":
@@ -1332,6 +1336,7 @@ class StockProposal:
             textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
             marker=dict(colors=hex_colors, line=dict(color="white", width=2)),
+            opacity=0.8,
         )
         fig.update_layout(
             title="Top10 Position",
@@ -1360,7 +1365,7 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
-        hex_colors = px.colors.diverging.RdBu
+        # hex_colors = px.colors.diverging.RdBu
         text_colors = [get_text_color(color, "dark") for color in hex_colors]
         fig.update_traces(
             # marker=dict(colors=colorscale, line=dict(width=3)),
@@ -1368,6 +1373,7 @@ class StockProposal:
             textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
             marker=dict(colors=hex_colors, line=dict(color="white", width=2)),
+            opacity=0.8,
         )
         fig.update_layout(
             title="Top10 Position",
@@ -1427,6 +1433,7 @@ class StockProposal:
             textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
             marker=dict(colors=hex_colors, line=dict(color="white", width=2)),
+            opacity=0.8,
         )
         fig.update_layout(
             title="Top10 Profit",
@@ -1461,6 +1468,7 @@ class StockProposal:
             textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
             marker=dict(colors=hex_colors, line=dict(color="white", width=2)),
+            opacity=0.8,
         )
         fig.update_layout(
             title="Top10 Profit",
