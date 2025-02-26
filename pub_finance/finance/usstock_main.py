@@ -246,6 +246,11 @@ def exec_btstrategy(date):
             color=colors["cumret"],
             label="Cumulative Return",
             linewidth=3.5,
+            marker="o",  # 圆点标记
+            markersize=4,  # 标记大小
+            markerfacecolor=colors["text"],  # 标记填充颜色
+            markeredgewidth=2,  # 标记边框宽度
+            markeredgecolor=colors["cumret"],  # 标记边框颜色
         )
         ax_chart.set_ylabel("Cumulative Return", color=colors["cumret"])
         ax_chart.tick_params(axis="y", colors=colors["cumret"])
@@ -260,6 +265,7 @@ def exec_btstrategy(date):
             label="Drawdown",
             linewidth=2,
             alpha=1,
+            linestyle="--",  # 虚线
         )
         ax_drawdown.set_ylabel("Drawdown", color=colors["drawdown"])
         ax_drawdown.tick_params(axis="y", colors=colors["drawdown"])
