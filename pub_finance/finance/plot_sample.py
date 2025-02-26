@@ -1,10 +1,12 @@
 from plotly.colors import sample_colorscale
 import plotly.express as px
 import numpy as np
+from matplotlib import colormaps
+
 
 # 使用 Peach_r 色阶生成 10 种颜色
 hex_colors = sample_colorscale(
-    px.colors.sequential.Electric,  # 原始色阶
+    px.colors.sequential.Oryel_r,  # 原始色阶
     samplepoints=np.linspace(0, 1, 10),  # 生成 10 个等间距点
     colortype="rgb",  # 输出为十六进制
 )
