@@ -248,7 +248,7 @@ def exec_btstrategy(date):
             linewidth=3.5,
             marker="o",  # 圆点标记
             markersize=4,  # 标记大小
-            markerfacecolor=colors["text"],  # 标记填充颜色
+            markerfacecolor="white",  # 标记填充颜色
             markeredgewidth=2,  # 标记边框宽度
             markeredgecolor=colors["cumret"],  # 标记边框颜色
         )

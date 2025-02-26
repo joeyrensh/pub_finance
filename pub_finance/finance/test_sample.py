@@ -246,6 +246,11 @@ def exec_btstrategy(date):
             color=colors["cumret"],
             label="Cumulative Return",
             linewidth=3.5,
+            marker="o",  # 圆点标记
+            markersize=4,  # 标记大小
+            markerfacecolor=colors["text"],  # 标记填充颜色
+            markeredgewidth=2,  # 标记边框宽度
+            markeredgecolor=colors["cumret"],  # 标记边框颜色
         )
         ax_chart.set_ylabel("Cumulative Return", color=colors["cumret"])
         ax_chart.tick_params(axis="y", colors=colors["cumret"])
@@ -260,6 +265,7 @@ def exec_btstrategy(date):
             label="Drawdown",
             linewidth=2,
             alpha=1,
+            linestyle="--",  # 虚线
         )
         ax_drawdown.set_ylabel("Drawdown", color=colors["drawdown"])
         ax_drawdown.tick_params(axis="y", colors=colors["drawdown"])
@@ -340,14 +346,14 @@ if __name__ == "__main__":
     #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
 
     """ 执行bt相关策略 """
-    # cash, final_value = exec_btstrategy(trade_date)
+    cash, final_value = exec_btstrategy(trade_date)
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("us", trade_date).send_btstrategy_by_email(4334305.49, 12167768.98)
+    StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()
