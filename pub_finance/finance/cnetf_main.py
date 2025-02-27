@@ -247,7 +247,7 @@ def exec_btstrategy(date):
             linewidth=3.5,
             marker="o",  # 圆点标记
             markersize=4,  # 标记大小
-            markerfacecolor="white",  # 标记填充颜色
+            markerfacecolor=colors["text"],  # 标记填充颜色
             markeredgewidth=2,  # 标记边框宽度
             markeredgecolor=colors["cumret"],  # 标记边框颜色
         )
@@ -264,7 +264,7 @@ def exec_btstrategy(date):
             label="Drawdown",
             linewidth=2,
             alpha=1,
-            linestyle="-.",  # 虚线
+            linestyle="-",  # 虚线
         )
         ax_drawdown.set_ylabel("Drawdown", color=colors["drawdown"])
         ax_drawdown.tick_params(axis="y", colors=colors["drawdown"])
