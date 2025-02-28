@@ -312,6 +312,12 @@ img {
   min-width: 10vw;
 }
 
+.cn_table .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='NAME'],
+.cn_table .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='IND'] {
+  white-space: normal !important;
+  min-width: 8vw;
+}
+
 td {
   padding: 0px 0px;
 }
@@ -637,6 +643,12 @@ a:active {
     /* 视口宽度的20% */
     min-width: 20vw;
     /* 防止过宽 */
+  }
+
+  .cn_table .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='NAME'],
+  .cn_table .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='IND'] {
+
+    min-width: 20vw;
   }
 
   .tab.first {

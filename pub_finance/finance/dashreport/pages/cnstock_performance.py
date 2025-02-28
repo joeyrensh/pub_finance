@@ -529,8 +529,10 @@ def create_layout(app):
                                         [
                                             html.Div(
                                                 children=make_dash_format_table(
-                                                    df, cols_format_category
+                                                    df,
+                                                    cols_format_category,
                                                 ),
+                                                className="cn_table",
                                             )
                                         ],
                                         style={
@@ -561,6 +563,7 @@ def create_layout(app):
                                                 children=make_dash_format_table(
                                                     df_detail, cols_format_detail
                                                 ),
+                                                className="cn_table",
                                             )
                                         ],
                                         style={
@@ -590,6 +593,7 @@ def create_layout(app):
                                                 children=make_dash_format_table(
                                                     df_etf, cols_format_etf
                                                 ),
+                                                className="cn_table",
                                             )
                                         ],
                                         style={
@@ -620,6 +624,7 @@ def create_layout(app):
                                                     df_detail_short,
                                                     cols_format_detail_short,
                                                 ),
+                                                className="cn_table",
                                             )
                                         ],
                                         style={
