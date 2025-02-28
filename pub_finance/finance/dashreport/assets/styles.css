@@ -305,6 +305,13 @@ img {
   background: none !important;
 }
 
+/* 表头列名样式同步 */
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='NAME'],
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='IND'] {
+  white-space: normal !important;
+  min-width: 80px;
+}
+
 td {
   padding: 0px 0px;
 }
@@ -623,6 +630,15 @@ a:active {
     background-color: transparent;
     /* filter:
       contrast(105%) saturate(110%); */
+  }
+
+  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='NAME'],
+  .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='IND'] {
+    white-space: normal !important;
+    width: 20vw !important;
+    /* 视口宽度的20% */
+    max-width: 100px;
+    /* 防止过宽 */
   }
 
   .tab.first {
