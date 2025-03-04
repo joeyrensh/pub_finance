@@ -1,39 +1,3 @@
-# stock_us_spot_em_df = ak.stock_us_spot_em()
-# stock_us_spot_em_df.to_csv("./usstockinfo/stock_us_spot_em.csv")
-
-
-# stock_us_hist_df = ak.stock_us_hist(
-#     symbol="106.TTE",
-#     period="daily",
-#     start_date="20200101",
-#     end_date="20240214",
-#     adjust="qfq",
-# )
-# print(stock_us_hist_df)
-
-
-# stock_individual_info_em_df = ak.stock_individual_info_em(symbol="601688")
-# print(stock_individual_info_em_df)
-
-
-# stock_zh_a_spot_em_df = ak.stock_zh_a_spot_em()
-# print(stock_zh_a_spot_em_df)
-
-# stock_board_industry_summary_ths_df = ak.stock_board_industry_summary_ths()
-# print(stock_board_industry_summary_ths_df)
-
-
-# us_stock_current_df = ak.stock_us_spot()
-# us_stock_current_df.to_csv("./usstockinfo/stock_us_spot.csv")
-
-# import yfinance as yf
-
-# msft = yf.Ticker("BABA")
-# # stock_price = yf.download(
-# #     "AAPL", start="2017-01-01", end="2017-04-30", proxy="http://127.0.0.1:10809"
-# # )
-# print(msft.info)
-import json
 import requests
 import akshare as ak
 import random
@@ -63,7 +27,7 @@ COOKIES = {
 }
 
 BASE_URL = "https://stock.xueqiu.com/v5/stock/f10/us/industry.json"
-OUTPUT_FILE = "stock_industries_test.csv"
+OUTPUT_FILE = "./usstockinfo/industry_xueqiu.csv"
 
 
 def create_session():
@@ -97,24 +61,20 @@ def get_industry(session, symbol):
         # 验证响应状态
         if response.status_code != 200:
             print(f"异常状态码 {response.status_code}，尝试重试...")
-            return "Error", "Error"
+            return "Error"
 
         data = response.json()
 
         # 提取首个行业名称
         industry = data.get("data", {}).get("industry")
-        concept = data.get("data", {}).get("concept")
         if industry and len(industry) > 0:
             industry_name = industry[0]["ind_name"]
-            concept_name = (
-                concept[0]["ind_name"] if concept and len(concept) > 0 else None
-            )
-            return industry_name, concept_name
-        return "NA", "NA"
+            return industry_name
+        return "NA"
 
     except Exception as e:
         print(f"请求异常: {str(e)}")
-        return "Error", "Error"
+        return "Error"
 
 
 # ====== 主程序 ======
@@ -134,18 +94,18 @@ def main(SYMBOLS):
 
     with open(OUTPUT_FILE, "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.writer(f)
-        writer.writerow(["idx", "symbol", "industry", "concept"])  # 写入表头
+        writer.writerow(["idx", "symbol", "industry"])  # 写入表头
 
         for idx, symbol in enumerate(SYMBOLS, 1):
             retry_count = 0
-            industry, concept = "Error", "Error"
+            industry = "Error"
 
             while retry_count < 3:
                 print(f"正在处理 [{idx}/{len(SYMBOLS)}] {symbol}...")
-                industry, concept = get_industry(session, symbol)
+                industry = get_industry(session, symbol)
 
                 if industry != "Error":
-                    print(f"成功获取：{industry}, {concept}")
+                    print(f"成功获取：{industry}")
                     break
                 else:
                     retry_count += 1
@@ -154,7 +114,7 @@ def main(SYMBOLS):
 
             # 将数据存入缓冲区
             if industry not in ("Error", "NA"):
-                batch_buffer.append([global_index, symbol, industry, concept])
+                batch_buffer.append([global_index, symbol, industry])
                 global_index += 1
 
             # 每10条记录写入一次
