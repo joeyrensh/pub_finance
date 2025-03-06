@@ -6,6 +6,7 @@ import time
 import random
 import logging
 from requests.exceptions import ProxyError, ConnectionError, Timeout, HTTPError
+import os
 
 # 配置日志记录
 logging.basicConfig(
@@ -87,14 +88,45 @@ def get_industry_info(symbol, proxy_list, max_retries=3):
     return "获取失败"
 
 
+def export_batch(batch_data, batch_number, output_dir="output"):
+    """
+    导出批次数据到CSV文件
+    :param batch_data: 当前批次数据列表
+    :param batch_number: 批次编号
+    :param output_dir: 输出目录
+    """
+    try:
+        # 创建输出目录
+        os.makedirs(output_dir, exist_ok=True)
+
+        # 转换为DataFrame并选择字段
+        df = pd.DataFrame(batch_data)[["索引", "symbol", "industry"]]
+
+        # 生成文件名
+        filename = os.path.join(output_dir, f"batch_{batch_number}.csv")
+
+        # 导出文件
+        df.to_csv(filename, index=False)
+        logger.info(f"成功导出第 {batch_number} 批次数据，包含 {len(df)} 条记录")
+
+    except Exception as e:
+        logger.error(f"导出批次 {batch_number} 失败: {str(e)}")
+
+
 def main(PROXY_LIST):
+    BATCH_SIZE = 10  # 每批导出的记录数
+    OUTPUT_DIR = "export_results"  # 输出目录
+
     # 获取股票列表
     symbols = get_us_stock_symbols()
     if not symbols:
         return
 
-    # 结果存储
-    results = []
+    # 初始化存储
+    all_results = []  # 存储所有结果
+    current_batch = []  # 当前批次数据
+    batch_count = 1  # 批次计数器
+    total_count = 0  # 总处理计数器
 
     # 遍历处理
     for idx, symbol in enumerate(symbols, 1):
@@ -102,20 +134,30 @@ def main(PROXY_LIST):
             start_time = time.time()
 
             # 获取行业信息（最多重试5次）
-            industry = get_industry_info(symbol, PROXY_LIST, max_retries=50)
+            industry = get_industry_info(symbol, PROXY_LIST, max_retries=5)
 
-            # 记录结果
-            results.append(
-                {
-                    "symbol": symbol,
-                    "industry": industry,
-                    "time_cost": round(time.time() - start_time, 2),
-                }
-            )
+            # 构建结果记录
+            total_count += 1
+            record = {
+                "索引": total_count,  # 全局自增序号
+                "symbol": symbol,
+                "industry": industry,
+                "_processed_time": round(time.time() - start_time, 2),
+            }
 
-            # 进度输出
+            # 存储数据
+            all_results.append(record)
+            current_batch.append(record)
+
+            # 达到批次大小触发导出
+            if len(current_batch) >= BATCH_SIZE:
+                export_batch(current_batch, batch_count, OUTPUT_DIR)
+                current_batch = []
+                batch_count += 1
+
+            # 进度日志
             logger.info(
-                f"进度: {idx}/{len(symbols)} | 耗时: {results[-1]['time_cost']}s"
+                f"已处理 {idx}/{len(symbols)} | 耗时: {record['_processed_time']}s"
             )
 
             # 随机延迟（3-8秒）
@@ -128,10 +170,14 @@ def main(PROXY_LIST):
         except Exception as e:
             logger.error(f"处理 {symbol} 时发生意外错误: {str(e)}")
 
-    # 结果展示
-    result_df = pd.DataFrame(results)
-    print("\n最终结果：")
-    print(result_df)
+    # 导出最后未满批次的数据
+    if current_batch:
+        export_batch(current_batch, batch_count, OUTPUT_DIR)
+
+    # 最终汇总展示
+    final_df = pd.DataFrame(all_results)[["索引", "symbol", "industry"]]
+    print("\n最终汇总结果：")
+    print(final_df)
 
 
 if __name__ == "__main__":
