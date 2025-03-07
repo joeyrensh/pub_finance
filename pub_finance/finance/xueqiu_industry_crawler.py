@@ -68,7 +68,7 @@ def get_industry(session, symbol):
         # 提取首个行业名称
         industry = data.get("data", {}).get("industry")
         if industry and len(industry) > 0:
-            industry_name = industry[0]["ind_name"]
+            industry_name = industry[3]["ind_name"]
             return industry_name
         return "NA"
 

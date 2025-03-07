@@ -6,7 +6,7 @@ import time
 import random
 import logging
 from requests.exceptions import ProxyError, ConnectionError, Timeout, HTTPError
-import os
+import csv
 
 # 配置日志记录
 logging.basicConfig(
@@ -20,17 +20,18 @@ def get_us_stock_symbols():
     try:
         stock_df = ak.stock_us_spot_em()
         stock_df["clean_symbol"] = stock_df["代码"].str.split(".").str[1]
+        # testing case
         return stock_df["clean_symbol"].tolist()[:1]
+        # return stock_df["clean_symbol"].tolist()
     except Exception as e:
         logger.error(f"获取股票列表失败: {str(e)}")
         return []
 
 
-def get_industry_info(symbol, proxy_list, max_retries=3):
+def get_industry_info(symbol, proxy_list, max_retries=1):
     """带代理轮换的重试机制"""
     if not proxy_list:
-        logger.error("代理列表为空，无法请求")
-        return "获取失败"
+        logger.error("代理列表为空")
 
     # 记录已用过的代理避免重复尝试
     used_proxies = set()
@@ -73,7 +74,7 @@ def get_industry_info(symbol, proxy_list, max_retries=3):
         except (ProxyError, ConnectionError, Timeout, HTTPError) as e:
             logger.warning(f"代理 {current_proxy} 失效，标记并切换代理")
             used_proxies.add(current_proxy)
-            time.sleep(random.uniform(1, 3))
+            time.sleep(random.uniform(1, 2))
 
         except Exception as e:
             logger.error(f"其他错误: {str(e)}")
@@ -83,105 +84,72 @@ def get_industry_info(symbol, proxy_list, max_retries=3):
         if len(used_proxies) == len(proxy_list):
             logger.warning("所有代理均已尝试，重置代理状态")
             used_proxies.clear()
-            time.sleep(5)  # 增加冷却时间
 
     return "获取失败"
 
 
-def export_batch(batch_data, batch_number, output_dir="output"):
-    """
-    导出批次数据到CSV文件
-    :param batch_data: 当前批次数据列表
-    :param batch_number: 批次编号
-    :param output_dir: 输出目录
-    """
-    try:
-        # 创建输出目录
-        os.makedirs(output_dir, exist_ok=True)
-
-        # 转换为DataFrame并选择字段
-        df = pd.DataFrame(batch_data)[["索引", "symbol", "industry"]]
-
-        # 生成文件名
-        filename = os.path.join(output_dir, f"batch_{batch_number}.csv")
-
-        # 导出文件
-        df.to_csv(filename, index=False)
-        logger.info(f"成功导出第 {batch_number} 批次数据，包含 {len(df)} 条记录")
-
-    except Exception as e:
-        logger.error(f"导出批次 {batch_number} 失败: {str(e)}")
-
-
 def main(PROXY_LIST):
-    BATCH_SIZE = 10  # 每批导出的记录数
-    OUTPUT_DIR = "export_results"  # 输出目录
-
     # 获取股票列表
     symbols = get_us_stock_symbols()
     if not symbols:
         return
 
-    # 初始化存储
-    all_results = []  # 存储所有结果
-    current_batch = []  # 当前批次数据
-    batch_count = 1  # 批次计数器
-    total_count = 0  # 总处理计数器
+    # 开始采集数据
+    global_index = 1  # 全局索引计数器
+    batch_buffer = []  # 批量写入缓冲区
+    OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
 
     # 遍历处理
-    for idx, symbol in enumerate(symbols, 1):
-        try:
-            start_time = time.time()
+    with open(OUTPUT_FILE, "w", newline="", encoding="utf-8-sig") as f:
+        writer = csv.writer(f)
+        writer.writerow(["idx", "symbol", "industry"])  # 写入表头
 
-            # 获取行业信息（最多重试5次）
-            industry = get_industry_info(symbol, PROXY_LIST, max_retries=5)
+        for idx, symbol in enumerate(symbols, 1):
+            try:
+                start_time = time.time()
 
-            # 构建结果记录
-            total_count += 1
-            record = {
-                "索引": total_count,  # 全局自增序号
-                "symbol": symbol,
-                "industry": industry,
-                "_processed_time": round(time.time() - start_time, 2),
-            }
+                # 获取行业信息（最多重试5次）
+                industry = get_industry_info(symbol, PROXY_LIST, max_retries=5)
 
-            # 存储数据
-            all_results.append(record)
-            current_batch.append(record)
+                # 构建结果记录
+                global_index += 1
+                record = {
+                    "idx": global_index,  # 全局自增序号
+                    "symbol": symbol,
+                    "industry": industry,
+                    "_processed_time": round(time.time() - start_time, 2),
+                }
+                batch_buffer.append([global_index, symbol, industry])
 
-            # 达到批次大小触发导出
-            if len(current_batch) >= BATCH_SIZE:
-                export_batch(current_batch, batch_count, OUTPUT_DIR)
-                current_batch = []
-                batch_count += 1
+                # 每10条记录写入一次
+                if len(batch_buffer) == 10:
+                    writer.writerows(batch_buffer)
+                    f.flush()
+                    batch_buffer.clear()  # 清空缓冲区
 
-            # 进度日志
-            logger.info(
-                f"已处理 {idx}/{len(symbols)} | 耗时: {record['_processed_time']}s"
-            )
+                # 进度日志
+                logger.info(
+                    f"已处理 {idx}/{len(symbols)} | 耗时: {record['_processed_time']}s"
+                )
 
-            # 随机延迟（3-8秒）
-            time.sleep(random.uniform(3, 8))
+                # 随机延迟（3-8秒）
+                time.sleep(random.uniform(1, 2))
 
-        except KeyboardInterrupt:
-            logger.info("用户中断操作")
-            break
+            except KeyboardInterrupt:
+                logger.info("用户中断操作")
+                break
 
-        except Exception as e:
-            logger.error(f"处理 {symbol} 时发生意外错误: {str(e)}")
+            except Exception as e:
+                logger.error(f"处理 {symbol} 时发生意外错误: {str(e)}")
 
-    # 导出最后未满批次的数据
-    if current_batch:
-        export_batch(current_batch, batch_count, OUTPUT_DIR)
-
-    # 最终汇总展示
-    final_df = pd.DataFrame(all_results)[["索引", "symbol", "industry"]]
-    print("\n最终汇总结果：")
-    print(final_df)
+        # 写入剩余记录
+        if batch_buffer:
+            writer.writerows(batch_buffer)
+            f.flush()
 
 
 if __name__ == "__main__":
     proxy_list = [
-        "http://23.82.137.162:80",
+        "http://180.178.37.114:80",
     ]
     main(proxy_list)
