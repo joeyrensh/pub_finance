@@ -119,7 +119,7 @@ def main(PROXY_LIST, OUTPUT_FILE):
                 start_time = time.time()
 
                 # 获取行业信息（最大重试次数5）
-                industry = get_industry_info(symbol, PROXY_LIST, max_retries=5)
+                industry = get_industry_info(symbol, PROXY_LIST, max_retries=1)
 
                 # 构建记录
                 record = [global_index, symbol, industry]
@@ -153,7 +153,7 @@ def main(PROXY_LIST, OUTPUT_FILE):
 
 
 if __name__ == "__main__":
-    proxy_list = []  # 示例空代理列表
-    # OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
-    OUTPUT_FILE = "./industry_yfinance.csv"
+    proxy_list = ["http://127.0.0.1:2081"]  # 示例空代理列表
+    OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
+    # OUTPUT_FILE = "./industry_yfinance.csv"
     main(proxy_list, OUTPUT_FILE)
