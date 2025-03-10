@@ -346,14 +346,14 @@ if __name__ == "__main__":
     #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
 
     """ 执行bt相关策略 """
-    cash, final_value = exec_btstrategy(trade_date)
+    # cash, final_value = exec_btstrategy(trade_date)
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
+    StockProposal("us", trade_date).send_btstrategy_by_email(6526093.9, 11977717.21)
 
     """ 结束进度条 """
     pbar.finish()
