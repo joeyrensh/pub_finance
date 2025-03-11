@@ -69,12 +69,10 @@ def get_industry_info(symbol, proxy_list, max_retries=3):
                     logger.warning(f"[{symbol}] 代理 {proxy} 失效 | 错误: {str(e)}")
                 else:
                     logger.warning(f"[{symbol}] 直连失败 | 错误: {str(e)}")
-                time.sleep(random.uniform(1, 2))
                 continue
 
             except Exception as e:
                 logger.error(f"[{symbol}] 处理错误: {str(e)}")
-                time.sleep(2)
                 continue
 
         # 当前优先级列表全部失败时重置
