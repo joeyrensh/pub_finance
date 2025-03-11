@@ -71,11 +71,9 @@ def get_industry_info(symbol, proxy_list, max_retries=1):
                 used_proxies.add(current_proxy)
             else:
                 logger.warning(f"请求失败（无代理）| 错误: {str(e)}")
-            time.sleep(random.uniform(1, 2))
 
         except Exception as e:
             logger.error(f"处理 {symbol} 时发生其他错误: {str(e)}")
-            time.sleep(2)
 
         # 当所有代理均尝试后重置
         if use_proxy and len(used_proxies) == len(proxy_list):
@@ -180,7 +178,7 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
                 logger.info(
                     f"已处理 {idx}/{len(symbols)} | 耗时: {time.time() - start_time:.2f}s"
                 )
-                time.sleep(random.uniform(1, 2))
+                time.sleep(random.uniform(0.5, 1))
 
             except KeyboardInterrupt:
                 logger.info("用户中断，保存已处理数据...")
