@@ -110,9 +110,6 @@ def get_us_stock_symbols(cache_file, output_file):
     processed = get_processed_symbols(output_file)
 
     try:
-        # 创建缓存目录
-        os.makedirs(os.path.dirname(cache_file), exist_ok=True)
-
         # 如果缓存文件存在则直接读取
         if os.path.exists(cache_file):
             stock_df = pd.read_csv(cache_file)
@@ -205,7 +202,7 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
 
 if __name__ == "__main__":
     proxy_list = [
-        "http://47.251.43.115:33333",
+        "http://38.121.43.133:3128",
     ]  # 代理列表
     CACHE_FILE = "./usstockinfo/symbol_list_cache.csv"
     OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
