@@ -86,7 +86,7 @@ def get_industry_info(symbol, proxy_list, max_retries=1):
             logger.warning("所有代理均已尝试，重置代理状态")
             used_proxies.clear()
 
-    return "获取失败"
+    return "N/A"
 
 
 def get_processed_symbols(output_file):
@@ -105,23 +105,51 @@ def get_processed_symbols(output_file):
     return processed
 
 
-def get_us_stock_symbols(output_file):
-    """获取未处理的美股代码列表"""
-    try:
-        stock_df = ak.stock_us_spot_em()
-        stock_df["clean_symbol"] = stock_df["代码"].str.split(".").str[1]
-        all_symbols = stock_df["clean_symbol"].tolist()
+def get_us_stock_symbols(cache_file, output_file):
+    """获取未处理的美股代码列表（带CSV缓存）"""
+    processed = get_processed_symbols(output_file)
 
-        # 过滤已处理过的代码
-        processed = get_processed_symbols(output_file)
-        return [s for s in all_symbols if s not in processed]
+    try:
+        # 创建缓存目录
+        os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+
+        # 如果缓存文件存在则直接读取
+        if os.path.exists(cache_file):
+            stock_df = pd.read_csv(cache_file)
+            logger.info(f"从缓存文件 {cache_file} 加载股票代码")
+        else:
+            # 无缓存时请求接口
+            logger.info("未找到缓存文件，开始请求原始数据...")
+            stock_df = ak.stock_us_spot_em()
+            stock_df["clean_symbol"] = stock_df["代码"].str.split(".").str[1]
+
+            # 保存缓存
+            stock_df.to_csv(cache_file, index=False)
+            logger.info(f"已缓存股票代码到 {cache_file}")
+
+        # 获取有效代码列表
+        all_symbols = stock_df["clean_symbol"].tolist()
+        logger.info(f"总代码数量：{len(all_symbols)}")
+
+        # 过滤已处理代码
+        filtered = [s for s in all_symbols if s not in processed]
+        logger.info(f"待处理代码数量：{len(filtered)}")
+        return filtered
+
     except Exception as e:
-        logger.error(f"获取股票列表失败: {str(e)}")
+        logger.error(f"股票代码获取失败: {str(e)}")
+        # 如果缓存文件生成失败，尝试删除损坏文件
+        if os.path.exists(cache_file):
+            try:
+                os.remove(cache_file)
+                logger.warning(f"已移除损坏的缓存文件 {cache_file}")
+            except Exception as remove_error:
+                logger.error(f"无法移除损坏文件: {str(remove_error)}")
         return []
 
 
-def main(PROXY_LIST, OUTPUT_FILE):
-    symbols = get_us_stock_symbols(OUTPUT_FILE)
+def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
+    symbols = get_us_stock_symbols(CACHE_FILE, OUTPUT_FILE)
     if not symbols:
         logger.info("没有需要处理的新股票代码")
         return
@@ -176,10 +204,8 @@ def main(PROXY_LIST, OUTPUT_FILE):
 
 
 if __name__ == "__main__":
-    proxy_list = ["http://164.163.42.25:10000"]  # 代理列表
+    proxy_list = ["http://148.251.86.76:10000"]  # 代理列表
+    CACHE_FILE = "./usstockinfo/symbol_list_cache.csv"
     OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
 
-    # 自动创建目录
-    os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
-
-    main(proxy_list, OUTPUT_FILE)
+    main(proxy_list, CACHE_FILE, OUTPUT_FILE)
