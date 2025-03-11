@@ -14,16 +14,6 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
-
-import requests
-import logging
-import random
-import time
-from requests.exceptions import ProxyError, ConnectionError, Timeout, HTTPError
-import yfinance as yf
-
-logger = logging.getLogger(__name__)
 last_success_proxy = None  # 持久化存储最后成功的代理
 
 
