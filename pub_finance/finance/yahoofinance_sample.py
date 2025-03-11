@@ -59,10 +59,6 @@ def get_industry_info(symbol, proxy_list, max_retries=1):
                 # 获取股票信息
                 ticker = yf.Ticker(symbol, session=session)
                 info = ticker.info
-
-                # 验证数据完整性
-                if "industry" not in info:
-                    raise ValueError("行业信息字段缺失")
                 industry = info.get("industry", "N/A")
                 logger.info(f"✅ 成功获取 {symbol} 的行业信息")
                 return industry
@@ -202,7 +198,7 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
 
 if __name__ == "__main__":
     proxy_list = [
-        "http://38.121.43.133:3128",
+        "http://52.48.78.67:3128",
     ]  # 代理列表
     CACHE_FILE = "./usstockinfo/symbol_list_cache.csv"
     OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
