@@ -7,26 +7,13 @@ import random
 import logging
 from requests.exceptions import ProxyError, ConnectionError, Timeout, HTTPError
 import csv
+import os
 
 # 配置日志记录
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
-
-def get_us_stock_symbols():
-    """获取美股代码列表（示例取前20只）"""
-    try:
-        stock_df = ak.stock_us_spot_em()
-        stock_df["clean_symbol"] = stock_df["代码"].str.split(".").str[1]
-        # 测试用例，仅取前1只
-        return stock_df["clean_symbol"].tolist()[:1]
-        # 实际使用时应返回全部
-        # return stock_df["clean_symbol"].tolist()
-    except Exception as e:
-        logger.error(f"获取股票列表失败: {str(e)}")
-        return []
 
 
 def get_industry_info(symbol, proxy_list, max_retries=1):
@@ -102,49 +89,85 @@ def get_industry_info(symbol, proxy_list, max_retries=1):
     return "获取失败"
 
 
+def get_processed_symbols(output_file):
+    """读取已处理的股票代码"""
+    processed = set()
+    if os.path.exists(output_file):
+        try:
+            with open(output_file, "r", encoding="utf-8-sig") as f:
+                reader = csv.reader(f)
+                next(reader)  # 跳过表头
+                for row in reader:
+                    if len(row) >= 2:  # 确保有symbol列
+                        processed.add(row[1])
+        except Exception as e:
+            logger.error(f"读取已处理文件失败: {str(e)}")
+    return processed
+
+
+def get_us_stock_symbols(output_file):
+    """获取未处理的美股代码列表"""
+    try:
+        stock_df = ak.stock_us_spot_em()
+        stock_df["clean_symbol"] = stock_df["代码"].str.split(".").str[1]
+        all_symbols = stock_df["clean_symbol"].tolist()
+
+        # 过滤已处理过的代码
+        processed = get_processed_symbols(output_file)
+        return [s for s in all_symbols if s not in processed]
+    except Exception as e:
+        logger.error(f"获取股票列表失败: {str(e)}")
+        return []
+
+
 def main(PROXY_LIST, OUTPUT_FILE):
-    symbols = get_us_stock_symbols()
+    symbols = get_us_stock_symbols(OUTPUT_FILE)
     if not symbols:
+        logger.info("没有需要处理的新股票代码")
         return
 
-    global_index = 1  # 全局索引
-    batch_buffer = []  # 批量写入缓冲区
-
-    with open(OUTPUT_FILE, "w", newline="", encoding="utf-8-sig") as f:
+    # 创建文件并写入表头（如果文件不存在）
+    file_exists = os.path.exists(OUTPUT_FILE)
+    with open(OUTPUT_FILE, "a", newline="", encoding="utf-8-sig") as f:
         writer = csv.writer(f)
-        writer.writerow(["idx", "symbol", "industry"])  # 写入表头
+        if not file_exists:
+            writer.writerow(["idx", "symbol", "industry"])
+
+        batch_buffer = []
+        global_index = (
+            sum(1 for _ in open(OUTPUT_FILE, "r", encoding="utf-8-sig")) - 1
+        )  # 计算当前索引
 
         for idx, symbol in enumerate(symbols, 1):
             try:
                 start_time = time.time()
 
-                # 获取行业信息（最大重试次数5）
+                # 获取行业信息
                 industry = get_industry_info(symbol, PROXY_LIST, max_retries=1)
 
                 # 构建记录
+                global_index += 1
                 record = [global_index, symbol, industry]
                 batch_buffer.append(record)
-                global_index += 1
 
-                # 每10条批量写入
+                # 批量写入
                 if len(batch_buffer) >= 10:
                     writer.writerows(batch_buffer)
                     f.flush()
                     batch_buffer.clear()
 
-                # 进度日志
                 logger.info(
                     f"已处理 {idx}/{len(symbols)} | 耗时: {time.time() - start_time:.2f}s"
                 )
-
-                # 随机延迟（1-2秒）
                 time.sleep(random.uniform(1, 2))
 
             except KeyboardInterrupt:
-                logger.info("用户中断操作")
-                break
+                logger.info("用户中断，保存已处理数据...")
+                writer.writerows(batch_buffer)
+                f.flush()
+                return
             except Exception as e:
-                logger.error(f"处理 {symbol} 时发生意外错误: {str(e)}")
+                logger.error(f"处理 {symbol} 失败: {str(e)}")
 
         # 写入剩余数据
         if batch_buffer:
@@ -153,7 +176,10 @@ def main(PROXY_LIST, OUTPUT_FILE):
 
 
 if __name__ == "__main__":
-    proxy_list = ["http://127.0.0.1:2081"]  # 示例空代理列表
+    proxy_list = ["http://164.163.42.25:10000"]  # 代理列表
     OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
-    # OUTPUT_FILE = "./industry_yfinance.csv"
+
+    # 自动创建目录
+    os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
+
     main(proxy_list, OUTPUT_FILE)
