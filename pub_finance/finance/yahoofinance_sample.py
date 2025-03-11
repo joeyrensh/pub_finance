@@ -199,6 +199,8 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
 if __name__ == "__main__":
     proxy_list = [
         "http://52.48.78.67:3128",
+        "http://52.18.193.139:3128",
+        "http://63.34.176.150:3128",
     ]  # 代理列表
     CACHE_FILE = "./usstockinfo/symbol_list_cache.csv"
     OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
