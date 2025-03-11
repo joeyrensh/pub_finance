@@ -16,69 +16,82 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def get_industry_info(symbol, proxy_list, max_retries=1):
-    """带代理轮换的重试机制"""
+import requests
+import logging
+import random
+import time
+from requests.exceptions import ProxyError, ConnectionError, Timeout, HTTPError
+import yfinance as yf
+
+logger = logging.getLogger(__name__)
+last_success_proxy = None  # 持久化存储最后成功的代理
+
+
+def get_industry_info(symbol, proxy_list, max_retries=3):
+    global last_success_proxy
+
     use_proxy = bool(proxy_list)
     if not use_proxy:
-        logger.info("代理列表为空，请求将不使用代理。")
+        logger.info(f"[{symbol}] 代理列表为空，直连访问")
 
-    used_proxies = set()  # 记录已用过的代理
+    # 代理使用优先级：最后成功 > 未使用代理 > 已失败代理
+    proxy_priority_list = []
+    if last_success_proxy and last_success_proxy in proxy_list:
+        proxy_priority_list.append(last_success_proxy)
+        proxy_priority_list.extend([p for p in proxy_list if p != last_success_proxy])
+    else:
+        proxy_priority_list = proxy_list.copy()
 
     for attempt in range(1, max_retries + 1):
-        current_proxy = None
-        if use_proxy:
-            # 计算当前应使用的代理索引
-            proxy_idx = (attempt - 1) % len(proxy_list)
-            current_proxy = proxy_list[proxy_idx]
-            if current_proxy in used_proxies:
-                continue  # 跳过已尝试的代理
-        else:
-            current_proxy = None  # 不使用代理
+        for proxy in proxy_priority_list:
+            try:
+                # 创建新会话
+                with requests.Session() as session:
+                    if use_proxy:
+                        session.proxies = {"http": proxy, "https": proxy}
+                        logger.info(f"[{symbol}] 尝试第{attempt}次请求 | 代理: {proxy}")
+                    else:
+                        logger.info(f"[{symbol}] 尝试第{attempt}次请求 | 直连")
 
-        try:
-            # 日志记录代理使用情况
-            if use_proxy:
-                logger.info(
-                    f"尝试 [{symbol}] 第{attempt}次请求 | 使用代理: {current_proxy}"
-                )
-            else:
-                logger.info(f"尝试 [{symbol}] 第{attempt}次请求 | 不使用代理")
+                    # 动态请求头
+                    session.headers.update(
+                        {
+                            "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                            f"AppleWebKit/537.36 (尝试次数: {attempt})"
+                        }
+                    )
 
-            # 创建独立会话并设置代理
-            with requests.Session() as session:
+                    # 获取行业信息
+                    ticker = yf.Ticker(symbol, session=session)
+                    info = ticker.info
+                    industry = info.get("industry", "N/A")
+
+                    # 记录成功代理
+                    if use_proxy:
+                        last_success_proxy = proxy
+                        logger.debug(f"[{symbol}] 代理 {proxy} 标记为有效")
+
+                    logger.info(f"✅ 成功获取 {symbol} 行业信息")
+                    return industry
+
+            except (ProxyError, ConnectionError, Timeout, HTTPError) as e:
                 if use_proxy:
-                    session.proxies = {"http": current_proxy, "https": current_proxy}
+                    logger.warning(f"[{symbol}] 代理 {proxy} 失效 | 错误: {str(e)}")
+                else:
+                    logger.warning(f"[{symbol}] 直连失败 | 错误: {str(e)}")
+                time.sleep(random.uniform(1, 2))
+                continue
 
-                # 动态User-Agent
-                session.headers.update(
-                    {
-                        "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (尝试次数: {attempt})"
-                    }
-                )
+            except Exception as e:
+                logger.error(f"[{symbol}] 处理错误: {str(e)}")
+                time.sleep(2)
+                continue
 
-                # 获取股票信息
-                ticker = yf.Ticker(symbol, session=session)
-                info = ticker.info
-                industry = info.get("industry", "N/A")
-                logger.info(f"✅ 成功获取 {symbol} 的行业信息")
-                return industry
-
-        except (ProxyError, ConnectionError, Timeout, HTTPError) as e:
-            if use_proxy:
-                logger.warning(
-                    f"代理 {current_proxy} 失效，标记并切换 | 错误: {str(e)}"
-                )
-                used_proxies.add(current_proxy)
-            else:
-                logger.warning(f"请求失败（无代理）| 错误: {str(e)}")
-
-        except Exception as e:
-            logger.error(f"处理 {symbol} 时发生其他错误: {str(e)}")
-
-        # 当所有代理均尝试后重置
-        if use_proxy and len(used_proxies) == len(proxy_list):
-            logger.warning("所有代理均已尝试，重置代理状态")
-            used_proxies.clear()
+        # 当前优先级列表全部失败时重置
+        if use_proxy:
+            logger.warning(f"[{symbol}] 所有代理尝试失败，重置代理状态")
+            last_success_proxy = None
+            proxy_priority_list = proxy_list.copy()
 
     return "N/A"
 
