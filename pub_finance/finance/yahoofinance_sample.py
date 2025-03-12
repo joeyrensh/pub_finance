@@ -195,6 +195,49 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
             f.flush()
 
 
+def convert_industry(source_file: str, map_file: str, target_file: str) -> None:
+    """
+    转换行业信息并生成新文件
+
+    参数:
+        source_file: 输入文件a.csv路径
+        map_file: 映射文件b.csv路径
+        target_file: 输出文件c.csv路径
+    """
+    try:
+        # 读取原始数据
+        df_a = pd.read_csv(source_file)
+
+        # 过滤无效行业数据
+        valid_industry = df_a["industry"].notna() & (
+            df_a["industry"].str.upper() != "N/A"
+        )
+        df_filtered = df_a[valid_industry].copy()
+
+        # 读取映射关系
+        df_b = pd.read_csv(map_file)
+        mapping = df_b.set_index("industry_eng")["industry_cn"].to_dict()
+
+        # 进行行业转换
+        df_filtered.loc[:, "industry"] = df_filtered["industry"].map(mapping)
+
+        # 移除转换失败的记录
+        df_result = df_filtered.dropna(subset=["industry"])
+
+        # 保存结果
+        df_result[["idx", "symbol", "industry"]].to_csv(target_file, index=False)
+
+        print(f"成功生成文件: {target_file}")
+        print(f"原始记录数: {len(df_a)}, 有效记录数: {len(df_result)}")
+
+    except FileNotFoundError as e:
+        print(f"文件不存在错误: {str(e)}")
+    except KeyError as e:
+        print(f"缺少必要列: {str(e)}")
+    except Exception as e:
+        print(f"处理异常: {str(e)}")
+
+
 if __name__ == "__main__":
     # free proxy website : http://free-proxy.cz/en/proxylist/country/all/https/ping/level1
     proxy_list = [
