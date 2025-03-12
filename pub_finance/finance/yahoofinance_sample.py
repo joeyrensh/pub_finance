@@ -196,6 +196,7 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
 
 
 if __name__ == "__main__":
+    # free proxy website : http://free-proxy.cz/en/proxylist/country/all/https/ping/level1
     proxy_list = [
         "http://44.215.100.135:8118",
         "http://211.34.105.33:80",
