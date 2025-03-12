@@ -69,15 +69,11 @@ def get_industry_info(symbol, proxy_list, max_retries=3):
                     logger.warning(f"[{symbol}] 代理 {proxy} 失效 | 错误: {str(e)}")
                 else:
                     logger.warning(f"[{symbol}] 直连失败 | 错误: {str(e)}")
-                continue
+                continue  # 继续尝试下一个代理
 
             except Exception as e:
                 logger.error(f"[{symbol}] 处理错误: {str(e)}")
-                # 记录成功代理
-                if use_proxy:
-                    last_success_proxy = proxy
-                    logger.debug(f"[{symbol}] 代理 {proxy} 标记为有效")
-                return "N/A"
+                continue  # 关键修复：继续尝试下一个代理而非直接返回
 
         # 当前优先级列表全部失败时重置
         if use_proxy:
@@ -245,8 +241,8 @@ def convert_industry(source_file: str, map_file: str, target_file: str) -> None:
 if __name__ == "__main__":
     # free proxy website : http://free-proxy.cz/en/proxylist/country/all/https/ping/level1
     proxy_list = [
-        "http://44.215.100.135:8118",
         "http://211.34.105.33:80",
+        "http://44.215.100.135:8118",
     ]  # 代理列表
     CACHE_FILE = "./usstockinfo/symbol_list_cache.csv"
     OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
