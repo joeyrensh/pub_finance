@@ -163,7 +163,7 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
                 start_time = time.time()
 
                 # 获取行业信息
-                industry = get_industry_info(symbol, PROXY_LIST, max_retries=3)
+                industry = get_industry_info(symbol, PROXY_LIST, max_retries=1)
 
                 # 构建记录
                 global_index += 1
@@ -197,9 +197,8 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
 
 if __name__ == "__main__":
     proxy_list = [
-        "http://52.48.78.67:3128",
-        "http://52.18.193.139:3128",
-        "http://63.34.176.150:3128",
+        "http://44.215.100.135:8118",
+        "http://211.34.105.33:80",
     ]  # 代理列表
     CACHE_FILE = "./usstockinfo/symbol_list_cache.csv"
     OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
