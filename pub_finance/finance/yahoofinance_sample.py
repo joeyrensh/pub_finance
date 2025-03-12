@@ -73,6 +73,10 @@ def get_industry_info(symbol, proxy_list, max_retries=3):
 
             except Exception as e:
                 logger.error(f"[{symbol}] 处理错误: {str(e)}")
+                # 记录成功代理
+                if use_proxy:
+                    last_success_proxy = proxy
+                    logger.debug(f"[{symbol}] 代理 {proxy} 标记为有效")
                 return "N/A"
 
         # 当前优先级列表全部失败时重置
