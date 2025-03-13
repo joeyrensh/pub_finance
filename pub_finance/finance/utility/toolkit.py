@@ -211,7 +211,11 @@ class ToolKit:
         }
 
         # 计算全局特征
-        is_uptrend = data[len(data) - 1] >= data[len(data) - 2]
+        # 涨跌判断逻辑
+        if len(data) >= 2:
+            is_uptrend = data[-1] >= data[-2]  # 用最后两个点判断趋势
+        else:
+            is_uptrend = True  # 默认值
         max_val, min_val = max(data), min(data)
         range_val = max_val - min_val if (max_val != min_val) else 1
 
