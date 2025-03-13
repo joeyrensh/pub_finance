@@ -7,6 +7,7 @@ from io import BytesIO
 from matplotlib_inline.backend_inline import set_matplotlib_formats
 import matplotlib.pyplot as plt
 import sys
+import numpy as np
 
 
 class ToolKit:
@@ -197,91 +198,94 @@ class ToolKit:
     def create_line(data):
         data = list(data)
         set_matplotlib_formats("svg")
-        colors = ["#FF0000", "#009900", "#FFCCCC", "#CCFFCC"]
-        line_width = 1.5
 
-        # initialise the plot as you usually would
-        fig, ax = plt.subplots(1, 1, figsize=(3, 1), facecolor="none")
+        # 配置参数 (Yahoo Finance 视觉规范)
+        config = {
+            "up_color": "#ea3943",  # Yahoo 上涨绿色
+            "down_color": "#16c784",  # Yahoo 下跌红色
+            "line_width": 1.2,
+            "marker_size": 3.5,
+            "gradient_steps": 100,  # 渐变精度
+            "zero_line_alpha": 0.2,
+            "fill_alpha_range": (0.08, 0.3),  # 透明度动态范围
+        }
 
-        # Iterate over each data point
-        for i in range(len(data) - 1):
-            if data[i] >= 0 and data[i + 1] >= 0:
-                line_color = colors[0]
-                fill_color = colors[2]
-                ax.plot(
-                    [i, i + 1],
-                    [data[i], data[i + 1]],
+        # 计算全局特征
+        is_uptrend = data[len(data) - 1] >= data[len(data) - 2]
+        max_val, min_val = max(data), min(data)
+        range_val = max_val - min_val if (max_val != min_val) else 1
+
+        # 初始化画布
+        fig, ax = plt.subplots(1, 1, figsize=(3, 1.2), facecolor="none")  # 调整长宽比
+        fig.patch.set_alpha(0.0)
+        ax.margins(x=0.02, y=0.15)  # 边距优化
+
+        # 主线条绘制
+        line_color = config["up_color"] if is_uptrend else config["down_color"]
+        ax.plot(data, color=line_color, lw=config["line_width"], zorder=3)
+
+        # 渐变填充算法
+        if data:
+            x = np.arange(len(data))
+            y = np.array(data)
+
+            # 生成渐变蒙版
+            y_norm = (y - min_val) / range_val  # 归一化到 [0,1]
+            alphas = np.linspace(
+                config["fill_alpha_range"][0], config["fill_alpha_range"][1], len(data)
+            )
+
+            # 分块渲染优化性能
+            for i in range(len(data) - 1):
+                x_segment = x[i : i + 2]
+                y_segment = y[i : i + 2]
+
+                # 计算局部透明度
+                local_alpha = np.mean(alphas[i : i + 2])
+
+                # 填充到零轴
+                ax.fill_between(
+                    x_segment,
+                    y_segment,
+                    0,
                     color=line_color,
-                    linewidth=line_width,
-                )
-                ax.fill_between([i, i + 1], [data[i], data[i + 1]], color=fill_color)
-            elif data[i] < 0 and data[i + 1] < 0:
-                line_color = colors[1]
-                fill_color = colors[3]
-                ax.plot(
-                    [i, i + 1],
-                    [data[i], data[i + 1]],
-                    color=line_color,
-                    linewidth=line_width,
-                )
-                ax.fill_between([i, i + 1], [data[i], data[i + 1]], color=fill_color)
-            elif data[i] >= 0 and data[i + 1] < 0:
-                ax.plot([i, i], [data[i], 0], color="#FF0000", linewidth=line_width)
-                ax.fill_between([i, i], [data[i], 0], color="#FFCCCC")
-                ax.plot(
-                    [i, i + 1], [0, data[i + 1]], color="#009900", linewidth=line_width
-                )
-                ax.fill_between([i, i + 1], [0, data[i + 1]], color="#CCFFCC")
-            elif data[i] < 0 and data[i + 1] >= 0:
-                ax.plot([i, i], [data[i], 0], color="#009900", linewidth=line_width)
-                ax.fill_between([i, i], [data[i], 0], color="#CCFFCC")
-                ax.plot(
-                    [i, i + 1], [0, data[i + 1]], color="#FF0000", linewidth=line_width
-                )
-                ax.fill_between([i, i + 1], [0, data[i + 1]], color="#00CC00")
-            else:
-                line_color = "#808080"
-                ax.plot(
-                    [i, i + 1],
-                    [data[i], data[i + 1]],
-                    color=line_color,
-                    linewidth=line_width,
+                    alpha=local_alpha,
+                    edgecolor="none",
+                    zorder=2,
                 )
 
-        # turn on zero axis
-        ax.axhline(0, color="black", linestyle="--", linewidth=0.5, dashes=(5, 5))
-        # turn off axis
-        ax.axis("off")
+            # 端点强化
+            ax.scatter(
+                len(data) - 1,
+                data[-1],
+                color=line_color,
+                s=config["marker_size"] ** 2,
+                edgecolor="white" if is_uptrend else "#2a2e39",
+                linewidth=0.4,
+                zorder=4,
+            )
 
-        # add a marker at the last data point
-        # plt.plot(len(data) - 1, data[len(data) - 1], "b.")
-        if data[len(data) - 1] >= 0:
-            marker_color = colors[0]
-        else:
-            marker_color = colors[1]
-
-        plt.plot(
-            len(data) - 1,
-            data[len(data) - 1],
-            marker="o",
-            markersize=4,
-            color=marker_color,
+        # 零轴样式
+        ax.axhline(
+            0, color=line_color, alpha=config["zero_line_alpha"], lw=0.8, zorder=1
         )
 
-        # close the figure
+        # 视觉微调
+        ax.axis("off")
+        plt.tight_layout(pad=0)
+
+        # 输出优化
+        img = BytesIO()
+        fig.savefig(
+            img,
+            format="png",
+            dpi=150,  # 提升DPI
+            transparent=True,
+            bbox_inches="tight",
+            facecolor="none",
+        )
         plt.close(fig)
 
-        # create a Bytes object
-        img = BytesIO()
-
-        # store the above plot to this Bytes object
-        fig.savefig(img, format="png", dpi=120, facecolor="none")
-
-        # Encode object as base64 byte string
-        encoded = b64encode(img.getvalue())
-
-        # The above cannote be printed directly. We need to convert it to utf-8 format
-        decoded = encoded.decode("utf-8")
-
-        # Return the corresponding HTML tag
-        return '<img src="data:image/png;base64,{}"/>'.format(decoded)
+        return (
+            f'<img src="data:image/png;base64,{b64encode(img.getvalue()).decode()}" />'
+        )
