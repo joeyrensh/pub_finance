@@ -220,7 +220,7 @@ class ToolKit:
         range_val = max_val - min_val if (max_val != min_val) else 1
 
         # 初始化画布
-        fig, ax = plt.subplots(1, 1, figsize=(3, 1.2), facecolor="none")  # 调整长宽比
+        fig, ax = plt.subplots(1, 1, figsize=(3, 1), facecolor="none")  # 调整长宽比
         fig.patch.set_alpha(0.0)
         ax.margins(x=0.02, y=0.15)  # 边距优化
 
