@@ -201,8 +201,8 @@ class ToolKit:
 
         # 配置参数 (Yahoo Finance 视觉规范)
         config = {
-            "up_color": "#ea3943",  # Yahoo 上涨绿色
-            "down_color": "#16c784",  # Yahoo 下跌红色
+            "up_color": "#ff4444",  # Yahoo 上涨绿色
+            "down_color": "#00a859",  # Yahoo 下跌红色
             "line_width": 1.2,
             "marker_size": 3.5,
             "gradient_steps": 100,  # 渐变精度
