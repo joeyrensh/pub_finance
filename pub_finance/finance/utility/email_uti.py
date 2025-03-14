@@ -8,6 +8,8 @@ from email.utils import parseaddr, formataddr
 from email.header import Header
 import base64
 import csv
+import os
+from email.mime.base import MIMEBase
 
 
 class MyEmail(object):
@@ -72,13 +74,36 @@ class MyEmail(object):
             self.msg.attach(MIMEText(message, "html"))
             for i, image_path_s in enumerate(image_path):
                 try:
-                    image = MIMEImage(open(image_path_s, "rb").read())
-                    image.add_header("Content-ID", f"<image{i}>")
-                    self.msg.attach(image)
-                except IOError:
-                    print(
-                        f"Unable to open image file {image_path_s}. Please check the path and try again."
+                    # 根据文件扩展名确定MIME类型
+                    ext = image_path_s.split(".")[-1].lower()
+                    with open(image_path_s, "rb") as f:
+                        file_data = f.read()
+
+                    if ext == "svg":
+                        # 处理SVG矢量图
+                        img = MIMEImage(
+                            file_data,
+                            _subtype="svg+xml",
+                            # _encoder=encoders.encode_7or8bit,
+                        )
+                        img.add_header("Content-Type", "image/svg+xml")
+                    else:
+                        # 处理常规图片格式
+                        img = MIMEImage(file_data)
+
+                    # 统一添加资源标识
+                    img.add_header("Content-ID", f"<image{i}>")
+                    img.add_header(
+                        "Content-Disposition",
+                        "inline",
+                        filename=os.path.basename(image_path_s),
                     )
+                    self.msg.attach(img)
+
+                except IOError:
+                    print(f"无法打开图片文件 {image_path_s}，请检查路径")
+                except Exception as e:
+                    print(f"处理图片时发生意外错误：{str(e)}")
             smtp_server = smtplib.SMTP_SSL(self.server, self.port)
             smtp_server.ehlo()
             smtp_server.login(self.send_from, self._mail_password)

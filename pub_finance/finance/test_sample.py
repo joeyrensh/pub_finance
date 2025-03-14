@@ -206,15 +206,6 @@ def exec_btstrategy(date):
             "DailyRisk",
         ]
         plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
-        # 设置全局字体参数（iOS 优化）
-        plt.rcParams.update(
-            {
-                "font.family": "sans-serif",  # 优先使用 iOS 系统字体
-                "font.sans-serif": ["Helvetica", "Arial"],  # 备选字体栈
-                "font.size": 20,  # 基准字号（iOS 最小推荐阅读字号）
-                "text.color": "#333333",  # 深灰色提升对比度
-            }
-        )
         colors = configure_theme(theme)
 
         # 创建画布和子图
@@ -238,17 +229,10 @@ def exec_btstrategy(date):
             cellLoc="center",
             edges="horizontal",
             # colColours=[colors["table_header"]] * len(cols_names),
-            # 关键优化参数
-            cellEdgeColor="#EEEEEE",  # 单元格边框浅灰色
-            rowEdgeColor="#CCCCCC",  # 行标题边框中灰色
-            colWidths=[0.15] * perf_stats_.shape[1],  # 列宽适配
-            # 字体粗细优化
-            rowLabelFont={"weight": "bold", "size": 20},  # 行标题加粗
-            cellFont={"weight": "medium", "size": 20},  # 内容中等粗细
         )
         # 统一单元格样式
         for cell in table.get_celld().values():
-            cell.set_text_props(color=colors["text"], fontsize=20)
+            cell.set_text_props(color=colors["text"], fontsize=18)
             cell.set_edgecolor(colors["table_edge"])
             cell.set_linewidth(1)
 
@@ -261,9 +245,9 @@ def exec_btstrategy(date):
             cumulative.values,
             color=colors["cumret"],
             label="Cumulative Return",
-            linewidth=3.5,
+            linewidth=2,
             marker="o",  # 圆点标记
-            markersize=4,  # 标记大小
+            markersize=3,  # 标记大小
             markerfacecolor=colors["text"],  # 标记填充颜色
             markeredgewidth=2,  # 标记边框宽度
             markeredgecolor=colors["cumret"],  # 标记边框颜色
@@ -314,9 +298,10 @@ def exec_btstrategy(date):
 
         # 保存图片
         plt.savefig(
-            f"./dashreport/assets/images/us_tr_{theme}.png",
-            dpi=600,
-            bbox_inches="tight",
+            f"./dashreport/assets/images/us_tr_{theme}.svg",
+            format="svg",
+            bbox_inches="tight",  # 保持边界紧凑
+            transparent=True,  # 保持背景透明
         )
         plt.close()
 
@@ -369,7 +354,7 @@ if __name__ == "__main__":
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("us", trade_date).send_btstrategy_by_email(6855658.93, 11679025.04)
+    StockProposal("us", trade_date).send_btstrategy_by_email(6786341.53, 10967692.56)
 
     """ 结束进度条 """
     pbar.finish()

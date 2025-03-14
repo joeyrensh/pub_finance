@@ -18,87 +18,87 @@ def create_layout(app):
     # encoded_image_trdraw_dark = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_tr_dark.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_trdraw_dark = "/assets/images/cn_tr_dark.png"
+    encoded_image_trdraw_dark = "/assets/images/cn_tr_dark.svg"
 
     # light mode
     # encoded_image_trdraw = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_tr_light.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_trdraw = "/assets/images/cn_tr_light.png"
+    encoded_image_trdraw = "/assets/images/cn_tr_light.svg"
 
     """ position weight """
     # dark mode
     # encoded_image_by_postion_dark = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_postion_byindustry_dark.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_by_postion_dark = "/assets/images/cn_postion_byindustry_dark.png"
+    encoded_image_by_postion_dark = "/assets/images/cn_postion_byindustry_dark.svg"
 
     # light mode
     # encoded_image_by_postion = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_postion_byindustry_light.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_by_postion = "/assets/images/cn_postion_byindustry_light.png"
+    encoded_image_by_postion = "/assets/images/cn_postion_byindustry_light.svg"
 
     """ earnings weight """
     # dark mode
     # encoded_image_by_pl_dark = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_pl_byindustry_dark.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_by_pl_dark = "/assets/images/cn_pl_byindustry_dark.png"
+    encoded_image_by_pl_dark = "/assets/images/cn_pl_byindustry_dark.svg"
 
     # light mode
     # encoded_image_by_pl = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_pl_byindustry_light.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_by_pl = "/assets/images/cn_pl_byindustry_light.png"
+    encoded_image_by_pl = "/assets/images/cn_pl_byindustry_light.svg"
 
     """ position trend """
     # dark mode
     # encoded_image_by_positiondate_dark = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_trade_trend_dark.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_by_positiondate_dark = "/assets/images/cn_trade_trend_dark.png"
+    encoded_image_by_positiondate_dark = "/assets/images/cn_trade_trend_dark.svg"
     # light mode
     # encoded_image_by_positiondate = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_trade_trend_light.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_by_positiondate = "/assets/images/cn_trade_trend_light.png"
+    encoded_image_by_positiondate = "/assets/images/cn_trade_trend_light.svg"
 
     """ earnings trend """
     # dark mode
     # encoded_image_bypl_date_dark = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_top_industry_pl_trend_dark.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_bypl_date_dark = "/assets/images/cn_top_industry_pl_trend_dark.png"
+    encoded_image_bypl_date_dark = "/assets/images/cn_top_industry_pl_trend_dark.svg"
     # light mode
     # encoded_image_bypl_date = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_top_industry_pl_trend_light.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_bypl_date = "/assets/images/cn_top_industry_pl_trend_light.png"
+    encoded_image_bypl_date = "/assets/images/cn_top_industry_pl_trend_light.svg"
 
     """ strategy tracking """
     # dark mode
     # encoded_image_strategy_dark = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_strategy_tracking_dark.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_strategy_dark = "/assets/images/cn_strategy_tracking_dark.png"
+    encoded_image_strategy_dark = "/assets/images/cn_strategy_tracking_dark.svg"
     # light mode
     # encoded_image_strategy = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_strategy_tracking_light.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_strategy = "/assets/images/cn_strategy_tracking_light.png"
+    encoded_image_strategy = "/assets/images/cn_strategy_tracking_light.svg"
 
     """ industry trend """
     # dark mode
     # encoded_image_ind_trend_dark = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_industry_trend_heatmap_dark.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_ind_trend_dark = "/assets/images/cn_industry_trend_heatmap_dark.png"
+    encoded_image_ind_trend_dark = "/assets/images/cn_industry_trend_heatmap_dark.svg"
     # light mode
     # encoded_image_ind_trend = base64.b64encode(
     #     IMAGE_PATH.joinpath("cn_industry_trend_heatmap_light.png").read_bytes()
     # ).decode("utf-8")
-    encoded_image_ind_trend = "/assets/images/cn_industry_trend_heatmap_light.png"
+    encoded_image_ind_trend = "/assets/images/cn_industry_trend_heatmap_light.svg"
 
     # Overall 信息
     df_overall = pd.read_csv(

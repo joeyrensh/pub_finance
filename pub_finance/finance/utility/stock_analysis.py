@@ -1360,14 +1360,14 @@ class StockProposal:
         scale_factor = 1.2
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_postion_byindustry_light.png",
+                "./dashreport/assets/images/us_postion_byindustry_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_postion_byindustry_light.png",
+                "./dashreport/assets/images/cn_postion_byindustry_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -1395,14 +1395,14 @@ class StockProposal:
 
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_postion_byindustry_dark.png",
+                "./dashreport/assets/images/us_postion_byindustry_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_postion_byindustry_dark.png",
+                "./dashreport/assets/images/cn_postion_byindustry_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -1455,14 +1455,14 @@ class StockProposal:
 
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_pl_byindustry_light.png",
+                "./dashreport/assets/images/us_pl_byindustry_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_pl_byindustry_light.png",
+                "./dashreport/assets/images/cn_pl_byindustry_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -1489,14 +1489,14 @@ class StockProposal:
         )
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_pl_byindustry_dark.png",
+                "./dashreport/assets/images/us_pl_byindustry_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_pl_byindustry_dark.png",
+                "./dashreport/assets/images/cn_pl_byindustry_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -1616,8 +1616,8 @@ class StockProposal:
                 font=dict(size=20, color="black", family="Arial"),
             ),
             barmode="stack",
-            bargap=0.5,
-            bargroupgap=0.5,
+            bargap=0.3,
+            bargroupgap=0.3,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
@@ -1625,14 +1625,14 @@ class StockProposal:
 
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_strategy_tracking_light.png",
+                "./dashreport/assets/images/us_strategy_tracking_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=2,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_strategy_tracking_light.png",
+                "./dashreport/assets/images/cn_strategy_tracking_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=2,
@@ -1681,8 +1681,8 @@ class StockProposal:
                 font=dict(size=20, color="white", family="Arial"),
             ),
             barmode="stack",
-            bargap=0.5,
-            bargroupgap=0.5,
+            bargap=0.3,
+            bargroupgap=0.3,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
@@ -1690,14 +1690,14 @@ class StockProposal:
 
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_strategy_tracking_dark.png",
+                "./dashreport/assets/images/us_strategy_tracking_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=2,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_strategy_tracking_dark.png",
+                "./dashreport/assets/images/cn_strategy_tracking_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=2,
@@ -1813,8 +1813,8 @@ class StockProposal:
                 font=dict(size=font_size, color="black", family="Arial"),
             ),
             barmode="stack",
-            bargap=0.5,
-            bargroupgap=0.5,
+            bargap=0.3,
+            bargroupgap=0.3,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
@@ -1822,14 +1822,14 @@ class StockProposal:
 
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_trade_trend_light.png",
+                "./dashreport/assets/images/us_trade_trend_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_trade_trend_light.png",
+                "./dashreport/assets/images/cn_trade_trend_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -1881,8 +1881,8 @@ class StockProposal:
                 font=dict(size=font_size, color="white", family="Arial"),
             ),
             barmode="stack",
-            bargap=0.5,
-            bargroupgap=0.5,
+            bargap=0.3,
+            bargroupgap=0.3,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
@@ -1890,14 +1890,14 @@ class StockProposal:
 
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_trade_trend_dark.png",
+                "./dashreport/assets/images/us_trade_trend_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_trade_trend_dark.png",
+                "./dashreport/assets/images/cn_trade_trend_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -1982,14 +1982,14 @@ class StockProposal:
 
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_top_industry_position_trend_light.png",
+                "./dashreport/assets/images/us_top_industry_position_trend_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_top_industry_position_trend_light.png",
+                "./dashreport/assets/images/cn_top_industry_position_trend_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -2028,14 +2028,14 @@ class StockProposal:
         )
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_top_industry_position_trend_dark.png",
+                "./dashreport/assets/images/us_top_industry_position_trend_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_top_industry_position_trend_dark.png",
+                "./dashreport/assets/images/cn_top_industry_position_trend_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -2120,14 +2120,14 @@ class StockProposal:
         )
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_top_industry_pl_trend_light.png",
+                "./dashreport/assets/images/us_top_industry_pl_trend_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_top_industry_pl_trend_light.png",
+                "./dashreport/assets/images/cn_top_industry_pl_trend_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -2175,14 +2175,14 @@ class StockProposal:
         )
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_top_industry_pl_trend_dark.png",
+                "./dashreport/assets/images/us_top_industry_pl_trend_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_top_industry_pl_trend_dark.png",
+                "./dashreport/assets/images/cn_top_industry_pl_trend_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=scale_factor,
@@ -2419,14 +2419,14 @@ class StockProposal:
 
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_industry_trend_heatmap_light.png",
+                "./dashreport/assets/images/us_industry_trend_heatmap_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=2,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_industry_trend_heatmap_light.png",
+                "./dashreport/assets/images/cn_industry_trend_heatmap_light.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=2,
@@ -2558,14 +2558,14 @@ class StockProposal:
 
         if self.market == "us":
             fig.write_image(
-                "./dashreport/assets/images/us_industry_trend_heatmap_dark.png",
+                "./dashreport/assets/images/us_industry_trend_heatmap_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=2,
             )
         else:
             fig.write_image(
-                "./dashreport/assets/images/cn_industry_trend_heatmap_dark.png",
+                "./dashreport/assets/images/cn_industry_trend_heatmap_dark.svg",
                 width=fig_width,
                 height=fig_height,
                 scale=2,
@@ -2575,45 +2575,45 @@ class StockProposal:
 
         if self.market == "us":
             subject = "US Stock Market Trends"
-            image_path_return_light = "./dashreport/assets/images/us_tr_light.png"
-            image_path_return_dark = "./dashreport/assets/images/us_tr_dark.png"
+            image_path_return_light = "./dashreport/assets/images/us_tr_light.svg"
+            image_path_return_dark = "./dashreport/assets/images/us_tr_dark.svg"
             image_path = [
-                "./dashreport/assets/images/us_postion_byindustry_light.png",
-                "./dashreport/assets/images/us_postion_byindustry_dark.png",
-                "./dashreport/assets/images/us_pl_byindustry_light.png",
-                "./dashreport/assets/images/us_pl_byindustry_dark.png",
-                "./dashreport/assets/images/us_trade_trend_light.png",
-                "./dashreport/assets/images/us_trade_trend_dark.png",
-                "./dashreport/assets/images/us_top_industry_position_trend_light.png",
-                "./dashreport/assets/images/us_top_industry_position_trend_dark.png",
-                "./dashreport/assets/images/us_top_industry_pl_trend_light.png",
-                "./dashreport/assets/images/us_top_industry_pl_trend_dark.png",
-                "./dashreport/assets/images/us_industry_trend_heatmap_light.png",
-                "./dashreport/assets/images/us_industry_trend_heatmap_dark.png",
-                "./dashreport/assets/images/us_strategy_tracking_light.png",
-                "./dashreport/assets/images/us_strategy_tracking_dark.png",
+                "./dashreport/assets/images/us_postion_byindustry_light.svg",
+                "./dashreport/assets/images/us_postion_byindustry_dark.svg",
+                "./dashreport/assets/images/us_pl_byindustry_light.svg",
+                "./dashreport/assets/images/us_pl_byindustry_dark.svg",
+                "./dashreport/assets/images/us_trade_trend_light.svg",
+                "./dashreport/assets/images/us_trade_trend_dark.svg",
+                "./dashreport/assets/images/us_top_industry_position_trend_light.svg",
+                "./dashreport/assets/images/us_top_industry_position_trend_dark.svg",
+                "./dashreport/assets/images/us_top_industry_pl_trend_light.svg",
+                "./dashreport/assets/images/us_top_industry_pl_trend_dark.svg",
+                "./dashreport/assets/images/us_industry_trend_heatmap_light.svg",
+                "./dashreport/assets/images/us_industry_trend_heatmap_dark.svg",
+                "./dashreport/assets/images/us_strategy_tracking_light.svg",
+                "./dashreport/assets/images/us_strategy_tracking_dark.svg",
                 image_path_return_light,
                 image_path_return_dark,
             ]
         elif self.market == "cn":
             subject = "CN Stock Market Trends"
-            image_path_return_light = "./dashreport/assets/images/cn_tr_light.png"
-            image_path_return_dark = "./dashreport/assets/images/cn_tr_dark.png"
+            image_path_return_light = "./dashreport/assets/images/cn_tr_light.svg"
+            image_path_return_dark = "./dashreport/assets/images/cn_tr_dark.svg"
             image_path = [
-                "./dashreport/assets/images/cn_postion_byindustry_light.png",
-                "./dashreport/assets/images/cn_postion_byindustry_dark.png",
-                "./dashreport/assets/images/cn_pl_byindustry_light.png",
-                "./dashreport/assets/images/cn_pl_byindustry_dark.png",
-                "./dashreport/assets/images/cn_trade_trend_light.png",
-                "./dashreport/assets/images/cn_trade_trend_dark.png",
-                "./dashreport/assets/images/cn_top_industry_position_trend_light.png",
-                "./dashreport/assets/images/cn_top_industry_position_trend_dark.png",
-                "./dashreport/assets/images/cn_top_industry_pl_trend_light.png",
-                "./dashreport/assets/images/cn_top_industry_pl_trend_dark.png",
-                "./dashreport/assets/images/cn_industry_trend_heatmap_light.png",
-                "./dashreport/assets/images/cn_industry_trend_heatmap_dark.png",
-                "./dashreport/assets/images/cn_strategy_tracking_light.png",
-                "./dashreport/assets/images/cn_strategy_tracking_dark.png",
+                "./dashreport/assets/images/cn_postion_byindustry_light.svg",
+                "./dashreport/assets/images/cn_postion_byindustry_dark.svg",
+                "./dashreport/assets/images/cn_pl_byindustry_light.svg",
+                "./dashreport/assets/images/cn_pl_byindustry_dark.svg",
+                "./dashreport/assets/images/cn_trade_trend_light.svg",
+                "./dashreport/assets/images/cn_trade_trend_dark.svg",
+                "./dashreport/assets/images/cn_top_industry_position_trend_light.svg",
+                "./dashreport/assets/images/cn_top_industry_position_trend_dark.svg",
+                "./dashreport/assets/images/cn_top_industry_pl_trend_light.svg",
+                "./dashreport/assets/images/cn_top_industry_pl_trend_dark.svg",
+                "./dashreport/assets/images/cn_industry_trend_heatmap_light.svg",
+                "./dashreport/assets/images/cn_industry_trend_heatmap_dark.svg",
+                "./dashreport/assets/images/cn_strategy_tracking_light.svg",
+                "./dashreport/assets/images/cn_strategy_tracking_dark.svg",
                 image_path_return_light,
                 image_path_return_dark,
             ]
@@ -3422,6 +3422,8 @@ class StockProposal:
         # 设置图像的宽度和高度（例如，1920x1080像素）
         fig_width, fig_height = 1440, 900
         scale_factor = 1.2
+        font_size = 28
+        title_font_size = 32
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
@@ -3459,35 +3461,35 @@ class StockProposal:
                 "x": 0.5,
                 # "xanchor": "left",
                 # "yanchor": "top",
-                "font": dict(size=20, color="black", family="Arial"),
+                "font": dict(size=title_font_size, color="black", family="Arial"),
             },
             xaxis=dict(
                 title="Trade Date",
-                titlefont=dict(size=20, color="black", family="Arial"),
+                titlefont=dict(size=title_font_size, color="black", family="Arial"),
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="black", family="Arial"),
+                tickfont=dict(color="black", family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis=dict(
                 title="Total Positions",
-                titlefont=dict(size=20, color="black", family="Arial"),
+                titlefont=dict(size=title_font_size, color="black", family="Arial"),
                 side="left",
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="black", family="Arial"),
+                tickfont=dict(color="black", family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis2=dict(
                 title="Positions per day",
-                titlefont=dict(size=20, color="black", family="Arial"),
+                titlefont=dict(size=title_font_size, color="black", family="Arial"),
                 side="right",
                 overlaying="y",
                 showgrid=False,
                 ticks="outside",
-                tickfont=dict(color="black", family="Arial"),
+                tickfont=dict(color="black", family="Arial", size=font_size),
             ),
             legend=dict(
                 orientation="h",
@@ -3495,7 +3497,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=20, color="black", family="Arial"),
+                font=dict(size=font_size, color="black", family="Arial"),
             ),
             barmode="stack",
             bargap=0.5,
@@ -3506,7 +3508,7 @@ class StockProposal:
         )
 
         fig.write_image(
-            "./dashreport/assets/images/cnetf_trade_trend_light.png",
+            "./dashreport/assets/images/cnetf_trade_trend_light.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -3519,35 +3521,35 @@ class StockProposal:
                 "x": 0.5,
                 # "xanchor": "left",
                 # "yanchor": "top",
-                "font": dict(size=20, color="white", family="Arial"),
+                "font": dict(size=title_font_size, color="white", family="Arial"),
             },
             xaxis=dict(
                 title="Trade Date",
-                titlefont=dict(size=20, color="white", family="Arial"),
+                titlefont=dict(size=title_font_size, color="white", family="Arial"),
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="white", family="Arial"),
+                tickfont=dict(color="white", family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
                 title="Total Positions",
-                titlefont=dict(size=20, color="white", family="Arial"),
+                titlefont=dict(size=title_font_size, color="white", family="Arial"),
                 side="left",
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="white", family="Arial"),
+                tickfont=dict(color="white", family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
                 title="Positions per day",
-                titlefont=dict(size=20, color="white", family="Arial"),
+                titlefont=dict(size=title_font_size, color="white", family="Arial"),
                 side="right",
                 overlaying="y",
                 showgrid=False,
                 ticks="outside",
-                tickfont=dict(color="white", family="Arial"),
+                tickfont=dict(color="white", family="Arial", size=font_size),
             ),
             legend=dict(
                 orientation="h",
@@ -3555,7 +3557,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=20, color="white", family="Arial"),
+                font=dict(size=font_size, color="white", family="Arial"),
             ),
             barmode="stack",
             bargap=0.5,
@@ -3566,7 +3568,7 @@ class StockProposal:
         )
 
         fig.write_image(
-            "./dashreport/assets/images/cnetf_trade_trend_dark.png",
+            "./dashreport/assets/images/cnetf_trade_trend_dark.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -3579,15 +3581,15 @@ class StockProposal:
 
         if self.market == "us":
             subject = "US Stock Market ETF Trends"
-            image_path_return_light = "./dashreport/assets/images/etf_tr_light.png"
-            image_path_return_dark = "./dashreport/assets/images/etf_tr_dark.png"
+            image_path_return_light = "./dashreport/assets/images/etf_tr_light.svg"
+            image_path_return_dark = "./dashreport/assets/images/etf_tr_dark.svg"
         elif self.market == "cn":
             subject = "CN Stock Market ETF Trends"
-            image_path_return_light = "./dashreport/assets/images/cnetf_tr_light.png"
-            image_path_return_dark = "./dashreport/assets/images/cnetf_tr_dark.png"
+            image_path_return_light = "./dashreport/assets/images/cnetf_tr_light.svg"
+            image_path_return_dark = "./dashreport/assets/images/cnetf_tr_dark.svg"
         image_path = [
-            "./dashreport/assets/images/cnetf_trade_trend_light.png",
-            "./dashreport/assets/images/cnetf_trade_trend_dark.png",
+            "./dashreport/assets/images/cnetf_trade_trend_light.svg",
+            "./dashreport/assets/images/cnetf_trade_trend_dark.svg",
             image_path_return_light,
             image_path_return_dark,
         ]

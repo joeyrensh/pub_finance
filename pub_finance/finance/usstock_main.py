@@ -298,10 +298,10 @@ def exec_btstrategy(date):
 
         # 保存图片
         plt.savefig(
-            f"./dashreport/assets/images/us_tr_{theme}.png",
-            dpi=600,
-            bbox_inches="tight",
-            pil_kwargs={"optimize": True},
+            f"./dashreport/assets/images/us_tr_{theme}.svg",
+            format="svg",
+            bbox_inches="tight",  # 保持边界紧凑
+            transparent=True,  # 保持背景透明
         )
         plt.close()
 
