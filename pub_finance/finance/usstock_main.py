@@ -232,7 +232,7 @@ def exec_btstrategy(date):
         )
         # 统一单元格样式
         for cell in table.get_celld().values():
-            cell.set_text_props(color=colors["text"], fontsize=20)
+            cell.set_text_props(color=colors["text"], fontsize=18)
             cell.set_edgecolor(colors["table_edge"])
             cell.set_linewidth(1)
 
