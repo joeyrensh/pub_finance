@@ -206,6 +206,15 @@ def exec_btstrategy(date):
             "DailyRisk",
         ]
         plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
+        # 设置全局字体参数（iOS 优化）
+        plt.rcParams.update(
+            {
+                "font.family": "sans-serif",  # 优先使用 iOS 系统字体
+                "font.sans-serif": ["Helvetica", "Arial"],  # 备选字体栈
+                "font.size": 20,  # 基准字号（iOS 最小推荐阅读字号）
+                "text.color": "#333333",  # 深灰色提升对比度
+            }
+        )
         colors = configure_theme(theme)
 
         # 创建画布和子图
@@ -229,6 +238,13 @@ def exec_btstrategy(date):
             cellLoc="center",
             edges="horizontal",
             # colColours=[colors["table_header"]] * len(cols_names),
+            # 关键优化参数
+            cellEdgeColor="#EEEEEE",  # 单元格边框浅灰色
+            rowEdgeColor="#CCCCCC",  # 行标题边框中灰色
+            colWidths=[0.15] * perf_stats_.shape[1],  # 列宽适配
+            # 字体粗细优化
+            rowLabelFont={"weight": "bold", "size": 20},  # 行标题加粗
+            cellFont={"weight": "medium", "size": 20},  # 内容中等粗细
         )
         # 统一单元格样式
         for cell in table.get_celld().values():
@@ -314,7 +330,7 @@ def exec_btstrategy(date):
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc-4"""
-    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(1)
+    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
