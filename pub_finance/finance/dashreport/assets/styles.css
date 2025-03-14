@@ -8,7 +8,7 @@
   /* 浅色通用样式 */
   --background-color: #f6f8f9;
   --text-color: #333;
-  --login-box-shadow-color: rgba(0, 0, 0, 0.1);
+  --login-box-shadow-color: rgb(0 0 0 / 20%);
   --subtitle-color: #000000;
   --a-visited-color: #000000;
   --learn-more-button-color: #000000;
