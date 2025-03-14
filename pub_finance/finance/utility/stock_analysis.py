@@ -1616,8 +1616,8 @@ class StockProposal:
                 font=dict(size=20, color="black", family="Arial"),
             ),
             barmode="stack",
-            bargap=0.3,
-            bargroupgap=0.3,
+            # bargap=0.5,
+            # bargroupgap=0.5,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
@@ -1628,14 +1628,14 @@ class StockProposal:
                 "./dashreport/assets/images/us_strategy_tracking_light.svg",
                 width=fig_width,
                 height=fig_height,
-                scale=2,
+                scale=scale_factor,
             )
         else:
             fig.write_image(
                 "./dashreport/assets/images/cn_strategy_tracking_light.svg",
                 width=fig_width,
                 height=fig_height,
-                scale=2,
+                scale=scale_factor,
             )
 
         # dark mode
@@ -1681,8 +1681,8 @@ class StockProposal:
                 font=dict(size=20, color="white", family="Arial"),
             ),
             barmode="stack",
-            bargap=0.3,
-            bargroupgap=0.3,
+            # bargap=0.5,
+            # bargroupgap=0.5,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
@@ -1693,14 +1693,14 @@ class StockProposal:
                 "./dashreport/assets/images/us_strategy_tracking_dark.svg",
                 width=fig_width,
                 height=fig_height,
-                scale=2,
+                scale=scale_factor,
             )
         else:
             fig.write_image(
                 "./dashreport/assets/images/cn_strategy_tracking_dark.svg",
                 width=fig_width,
                 height=fig_height,
-                scale=2,
+                scale=scale_factor,
             )
 
         # 120天内交易明细分析
@@ -1813,8 +1813,8 @@ class StockProposal:
                 font=dict(size=font_size, color="black", family="Arial"),
             ),
             barmode="stack",
-            bargap=0.3,
-            bargroupgap=0.3,
+            # bargap=0.3,
+            # bargroupgap=0.3,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
@@ -1881,8 +1881,8 @@ class StockProposal:
                 font=dict(size=font_size, color="white", family="Arial"),
             ),
             barmode="stack",
-            bargap=0.3,
-            bargroupgap=0.3,
+            # bargap=0.3,
+            # bargroupgap=0.3,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
