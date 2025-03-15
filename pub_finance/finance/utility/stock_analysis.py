@@ -3444,6 +3444,7 @@ class StockProposal:
                 y=dfdata3["buy_cnt"],
                 name="long",
                 marker_color="red",
+                marker_line_color="red",
                 yaxis="y2",
             )
         )
@@ -3453,6 +3454,7 @@ class StockProposal:
                 y=dfdata3["sell_cnt"],
                 name="short",
                 marker_color="green",
+                marker_line_color="green",
                 yaxis="y2",
             )
         )
