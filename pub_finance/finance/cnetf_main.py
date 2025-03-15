@@ -169,7 +169,7 @@ def exec_btstrategy(date):
                 "background": "black",
                 "grid": "#FFFFFF",
                 "cumret": "#FF6B6B",  # 亮蓝
-                "drawdown": "#32CD32",  # 亮红
+                "drawdown": "#228B22",  # 亮红
                 "table_edge": "#FFFFFF",
                 "table_header": "#404040",
                 "legend_text": "#FFFFFF",
