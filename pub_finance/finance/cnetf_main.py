@@ -238,52 +238,41 @@ def exec_btstrategy(date):
         # ----------------------------
         # 绘制双轴曲线
         # ----------------------------
-        # 累计收益曲线（左轴）
+        # 先绘制面积图（关键点1：先创建右轴）
+        ax_drawdown = ax_chart.twinx()
+
+        # 设置图层优先级（关键点2：强制主轴在上层）
+        ax_chart.set_zorder(ax_drawdown.get_zorder() + 1)  # 主轴提升到上方
+        ax_chart.patch.set_visible(False)  # 隐藏主轴背景避免遮挡
+
+        # 绘制面积图（关键点3：使用 zorder 控制层级）
+        ax_drawdown.fill_between(
+            drawdown.index,
+            drawdown.values,
+            y2=0,
+            color=colors["drawdown"],
+            alpha=0.4,  # 适当降低透明度
+            zorder=2,  # 设置较低层级
+            edgecolor=colors["drawdown"],
+            linewidth=1,
+            label="Drawdown",
+        )
+
+        # 最后绘制折线图（自然覆盖在面积图上）
         ax_chart.plot(
             cumulative.index,
             cumulative.values,
             color=colors["cumret"],
             label="Cumulative Return",
             linewidth=2,
-            marker="o",  # 圆点标记
-            markersize=3,  # 标记大小
-            markerfacecolor=colors["text"],  # 标记填充颜色
-            markeredgewidth=2,  # 标记边框宽度
-            markeredgecolor=colors["cumret"],  # 标记边框颜色
-            zorder=2,
+            zorder=3,  # 设置更高层级
+            marker="o",
+            markersize=4,
+            markerfacecolor=colors["text"],
+            markeredgecolor=colors["cumret"],
         )
-        ax_chart.set_ylabel("Cumulative Return", color=colors["cumret"])
-        ax_chart.tick_params(axis="y", colors=colors["cumret"])
         ax_chart.grid(True, alpha=0.4)
-
-        # 回撤曲线（右轴）
-        ax_drawdown = ax_chart.twinx()
-        # ax_drawdown.plot(
-        #     drawdown.index,
-        #     drawdown.values,
-        #     color=colors["drawdown"],
-        #     label="Drawdown",
-        #     linewidth=2,
-        #     alpha=1,
-        #     linestyle="-",  # 虚线
-        # )
-        # 绘制面积图（从数据到零轴填充）
-        ax_drawdown.fill_between(
-            drawdown.index,
-            drawdown.values,
-            y2=0,  # 填充到零轴
-            color=colors["drawdown"],
-            alpha=0.4,  # 透明度调整（推荐 0.2-0.4）
-            edgecolor=colors["drawdown"],  # 边界线颜色
-            linewidth=2,  # 边界线宽度
-            linestyle="-",  # 实线边界
-            label="Drawdown",
-            zorder=1,
-        )
-        ax_drawdown.set_ylabel("Drawdown", color=colors["drawdown"])
-        ax_drawdown.tick_params(axis="y", colors=colors["drawdown"])
         ax_drawdown.grid(False)
-
         # ----------------------------
         # 图表美化
         # ----------------------------
