@@ -251,6 +251,7 @@ def exec_btstrategy(date):
             markerfacecolor=colors["text"],  # 标记填充颜色
             markeredgewidth=2,  # 标记边框宽度
             markeredgecolor=colors["cumret"],  # 标记边框颜色
+            zorder=2,
         )
         ax_chart.set_ylabel("Cumulative Return", color=colors["cumret"])
         ax_chart.tick_params(axis="y", colors=colors["cumret"])
@@ -273,11 +274,12 @@ def exec_btstrategy(date):
             drawdown.values,
             y2=0,  # 填充到零轴
             color=colors["drawdown"],
-            alpha=0.3,  # 透明度调整（推荐 0.2-0.4）
+            alpha=0.4,  # 透明度调整（推荐 0.2-0.4）
             edgecolor=colors["drawdown"],  # 边界线颜色
             linewidth=2,  # 边界线宽度
             linestyle="-",  # 实线边界
             label="Drawdown",
+            zorder=1,
         )
         ax_drawdown.set_ylabel("Drawdown", color=colors["drawdown"])
         ax_drawdown.tick_params(axis="y", colors=colors["drawdown"])
