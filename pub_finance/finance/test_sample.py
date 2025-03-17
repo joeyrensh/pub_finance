@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
+
+from tabulate import tabulate
 import progressbar
 from utility.toolkit import ToolKit
 from datetime import datetime
@@ -8,16 +10,17 @@ import sys
 from backtraderref.globalstrategyv3 import GlobalStrategy
 import backtrader as bt
 from utility.tickerinfo import TickerInfo
-from cncrawler.eastmoney_incre_download import EMCNWebCrawler
+from uscrawler.eastmoney_incre_crawler import EMWebCrawler
 from backtraderref.pandasdata_ext import BTPandasDataExt
 from utility.stock_analysis import StockProposal
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pyfolio as pf
 import gc
-from backtraderref.cnfixedamount import FixedAmount
+from backtraderref.usfixedamount import FixedAmount
 from matplotlib import rcParams
 
+""" 执行策略 """
 """ backtrader策略 """
 
 
@@ -26,22 +29,22 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cnetf")
+    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="us")
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
     # cerebro.addobserver(bt.observers.BuySell)
-    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
-    # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
-    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=2)
+    # cerebro.addsizer(bt.sizers.FixedSize, stake=10)
+    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
     cerebro.addsizer(FixedAmount, amount=10000)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
+    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "cn").get_etf_backtrader_data_feed()
+    list = TickerInfo(date, "us").get_backtrader_data_feed()
     """ 初始资金100M """
-    start_cash = len(list) * 20000
+    start_cash = len(list) * 10000
     cerebro.broker.setcash(start_cash)
     """ 循环初始化数据进入cerebro """
     for h in list:
@@ -54,7 +57,7 @@ def exec_btstrategy(date):
             datetime=-1,
             timeframe=bt.TimeFrame.Days,
         )
-        cerebro.adddata(data)
+        cerebro.adddata(data, name=h["symbol"][0])
         # 周数据
         # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
     """ 起始资金池 """
@@ -67,7 +70,6 @@ def exec_btstrategy(date):
 
     """ 运行cerebro """
     result = cerebro.run()
-
     """ 最终资金池 """
     print("\n当前现金持有: ", cerebro.broker.get_cash())
     print("\nFinal Portfolio Value: %.2f" % cerebro.broker.getvalue())
@@ -118,7 +120,6 @@ def exec_btstrategy(date):
     perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
         lambda x: x.map(lambda y: f"{y * 100:.2f}%")
     )
-
     # 绘制图形
     """ 
     年度回报率 (Annual return)：衡量投资组合或股票在一年内的收益率。它通常以百分比表示，计算方法是将期末价值减去期初价值，再除以期初价值，并乘以100。
@@ -273,9 +274,6 @@ def exec_btstrategy(date):
         )
         ax_chart.grid(True, alpha=0.4)
         ax_drawdown.grid(False)
-        # ax_drawdown.set_ylabel("Drawdown", color=colors["drawdown"])
-        # ax_drawdown.tick_params(axis="y", colors=colors["drawdown"])
-        # ax_drawdown.grid(False)
 
         # ----------------------------
         # 图表美化
@@ -304,7 +302,7 @@ def exec_btstrategy(date):
 
         # 保存图片
         plt.savefig(
-            f"./dashreport/assets/images/cnetf_tr_{theme}.svg",
+            f"./dashreport/assets/images/us_tr_{theme}.svg",
             format="svg",
             bbox_inches="tight",  # 保持边界紧凑
             transparent=True,  # 保持背景透明
@@ -320,11 +318,11 @@ def exec_btstrategy(date):
 
 # 主程序入口
 if __name__ == "__main__":
-    """美股交易日期 utc+8"""
-    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(0)
+    """美股交易日期 utc-4"""
+    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
-    if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
+    if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
         pass
     else:
         sys.exit()
@@ -341,12 +339,16 @@ if __name__ == "__main__":
     """ 创建进度条并开始运行 """
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
-    print("trade_date is :", trade_date)
-
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
-    em = EMCNWebCrawler()
-    em.get_cn_daily_stock_info(trade_date)
+    # em = EMWebCrawler()
+    # em.get_us_daily_stock_info(trade_date)
+
+    # """ 执行策略 """
+    # df = exec_strategy(trade_date)
+    # """ 发送邮件 """
+    # if not df.empty:
+    #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
 
     """ 执行bt相关策略 """
     cash, final_value = exec_btstrategy(trade_date)
@@ -356,7 +358,7 @@ if __name__ == "__main__":
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_etf_btstrategy_by_email(cash, final_value)
+    StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()
