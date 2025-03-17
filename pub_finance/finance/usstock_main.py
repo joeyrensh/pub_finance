@@ -258,14 +258,26 @@ def exec_btstrategy(date):
 
         # 回撤曲线（右轴）
         ax_drawdown = ax_chart.twinx()
-        ax_drawdown.plot(
+        # ax_drawdown.plot(
+        #     drawdown.index,
+        #     drawdown.values,
+        #     color=colors["drawdown"],
+        #     label="Drawdown",
+        #     linewidth=2,
+        #     alpha=1,
+        #     linestyle="-",  # 虚线
+        # )
+        # 绘制面积图（从数据到零轴填充）
+        ax_drawdown.fill_between(
             drawdown.index,
             drawdown.values,
+            y2=0,  # 填充到零轴
             color=colors["drawdown"],
+            alpha=0.3,  # 透明度调整（推荐 0.2-0.4）
+            edgecolor=colors["drawdown"],  # 边界线颜色
+            linewidth=2,  # 边界线宽度
+            linestyle="-",  # 实线边界
             label="Drawdown",
-            linewidth=2,
-            alpha=1,
-            linestyle="-",  # 虚线
         )
         ax_drawdown.set_ylabel("Drawdown", color=colors["drawdown"])
         ax_drawdown.tick_params(axis="y", colors=colors["drawdown"])
