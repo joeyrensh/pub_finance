@@ -13,6 +13,9 @@
   --a-visited-color: #000000;
   --learn-more-button-color: #000000;
   --dash-table-border-color: lightgrey;
+  --main-title-color: #FF4136;
+  --full-view-link-bg-color: #FF4136;
+  --border-left-color: #FF4136;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -25,12 +28,15 @@
 
     /* 深色通用样式 */
     --background-color: #171b26;
-    --text-color: #ffffff;
+    --text-color: #ffffffc5;
     --login-box-shadow-color: #607D8B;
-    --subtitle-color: white;
-    --a-visited-color: #ffffff;
+    --subtitle-color: #009688;
+    --a-visited-color: #009688;
     --learn-more-button-color: #9fa6b7;
-    --dash-table-border-color: rgba(255, 255, 255, 0.3)
+    --dash-table-border-color: rgba(255, 255, 255, 0.3);
+    --main-title-color: #009688;
+    --full-view-link-bg-color: #00968776;
+    --border-left-color: #8bc34a;
   }
 }
 
@@ -410,7 +416,7 @@ li {
 }
 
 .full-view-link {
-  background-color: #FF4136;
+  background-color: var(--full-view-link-bg-color);
   color: white !important;
   font-size: medium;
   padding: 10px 10px;
@@ -431,11 +437,11 @@ li {
 
 .main-title {
   position: relative;
-  color: #FF4136;
+  color: var(--main-title-color);
   font-size: 1.5rem;
   /* font-weight: 800; */
   width: 80%;
-  border-left: 20px solid #FF4136;
+  border-left: 20px solid var(--border-left-color);
   /*#8b0202*/
   /* background: #ffffff; */
   padding-left: 10px;
@@ -451,7 +457,7 @@ li {
   left: 0;
   height: 20%;
   margin: 0mm;
-  border-left: 5px solid #FF4136;
+  border-left: 5px solid var(--border-left-color);
   /*#8b0202*/
   /* background: #ffffff; */
   padding-top: 1px;
@@ -727,7 +733,7 @@ a:active {
     /* width: 55%; */
     /* margin-top: 10px; */
     padding-left: 10px;
-    border-left: 15px solid #FF4136;
+    border-left: 15px solid var(--border-left-color);
     font-size: 1.2rem;
     font-weight: bold;
   }
@@ -891,7 +897,7 @@ a:active {
     /* width: 55%; */
     /* margin-top: 10px; */
     padding-left: 10px;
-    border-left: 15px solid #FF4136;
+    border-left: 15px solid var(--border-left-color);
     font-size: 1.4rem;
     font-weight: bold;
   }
