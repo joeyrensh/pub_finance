@@ -2409,7 +2409,9 @@ class StockProposal:
                 text=text,
                 showarrow=False,
                 font=dict(
-                    color=text_color, size=18, family="Arial"
+                    color=text_color,
+                    family="Arial",
+                    size=20,
                 ),  # 根据s_pnl值动态设置字体颜色
                 align="center",
                 xanchor="center",
@@ -2548,7 +2550,7 @@ class StockProposal:
                 text=text,
                 showarrow=False,
                 font=dict(
-                    color=text_color, size=18, family="Arial"
+                    color=text_color, family="Arial", size=20
                 ),  # 根据s_pnl值动态设置字体颜色
                 align="center",
                 xanchor="center",
