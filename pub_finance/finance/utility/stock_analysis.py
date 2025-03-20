@@ -2149,7 +2149,7 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
-        blue_colors = ["#557ae3", "#004080", "#0056A0", "#007BFF", "#66B2FF"]
+        blue_colors = ["#007BFF", "#3182CE", "#63B3ED", "#C53030", "#F56565"]
         fig = px.line(
             dfdata6,
             x="buy_date",
