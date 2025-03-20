@@ -159,7 +159,7 @@ def exec_btstrategy(date):
                 "background": "white",
                 "grid": "#333333",
                 "cumret": "#D9534F",  # 深蓝
-                "drawdown": "#228B22",  # 红色
+                "drawdown": "#007BFF",  # 红色
                 "table_edge": "#333333",
                 "table_header": "#F5F5F5",
                 "legend_text": "#333333",
@@ -169,7 +169,7 @@ def exec_btstrategy(date):
                 "background": "black",
                 "grid": "#FFFFFF",
                 "cumret": "#FF6B6B",  # 亮蓝
-                "drawdown": "#228B22",  # 亮红
+                "drawdown": "#007BFF",  # 亮红
                 "table_edge": "#FFFFFF",
                 "table_header": "#404040",
                 "legend_text": "#FFFFFF",

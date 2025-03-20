@@ -1332,7 +1332,7 @@ class StockProposal:
         # light mode
         # 生成动态文本颜色列表（适用于所有区块）
         hex_colors = sample_colorscale(
-            px.colors.sequential.Peach_r,  # 原始色阶
+            px.colors.sequential.Blues,  # 原始色阶
             samplepoints=np.linspace(0, 1, 10),  # 生成 10 个等间距点
             colortype="rgb",  # 输出为十六进制
         )
@@ -1508,13 +1508,21 @@ class StockProposal:
         # 120天内策略交易概率
         # 获取不同策略的颜色列表
         # strategy_colors = plotly.colors.qualitative.Bold
+        # strategy_colors = [
+        #     "rgb(166,206,227)",
+        #     "rgb(31,120,180)",
+        #     "rgb(51,160,44)",
+        #     "rgb(251,154,153)",
+        #     "rgb(242,51,53)",
+        #     "rgb(227,26,28)",
+        # ]
         strategy_colors = [
-            "rgb(166,206,227)",
-            "rgb(31,120,180)",
-            "rgb(51,160,44)",
-            "rgb(251,154,153)",
-            "rgb(242,51,53)",
-            "rgb(227,26,28)",
+            "#003366",
+            "#4B4B4B",
+            "#66B2FF",
+            "#005B33",
+            "#FFD700",
+            "#00FFFF",
         ]
         sparkdata_strategy_track = spark.sql(
             """ 
@@ -1763,8 +1771,8 @@ class StockProposal:
                 x=dfdata3["buy_date"],
                 y=dfdata3["sell_cnt"],
                 name="short",
-                marker_color="green",
-                marker_line_color="green",
+                marker_color="DeepSkyBlue",
+                marker_line_color="DeepSkyBlue",
                 yaxis="y2",
             )
         )
@@ -2079,9 +2087,14 @@ class StockProposal:
         dfdata6.sort_values(
             by=["buy_date", "pnl"], ascending=[False, False], inplace=True
         )
-
+        blue_colors = ["#003366", "#004080", "#0056A0", "#007BFF", "#66B2FF"]
         fig = px.line(
-            dfdata6, x="buy_date", y="pnl", color="industry", line_group="industry"
+            dfdata6,
+            x="buy_date",
+            y="pnl",
+            color="industry",
+            line_group="industry",
+            color_discrete_sequence=blue_colors,
         )
         fig.update_traces(line=dict(width=3))  # 设置线条宽度为2
         # light mode
@@ -2136,8 +2149,14 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
+        blue_colors = ["#557ae3", "#004080", "#0056A0", "#007BFF", "#66B2FF"]
         fig = px.line(
-            dfdata6, x="buy_date", y="pnl", color="industry", line_group="industry"
+            dfdata6,
+            x="buy_date",
+            y="pnl",
+            color="industry",
+            line_group="industry",
+            color_discrete_sequence=blue_colors,
         )
         fig.update_traces(line=dict(width=3))  # 设置线条宽度为2
         fig.update_xaxes(
@@ -2302,10 +2321,15 @@ class StockProposal:
                 ygap=10,  # 设置行之间的间隙为10像素
                 # 定义自定义颜色比例
                 colorscale=[
-                    [0, "rgba(6, 89, 6, 0.7)"],
+                    # [0, "rgba(6, 89, 6, 0.7)"],
+                    # [
+                    #     (mid_val - min_val) / (max_val - min_val) / 2,
+                    #     "rgba(11, 158, 11, 0.5)",
+                    # ],
+                    [0, "rgba(8, 129, 181, 0.7)"],
                     [
                         (mid_val - min_val) / (max_val - min_val) / 2,
-                        "rgba(11, 158, 11, 0.5)",
+                        "rgba(8, 129, 181, 0.5)",
                     ],
                     [
                         (mid_val - min_val) / (max_val - min_val),
@@ -2456,10 +2480,15 @@ class StockProposal:
                 ygap=10,  # 设置行之间的间隙为10像素
                 # 定义自定义颜色比例
                 colorscale=[
-                    [0, "rgba(60, 140, 60, 0.8)"],  # 更亮的绿色，增加透明度
+                    # [0, "rgba(60, 140, 60, 0.8)"],  # 更亮的绿色，增加透明度
+                    # [
+                    #     (mid_val - min_val) / (max_val - min_val) / 2,
+                    #     "rgba(140, 220, 140, 0.6)",  # 更亮的浅绿色，降低透明度
+                    # ],
+                    [0, "rgba(8, 129, 181, 0.8)"],  # 更亮的绿色，增加透明度
                     [
                         (mid_val - min_val) / (max_val - min_val) / 2,
-                        "rgba(140, 220, 140, 0.6)",  # 更亮的浅绿色，降低透明度
+                        "rgba(8, 129, 181, 0.6)",  # 更亮的浅绿色，降低透明度
                     ],
                     [
                         (mid_val - min_val) / (max_val - min_val),
@@ -3455,8 +3484,8 @@ class StockProposal:
                 x=dfdata3["buy_date"],
                 y=dfdata3["sell_cnt"],
                 name="short",
-                marker_color="green",
-                marker_line_color="green",
+                marker_color="blue",
+                marker_line_color="blue",
                 yaxis="y2",
             )
         )
