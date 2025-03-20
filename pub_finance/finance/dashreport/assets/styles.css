@@ -16,6 +16,7 @@
   --main-title-color: #FF4136;
   --full-view-link-bg-color: #FF4136;
   --border-left-color: #FF4136;
+
 }
 
 @media (prefers-color-scheme: dark) {
@@ -30,14 +31,16 @@
     --background-color: #171b26;
     --text-color: #ffffffc5;
     --login-box-shadow-color: #607D8B;
-    --subtitle-color: #009688;
-    --a-visited-color: #009688;
+    --subtitle-color: #ffffffc5;
+    --a-visited-color: #ffffffc5;
     --learn-more-button-color: #9fa6b7;
     --dash-table-border-color: rgba(255, 255, 255, 0.3);
-    --main-title-color: #009688;
-    --full-view-link-bg-color: #00968776;
+    --main-title-color: #ffffffc5;
+    --full-view-link-bg-color: #087ceb76;
     --border-left-color: #8bc34a;
   }
+
+
 }
 
 body {
