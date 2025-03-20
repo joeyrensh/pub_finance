@@ -1517,12 +1517,12 @@ class StockProposal:
         #     "rgb(227,26,28)",
         # ]
         strategy_colors = [
-            "#1E3A8A",
-            "#3182CE",
-            "#63B3ED",
-            "#00BFFF",
-            "#ADD8E6",
-            "#B0E0E6",
+            "#6B8BAF",
+            "#A3C2E0",
+            "#CCB374",
+            "#8A99A7",
+            "#3377CC",
+            "#A0B0C0",
         ]
 
         sparkdata_strategy_track = spark.sql(
