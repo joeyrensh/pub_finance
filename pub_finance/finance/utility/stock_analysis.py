@@ -22,6 +22,20 @@ from plotly.colors import sample_colorscale
 # mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
 
 
+def initialize_spark(app_name: str, memory: str = "512m", partitions: int = 1):
+    """
+    初始化 SparkSession
+    """
+    return (
+        SparkSession.builder.master("local")
+        .appName(app_name)
+        .config("spark.driver.memory", memory)
+        .config("spark.executor.memory", memory)
+        .config("spark.sql.shuffle.partitions", str(partitions))
+        .getOrCreate()
+    )
+
+
 class StockProposal:
     def __init__(self, market, trade_date):
         self.market = market
@@ -100,17 +114,7 @@ class StockProposal:
         发送邮件
         """
         # 启动Spark Session
-        spark = (
-            SparkSession.builder.master("local")
-            .appName("SparkTest")
-            .config("spark.driver.memory", "450m")
-            .config("spark.executor.memory", "450m")
-            .config("spark.memory.fraction", "0.8")
-            .config("spark.executor.instances", "1")
-            .config("spark.executor.cores", "1")
-            .config("spark.sql.shuffle.partitions", "1")
-            .getOrCreate()
-        )
+        spark = initialize_spark("StockAnalysis", memory="450m", partitions=1)
         spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
 
         """ 
@@ -2137,7 +2141,6 @@ class StockProposal:
             tickfont=dict(color="black", size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(0, 0, 0, 0.5)",
-            title_font=dict(size=title_font_size, color="black", family="Arial"),
             title="",  # 设置为空字符串以隐藏y轴标题
         )
         fig.update_layout(
@@ -2836,15 +2839,8 @@ class StockProposal:
         发送邮件
         """
         # 启动Spark Session
-        spark = (
-            SparkSession.builder.master("local")
-            .appName("SparkTest")
-            .config("spark.driver.memory", "512m")
-            .config("spark.executor.memory", "512m")
-            .getOrCreate()
-        )
+        spark = initialize_spark("StockAnalysis", memory="512m", partitions=1)
         spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
-        spark.conf.set("spark.sql.shuffle.partitions", "1")
 
         """ 
         读取交易相关数据，交易明细，持仓明细，仓位日志明细，行业信息
