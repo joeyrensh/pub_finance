@@ -1507,23 +1507,6 @@ class StockProposal:
 
         # 120天内策略交易概率
         # 获取不同策略的颜色列表
-        # strategy_colors = plotly.colors.qualitative.Bold
-        # strategy_colors = [
-        #     "rgb(166,206,227)",
-        #     "rgb(31,120,180)",
-        #     "rgb(51,160,44)",
-        #     "rgb(251,154,153)",
-        #     "rgb(242,51,53)",
-        #     "rgb(227,26,28)",
-        # ]
-        strategy_colors = [
-            "#6B8BAF",
-            "#A3C2E0",
-            "#CCB374",
-            "#8A99A7",
-            "#3377CC",
-            "#A0B0C0",
-        ]
 
         sparkdata_strategy_track = spark.sql(
             """ 
@@ -1559,6 +1542,14 @@ class StockProposal:
         # 创建带有两个 y 轴的子图布局
 
         fig = go.Figure()
+        strategy_colors = [
+            "#4A6B8C",
+            "#7FA3C2",
+            "#B08E54",
+            "#6C7A8A",
+            "#0055AA",
+            "#8090A0",
+        ]
 
         # 遍历每个策略并添加数据
         for i, (strategy, data) in enumerate(dfdata_strategy_track.groupby("strategy")):
@@ -1649,6 +1640,39 @@ class StockProposal:
             )
 
         # dark mode
+        fig = go.Figure()
+        strategy_colors = [
+            "#6B8BAF",
+            "#A3C2E0",
+            "#CCB374",
+            "#8A99A7",
+            "#3377CC",
+            "#A0B0C0",
+        ]
+
+        # 遍历每个策略并添加数据
+        for i, (strategy, data) in enumerate(dfdata_strategy_track.groupby("strategy")):
+            fig.add_trace(
+                go.Scatter(
+                    x=data["date"],
+                    y=data["ema_success_rate"],
+                    mode="lines",
+                    name=strategy,
+                    line=dict(width=2, color=strategy_colors[i], shape="spline"),
+                    yaxis="y",
+                )
+            )
+            fig.add_trace(
+                go.Bar(
+                    x=data["date"],
+                    y=data["pnl"],
+                    name="long",
+                    marker=dict(color=strategy_colors[i]),
+                    marker_line_color=strategy_colors[i],
+                    yaxis="y2",
+                    showlegend=False,
+                )
+            )
         fig.update_layout(
             title={
                 "text": "",

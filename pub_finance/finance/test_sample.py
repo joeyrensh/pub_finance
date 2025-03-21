@@ -353,7 +353,7 @@ if __name__ == "__main__":
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(5553196.97, 20209635.99)
+    StockProposal("cn", trade_date).send_btstrategy_by_email(5532166.99, 20017866.01)
 
     """ 结束进度条 """
     pbar.finish()

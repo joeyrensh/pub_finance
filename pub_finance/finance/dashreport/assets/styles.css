@@ -22,10 +22,10 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* table深色样式 */
-    --data-bar-color: #0074d9;
-    --date-bg-color: coral;
-    --negative-value-bg-color: #3D9970;
-    --positive-value-bg-color: #FF4136;
+    --data-bar-color: #0074d973;
+    --date-bg-color: #ff7f50ba;
+    --negative-value-bg-color: #3d997096;
+    --positive-value-bg-color: #ff413696;
 
     /* 深色通用样式 */
     --background-color: #171b26;
@@ -36,8 +36,8 @@
     --learn-more-button-color: #9fa6b7;
     --dash-table-border-color: rgba(255, 255, 255, 0.3);
     --main-title-color: #ffffff;
-    --full-view-link-bg-color: #0074d9;
-    --border-left-color: #0074d9;
+    --full-view-link-bg-color: #0074d973;
+    --border-left-color: #0074d973;
   }
 
 
