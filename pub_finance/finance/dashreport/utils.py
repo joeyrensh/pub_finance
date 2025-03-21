@@ -210,8 +210,9 @@ def data_bars(df, column):
                     transparent 100%)
                     """.format(max_bound_percentage=max_bound_percentage)
                 ),
-                "paddingBottom": 2,
-                "paddingTop": 2,
+                # "padding": "4px 0",
+                # "paddingBottom": 2,
+                # "paddingTop": 2,
             }
         )
         # 添加对负值的样式
