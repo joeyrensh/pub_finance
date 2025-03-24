@@ -189,13 +189,6 @@ class GlobalStrategy(bt.Strategy):
                 d.close, period=self.params.hllongperiod
             )
 
-            """ 
-            辅助指标：上影线判定
-            """
-            self.signals[d._name]["upper_shadow"] = d.close > (
-                (d.high - d.low) * 0.6 + d.low
-            )
-
             """
             辅助指标：高低点上移/下移
             """
