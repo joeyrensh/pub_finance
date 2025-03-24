@@ -189,6 +189,13 @@ class GlobalStrategy(bt.Strategy):
                 d.close, period=self.params.hllongperiod
             )
 
+            """ 
+            辅助指标：上影线判定
+            """
+            self.signals[d._name]["upper_shadow"] = d.close > (
+                (d.high - d.low) * 0.6 + d.low
+            )
+
             """
             辅助指标：高低点上移/下移
             """
@@ -199,12 +206,14 @@ class GlobalStrategy(bt.Strategy):
                     > self.inds[d._name]["lowest_short"](-5),
                     self.inds[d._name]["lowest_short"]
                     >= self.inds[d._name]["lowest_mid"],
+                    d.close > ((d.high - d.low) * 0.618 + d.low),
                 ),
                 bt.And(
                     self.inds[d._name]["highest_short"]
                     > self.inds[d._name]["highest_short"](-5),
                     self.inds[d._name]["highest_short"]
                     >= self.inds[d._name]["highest_mid"],
+                    d.close > ((d.high - d.low) * 0.618 + d.low),
                 ),
             )
 
@@ -345,7 +354,7 @@ class GlobalStrategy(bt.Strategy):
             """
             买入5: 穿越年线
             """
-            self.signals[d._name]["closs_crossup_annualline"] = bt.And(
+            self.signals[d._name]["close_crossup_annualline"] = bt.And(
                 bt.indicators.crossover.CrossUp(
                     d.close, self.inds[d._name]["maannual"]
                 ),
@@ -605,7 +614,7 @@ class GlobalStrategy(bt.Strategy):
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "成交量放大"
-                elif self.signals[d._name]["closs_crossup_annualline"][0] == 1:
+                elif self.signals[d._name]["close_crossup_annualline"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
