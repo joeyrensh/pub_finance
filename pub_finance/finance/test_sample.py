@@ -159,7 +159,7 @@ def exec_btstrategy(date):
                 "background": "white",
                 "grid": "#333333",
                 "cumret": "#D9534F",  # 深蓝
-                "drawdown": "#007BFF",  # 红色
+                "drawdown": "#009900",  # 红色
                 "table_edge": "#333333",
                 "table_header": "#F5F5F5",
                 "legend_text": "#333333",
@@ -169,7 +169,7 @@ def exec_btstrategy(date):
                 "background": "black",
                 "grid": "#FFFFFF",
                 "cumret": "#FF6B6B",  # 亮蓝
-                "drawdown": "#007BFF",  # 亮红
+                "drawdown": "#009900",  # 亮红
                 "table_edge": "#FFFFFF",
                 "table_header": "#404040",
                 "legend_text": "#FFFFFF",
@@ -342,18 +342,18 @@ if __name__ == "__main__":
 
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
-    # em = EMCNWebCrawler()
-    # em.get_cn_daily_stock_info(trade_date)
+    em = EMCNWebCrawler()
+    em.get_cn_daily_stock_info(trade_date)
 
     """ 执行bt相关策略 """
-    # cash, final_value = exec_btstrategy(trade_date)
+    cash, final_value = exec_btstrategy(trade_date)
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(5532166.99, 20017866.01)
+    StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()

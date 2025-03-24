@@ -1281,8 +1281,60 @@ class StockProposal:
         del dfdata7
         gc.collect()
 
+        # 样式变量
         font_size = 28
         title_font_size = 32
+        light_text_color = "#FFFFFF"
+        dark_text_color = "#000000"
+        pie_sequential_color = px.colors.sequential.Reds
+        # 策略颜色（保留原有红色系，调整蓝色系为绿色系）
+        strategy_colors_light = [
+            "#7F1D1D",  # 深红色
+            "#D9534F",  # 浅红色
+            "#B08E54",  # 保持原有中性色
+            "#6C7A6A",  # 灰绿 (可选)
+            "#A52A2A",  # 深红色
+            "#D9A5A5",  # 浅灰红色
+        ]
+
+        strategy_colors_dark = [
+            "#D32F2F",  # 暗红色
+            "#F44336",  # 浅红色
+            "#CCB374",  # 保持原有中性色
+            "#8A998A",  # 灰绿 (可选)
+            "#C62828",  # 中红色
+            "#FFABAB",  # 浅红色
+        ]
+
+        # 多样化颜色（调整为绿色渐变）
+        diverse_colors5_light = [
+            "#C53030",  # 保持原红色
+            "#318231",  # 深绿替代蓝
+            "#63B363",  # 中绿替代浅蓝
+            "#90EE90",  # 浅绿
+            "#F56565",  # 保持原红色
+        ]
+        diverse_colors5_dark = [
+            "#C53030",  # 保持原红色
+            "#318231",  # 深绿替代蓝
+            "#63B363",  # 中绿替代浅蓝
+            "#90EE90",  # 浅绿
+            "#F56565",  # 保持原红色
+        ]
+
+        # 热图颜色（蓝改绿，保留红）
+        heatmap_colors4_light = [
+            "rgba(34, 139, 34, 0.7)",  # 森林绿 (替代蓝)
+            "rgba(50, 205, 50, 0.5)",  # 酸橙绿 (替代蓝)
+            "rgba(212, 55, 55, 0.5)",  # 保持原红
+            "rgba(207, 12, 12, 0.7)",  # 保持原红
+        ]
+        heatmap_colors4_dark = [
+            "rgba(34, 139, 34, 0.8)",  # 森林绿 (替代蓝)
+            "rgba(50, 205, 50, 0.6)",  # 酸橙绿 (替代蓝)
+            "rgba(240, 80, 80, 0.6)",  # 保持原红
+            "rgba(220, 40, 40, 0.8)",  # 保持原红
+        ]
         # TOP10热门行业
         sparkdata1 = spark.sql(
             """ 
@@ -1321,38 +1373,39 @@ class StockProposal:
                     rgb = to_rgb(hex_color)
                 brightness = np.dot(rgb, [0.299, 0.587, 0.114])  # RGB亮度公式
                 if brightness > 0.7:
-                    return "#000000"
+                    return dark_text_color
                 elif brightness < 0.2:
-                    return "#FFFFFF"
+                    return light_text_color
                 else:
-                    return "#000000" if theme == "light" else "#FFFFFF"
+                    return dark_text_color if theme == "light" else light_text_color
             except ValueError:
                 # 如果颜色格式无效，返回默认颜色
                 if theme == "light":
-                    return "#000000"
+                    return dark_text_color
                 else:
-                    return "#FFFFFF"
+                    return light_text_color
 
         # light mode
         # 生成动态文本颜色列表（适用于所有区块）
         hex_colors = sample_colorscale(
-            px.colors.sequential.Blues,  # 原始色阶
+            pie_sequential_color,  # 原始色阶
             samplepoints=np.linspace(0, 1, 10),  # 生成 10 个等间距点
             colortype="rgb",  # 输出为十六进制
         )
-        # hex_colors = px.colors.sequential.RdBu
         text_colors = [get_text_color(color, "light") for color in hex_colors]
         fig.update_traces(
             # marker=dict(colors=colorscale, line=dict(width=2)),
             textinfo="label+value+percent",
             textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
-            marker=dict(colors=hex_colors, line=dict(color="white", width=2)),
+            marker=dict(colors=hex_colors, line=dict(color=text_colors, width=2)),
             opacity=0.8,
         )
         fig.update_layout(
             title="Top10 Position",
-            title_font=dict(size=title_font_size, color="black", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=dark_text_color, family="Arial"
+            ),
             showlegend=False,
             margin=dict(t=50, b=0, l=0, r=0),
             autosize=True,
@@ -1384,12 +1437,14 @@ class StockProposal:
             textinfo="label+value+percent",
             textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
-            marker=dict(colors=hex_colors, line=dict(color="white", width=2)),
+            marker=dict(colors=hex_colors, line=dict(color=text_colors, width=2)),
             opacity=0.8,
         )
         fig.update_layout(
             title="Top10 Position",
-            title_font=dict(size=title_font_size, color="white", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=light_text_color, family="Arial"
+            ),
             showlegend=False,
             margin=dict(t=50, b=0, l=0, r=0),
             autosize=True,
@@ -1437,19 +1492,20 @@ class StockProposal:
         )
         # colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
         # light mode
-        # hex_colors = px.colors.diverging.RdBu
         text_colors = [get_text_color(color, "light") for color in hex_colors]
         fig.update_traces(
             # marker=dict(colors=colors, line=dict(width=2)),
             textinfo="label+value+percent",
             textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
-            marker=dict(colors=hex_colors, line=dict(color="white", width=2)),
+            marker=dict(colors=hex_colors, line=dict(color=text_colors, width=2)),
             opacity=0.8,
         )
         fig.update_layout(
             title="Top10 Profit",
-            title_font=dict(size=title_font_size, color="black", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=dark_text_color, family="Arial"
+            ),
             showlegend=False,
             margin=dict(t=50, b=0, l=0, r=0),
             autosize=True,
@@ -1472,19 +1528,20 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
-        # hex_colors = px.colors.diverging.RdBu
         text_colors = [get_text_color(color, "dark") for color in hex_colors]
         fig.update_traces(
             # marker=dict(colors=colors, line=dict(width=3)),
             textinfo="label+value+percent",
             textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
-            marker=dict(colors=hex_colors, line=dict(color="white", width=2)),
+            marker=dict(colors=hex_colors, line=dict(color=text_colors, width=2)),
             opacity=0.8,
         )
         fig.update_layout(
             title="Top10 Profit",
-            title_font=dict(size=title_font_size, color="white", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=light_text_color, family="Arial"
+            ),
             showlegend=False,
             margin=dict(t=50, b=0, l=0, r=0),
             autosize=True,
@@ -1546,14 +1603,6 @@ class StockProposal:
         # 创建带有两个 y 轴的子图布局
 
         fig = go.Figure()
-        strategy_colors = [
-            "#4A6B8C",
-            "#7FA3C2",
-            "#B08E54",
-            "#6C7A8A",
-            "#0055AA",
-            "#8090A0",
-        ]
 
         # 遍历每个策略并添加数据
         for i, (strategy, data) in enumerate(dfdata_strategy_track.groupby("strategy")):
@@ -1563,7 +1612,7 @@ class StockProposal:
                     y=data["ema_success_rate"],
                     mode="lines",
                     name=strategy,
-                    line=dict(width=2, color=strategy_colors[i], shape="spline"),
+                    line=dict(width=2, color=strategy_colors_light[i], shape="spline"),
                     yaxis="y",
                 )
             )
@@ -1572,8 +1621,8 @@ class StockProposal:
                     x=data["date"],
                     y=data["pnl"],
                     name="long",
-                    marker=dict(color=strategy_colors[i]),
-                    marker_line_color=strategy_colors[i],
+                    marker=dict(color=strategy_colors_light[i]),
+                    marker_line_color=strategy_colors_light[i],
                     yaxis="y2",
                     showlegend=False,
                 )
@@ -1588,28 +1637,28 @@ class StockProposal:
                 # titlefont=dict(size=20, color="black"),
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="black", size=20, family="Arial"),
+                tickfont=dict(color=dark_text_color, size=20, family="Arial"),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis=dict(
                 title="Success Rate",
-                titlefont=dict(size=20, color="black", family="Arial"),
+                titlefont=dict(size=20, color=dark_text_color, family="Arial"),
                 side="left",
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="black", size=20, family="Arial"),
+                tickfont=dict(color=dark_text_color, size=20, family="Arial"),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis2=dict(
                 title="Pnl",
-                titlefont=dict(size=20, color="black", family="Arial"),
+                titlefont=dict(size=20, color=dark_text_color, family="Arial"),
                 side="right",
                 overlaying="y",
                 showgrid=False,
                 ticks="outside",
-                tickfont=dict(color="black", size=20, family="Arial"),
+                tickfont=dict(color=dark_text_color, size=20, family="Arial"),
                 range=[0, max_pnl * 2],
             ),
             legend=dict(
@@ -1618,7 +1667,7 @@ class StockProposal:
                 y=-0.2,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=20, color="black", family="Arial"),
+                font=dict(size=20, color=dark_text_color, family="Arial"),
             ),
             barmode="stack",
             bargap=0.5,
@@ -1645,14 +1694,6 @@ class StockProposal:
 
         # dark mode
         fig = go.Figure()
-        strategy_colors = [
-            "#6B8BAF",
-            "#A3C2E0",
-            "#CCB374",
-            "#8A99A7",
-            "#3377CC",
-            "#A0B0C0",
-        ]
 
         # 遍历每个策略并添加数据
         for i, (strategy, data) in enumerate(dfdata_strategy_track.groupby("strategy")):
@@ -1662,7 +1703,7 @@ class StockProposal:
                     y=data["ema_success_rate"],
                     mode="lines",
                     name=strategy,
-                    line=dict(width=2, color=strategy_colors[i], shape="spline"),
+                    line=dict(width=2, color=strategy_colors_dark[i], shape="spline"),
                     yaxis="y",
                 )
             )
@@ -1671,8 +1712,8 @@ class StockProposal:
                     x=data["date"],
                     y=data["pnl"],
                     name="long",
-                    marker=dict(color=strategy_colors[i]),
-                    marker_line_color=strategy_colors[i],
+                    marker=dict(color=strategy_colors_dark[i]),
+                    marker_line_color=strategy_colors_dark[i],
                     yaxis="y2",
                     showlegend=False,
                 )
@@ -1686,28 +1727,28 @@ class StockProposal:
                 # titlefont=dict(size=20, color="black"),
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="white", size=20, family="Arial"),
+                tickfont=dict(color=light_text_color, size=20, family="Arial"),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
                 title="Success Rate",
-                titlefont=dict(size=20, color="white", family="Arial"),
+                titlefont=dict(size=20, color=light_text_color, family="Arial"),
                 side="left",
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="white", size=20, family="Arial"),
+                tickfont=dict(color=light_text_color, size=20, family="Arial"),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
                 title="Pnl",
-                titlefont=dict(size=20, color="white", family="Arial"),
+                titlefont=dict(size=20, color=light_text_color, family="Arial"),
                 side="right",
                 overlaying="y",
                 showgrid=False,
                 ticks="outside",
-                tickfont=dict(color="white", size=20, family="Arial"),
+                tickfont=dict(color=light_text_color, size=20, family="Arial"),
                 range=[0, max_pnl * 2],
             ),
             legend=dict(
@@ -1716,7 +1757,7 @@ class StockProposal:
                 y=-0.2,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=20, color="white", family="Arial"),
+                font=dict(size=20, color=light_text_color, family="Arial"),
             ),
             barmode="stack",
             bargap=0.5,
@@ -1800,8 +1841,8 @@ class StockProposal:
                 x=dfdata3["buy_date"],
                 y=dfdata3["sell_cnt"],
                 name="short",
-                marker_color="DeepSkyBlue",
-                marker_line_color="DeepSkyBlue",
+                marker_color="green",
+                marker_line_color="green",
                 yaxis="y2",
             )
         )
@@ -1813,35 +1854,43 @@ class StockProposal:
                 "x": 0.5,
                 # "xanchor": "left",
                 # "yanchor": "top",
-                "font": dict(size=title_font_size, color="black", family="Arial"),
+                "font": dict(
+                    size=title_font_size, color=dark_text_color, family="Arial"
+                ),
             },
             xaxis=dict(
                 title="Trade Date",
-                titlefont=dict(size=title_font_size, color="black", family="Arial"),
+                titlefont=dict(
+                    size=title_font_size, color=dark_text_color, family="Arial"
+                ),
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="black", size=font_size, family="Arial"),
+                tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis=dict(
                 title="Total Positions",
-                titlefont=dict(size=title_font_size, color="black", family="Arial"),
+                titlefont=dict(
+                    size=title_font_size, color=dark_text_color, family="Arial"
+                ),
                 side="left",
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="black", size=font_size, family="Arial"),
+                tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis2=dict(
                 title="Positions per day",
-                titlefont=dict(size=title_font_size, color="black", family="Arial"),
+                titlefont=dict(
+                    size=title_font_size, color=dark_text_color, family="Arial"
+                ),
                 side="right",
                 overlaying="y",
                 showgrid=False,
                 ticks="outside",
-                tickfont=dict(color="black", size=font_size, family="Arial"),
+                tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 # range=[0, max_sum * 1.2],
             ),
             legend=dict(
@@ -1850,7 +1899,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=font_size, color="black", family="Arial"),
+                font=dict(size=font_size, color=dark_text_color, family="Arial"),
             ),
             barmode="stack",
             bargap=0.5,
@@ -1882,35 +1931,43 @@ class StockProposal:
                 "x": 0.5,
                 # "xanchor": "left",
                 # "yanchor": "top",
-                "font": dict(size=title_font_size, color="white", family="Arial"),
+                "font": dict(
+                    size=title_font_size, color=light_text_color, family="Arial"
+                ),
             },
             xaxis=dict(
                 title="Trade Date",
-                titlefont=dict(size=title_font_size, color="white", family="Arial"),
+                titlefont=dict(
+                    size=title_font_size, color=light_text_color, family="Arial"
+                ),
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="white", size=font_size, family="Arial"),
+                tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
                 title="Total Positions",
-                titlefont=dict(size=title_font_size, color="white", family="Arial"),
+                titlefont=dict(
+                    size=title_font_size, color=light_text_color, family="Arial"
+                ),
                 side="left",
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="white", size=font_size, family="Arial"),
+                tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
                 title="Positions per day",
-                titlefont=dict(size=title_font_size, color="white", family="Arial"),
+                titlefont=dict(
+                    size=title_font_size, color=light_text_color, family="Arial"
+                ),
                 side="right",
                 overlaying="y",
                 showgrid=False,
                 ticks="outside",
-                tickfont=dict(color="white", size=font_size, family="Arial"),
+                tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
             ),
             legend=dict(
                 orientation="h",
@@ -1918,7 +1975,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=font_size, color="white", family="Arial"),
+                font=dict(size=font_size, color=light_text_color, family="Arial"),
             ),
             barmode="stack",
             bargap=0.5,
@@ -1991,22 +2048,28 @@ class StockProposal:
         fig.update_xaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="black", size=font_size, family="Arial"),
+            tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(0, 0, 0, 0.5)",
-            title_font=dict(size=title_font_size, color="black", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=dark_text_color, family="Arial"
+            ),
         )
         fig.update_yaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="black", size=font_size, family="Arial"),
+            tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(0, 0, 0, 0.5)",
-            title_font=dict(size=title_font_size, color="black", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=dark_text_color, family="Arial"
+            ),
         )
         fig.update_layout(
             title="Last 120 days top5 positions ",
-            title_font=dict(size=title_font_size, color="black", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=dark_text_color, family="Arial"
+            ),
             legend_title_text="",
             legend=dict(
                 orientation="h",
@@ -2014,7 +2077,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=font_size, color="black", family="Arial"),
+                font=dict(size=font_size, color=dark_text_color, family="Arial"),
             ),
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -2038,22 +2101,28 @@ class StockProposal:
         fig.update_xaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="white", size=font_size),
+            tickfont=dict(color=light_text_color, size=font_size),
             showline=False,
             gridcolor="rgba(255, 255, 255, 0.5)",
-            title_font=dict(size=title_font_size, color="white", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=light_text_color, family="Arial"
+            ),
         )
         fig.update_yaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="white", size=font_size),
+            tickfont=dict(color=light_text_color, size=font_size),
             showline=False,
             gridcolor="rgba(255, 255, 255, 0.5)",
-            title_font=dict(size=title_font_size, color="white", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=light_text_color, family="Arial"
+            ),
         )
         fig.update_layout(
             title="Last 120 days top5 positions ",
-            title_font=dict(size=title_font_size, color="white", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=light_text_color, family="Arial"
+            ),
             legend_title_text="",
             legend=dict(
                 orientation="h",
@@ -2061,7 +2130,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=font_size, color="white", family="Arial"),
+                font=dict(size=font_size, color=light_text_color, family="Arial"),
             ),
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -2116,36 +2185,40 @@ class StockProposal:
         dfdata6.sort_values(
             by=["buy_date", "pnl"], ascending=[False, False], inplace=True
         )
-        blue_colors = ["#003366", "#004080", "#0056A0", "#007BFF", "#66B2FF"]
+
         fig = px.line(
             dfdata6,
             x="buy_date",
             y="pnl",
             color="industry",
             line_group="industry",
-            color_discrete_sequence=blue_colors,
+            color_discrete_sequence=diverse_colors5_light,
         )
         fig.update_traces(line=dict(width=3))  # 设置线条宽度为2
         # light mode
         fig.update_xaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="black", size=font_size, family="Arial"),
+            tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(0, 0, 0, 0.5)",
-            title_font=dict(size=title_font_size, color="black", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=dark_text_color, family="Arial"
+            ),
         )
         fig.update_yaxes(
             mirror=True,
             ticks="inside",
-            tickfont=dict(color="black", size=font_size, family="Arial"),
+            tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(0, 0, 0, 0.5)",
             title="",  # 设置为空字符串以隐藏y轴标题
         )
         fig.update_layout(
             title="Last 120 days top5 pnl",
-            title_font=dict(size=title_font_size, color="black", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=dark_text_color, family="Arial"
+            ),
             title_x=0.5,
             title_y=0.9,
             legend_title_text="",
@@ -2155,7 +2228,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=font_size, color="black", family="Arial"),
+                font=dict(size=font_size, color=dark_text_color, family="Arial"),
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0, 0, 0, 0)",
@@ -2177,36 +2250,42 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
-        blue_colors = ["#007BFF", "#3182CE", "#63B3ED", "#C53030", "#F56565"]
+
         fig = px.line(
             dfdata6,
             x="buy_date",
             y="pnl",
             color="industry",
             line_group="industry",
-            color_discrete_sequence=blue_colors,
+            color_discrete_sequence=diverse_colors5_dark,
         )
         fig.update_traces(line=dict(width=3))  # 设置线条宽度为2
         fig.update_xaxes(
             mirror=True,
             ticks="outside",
-            tickfont=dict(color="white", size=font_size, family="Arial"),
+            tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(255, 255, 255, 0.5)",
-            title_font=dict(size=title_font_size, color="white", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=light_text_color, family="Arial"
+            ),
         )
         fig.update_yaxes(
             mirror=True,
             ticks="inside",
-            tickfont=dict(color="white", size=font_size),
+            tickfont=dict(color=light_text_color, size=font_size),
             showline=False,
             gridcolor="rgba(255, 255, 255, 0.5)",
-            title_font=dict(size=title_font_size, color="white", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=light_text_color, family="Arial"
+            ),
             title="",  # 设置为空字符串以隐藏y轴标题
         )
         fig.update_layout(
             title="Last 120 days top5 pnl",
-            title_font=dict(size=title_font_size, color="white", family="Arial"),
+            title_font=dict(
+                size=title_font_size, color=light_text_color, family="Arial"
+            ),
             title_x=0.5,
             title_y=0.9,
             legend_title_text="",
@@ -2216,7 +2295,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=font_size, color="white", family="Arial"),
+                font=dict(size=font_size, color=light_text_color, family="Arial"),
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0, 0, 0, 0)",
@@ -2349,15 +2428,10 @@ class StockProposal:
                 ygap=10,  # 设置行之间的间隙为10像素
                 # 定义自定义颜色比例
                 colorscale=[
-                    # [0, "rgba(6, 89, 6, 0.7)"],
-                    # [
-                    #     (mid_val - min_val) / (max_val - min_val) / 2,
-                    #     "rgba(11, 158, 11, 0.5)",
-                    # ],
-                    [0, "rgba(8, 129, 181, 0.7)"],
+                    [0, heatmap_colors4_light[0]],
                     [
                         (mid_val - min_val) / (max_val - min_val) / 2,
-                        "rgba(8, 129, 181, 0.5)",
+                        heatmap_colors4_light[1],
                     ],
                     [
                         (mid_val - min_val) / (max_val - min_val),
@@ -2365,9 +2439,9 @@ class StockProposal:
                     ],
                     [
                         1 - (max_val - mid_val) / (max_val - min_val) / 2,
-                        "rgba(212, 55, 55, 0.5)",
+                        heatmap_colors4_light[2],
                     ],
-                    [1, "rgba(207, 12, 12, 0.7)"],
+                    [1, heatmap_colors4_light[3]],
                 ],
                 zmin=min_val,
                 zmax=max_val,
@@ -2375,7 +2449,7 @@ class StockProposal:
                     title=dict(
                         text="PnL",
                         font=dict(
-                            color="black", size=18, family="Arial"
+                            color=dark_text_color, size=18, family="Arial"
                         ),  # 设置颜色条标题的颜色和字体大小
                     ),
                     titleside="top",  # 将颜色条标题放在顶部
@@ -2438,17 +2512,17 @@ class StockProposal:
             # 根据s_pnl的值确定文本颜色
             # 假设当s_pnl接近min_val时，我们使用深色背景（绿色系），接近max_val时，我们使用浅色背景（红色系）
             # 这里简单地使用阈值来判断，但您可以根据实际需求调整逻辑
-            text_color = "black"  # 默认黑色
+            text_color = dark_text_color  # 默认黑色
             if (
                 col3_value <= min_val + (max_val - min_val) * 0.05
             ):  # 当s_pnl非常小时（接近最小值）
                 text_color = (
-                    "white" if max_val > 0 else "black"
+                    light_text_color if max_val > 0 else dark_text_color
                 )  # 如果最大值大于0，则使用白色，否则保持黑色（避免全黑背景）
             elif (
                 col3_value >= max_val - (max_val - min_val) * 0.05
             ):  # 当s_pnl非常大时（接近最大值）
-                text_color = "white"  # 使用白色
+                text_color = light_text_color  # 使用白色
 
             # 将col2的list按3行展示（这里可能需要根据实际情况调整）
             text = f"<b>{date}</b><br>" + "<br>".join(
@@ -2508,15 +2582,10 @@ class StockProposal:
                 ygap=10,  # 设置行之间的间隙为10像素
                 # 定义自定义颜色比例
                 colorscale=[
-                    # [0, "rgba(60, 140, 60, 0.8)"],  # 更亮的绿色，增加透明度
-                    # [
-                    #     (mid_val - min_val) / (max_val - min_val) / 2,
-                    #     "rgba(140, 220, 140, 0.6)",  # 更亮的浅绿色，降低透明度
-                    # ],
-                    [0, "rgba(8, 129, 181, 0.8)"],  # 更亮的绿色，增加透明度
+                    [0, heatmap_colors4_dark[0]],  # 更亮的绿色，增加透明度
                     [
                         (mid_val - min_val) / (max_val - min_val) / 2,
-                        "rgba(8, 129, 181, 0.6)",  # 更亮的浅绿色，降低透明度
+                        heatmap_colors4_dark[1],  # 更亮的浅绿色，降低透明度
                     ],
                     [
                         (mid_val - min_val) / (max_val - min_val),
@@ -2524,9 +2593,9 @@ class StockProposal:
                     ],
                     [
                         1 - (max_val - mid_val) / (max_val - min_val) / 2,
-                        "rgba(240, 80, 80, 0.6)",  # 更亮的红色，降低透明度
+                        heatmap_colors4_dark[2],  # 更亮的红色，降低透明度
                     ],
-                    [1, "rgba(220, 40, 40, 0.8)"],  # 更亮的深红色，增加透明度
+                    [1, heatmap_colors4_dark[3]],  # 更亮的深红色，增加透明度
                 ],
                 zmin=min_val,
                 zmax=max_val,
@@ -2534,11 +2603,11 @@ class StockProposal:
                     title=dict(
                         text="PnL",
                         font=dict(
-                            color="white", size=18, family="Arial"
+                            color=light_text_color, size=18, family="Arial"
                         ),  # 设置颜色条标题的颜色和字体大小
                     ),
                     titleside="top",  # 将颜色条标题放在顶部
-                    tickfont=dict(size=18, color="white", family="Arial"),
+                    tickfont=dict(size=18, color=light_text_color, family="Arial"),
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
                 ),
@@ -2564,7 +2633,7 @@ class StockProposal:
                 zeroline=False,
                 showticklabels=True,
                 dtick=1,  # 每天显示一个刻度
-                tickfont=dict(size=20, color="white", family="Arial"),
+                tickfont=dict(size=20, color=light_text_color, family="Arial"),
             ),
             yaxis=dict(
                 showgrid=True,
@@ -2594,7 +2663,7 @@ class StockProposal:
             # 根据s_pnl的值确定文本颜色
             # 假设当s_pnl接近min_val时，我们使用深色背景（绿色系），接近max_val时，我们使用浅色背景（红色系）
             # 这里简单地使用阈值来判断，但您可以根据实际需求调整逻辑
-            text_color = "white"  # 默认白色
+            text_color = light_text_color  # 默认白色
 
             # 将col2的list按3行展示（这里可能需要根据实际情况调整）
             text = f"<b>{date}</b><br>" + "<br>".join(
