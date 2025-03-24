@@ -190,6 +190,13 @@ class GlobalStrategy(bt.Strategy):
             )
 
             """
+            辅助指标：上影线判定
+            """
+            self.signals[d._name]["upper_shadow"] = bt.And(
+                d.close > ((d.high - d.low) * 0.618 + d.low), d.close > d.open
+            )
+
+            """
             辅助指标：高低点上移/下移
             """
 
@@ -199,14 +206,14 @@ class GlobalStrategy(bt.Strategy):
                     > self.inds[d._name]["lowest_short"](-5),
                     self.inds[d._name]["lowest_short"]
                     >= self.inds[d._name]["lowest_mid"],
-                    d.close > ((d.high - d.low) * 0.618 + d.low),
+                    self.signals[d._name]["upper_shadow"] == 1,
                 ),
                 bt.And(
                     self.inds[d._name]["highest_short"]
                     > self.inds[d._name]["highest_short"](-5),
                     self.inds[d._name]["highest_short"]
                     >= self.inds[d._name]["highest_mid"],
-                    d.close > ((d.high - d.low) * 0.618 + d.low),
+                    self.signals[d._name]["upper_shadow"] == 1,
                 ),
             )
 
