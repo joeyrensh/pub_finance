@@ -1289,21 +1289,21 @@ class StockProposal:
         pie_sequential_color = px.colors.sequential.Reds
         # 策略颜色（保留原有红色系，调整蓝色系为绿色系）
         strategy_colors_light = [
-            "#7F1D1D",  # 深红色
-            "#D9534F",  # 浅红色
-            "#B08E54",  # 保持原有中性色
-            "#6C7A6A",  # 灰绿 (可选)
-            "#A52A2A",  # 深红色
-            "#D9A5A5",  # 浅灰红色
+            "#228B22",  # 森林绿 (Forest Green) - 主对比色
+            "#32CD32",  # 酸橙绿 (Lime Green) - 次级绿色
+            "#20B2AA",  # 浅海绿 (Light Sea Green) - 补充冷色调
+            "#FF6B6B",  # 珊瑚红 (Coral Red) - 中等强调色
+            "#FF4500",  # 橙红 (Orange Red) - 高对比辅助色
+            "#8B0000",  # 深红 (Dark Red) - 最高级重要数据
         ]
 
         strategy_colors_dark = [
-            "#D32F2F",  # 暗红色
-            "#F44336",  # 浅红色
-            "#CCB374",  # 保持原有中性色
-            "#8A998A",  # 灰绿 (可选)
-            "#C62828",  # 中红色
-            "#FFABAB",  # 浅红色
+            "#00FA9A",  # 中春绿 (Medium Spring Green) - 高亮强调色
+            "#7CFC00",  # 草坪绿 (Lawn Green) - 增强对比
+            "#00FF7F",  # 春绿 (Spring Green) - 冷色补充
+            "#FFA07A",  # 浅橙红 (Light Salmon) - 中间过渡色
+            "#DC143C",  # 深红 (Crimson) - 保持红色系
+            "#FF6347",  # 番茄红 (Tomato) - 提高暗背景可见度
         ]
 
         # 多样化颜色（调整为绿色渐变）
