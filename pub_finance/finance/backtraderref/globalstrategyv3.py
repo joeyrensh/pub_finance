@@ -197,6 +197,22 @@ class GlobalStrategy(bt.Strategy):
             )
 
             """
+            辅助指标：三红兵
+            """
+            self.signals[d._name]["red3_soldiers"] = bt.And(
+                d.close > d.close(-1),
+                d.close(-1) > d.close(-2),
+                d.close > d.open,
+                d.close(-1) > d.open(-1),
+                d.close(-2) > d.open(-2),
+                d.close > ((d.high - d.low) * 0.618 + d.low),
+                d.close(-1) > ((d.high(-1) - d.low(-1)) * 0.618 + d.low(-1)),
+                d.close(-2) > ((d.high(-2) - d.low(-2)) * 0.618 + d.low(-2)),
+                d.volume > d.volume(-1),
+                d.volume(-1) > d.volume(-2),
+            )
+
+            """
             辅助指标：高低点上移/下移
             """
 
@@ -642,7 +658,12 @@ class GlobalStrategy(bt.Strategy):
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "收盘价走高"
-
+                elif self.signals[d._name]["red3_soldiers"][0] == 1:
+                    """买入对应仓位"""
+                    self.broker.cancel(self.order[d._name])
+                    self.order[d._name] = self.buy(data=d)
+                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
+                    self.myorder[d._name]["strategy"] = "三红兵"
             else:
                 dt = self.datas[0].datetime.date(0)
                 dict = {

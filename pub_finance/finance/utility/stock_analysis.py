@@ -1294,6 +1294,7 @@ class StockProposal:
             "#20B2AA",  # 浅海绿 (Light Sea Green) - 补充冷色调
             "#FF6B6B",  # 珊瑚红 (Coral Red) - 中等强调色
             "#FF4500",  # 橙红 (Orange Red) - 高对比辅助色
+            "#e60606",  # 深红 (Dark Red) - 最高级重要数据
             "#8B0000",  # 深红 (Dark Red) - 最高级重要数据
         ]
 
@@ -1303,6 +1304,7 @@ class StockProposal:
             "#00FF7F",  # 春绿 (Spring Green) - 冷色补充
             "#FFA07A",  # 浅橙红 (Light Salmon) - 中间过渡色
             "#DC143C",  # 深红 (Crimson) - 保持红色系
+            "#dc5037",  # 番茄红 (Tomato) - 提高暗背景可见度
             "#FF6347",  # 番茄红 (Tomato) - 提高暗背景可见度
         ]
 
