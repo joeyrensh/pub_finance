@@ -1589,7 +1589,7 @@ class StockProposal:
             FROM tmp1
             WHERE rn = 1
             GROUP BY date, strategy
-            ORDER BY date, strategy
+            ORDER BY date, pnl
             """.format(end_date)
         )
         dfdata_strategy_track = sparkdata_strategy_track.toPandas()
