@@ -341,8 +341,8 @@ if __name__ == "__main__":
 
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
-    # em = EMWebCrawler()
-    # em.get_us_daily_stock_info(trade_date)
+    em = EMWebCrawler()
+    em.get_us_daily_stock_info(trade_date)
 
     # """ 执行策略 """
     # df = exec_strategy(trade_date)
