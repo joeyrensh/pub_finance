@@ -197,7 +197,7 @@ class GlobalStrategy(bt.Strategy):
             )
 
             """
-            辅助指标：三红兵
+            辅助指标：红三兵
             """
             self.signals[d._name]["red3_soldiers"] = bt.And(
                 d.close > d.close(-1),
@@ -663,7 +663,7 @@ class GlobalStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
-                    self.myorder[d._name]["strategy"] = "三红兵"
+                    self.myorder[d._name]["strategy"] = "红三兵"
             else:
                 dt = self.datas[0].datetime.date(0)
                 dict = {
