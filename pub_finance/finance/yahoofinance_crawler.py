@@ -54,7 +54,7 @@ def get_industry_info(symbol, proxy_list, max_retries=3):
                     # 获取行业信息
                     ticker = yf.Ticker(symbol, session=session)
                     info = ticker.info
-                    industry = info.get("industry", "N/A")
+                    industry = info.get("industry", None)
 
                     # 记录成功代理
                     if use_proxy:
