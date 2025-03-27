@@ -1,0 +1,8006 @@
+﻿idx,symbol,industry
+0,MLGO,Software - Infrastructure
+1,IMTE,Electronic Components
+3,VVPR,Solar
+4,TRSG,Metal Fabrication
+6,PXSAW,Oil & Gas Midstream
+7,CAPS,Building Materials
+8,XHLD,Broadcasting
+9,BUJAW,Shell Companies
+10,LXEO,Biotechnology
+11,NIVFW,Medical Care Facilities
+12,ABVE,Packaged Foods
+14,KDLY,Medical Care Facilities
+16,GDHG,Leisure
+17,PRPH,Diagnostics & Research
+18,LOT,Auto Manufacturers
+20,MOBBW,Communication Equipment
+21,DFLIW,Electrical Equipment & Parts
+25,ZOOZW,Specialty Retail
+26,PLRZ,Biotechnology
+29,DOMH,Biotechnology
+31,ONMDW,Health Information Services
+32,TNXP,Biotechnology
+34,MSAIW,Software - Infrastructure
+35,HOLOW,Electronic Components
+36,SAIH,Information Technology Services
+37,NAK,Other Industrial Metals & Mining
+38,LUNR,Aerospace & Defense
+39,BNAIW,Software - Infrastructure
+40,MSSAW,Shell Companies
+41,GATE,Shell Companies
+42,EMCGR,
+43,VIOT,"Furnishings, Fixtures & Appliances"
+44,MRT,Software - Application
+45,HSPOW,Shell Companies
+46,WALDW,Household & Personal Products
+47,APCXW,Software - Infrastructure
+48,CYRX,Integrated Freight & Logistics
+49,AREC,Coking Coal
+50,UPC,Drug Manufacturers - Specialty & Generic
+51,TOI,Medical Care Facilities
+57,NLSPW,Biotechnology
+58,FBGL,Engineering & Construction
+59,ANNAW,Oil & Gas E&P
+63,NRXPW,Biotechnology
+64,MVSTW,Auto Parts
+65,FATBW,Restaurants
+67,SUNE,Solar
+68,CDXS,Biotechnology
+69,ABVEW,Packaged Foods
+70,XELB,Apparel Manufacturing
+73,GRRRW,Software - Infrastructure
+75,CHCI,Real Estate - Diversified
+77,ACET,Biotechnology
+78,BBAI,Information Technology Services
+79,ZCAR,Rental & Leasing Services
+81,WINT,Biotechnology
+83,IINNW,Medical Devices
+84,ZYBT,Drug Manufacturers - Specialty & Generic
+86,HFFG,Food Distribution
+87,APDN,Diagnostics & Research
+88,QUBT,Computer Hardware
+89,YSG,Household & Personal Products
+90,CLSK,Capital Markets
+91,GATEW,Shell Companies
+92,MARA,Capital Markets
+93,CASK,Beverages - Wineries & Distilleries
+94,AIMAW,Shell Companies
+99,VEEAW,Information Technology Services
+100,SAGT,Software - Application
+101,CYCUW,Information Technology Services
+103,IONQ,Computer Hardware
+104,AZEK,Building Products & Equipment
+105,TVGNW,Biotechnology
+106,FGEN,Biotechnology
+107,KUKE,Entertainment
+108,RAPT,Biotechnology
+109,GATEU,Shell Companies
+110,WIMI,Advertising Agencies
+111,SHMDW,Specialty Industrial Machinery
+112,BTDR,Software - Application
+113,MSPRZ,Health Information Services
+114,AIMAU,Shell Companies
+115,GOVXW,Biotechnology
+116,ONDS,Communication Equipment
+117,BUJAU,Shell Companies
+118,BKKT,Software - Infrastructure
+119,GTI,Other Industrial Metals & Mining
+120,CLPR,REIT - Residential
+121,CLIK,Personal Services
+122,RR,Specialty Industrial Machinery
+123,REKR,Software - Infrastructure
+124,TEM,Health Information Services
+126,ATER,"Furnishings, Fixtures & Appliances"
+127,BIRD,Apparel Retail
+128,CTOR,Drug Manufacturers - Specialty & Generic
+130,NXGL,Medical Instruments & Supplies
+131,STFS,Advertising Agencies
+132,RVPHW,Biotechnology
+133,VSAT,Communication Equipment
+134,NNAVW,Software - Infrastructure
+135,REVBW,Biotechnology
+138,RAY,Household & Personal Products
+139,ASTS,Communication Equipment
+141,DERM,Drug Manufacturers - Specialty & Generic
+143,OKLO,Utilities - Regulated Electric
+144,JBDI,Specialty Retail
+145,SUGP,Security & Protection Services
+148,CIFRW,Capital Markets
+149,KSS,Department Stores
+150,PRTS,Auto Parts
+151,EDBLW,Farm Products
+152,KDLYW,Medical Care Facilities
+153,GNS,Education & Training Services
+154,AEVA,Software - Infrastructure
+157,CORZW,Software - Infrastructure
+158,APLD,Information Technology Services
+159,GRO,Other Industrial Metals & Mining
+163,OUSTW,Electronic Components
+164,MPTI,Electronic Components
+166,ANNX,Biotechnology
+167,KULR,Electronic Components
+168,W,Internet Retail
+169,RGTIW,Computer Hardware
+171,LAKE,Apparel Manufacturing
+172,COHR,Scientific & Technical Instruments
+173,QSIAW,Medical Devices
+174,KOSS,Consumer Electronics
+175,HPKEW,Oil & Gas E&P
+176,IMNN,Biotechnology
+177,MATH,Capital Markets
+178,HYMCL,Gold
+179,KRUS,Restaurants
+181,OPFI,Credit Services
+183,TSLA,Auto Manufacturers
+184,BRTX,Biotechnology
+185,AEVAW,Software - Infrastructure
+186,CVNA,Auto & Truck Dealerships
+188,AISP,Software - Infrastructure
+189,FIGS,Apparel Manufacturing
+191,ZBIO,Biotechnology
+192,RIME,Consumer Electronics
+195,CAN,Computer Hardware
+196,MKFG,Computer Hardware
+198,SES,Auto Parts
+199,RNXT,Biotechnology
+200,NEUE,Healthcare Plans
+203,NB,Other Industrial Metals & Mining
+204,TLSIW,Medical Devices
+205,BNZI,Software - Application
+207,TMQ,Other Industrial Metals & Mining
+208,SERV,Specialty Industrial Machinery
+209,CDIOW,Biotechnology
+210,SVIIR,
+211,BOF,Packaged Foods
+213,ORGO,Drug Manufacturers - Specialty & Generic
+214,ZJK,Specialty Industrial Machinery
+215,HOLO,Electronic Components
+216,AMPGW,Communication Equipment
+217,ROOT,Insurance - Property & Casualty
+218,ARBK,Capital Markets
+219,GOGO,Telecom Services
+221,ADSEW,Electrical Equipment & Parts
+224,IVCAW,Shell Companies
+225,BODI,Internet Content & Information
+226,LITE,Communication Equipment
+227,UP,Airports & Air Services
+228,ICON,Marine Shipping
+229,MSTR,Software - Application
+231,STRR,Diagnostics & Research
+232,RCAT,Computer Hardware
+234,CLSKW,Capital Markets
+236,INOD,Information Technology Services
+238,ORKT,Software - Application
+241,NIVF,Medical Care Facilities
+242,SHMD,Specialty Industrial Machinery
+243,IFRX,Biotechnology
+244,ZJYL,Medical Instruments & Supplies
+245,PCTTW,Pollution & Treatment Controls
+246,RCG,Asset Management
+248,PLTK,Electronic Gaming & Multimedia
+249,TNYA,Biotechnology
+250,ELWS,Software - Application
+251,AUROW,Information Technology Services
+252,OABIW,Biotechnology
+253,GLTO,Biotechnology
+254,DTCK,Farm Products
+255,MOB,Communication Equipment
+257,SGBX,Metal Fabrication
+258,TDUP,Internet Retail
+259,FFAIW,Auto Manufacturers
+260,SLGL,Biotechnology
+261,RIOT,Capital Markets
+262,OTRK,Health Information Services
+265,IHT,REIT - Hotel & Motel
+266,DAVEW,Software - Application
+267,SHOO,Footwear & Accessories
+268,CIFR,Capital Markets
+271,NIU,Auto Manufacturers
+274,ANAB,Biotechnology
+275,BSIIW,Shell Companies
+276,ATMVR,
+277,FFAI,Auto Manufacturers
+278,APYX,Medical Devices
+282,CORZZ,Software - Infrastructure
+283,MVIS,Scientific & Technical Instruments
+284,SYTA,Communication Equipment
+285,ARQQ,Software - Infrastructure
+286,PGY,Software - Infrastructure
+287,NFE,Utilities - Regulated Gas
+288,CORZ,Software - Infrastructure
+289,LE,Apparel Retail
+290,MNTS,Aerospace & Defense
+291,SMLR,Medical Devices
+292,BEAGR,
+293,SERA,Medical Devices
+294,KVACW,Shell Companies
+295,CYN,Software - Application
+297,AITRR,
+298,KFIIR,
+299,GFAIW,Security & Protection Services
+300,NNE,Specialty Industrial Machinery
+301,TIL,Biotechnology
+302,URBN,Apparel Retail
+303,AAOI,Communication Equipment
+304,CRDO,Semiconductors
+305,MATV,Specialty Chemicals
+306,HOOD,Capital Markets
+308,LFMD,Health Information Services
+309,QXO,Software - Application
+312,RENEW,Shell Companies
+313,BITF,Capital Markets
+314,GRFX,Other Industrial Metals & Mining
+315,ATGL,Software - Infrastructure
+316,PMNT,Apparel Manufacturing
+317,NPWR,Specialty Industrial Machinery
+319,AMSC,Specialty Industrial Machinery
+320,BTM,Capital Markets
+323,LCFY,Internet Content & Information
+324,TVGN,Biotechnology
+325,BHVN,Biotechnology
+326,DPRO,Aerospace & Defense
+327,TKNO,Drug Manufacturers - Specialty & Generic
+328,FBYDW,Conglomerates
+330,SOUNW,Software - Application
+331,SCWO,Pollution & Treatment Controls
+332,MTEKW,Electronic Components
+333,HEPS,Internet Retail
+334,ZETA,Software - Infrastructure
+335,REAL,Luxury Goods
+336,LSH,Integrated Freight & Logistics
+337,ETWO,Software - Application
+338,WULF,Capital Markets
+339,ESOA,Engineering & Construction
+340,PIII,Medical Care Facilities
+341,SNCY,Airlines
+342,BLMN,Restaurants
+343,ASST,Internet Content & Information
+344,LEXXW,Biotechnology
+345,GMHS,Electronic Gaming & Multimedia
+346,GGROW,Auto Manufacturers
+347,BLMZ,Entertainment
+349,CTRI,Utilities - Regulated Gas
+350,ATAI,Biotechnology
+351,ALLT,Software - Infrastructure
+352,GAP,Apparel Retail
+353,CTNM,Biotechnology
+355,GRRR,Software - Infrastructure
+357,TSSI,Information Technology Services
+358,DOMO,Software - Application
+359,ALGS,Biotechnology
+360,NBIS,Internet Content & Information
+361,APP,Software - Application
+363,AVPTW,Software - Infrastructure
+364,HUT,Capital Markets
+365,BNED,Specialty Retail
+366,AKA,Apparel Retail
+367,RILYL,Financial Conglomerates
+368,BHST,Packaged Foods
+369,CSLR,Solar
+370,AEON,Biotechnology
+371,NXDT,REIT - Diversified
+372,BAOS,Advertising Agencies
+373,BZFDW,Internet Content & Information
+374,RDDT,Internet Content & Information
+375,GIFT,Internet Content & Information
+376,RNA,Biotechnology
+378,MFI,Software - Application
+380,DSY,Household & Personal Products
+381,MIST,Biotechnology
+383,PSNL,Diagnostics & Research
+384,RGTI,Computer Hardware
+385,HIVE,Capital Markets
+386,HURA,Biotechnology
+387,QURE,Biotechnology
+388,CMLS,Broadcasting
+389,LZM,Other Industrial Metals & Mining
+390,CAVA,Restaurants
+391,RBRK,Software - Infrastructure
+392,GLNG,Oil & Gas Midstream
+393,FLUX,Electrical Equipment & Parts
+394,FIX,Engineering & Construction
+395,PAYS,Software - Infrastructure
+396,BROS,Restaurants
+397,EVGOW,Specialty Retail
+398,CGTX,Biotechnology
+399,HIMS,Household & Personal Products
+401,SKIN,Household & Personal Products
+402,CANG,Auto & Truck Dealerships
+404,SABSW,Biotechnology
+405,SEPN,Biotechnology
+406,AEI,Real Estate - Development
+409,IREN,Capital Markets
+410,TREE,Financial Conglomerates
+412,CTOS,Rental & Leasing Services
+413,AWH,Diagnostics & Research
+414,GFR,Oil & Gas E&P
+415,NINE,Oil & Gas Equipment & Services
+416,GXAI,Electronic Gaming & Multimedia
+417,KLTR,Software - Application
+418,ELA,Luxury Goods
+421,ANGHW,Entertainment
+422,CADL,Biotechnology
+423,LIND,Travel Services
+425,ROAD,Engineering & Construction
+428,CNTM,Software - Application
+429,IDR,Gold
+430,BFRG,Health Information Services
+431,RUMBW,Internet Content & Information
+432,ETNB,Biotechnology
+433,BPMC,Biotechnology
+434,CNET,Advertising Agencies
+436,DDD,Computer Hardware
+437,KRMN,Aerospace & Defense
+438,PESI,Waste Management
+439,CBUS,Biotechnology
+440,MTSR,Biotechnology
+442,KOD,Biotechnology
+443,HUBCZ,Software - Infrastructure
+446,BOOT,Apparel Retail
+448,DMN,Auto Manufacturers
+449,SWIM,Building Products & Equipment
+450,SEZL,Credit Services
+451,FTRE,Biotechnology
+452,OCG,Internet Retail
+453,AGX,Engineering & Construction
+454,SBCWW,Consulting Services
+455,FTAI,Rental & Leasing Services
+456,UAL,Airlines
+457,FEBO,Consumer Electronics
+458,ANGH,Entertainment
+459,NCPL,Capital Markets
+460,IPM,Software - Application
+461,FTCI,Solar
+463,HPAIW,Software - Infrastructure
+464,BTCS,Capital Markets
+465,VTS,Oil & Gas E&P
+466,BBWI,Specialty Retail
+467,ONMD,Health Information Services
+468,OSCR,Healthcare Plans
+470,SKIL,Education & Training Services
+471,CCB,Banks - Regional
+472,BBIO,Biotechnology
+474,WRBY,Medical Instruments & Supplies
+475,RECT,Specialty Retail
+476,LVRO,Agricultural Inputs
+477,QVCGA,Internet Retail
+478,AMD,Semiconductors
+479,COIN,Financial Data & Stock Exchanges
+480,AEYE,Software - Application
+482,RMBL,Auto & Truck Dealerships
+484,LIQT,Pollution & Treatment Controls
+485,SGN,Software - Application
+487,GOVX,Biotechnology
+488,BTBT,Capital Markets
+489,FWRG,Restaurants
+490,SXTC,Drug Manufacturers - Specialty & Generic
+491,NXTC,Biotechnology
+492,TTGT,Information Technology Services
+493,CCIRW,Shell Companies
+494,DAVE,Software - Application
+495,IBTA,Software - Application
+496,EWCZ,Household & Personal Products
+497,IROHW,Shell Companies
+498,LMND,Insurance - Property & Casualty
+499,ANGI,Internet Content & Information
+500,KINS,Insurance - Property & Casualty
+501,RKLB,Aerospace & Defense
+502,TCX,Software - Infrastructure
+503,DUOL,Software - Application
+504,UEIC,Consumer Electronics
+505,ACTU,Biotechnology
+507,CAL,Apparel Retail
+508,PWM,Asset Management
+509,NEXN,Advertising Agencies
+510,MOGU,Internet Retail
+513,ZIM,Marine Shipping
+514,MAG,Silver
+516,SOFI,Credit Services
+517,NN,Software - Infrastructure
+518,SATL,Aerospace & Defense
+519,GSAT,Telecom Services
+520,SIGA,Drug Manufacturers - Specialty & Generic
+522,NVX,Electrical Equipment & Parts
+523,ELVN,Biotechnology
+524,SEG,Real Estate Services
+526,BKSY,Scientific & Technical Instruments
+527,POWL,Electrical Equipment & Parts
+528,TOIIW,Medical Care Facilities
+529,MGRX,Health Information Services
+530,LMFA,Credit Services
+531,PLAY,Entertainment
+532,HGBL,Capital Markets
+533,RH,Specialty Retail
+534,MAZE,Biotechnology
+535,EAT,Restaurants
+537,RFL,Real Estate Services
+538,BFLY,Medical Devices
+539,QUIK,Semiconductors
+540,HQY,Health Information Services
+541,OSUR,Medical Instruments & Supplies
+545,PLTR,Software - Infrastructure
+546,NXXT,Utilities - Renewable
+547,PVH,Apparel Manufacturing
+549,UBCP,Banks - Regional
+550,CDT,Biotechnology
+552,LNKS,Electrical Equipment & Parts
+553,SIDU,Aerospace & Defense
+554,SEI,Oil & Gas Equipment & Services
+555,NEON,Electronic Components
+556,TZOO,Advertising Agencies
+557,NTRP,Travel Services
+558,JAKK,Leisure
+559,EXOD,Software - Infrastructure
+560,JRVR,Insurance - Specialty
+562,SPWH,Specialty Retail
+563,THAR,Biotechnology
+564,MPWR,Semiconductors
+565,ZVIA,Beverages - Non-Alcoholic
+566,ACRS,Diagnostics & Research
+567,BURL,Apparel Retail
+568,SGHT,Medical Devices
+569,PROK,Biotechnology
+570,CPRX,Biotechnology
+571,SMTI,Medical Instruments & Supplies
+572,RCT,Software - Application
+573,CRS,Metal Fabrication
+574,WYHG,Packaged Foods
+575,BJRI,Restaurants
+576,OCTO,Packaging & Containers
+577,NMRA,Biotechnology
+578,MTZ,Engineering & Construction
+579,ABCL,Biotechnology
+580,UOKA,Real Estate Services
+581,CYH,Medical Care Facilities
+582,GHM,Specialty Industrial Machinery
+583,HOV,Residential Construction
+584,CTRN,Apparel Retail
+585,UPST,Credit Services
+586,BILL,Software - Application
+587,AMPX,Electrical Equipment & Parts
+588,EDIT,Biotechnology
+590,ATNFW,Biotechnology
+591,RVLV,Internet Retail
+592,KNF,Building Materials
+593,EQ,Biotechnology
+594,GRAL,Diagnostics & Research
+596,JILL,Apparel Retail
+597,CIEN,Communication Equipment
+598,ECXWW,Auto Parts
+601,CROX,Footwear & Accessories
+602,GENI,Internet Content & Information
+605,LAES,Semiconductors
+608,MPU,Entertainment
+609,DSGN,Biotechnology
+611,JANX,Biotechnology
+618,AIOT,Software - Infrastructure
+621,FKWL,Communication Equipment
+622,FLGC,Drug Manufacturers - Specialty & Generic
+623,TDC,Software - Infrastructure
+624,MTRX,Engineering & Construction
+626,DDS,Department Stores
+627,CELH,Beverages - Non-Alcoholic
+628,DNA,Biotechnology
+629,BTCT,Computer Hardware
+630,MMYT,Travel Services
+633,IGMS,Biotechnology
+634,LCTX,Biotechnology
+636,LB,Oil & Gas Equipment & Services
+637,ADVM,Biotechnology
+638,XTIA,Aerospace & Defense
+639,LTH,Leisure
+640,ZKH,Internet Retail
+641,UFPT,Medical Devices
+643,APWC,Electrical Equipment & Parts
+644,XMTR,Specialty Industrial Machinery
+646,ZUMZ,Apparel Retail
+647,ILPT,REIT - Industrial
+649,CLDX,Biotechnology
+650,NCI,Apparel Manufacturing
+651,DECK,Footwear & Accessories
+652,STRL,Engineering & Construction
+653,TBI,Staffing & Employment Services
+655,PTLE,Specialty Retail
+656,GIPR,REIT - Diversified
+658,VTSI,Software - Application
+660,CLRB,Biotechnology
+661,BMBL,Internet Content & Information
+662,ASPI,Chemicals
+663,ZYXI,Medical Distribution
+664,ONFO,Internet Content & Information
+665,AERTW,Consulting Services
+666,ANVS,Biotechnology
+669,VLCN,Auto Manufacturers
+670,VFSWW,Auto Manufacturers
+671,DH,Health Information Services
+672,ACHV,Biotechnology
+673,SKWD,Insurance - Property & Casualty
+674,UAMY,Other Industrial Metals & Mining
+675,ARHS,Specialty Retail
+676,BLFS,Medical Instruments & Supplies
+677,IRWD,Drug Manufacturers - Specialty & Generic
+678,AUR,Information Technology Services
+679,CENT,Packaged Foods
+680,PAPL,Mortgage Finance
+682,KMDA,Drug Manufacturers - Specialty & Generic
+683,LTBR,Electrical Equipment & Parts
+684,RMCF,Confectioners
+685,TPL,Oil & Gas E&P
+688,NIPG,Entertainment
+689,ATEC,Medical Devices
+690,SITM,Semiconductors
+691,XAIR,Medical Devices
+693,SEED,Agricultural Inputs
+694,TRUE,Internet Content & Information
+695,PYPD,Biotechnology
+696,GDSTR,
+698,HROW,Drug Manufacturers - Specialty & Generic
+699,CNTA,Biotechnology
+700,LIF,Software - Application
+701,KTOS,Aerospace & Defense
+702,CARS,Auto & Truck Dealerships
+704,RGNX,Biotechnology
+705,MTSI,Semiconductors
+706,IPGP,Semiconductor Equipment & Materials
+708,PTLO,Restaurants
+709,BLD,Engineering & Construction
+711,PL,Aerospace & Defense
+712,SSTI,Software - Application
+713,SIG,Luxury Goods
+714,SNES,Specialty Chemicals
+716,BNTX,Biotechnology
+717,MNTK,Utilities - Diversified
+718,HTOO,Utilities - Renewable
+720,SJT,Oil & Gas E&P
+722,U,Software - Application
+723,AVAH,Medical Care Facilities
+724,CGON,Biotechnology
+725,UAVS,Computer Hardware
+726,ECG,Engineering & Construction
+727,GAMB,Gambling
+728,NOTV,Diagnostics & Research
+729,LGCL,Software - Application
+730,ANL,Biotechnology
+731,OCGN,Biotechnology
+732,FAMI,Packaged Foods
+733,AGMH,Computer Hardware
+734,EE,Oil & Gas Midstream
+736,GCMGW,Asset Management
+737,DSP,Software - Application
+738,TTD,Software - Application
+739,INDI,Semiconductor Equipment & Materials
+741,ASO,Specialty Retail
+742,WNW,Internet Retail
+743,WEYS,Footwear & Accessories
+744,IDAI,Software - Application
+745,TTI,Oil & Gas Equipment & Services
+746,BIVI,Biotechnology
+747,AXTI,Semiconductor Equipment & Materials
+748,RL,Apparel Manufacturing
+749,BCAB,Biotechnology
+750,FORA,Health Information Services
+751,HSON,Staffing & Employment Services
+752,TMCI,Medical Devices
+753,ZENV,Software - Application
+754,DOCS,Health Information Services
+755,QTTB,Biotechnology
+756,LINC,Education & Training Services
+758,USIO,Software - Infrastructure
+760,M,Department Stores
+761,AFRM,Software - Infrastructure
+762,GIII,Apparel Manufacturing
+763,ANET,Computer Hardware
+764,HRI,Rental & Leasing Services
+765,GRPN,Internet Content & Information
+766,SHAK,Restaurants
+767,LESL,Specialty Retail
+768,VITL,Farm Products
+769,SLNH,Capital Markets
+770,FPAY,Rental & Leasing Services
+773,OPAL,Utilities - Regulated Gas
+776,BBU,Conglomerates
+777,RDNT,Diagnostics & Research
+778,RBBN,Software - Application
+779,CPRI,Luxury Goods
+781,GKOS,Medical Devices
+783,NXPI,Semiconductors
+785,FDX,Integrated Freight & Logistics
+786,GFF,Conglomerates
+792,OKYO,Biotechnology
+793,RUSHB,Auto & Truck Dealerships
+795,IROHR,
+796,MEG,Waste Management
+797,UIS,Information Technology Services
+798,TFIN,Banks - Regional
+800,PTON,Leisure
+801,IPSC,Biotechnology
+802,CART,Internet Retail
+803,IBRX,Biotechnology
+805,UI,Communication Equipment
+807,DKS,Specialty Retail
+808,AL,Rental & Leasing Services
+809,SITE,Industrial Distribution
+810,CDTX,Biotechnology
+812,NOTE,Information Technology Services
+813,BLBD,Farm & Heavy Construction Machinery
+814,WPRT,Auto Parts
+816,BMR,Software - Application
+817,PHAT,Biotechnology
+818,DOUG,Real Estate Services
+819,LC,Banks - Regional
+820,SMSI,Software - Application
+822,RAPP,Biotechnology
+823,CAKE,Restaurants
+825,PUMP,Oil & Gas Equipment & Services
+826,SAIA,Trucking
+827,GCLWW,Electronic Gaming & Multimedia
+830,RGLS,Biotechnology
+831,THC,Medical Care Facilities
+832,RIVN,Auto Manufacturers
+834,NXE,Uranium
+835,SXTP,Biotechnology
+836,ATXG,Integrated Freight & Logistics
+837,XOS,Farm & Heavy Construction Machinery
+838,AGYS,Software - Application
+839,AN,Auto & Truck Dealerships
+840,ADAG,Biotechnology
+841,CWH,Auto & Truck Dealerships
+843,CRON,Drug Manufacturers - Specialty & Generic
+845,PROP,Oil & Gas E&P
+846,WVE,Biotechnology
+848,APCX,Software - Infrastructure
+849,PINS,Internet Content & Information
+850,ASTI,Solar
+853,JXG,Apparel Manufacturing
+854,RPD,Software - Infrastructure
+856,TLRY,Drug Manufacturers - Specialty & Generic
+857,SYM,Specialty Industrial Machinery
+858,PAYO,Software - Infrastructure
+859,STEP,Asset Management
+862,AEO,Apparel Retail
+864,NVVEW,Specialty Retail
+865,CIO,REIT - Office
+866,EFSH,Conglomerates
+867,PBPB,Restaurants
+868,EVTV,Auto Manufacturers
+870,AAON,Building Products & Equipment
+871,VTLE,Oil & Gas E&P
+872,REVB,Biotechnology
+873,OSIS,Electronic Components
+874,BELFB,Electronic Components
+875,VRAX,Biotechnology
+876,NVST,Medical Instruments & Supplies
+877,SKYW,Airlines
+878,PHLT,Health Information Services
+881,OPAD,Real Estate Services
+882,DDOG,Software - Application
+883,COHU,Semiconductor Equipment & Materials
+884,SRG,Real Estate Services
+885,MXL,Semiconductors
+886,IRBT,"Furnishings, Fixtures & Appliances"
+887,TDOC,Health Information Services
+888,SHOP,Software - Application
+889,OMF,Credit Services
+890,ARM,Semiconductors
+891,DRMA,Biotechnology
+892,SAIL,Software - Infrastructure
+894,ORIC,Biotechnology
+895,EVR,Capital Markets
+896,IMMR,Software - Application
+897,PRCT,Medical Devices
+898,SEMR,Software - Application
+899,FN,Electronic Components
+901,RAIL,Railroads
+903,MBLY,Auto Parts
+904,UNFI,Food Distribution
+905,SKT,REIT - Retail
+906,MOD,Auto Parts
+907,WWW,Footwear & Accessories
+908,BFRI,Drug Manufacturers - Specialty & Generic
+909,TARS,Biotechnology
+910,TWST,Diagnostics & Research
+911,IOT,Software - Infrastructure
+912,TERN,Biotechnology
+913,CG,Asset Management
+914,SG,Restaurants
+915,BIRK,Footwear & Accessories
+916,SMID,Building Materials
+917,SANA,Biotechnology
+919,SMMT,Biotechnology
+920,TV,Telecom Services
+921,VERB,Software - Application
+922,YHNAR,
+923,CVLT,Software - Application
+924,BXC,Industrial Distribution
+925,NVRI,Waste Management
+926,CIVI,Oil & Gas E&P
+927,CTSO,Medical Devices
+928,PWP,Capital Markets
+929,ARWR,Biotechnology
+930,BWXT,Aerospace & Defense
+931,JEF,Capital Markets
+932,CBAT,Electrical Equipment & Parts
+933,VMI,Conglomerates
+935,CCCC,Biotechnology
+936,WTTR,Oil & Gas Equipment & Services
+937,JELD,Building Products & Equipment
+939,KKR,Asset Management
+941,ASRT,Drug Manufacturers - Specialty & Generic
+943,AZZ,Specialty Business Services
+944,GNRC,Specialty Industrial Machinery
+945,SYRE,Biotechnology
+946,TDW,Oil & Gas Equipment & Services
+947,ATRA,Biotechnology
+949,HUYA,Entertainment
+950,PSNY,Auto Manufacturers
+952,OC,Building Products & Equipment
+953,ACRV,Biotechnology
+954,ODD,Software - Infrastructure
+956,SKYX,Electrical Equipment & Parts
+957,LFWD,Medical Devices
+958,CMC,Steel
+960,UMAC,Shell Companies
+961,ENVA,Credit Services
+962,PCT,Pollution & Treatment Controls
+963,ENVX,Electrical Equipment & Parts
+964,ATRC,Medical Instruments & Supplies
+965,MRNA,Biotechnology
+968,MREO,Biotechnology
+969,LUCK,Leisure
+970,MNY,Internet Content & Information
+971,CUE,Biotechnology
+972,TIRX,Insurance Brokers
+973,RCL,Travel Services
+975,JAGX,Biotechnology
+976,IPI,Agricultural Inputs
+977,KZR,Biotechnology
+979,TEX,Farm & Heavy Construction Machinery
+980,CERO,Biotechnology
+981,CCSI,Software - Infrastructure
+982,OSW,Leisure
+983,ACVA,Auto & Truck Dealerships
+984,ROST,Apparel Retail
+985,KPLT,Software - Infrastructure
+986,MRSN,Biotechnology
+987,QTWO,Software - Application
+988,SOUN,Software - Application
+989,SHIM,Engineering & Construction
+990,JZ,Information Technology Services
+991,DYCQR,
+992,AISPW,Software - Infrastructure
+993,CRMT,Auto & Truck Dealerships
+994,BANC,Banks - Regional
+995,ABP,Biotechnology
+996,ACLX,Biotechnology
+997,ATGE,Education & Training Services
+999,EYE,Specialty Retail
+1001,OVID,Biotechnology
+1004,ATLC,Credit Services
+1005,DAL,Airlines
+1006,GRND,Software - Application
+1007,SCSC,Electronics & Computer Distribution
+1008,CGC,Drug Manufacturers - Specialty & Generic
+1009,LSCC,Semiconductors
+1010,EZPW,Credit Services
+1011,MTUS,Steel
+1012,NTGR,Communication Equipment
+1014,BTOG,Financial Data & Stock Exchanges
+1015,LAD,Auto & Truck Dealerships
+1016,BTTR,Packaged Foods
+1017,ONON,Footwear & Accessories
+1018,TPG,Asset Management
+1020,DLTR,Discount Stores
+1021,WRLD,Credit Services
+1022,EME,Engineering & Construction
+1023,ERII,Pollution & Treatment Controls
+1024,AIT,Industrial Distribution
+1025,GPI,Auto & Truck Dealerships
+1026,LVWR,Auto Manufacturers
+1027,EXP,Building Materials
+1028,LOVE,"Furnishings, Fixtures & Appliances"
+1029,ULTA,Specialty Retail
+1030,SKYE,Biotechnology
+1031,BCO,Security & Protection Services
+1032,NEXT,Oil & Gas Equipment & Services
+1033,ECPG,Credit Services
+1034,AVT,Electronics & Computer Distribution
+1035,JBLU,Airlines
+1036,ESQ,Banks - Regional
+1037,NDRA,Diagnostics & Research
+1038,NUE,Steel
+1039,GFAI,Security & Protection Services
+1040,PLX,Biotechnology
+1042,NPO,Specialty Industrial Machinery
+1043,BIP,Utilities - Diversified
+1044,CRNX,Biotechnology
+1045,OWL,Asset Management
+1046,DTSS,Software - Infrastructure
+1047,PRT,Oil & Gas E&P
+1049,OPRT,Credit Services
+1050,VTVT,Biotechnology
+1051,DASH,Internet Content & Information
+1052,DFH,Residential Construction
+1053,OM,Medical Devices
+1054,HOUS,Real Estate Services
+1055,XGN,Diagnostics & Research
+1056,ARMN,Gold
+1060,THM,Gold
+1061,LLYVA,Entertainment
+1063,VSEC,Aerospace & Defense
+1064,S,Software - Infrastructure
+1065,SDGR,Health Information Services
+1066,RUSHA,Auto & Truck Dealerships
+1069,TRUP,Insurance - Property & Casualty
+1070,AMWL,Health Information Services
+1071,RNG,Software - Application
+1072,ENSC,Biotechnology
+1073,NWL,Household & Personal Products
+1074,ON,Semiconductors
+1076,SCPH,Biotechnology
+1078,FLL,Resorts & Casinos
+1079,DRI,Restaurants
+1080,ZTEK,Medical Instruments & Supplies
+1081,QBTS,Computer Hardware
+1082,NL,Security & Protection Services
+1083,VTGN,Biotechnology
+1084,AX,Banks - Regional
+1087,SPRY,Biotechnology
+1088,IBP,Residential Construction
+1090,OPRX,Health Information Services
+1091,LZB,"Furnishings, Fixtures & Appliances"
+1093,CARG,Auto & Truck Dealerships
+1094,BIAF,Diagnostics & Research
+1095,RBOT,Medical Devices
+1096,UHS,Medical Care Facilities
+1097,LEG,"Furnishings, Fixtures & Appliances"
+1098,TREX,Building Products & Equipment
+1099,TITN,Industrial Distribution
+1100,HSII,Staffing & Employment Services
+1101,ZBAO,Insurance Brokers
+1102,AYI,Electrical Equipment & Parts
+1103,SHYF,Farm & Heavy Construction Machinery
+1104,VPG,Scientific & Technical Instruments
+1105,BCAX,Biotechnology
+1106,VCTR,Asset Management
+1107,LPLA,Capital Markets
+1109,DAKT,Electronic Components
+1110,LSAK,Software - Infrastructure
+1111,VCYT,Diagnostics & Research
+1112,IIPR,REIT - Industrial
+1114,CRI,Apparel Retail
+1115,FUFU,Capital Markets
+1116,TCI,Real Estate Services
+1117,AROW,Banks - Regional
+1118,FHTX,Biotechnology
+1120,MCHP,Semiconductors
+1121,CAAS,Auto Parts
+1122,WAFD,Banks - Regional
+1123,IOBT,Biotechnology
+1124,GCT,Software - Infrastructure
+1126,JCTC,Lumber & Wood Production
+1127,LBTYB,Telecom Services
+1129,DAN,Auto Parts
+1130,MNDY,Software - Application
+1132,POWW,Aerospace & Defense
+1133,BLDR,Building Products & Equipment
+1134,DTM,Oil & Gas Midstream
+1135,TROO,Software - Application
+1136,SMR,Specialty Industrial Machinery
+1137,MHK,"Furnishings, Fixtures & Appliances"
+1138,WT,Asset Management
+1139,ATRO,Aerospace & Defense
+1141,VERV,Biotechnology
+1142,CALX,Software - Infrastructure
+1144,ALT,Biotechnology
+1145,ATI,Metal Fabrication
+1146,EBON,Computer Hardware
+1147,TGT,Discount Stores
+1148,MTH,Residential Construction
+1149,INFU,Medical Instruments & Supplies
+1150,GOOS,Apparel Manufacturing
+1152,BOW,Insurance - Property & Casualty
+1153,PRME,Biotechnology
+1154,CE,Chemicals
+1155,BRBR,Packaged Foods
+1156,ARES,Asset Management
+1157,MTW,Farm & Heavy Construction Machinery
+1160,DEI,REIT - Office
+1161,BZH,Residential Construction
+1162,ROCK,Building Products & Equipment
+1163,WSM,Specialty Retail
+1171,VZLA,Other Industrial Metals & Mining
+1172,TE,Electrical Equipment & Parts
+1173,WAY,Health Information Services
+1175,MANH,Software - Application
+1176,BLNK,Engineering & Construction
+1177,BRFH,Beverages - Non-Alcoholic
+1178,RCEL,Medical Devices
+1179,THRM,Auto Parts
+1180,LNC,Insurance - Life
+1182,ETON,Drug Manufacturers - Specialty & Generic
+1183,TRNS,Industrial Distribution
+1184,TAYD,Specialty Industrial Machinery
+1185,LASE,Specialty Industrial Machinery
+1186,CPS,Auto Parts
+1187,HWM,Aerospace & Defense
+1188,ODVWZ,Gold
+1189,FXNC,Banks - Regional
+1190,AAMI,Asset Management
+1191,AHCO,Medical Devices
+1192,GUTS,Biotechnology
+1193,FORM,Semiconductor Equipment & Materials
+1195,SAM,Beverages - Brewers
+1196,TER,Semiconductor Equipment & Materials
+1197,SPSC,Software - Application
+1198,SF,Capital Markets
+1199,RICK,Restaurants
+1202,BHB,Banks - Regional
+1203,TNET,Staffing & Employment Services
+1204,HYMC,Gold
+1205,COFS,Banks - Regional
+1206,WAL,Banks - Regional
+1207,DOOO,Recreational Vehicles
+1208,LPCN,Biotechnology
+1210,UFPI,Lumber & Wood Production
+1211,MI,Internet Retail
+1212,ALLY,Credit Services
+1213,NET,Software - Infrastructure
+1214,BWMX,Specialty Retail
+1215,CTGO,Gold
+1217,ONTO,Semiconductor Equipment & Materials
+1218,BCML,Banks - Regional
+1219,COUR,Education & Training Services
+1220,PONY,Information Technology Services
+1221,ARCB,Trucking
+1222,GMS,Building Products & Equipment
+1223,THR,Specialty Industrial Machinery
+1224,NGVC,Grocery Stores
+1226,FLNT,Advertising Agencies
+1227,MHO,Residential Construction
+1228,EXPI,Real Estate Services
+1229,FIVE,Specialty Retail
+1230,SLDB,Biotechnology
+1232,ESTA,Medical Devices
+1233,AMWD,"Furnishings, Fixtures & Appliances"
+1235,ZCMD,Health Information Services
+1236,KRYS,Biotechnology
+1237,CR,Specialty Industrial Machinery
+1239,VIR,Biotechnology
+1240,TBBK,Banks - Regional
+1241,USLM,Building Materials
+1243,DGXX,Utilities - Independent Power Producers
+1244,SAH,Auto & Truck Dealerships
+1245,HGV,Resorts & Casinos
+1247,KMT,Tools & Accessories
+1248,ADI,Semiconductors
+1249,FGFPP,Insurance - Diversified
+1250,JACK,Restaurants
+1251,UONE,Broadcasting
+1252,PBM,Biotechnology
+1254,FLOC,Oil & Gas Equipment & Services
+1255,ADT,Security & Protection Services
+1256,BAM,Asset Management
+1258,HIPO,Insurance - Property & Casualty
+1259,AAL,Airlines
+1260,NYC,Real Estate Services
+1261,AI,Software - Application
+1263,VFC,Apparel Manufacturing
+1264,LEU,Uranium
+1265,LWLG,Specialty Chemicals
+1266,COLB,Banks - Regional
+1267,BCC,Building Materials
+1268,JLL,Real Estate Services
+1271,TOL,Residential Construction
+1272,TRGP,Oil & Gas Midstream
+1273,APEI,Education & Training Services
+1274,SFIX,Apparel Retail
+1275,LULU,Apparel Retail
+1276,DJCO,Software - Application
+1278,SPCB,Security & Protection Services
+1280,CVAC,Biotechnology
+1281,DNOW,Industrial Distribution
+1282,ALTS,Software - Application
+1290,RMBS,Semiconductors
+1298,ARW,Electronics & Computer Distribution
+1307,DJT,Internet Content & Information
+1310,HWC,Banks - Regional
+1311,TOPS,Oil & Gas Midstream
+1319,SMBK,Banks - Regional
+1320,ALKT,Software - Application
+1322,SBH,Specialty Retail
+1346,APPS,Software - Application
+1347,FUN,Leisure
+1348,INSP,Medical Devices
+1349,INZY,Biotechnology
+1355,PEGA,Software - Application
+1356,CRH,Building Materials
+1357,SYPR,Auto Parts
+1364,ULCC,Airlines
+1369,ZNTL,Biotechnology
+1370,MRBK,Banks - Regional
+1371,PNRG,Oil & Gas E&P
+1372,FHB,Banks - Regional
+1373,PEBK,Banks - Regional
+1374,PACS,Medical Care Facilities
+1376,TXN,Semiconductors
+1386,EWBC,Banks - Regional
+1394,QNST,Advertising Agencies
+1400,AIRS,Medical Care Facilities
+1401,HD,Home Improvement Retail
+1402,BDC,Communication Equipment
+1403,STRW,REIT - Healthcare Facilities
+1404,XPO,Trucking
+1405,DIOD,Semiconductors
+1406,PLXS,Electronic Components
+1407,NVEE,Engineering & Construction
+1408,LQDT,Internet Retail
+1409,ITT,Specialty Industrial Machinery
+1421,DMRC,Information Technology Services
+1422,KYMR,Biotechnology
+1423,TPR,Luxury Goods
+1424,NVMI,Semiconductor Equipment & Materials
+1436,GMGI,Electronic Gaming & Multimedia
+1437,VSTA,Education & Training Services
+1438,RS,Steel
+1444,BANR,Banks - Regional
+1446,SGC,Apparel Manufacturing
+1448,INBK,Banks - Regional
+1449,PLPC,Electrical Equipment & Parts
+1450,IVZ,Asset Management
+1452,AMR,Coking Coal
+1453,GOLF,Leisure
+1454,SGMT,Biotechnology
+1459,ERO,Copper
+1460,MWA,Specialty Industrial Machinery
+1461,VLY,Banks - Regional
+1466,HOVR,Aerospace & Defense
+1467,ABG,Auto & Truck Dealerships
+1468,HLNE,Asset Management
+1475,TGLS,Building Materials
+1481,IBOC,Banks - Regional
+1482,EVCM,Software - Infrastructure
+1483,RSI,Gambling
+1489,PSFE,Software - Infrastructure
+1491,DRTS,Biotechnology
+1492,ALDFW,Shell Companies
+1493,MC,Capital Markets
+1494,COF,Credit Services
+1495,AVNT,Specialty Chemicals
+1496,MS,Capital Markets
+1497,PRAA,Credit Services
+1498,TBNK,Banks - Regional
+1506,ANTX,Biotechnology
+1508,EVO,Drug Manufacturers - Specialty & Generic
+1509,STRS,Real Estate - Diversified
+1511,CTS,Electronic Components
+1515,DY,Engineering & Construction
+1522,AROC,Oil & Gas Equipment & Services
+1528,LYTS,Electronic Components
+1529,RGA,Insurance - Reinsurance
+1530,DHX,Software - Application
+1544,WRAP,Scientific & Technical Instruments
+1545,GOCO,Insurance Brokers
+1546,IDT,Telecom Services
+1547,VVR,Asset Management
+1548,CLBT,Software - Infrastructure
+1549,PLAB,Semiconductor Equipment & Materials
+1550,FCX,Copper
+1551,ANNA,Oil & Gas E&P
+1553,MRVL,Semiconductors
+1555,Z,Internet Content & Information
+1556,LNKB,Banks - Regional
+1557,LFUS,Electronic Components
+1558,CW,Aerospace & Defense
+1559,GMED,Medical Devices
+1560,CADE,Banks - Regional
+1561,COGT,Biotechnology
+1562,IMCC,Drug Manufacturers - Specialty & Generic
+1565,CWK,Real Estate Services
+1567,ADSE,Electrical Equipment & Parts
+1573,ZVSA,Biotechnology
+1574,FTK,Oil & Gas Equipment & Services
+1579,IAC,Internet Content & Information
+1580,GM,Auto Manufacturers
+1581,SYF,Credit Services
+1582,NKTX,Biotechnology
+1583,ABOS,Biotechnology
+1585,BMRC,Banks - Regional
+1586,SKY,Residential Construction
+1587,STTK,Biotechnology
+1588,PJT,Capital Markets
+1593,JXN,Insurance - Life
+1600,WIT,Information Technology Services
+1602,INDB,Banks - Regional
+1603,ONEW,Specialty Retail
+1604,TSAT,Communication Equipment
+1622,EBTC,Banks - Regional
+1625,FIZZ,Beverages - Non-Alcoholic
+1626,DXPE,Industrial Distribution
+1628,NOV,Oil & Gas Equipment & Services
+1639,ISRG,Medical Instruments & Supplies
+1640,BSRR,Banks - Regional
+1647,CPAY,Software - Infrastructure
+1648,LGND,Biotechnology
+1649,STLD,Steel
+1651,ASTH,Medical Care Facilities
+1652,GNPX,Biotechnology
+1653,ACMR,Semiconductor Equipment & Materials
+1659,RYTM,Biotechnology
+1668,CON,Medical Care Facilities
+1669,RSKD,Software - Application
+1670,EXAS,Diagnostics & Research
+1671,SFBS,Banks - Regional
+1672,MIGI,Capital Markets
+1674,DFS,Credit Services
+1675,LYV,Entertainment
+1676,UNB,Banks - Regional
+1677,NBN,Banks - Regional
+1683,HXL,Aerospace & Defense
+1684,PGC,Banks - Regional
+1687,MCW,Auto & Truck Dealerships
+1688,SBC,Consulting Services
+1708,SANM,Electronic Components
+1710,CGEN,Biotechnology
+1711,MGM,Resorts & Casinos
+1377,ILAG,Building Products & Equipment
+1399,SKX,Footwear & Accessories
+1433,CHEF,Food Distribution
+1469,LLYVK,Entertainment
+1471,WCC,Industrial Distribution
+1479,SKYT,Semiconductors
+1485,FTFT,Software - Application
+1492,FRHC,Financial Conglomerates
+1494,PVBC,Banks - Regional
+1504,VALN,Biotechnology
+1508,ZG,Internet Content & Information
+1536,AWI,Building Products & Equipment
+1543,AVBP,Biotechnology
+1573,GNE,Utilities - Regulated Electric
+1627,FBIZ,Banks - Regional
+1629,SOPH,Health Information Services
+1630,ALAR,Software - Infrastructure
+1631,MRP,REIT - Residential
+1636,PAG,Auto & Truck Dealerships
+1637,NX,Building Products & Equipment
+1638,TPC,Engineering & Construction
+1640,MSM,Industrial Distribution
+1642,ESAB,Metal Fabrication
+1643,JBTM,Specialty Industrial Machinery
+1644,HUBB,Electrical Equipment & Parts
+1645,PKG,Packaging & Containers
+1646,FWONA,Entertainment
+1647,VIK,Travel Services
+1648,PH,Specialty Industrial Machinery
+1649,NBIX,Drug Manufacturers - Specialty & Generic
+1651,SNV,Banks - Regional
+1653,GHC,Education & Training Services
+1654,HCC,Coking Coal
+1655,NISN,Specialty Business Services
+1656,STGW,Advertising Agencies
+1658,CXDO,Telecom Services
+1659,RHI,Staffing & Employment Services
+1660,CAPR,Biotechnology
+1661,DOV,Specialty Industrial Machinery
+1662,JBL,Electronic Components
+1663,MSB,Steel
+1665,BH,Restaurants
+1666,LLY,Drug Manufacturers - General
+1671,REZI,Industrial Distribution
+1673,JMIA,Internet Retail
+1674,MRUS,Biotechnology
+1677,VICR,Electronic Components
+1678,EQBK,Banks - Regional
+1679,AGIO,Biotechnology
+1680,RVMD,Biotechnology
+1681,MESO,Biotechnology
+1686,UTI,Education & Training Services
+1687,INGM,Information Technology Services
+1688,LBRT,Oil & Gas Equipment & Services
+1689,VNET,Information Technology Services
+1691,WBX,Electronic Components
+1692,STKS,Restaurants
+1693,ELF,Household & Personal Products
+1694,TEAM,Software - Application
+1695,TRMK,Banks - Regional
+1696,VSTS,Rental & Leasing Services
+1697,ICCM,Medical Devices
+1698,YMAB,Biotechnology
+1706,MCFT,Recreational Vehicles
+1707,CAE,Aerospace & Defense
+1708,FARM,Packaged Foods
+1710,HLIO,Specialty Industrial Machinery
+1712,TPH,Residential Construction
+1713,BN,Asset Management
+1714,VNOM,Oil & Gas Midstream
+1716,PRSU,Specialty Business Services
+1717,BRDG,Asset Management
+1720,BOKF,Banks - Regional
+1722,PRIM,Engineering & Construction
+1723,MOGO,Software - Infrastructure
+1724,AMP,Asset Management
+1726,PPC,Packaged Foods
+1727,NVDA,Semiconductors
+1729,CBRE,Real Estate Services
+1731,GEO,Security & Protection Services
+1732,YSXT,Specialty Business Services
+1733,WOR,Metal Fabrication
+1734,OOMA,Software - Application
+1735,WFRD,Oil & Gas Equipment & Services
+1736,XENE,Biotechnology
+1737,GBCI,Banks - Regional
+1738,MRNO,Real Estate - Development
+1740,MYPS,Electronic Gaming & Multimedia
+1742,PDYN,Software - Infrastructure
+1743,MAMA,Packaged Foods
+1744,DJTWW,Internet Content & Information
+1746,WSO,Industrial Distribution
+1748,NTAP,Computer Hardware
+1749,SPNT,Insurance - Reinsurance
+1750,KMX,Auto & Truck Dealerships
+1751,FFIN,Banks - Regional
+1752,EFC_D,
+1753,JZXN,Auto & Truck Dealerships
+1754,CBL,REIT - Retail
+1755,SGI,"Furnishings, Fixtures & Appliances"
+1756,XPEL,Auto Parts
+1757,ADPT,Biotechnology
+1759,RELY,Software - Infrastructure
+1762,LMAT,Medical Instruments & Supplies
+1763,CBLL,Medical Devices
+1764,MMA,Leisure
+1765,MHLD,Insurance - Reinsurance
+1766,PBI,Integrated Freight & Logistics
+1767,GWRE,Software - Application
+1768,COSM,Medical Distribution
+1769,CMTL,Communication Equipment
+1770,RM,Credit Services
+1773,EXFY,Software - Application
+1774,LIXT,Biotechnology
+1775,SOC,Oil & Gas Drilling
+1776,ASB,Banks - Regional
+1777,ASTE,Farm & Heavy Construction Machinery
+1778,NYAX,Software - Infrastructure
+1779,SWK,Tools & Accessories
+1780,CVEO,Lodging
+1781,CBAN,Banks - Regional
+1782,EVEX,Aerospace & Defense
+1783,SAIC,Information Technology Services
+1784,EHTH,Insurance Brokers
+1792,GEF_B,
+1793,BKU,Banks - Regional
+1796,IVT,REIT - Retail
+1797,FARO,Scientific & Technical Instruments
+1798,OSK,Farm & Heavy Construction Machinery
+1799,ZIP,Staffing & Employment Services
+1800,PKOH,Specialty Industrial Machinery
+1801,PHM,Residential Construction
+1803,BEAM,Biotechnology
+1804,MCB,Banks - Regional
+1806,FOXF,Auto Parts
+1807,MBX,Biotechnology
+1808,TMHC,Residential Construction
+1809,BRKL,Banks - Regional
+1814,GHRS,Biotechnology
+1815,NEO,Diagnostics & Research
+1820,VTYX,Biotechnology
+1822,KALV,Biotechnology
+1823,VNO,REIT - Office
+1825,ARCT,Biotechnology
+1827,RRX,Specialty Industrial Machinery
+1828,STBX,Internet Content & Information
+1829,CCNE,Banks - Regional
+1830,OII,Oil & Gas Equipment & Services
+1831,ULH,Trucking
+1832,BHE,Electronic Components
+1833,CFLT,Software - Infrastructure
+1835,SMHI,Marine Shipping
+1836,MFC,Insurance - Life
+1837,AAP,Specialty Retail
+1839,PACK,Packaging & Containers
+1840,ISCG,
+1841,VVX,Aerospace & Defense
+1842,SRPT,Biotechnology
+1843,TT,Building Products & Equipment
+1844,URI,Rental & Leasing Services
+1845,WHD,Oil & Gas Equipment & Services
+1846,KLAC,Semiconductor Equipment & Materials
+1847,LINE,REIT - Industrial
+1848,QQQA,
+1849,AOTG,
+1850,TJX,Apparel Retail
+1851,FLYE,Auto Manufacturers
+1852,MVBF,Banks - Regional
+1853,ISHP,
+1854,OMI,Medical Distribution
+1855,AIR,Aerospace & Defense
+1856,SRAD,Software - Application
+1857,WINA,Specialty Retail
+1858,GCTS,Semiconductors
+1859,CUK,Travel Services
+1860,YELP,Internet Content & Information
+1861,PSCI,
+1862,CLPT,Medical Devices
+1863,QMCO,Computer Hardware
+1864,GE,Aerospace & Defense
+1865,ABSI,Biotechnology
+1866,IWP,
+1867,NOVT,Scientific & Technical Instruments
+1868,DNB,Financial Data & Stock Exchanges
+1870,LNG,Oil & Gas Midstream
+1871,COOP,Mortgage Finance
+1872,SDRL,Oil & Gas Drilling
+1873,MNMD,Biotechnology
+1874,CNO,Insurance - Life
+1875,OKE,Oil & Gas Midstream
+1876,JSML,
+1877,NTES,Electronic Gaming & Multimedia
+1337,PITAW,
+1338,LANV_WS,
+1339,AREBW,
+1340,WBX_WS,N/A
+1341,MRAL,N/A
+1342,IONX,N/A
+1343,LOTWW,Auto Manufacturers
+1344,AMPX_WS,N/A
+1345,IONQ_WS,
+1346,LMND_WS,N/A
+1347,NUVB_WS,
+1348,TSLR,
+1349,SLND_WS,
+1350,TSLL,
+1351,TSLG,N/A
+1352,TSLT,N/A
+1353,SOLT,N/A
+1354,LGL_WS,N/A
+1355,ELON,N/A
+1356,MSTX,N/A
+1357,NIOBW,N/A
+1358,ISRLW,N/A
+1359,MSTU,N/A
+1360,TESL,
+1361,OPFI_WS,
+1362,HIMZ,N/A
+1363,RIOX,
+1364,CELGr,
+1365,HOOG,N/A
+1366,ROBN,
+1367,HOOX,
+1368,APED,N/A
+1369,TSL,
+1370,CARU,
+1371,AMUU,
+1372,AMDG,
+1373,AMDL,N/A
+1374,TSW,
+1375,COIG,N/A
+1376,CONL,
+1377,SOFX,
+1378,BBAI_WS,N/A
+1379,RKLX,
+1380,PLTU,N/A
+1381,PTIR,N/A
+1382,CSLRW,N/A
+1383,MARO,N/A
+1384,ETU,N/A
+1385,ZIPP,N/A
+1386,OCEAW,
+1387,ETHT,
+1388,BFRGW,
+1389,ETHU,N/A
+1390,SOLZ,
+1391,LVWR_WS,
+1392,NPWR_WS,N/A
+1393,WANT,N/A
+1394,GWH_WS,
+1395,CAPNR,
+1396,GCTS_WS,
+1397,BTFX,
+1398,BITU,
+1399,BTCL,
+1400,BITX,
+1401,TARK,
+1402,LAYS,N/A
+1403,WGMI,
+1404,PL_WS,N/A
+1405,RETL,N/A
+1406,HKPD,
+1407,LMBO,
+1408,BKCH,
+1409,CVNY,
+1410,MNRS,
+1411,DXYZ,
+1412,ARMG,N/A
+1413,ARMU,N/A
+1414,GPUS_D,
+1415,OWNB,N/A
+1416,TSLP,
+1417,SOXL,
+1418,BULZ,
+1419,BITQ,N/A
+1420,JETU,
+1421,IBLC,
+1422,NAIL,
+1423,STCE,
+1424,HIBL,
+1425,CRPT,
+1426,COIW,
+1427,OAKUW,
+1428,DAPP,
+1429,DPST,N/A
+1430,URTY,N/A
+1431,UCC,N/A
+1432,DJTU,N/A
+1433,OOQB,N/A
+1434,WEBL,
+1435,TNA,
+1436,FBL,
+1437,UMDD,
+1438,METU,
+1439,BITS,N/A
+1440,MIDU,
+1441,BNKU,
+1442,TSLY,N/A
+1443,SATO,
+1444,RMSG,
+1445,DISTR,
+1446,AMZU,
+1447,AMZZ,
+1448,SPYU,
+1449,FNGA,N/A
+1450,OOSB,
+1451,DFEN,
+1452,MAGX,
+1453,DECO,
+1454,MVLL,
+1455,FNGB,
+1456,QQQU,
+1457,NCIQ,
+1458,MSTY,
+1459,LLYX,N/A
+1460,AGOX,
+1461,TQQQ,
+1462,MAXI,
+1463,HECO,
+1464,FDIG,
+1465,AMZE,Beverages - Wineries & Distilleries
+1466,LPAAW,
+1467,NVDG,
+1468,FLYU,
+1469,ETHW,
+1470,NVDL,
+1471,ETHA,N/A
+1472,NVDU,N/A
+1473,EZET,N/A
+1474,EETH,N/A
+1475,FETH,
+1476,ETHV,
+1477,QETH,
+1478,CETH,
+1479,NVDX,
+1480,CRWL,
+1481,ETH,
+1482,ARKZ,
+1483,ETHE,
+1484,RIBBR,
+1485,RCKTW,
+1486,SVIX,
+1487,DUSL,
+1488,TBRG,Health Information Services
+1489,CLDL,
+1490,QBTS_WS,
+1491,VRT,Electrical Equipment & Parts
+1492,LFGY,
+1493,AIBU,
+1494,IWML,
+1495,FCUS,N/A
+1496,TPOR,
+1497,MIMI,
+1498,TECL,
+1499,LABU,
+1500,BETE,
+1501,PLTW,
+1502,FAS,
+1503,ACHR_WS,
+1504,IWFL,
+1505,BTF,
+1506,TSMG,
+1507,BLOK,
+1508,SAA,N/A
+1509,EZPZ,
+1510,GRP_U,N/A
+1511,BETH,N/A
+1512,SPXL,N/A
+1513,BTC,N/A
+1514,BTCW,N/A
+1515,IBIT,N/A
+1516,ARKK,
+1517,EZBC,
+1518,FBTC,
+1519,GBTC,
+1520,UPRO,
+1521,TSMU,
+1522,BITB,
+1523,ARKB,
+1524,ARKD,
+1525,BITO,
+1526,BRRR,
+1527,ARKA,N/A
+1528,MVV,
+1529,BTCO,
+1530,HODL,
+1531,USD,
+1532,SKYU,
+1533,SWIN,Capital Markets
+1534,GTLS,Specialty Industrial Machinery
+1535,BTCI,
+1536,BLKC,N/A
+1537,ARKW,
+1538,DBI,Footwear & Accessories
+1539,SDAWW,
+1540,UWM,
+1541,DEFI,
+1542,TEKX,
+1543,BFH,Credit Services
+1544,SPRX,
+1545,BTGD,
+1546,TSMX,
+1547,SN,"Furnishings, Fixtures & Appliances"
+1548,BUZZ,
+1549,QUP,
+1550,DLLL,
+1551,QQQP,
+1552,ARMH,
+1553,PEZ,
+1554,FNGO,
+1555,MULL,
+1556,GCO,Apparel Retail
+1557,BMAX,
+1558,BLCN,
+1559,ESTC,Software - Application
+1560,MQQQ,
+1561,QBF,
+1562,UFO,
+1563,BEGS,
+1564,CALM,Farm Products
+1565,BBUC,Asset Management
+1566,BWIN,N/A
+1567,ESE,N/A
+1568,PLMR,N/A
+1569,NE_WS_A,N/A
+1570,ASAN,N/A
+1571,ARKQ,N/A
+1572,CONY,N/A
+1573,AMDY,
+1574,GOOX,
+1575,MUU,
+1576,GTLS_B,N/A
+1577,GGLL,N/A
+1578,FIVY,
+1579,QLD,
+1580,CLS,Electronic Components
+1581,BWEB,
+1582,BTMWW,
+1583,COHN,Capital Markets
+1584,UDOW,
+1585,SIFY,Telecom Services
+1586,DRN,N/A
+1587,BW,Specialty Industrial Machinery
+1588,PHUN,Software - Application
+1589,NSIT,Electronics & Computer Distribution
+1590,BBW,Specialty Retail
+1591,APH,Electronic Components
+1592,VCR,
+1593,STRRP,Diagnostics & Research
+1594,BRNS,Biotechnology
+1595,FNGG,
+1596,TWIN,Specialty Industrial Machinery
+1597,OOTO,
+1598,EFXT,N/A
+1599,WRD,Software - Application
+1600,QULL,N/A
+1601,NITE,N/A
+1602,UXI,
+1603,PLTY,
+1604,QCML,N/A
+1605,CEPI,
+1606,NVW,N/A
+1607,SPYQ,
+1608,FPX,
+1609,FDIS,
+1610,ADBG,N/A
+1611,MTCH,Internet Content & Information
+1612,KODK,Specialty Business Services
+1613,FEAT,
+1614,PKB,
+1615,IBKR,Capital Markets
+1616,QETAR,N/A
+1617,PWR,N/A
+1618,TMAT,N/A
+1619,PNTG,Medical Care Facilities
+1620,NRDY,Software - Application
+1621,DAT,
+1622,ARKF,
+1623,META,N/A
+1624,FLWS,N/A
+1625,TTT,
+1626,ALSN,N/A
+1627,KGS,Oil & Gas Equipment & Services
+1628,GALT,Biotechnology
+1629,SPXC,Building Products & Equipment
+1630,ALAB,Semiconductors
+1631,ISSC,Aerospace & Defense
+1632,ROKU,Entertainment
+1633,PTF,N/A
+1634,TBBB,Discount Stores
+1635,XLY,
+1636,MAA_I,
+1637,JOUT,N/A
+1638,DCGO,Medical Care Facilities
+1639,GNW,N/A
+1640,SCCE,N/A
+1641,BGC,Capital Markets
+1642,OVV,N/A
+1643,CENTA,N/A
+1644,BELFA,N/A
+1645,HVAC,
+1646,CVE_WS,
+1647,VHI,Chemicals
+1648,FLS,N/A
+1649,HOG,N/A
+1650,SWVL,Software - Application
+1651,HBTC,
+1652,MKSI,Scientific & Technical Instruments
+1653,CAMT,Semiconductor Equipment & Materials
+1654,SM,Oil & Gas E&P
+1655,PAR,Software - Application
+1656,XPRO,Oil & Gas Equipment & Services
+1657,FISI,Banks - Regional
+1658,CXM,Software - Application
+1659,NUVB,N/A
+1660,ALLO,Biotechnology
+1661,EGHT,N/A
+1662,ROM,
+1663,PATH,Software - Infrastructure
+1664,RCKY,N/A
+1665,TVTX,N/A
+1666,SBXD_U,N/A
+1667,UBXG,N/A
+1668,CSL,N/A
+1669,LRNZ,
+1670,FSS,Pollution & Treatment Controls
+1671,THCH,Restaurants
+1672,KCCA,
+1673,PIPR,Capital Markets
+1674,MVPL,
+1675,YBIT,
+1676,RGEN,Medical Instruments & Supplies
+1677,TPIC,Specialty Industrial Machinery
+1678,CRBP,N/A
+1679,FTXR,
+1680,UDMY,N/A
+1681,PRN,
+1682,VCEL,Biotechnology
+1683,IIIN,Metal Fabrication
+1684,FA,Specialty Business Services
+1685,MOV,Luxury Goods
+1686,ZVOL,
+1687,WWD,Aerospace & Defense
+1688,BYRN,Aerospace & Defense
+1689,SFYF,
+1690,FWONK,Entertainment
+1691,PNFP,Banks - Regional
+1692,IPO,
+1693,SLDP,Auto Parts
+1694,BMRA,Medical Devices
+1695,TIC,Engineering & Construction
+1696,MLR,Auto Parts
+1697,AMZN,N/A
+1698,BTU,N/A
+1699,MRIN,Software - Application
+1700,WKSP,Auto Parts
+1701,COMM,Communication Equipment
+1702,LQDA,Biotechnology
+1703,LDWY,Advertising Agencies
+1704,HBCP,Banks - Regional
+1705,CWBC,N/A
+1706,AMLX,N/A
+1707,RCKT,Biotechnology
+1708,AMOM,
+1709,HKIT,Software - Application
+1710,IVA,Biotechnology
+1711,GRBK,Residential Construction
+1712,CCRD,Software - Application
+1713,BTSG,Health Information Services
+1714,SLG,N/A
+1715,PX,N/A
+1716,OPRA,Internet Content & Information
+1717,UYG,N/A
+1718,OMCL,Health Information Services
+1719,VERU,Biotechnology
+1720,ROK,Specialty Industrial Machinery
+1721,FTEK,Pollution & Treatment Controls
+1722,FLIC,Banks - Regional
+1723,TXRH,Restaurants
+1724,SSO,
+1725,SPUU,
+1726,NRDS,Internet Content & Information
+1727,GTES,Specialty Industrial Machinery
+1728,INSE,N/A
+1729,PFIX,N/A
+1730,YALA,Software - Application
+1731,GT,N/A
+1732,CIGI,Real Estate Services
+1733,TMDX,Medical Devices
+1734,CURR,N/A
+1735,RUM,N/A
+1736,SCVL,N/A
+1737,DTIL,N/A
+1738,KRNY,N/A
+1739,APO,N/A
+1740,CURV,Apparel Retail
+1741,KWE,Aerospace & Defense
+1742,HAL,Oil & Gas Equipment & Services
+1743,CALC,Biotechnology
+1744,GME,Specialty Retail
+1745,ROKT,
+1746,HCMT,
+1747,VSTM,Biotechnology
+1748,NMRK,Real Estate Services
+1749,VIRT,Capital Markets
+1750,PSCD,
+1751,NTLA,Biotechnology
+1752,YOSH,Restaurants
+1753,USGO,Other Industrial Metals & Mining
+1754,THRD,Biotechnology
+1755,OILU,
+1756,MAC,REIT - Retail
+1757,LFSC,
+1758,ALAI,
+1759,PRKS,Leisure
+1760,DTI,Oil & Gas Equipment & Services
+1761,TSME,
+1762,MOG_A,
+1763,AXS,Insurance - Specialty
+1764,NUKZ,
+1765,ALV,Auto Parts
+1766,KBH,Residential Construction
+1767,CECO,Pollution & Treatment Controls
+1768,FFIC,Banks - Regional
+1769,DLR,REIT - Specialty
+1770,HUBS,Software - Application
+1771,CRSP,Biotechnology
+1772,UCB,Banks - Regional
+1773,BNT,Insurance - Diversified
+1774,APG,Engineering & Construction
+1775,OLED,Electronic Components
+1776,TROW,Asset Management
+1777,PFI,
+1778,MX,Semiconductors
+1779,IVP,Personal Services
+1780,KKR_D,
+1781,JFBRW,Internet Retail
+1782,APOG,Building Products & Equipment
+1783,XRT,
+1784,ECX,Auto Parts
+1785,PSTG,Computer Hardware
+1786,VRA,Footwear & Accessories
+1787,JETS,
+1788,LNW,Gambling
+1789,FLR,Engineering & Construction
+1790,PDP,
+1791,TNL,Travel Services
+1792,APO_A,
+1793,ABUS,Biotechnology
+1794,AMZP,
+1795,DXC,Information Technology Services
+1796,CRD_A,
+1797,CACC,Credit Services
+1798,VST,Utilities - Independent Power Producers
+1799,VAL_WS,
+1800,PSCT,
+1801,XSD,
+1802,FRT,REIT - Retail
+1803,WING,Restaurants
+1804,GTIM,Restaurants
+1805,BFST,Banks - Regional
+1806,MRNY,
+1807,MAGS,
+1808,NXDT_A,
+1809,GLBE,Internet Retail
+1810,MVPA,
+1811,ARKG,
+1812,AIRR,
+1813,MMSC,
+1814,ORCX,
+1815,PSI,
+1816,TMV,
+1817,COPJ,
+1818,ONLN,
+1819,XTL,
+1820,CRNC,Software - Application
+1821,CELC,Biotechnology
+1822,ARLO,Building Products & Equipment
+1823,FDG,
+1824,PEJ,
+1825,CNEQ,
+1826,IBUY,
+1827,AGIX,
+1828,IQM,
+1829,ULTY,
+1830,YOU,Software - Application
+1831,CSWI,Specialty Industrial Machinery
+1832,ARES_B,
+1833,HWAY,
+1834,FNY,
+1835,DWAS,
+1836,XSW,
+1837,XHB,
+1838,OARK,
+1839,LOAR,Aerospace & Defense
+1840,ETD,"Furnishings, Fixtures & Appliances"
+1841,FXD,
+1842,TUR,
+1843,SNTG,Credit Services
+1844,HYLN,Auto Parts
+1845,NBDS,
+1846,SVXY,
+1847,AIFD,
+1848,OVS,
+1849,QMOM,
+1850,FRTY,
+1851,RZG,
+1852,KCE,
+1853,POLEW,
+1854,VVOS,Medical Devices
+1855,KAI,Specialty Industrial Machinery
+1856,BHLB,Banks - Regional
+1857,RSMC,
+1858,DARP,
+1859,URAX,
+1860,GRPM,
+1861,HNRG,Thermal Coal
+1862,NSCS,
+1863,THNQ,
+1864,TMSL,
+1865,SPUC,
+1866,PK,REIT - Hotel & Motel
+1867,TILE,"Furnishings, Fixtures & Appliances"
+1868,LOUP,
+1869,GUNZ,
+1870,LCLG,
+1871,RFG,
+1872,TMFS,
+1873,MDYG,
+1874,FBCG,
+1875,SCY,
+1876,SNOW,Software - Application
+1877,BLDE,Airports & Air Services
+1878,SOXX,
+1879,SMCF,
+1880,DCBO,Software - Application
+1881,FAST,Industrial Distribution
+1882,TRDA,Biotechnology
+1883,TORO,Marine Shipping
+1884,CHEK,Diagnostics & Research
+1885,EDOC,
+1886,UAA,Apparel Manufacturing
+1887,AVAL,Banks - Regional
+1888,ASMG,
+1889,ESPR,Drug Manufacturers - Specialty & Generic
+1890,KIND,Internet Content & Information
+1891,HNI,"Furnishings, Fixtures & Appliances"
+1892,LAUR,Education & Training Services
+1893,SOXQ,
+1894,GENC,Farm & Heavy Construction Machinery
+1895,ACLS,Semiconductor Equipment & Materials
+1896,FTXL,
+1897,SPFI,Banks - Regional
+1898,IJK,N/A
+1899,XMMO,
+1900,AIYY,
+1901,EHC,Medical Care Facilities
+1902,FLXS,"Furnishings, Fixtures & Appliances"
+1903,FYC,
+1904,MMSI,Medical Instruments & Supplies
+1905,XOVR,
+1906,CSMD,
+1907,PJFM,
+1908,FATE,Biotechnology
+1909,ZM,Software - Application
+1910,LOCO,Restaurants
+1911,AVAV,Aerospace & Defense
+1912,GCI,Publishing
+1913,BUL,
+1914,IYC,
+1915,LII,Building Products & Equipment
+1916,JUNE,N/A
+1917,JMID,
+1918,BRZE,Software - Application
+1919,ODFL,Trucking
+1920,LASR,Semiconductors
+1921,LTL,N/A
+1922,GROY,Gold
+1923,SNWV,N/A
+1924,SPMO,
+1925,ATFV,
+1926,ITB,
+1927,XSMO,
+1928,RAVE,Restaurants
+1929,GEV,Utilities - Renewable
+1930,IRM,REIT - Specialty
+1931,KEX,Marine Shipping
+1932,PINC,Health Information Services
+1933,HZO,Specialty Retail
+1934,EATZ,
+1935,PSHG,Marine Shipping
+1936,SPRU,Solar
+1937,RNGR,Oil & Gas Equipment & Services
+1938,PCRX,Drug Manufacturers - Specialty & Generic
+1939,OCEA,Biotechnology
+1940,EGAN,Software - Application
+1941,APAM,Asset Management
+1942,CNAV,
+1943,OS,Software - Infrastructure
+1944,REXR,REIT - Industrial
+1945,WTAI,
+1946,SFD,Farm Products
+1947,SPHB,
+1948,HG,Insurance - Reinsurance
+1949,ARKX,
+1950,IWO,N/A
+1951,PRDO,Education & Training Services
+1952,COO,Medical Instruments & Supplies
+1953,SMLF,
+1954,VBK,
+1955,XAR,
+1956,URE,
+1957,RVPH,Biotechnology
+1958,NE_WS,
+1959,DRS,Aerospace & Defense
+1960,VMC,Building Materials
+1961,VECO,Semiconductor Equipment & Materials
+1962,FAD,
+1963,CRVL,Insurance Brokers
+1964,CPHI,Drug Manufacturers - Specialty & Generic
+1965,TRU,Financial Data & Stock Exchanges
+1966,BBY,Specialty Retail
+1967,MLKN,"Furnishings, Fixtures & Appliances"
+1968,VFMO,
+1969,MKTW,Financial Data & Stock Exchanges
+1970,CRWD,Software - Infrastructure
+1971,AFSC,
+1972,MLI,Metal Fabrication
+1973,LECO,Tools & Accessories
+1974,ABVC,Biotechnology
+1975,MRCY,Aerospace & Defense
+1976,CDW,Information Technology Services
+1977,BBSC,
+1978,POWI,Semiconductors
+1979,SNA,Tools & Accessories
+1980,MLM,Building Materials
+1981,IJT,
+1982,FFOG,
+1983,GRPZ,
+1984,C,Banks - Diversified
+1985,GNTY,Banks - Regional
+1986,NWPX,Metal Fabrication
+1987,APPN,Software - Infrastructure
+1988,IVOG,
+1989,WSC,Rental & Leasing Services
+1990,TANH,Household & Personal Products
+1991,AMS,N/A
+1992,MGA,Auto Parts
+1993,ELDN,Biotechnology
+1994,NCTY,Capital Markets
+1995,KVYO,Software - Infrastructure
+1996,TTMI,Electronic Components
+1997,NTB,Banks - Diversified
+1998,EGBN,Banks - Regional
+1999,UMBF,Banks - Regional
+2000,PRTA,Biotechnology
+2001,JDZG,Information Technology Services
+2002,LMB,Building Products & Equipment
+2003,INDV,Drug Manufacturers - Specialty & Generic
+2004,JBGS,REIT - Office
+2005,KRG,REIT - Retail
+2006,AVNW,Communication Equipment
+2007,AUB,Banks - Regional
+2008,MBUU,Recreational Vehicles
+2009,FDBC,Banks - Regional
+2010,AFRI,Farm Products
+2011,HEI_A,
+2012,NSSC,Security & Protection Services
+2013,WW,Personal Services
+2014,STEL,Banks - Regional
+2015,MEI,Electronic Components
+2016,IWDL,
+2017,QCRH,Banks - Regional
+2018,DAY,Software - Application
+2019,YMAX,
+2020,CNM,Industrial Distribution
+2021,AHR,REIT - Healthcare Facilities
+2022,QRHC,Waste Management
+2023,LRCX,Semiconductor Equipment & Materials
+2024,PEVC,
+2025,SLYG,
+2026,MTDR,Oil & Gas E&P
+2027,CLAR,N/A
+2028,FUBO,Broadcasting
+2029,FAI,
+2030,SMDX,
+2031,WKHS,Auto Manufacturers
+2032,NEU,Specialty Chemicals
+2033,PLUS,Software - Application
+2034,GFS,Semiconductors
+2035,PTH,
+2036,PMTS,Credit Services
+2037,CNXN,Electronics & Computer Distribution
+2038,MDV,REIT - Industrial
+2039,CBSE,N/A
+2040,HBTA,
+2041,ESSA,Banks - Regional
+2042,HBNC,Banks - Regional
+2043,FTDR,Personal Services
+2044,GREK,
+2045,CZR,Resorts & Casinos
+2046,ALIT,Software - Application
+2047,PUK,Insurance - Life
+2048,DLO,Software - Infrastructure
+2049,MTUM,
+2050,TKR,Tools & Accessories
+2051,GLW,Electronic Components
+2052,SEIS,
+2053,CRUS,Semiconductors
+2054,KIM,REIT - Retail
+2055,TFII,Trucking
+2056,GLRY,
+2057,LRN,Education & Training Services
+2058,FLEX,Electronic Components
+2059,IP,Packaging & Containers
+2060,HTLD,Trucking
+2061,AGO,Insurance - Specialty
+2062,CHRD,Oil & Gas E&P
+2063,PATK,"Furnishings, Fixtures & Appliances"
+2064,IRON,Biotechnology
+2065,GRNY,
+2066,ORRF,Banks - Regional
+2067,ROLR,Gambling
+2068,RPAY,N/A
+2069,SXI,Specialty Industrial Machinery
+2070,TMFX,
+2071,FCLD,
+2072,KMI,Oil & Gas Midstream
+2073,RVER,
+2074,AIN,Textile Manufacturing
+2075,ZZZ,
+2076,VSH,Semiconductors
+2077,CMI,Specialty Industrial Machinery
+2078,REVG,Farm & Heavy Construction Machinery
+2079,ARMP,Biotechnology
+2080,FNGS,
+2081,VIOG,
+2082,PNR,Specialty Industrial Machinery
+2083,RPG,
+2084,ALLE,N/A
+2085,THFF,Banks - Regional
+2086,SGHC,Gambling
+2087,MOBXW,Semiconductors
+2088,NSP,Staffing & Employment Services
+2089,ORN,Engineering & Construction
+2090,SASR,N/A
+2091,RILYP,N/A
+2092,NERV,Biotechnology
+2093,PFS,N/A
+2094,GUSH,
+2095,NRIM,Banks - Regional
+2096,MBC,"Furnishings, Fixtures & Appliances"
+2097,PDM,REIT - Office
+2098,VXF,
+2099,FMBH,Banks - Regional
+2100,OUT,REIT - Specialty
+2101,LGCY,Education & Training Services
+2102,FTC,
+2103,RJF,Asset Management
+2104,SPBC,
+2105,SVOL,
+2106,DDM,
+2107,NOG,Oil & Gas E&P
+2108,CFR,Banks - Regional
+2109,RBCAA,Banks - Regional
+2110,EBIZ,
+2111,CEG,Utilities - Renewable
+2112,SSD,Lumber & Wood Production
+2113,FSGS,
+2114,SMHX,
+2115,ACA,Engineering & Construction
+2116,CELU,Biotechnology
+2117,FXL,
+2118,SAWS,
+2119,UYM,
+2120,PANG,
+2121,HGTY,Insurance - Property & Casualty
+2122,ZIG,
+2123,AHH,REIT - Diversified
+2124,FNB,Banks - Regional
+2125,DALI,
+2126,TOST,Software - Infrastructure
+2127,GIC,Industrial Distribution
+2128,TWLO,Software - Infrastructure
+2129,GOGL,Marine Shipping
+2130,FYX,
+2131,NNBR,Conglomerates
+2132,JSMD,
+2133,XNTK,
+2134,XJH,
+2135,MRX,Capital Markets
+2136,AXTA,Specialty Chemicals
+2137,BKIV,
+2138,AXP,Credit Services
+2139,QQH,
+2140,CCJ,Uranium
+2141,PRO,N/A
+2142,KRE,
+2143,LEGH,Residential Construction
+2144,PAVE,
+2145,XMVM,
+2146,GDYN,Information Technology Services
+2147,THO,Recreational Vehicles
+2148,OBK,Banks - Regional
+2149,MOTO,
+2150,WCBR,
+2151,PFUT,
+2152,CARR,Building Products & Equipment
+2153,WYNN,Resorts & Casinos
+2154,PWOD,Banks - Regional
+2155,BUYO,
+2156,CHMG,Banks - Regional
+2157,YETH,
+2158,GSC,
+2159,NDLS,Restaurants
+2160,XMHQ,
+2161,LOPE,Education & Training Services
+2162,JTEK,
+2163,NTRS,Asset Management
+2164,BRLT,Luxury Goods
+2165,NXRT,REIT - Residential
+2166,BUYZ,
+2167,SFYX,
+2168,SE,Internet Retail
+2169,TXS,
+2170,LX,Credit Services
+2171,KNSL,Insurance - Property & Casualty
+2172,PRU,Insurance - Life
+2173,KEYS,Scientific & Technical Instruments
+2174,FBK,Banks - Regional
+2175,NRIX,Biotechnology
+2176,RSSL,
+2177,FINX,
+2178,EXTR,Communication Equipment
+2179,BAI,
+2180,ASLE,Airports & Air Services
+2181,PR,Oil & Gas E&P
+2182,KBE,
+2183,WTS,Specialty Industrial Machinery
+2184,MWG,Rental & Leasing Services
+2185,TRML,Biotechnology
+2186,AFSM,
+2187,ANIP,Drug Manufacturers - Specialty & Generic
+2188,HPE,Communication Equipment
+2189,PBT,Oil & Gas Midstream
+2190,DOCN,Software - Infrastructure
+2191,ISCB,
+2192,ABCB,Banks - Regional
+2193,UBSI,Banks - Regional
+2194,EPAC,Specialty Industrial Machinery
+2195,ACON,Health Information Services
+2196,CPRT,Specialty Business Services
+2197,WCLD,
+2198,COWG,
+2199,XDAT,
+2200,RRGB,Restaurants
+2201,FDLS,
+2202,IGPT,
+2203,GDS,Information Technology Services
+2204,QSML,
+2205,MIDD,Specialty Industrial Machinery
+2206,EVI,Industrial Distribution
+2207,ZWS,Pollution & Treatment Controls
+2208,JPM,Banks - Diversified
+2209,FESM,
+2210,NFBK,Banks - Regional
+2211,BZQ,
+2212,FWD,
+2213,FXR,
+2214,GAMR,N/A
+2215,NOW,Software - Application
+2216,EGGQ,
+2217,AMRX,Drug Manufacturers - Specialty & Generic
+2218,GARP,
+2219,SFLO,
+2220,WMS,Building Products & Equipment
+2221,STXK,
+2222,SONO,Consumer Electronics
+2223,FFLG,
+2224,PSC,
+2225,YHGJ,Packaging & Containers
+2226,SITC,REIT - Retail
+2227,GS,Capital Markets
+2228,ITRI,Scientific & Technical Instruments
+2229,MLAB,Scientific & Technical Instruments
+2230,RSHO,N/A
+2231,ZION,Banks - Regional
+2232,BFC,Banks - Regional
+2233,WEAV,Health Information Services
+2234,BANF,Banks - Regional
+2235,NUMG,
+2236,USVM,
+2237,FRSH,Software - Application
+2238,PRI,Insurance - Life
+2239,AVMV,
+2240,QS,Auto Parts
+2241,WTIU,
+2242,NTNX,N/A
+2243,RXI,
+2244,LOCL,N/A
+2245,PSQH,Software - Application
+2246,FLQS,
+2247,FIHL,Insurance - Diversified
+2248,FFSM,N/A
+2249,ESIX,
+2250,AGAE,Entertainment
+2251,SWKS,Semiconductors
+2252,PSMT,Discount Stores
+2253,ADMA,Biotechnology
+2254,BBMC,
+2255,JHSC,
+2256,INTJ,Consulting Services
+2257,QTEC,
+2258,WBTN,Internet Content & Information
+2259,FDMO,
+2260,INDL,
+2261,FDN,
+2262,FNX,
+2263,HP,Oil & Gas Drilling
+2264,ACAD,Biotechnology
+2265,JCI,Building Products & Equipment
+2266,NWLG,
+2267,EZM,
+2268,AFMC,
+2269,RYAM,Chemicals
+2270,AOSL,Semiconductors
+2271,TCBK,Banks - Regional
+2272,DWAW,
+2273,SKYY,
+2274,OMFS,
+2275,EVLV,Security & Protection Services
+2276,ITWO,
+2277,DCOM,Banks - Regional
+2278,BWA,Auto Parts
+2279,GSHD,Insurance Brokers
+2280,XSHQ,
+2281,TSEL,
+2282,SHC,Diagnostics & Research
+2283,QGRO,
+2284,DKNG,Gambling
+2285,SMH,
+2286,AKAN,Drug Manufacturers - Specialty & Generic
+2287,TSEM,Semiconductors
+2288,PRG,Rental & Leasing Services
+2289,LPX,Building Products & Equipment
+2290,VTWG,
+2291,CUZ,REIT - Office
+2292,MMI,Real Estate Services
+2293,XSVM,
+2294,RWJ,
+2295,ALNY,Biotechnology
+2296,GDEN,Resorts & Casinos
+2297,ACIW,Software - Infrastructure
+2298,XJR,
+2299,SHOC,
+2300,KBWR,
+2301,MYO,Medical Devices
+2302,CMPX,Biotechnology
+2303,PDFS,Software - Application
+2304,TMFM,
+2305,CLW,Paper & Paper Products
+2306,CNS,Asset Management
+2307,MTEK,Electronic Components
+2308,IMXI,Software - Infrastructure
+2309,BTX,
+2310,KEY,Banks - Regional
+2311,MGRC,Rental & Leasing Services
+2312,TCHP,
+2313,BOH,Banks - Regional
+2314,AVPT,Software - Infrastructure
+2315,ZYME,Biotechnology
+2316,INTG,Lodging
+2317,SRI,Auto Parts
+2318,SMBC,Banks - Regional
+2319,LMNR,Farm Products
+2320,BWMN,Engineering & Construction
+2321,HNST,Household & Personal Products
+2322,OPBK,Banks - Regional
+2323,HAPS,
+2324,EFSC,Banks - Regional
+2325,PLRX,Biotechnology
+2326,RF,Banks - Regional
+2327,FSTR,Railroads
+2328,EXPE,Travel Services
+2329,REE,Auto Parts
+2330,KDEF,
+2331,INBX,Biotechnology
+2332,BORR,Oil & Gas Drilling
+2333,IPDP,
+2334,STXM,
+2335,SVAL,
+2336,FEIM,Communication Equipment
+2337,SBCF,Banks - Regional
+2338,SMAP,
+2339,RENB,Biotechnology
+2340,MDB,Software - Infrastructure
+2341,GFLW,
+2342,DSMC,
+2343,WISE,
+2344,RELL,Electronic Components
+2345,SPSM,
+2346,VOT,
+2347,BIPC,Utilities - Regulated Gas
+2348,QGRW,
+2349,DYN,Biotechnology
+2350,SMRT,Software - Application
+2351,INSG,Communication Equipment
+2352,CISS,Marine Shipping
+2353,MMLG,
+2354,NVT,Electrical Equipment & Parts
+2355,BX,Asset Management
+2356,CGGR,
+2357,WETO,Software - Application
+2358,SEIM,
+2359,VMEO,Software - Application
+2360,ZBRA,Communication Equipment
+2361,AFG,Insurance - Property & Casualty
+2362,HLI,Capital Markets
+2363,LOW,Home Improvement Retail
+2364,SU,Oil & Gas Integrated
+2365,ECML,
+2366,CYCN,Biotechnology
+2367,STT,Asset Management
+2368,SCS,"Furnishings, Fixtures & Appliances"
+2369,SSB,Banks - Regional
+2370,CBNA,Banks - Regional
+2371,CFG,Banks - Regional
+2372,UPSD,
+2373,SCHA,
+2374,AVUV,
+2375,AMID,
+2376,KVHI,Communication Equipment
+2377,IWLG,
+2378,CX,Building Materials
+2379,TDG,Aerospace & Defense
+2380,FV,
+2381,BB,Software - Infrastructure
+2382,IOVA,Biotechnology
+2383,QVMM,
+2384,NBSM,
+2385,ZEUS,Steel
+2386,VIOO,
+2387,VBTX,Banks - Regional
+2388,DD,Specialty Chemicals
+2389,LAZ,Capital Markets
+2390,PROV,Banks - Regional
+2391,ATS,Specialty Industrial Machinery
+2392,FRME,Banks - Regional
+2393,FCTR,
+2394,MBWM,Banks - Regional
+2395,TLX,Biotechnology
+2396,FRST,Banks - Regional
+2397,IGIC,Insurance - Diversified
+2398,VRNT,Software - Infrastructure
+2399,SXC,Coking Coal
+2400,XITK,
+2401,ACEL,Gambling
+2402,VTWO,
+2403,GSSC,
+2404,IEDI,
+2405,INM,Drug Manufacturers - Specialty & Generic
+2406,MPAA,Auto Parts
+2407,QTJL,
+2408,STC,Insurance - Property & Casualty
+2409,EVBN,Banks - Regional
+2410,TSM,Semiconductors
+2411,RSPD,
+2412,FHI,Asset Management
+2413,APGE,Biotechnology
+2414,CYTK,Biotechnology
+2415,VB,
+2416,IJR,
+2417,ILCG,
+2418,CPAI,
+2419,WSBC,Banks - Regional
+2420,SMIZ,
+2421,IIIV,Software - Infrastructure
+2422,ZVRA,Biotechnology
+2423,PRFZ,
+2424,TRFM,
+2425,SAEF,
+2426,TALK,Health Information Services
+2427,JFIN,Internet Content & Information
+2428,F,Auto Manufacturers
+2429,OPEN,Real Estate Services
+2430,WMB,Oil & Gas Midstream
+2431,WTI,Oil & Gas E&P
+2432,PLCE,Apparel Manufacturing
+2433,SLS,Biotechnology
+2434,INTS,Biotechnology
+2435,ETN,Specialty Industrial Machinery
+2436,WUGI,
+2437,LSAF,
+2438,WTFC,Banks - Regional
+2439,ASBP,Biotechnology
+2440,AMBA,Semiconductor Equipment & Materials
+2441,CARE,Banks - Regional
+2442,IWM,
+2443,CLSD,Biotechnology
+2444,NGS,Oil & Gas Equipment & Services
+2445,KFY,Staffing & Employment Services
+2446,nan,
+2447,PRVA,Health Information Services
+2448,GROZ,
+2449,SCDS,
+2450,AESI,Oil & Gas Equipment & Services
+2451,R,Rental & Leasing Services
+2452,EOG,Oil & Gas E&P
+2453,BMI,Scientific & Technical Instruments
+2454,AZTR,Biotechnology
+2455,CC,Specialty Chemicals
+2456,ARTY,
+2457,ESML,
+2458,IVOO,
+2459,CVLG,Trucking
+2460,MPB,Banks - Regional
+2461,SPG,REIT - Retail
+2462,ADCT,Biotechnology
+2463,IJH,
+2464,DVLU,
+2465,SHW,Specialty Chemicals
+2466,ALK,Airlines
+2467,SCDV,
+2468,IAI,
+2469,MID,
+2470,SPQ,
+2471,TOWN,Banks - Regional
+2472,FIBK,Banks - Regional
+2473,IGV,
+2474,OASC,
+2475,UCTT,Semiconductor Equipment & Materials
+2476,KBWB,
+2477,PILL,
+2478,ACB,Drug Manufacturers - Specialty & Generic
+2479,JMEE,
+2480,WEST,Packaged Foods
+2481,FMNB,Banks - Regional
+2482,AXL,Auto Parts
+2483,LCII,Recreational Vehicles
+2484,MSSM,
+2485,MAGN,Paper & Paper Products
+2486,BKSE,
+2487,TFSL,Banks - Regional
+2488,SPMD,
+2489,NDAQ,Financial Data & Stock Exchanges
+2490,RBB,Banks - Regional
+2491,QVMS,
+2492,PAYC,Software - Application
+2493,UNM,Insurance - Life
+2494,FELE,Specialty Industrial Machinery
+2495,BBC,
+2496,NCMI,Advertising Agencies
+2497,VNT,Scientific & Technical Instruments
+2498,MATW,Conglomerates
+2499,BIB,
+2500,NVR,Residential Construction
+2501,QABA,
+2502,LSGR,
+2503,QMID,
+2504,STBA,Banks - Regional
+2505,TTSH,Home Improvement Retail
+2506,AME,Specialty Industrial Machinery
+2507,DFAS,
+2508,MCBS,Banks - Regional
+2509,MDY,
+2510,V,Credit Services
+2511,MGIH,Packaging & Containers
+2512,VTOL,Oil & Gas Equipment & Services
+2513,TRFK,
+2514,HSAI,Auto Parts
+2515,FRPT,Packaged Foods
+2516,WMPN,Banks - Regional
+2517,DWUS,
+2518,YALL,
+2519,SPGP,
+2520,WHR,"Furnishings, Fixtures & Appliances"
+2521,QQQG,
+2522,SCHM,
+2523,ALG,Farm & Heavy Construction Machinery
+2524,LRFC,Asset Management
+2525,SFNC,Banks - Regional
+2526,IPDN,Staffing & Employment Services
+2527,BLDEW,Airports & Air Services
+2528,LGIH,Residential Construction
+2529,CMPOW,Metal Fabrication
+2530,RJMG,
+2531,MOFG,Banks - Regional
+2532,SDVY,
+2533,WSFS,Banks - Regional
+2534,FBNC,Banks - Regional
+2535,DDIV,
+2536,LEA,Auto Parts
+2537,ITRG,Other Precious Metals & Mining
+2538,PSCF,
+2539,GPTY,
+2540,HEI,Aerospace & Defense
+2541,DBD,Software - Application
+2542,CTM,Information Technology Services
+2543,BSVN,Banks - Regional
+2544,ITIC,Insurance - Specialty
+2545,HFGO,
+2546,HWKN,Specialty Chemicals
+2547,RRBI,Banks - Regional
+2548,AXGN,Medical Devices
+2549,WFC,Banks - Diversified
+2550,VOOG,
+2551,BCH,Banks - Regional
+2552,KELYA,Staffing & Employment Services
+2553,APPF,Software - Application
+2554,OVL,
+2555,SRFM,Airlines
+2556,CLOV,Healthcare Plans
+2557,SNDR,Trucking
+2558,MPX,Recreational Vehicles
+2559,FFBC,Banks - Regional
+2560,SLM,Credit Services
+2561,CALF,
+2562,FIVN,Software - Infrastructure
+2563,SPYG,
+2564,TXSS,
+2565,BRNY,
+2566,NUSC,
+2567,CMA,Banks - Regional
+2568,FDND,
+2569,MADE,
+2570,LNZA,Waste Management
+2571,CVM,Biotechnology
+2572,SNOY,
+2573,ACHR,Aerospace & Defense
+2574,PLBC,Banks - Regional
+2575,KBR,Engineering & Construction
+2576,PWB,
+2577,BLZE,Software - Infrastructure
+2578,GNOM,
+2579,MAKX,
+2580,SRL,Capital Markets
+2581,XYZ,Software - Infrastructure
+2582,NMIH,Insurance - Specialty
+2583,UE,REIT - Retail
+2584,GPOR,Oil & Gas E&P
+2585,TPB,Tobacco
+2586,GSBC,Banks - Regional
+2587,IBCP,Banks - Regional
+2588,CRAI,Consulting Services
+2589,LNGZ,
+2590,MYSZ,Software - Application
+2591,CLBK,Banks - Regional
+2592,MRKR,Biotechnology
+2593,RND,
+2594,FRBA,Banks - Regional
+2595,DFIN,Software - Application
+2596,QQQS,
+2597,PECO,REIT - Retail
+2598,QBIG,
+2599,PENG,Information Technology Services
+2600,EDSA,Biotechnology
+2601,CLWT,Pollution & Treatment Controls
+2602,AESR,
+2603,PXI,
+2604,FICO,Software - Application
+2605,CCL,Travel Services
+2606,PSN,Information Technology Services
+2607,ADTN,Communication Equipment
+2608,CRGO,Integrated Freight & Logistics
+2609,SIXG,
+2610,SMMD,
+2611,CHPS,
+2612,TPSC,
+2613,PFG,Asset Management
+2614,IMCG,
+2615,MATX,Marine Shipping
+2616,NULG,
+2617,DBRG,Asset Management
+2618,REPX,Oil & Gas E&P
+2619,XES,
+2620,SCHG,
+2621,EGUS,
+2622,DBX,Software - Infrastructure
+2623,ATHA,Biotechnology
+2624,PD,Software - Application
+2625,RDTE,
+2626,RILA,
+2627,AMKR,Semiconductor Equipment & Materials
+2628,IWC,
+2629,CUBI,Banks - Regional
+2630,RXO,N/A
+2631,FVRR,Internet Content & Information
+2632,MIDE,
+2633,FLCG,
+2634,ONTF,Software - Application
+2635,MODG,Leisure
+2636,AVDX,Software - Infrastructure
+2637,MISL,
+2638,CLOU,
+2639,MILN,
+2640,ST,Scientific & Technical Instruments
+2641,ROSC,
+2642,JGRO,
+2643,OPTZ,
+2644,FTXO,
+2645,CAC,Banks - Regional
+2646,IOSP,Specialty Chemicals
+2647,FSMD,
+2648,CVV,Specialty Industrial Machinery
+2649,CGMM,
+2650,HOMB,Banks - Regional
+2651,RTH,
+2652,JAZZ,Biotechnology
+2653,FXO,
+2654,HVT,Home Improvement Retail
+2655,CAML,
+2656,CARK,
+2657,ENOV,Specialty Industrial Machinery
+2658,BGRO,
+2659,BHF,Insurance - Life
+2660,MMTM,
+2661,MTRN,Other Industrial Metals & Mining
+2662,MU,Semiconductors
+2663,LGH,
+2664,OPI,REIT - Office
+2665,IUSG,
+2666,ARDX,Biotechnology
+2667,PJFG,
+2668,QTUM,
+2669,FSCC,
+2670,CNOB,Banks - Regional
+2671,TAX,
+2672,JBHT,Integrated Freight & Logistics
+2673,APTV,Auto Parts
+2674,COMP,Real Estate Services
+2675,NVCR,Medical Devices
+2676,SNTH,
+2677,IFED,
+2678,FCBC,Banks - Regional
+2679,SAFT,Insurance - Property & Casualty
+2680,NPCE,Medical Devices
+2681,KAR,Auto & Truck Dealerships
+2682,ALGM,Semiconductors
+2683,YMAG,
+2684,GL,Insurance - Life
+2685,BIBL,
+2686,NAPR,
+2687,TCBI,Banks - Regional
+2688,JHAC,
+2689,GGUS,
+2690,KOMP,
+2691,IVW,
+2692,MD,Medical Care Facilities
+2693,UBOT,
+2694,OKTA,Software - Infrastructure
+2695,CNCK,Capital Markets
+2696,RYI,Metal Fabrication
+2697,VATE,Engineering & Construction
+2698,WDS,Oil & Gas E&P
+2699,DFSV,
+2700,VUG,
+2701,OVLY,Banks - Regional
+2702,XDQQ,
+2703,NNVC,Biotechnology
+2704,NVDY,
+2705,FNDA,
+2706,FSST,
+2707,IQSM,
+2708,NBBK,Banks - Regional
+2709,ALGT,Airlines
+2710,FITE,
+2711,FSCS,
+2712,PACB,Medical Devices
+2713,DIG,
+2714,MTB,Banks - Regional
+2715,AIEQ,
+2716,AZUL,Airlines
+2717,ACCO,Business Equipment & Supplies
+2718,FDM,
+2719,DFAT,
+2720,PB,Banks - Regional
+2721,MRM,Personal Services
+2722,CSBR,Biotechnology
+2723,ETHO,
+2724,GTLB,Software - Infrastructure
+2725,SPCY,
+2726,DELL,Computer Hardware
+2727,SNPG,
+2728,SYBT,Banks - Regional
+2729,ATOM,Semiconductor Equipment & Materials
+2730,PXJ,
+2731,GNL,REIT - Diversified
+2732,OGIG,
+2733,SRRK,Biotechnology
+2734,QTOC,
+2735,MAR,Lodging
+2736,DNLI,Biotechnology
+2737,AIP,Semiconductors
+2738,TTEQ,
+2739,NUTX,Medical Care Facilities
+2740,GVIP,
+2741,AVB,REIT - Residential
+2742,DRUP,N/A
+2743,HQGO,
+2744,LCNB,Banks - Regional
+2745,MGK,
+2746,FBIN,Building Products & Equipment
+2747,OCSAW,
+2748,ZS,Software - Infrastructure
+2749,BKE,Apparel Retail
+2750,SPB,Household & Personal Products
+2751,HPE_C,
+2752,PLOW,Auto Parts
+2753,FLUT,Gambling
+2754,CTO,REIT - Diversified
+2755,KOOL,
+2756,INVN,
+2757,BFOR,
+2758,RWK,
+2759,IWFG,
+2760,JFBR,Internet Retail
+2761,CSA,
+2762,JOET,
+2763,LEN_B,
+2764,CSF,
+2765,USSE,
+2766,WELL,REIT - Healthcare Facilities
+2767,AGM_A,
+2768,YBTC,
+2769,WUSA,
+2770,STR,Oil & Gas E&P
+2771,SHG,Banks - Regional
+2772,EP_C,
+2773,TGL,Software - Application
+2774,HONE,Banks - Regional
+2775,KPDD,
+2776,CBSH,Banks - Regional
+2777,NBTB,Banks - Regional
+2778,PEXL,
+2779,CBT,Specialty Chemicals
+2780,AZTD,
+2781,WDFC,Specialty Chemicals
+2782,PALC,
+2783,SNAP,Internet Content & Information
+2784,LIVN,Medical Devices
+2785,USAI,
+2786,GOOGL,Internet Content & Information
+2787,STXG,
+2788,BSTZ,Asset Management
+2789,XHE,
+2790,SNSR,
+2791,SMLL,
+2792,FBY,
+2793,QCLN,
+2794,CVBF,Banks - Regional
+2795,PCB,Banks - Regional
+2796,CBTJ,
+2797,XTN,
+2798,RMAX,Real Estate Services
+2799,SOXY,
+2800,HST,REIT - Hotel & Motel
+2801,VERS,
+2802,JXX,
+2803,SGLC,
+2804,TECB,
+2805,BLCO,Medical Instruments & Supplies
+2806,IAS,Advertising Agencies
+2807,VBR,
+2808,CSTL,Diagnostics & Research
+2809,RHP,REIT - Hotel & Motel
+2810,CATY,Banks - Regional
+2811,FMDE,
+2812,ICAD,Medical Devices
+2813,SMCO,
+2814,JPSE,
+2815,GAST,
+2816,AVMC,
+2817,PCOR,Software - Application
+2818,PII,Recreational Vehicles
+2819,PEB,REIT - Hotel & Motel
+2820,GOP,
+2821,AXON,Aerospace & Defense
+2822,DVN,Oil & Gas E&P
+2823,SCPX,Biotechnology
+2824,IAT,
+2825,BKMC,
+2826,CTRA,Oil & Gas E&P
+2827,IWMI,
+2828,JHMM,
+2829,SHLD,
+2830,KORU,
+2831,ONEQ,
+2832,IGM,
+2833,RZV,
+2834,BKV,Oil & Gas E&P
+2835,EQR,REIT - Residential
+2836,INMB,Biotechnology
+2837,PHR,Health Information Services
+2838,SUNS,REIT - Mortgage
+2839,CDTG,Waste Management
+2840,ACT,Insurance - Specialty
+2841,VONG,
+2842,HOMZ,
+2843,CHAT,
+2844,GQQQ,
+2845,FNK,
+2846,UPBD,Software - Application
+2847,HCI,Insurance - Property & Casualty
+2848,IMO,Oil & Gas Integrated
+2849,CSGS,Software - Infrastructure
+2850,CMS_B,
+2851,GOOG,Internet Content & Information
+2852,PCTY,Software - Application
+2853,DWTX,Biotechnology
+2854,WD,Mortgage Finance
+2855,ACGL,Insurance - Diversified
+2856,IPAR,Household & Personal Products
+2857,ACGR,
+2858,AORT,Medical Devices
+2859,QQQX,Asset Management
+2860,STRM,Health Information Services
+2861,MFSG,
+2862,WAB,Railroads
+2863,PDEX,Medical Instruments & Supplies
+2864,FTIF,
+2865,MET,Insurance - Life
+2866,FSBW,Banks - Regional
+2867,INFA,Software - Infrastructure
+2868,TGRW,
+2869,TBT,
+2870,PDS,Oil & Gas Drilling
+2871,WH,Lodging
+2872,KIE,
+2873,CMG,Restaurants
+2874,SCDL,
+2875,FFIV,Software - Infrastructure
+2876,SDVD,
+2877,UVE,Insurance - Property & Casualty
+2878,VSCO,Apparel Retail
+2879,MLNK,Software - Application
+2880,AMG,Asset Management
+2881,EHGO,Business Equipment & Supplies
+2882,CCSO,
+2883,HBAN,Banks - Regional
+2884,HII,Aerospace & Defense
+2885,UTHR,Biotechnology
+2886,FLCC,
+2887,CURE,
+2888,QQQ,
+2889,RMR,Real Estate Services
+2890,UDR,REIT - Residential
+2891,USRD,
+2892,WBS,Banks - Regional
+2893,USEG,Oil & Gas E&P
+2894,BC,Recreational Vehicles
+2895,JOBY_WS,
+2896,OZK,Banks - Regional
+2897,NVIR,
+2898,ATR,Medical Instruments & Supplies
+2899,DESK,
+2900,PDX,
+2901,DB,Banks - Regional
+2902,COPP,
+2903,VEGN,
+2904,CWAN,Software - Application
+2905,NRG,Utilities - Independent Power Producers
+2906,FLDZ,
+2907,ROBT,
+2908,PFGC,Food Distribution
+2909,XPL,Other Industrial Metals & Mining
+2910,VTWV,
+2911,IWF,
+2912,AAPB,
+2913,ITA,
+2914,UNTY,Banks - Regional
+2915,SHBI,Banks - Regional
+2916,FMAG,
+2917,QXQ,
+2918,TGRT,
+2919,MPW,REIT - Healthcare Facilities
+2920,XPND,
+2921,MEIP,Biotechnology
+2922,TARA,Biotechnology
+2923,MSSS,
+2924,KD,Information Technology Services
+2925,EVGO,Specialty Retail
+2926,GNTX,Auto Parts
+2927,CNA,Insurance - Property & Casualty
+2928,BELT,
+2929,TH,Specialty Business Services
+2930,IWR,
+2931,TRMB,Scientific & Technical Instruments
+2932,JMOM,
+2933,MTG,Insurance - Specialty
+2934,FELG,
+2935,CVRX,Medical Devices
+2936,MEXX,
+2937,UVSP,Banks - Regional
+2938,MP,Other Industrial Metals & Mining
+2939,DGRS,
+2940,VFQY,
+2941,SAMM,
+2942,DHT,Oil & Gas Midstream
+2943,PFIS,Banks - Regional
+2944,VIS,
+2945,ORKA,Biotechnology
+2946,WAT,Diagnostics & Research
+2947,GOOP,
+2948,NXGLW,Medical Instruments & Supplies
+2949,IYW,
+2950,USB,Banks - Regional
+2951,KLMN,
+2952,ORLA,Gold
+2953,KRNT,Specialty Industrial Machinery
+2954,CCBG,Banks - Regional
+2955,ARAY,Medical Devices
+2956,QDTE,
+2957,NBXG,
+2958,XIN,Real Estate - Development
+2959,TRNO,REIT - Industrial
+2960,CHE,Medical Care Facilities
+2961,DGII,Communication Equipment
+2962,AMTB,Banks - Regional
+2963,CSGP,Real Estate Services
+2964,PLNT,Leisure
+2965,BLCR,
+2966,WBD,Entertainment
+2967,NRGU,
+2968,IJS,
+2969,EQIX,REIT - Specialty
+2970,AZTA,Medical Instruments & Supplies
+2971,BTO,Asset Management
+2972,IYG,
+2973,IWY,
+2974,LRGE,
+2975,KC,Software - Application
+2976,SVC,REIT - Hotel & Motel
+2977,BSVO,
+2978,CODI,Conglomerates
+2979,REPL,Biotechnology
+2980,TSQ,Advertising Agencies
+2981,SFM,Grocery Stores
+2982,KNOP,Oil & Gas Midstream
+2983,OSCV,
+2984,UCO,
+2985,OLMA,Biotechnology
+2986,SPYC,
+2987,AKAM,Software - Infrastructure
+2988,NLR,
+2989,RAMP,Software - Infrastructure
+2990,PODD,Medical Devices
+2991,SMIG,
+2992,GK,
+2993,FWRD,Integrated Freight & Logistics
+2994,IWN,
+2995,CSD,
+2996,GILT,Communication Equipment
+2997,TEK,
+2998,GURU,
+2999,QQQM,
+3000,EVN,Asset Management
+3001,FNF,Insurance - Specialty
+3002,SRTS,Medical Devices
+3003,EQT,Oil & Gas E&P
+3004,GABF,
+3005,SURE,
+3006,USXF,
+3007,SMWB,Software - Application
+3008,EBC,Banks - Regional
+3009,HLGE,
+3010,COCO,Beverages - Non-Alcoholic
+3011,BNRG,Utilities - Renewable
+3012,FBMS,Banks - Regional
+3013,OFG,Banks - Regional
+3014,SKLZ,Electronic Gaming & Multimedia
+3015,LGDX,
+3016,CTBI,Banks - Regional
+3017,FULT,Banks - Regional
+3018,BRBS,Banks - Regional
+3019,SLNO,Biotechnology
+3020,CGNX,Scientific & Technical Instruments
+3021,SEIC,Asset Management
+3022,NXT,Solar
+3023,WINN,
+3024,DOC,REIT - Healthcare Facilities
+3025,SLYV,
+3026,PGRO,
+3027,MCO,Financial Data & Stock Exchanges
+3028,CASY,Specialty Retail
+3029,NTCT,Software - Infrastructure
+3030,CCS,Real Estate - Development
+3031,RDTY,
+3032,KLIC,Semiconductor Equipment & Materials
+3033,NUGO,
+3034,MUR,Oil & Gas E&P
+3035,MCDS,
+3036,SLF,Insurance - Diversified
+3037,HRTX,Biotechnology
+3038,ICHR,Semiconductor Equipment & Materials
+3039,PPTY,
+3040,LTRN,Biotechnology
+3041,HUM,Healthcare Plans
+3042,WFH,
+3043,AVSC,
+3044,GCAD,
+3045,FCTE,
+3046,PEN,Medical Devices
+3047,QVML,
+3048,RPM,Specialty Chemicals
+3049,BBP,
+3050,FDRV,
+3051,TRST,Banks - Regional
+3052,SZNE,
+3053,QCOM,Semiconductors
+3054,BCPC,Specialty Chemicals
+3055,INGR,Packaged Foods
+3056,QNXT,
+3057,NBGX,
+3058,AMBI,Waste Management
+3059,SEVN,REIT - Mortgage
+3060,OTEX,Software - Application
+3061,RNST,Banks - Regional
+3062,MYLD,
+3063,FCCO,Banks - Regional
+3064,LSEA,Real Estate - Development
+3065,BRO,Insurance Brokers
+3066,OIS,Oil & Gas Equipment & Services
+3067,RSPT,
+3068,PEPS,
+3069,PPA,
+3070,QTJA,
+3071,WASH,Banks - Regional
+3072,ABCS,
+3073,ESNT,Insurance - Specialty
+3074,NFXL,
+3075,ENS,Electrical Equipment & Parts
+3076,KN,Electronic Components
+3077,LCID,Auto Manufacturers
+3078,SMLV,
+3079,JPSV,
+3080,IVOV,
+3081,QQQE,
+3082,SIXS,
+3083,FIDU,
+3084,LXFR,Specialty Industrial Machinery
+3085,SQLV,
+3086,HIFS,Banks - Regional
+3087,METV,
+3088,CPF,Banks - Regional
+3089,PSCH,
+3090,BLFY,Banks - Regional
+3091,USMC,
+3092,EXEL,Biotechnology
+3093,VIOV,
+3094,XUSP,
+3095,QQEW,
+3096,AVLV,
+3097,ISMD,
+3098,CVMC,
+3099,QDVO,
+3100,DUSA,
+3101,TWI,Farm & Heavy Construction Machinery
+3102,AVSU,
+3103,SFY,
+3104,GGG,Specialty Industrial Machinery
+3105,BKWO,
+3106,DXCM,Medical Devices
+3107,AVUS,
+3108,JG,Software - Infrastructure
+3109,BOOM,Conglomerates
+3110,GRC,Specialty Industrial Machinery
+3111,ERX,
+3112,PEBO,Banks - Regional
+3113,AHT,REIT - Hotel & Motel
+3114,RSVR,Entertainment
+3115,FIG,
+3116,METC,Coking Coal
+3117,GATX,Rental & Leasing Services
+3118,ZENA,Software - Infrastructure
+3119,HAFC,Banks - Regional
+3120,BETZ,
+3121,SIRI,Entertainment
+3122,WAR,
+3123,LSAT,
+3124,NZUS,
+3125,ONEO,
+3126,LPG,Oil & Gas Midstream
+3127,GGRW,
+3128,SNPS,Software - Infrastructure
+3129,ENTG,Semiconductor Equipment & Materials
+3130,EBIT,
+3131,AIPI,
+3132,KW,Real Estate Services
+3133,QQQI,
+3134,TSCO,Specialty Retail
+3135,ISCV,
+3136,GRMN,Scientific & Technical Instruments
+3137,PRLB,Metal Fabrication
+3138,CARZ,
+3139,INFO,
+3140,FLDDW,Capital Markets
+3141,FTHM,Real Estate Services
+3142,NULC,
+3143,RSPN,
+3144,MDRR,REIT - Diversified
+3145,BRIF,
+3146,CPT,REIT - Residential
+3147,NEWZ,
+3148,LEN,Residential Construction
+3149,BPAY,
+3150,TMFE,
+3151,CAFG,
+3152,RY,Banks - Diversified
+3153,PPG,Specialty Chemicals
+3154,TDV,
+3155,TSYY,
+3156,PRTH,Software - Infrastructure
+3157,ILDR,
+3158,VTR,REIT - Healthcare Facilities
+3159,HAIL,
+3160,NBHC,Banks - Regional
+3161,EAF,Electrical Equipment & Parts
+3162,BNL,REIT - Diversified
+3163,UCYB,
+3164,VFMF,
+3165,TOPT,
+3166,TKO,Entertainment
+3167,VRE,REIT - Residential
+3168,PSCE,
+3169,IMAB,Biotechnology
+3170,GPN,Specialty Business Services
+3171,UHAL,Rental & Leasing Services
+3172,WS,Steel
+3173,IEZ,
+3174,FOR,Real Estate - Development
+3175,MDXG,Biotechnology
+3176,FLQL,
+3177,XME,
+3178,BAPR,
+3179,IQSU,
+3180,VNSE,
+3181,THRO,
+3182,AMIX,Medical Devices
+3183,AIQ,
+3184,FDCF,
+3185,RCUS,Biotechnology
+3186,FXN,
+3187,AS,Leisure
+3188,EES,
+3189,KROS,Biotechnology
+3190,SIGI,Insurance - Property & Casualty
+3191,IETC,
+3192,FAB,
+3193,PBAP,
+3194,LYFT,Software - Application
+3195,VAC,Resorts & Casinos
+3196,QQMG,
+3197,UNIT,REIT - Specialty
+3198,SCHW,Capital Markets
+3199,EMR,Specialty Industrial Machinery
+3200,RFV,
+3201,SCAP,
+3202,USEA,Marine Shipping
+3203,MDYV,
+3204,FYT,
+3205,TILT,
+3206,CNH,Farm & Heavy Construction Machinery
+3207,BKNG,Travel Services
+3208,ABFL,
+3209,KOP,Specialty Chemicals
+3210,HTBK,Banks - Regional
+3211,NANC,
+3212,EBI,
+3213,YTRA,Travel Services
+3214,VLRS,Airlines
+3215,INMD,Medical Devices
+3216,LQAI,
+3217,NVEC,Semiconductors
+3218,FDTX,
+3219,RMT,Asset Management
+3220,RRR,Resorts & Casinos
+3221,KMID,
+3222,CTSH,Information Technology Services
+3223,QSIX,
+3224,ALC,Medical Instruments & Supplies
+3225,INN,REIT - Hotel & Motel
+3226,QTOP,
+3227,VBNK,Banks - Regional
+3228,SYLD,
+3229,RRC,Oil & Gas E&P
+3230,GVA,Engineering & Construction
+3231,AVLC,
+3232,PFSI,Mortgage Finance
+3233,USSG,
+3234,IYJ,
+3235,JOE,Real Estate - Diversified
+3236,EQH,Asset Management
+3237,TPLE,
+3238,HDB,Banks - Regional
+3239,WFG,Lumber & Wood Production
+3240,STNE,Software - Infrastructure
+3241,PCSA,Biotechnology
+3242,PTL,
+3243,XCOR,
+3244,MNR,Oil & Gas E&P
+3245,FTGS,
+3246,CTXR,Biotechnology
+3247,SPXV,
+3248,MSTQ,
+3249,POET,Semiconductors
+3250,ORI,Insurance - Property & Casualty
+3251,IMCB,
+3252,QQJG,
+3253,CATH,
+3254,ARIS,Utilities - Regulated Water
+3255,HSIC,Medical Distribution
+3256,NFLU,
+3257,XDSQ,
+3258,GLRE,Insurance - Reinsurance
+3259,BSX,Medical Devices
+3260,AAPU,
+3261,WNEB,Banks - Regional
+3262,VFVA,
+3263,DON,
+3264,XYL,Specialty Industrial Machinery
+3265,PBFS,Banks - Regional
+3266,FTEC,
+3267,CLH,Waste Management
+3268,CERS,Medical Devices
+3269,JOBY,Airports & Air Services
+3270,AAPX,
+3271,XBI,
+3272,IDCC,Software - Application
+3273,LKFN,Banks - Regional
+3274,MDCP,
+3275,GSLC,
+3276,QDTY,
+3277,NGVT,Specialty Chemicals
+3278,SIMS,
+3279,DFSU,
+3280,LGRO,
+3281,CVLC,
+3282,HMN,Insurance - Property & Casualty
+3283,QQQJ,
+3284,IJJ,
+3285,PAMC,
+3286,MEDP,Diagnostics & Research
+3287,ESGV,
+3288,CNMD,Medical Devices
+3289,LOPP,
+3290,BRX,REIT - Retail
+3291,IRDM,Telecom Services
+3292,DFAC,
+3293,MTEN,Metal Fabrication
+3294,XDOC,
+3295,AMH,REIT - Residential
+3296,CNI,Railroads
+3297,NSCR,
+3298,SUPP,
+3299,FITB,Banks - Regional
+3300,ESG,
+3301,PWRD,
+3302,JCTR,
+3303,MAX,Internet Content & Information
+3304,USCA,
+3305,DBO,
+3306,FLQM,
+3307,FEX,
+3308,GROV,Household & Personal Products
+3309,AGRO,Farm Products
+3310,AGCO,Farm & Heavy Construction Machinery
+3311,CRBG,Asset Management
+3312,VLLU,
+3313,FROG,Software - Application
+3314,MTVA,Biotechnology
+3315,HTEC,
+3316,PRK,Banks - Regional
+3317,QVAL,
+3318,SRHQ,
+3319,NNI,Credit Services
+3320,FSV,Real Estate Services
+3321,XWEL,Diagnostics & Research
+3322,MESA,Airlines
+3323,XYLO,Medical Devices
+3324,TUG,
+3325,MXCT,Medical Devices
+3326,VFH,
+3327,APRP,
+3328,ZAPP,Auto Manufacturers
+3329,EGGS,
+3330,FMET,
+3331,NXTE,
+3332,SXQG,
+3333,OUSM,
+3334,SECT,
+3335,TLN,Utilities - Independent Power Producers
+3336,WSBF,Banks - Regional
+3337,RDVY,
+3338,MAIN,Asset Management
+3339,RPID,Medical Devices
+3340,TTC,Tools & Accessories
+3341,HAYW,Electrical Equipment & Parts
+3342,NIXT,
+3343,UXOC,
+3344,WCEO,
+3345,GDTC,Biotechnology
+3346,QOWZ,
+3347,DVOL,
+3348,CCIRU,Shell Companies
+3349,TOUR,Travel Services
+3350,CSM,
+3351,NACP,
+3352,ITAN,
+3353,RLMD,Biotechnology
+3354,CNR,Thermal Coal
+3355,VMAX,
+3356,TEL,Electronic Components
+3357,GTEK,
+3358,QRFT,
+3359,ACSI,
+3360,RSPF,
+3361,KTB,Apparel Manufacturing
+3362,CLFD,Communication Equipment
+3363,FHN,Banks - Regional
+3364,TSPA,
+3365,ULVM,
+3366,ROE,
+3367,GAUZ,Electronic Components
+3368,NIC,Banks - Regional
+3369,AMTM,Specialty Business Services
+3370,HOPE,Banks - Regional
+3371,REVS,
+3372,VACHW,
+3373,FFTY,
+3374,BCHP,
+3375,WOLF,Semiconductors
+3376,STRK,Software - Application
+3377,GVLU,
+3378,VGT,
+3379,JVAL,
+3380,HL,Other Precious Metals & Mining
+3381,OXM,Apparel Manufacturing
+3382,VFLO,
+3383,EG,Insurance - Reinsurance
+3384,FULC,Biotechnology
+3385,CRM,Software - Application
+3386,HI,Specialty Industrial Machinery
+3387,SAMT,
+3388,SNX,Electronics & Computer Distribution
+3389,GWW,Industrial Distribution
+3390,FNCL,
+3391,UONEK,Broadcasting
+3392,AKR,REIT - Retail
+3393,LEDS,Semiconductors
+3394,TPYP,
+3395,NEOV,Electrical Equipment & Parts
+3396,KOLD,
+3397,BAFE,
+3398,AAPY,
+3399,EJH,Personal Services
+3400,SATLW,Aerospace & Defense
+3401,WAFU,Education & Training Services
+3402,VEEE,Recreational Vehicles
+3403,QIDX,
+3404,RYAN,Insurance - Specialty
+3405,SPUS,
+3406,TWOX,
+3407,SUSL,
+3408,DXUV,
+3409,HFWA,Banks - Regional
+3410,AMZY,
+3411,CLOD,
+3412,TPLC,
+3413,VO,
+3414,BAMG,
+3415,WERN,Trucking
+3416,XLK,
+3417,USPX,
+3418,AIS,
+3419,DEMZ,
+3420,ODC,Specialty Chemicals
+3421,SPYX,
+3422,EQAL,
+3423,NURO,Medical Devices
+3424,ILCB,
+3425,GRF,Asset Management
+3426,RVRB,
+3427,VIVK,Oil & Gas Integrated
+3428,TINY,
+3429,BHRB,Banks - Regional
+3430,EKG,
+3431,AFLG,
+3432,HDUS,
+3433,TMFC,
+3434,AXSM,Biotechnology
+3435,XHS,
+3436,EGP,REIT - Industrial
+3437,JUSA,
+3438,FCFY,
+3439,IBM,Information Technology Services
+3440,KQQQ,
+3441,FRI,
+3442,KE,Electrical Equipment & Parts
+3443,IWS,
+3444,FCOM,
+3445,IYF,
+3446,INR,Oil & Gas E&P
+3447,PRM,Specialty Chemicals
+3448,PSP,
+3449,MBIN,Banks - Regional
+3450,GGME,
+3451,VRTS,Asset Management
+3452,OEF,
+3453,PYZ,
+3454,SEMI,
+3455,LYG,Banks - Regional
+3456,GPIX,
+3457,SJM,Packaged Foods
+3458,IYY,
+3459,DCOR,
+3460,ATMU,Pollution & Treatment Controls
+3461,VOTE,
+3462,GPIQ,
+3463,VSME,Advertising Agencies
+3464,MAT,Leisure
+3465,APRW,
+3466,ICUI,Medical Instruments & Supplies
+3467,CVCO,Residential Construction
+3468,BRC,Security & Protection Services
+3469,CRUZ,
+3470,INDF,
+3471,MELI,Internet Retail
+3472,AGEN,Biotechnology
+3473,FDWM,
+3474,BHFAM,Insurance - Life
+3475,JPME,
+3476,CMPO,Metal Fabrication
+3477,OEC,Specialty Chemicals
+3478,GUSA,
+3479,IYT,
+3480,AMAT,Semiconductor Equipment & Materials
+3481,MGMT,
+3482,ADBE,Software - Application
+3483,BBSI,Staffing & Employment Services
+3484,KRC,REIT - Office
+3485,DVSP,
+3486,AWAY,
+3487,TOV,
+3488,IWB,
+3489,MMM,Conglomerates
+3490,CLIX,
+3491,VONE,
+3492,NHI,REIT - Healthcare Facilities
+3493,XLI,
+3494,FPH,Real Estate - Development
+3495,FTKI,
+3496,VTI,
+3497,DFAU,
+3498,DSGR,Industrial Distribution
+3499,BBRE,
+3500,RDVI,
+3501,IZEA,Internet Content & Information
+3502,YSPY,
+3503,SYRA,Medical Care Facilities
+3504,USCL,
+3505,PSMR,
+3506,COST,Discount Stores
+3507,VOX,
+3508,LTRX,Communication Equipment
+3509,CP,Railroads
+3510,MORN,Financial Data & Stock Exchanges
+3511,DSI,
+3512,AFK,
+3513,HRTG,Insurance - Property & Casualty
+3514,LFEQ,
+3515,USAC,Oil & Gas Equipment & Services
+3516,SPXT,
+3517,HAPI,
+3518,FDFF,
+3519,SPXN,
+3520,ITOT,
+3521,STRV,
+3522,VICE,
+3523,ITRN,Scientific & Technical Instruments
+3524,XNAV,
+3525,JPEF,
+3526,SPTM,
+3527,PNQI,
+3528,APRT,
+3529,FAF,Insurance - Specialty
+3530,HAPY,
+3531,PSCW,
+3532,XDJL,
+3533,HIW,REIT - Office
+3534,TZUP,Advertising Agencies
+3535,PAC,Airports & Air Services
+3536,SW,Packaging & Containers
+3537,EGGY,
+3538,EPRT,REIT - Retail
+3539,DFUS,
+3540,COLM,Apparel Manufacturing
+3541,RUNN,
+3542,SCHK,
+3543,SCHX,
+3544,SMDV,
+3545,OMAB,Airports & Air Services
+3546,FEAC,
+3547,DVQQ,
+3548,QLC,
+3549,VV,
+3550,RWR,
+3551,ACM,Engineering & Construction
+3552,LCTU,
+3553,CCM,Medical Care Facilities
+3554,PAY,Software - Infrastructure
+3555,ARLU,
+3556,GLPI,REIT - Specialty
+3557,ASMH,
+3558,CEVA,Semiconductors
+3559,DEEP,
+3560,WEEL,
+3561,MHLA,
+3562,STHO,Real Estate Services
+3563,CUBB,
+3564,FCVT,
+3565,NDSN,Specialty Industrial Machinery
+3566,BEDZ,
+3567,XVV,
+3568,WABC,Banks - Regional
+3569,XLG,
+3570,JEPQ,
+3571,JRE,
+3572,PSET,
+3573,SMTC,Semiconductors
+3574,MAVF,
+3575,CCG,Internet Content & Information
+3576,SQEW,
+3577,AGM,Credit Services
+3578,ESGU,
+3579,TKLF,Specialty Retail
+3580,MKL,Insurance - Property & Casualty
+3581,ADME,
+3582,HTUS,
+3583,HUBG,Integrated Freight & Logistics
+3584,OIH,
+3585,SEM,Medical Care Facilities
+3586,PAPR,
+3587,APUE,
+3588,EPM,Oil & Gas E&P
+3589,GRW,
+3590,VTHR,
+3591,GGM,
+3592,ABOT,
+3593,AEIS,Electrical Equipment & Parts
+3594,POOL,Industrial Distribution
+3595,NTST,REIT - Retail
+3596,TYO,
+3597,AEHR,Semiconductor Equipment & Materials
+3598,IWV,
+3599,TROX,Chemicals
+3600,COPX,
+3601,CXW,Security & Protection Services
+3602,USFD,Food Distribution
+3603,DFVE,
+3604,HELX,
+3605,TUGN,
+3606,QLYS,Software - Infrastructure
+3607,LST,
+3608,OBDC,Asset Management
+3609,CDNS,Software - Application
+3610,BYD,Resorts & Casinos
+3611,PSL,
+3612,SUSA,
+3613,UA,Apparel Manufacturing
+3614,XAIX,
+3615,MBCN,Banks - Regional
+3616,SYNA,Semiconductors
+3617,BWFG,Banks - Regional
+3618,PSFM,
+3619,XTKG,Software - Application
+3620,RDVT,Software - Application
+3621,BHR,REIT - Hotel & Motel
+3622,KONG,
+3623,SPY,
+3624,XTOC,
+3625,SQY,
+3626,DENN,Restaurants
+3627,BEEZ,
+3628,SCHB,
+3629,BGDV,
+3630,RHTX,
+3631,DM,Computer Hardware
+3632,MGC,
+3633,HDSN,Specialty Chemicals
+3634,IVV,
+3635,FLRG,
+3636,TDS,Telecom Services
+3637,YCS,
+3638,CHI,Asset Management
+3639,IPAY,
+3640,CRTC,
+3641,CNO_A,
+3642,INQQ,
+3643,USRT,
+3644,RLGT,Integrated Freight & Logistics
+3645,BWTG,
+3646,XSLV,
+3647,FEPI,
+3648,AAVM,
+3649,TOGA,
+3650,TSPY,
+3651,XVOL,
+3652,INRO,
+3653,LSVD,
+3654,XPAY,
+3655,CTAS,Specialty Business Services
+3656,OALC,
+3657,GBUY,
+3658,BBUS,
+3659,EQLS,
+3660,ORLY,Specialty Retail
+3661,HLIT,Communication Equipment
+3662,MTLS,Software - Application
+3663,QQA,
+3664,USML,
+3665,DES,
+3666,ACXP,Biotechnology
+3667,LNTH,Drug Manufacturers - Specialty & Generic
+3668,RBLD,
+3669,FND,Home Improvement Retail
+3670,PLDR,
+3671,IWL,
+3672,VUSE,
+3673,PBUS,
+3674,NTRA,Diagnostics & Research
+3675,AJG,Insurance Brokers
+3676,PABU,
+3677,LCDS,
+3678,LOGI,Computer Hardware
+3679,OBE,Oil & Gas E&P
+3680,WMT,Discount Stores
+3681,SBFG,Banks - Regional
+3682,TFC,Banks - Regional
+3683,EUSM,
+3684,XLF,
+3685,BUG,
+3686,LSBK,Banks - Regional
+3687,DIN,Restaurants
+3688,GDDY,Software - Infrastructure
+3689,ESCA,Leisure
+3690,PTEC,
+3691,ADEA,Software - Application
+3692,CCIXU,
+3693,DCTH,Medical Devices
+3694,IEX,Specialty Industrial Machinery
+3695,LBO,
+3696,DSGX,Software - Application
+3697,EINC,
+3698,VOO,
+3699,ITGR,Medical Devices
+3700,RTX,Aerospace & Defense
+3701,EDN,Utilities - Regulated Electric
+3702,PIPE,
+3703,CRGY,Oil & Gas Integrated
+3704,DUKQ,
+3705,AIRG,Communication Equipment
+3706,CAT,Farm & Heavy Construction Machinery
+3707,GMET,
+3708,UXIN,Auto & Truck Dealerships
+3709,VOLT,
+3710,CVRT,
+3711,DUBS,
+3712,DUHP,
+3713,WLK,Specialty Chemicals
+3714,SIZE,
+3715,VYNE,Biotechnology
+3716,LRGF,
+3717,QPX,
+3718,FTXN,
+3719,STLA,Auto Manufacturers
+3720,JHML,
+3721,SEIV,
+3722,IMUX,Biotechnology
+3723,MODL,
+3724,HCOW,
+3725,SPLG,
+3726,TIME,
+3727,PPI,
+3728,WWR,Other Industrial Metals & Mining
+3729,PKBK,Banks - Regional
+3730,QUAL,
+3731,FCNCA,Banks - Regional
+3732,ORCL,Software - Infrastructure
+3733,TRP,Oil & Gas Midstream
+3734,FCPI,
+3735,JUST,
+3736,IMCV,
+3737,XDTE,
+3738,H,Lodging
+3739,LRND,
+3740,CMCO,Farm & Heavy Construction Machinery
+3741,SDTY,
+3742,SNPE,
+3743,WTV,
+3744,EB,Software - Application
+3745,AIVC,
+3746,SLB,Oil & Gas Equipment & Services
+3747,DRIO,Health Information Services
+3748,BIGY,
+3749,MDU,Conglomerates
+3750,ZEO,Solar
+3751,TASK,Information Technology Services
+3752,FVAL,
+3753,XDAP,
+3754,STOK,Biotechnology
+3755,MGTX,Biotechnology
+3756,CDP,REIT - Office
+3757,ESS,REIT - Residential
+3758,BSY,Software - Application
+3759,HLAL,
+3760,FEUS,
+3761,RDCM,Telecom Services
+3762,LRE,Real Estate - Development
+3763,CURB,REIT - Retail
+3764,FVC,
+3765,HSCS,Medical Devices
+3766,HBM,Copper
+3767,GSPY,
+3768,IFRA,
+3769,EPAM,Information Technology Services
+3770,RULE,
+3771,LXP,REIT - Industrial
+3772,QSI,Medical Devices
+3773,OUST,Electronic Components
+3774,DEUS,
+3775,QARP,
+3776,SSPX,
+3777,FLOW,
+3778,ITW,Specialty Industrial Machinery
+3779,TGLR,
+3780,DTC,Internet Retail
+3781,OLO,Software - Application
+3782,XLSR,
+3783,FELC,
+3784,MLP,Real Estate Services
+3785,CVSE,
+3786,SMOT,
+3787,TDTH,Information Technology Services
+3788,IDAT,
+3789,DT,Software - Application
+3790,SUPN,Drug Manufacturers - Specialty & Generic
+3791,PKW,
+3792,MNTL,
+3793,MSLC,
+3794,DOX,Software - Infrastructure
+3795,IHS,Telecom Services
+3796,CAPE,
+3797,MAS,Building Products & Equipment
+3798,VRTX,Biotechnology
+3799,COLL,Drug Manufacturers - Specialty & Generic
+3800,PLD,REIT - Industrial
+3801,FI,Information Technology Services
+3802,NATL,Software - Application
+3803,GDIV,
+3804,INDY,
+3805,USCB,Banks - Regional
+3806,LINK,Electronic Components
+3807,AIMD,Medical Devices
+3808,ZDGE,Internet Content & Information
+3809,PSCC,
+3810,AMN,Medical Care Facilities
+3811,MAYU,
+3812,RECS,
+3813,LCG,
+3814,HAS,Leisure
+3815,BKLC,
+3816,HIDV,
+3817,OHI,REIT - Healthcare Facilities
+3818,UPWK,Internet Content & Information
+3819,RSSY,
+3820,WDNA,
+3821,MVFG,
+3822,GSUS,
+3823,FLCE,
+3824,DYNF,
+3825,TYLG,
+3826,PNC,Banks - Regional
+3827,WLTG,
+3828,REZ,
+3829,SFST,Banks - Regional
+3830,FDGR,
+3831,GQI,
+3832,MVFD,
+3833,UBFO,Banks - Regional
+3834,STNC,
+3835,RIGL,Biotechnology
+3836,EOS,Asset Management
+3837,TD,Banks - Diversified
+3838,PSCM,
+3839,HHH,Real Estate - Diversified
+3840,REIT,
+3841,RFDA,
+3842,RLI,Insurance - Property & Casualty
+3843,TGB,Copper
+3844,TCPC,Asset Management
+3845,FLCV,
+3846,DGIN,
+3847,ENSG,Medical Care Facilities
+3848,NCNO,Software - Application
+3849,EFIV,
+3850,VOYA,Financial Conglomerates
+3851,CHMI,REIT - Mortgage
+3852,KALU,Aluminum
+3853,BTR,
+3854,AIRL,
+3855,WSR,REIT - Retail
+3856,XMAG,
+3857,UMI,
+3858,PPBI,Banks - Regional
+3859,CCCS,Software - Application
+3860,PCG_X,
+3861,SMP,Auto Parts
+3862,FTHI,
+3863,KNTK,Oil & Gas Midstream
+3864,FFLC,
+3865,BXP,REIT - Office
+3866,MXC,Oil & Gas E&P
+3867,BIGC,Software - Application
+3868,PPIH,Building Products & Equipment
+3869,MDST,
+3870,TG,Metal Fabrication
+3871,GRNT,Oil & Gas E&P
+3872,COWS,
+3873,XTJA,
+3874,CHGX,
+3875,FCG,
+3876,QTAP,
+3877,RVT,Asset Management
+3878,ETY,Asset Management
+3879,VOR,Biotechnology
+3880,MAGA,
+3881,OBT,Banks - Regional
+3882,FTWO,
+3883,AMZA,
+3884,AIFU,Insurance Brokers
+3885,CAAP,Airports & Air Services
+3886,FLAO,
+3887,DFVX,
+3888,NRC,Health Information Services
+3889,ETSY,Internet Retail
+3890,ARQT,Biotechnology
+3891,UDIV,
+3892,USNZ,
+3893,EPS,
+3894,RXRX,Biotechnology
+3895,OMFL,
+3896,FMTM,
+3897,ZI,Software - Application
+3898,FFND,
+3899,ADVWW,Advertising Agencies
+3900,ZLAB,Biotechnology
+3901,PFBC,Banks - Regional
+3902,ETV,Asset Management
+3903,GINN,
+3904,MTX,Specialty Chemicals
+3905,FUL,Specialty Chemicals
+3906,NIM,Asset Management
+3907,CXT,Specialty Industrial Machinery
+3908,VVV,Auto & Truck Dealerships
+3909,IONS,Biotechnology
+3910,NSC,Railroads
+3911,ACVF,
+3912,DHIL,Asset Management
+3913,KARO,Software - Application
+3914,SBIO,
+3915,TOLL,
+3916,TMH,
+3917,QQQT,
+3918,RSPG,
+3919,SPYI,
+3920,VTRS,Drug Manufacturers - Specialty & Generic
+3921,TXT,Aerospace & Defense
+3922,SCI,Personal Services
+3923,DNUT,Grocery Stores
+3924,FDHT,
+3925,STSB,
+3926,FTI,Oil & Gas Equipment & Services
+3927,FDIF,
+3928,EXPO,Engineering & Construction
+3929,HR,REIT - Healthcare Facilities
+3930,TNDM,Medical Devices
+3931,ODDS,
+3932,NESR,Oil & Gas Equipment & Services
+3933,EUSA,
+3934,CZA,
+3935,FYEE,
+3936,EXE,Oil & Gas E&P
+3937,MLPX,
+3938,BUSE,N/A
+3939,SND,Oil & Gas Equipment & Services
+3940,AAPW,
+3941,FTDS,
+3942,CIBR,
+3943,DFNL,
+3944,TTAM,
+3945,ASML,Semiconductor Equipment & Materials
+3946,GEN,Software - Infrastructure
+3947,AMRN,Drug Manufacturers - General
+3948,MSTB,
+3949,HACK,
+3950,ROUS,
+3951,QDEL,Medical Devices
+3952,OCFS,
+3953,MFUS,
+3954,EPSN,Oil & Gas E&P
+3955,CDEI,
+3956,STN,Engineering & Construction
+3957,ANGO,Medical Instruments & Supplies
+3958,STZ,Beverages - Brewers
+3959,EP,Oil & Gas E&P
+3960,CRK,Oil & Gas E&P
+3961,SPD,
+3962,ZD,Advertising Agencies
+3963,XTR,
+3964,LW,Packaged Foods
+3965,J,Engineering & Construction
+3966,SMHB,
+3967,KBWY,
+3968,CWS,
+3969,YMM,Software - Application
+3970,SHE,
+3971,DMAY,
+3972,LOAN,REIT - Mortgage
+3973,RSPR,
+3974,PRAX,Biotechnology
+3975,SATS,Communication Equipment
+3976,CNCR,
+3977,DE,Farm & Heavy Construction Machinery
+3978,BLX,Banks - Regional
+3979,INFL,
+3980,SPNS,Software - Application
+3981,TPZ,
+3982,SPVM,
+3983,XTJL,
+3984,TWN,Asset Management
+3985,RTC,Software - Application
+3986,GPC,Auto Parts
+3987,BFK,Asset Management
+3988,QYLG,
+3989,RFFC,
+3990,YEXT,Software - Infrastructure
+3991,LEXI,
+3992,SPYT,
+3993,PUTD,
+3994,CBRL,Restaurants
+3995,HLLY,Auto Parts
+3996,DIT,Food Distribution
+3997,FUNL,
+3998,POWA,
+3999,VLU,
+4000,SEE,Packaging & Containers
+4001,OCFC,Banks - Regional
+4002,EARN,Asset Management
+4003,EMN,Specialty Chemicals
+4004,BPOP,Banks - Regional
+4005,PCAR,Farm & Heavy Construction Machinery
+4006,MIR,Specialty Industrial Machinery
+4007,SLQT,Insurance Brokers
+4008,FANG,Oil & Gas E&P
+4009,SLND,Engineering & Construction
+4010,DFAW,
+4011,BY,Banks - Regional
+4012,ICMB,Asset Management
+4013,SSPY,
+4014,MUX,Other Precious Metals & Mining
+4015,BWLP,Marine Shipping
+4016,IR,Specialty Industrial Machinery
+4017,INSW,Oil & Gas Midstream
+4018,NHPBP,REIT - Healthcare Facilities
+4019,PHEQ,
+4020,MSI,Communication Equipment
+4021,MSBI,Banks - Regional
+4022,CZNC,Banks - Regional
+4023,NSA,REIT - Industrial
+4024,PCH,REIT - Specialty
+4025,KOKU,
+4026,PY,
+4027,SSYS,Computer Hardware
+4028,WLDR,
+4029,NXPLW,Software - Application
+4030,VAW,
+4031,BCUS,
+4032,FLCA,
+4033,ADVB,Diagnostics & Research
+4034,KMPR,Insurance - Property & Casualty
+4035,BA,Aerospace & Defense
+4036,IWMW,
+4037,BDN,REIT - Office
+4038,MUSQ,
+4039,SPHQ,
+4040,ONEZ,
+4041,CASH,Banks - Regional
+4042,FXZ,
+4043,NBCR,
+4044,MBCC,
+4045,RSMV,
+4046,STXS,Medical Instruments & Supplies
+4047,GIGM,Electronic Gaming & Multimedia
+4048,RYLG,
+4049,KJUL,
+4050,FBT,
+4051,NZAC,
+4052,TMP,Banks - Regional
+4053,URA,
+4054,FMED,
+4055,FTQI,
+4056,FMAY,
+4057,PMN,Biotechnology
+4058,ELCV,
+4059,FSLY,Software - Application
+4060,ACLC,
+4061,NI,Utilities - Regulated Gas
+4062,NPKI,Oil & Gas Equipment & Services
+4063,GEL,Oil & Gas Midstream
+4064,PBJ,
+4065,MSAI,Software - Infrastructure
+4066,PRFX,Drug Manufacturers - Specialty & Generic
+4067,RSP,
+4068,FGF,Insurance - Diversified
+4069,TPTA,
+4070,OAKM,
+4071,QDEC,
+4072,QRVO,Semiconductors
+4073,JPUS,
+4074,FPRO,
+4075,ESPO,
+4076,VNQ,
+4077,SYBX,Biotechnology
+4078,PUBM,Software - Application
+4079,BNGO,Medical Instruments & Supplies
+4080,LGHT,
+4081,FDCE,
+4082,ARL,Real Estate Services
+4083,BBCA,
+4084,CFO,
+4085,ATLO,Banks - Regional
+4086,AC,Asset Management
+4087,CLYM,Biotechnology
+4088,BHC,Drug Manufacturers - Specialty & Generic
+4089,RBC,Tools & Accessories
+4090,XRAY,Medical Instruments & Supplies
+4091,AVGV,
+4092,CII,Asset Management
+4093,EWC,
+4094,HCA,Medical Care Facilities
+4095,QMMY,
+4096,NTSX,
+4097,LYT,Software - Application
+4098,CIVB,Banks - Regional
+4099,TCTM,Education & Training Services
+4100,KSPY,
+4101,FMAT,
+4102,YOKE,
+4103,REGL,
+4104,DVA,Medical Care Facilities
+4105,EPOL,
+4106,PHIN,Auto Parts
+4107,IESC,Engineering & Construction
+4108,CYTH,Drug Manufacturers - Specialty & Generic
+4109,USMF,
+4110,HIG,Insurance - Property & Casualty
+4111,GDE,
+4112,BJUN,
+4113,IHAK,
+4114,CFA,
+4115,CETX,Software - Infrastructure
+4116,UAPR,
+4117,EXR,REIT - Industrial
+4118,XHR,REIT - Hotel & Motel
+4119,DWAT,
+4120,HQI,Staffing & Employment Services
+4121,IXN,
+4122,NREF,REIT - Mortgage
+4123,ELAN,Drug Manufacturers - Specialty & Generic
+4124,AEG,Insurance - Diversified
+4125,HSTM,Health Information Services
+4126,MBOX,
+4127,BALI,
+4128,ALRM,Software - Application
+4129,FMQQ,
+4130,BMAY,
+4131,BCS,Banks - Diversified
+4132,CSB,
+4133,CNQ,Oil & Gas E&P
+4134,LEAD,
+4135,FOXY,
+4136,JQUA,
+4137,BHIL,Agricultural Inputs
+4138,ATMP,
+4139,MAA,REIT - Residential
+4140,DJUL,
+4141,ESI,Specialty Chemicals
+4142,SIEB,Capital Markets
+4143,ET,Oil & Gas Midstream
+4144,CHH,Lodging
+4145,BUFB,
+4146,UBRL,
+4147,KB,Banks - Regional
+4148,OB,Internet Content & Information
+4149,FUND,Asset Management
+4150,GUT,Asset Management
+4151,IHD,Asset Management
+4152,BANFP,
+4153,SSUS,
+4154,HERD,
+4155,VOE,
+4156,CDNA,Diagnostics & Research
+4157,LCF,
+4158,CLB,Oil & Gas Equipment & Services
+4159,KSPI,Software - Infrastructure
+4160,GHY,Asset Management
+4161,FTV,Scientific & Technical Instruments
+4162,BJUL,
+4163,CMCT,REIT - Office
+4164,RDN,Insurance - Specialty
+4165,CHNR,Pollution & Treatment Controls
+4166,DULL,
+4167,LAMR,REIT - Specialty
+4168,TCMD,Medical Devices
+4169,BIZD,
+4170,PJFV,
+4171,CM,Banks - Diversified
+4172,INTU,Software - Application
+4173,BATRA,Entertainment
+4174,UFCS,Insurance - Property & Casualty
+4175,DFUV,
+4176,EQTY,
+4177,BRKU,
+4178,NOA,Oil & Gas Equipment & Services
+4179,CPK,Utilities - Regulated Gas
+4180,AMBR,
+4181,DV,Software - Application
+4182,BLBX,Software - Application
+4183,QJUN,
+4184,TSMY,
+4185,WDC,Computer Hardware
+4186,ENFR,
+4187,MA,Credit Services
+4188,GAM,Asset Management
+4189,THQ,Asset Management
+4190,MDBH,Capital Markets
+4191,BENFW,Asset Management
+4192,ICAP,
+4193,FFLV,
+4194,ZHDG,
+4195,KWR,Specialty Chemicals
+4196,FRPH,Real Estate Services
+4197,RAYD,
+4198,CMBT,Oil & Gas Midstream
+4199,ATUS,Telecom Services
+4200,NTRB,Biotechnology
+4201,RWO,
+4202,ALEC,Biotechnology
+4203,IVRS,
+4204,RSPE,
+4205,XUDV,
+4206,PAVS,Packaged Foods
+4207,AMBC,Insurance - Specialty
+4208,BBLU,
+4209,SAWG,
+4210,CGUS,
+4211,FOVL,
+4212,USO,
+4213,NIE,Asset Management
+4214,TPHD,
+4215,NECB,Banks - Regional
+4216,REAI,
+4217,EHLS,
+4218,SAMG,Asset Management
+4219,BAUG,
+4220,HBB,"Furnishings, Fixtures & Appliances"
+4221,PRCS,
+4222,MPAY,
+4223,INFY,Information Technology Services
+4224,ROPE,
+4225,LRGC,
+4226,ACWI,
+4227,IBRN,
+4228,SPAM,
+4229,SPXX,Asset Management
+4230,JUNT,
+4231,HTB,Banks - Regional
+4232,QDF,
+4233,TOK,
+4234,CACI,Information Technology Services
+4235,THG,Insurance - Property & Casualty
+4236,SRHR,
+4237,ONB,Banks - Regional
+4238,CHCO,Banks - Regional
+4239,KEP,Utilities - Regulated Electric
+4240,FDRR,
+4241,MCI,Asset Management
+4242,HE,Utilities - Regulated Electric
+4243,USM,Telecom Services
+4244,CANC,
+4245,TWFG,Insurance Brokers
+4246,LDOS,Information Technology Services
+4247,RMD,Medical Instruments & Supplies
+4248,IKNA,Biotechnology
+4249,SCHH,
+4250,COLD,REIT - Industrial
+4251,OCUL,Biotechnology
+4252,NEWT,Banks - Regional
+4253,MAYT,
+4254,XOP,
+4255,MEDI,
+4256,FQAL,
+4257,PRIF_D,
+4258,VC,Auto Parts
+4259,CLM,Asset Management
+4260,URAN,
+4261,VLUE,N/A
+4262,UJUL,
+4263,PWV,
+4264,PRAY,
+4265,QSPT,
+4266,SONN,Biotechnology
+4267,CHDN,Gambling
+4268,BOX,Software - Infrastructure
+4269,LEE,Publishing
+4270,QNCX,Biotechnology
+4271,DSTL,
+4272,SNT,Security & Protection Services
+4273,NRSH,
+4274,JULP,
+4275,IQQQ,
+4276,DRAG,
+4277,DFND,
+4278,BFAM,Personal Services
+4279,IYRI,
+4280,NBCC,
+4281,EPI,
+4282,FLIN,
+4283,FELV,
+4284,PHO,
+4285,EIG,Insurance - Specialty
+4286,BWSN,
+4287,SOHU,Electronic Gaming & Multimedia
+4288,BMVP,N/A
+4289,CBZ,Specialty Business Services
+4290,EYPT,Biotechnology
+4291,OILT,
+4292,GVUS,
+4293,CBXJ,
+4294,FGSM,
+4295,SMRI,
+4296,DJUN,
+4297,IDRV,
+4298,MAN,Staffing & Employment Services
+4299,AAPG,Biotechnology
+4300,CCIR,Shell Companies
+4301,DCO,Aerospace & Defense
+4302,L,N/A
+4303,COPA,
+4304,NUW,Asset Management
+4305,DEA,REIT - Office
+4306,KJUN,
+4307,HEAT,
+4308,EDGE,
+4309,NUMV,
+4310,KRO,Specialty Chemicals
+4311,LYLD,
+4312,TPHE,
+4313,AZO,Specialty Retail
+4314,SNOV,
+4315,JPMO,
+4316,KRP,Oil & Gas E&P
+4317,IYZ,
+4318,LOB,Banks - Regional
+4319,SPRE,
+4320,PSR,
+4321,KOCT,
+4322,JNEU,
+4323,ACNT,Steel
+4324,IHI,
+4325,PSTR,
+4326,QTR,
+4327,TVAL,
+4328,FR,REIT - Industrial
+4329,HURN,Consulting Services
+4330,CVGI,Auto Parts
+4331,RNR,Insurance - Reinsurance
+4332,GMOV,
+4333,IPWR,Electrical Equipment & Parts
+4334,SLSR,Other Precious Metals & Mining
+4335,XLC,
+4336,AVGE,
+4337,REET,
+4338,SMMV,
+4339,ASH,Specialty Chemicals
+4340,RSPA,
+4341,VRAI,
+4342,SLVM,Paper & Paper Products
+4343,QDPL,
+4344,NCLH,Travel Services
+4345,HIMX,Semiconductors
+4346,JSTC,
+4347,PCG,Utilities - Regulated Electric
+4348,IAK,
+4349,BYRE,
+4350,MMU,Asset Management
+4351,SEIQ,
+4352,BAC,Banks - Diversified
+4353,KRMA,
+4354,APRZ,
+4355,ORR,
+4356,TACK,
+4357,EALT,
+4358,NHPAP,REIT - Healthcare Facilities
+4359,HLT,Lodging
+4360,BUFP,
+4361,ASG,Asset Management
+4362,TYL,Software - Application
+4363,FGB,Asset Management
+4364,BENF,Asset Management
+4365,ROG,Electronic Components
+4366,DFAR,
+4367,URTH,
+4368,EPR_C,
+4369,AMAL,Banks - Regional
+4370,NJAN,
+4371,BIDU,Internet Content & Information
+4372,GSEW,
+4373,LNN,Farm & Heavy Construction Machinery
+4374,BMAR,
+4375,WST,Medical Instruments & Supplies
+4376,HY,Farm & Heavy Construction Machinery
+4377,TFPN,
+4378,ALTI,Asset Management
+4379,SPTE,
+4380,FXH,
+4381,MAYZ,
+4382,ASC,Marine Shipping
+4383,STK,Asset Management
+4384,VICI,REIT - Diversified
+4385,UPGD,
+4386,ONEV,
+4387,KPTI,Biotechnology
+4388,LVOL,
+4389,OLN,Chemicals
+4390,NJUN,
+4391,KAVL,Tobacco
+4392,VSLU,
+4393,FJUN,
+4394,DIVO,
+4395,JULT,
+4396,FREL,
+4397,LGCF,
+4398,KNOV,
+4399,SBSI,Banks - Regional
+4400,BFEB,
+4401,MDGL,Biotechnology
+4402,DIA,
+4403,AER,Rental & Leasing Services
+4404,SLAB,Semiconductors
+4405,PRF,
+4406,GLIN,
+4407,NURE,
+4408,AVY,Packaging & Containers
+4409,INCY,Biotechnology
+4410,GH,Diagnostics & Research
+4411,EIM,Asset Management
+4412,SLX,
+4413,QLTY,
+4414,CRBN,
+4415,FAPR,
+4416,KFEB,
+4417,MEGL,Capital Markets
+4418,IWD,
+4419,FNDX,
+4420,XLRE,
+4421,PXE,
+4422,ONEY,
+4423,QFLR,
+4424,WYY,Information Technology Services
+4425,AAT,REIT - Diversified
+4426,LPRO,Credit Services
+4427,WEEI,
+4428,MJ,
+4429,BK,Banks - Diversified
+4430,IYR,
+4431,BBGI,Broadcasting
+4432,RITM,REIT - Mortgage
+4433,CORT,Biotechnology
+4434,PJBF,
+4435,RXL,
+4436,KJAN,
+4437,PEO,Asset Management
+4438,BXMX,Asset Management
+4439,ETB,Asset Management
+4440,CDR_B,
+4441,PBH,Drug Manufacturers - Specialty & Generic
+4442,FNDB,
+4443,GIB,Information Technology Services
+4444,MARZ,
+4445,OPY,Capital Markets
+4446,CLSE,
+4447,BJAN,
+4448,URNJ,
+4449,DTEC,
+4450,AVK,Asset Management
+4451,IDGT,
+4452,ACR,REIT - Mortgage
+4453,SOVF,
+4454,HSMV,
+4455,EQWL,
+4456,TDVG,
+4457,DCI,Specialty Industrial Machinery
+4458,FSM,Gold
+4459,TBLA,Internet Content & Information
+4460,BTE,Oil & Gas E&P
+4461,EMOT,
+4462,NDIA,
+4463,KSEP,
+4464,ANDE,Food Distribution
+4465,PWER,
+4466,BNOV,
+4467,WOMN,
+4468,QUS,
+4469,EQL,
+4470,VIRC,"Furnishings, Fixtures & Appliances"
+4471,VALQ,
+4472,JUNZ,
+4473,NKSH,Banks - Regional
+4474,WTW,Insurance Brokers
+4475,CRD_B,
+4476,SAUG,
+4477,RSPM,
+4478,HEQ,Asset Management
+4479,SAGE,Biotechnology
+4480,NJUL,
+4481,TDIV,
+4482,CDRO,Gambling
+4483,GBXA,
+4484,DTD,
+4485,WLDN,Engineering & Construction
+4486,MQ,Software - Infrastructure
+4487,KNGZ,
+4488,EFC,REIT - Mortgage
+4489,NBET,
+4490,FFEB,
+4491,PST,
+4492,WRB,Insurance - Property & Casualty
+4493,DGRW,
+4494,AUGT,
+4495,SPIN,
+4496,PANW,Software - Infrastructure
+4497,XLB,
+4498,IRT,REIT - Residential
+4499,TLF,Specialty Retail
+4500,ARVR,
+4501,WLY,Publishing
+4502,FIW,
+4503,JUNP,
+4504,FPA,
+4505,EXPD,Integrated Freight & Logistics
+4506,BSTP,
+4507,BUFQ,
+4508,RAAX,
+4509,UJUN,
+4510,NMAR,
+4511,BNGE,
+4512,LKCO,Advertising Agencies
+4513,FMCX,
+4514,BNO,
+4515,JPRE,
+4516,GQRE,
+4517,BKDV,
+4518,IUS,
+4519,PBW,
+4520,OFOS,
+4521,FFA,Asset Management
+4522,ROL,Personal Services
+4523,BOCT,
+4524,BUFR,
+4525,NLOP,REIT - Office
+4526,SHO,REIT - Hotel & Motel
+4527,NOVZ,
+4528,LBRDK,Telecom Services
+4529,MRC,Oil & Gas Equipment & Services
+4530,URAA,
+4531,MYE,Packaging & Containers
+4532,JDST,
+4533,ZECP,
+4534,KLMT,
+4535,CGDV,
+4536,USL,
+4537,AMPY,Oil & Gas E&P
+4538,VONV,
+4539,AVRE,
+4540,PCGG,
+4541,FEBZ,
+4542,ARE,REIT - Office
+4543,ASX,Semiconductors
+4544,SHDG,
+4545,OBIO,Biotechnology
+4546,DRIV,
+4547,ARCC,Asset Management
+4548,DVAL,
+4549,QQXT,
+4550,SUPL,
+4551,TNK,Oil & Gas Midstream
+4552,BULD,
+4553,IFN,Asset Management
+4554,UAUG,
+4555,ACV,Asset Management
+4556,AMC,Entertainment
+4557,CHX,Oil & Gas Equipment & Services
+4558,CFFI,Banks - Regional
+4559,IXP,
+4560,PRLD,Biotechnology
+4561,NSEP,
+4562,ETO,Asset Management
+4563,IVVB,
+4564,BUSA,
+4565,CCLD,Health Information Services
+4566,FERG,Industrial Distribution
+4567,HBT,Banks - Regional
+4568,ITDG,
+4569,PIN,
+4570,FET,Oil & Gas Equipment & Services
+4571,STAG,REIT - Industrial
+4572,BCYC,Biotechnology
+4573,FUTU,Capital Markets
+4574,FCPT,REIT - Retail
+4575,AUGZ,
+4576,KVLE,
+4577,AUGP,
+4578,NXTV,
+4579,RLAY,Biotechnology
+4580,EDGU,
+4581,REG,REIT - Retail
+4582,ERET,
+4583,IRTC,Medical Devices
+4584,QMAG,
+4585,PSFJ,
+4586,TY,Asset Management
+4587,JANZ,
+4588,IEO,
+4589,SPHR,Entertainment
+4590,DFLV,
+4591,VRDN,Biotechnology
+4592,LHX,Aerospace & Defense
+4593,SBI,Asset Management
+4594,IGE,
+4595,MRTN,Trucking
+4596,HTH,Financial Conglomerates
+4597,RISN,
+4598,ANEW,
+4599,ALNT,Electronic Components
+4600,IBB,
+4601,FAUG,
+4602,PSA,REIT - Industrial
+4603,ICF,
+4604,UGE,
+4605,MAV,Asset Management
+4606,WORX,Health Information Services
+4607,NXG,Asset Management
+4608,WY,REIT - Specialty
+4609,FULTP,Banks - Regional
+4610,ACDC,Oil & Gas Equipment & Services
+4611,SEPZ,
+4612,AFL,Insurance - Life
+4613,RDOG,
+4614,GDXD,
+4615,CSRE,
+4616,XCLR,
+4617,ITDH,
+4618,FDVL,
+4619,ITDJ,
+4620,KBWP,
+4621,BUFF,
+4622,FSBC,Banks - Regional
+4623,SPGM,
+4624,OCTZ,
+4625,BOC,Conglomerates
+4626,VIAV,Communication Equipment
+4627,STM,Semiconductors
+4628,JAVA,
+4629,OMAH,
+4630,AMPL,Software - Application
+4631,FEBT,
+4632,GJUN,
+4633,RFLR,
+4634,TME,Internet Content & Information
+4635,AGM_D,
+4636,IVRA,
+4637,EVER,Internet Content & Information
+4638,PVAL,
+4639,WALD,Household & Personal Products
+4640,ALRS,Banks - Regional
+4641,CIB,Banks - Regional
+4642,MFSV,
+4643,BST,Asset Management
+4644,MUE,Asset Management
+4645,KMAR,
+4646,RES,Oil & Gas Equipment & Services
+4647,EQRR,
+4648,FIS,Information Technology Services
+4649,CDRE,Aerospace & Defense
+4650,MUSA,Specialty Retail
+4651,FCF,Banks - Regional
+4652,ACIO,
+4653,BDIV,
+4654,BSEP,
+4655,VNM,
+4656,JANP,
+4657,CENN,Auto Manufacturers
+4658,STHH,
+4659,NODK,Insurance - Property & Casualty
+4660,MQT,Asset Management
+4661,PTEU,
+4662,ADUS,Medical Care Facilities
+4663,COCP,Biotechnology
+4664,IIF,Asset Management
+4665,EMCGW,Shell Companies
+4666,PAYX,Software - Application
+4667,LTRYW,
+4668,LTC,REIT - Healthcare Facilities
+4669,SPE,Asset Management
+4670,LEGR,
+4671,ANIX,Biotechnology
+4672,VT,
+4673,RSJN,
+4674,RGEF,
+4675,FDEC,
+4676,EVX,
+4677,FBUF,
+4678,BSAC,Banks - Regional
+4679,DECZ,
+4680,VNAM,
+4681,ESEA,Marine Shipping
+4682,FENY,
+4683,ABLD,
+4684,CTRE,REIT - Healthcare Facilities
+4685,GLSI,Biotechnology
+4686,OLP,REIT - Diversified
+4687,AIZ,Insurance - Property & Casualty
+4688,YY,Internet Content & Information
+4689,KNX,Trucking
+4690,SAPH,
+4691,KRKR,Advertising Agencies
+4692,SEPP,
+4693,FJUL,
+4694,INDA,
+4695,KFRC,Staffing & Employment Services
+4696,MOAT,
+4697,SMAY,
+4698,EW,Medical Devices
+4699,WBIL,
+4700,CBNK,Banks - Regional
+4701,NNOV,
+4702,ABM,Specialty Business Services
+4703,ESGG,
+4704,JGRW,
+4705,GMAY,
+4706,LKQ,Auto Parts
+4707,NUDV,
+4708,SHRY,
+4709,CYCC,Biotechnology
+4710,CANF,Biotechnology
+4711,RIG,Oil & Gas Drilling
+4712,EDOW,
+4713,AQST,Drug Manufacturers - Specialty & Generic
+4714,BR,Information Technology Services
+4715,NDEC,
+4716,SIMO,Semiconductors
+4717,QMAR,
+4718,TCAF,
+4719,UAE,
+4720,IBN,Banks - Regional
+4721,NFEB,
+4722,SBT,Banks - Regional
+4723,OLLI,Discount Stores
+4724,CCAP,Asset Management
+4725,INDE,
+4726,FNOV,
+4727,ITDF,
+4728,FSEP,
+4729,GAB,Asset Management
+4730,CHSCP,Farm Products
+4731,XBJA,
+4732,PQOC,
+4733,GFGF,
+4734,EVUS,
+4735,ISTR,N/A
+4736,KNOW,
+4737,SPXE,
+4738,VDE,
+4739,BAX,Medical Instruments & Supplies
+4740,GRID,
+4741,FLAU,
+4742,SEPU,
+4743,TRIO,
+4744,SILC,Communication Equipment
+4745,NFTY,
+4746,JANT,
+4747,BLK,Asset Management
+4748,LIDRW,Software - Infrastructure
+4749,PBA,Oil & Gas Midstream
+4750,FFWM,Banks - Regional
+4751,SCHV,
+4752,OCTT,
+4753,MERC,Paper & Paper Products
+4754,AIG,Insurance - Diversified
+4755,ZTAX,
+4756,JHG,Asset Management
+4757,GLOF,
+4758,VGSR,
+4759,SPDG,
+4760,MOTE,
+4761,XRLX,
+4762,CCD,Asset Management
+4763,PSTL,REIT - Office
+4764,INVZ,Auto Parts
+4765,CVY,
+4766,CBU,Banks - Regional
+4767,IRET,
+4768,SHO_I,
+4769,BSMC,
+4770,HYPR,Medical Devices
+4771,PSO,Publishing
+4772,STXD,
+4773,DYLG,
+4774,WOOF,Specialty Retail
+4775,DIVB,
+4776,NOVP,
+4777,QCJL,
+4778,NFLX,Entertainment
+4779,SPBU,
+4780,PCG_A,
+4781,MAYP,
+4782,UHAL_B,
+4783,IBBQ,
+4784,XXCH,
+4785,PSFF,N/A
+4786,SWP,
+4787,KAUG,
+4788,BEEP,Infrastructure Operations
+4789,TSHA,Biotechnology
+4790,NOCT,
+4791,YCBD,Drug Manufacturers - Specialty & Generic
+4792,CRF,Asset Management
+4793,USE,
+4794,SPGI,Financial Data & Stock Exchanges
+4795,CLVT,Information Technology Services
+4796,TMUS,Telecom Services
+4797,CFFN,Banks - Regional
+4798,RITA,N/A
+4799,IYE,
+4800,ITDI,
+4801,BCDF,
+4802,QDEF,
+4803,AMST,Software - Application
+4804,OCTP,
+4805,LRGG,
+4806,SMPL,Packaged Foods
+4807,GEOS,Oil & Gas Equipment & Services
+4808,RVTY,Diagnostics & Research
+4809,CMCM,Internet Content & Information
+4810,MRCP,
+4811,GLDD,Engineering & Construction
+4812,HAUS,
+4813,FPAG,
+4814,PSWD,
+4815,SOR,Asset Management
+4816,AUDC,Communication Equipment
+4817,PSMJ,
+4818,NRO,Asset Management
+4819,ADP,Software - Application
+4820,HGLB,
+4821,CLNE,Oil & Gas Refining & Marketing
+4822,JULU,
+4823,DWLD,
+4824,PHDG,
+4825,CVE,Oil & Gas Integrated
+4826,GDEC,
+4827,FHDG,
+4828,ILLRW,Software - Application
+4829,INTT,Semiconductor Equipment & Materials
+4830,MCY,Insurance - Property & Casualty
+4831,GOOY,
+4832,XBOC,
+4833,PGRE,REIT - Office
+4834,SHUS,
+4835,SOL,Solar
+4836,ASND,Biotechnology
+4837,PRTG,Biotechnology
+4838,SPVU,
+4839,FTCE,
+4840,QMNV,
+4841,ADX,Asset Management
+4842,RF_C,N/A
+4843,CLNR,
+4844,KOCG,
+4845,UMC,Semiconductors
+4846,PSTP,
+4847,SCHD,
+4848,FAAR,N/A
+4849,IOO,
+4850,CRNT,Communication Equipment
+4851,TEMP,
+4852,FTCS,
+4853,AVTE,Biotechnology
+4854,MART,
+4855,BDEC,
+4856,VTV,
+4857,VIG,
+4858,SRCE,Banks - Regional
+4859,QMFE,
+4860,JEPI,
+4861,SNEX,Capital Markets
+4862,IWTR,N/A
+4863,TECX,Biotechnology
+4864,AQLT,
+4865,SRV,Asset Management
+4866,MACIU,
+4867,SAP,Software - Application
+4868,STE,Medical Devices
+4869,DIAX,Asset Management
+4870,DLN,
+4871,FRO,Oil & Gas Midstream
+4872,ARTW,Farm & Heavy Construction Machinery
+4873,CI,Healthcare Plans
+4874,NVAX,Biotechnology
+4875,LQPE,
+4876,PTNQ,
+4877,HUBC,Software - Infrastructure
+4878,USPH,Medical Care Facilities
+4879,HRB,Personal Services
+4880,AIVL,
+4881,AMCR,Packaging & Containers
+4882,XXII,Tobacco
+4883,TCBX,Banks - Regional
+4884,TDY,Scientific & Technical Instruments
+4885,DECT,
+4886,PEB_F,
+4887,PEB_G,
+4888,OSRH,
+4889,PDD,Internet Retail
+4890,TDVI,
+4891,FTA,
+4892,CDROW,Gambling
+4893,DAUG,
+4894,PBE,N/A
+4895,GBXC,
+4896,CGGO,
+4897,TW,Capital Markets
+4898,PINE,REIT - Retail
+4899,DHI,Residential Construction
+4900,ALEX,REIT - Retail
+4901,MYRG,Engineering & Construction
+4902,PRVS,
+4903,OILK,
+4904,FTNT,Software - Infrastructure
+4905,EBAY,Internet Retail
+4906,FSK,Asset Management
+4907,SPDV,
+4908,JULZ,
+4909,NNOX,Medical Devices
+4910,OIA,Asset Management
+4911,HCKT,Information Technology Services
+4912,FOF,Asset Management
+4913,SURI,
+4914,GDV,Asset Management
+4915,RPV,
+4916,CGCV,
+4917,AUGU,
+4918,PJUL,
+4919,STXV,
+4920,RBA,Specialty Business Services
+4921,EV,
+4922,BCAL,Banks - Regional
+4923,ITEQ,
+4924,GJUL,
+4925,CHY,Asset Management
+4926,GOOD,REIT - Diversified
+4927,CSQ,Asset Management
+4928,EAGL,
+4929,PSFD,
+4930,USEP,
+4931,EWA,
+4932,UMAY,
+4933,FOCT,
+4934,AUSF,
+4935,TTEK,Engineering & Construction
+4936,TWNP,Restaurants
+4937,FOWF,
+4938,XLE,
+4939,BATT,
+4940,TEQI,
+4941,SPYV,
+4942,UOCT,
+4943,LIVR,
+4944,BLE,Asset Management
+4945,INDS,
+4946,RSG,Waste Management
+4947,QQQH,
+4948,PAMT,Trucking
+4949,FDEM,
+4950,GGZ,Asset Management
+4951,VKTX,Biotechnology
+4952,BLCV,
+4953,KFS,Auto & Truck Dealerships
+4954,ASTL,Steel
+4955,BV,Specialty Business Services
+4956,KRRO,Biotechnology
+4957,NETL,N/A
+4958,ARLP,Thermal Coal
+4959,IWX,
+4960,KWT,
+4961,FHEQ,
+4962,AAPL,Consumer Electronics
+4963,DFEB,
+4964,RAA,
+4965,MLTX,Biotechnology
+4966,RDIV,
+4967,OR,Gold
+4968,PEB_E,
+4969,LADR,REIT - Mortgage
+4970,FIP,Conglomerates
+4971,EPR,REIT - Specialty
+4972,ESN,
+4973,HCAT,Health Information Services
+4974,BAMA,
+4975,NBOS,
+4976,IBOT,
+4977,PJUN,N/A
+4978,CWB,
+4979,MDEV,
+4980,USOI,
+4981,RWL,
+4982,APA,Oil & Gas E&P
+4983,HPQ,Computer Hardware
+4984,BOTZ,
+4985,FJAN,
+4986,RAFE,
+4987,PSFO,
+4988,MMD,Asset Management
+4989,FDUS,Asset Management
+4990,IUSV,
+4991,DMB,Asset Management
+4992,NANR,
+4993,KDEC,
+4994,ILCV,
+4995,IMRN,Biotechnology
+4996,LPSN,Software - Application
+4997,LBRDA,Telecom Services
+4998,SCLZ,
+4999,CAMX,
+5000,BA_A,
+5001,NFLY,
+5002,BKR,Oil & Gas Equipment & Services
+5003,IMMX,Biotechnology
+5004,RVSB,Banks - Regional
+5005,MCVT,Credit Services
+5006,AGMI,
+5007,EXI,
+5008,WLFC,Rental & Leasing Services
+5009,IVVW,
+5010,ZGN,Apparel Manufacturing
+5011,BIOA,Drug Manufacturers - Specialty & Generic
+5012,PYPL,Credit Services
+5013,XMLV,
+5014,PSCQ,
+5015,MDWD,Biotechnology
+5016,ALCO,Farm Products
+5017,CSCO,Communication Equipment
+5018,SMIN,
+5019,INTA,Software - Application
+5020,BAMO,
+5021,BOTT,
+5022,NULV,
+5023,FPI,REIT - Specialty
+5024,HKND,
+5025,BLDG,
+5026,CVRD,
+5027,OND,
+5028,ROBO,
+5029,IHF,
+5030,VYLD,
+5031,NVBU,
+5032,GO,Grocery Stores
+5033,TMAR,
+5034,BEEX,
+5035,LOWV,
+5036,FOSLL,
+5037,FORH,
+5038,PSIL,
+5039,FBOT,
+5040,CBFV,Banks - Regional
+5041,IHG,Lodging
+5042,NIKL,
+5043,XBJL,
+5044,SNTI,Biotechnology
+5045,ITDE,
+5046,CRED,
+5047,INVH,REIT - Residential
+5048,BERY,Packaging & Containers
+5049,FEBU,
+5050,QDIV,
+5051,SIBN,Medical Devices
+5052,TQQY,
+5053,ABLLL,
+5054,TBF,
+5055,MYI,Asset Management
+5056,IXG,
+5057,IDYA,Biotechnology
+5058,PFM,
+5059,VAL,Oil & Gas Equipment & Services
+5060,DOCT,
+5061,BDVG,
+5062,TRC,Conglomerates
+5063,PMAY,
+5064,LVO,Entertainment
+5065,XYLG,
+5066,DADA,Internet Retail
+5067,BCX,Asset Management
+5068,DUST,
+5069,DIVL,
+5070,POCT,
+5071,UK,Real Estate Services
+5072,MASI,Medical Devices
+5073,AR,Oil & Gas E&P
+5074,FDIV,
+5075,BUFD,
+5076,HELO,
+5077,BTCM,Information Technology Services
+5078,MTD,Diagnostics & Research
+5079,SIXD,
+5080,CPNG,Internet Retail
+5081,AM,Oil & Gas Midstream
+5082,DOCU,Software - Application
+5083,TRV,Insurance - Property & Casualty
+5084,ROMO,
+5085,SAR,Asset Management
+5086,CRDF,Biotechnology
+5087,PICK,
+5088,FLG,Banks - Regional
+5089,AUPH,Biotechnology
+5090,RYLD,
+5091,VOOV,
+5092,GDOC,
+5093,YQ,Education & Training Services
+5094,JANU,
+5095,RXT,Software - Infrastructure
+5096,FMAR,
+5097,BGIG,
+5098,CPA,Airlines
+5099,YOTA,Shell Companies
+5100,AUGW,
+5101,BXSL,Asset Management
+5102,TECK,Other Industrial Metals & Mining
+5103,NSYS,Medical Devices
+5104,BAND,Software - Infrastructure
+5105,NMR,Capital Markets
+5106,GCV,Asset Management
+5107,GNOV,
+5108,GAUG,
+5109,NCV,Asset Management
+5110,JUNW,
+5111,DRLL,
+5112,PSEP,
+5113,PFFL,
+5114,MARU,
+5115,PQJL,
+5116,JULW,
+5117,PAUG,
+5118,BMRN,Biotechnology
+5119,SIXP,
+5120,DSEP,
+5121,CSR,REIT - Residential
+5122,UPB,Biotechnology
+5123,DIVG,
+5124,TBFG,
+5125,IYM,
+5126,AVIE,
+5127,GBTG,Travel Services
+5128,PIZ,
+5129,QLV,
+5130,XSHD,
+5131,USA,Asset Management
+5132,PRGS,Software - Infrastructure
+5133,RNTX,Biotechnology
+5134,EQIN,
+5135,EPOW,Electrical Equipment & Parts
+5136,FDVV,
+5137,VNDA,Biotechnology
+5138,BDJ,Asset Management
+5139,WBIY,
+5140,IVE,
+5141,SIXZ,
+5142,SILA,REIT - Healthcare Facilities
+5143,BTMD,Medical Care Facilities
+5144,QHDG,
+5145,VYM,
+5146,ALGN,Medical Instruments & Supplies
+5147,PSMD,
+5148,BUFG,
+5149,GLOW,
+5150,SRE,Utilities - Diversified
+5151,DNOV,
+5152,PBFR,
+5153,IHE,
+5154,WBIF,
+5155,DGRO,
+5156,PINK,
+5157,EVH,Health Information Services
+5158,NDVG,
+5159,AACG,Education & Training Services
+5160,HRTS,
+5161,RATE,
+5162,TKC,Telecom Services
+5163,GSL,Marine Shipping
+5164,TDSC,
+5165,JCE,Asset Management
+5166,GSIB,
+5167,SELX,Electronic Components
+5168,SNPV,
+5169,TWO_B,
+5170,XERS,Biotechnology
+5171,TRAK,Software - Application
+5172,FMCE,
+5173,MBINN,Banks - Regional
+5174,DLB,Specialty Business Services
+5175,PSQH_WS,
+5176,TMDV,
+5177,SFEB,
+5178,BRK_A,
+5179,SOS,Capital Markets
+5180,DORM,Auto Parts
+5181,DAPR,
+5182,WDI,
+5183,COWZ,
+5184,GABC,Banks - Regional
+5185,AHT_D,
+5186,BGLC,Specialty Chemicals
+5187,SLMBP,Credit Services
+5188,SAN,Banks - Diversified
+5189,ALLR,Biotechnology
+5190,CCMG,
+5191,ESMV,
+5192,DPZ,Restaurants
+5193,BFS,REIT - Retail
+5194,IRMD,Medical Devices
+5195,CHTR,Telecom Services
+5196,MLPD,
+5197,UMAR,
+5198,PTC,Software - Application
+5199,CBLS,
+5200,CPSS,Credit Services
+5201,BAMV,
+5202,SAGP,
+5203,SQFT,REIT - Diversified
+5204,A,Diagnostics & Research
+5205,ENPH,Solar
+5206,MGV,
+5207,EAOA,
+5208,BEN,Asset Management
+5209,DYNI,
+5210,CPRJ,
+5211,ASMB,Biotechnology
+5212,KXIN,Auto & Truck Dealerships
+5213,OPXS,Aerospace & Defense
+5214,UKOMW,Real Estate Services
+5215,GORO,Gold
+5216,HNDL,
+5217,PAA,Oil & Gas Midstream
+5218,UNOV,
+5219,FFLS,
+5220,CAH,Medical Distribution
+5221,PSMO,
+5222,SIXJ,
+5223,FLYW,Software - Infrastructure
+5224,EMPB,
+5225,EOI,Asset Management
+5226,RILYT,
+5227,TMFG,
+5228,SEDG,Solar
+5229,UJAN,
+5230,JFLI,
+5231,PI,Semiconductors
+5232,SEA,
+5233,MNDO,Software - Application
+5234,ASR,Airports & Air Services
+5235,OVLH,
+5236,BMEZ,
+5237,GSEP,
+5238,MMC,Insurance Brokers
+5239,NUKKW,Software - Application
+5240,KCAI,
+5241,FLJJ,
+5242,HEES,Rental & Leasing Services
+5243,NAUT,Biotechnology
+5244,BAH,Consulting Services
+5245,FTAIN,Rental & Leasing Services
+5246,SHPP,
+5247,ALZN,Biotechnology
+5248,LIT,
+5249,FOA,Credit Services
+5250,RWT,REIT - Mortgage
+5251,PBOC,
+5252,SBR,Oil & Gas Midstream
+5253,OCTU,
+5254,ATEN,Software - Infrastructure
+5255,ENR,Electrical Equipment & Parts
+5256,HUN,Chemicals
+5257,AVMA,
+5258,GEF,Packaging & Containers
+5259,ICVT,
+5260,MVF,Asset Management
+5261,XJUN,
+5262,WTRE,
+5263,BUFS,
+5264,IDNA,
+5265,VSMV,
+5266,MGNR,
+5267,MVAL,
+5268,BUFZ,
+5269,FUNC,Banks - Regional
+5270,DAWN,Biotechnology
+5271,SIXA,
+5272,PJP,
+5273,EDTK,Education & Training Services
+5274,OUSA,
+5275,ARKO,Specialty Retail
+5276,PFEB,
+5277,XOCT,
+5278,CAPL,Oil & Gas Refining & Marketing
+5279,PNOV,
+5280,FLV,
+5281,UHT,REIT - Healthcare Facilities
+5282,ISPY,
+5283,BMED,
+5284,XSEP,
+5285,DDEC,
+5286,ICFI,Consulting Services
+5287,EDC,
+5288,NWSA,Entertainment
+5289,XJAN,
+5290,CEFD,
+5291,ETW,Asset Management
+5292,VEEV,Health Information Services
+5293,ECF,Asset Management
+5294,CYBN,Biotechnology
+5295,MHI,Asset Management
+5296,PBL,
+5297,VRRM,Infrastructure Operations
+5298,GJAN,
+5299,UTES,
+5300,GBX,Railroads
+5301,ATPC,Packaged Foods
+5302,PTEN,Oil & Gas Drilling
+5303,XT,
+5304,CQP,Oil & Gas Midstream
+5305,PMAR,
+5306,MG,Security & Protection Services
+5307,DLNG,Oil & Gas Midstream
+5308,GFEB,
+5309,SPBW,
+5310,AREA,
+5311,LH,Diagnostics & Research
+5312,ACIU,Biotechnology
+5313,SGA,Broadcasting
+5314,XDEC,
+5315,FBP,Banks - Regional
+5316,CSX,Railroads
+5317,HUDI,Steel
+5318,INVX,Oil & Gas Equipment & Services
+5319,GLQ,Asset Management
+5320,SFLR,
+5321,NXTG,
+5322,YLDE,
+5323,JMSB,Banks - Regional
+5324,BDGS,
+5325,GEND,
+5326,VSDA,
+5327,RYN,REIT - Specialty
+5328,OAIM,
+5329,SOLR,
+5330,VFMV,
+5331,FDT,
+5332,PBSE,
+5333,GD,Aerospace & Defense
+5334,BLES,
+5335,JWEL,Internet Retail
+5336,RSST,
+5337,XPH,
+5338,XFEB,
+5339,CLBR,
+5340,MGRO,
+5341,NYMTN,REIT - Mortgage
+5342,MLPR,
+5343,PEY,
+5344,MDPL,
+5345,VRM,Auto & Truck Dealerships
+5346,PRIF_K,
+5347,QLGN,Biotechnology
+5348,DWCR,
+5349,MQY,Asset Management
+5350,SRBK,Banks - Regional
+5351,NRSN,Biotechnology
+5352,GBXB,
+5353,MSFL,
+5354,TM,Auto Manufacturers
+5355,HFRO,Asset Management
+5356,CMRE_C,
+5357,AIV,REIT - Residential
+5358,PBQQ,
+5359,MINV,
+5360,HITI,Pharmaceutical Retailers
+5361,VRNS,Software - Infrastructure
+5362,FPXE,
+5363,NPK,Aerospace & Defense
+5364,PBDC,
+5365,TRI,Specialty Business Services
+5366,EET,
+5367,KNCT,
+5368,VOC,Oil & Gas E&P
+5369,RPHS,N/A
+5370,KNG,
+5371,GAPR,
+5372,NOBL,
+5373,ALX,REIT - Retail
+5374,QUVU,
+5375,MUA,Asset Management
+5376,NWG,Banks - Regional
+5377,DFGR,
+5378,DUO,Real Estate Services
+5379,SPWO,
+5380,ERTH,
+5381,TINT,
+5382,RSDE,
+5383,CRTO,Advertising Agencies
+5384,BZFD,Internet Content & Information
+5385,PBDE,
+5386,GOCT,
+5387,MNST,Beverages - Non-Alcoholic
+5388,MAXJ,
+5389,DECU,
+5390,EMF,Asset Management
+5391,SPMV,
+5392,HQL,Asset Management
+5393,BRCC,Packaged Foods
+5394,RSPH,
+5395,NWBI,Banks - Regional
+5396,VHT,
+5397,HUSV,
+5398,BOUT,
+5399,SNPD,
+5400,GRX,Asset Management
+5401,CTEV,Health Information Services
+5402,JANW,
+5403,YOLO,
+5404,ATEX,Telecom Services
+5405,ENIC,Utilities - Regulated Electric
+5406,FNWD,Banks - Regional
+5407,NFLP,
+5408,BOAT,
+5409,IMAX,Entertainment
+5410,SROI,
+5411,DVND,
+5412,INDH,
+5413,QCAP,
+5414,CLCO,Oil & Gas Midstream
+5415,DSYWW,Household & Personal Products
+5416,GRBK_A,
+5417,LGLV,
+5418,LAW,Software - Application
+5419,FDNI,
+5420,PRAE,
+5421,EWO,
+5422,BJK,
+5423,KDP,Beverages - Non-Alcoholic
+5424,MSA,Security & Protection Services
+5425,WRND,
+5426,MYTE,Luxury Goods
+5427,PRIF_J,
+5428,SPBX,
+5429,ENB,Oil & Gas Midstream
+5430,AAPR,
+5431,EM,Personal Services
+5432,RIET,
+5433,SIXF,
+5434,GLL,
+5435,TFPM,Other Precious Metals & Mining
+5436,MSFY,
+5437,NOC,Aerospace & Defense
+5438,METCB,Coking Coal
+5439,GXTG,
+5440,CMRE,Marine Shipping
+5441,RGP,Consulting Services
+5442,DJAN,
+5443,SEPW,
+5444,FSUN,Banks - Regional
+5445,UDI,
+5446,CZWI,Banks - Regional
+5447,PRPO,Diagnostics & Research
+5448,HCXY,
+5449,TRN,Railroads
+5450,NUWE,Medical Devices
+5451,MTN,Resorts & Casinos
+5452,AGD,
+5453,NVBW,
+5454,EIPX,
+5455,WRN,Other Industrial Metals & Mining
+5456,MNDR,Health Information Services
+5457,QCJA,
+5458,HPK,Oil & Gas E&P
+5459,PRCH,Software - Application
+5460,EEMO,
+5461,FVCB,Banks - Regional
+5462,UBER,Software - Application
+5463,XPER,Software - Application
+5464,BCRX,Drug Manufacturers - Specialty & Generic
+5465,PCIG,
+5466,IOPP,
+5467,COAL,
+5468,FDLO,
+5469,NCZ_A,
+5470,HFND,
+5471,QCOC,
+5472,SAND,Gold
+5473,SDST,Electrical Equipment & Parts
+5474,MOH,Healthcare Plans
+5475,MSEX,Utilities - Regulated Water
+5476,XAUG,
+5477,BWB,Banks - Regional
+5478,CGGE,
+5479,MYNZ,Diagnostics & Research
+5480,ACHC,Medical Care Facilities
+5481,UDEC,
+5482,SIXL,
+5483,XJUL,
+5484,PGNY,Healthcare Plans
+5485,BGY,Asset Management
+5486,XBAP,
+5487,HEQT,
+5488,CEROW,Biotechnology
+5489,NU,Banks - Regional
+5490,DIVP,
+5491,CGBL,
+5492,EVM,Asset Management
+5493,NSA_A,
+5494,WBIG,
+5495,O,REIT - Retail
+5496,PBMR,
+5497,IDE,Asset Management
+5498,GRN,
+5499,CZFS,Banks - Regional
+5500,CPNJ,
+5501,SOCL,
+5502,GNT,Asset Management
+5503,DIVY,
+5504,QDCC,
+5505,MAYW,
+5506,DLHC,Specialty Business Services
+5507,CDC,
+5508,AOA,
+5509,MSFU,
+5510,FRSX,Auto Parts
+5511,SYK,Medical Devices
+5512,WCN,Waste Management
+5513,DMAR,
+5514,PRNT,
+5515,SENS,Medical Devices
+5516,HF,
+5517,THW,Asset Management
+5518,QYLD,
+5519,LGI,Asset Management
+5520,JAMF,Software - Application
+5521,GJS,
+5522,REI,Oil & Gas E&P
+5523,GLOV,
+5524,GMRE,REIT - Healthcare Facilities
+5525,CHW,Asset Management
+5526,TYG,Asset Management
+5527,PEX,
+5528,OCTW,
+5529,PJAN,
+5530,EIPI,
+5531,DECW,
+5532,SMG,Agricultural Inputs
+5533,PBP,
+5534,INTZ,Software - Infrastructure
+5535,STEW,Asset Management
+5536,XNOV,
+5537,GIL,Apparel Manufacturing
+5538,RSSE,
+5539,XTAP,
+5540,ACP,Asset Management
+5541,JGLO,
+5542,ASRV,Banks - Regional
+5543,SER,Biotechnology
+5544,TRTN_F,
+5545,SDOG,
+5546,JUNM,
+5547,DVY,
+5548,VMD,Medical Devices
+5549,EMLP,
+5550,YINN,
+5551,STNG,Oil & Gas Midstream
+5552,OSBC,Banks - Regional
+5553,AOMR,REIT - Mortgage
+5554,VCLN,
+5555,RLJ,REIT - Hotel & Motel
+5556,MARW,
+5557,FDV,
+5558,QCON,
+5559,MXF,Asset Management
+5560,VTEX,Software - Application
+5561,PCEF,
+5562,NHC,Medical Care Facilities
+5563,EVT,Asset Management
+5564,ELTK,Electronic Components
+5565,FEBW,
+5566,HON,Conglomerates
+5567,NTWK,Software - Application
+5568,IYH,
+5569,MYFW,Banks - Regional
+5570,BME,Asset Management
+5571,SLRX,Biotechnology
+5572,SR,Utilities - Regulated Gas
+5573,GVAL,
+5574,FCO,Asset Management
+5575,NATR,Packaged Foods
+5576,CDE,Gold
+5577,KTTA,Biotechnology
+5578,MLPA,
+5579,ITDD,
+5580,TRIP,Travel Services
+5581,IVR,REIT - Mortgage
+5582,KPOP,
+5583,PTLC,
+5584,MEGI,
+5585,FIRS,
+5586,PEMX,
+5587,SXT,Specialty Chemicals
+5588,BMO,Banks - Diversified
+5589,SPOT,Internet Content & Information
+5590,ICOP,
+5591,NUV,Asset Management
+5592,BHFAP,Insurance - Life
+5593,NXC,Asset Management
+5594,CCOR,
+5595,RSSB,
+5596,UFEB,
+5597,GLO,Asset Management
+5598,PMM,Asset Management
+5599,MEMX,
+5600,VYX,Information Technology Services
+5601,PUTW,
+5602,CANQ,
+5603,SMOG,
+5604,NATO,
+5605,FVD,
+5606,EWY,
+5607,GRWG,Specialty Retail
+5608,MLPB,
+5609,XMAY,
+5610,BRIA,
+5611,KARS,
+5612,DYTA,
+5613,YCBD_A,
+5614,LENS,
+5615,IBEX,Information Technology Services
+5616,CCK,Packaging & Containers
+5617,FBCV,
+5618,BKN,Asset Management
+5619,ABNB,Travel Services
+5620,TBG,
+5621,TOP,Capital Markets
+5622,GTEC,Auto Parts
+5623,EPP,
+5624,EDUC,Publishing
+5625,AWP,Asset Management
+5626,METCZ,
+5627,AJUL,
+5628,AVSE,
+5629,OZ,Real Estate - Development
+5630,INCE,
+5631,SPYD,
+5632,GINX,
+5633,EPC,Household & Personal Products
+5634,MITT,REIT - Mortgage
+5635,RLTY,Asset Management
+5636,DHSB,
+5637,CVS,Healthcare Plans
+5638,NAT,Oil & Gas Midstream
+5639,ROP,Software - Application
+5640,GHG,Lodging
+5641,FRAF,Banks - Regional
+5642,ZJUL,
+5643,PSX,Oil & Gas Refining & Marketing
+5644,KHPI,
+5645,MRSK,
+5646,ENZ,Diagnostics & Research
+5647,AQN,Utilities - Diversified
+5648,PHIO,Biotechnology
+5649,STRA,Education & Training Services
+5650,JD,Internet Retail
+5651,YYY,
+5652,NBTX,Biotechnology
+5653,PJIO,
+5654,VYGR,Biotechnology
+5655,SYNB,
+5656,SEEM,
+5657,BOSC,Communication Equipment
+5658,ERNZ,
+5659,CLLS,Biotechnology
+5660,SLI,Other Industrial Metals & Mining
+5661,QWLD,
+5662,FHLC,
+5663,SRVR,
+5664,EMQQ,
+5665,CGRO,
+5666,XLV,
+5667,GMAR,
+5668,FTRI,
+5669,MDIV,
+5670,ML_WS,
+5671,WF,Banks - Regional
+5672,TECH,Biotechnology
+5673,LFCR,Drug Manufacturers - Specialty & Generic
+5674,CHAU,
+5675,VEGI,
+5676,NWGL,Lumber & Wood Production
+5677,DLX,Conglomerates
+5678,SVM,Silver
+5679,CET,Asset Management
+5680,VRN,Oil & Gas E&P
+5681,MSCI,Financial Data & Stock Exchanges
+5682,EVTC,Software - Infrastructure
+5683,BRK_B,
+5684,EL,Household & Personal Products
+5685,SLG_I,
+5686,IQRA,
+5687,CNC,Healthcare Plans
+5688,IWMY,
+5689,NAVI,Credit Services
+5690,SCD,Asset Management
+5691,SDY,
+5692,ALTL,
+5693,FSTA,
+5694,OCTD,
+5695,INCO,
+5696,XMAR,
+5697,SGRY,Medical Care Facilities
+5698,MSGE,Leisure
+5699,PRE,Diagnostics & Research
+5700,SGMA,Electronic Components
+5701,PHX,Oil & Gas E&P
+5702,FCFS,Credit Services
+5703,KLXY,
+5704,VIPS,Internet Retail
+5705,ECAT,
+5706,EFRA,
+5707,FLSP,
+5708,SNAV,
+5709,PSCU,
+5710,KROP,
+5711,PBJA,
+5712,ADSK,Software - Application
+5713,BUFT,
+5714,SIXO,
+5715,BVS,Medical Devices
+5716,IVVM,
+5717,VET,Oil & Gas E&P
+5718,OXSQG,
+5719,BWBBP,Banks - Regional
+5720,YIBO,Computer Hardware
+5721,XCCC,
+5722,DNP,Asset Management
+5723,XRLV,
+5724,VDC,
+5725,XYLD,
+5726,DSWL,Electronic Components
+5727,TIXT,Software - Infrastructure
+5728,CNBS,
+5729,QUAD,Specialty Business Services
+5730,STRT,Auto Parts
+5731,PAHC,Drug Manufacturers - Specialty & Generic
+5732,HEGD,
+5733,ASET,
+5734,AVXC,
+5735,EVGN,Biotechnology
+5736,EIX,Utilities - Regulated Electric
+5737,MAPP,
+5738,RQI,Asset Management
+5739,DIS,Entertainment
+5740,DJD,
+5741,BRT,REIT - Residential
+5742,AMLP,
+5743,OAEM,
+5744,ARTNA,Utilities - Regulated Water
+5745,PYPY,
+5746,AON,Insurance Brokers
+5747,FLNG,Oil & Gas Midstream
+5748,HQH,Asset Management
+5749,IZRL,
+5750,DEHP,
+5751,NUEM,
+5752,MFUT,
+5753,MBIO,Biotechnology
+5754,CMCL,Gold
+5755,KSTR,
+5756,TRTX,REIT - Mortgage
+5757,SLRC,Asset Management
+5758,IGTR,
+5759,BCHI,
+5760,KF,Asset Management
+5761,AHL_E,
+5762,AZI,Auto & Truck Dealerships
+5763,ALB_A,
+5764,RGT,Asset Management
+5765,PRIF_F,
+5766,BNS,Banks - Diversified
+5767,BCSF,N/A
+5768,USB_A,N/A
+5769,BARK,Specialty Retail
+5770,HAE,Medical Devices
+5771,RSPC,
+5772,XC,
+5773,HEEM,
+5774,DURA,
+5775,BHR_B,
+5776,SPLV,
+5777,PDEC,
+5778,PEP,Beverages - Non-Alcoholic
+5779,ZAUG,
+5780,ABT,Medical Devices
+5781,CUT,
+5782,HEWJ,
+5783,WB,Internet Content & Information
+5784,TIPT,Insurance - Specialty
+5785,FTLS,
+5786,GNR,
+5787,KGEI,Oil & Gas E&P
+5788,SELV,
+5789,EUFN,
+5790,TLPH,Drug Manufacturers - Specialty & Generic
+5791,DHS,
+5792,DSM,Asset Management
+5793,RILYK,
+5794,GLOP_C,
+5795,GMF,
+5796,DEW,
+5797,FEMR,
+5798,DXF,Credit Services
+5799,XCNY,
+5800,PRTC,Biotechnology
+5801,FNWB,Banks - Regional
+5802,GMOM,
+5803,ATO,Utilities - Regulated Gas
+5804,GTR,
+5805,HAFN,Marine Shipping
+5806,DHR,Diagnostics & Research
+5807,GCMG,Asset Management
+5808,GGB,Steel
+5809,PMT,REIT - Mortgage
+5810,HOLX,Medical Instruments & Supplies
+5811,PAX,Asset Management
+5812,JDIV,
+5813,GSL_B,
+5814,PTIN,
+5815,DGT,
+5816,HPP,REIT - Office
+5817,SPAI,Aerospace & Defense
+5818,MDLZ,Confectioners
+5819,BAMD,
+5820,ACES,
+5821,FEMS,
+5822,NCZ,Asset Management
+5823,FLJH,
+5824,SGD,Real Estate - Development
+5825,TBLU,
+5826,BBAX,
+5827,FLMX,
+5828,GFL,Waste Management
+5829,UGA,
+5830,COPY,
+5831,DNN,Uranium
+5832,FDAT,
+5833,IART,Medical Devices
+5834,CDL,
+5835,TBX,
+5836,BSR,
+5837,NSI,
+5838,CLSM,
+5839,RCD,
+5840,BZUN,Internet Retail
+5841,CREV,Auto Parts
+5842,ALMS,Biotechnology
+5843,BKF,
+5844,HCM,Drug Manufacturers - Specialty & Generic
+5845,HLMN,Tools & Accessories
+5846,FKU,
+5847,UBS,Banks - Diversified
+5848,AMUB,
+5849,REAX,Real Estate Services
+5850,CVKD,Biotechnology
+5851,USMV,
+5852,CZAR,
+5853,CL,Household & Personal Products
+5854,MT,Steel
+5855,MPRO,
+5856,EOT,Asset Management
+5857,BDCZ,
+5858,JULM,
+5859,OXLC,Asset Management
+5860,SSTK,Internet Content & Information
+5861,RMI,
+5862,KSEA,
+5863,OFIX,Medical Devices
+5864,TS,Oil & Gas Equipment & Services
+5865,QVOY,
+5866,QQQY,
+5867,DGICA,Insurance - Property & Casualty
+5868,EWW,
+5869,CGXU,
+5870,PLUG,Electrical Equipment & Parts
+5871,GAINL,
+5872,IXC,
+5873,WDH,Insurance - Diversified
+5874,BUR,Asset Management
+5875,PKE,Aerospace & Defense
+5876,NERD,
+5877,SLNHP,Capital Markets
+5878,BWZ,
+5879,TAP,Beverages - Brewers
+5880,ECL,Specialty Chemicals
+5881,RMMZ,
+5882,KLC,Education & Training Services
+5883,UTL,Utilities - Diversified
+5884,LFVN,Packaged Foods
+5885,UMMA,
+5886,MEDX,
+5887,LENZ,Biotechnology
+5888,MFA,REIT - Mortgage
+5889,WTM,Insurance - Property & Casualty
+5890,GDOT,Credit Services
+5891,MXI,
+5892,CINF,Insurance - Property & Casualty
+5893,JANH,
+5894,ABLG,
+5895,DBJP,
+5896,AMX,Telecom Services
+5897,LCR,
+5898,DAO,Education & Training Services
+5899,EVAV,
+5900,TBFC,
+5901,BPT,Oil & Gas Midstream
+5902,GIAX,
+5903,TEMX,
+5904,FEGE,
+5905,OCIO,
+5906,CRC,Oil & Gas E&P
+5907,EMXC,
+5908,DFSE,
+5909,ECOW,
+5910,DTCR,
+5911,QQLV,
+5912,ET_I,
+5913,OVF,N/A
+5914,WGO,Recreational Vehicles
+5915,RNEM,
+5916,NTIC,Specialty Chemicals
+5917,UJB,
+5918,HIO,Asset Management
+5919,PDCC,
+5920,SNDL,Beverages - Wineries & Distilleries
+5921,RISR,
+5922,LSTR,Integrated Freight & Logistics
+5923,GSG,
+5924,DHCNI,
+5925,PFLT,Asset Management
+5926,CSCI,Biotechnology
+5927,CPSA,
+5928,BSL,Asset Management
+5929,GLAD,Asset Management
+5930,SCL,Specialty Chemicals
+5931,GII,
+5932,APD,Specialty Chemicals
+5933,GNL_E,
+5934,XLP,
+5935,CGNG,
+5936,IDXX,Diagnostics & Research
+5937,MPA,Asset Management
+5938,SJ,Broadcasting
+5939,SLGN,Packaging & Containers
+5940,NVVE,Specialty Retail
+5941,BFS_D,
+5942,JADE,
+5943,SFL,Marine Shipping
+5944,FEUZ,
+5945,ACN,Information Technology Services
+5946,WNS,Information Technology Services
+5947,LXRX,Biotechnology
+5948,CSNR,
+5949,ICCC,Biotechnology
+5950,GEME,
+5951,DBE,
+5952,ERIC,Communication Equipment
+5953,TXNM,Utilities - Regulated Electric
+5954,PXS,Oil & Gas Midstream
+5955,X,Steel
+5956,FBRT,REIT - Mortgage
+5957,MGX,Biotechnology
+5958,UPS,Integrated Freight & Logistics
+5959,HYHG,
+5960,SELF,REIT - Specialty
+5961,AMPH,Drug Manufacturers - Specialty & Generic
+5962,APLY,
+5963,DHDG,
+5964,APT,Building Products & Equipment
+5965,GAIN,Asset Management
+5966,CMBM,Communication Equipment
+5967,TSBK,Banks - Regional
+5968,CRT,Oil & Gas E&P
+5969,ITDC,
+5970,BRN,Oil & Gas E&P
+5971,BHFAL,
+5972,FCA,
+5973,TBN,Oil & Gas E&P
+5974,AUTL,Biotechnology
+5975,STX,Computer Hardware
+5976,ACP_A,
+5977,FCT,Asset Management
+5978,BWNB,
+5979,SMAX,
+5980,ALTG,Rental & Leasing Services
+5981,FFGX,
+5982,OCFT,Software - Application
+5983,PAPI,
+5984,AQWA,
+5985,BGR,Asset Management
+5986,MHD,Asset Management
+5987,WM,Waste Management
+5988,CHIQ,
+5989,TGNA,Broadcasting
+5990,DIVZ,
+5991,GDL_C,
+5992,XPP,
+5993,FBIO,Biotechnology
+5994,TRTN_E,N/A
+5995,FMC,Agricultural Inputs
+5996,ZSEP,
+5997,CGDG,
+5998,XBIT,Biotechnology
+5999,AMSF,Insurance - Specialty
+6000,EFSI,Banks - Regional
+6001,VINP,Asset Management
+6002,SETM,
+6003,PIO,
+6004,AG,Silver
+6005,NFJ,Asset Management
+6006,JSPR,Biotechnology
+6007,ZAP,
+6008,FLKR,
+6009,LYB,Specialty Chemicals
+6010,LAND,REIT - Specialty
+6011,PBMWW,Biotechnology
+6012,ECO,Marine Shipping
+6013,FCUV,Scientific & Technical Instruments
+6014,GSFP,
+6015,CAMP,Biotechnology
+6016,MARM,
+6017,ENVB,Biotechnology
+6018,FILL,
+6019,FINW,Banks - Regional
+6020,CATO,Apparel Retail
+6021,CTVA,Agricultural Inputs
+6022,MFIN,Credit Services
+6023,IGF,
+6024,AUGM,
+6025,EMXF,
+6026,EMCS,
+6027,KEMX,
+6028,UNP,Railroads
+6029,TRND,
+6030,CODX,Medical Devices
+6031,RGS,Personal Services
+6032,SILJ,
+6033,PID,
+6034,DGRE,
+6035,EFX,Consulting Services
+6036,ENJ,
+6037,NXP,Asset Management
+6038,KBWD,
+6039,GBLD,
+6040,AIO,
+6041,SPLP,Conglomerates
+6042,OPK,Diagnostics & Research
+6043,PAGP,Oil & Gas Midstream
+6044,CPST,
+6045,EMM,
+6046,STXE,
+6047,FC,Education & Training Services
+6048,DMAX,
+6049,EAOR,
+6050,CSWCZ,
+6051,FYLD,
+6052,JDOC,
+6053,CCIF,Asset Management
+6054,ALKS,Drug Manufacturers - Specialty & Generic
+6055,CPRO,
+6056,LVHD,
+6057,TRMD,Oil & Gas Midstream
+6058,MSFX,
+6059,LDEM,
+6060,PGEN,Biotechnology
+6061,BBH,
+6062,FFEM,
+6063,EEFT,Software - Infrastructure
+6064,CXRN,
+6065,EMO,Asset Management
+6066,ULBI,Electrical Equipment & Parts
+6067,JJSF,Packaged Foods
+6068,LGVN,Biotechnology
+6069,HESM,N/A
+6070,ULS,Specialty Business Services
+6071,HIGH,
+6072,ATYR,Biotechnology
+6073,DTRE,
+6074,MLCO,Resorts & Casinos
+6075,TEAF,Asset Management
+6076,NAMS,Biotechnology
+6077,REX,N/A
+6078,GB,Software - Infrastructure
+6079,GLV,Asset Management
+6080,UZF,
+6081,BEPI,
+6082,CXE,Asset Management
+6083,CCEF,
+6084,CUBA,Asset Management
+6085,LIMI,
+6086,DEXC,
+6087,KGRN,
+6088,NABL,N/A
+6089,OZEM,
+6090,IGD,Asset Management
+6091,TLSI,Medical Devices
+6092,SPH,Utilities - Regulated Gas
+6093,VIGL,Biotechnology
+6094,EBMT,Banks - Regional
+6095,DVYA,
+6096,EPR_E,
+6097,ERIE,Insurance Brokers
+6098,XIDE,
+6099,SD,Oil & Gas E&P
+6100,ELM,
+6101,TTAN,Software - Application
+6102,ELME,REIT - Residential
+6103,ARDT,Medical Care Facilities
+6104,RBUF,
+6105,CHRW,Integrated Freight & Logistics
+6106,ABNY,
+6107,FSEA,Banks - Regional
+6108,DEC,Oil & Gas E&P
+6109,PLYM,REIT - Industrial
+6110,EMX,Other Industrial Metals & Mining
+6111,BJ,Discount Stores
+6112,UIVM,
+6113,SBRA,REIT - Healthcare Facilities
+6114,SARO,Aerospace & Defense
+6115,FEP,
+6116,IPPP,
+6117,CPSF,
+6118,QEMM,
+6119,SWAN,
+6120,HYGI,
+6121,VNO_M,
+6122,SCCF,
+6123,ECLN,
+6124,GLUE,Biotechnology
+6125,AVEM,
+6126,PHT,Asset Management
+6127,EMMF,
+6128,RDW,Aerospace & Defense
+6129,GSEE,
+6130,EBR_B,
+6131,NMI,Asset Management
+6132,PDO,Independent Oil & Gas
+6133,EWV,
+6134,RIV,Asset Management
+6135,FSZ,
+6136,EQLT,
+6137,IGA,Asset Management
+6138,BTA,Asset Management
+6139,DMAT,
+6140,ECC,Asset Management
+6141,GEM,
+6142,FDL,
+6143,DLNG_B,
+6144,BLUE,Biotechnology
+6145,SEPM,
+6146,PMTV,
+6147,CPSD,
+6148,AVO,Food Distribution
+6149,FDD,
+6150,VEGA,
+6151,TOKE,
+6152,EMD,Asset Management
+6153,NVGS,Oil & Gas Midstream
+6154,BATRK,Entertainment
+6155,BIIB,Drug Manufacturers - General
+6156,VLTO,Pollution & Treatment Controls
+6157,HSY,Confectioners
+6158,NE,Oil & Gas Drilling
+6159,ACU,Household & Personal Products
+6160,FIAX,
+6161,FPXI,
+6162,GGN_B,
+6163,IAF,Asset Management
+6164,SYT,Software - Application
+6165,WLDS,Consumer Electronics
+6166,SPOK,Health Information Services
+6167,JBI,Building Products & Equipment
+6168,SPHD,
+6169,LWAY,Packaged Foods
+6170,GEG,Asset Management
+6171,COMT,
+6172,ITDB,
+6173,CPSL,
+6174,RLX,Tobacco
+6175,XRMI,
+6176,AB,Asset Management
+6177,ASIA,
+6178,APLS,N/A
+6179,TEVA,Drug Manufacturers - Specialty & Generic
+6180,KAPR,
+6181,GLPG,Biotechnology
+6182,ICE,Financial Data & Stock Exchanges
+6183,HART,
+6184,SSNC,Software - Application
+6185,FTHY,
+6186,OVT,
+6187,ZDEK,
+6188,CPSM,
+6189,KNO,
+6190,SOBO,Oil & Gas Midstream
+6191,IFV,
+6192,HES,Oil & Gas E&P
+6193,CWEB,
+6194,CREX,Software - Application
+6195,SQMX,
+6196,MOVE,Medical Devices
+6197,CORX,
+6198,WBS_G,
+6199,CGNT,Software - Infrastructure
+6200,CRGX,Biotechnology
+6201,EMC,
+6202,IAE,Asset Management
+6203,PIE,
+6204,EFOI,"Furnishings, Fixtures & Appliances"
+6205,ZOCT,
+6206,XSOE,
+6207,CTKB,Medical Devices
+6208,HNNA,Asset Management
+6209,SPUT,
+6210,USOY,
+6211,AGNG,
+6212,NOTE_WS,
+6213,EWD,
+6214,URNM,N/A
+6215,DX_C,
+6216,ONC,Biotechnology
+6217,CNL,Gold
+6218,ELD,
+6219,NBH,Asset Management
+6220,SHEN,Telecom Services
+6221,IDUB,
+6222,DHY,Asset Management
+6223,FLAX,
+6224,CHWY,Internet Retail
+6225,ANSS,Software - Application
+6226,IVEG,
+6227,AOR,
+6228,MEM,
+6229,PAAS,Gold
+6230,CERT,Health Information Services
+6231,PSEC,Asset Management
+6232,YLD,
+6233,SRET,
+6234,EMDM,
+6235,MSFT,Software - Infrastructure
+6236,CPSO,
+6237,SUN,Oil & Gas Refining & Marketing
+6238,MOTG,N/A
+6239,KBA,
+6240,ETJ,Asset Management
+6241,XCEM,
+6242,ZBH,Medical Devices
+6243,ILIT,
+6244,GSIW,Capital Markets
+6245,MSIF,Asset Management
+6246,JEMA,N/A
+6247,HYS,
+6248,CNYA,
+6249,EEMV,
+6250,EVG,Asset Management
+6251,HYUP,
+6252,CTEC,N/A
+6253,JRI,Asset Management
+6254,VCV,Asset Management
+6255,RARE,Biotechnology
+6256,HSBH,
+6257,DEEF,
+6258,PFFA,
+6259,GETY,Internet Content & Information
+6260,GCC,
+6261,BPYPP,Real Estate Services
+6262,NOVM,
+6263,ALDX,Biotechnology
+6264,HOCT,
+6265,MFIC,Asset Management
+6266,AOD,Asset Management
+6267,OCTH,
+6268,HLX,Oil & Gas Equipment & Services
+6269,CPNQ,
+6270,POAI,Medical Instruments & Supplies
+6271,WAL_A,N/A
+6272,EEM,
+6273,ZJAN,
+6274,NOAH,N/A
+6275,OAK_A,
+6276,ESGL,Waste Management
+6277,DRMAW,Biotechnology
+6278,CCRV,
+6279,EGO,Gold
+6280,SYY,Food Distribution
+6281,OGS,Utilities - Regulated Gas
+6282,NWE,N/A
+6283,JANM,
+6284,BGB,Asset Management
+6285,UAN,Agricultural Inputs
+6286,WBA,Pharmaceutical Retailers
+6287,CXAI,Software - Application
+6288,HIX,Asset Management
+6289,PHVS,Biotechnology
+6290,BOWN,Shell Companies
+6291,IFGL,
+6292,APOC,
+6293,ANIK,Drug Manufacturers - Specialty & Generic
+6294,CTMX,Biotechnology
+6295,IDMO,
+6296,ESGE,N/A
+6297,NMZ,N/A
+6298,PRIF_L,N/A
+6299,CHN,Asset Management
+6300,EAPR,
+6301,KRBN,
+6302,HDG,
+6303,WTBA,Banks - Regional
+6304,GMOI,
+6305,GXG,
+6306,HAUZ,
+6307,BUFC,
+6308,CNX,Oil & Gas E&P
+6309,VNQI,
+6310,FEBM,
+6311,STRO,Biotechnology
+6312,VRME,Security & Protection Services
+6313,TALO,Oil & Gas E&P
+6314,EFC_A,N/A
+6315,RTO,Specialty Business Services
+6316,TDS_U,
+6317,HYIN,
+6318,ACWV,
+6319,CPSR,
+6320,CRAK,
+6321,IMTM,
+6322,CPSN,
+6323,IBHK,
+6324,CWEN_A,
+6325,IPA,Biotechnology
+6326,ORMP,Biotechnology
+6327,CCNR,N/A
+6328,ASPN,Building Products & Equipment
+6329,FXG,N/A
+6330,LALT,
+6331,GRVY,Electronic Gaming & Multimedia
+6332,EPR_G,
+6333,KEUA,
+6334,KEM,
+6335,FEM,
+6336,ASGI,N/A
+6337,API,Software - Application
+6338,HTD,Asset Management
+6339,MMT,Asset Management
+6340,CADE_A,N/A
+6341,IBHI,
+6342,HTGC,Asset Management
+6343,ALTY,
+6344,RNEW,
+6345,PEG,Utilities - Regulated Electric
+6346,CASS,Specialty Business Services
+6347,TMO,Diagnostics & Research
+6348,KWEB,
+6349,PGR,Insurance - Property & Casualty
+6350,CSV,Personal Services
+6351,RMM,Asset Management
+6352,DISO,
+6353,RCGE,
+6354,DMO,Asset Management
+6355,MGEE,Utilities - Regulated Electric
+6356,POR,Utilities - Regulated Electric
+6357,NUHY,
+6358,DBAW,
+6359,ILMN,Diagnostics & Research
+6360,RITM_D,
+6361,IMOM,
+6362,PAI,Asset Management
+6363,CCNEP,Banks - Regional
+6364,BSJT,
+6365,PMX,Asset Management
+6366,TAC,Utilities - Independent Power Producers
+6367,VABK,Banks - Regional
+6368,PMFB,
+6369,CTA_B,
+6370,XOMO,
+6371,CGW,
+6372,AJAN,
+6373,SIM,Steel
+6374,RVP,Medical Instruments & Supplies
+6375,GLADZ,
+6376,DBRG_I,N/A
+6377,SPC,
+6378,UVV,Tobacco
+6379,DIEM,
+6380,IBHJ,
+6381,ASHR,
+6382,TEN_F,
+6383,THNR,
+6384,KO,Beverages - Non-Alcoholic
+6385,DHC,REIT - Healthcare Facilities
+6386,EFR,Asset Management
+6387,ZNOV,
+6388,LFMDP,Health Information Services
+6389,SHEH,
+6390,EUO,
+6391,ALL,Insurance - Property & Casualty
+6392,OMH,Real Estate Services
+6393,GBDC,Asset Management
+6394,OABI,Biotechnology
+6395,VGM,Asset Management
+6396,ECON,
+6397,AVES,
+6398,GSIT,Semiconductors
+6399,CPHC,Gambling
+6400,SLVR,
+6401,SPT,N/A
+6402,FTXH,
+6403,UTMD,Medical Instruments & Supplies
+6404,SLVP,
+6405,BANC_F,
+6406,MFEM,
+6407,CCRN,Medical Care Facilities
+6408,PMJA,
+6409,UTG,Asset Management
+6410,OTLY,Packaged Foods
+6411,HTHT,Lodging
+6412,ATKR,Electrical Equipment & Parts
+6413,IVR_C,
+6414,TPST,Biotechnology
+6415,CIA,Insurance - Life
+6416,AMED,Medical Care Facilities
+6417,VPV,Asset Management
+6418,OXSQ,Asset Management
+6419,PAWZ,
+6420,GF,Asset Management
+6421,WDTE,
+6422,BKH,Utilities - Regulated Gas
+6423,WLKP,Chemicals
+6424,RLY,
+6425,AVS,
+6426,ALDFU,Shell Companies
+6427,DECM,
+6428,MSGS,Entertainment
+6429,JNK,N/A
+6430,TOLZ,
+6431,JHHY,
+6432,XISE,
+6433,KORE,Telecom Services
+6434,TVE,
+6435,ARP,
+6436,WHFCL,
+6437,JYNT,Medical Care Facilities
+6438,SGMO,Biotechnology
+6439,WKC,Oil & Gas Refining & Marketing
+6440,SCHE,
+6441,QAI,
+6442,MYD,Asset Management
+6443,GPCR,Biotechnology
+6444,REGN,Biotechnology
+6445,PCCE,
+6446,USHY,
+6447,OXLCO,Asset Management
+6448,SPHY,
+6449,AAXJ,
+6450,SII,Asset Management
+6451,DINT,
+6452,PKST,REIT - Office
+6453,HAWX,
+6454,DRH,REIT - Hotel & Motel
+6455,SHEL,Oil & Gas Integrated
+6456,IPKW,N/A
+6457,HNW,Asset Management
+6458,FLC,Asset Management
+6459,OPCH,Medical Care Facilities
+6460,BKGI,
+6461,DFAE,
+6462,APLE,REIT - Hotel & Motel
+6463,NOK,Communication Equipment
+6464,VLT,Asset Management
+6465,CPRY,
+6466,JHEM,
+6467,SDEM,
+6468,HERO,
+6469,FGD,
+6470,PDBC,
+6471,EATV,
+6472,FINS,Asset Management
+6473,JBSS,Packaged Foods
+6474,VSHY,
+6475,PAXS,Asset Management
+6476,MIN,Asset Management
+6477,RCC,
+6478,TLCI,
+6479,ROIV,Biotechnology
+6480,BOH_A,
+6481,OSEA,
+6482,LCUT,"Furnishings, Fixtures & Appliances"
+6483,RAYC,
+6484,AMJB,
+6485,EUSC,
+6486,NEUP,Biotechnology
+6487,GXO,Integrated Freight & Logistics
+6488,KSA,
+6489,CPSY,
+6490,EMCR,
+6491,NDOW,
+6492,MANU,Entertainment
+6493,BYM,Asset Management
+6494,EXG,Asset Management
+6495,ECH,
+6496,GDO,Asset Management
+6497,AFJKU,Shell Companies
+6498,PAGS,Software - Infrastructure
+6499,SJNK,
+6500,HIG_G,
+6501,DXJ,
+6502,WFC_L,
+6503,HYLB,
+6504,TJUL,
+6505,TPIF,
+6506,KRMD,Medical Instruments & Supplies
+6507,OVB,
+6508,ENFN,Software - Application
+6509,BOE,Asset Management
+6510,DFEV,
+6511,RINF,
+6512,HDV,
+6513,NMFC,Asset Management
+6514,SYFI,
+6515,FITBP,Banks - Regional
+6516,AGZD,
+6517,GPMT_A,
+6518,DIVS,
+6519,AOHY,
+6520,DBC,
+6521,DWMF,
+6522,RADX,Biotechnology
+6523,LJAN,N/A
+6524,GAL,
+6525,SSXU,
+6526,QGEN,Diagnostics & Research
+6527,MPLX,Oil & Gas Midstream
+6528,BSJS,
+6529,SVRA,Biotechnology
+6530,SHYL,
+6531,INVA,N/A
+6532,NVRO,Medical Devices
+6533,AMBP,Packaging & Containers
+6534,RFEM,
+6535,EMEQ,
+6536,CTEX,
+6537,QLVE,N/A
+6538,COCHW,Medical Devices
+6539,QRMI,
+6540,EVLU,
+6541,WCMI,
+6542,BSJW,
+6543,VRSN,Software - Infrastructure
+6544,WLYB,Publishing
+6545,MIY,Asset Management
+6546,CGIC,
+6547,DFE,N/A
+6548,DDL,Grocery Stores
+6549,ZTR,
+6550,PMMR,
+6551,WEX,Software - Infrastructure
+6552,PMF,Asset Management
+6553,TBCH,Consumer Electronics
+6554,CPNM,
+6555,NMAI,
+6556,DECA,Shell Companies
+6557,DOW,N/A
+6558,VLO,N/A
+6559,RTAI,
+6560,EVF,N/A
+6561,RGR,Aerospace & Defense
+6562,ERC,Asset Management
+6563,CWST,Waste Management
+6564,MIO,
+6565,IMAR,
+6566,OXLCN,Asset Management
+6567,SHYG,
+6568,BSM,Oil & Gas E&P
+6569,KGC,Gold
+6570,SPFF,
+6571,CHCT,REIT - Healthcare Facilities
+6572,CEE,Asset Management
+6573,EIC,Asset Management
+6574,SAFE,REIT - Diversified
+6575,RFI,Asset Management
+6576,RSPS,
+6577,JAJL,
+6578,XMPT,
+6579,RXST,Medical Devices
+6580,MTR,Oil & Gas E&P
+6581,KTF,Asset Management
+6582,TATT,Aerospace & Defense
+6583,CEFS,
+6584,EVNT,
+6585,ETG,Asset Management
+6586,NFRA,
+6587,JPEM,
+6588,PIT,
+6589,VERO,Medical Devices
+6590,CMPS,Medical Care Facilities
+6591,GLU_B,
+6592,MKAM,
+6593,FALN,
+6594,EWT,
+6595,ADC,REIT - Retail
+6596,LEO,Asset Management
+6597,EDOG,
+6598,ARR_C,N/A
+6599,CMPR,Specialty Business Services
+6600,SDP,
+6601,MDLV,N/A
+6602,CHSCN,N/A
+6603,DIV,
+6604,WEA,N/A
+6605,XHYT,N/A
+6606,SYF_A,N/A
+6607,EMGF,N/A
+6608,BBHY,
+6609,EFFI,
+6610,FSYD,
+6611,MHF,Asset Management
+6612,VEL,Mortgage Finance
+6613,EJUL,
+6614,OVM,
+6615,CPII,
+6616,PUI,
+6617,IDVO,
+6618,CHGG,Education & Training Services
+6619,BHP,N/A
+6620,LANC,Packaged Foods
+6621,XIMR,
+6622,IFEB,
+6623,RITM_A,N/A
+6624,NGD,Gold
+6625,SEAL_B,N/A
+6626,TDI,N/A
+6627,LITP,N/A
+6628,JHPI,
+6629,ERH,Asset Management
+6630,IEMG,
+6631,ANGL,
+6632,AKO_A,
+6633,HWCPZ,
+6634,SOLV,Health Information Services
+6635,OGE,N/A
+6636,EMBC,N/A
+6637,BKEM,N/A
+6638,F_B,N/A
+6639,IBHF,
+6640,EXLS,Information Technology Services
+6641,IGOV,
+6642,VWO,
+6643,IVAC,Specialty Industrial Machinery
+6644,CIF,Asset Management
+6645,TRTY,
+6646,PAL,N/A
+6647,TENB,Software - Infrastructure
+6648,CBOJ,
+6649,SHLS,Solar
+6650,XBIO,Biotechnology
+6651,BSJU,
+6652,XB,
+6653,FXI,
+6654,THD,N/A
+6655,AOCT,
+6656,EHI,Asset Management
+6657,TCBIO,Banks - Regional
+6658,NRUC,
+6659,HYGV,
+6660,EAD,N/A
+6661,VGAS,Utilities - Renewable
+6662,SABR,Software - Infrastructure
+6663,TWO,REIT - Mortgage
+6664,HYG,
+6665,BHR_D,
+6666,IGHG,
+6667,NDIV,
+6668,TUYA,Software - Infrastructure
+6669,ADNT,Auto Parts
+6670,CUBE,REIT - Industrial
+6671,ZFEB,
+6672,DCOMG,
+6673,SQFTW,REIT - Diversified
+6674,GPAT,N/A
+6675,EWS,N/A
+6676,JHI,Asset Management
+6677,PFLD,
+6678,HIPS,
+6679,CDZI,Utilities - Regulated Water
+6680,RIO,Other Industrial Metals & Mining
+6681,ARDC,Asset Management
+6682,VIDI,
+6683,FGSN,
+6684,ML,Software - Application
+6685,RWAYL,
+6686,PPT,Asset Management
+6687,NJNK,
+6688,DYCQ,Shell Companies
+6689,JANJ,
+6690,TRX,Gold
+6691,ZEPP,Consumer Electronics
+6692,HYXF,
+6693,FCEF,
+6694,OAK_B,
+6695,XHYI,
+6696,ISMF,
+6697,STAA,Medical Instruments & Supplies
+6698,BIP_A,
+6699,MITN,
+6700,HNNAZ,
+6701,UNMA,
+6702,XHYE,
+6703,TDS_V,
+6704,BAMY,
+6705,FIDI,
+6706,LVHI,
+6707,DTST,Information Technology Services
+6708,TUSB,
+6709,DCMT,
+6710,IRTR,
+6711,BHK,Asset Management
+6712,HELE,Household & Personal Products
+6713,FNLC,Banks - Regional
+6714,CVU,Aerospace & Defense
+6715,PFN,Asset Management
+6716,PHYD,
+6717,XAPR,
+6718,ABEQ,
+6719,GHYG,
+6720,SB,Marine Shipping
+6721,FFNW,Banks - Regional
+6722,DRAI,
+6723,NPFD,Asset Management
+6724,RINC,
+6725,STAK,Oil & Gas Equipment & Services
+6726,HYTI,
+6727,MS_Q,
+6728,NWN,Utilities - Regulated Gas
+6729,NMM,Marine Shipping
+6730,PZT,
+6731,GHYB,
+6732,DJIA,
+6733,AFB,Asset Management
+6734,UMH,REIT - Residential
+6735,DMF,Asset Management
+6736,MPV,Asset Management
+6737,BIDD,
+6738,ZMAR,
+6739,CLDT,REIT - Hotel & Motel
+6740,HYLS,
+6741,BSJV,
+6742,FINT,
+6743,DIVD,
+6744,IPAV,
+6745,INGN,Medical Devices
+6746,XHYH,
+6747,HYTR,
+6748,EFAA,
+6749,CMSA,
+6750,DMXF,
+6751,HSBC,Banks - Diversified
+6752,INCM,
+6753,HYGW,
+6754,REFI,REIT - Mortgage
+6755,IHYF,
+6756,CSPF,
+6757,OCEN,
+6758,EUAD,
+6759,EMSF,
+6760,LND,Farm Products
+6761,XOM,Oil & Gas Integrated
+6762,KVUE,Household & Personal Products
+6763,GEHC,Health Information Services
+6764,IBHH,
+6765,WCME,
+6766,FDMT,Biotechnology
+6767,FRGE,Capital Markets
+6768,AHT_F,
+6769,VERA,Biotechnology
+6770,RMIF,
+6771,BBEM,
+6772,AGM_G,
+6773,COP,Oil & Gas E&P
+6774,CORN,
+6775,CDZIP,Utilities - Regulated Water
+6776,KREF,REIT - Mortgage
+6777,NAN,Asset Management
+6778,CSTM,Aluminum
+6779,LOCT,N/A
+6780,GTY,REIT - Retail
+6781,BEPH,
+6782,CORO,
+6783,OACCW,
+6784,ACWX,
+6785,AHT_H,N/A
+6786,WWJD,N/A
+6787,ICLO,
+6788,IIM,N/A
+6789,MCRB,Biotechnology
+6790,IBD,
+6791,RAYJ,
+6792,EEX,Advertising Agencies
+6793,BSET,"Furnishings, Fixtures & Appliances"
+6794,XHYC,N/A
+6795,ESRT,REIT - Diversified
+6796,AQB,Farm Products
+6797,DGP,
+6798,DMLP,Oil & Gas E&P
+6799,DBEF,
+6800,HAP,
+6801,HYBL,
+6802,EJAN,
+6803,AGM_E,
+6804,PIEQ,
+6805,HIYS,
+6806,QCLR,
+6807,IDOG,
+6808,OCTJ,
+6809,LSEQ,
+6810,MFSI,
+6811,XOMA,Biotechnology
+6812,BHYB,
+6813,NVG,Asset Management
+6814,SDHY,
+6815,FBYD,Conglomerates
+6816,WIX,Software - Infrastructure
+6817,NNN,N/A
+6818,CTDD,
+6819,HYGH,
+6820,SPMA,
+6821,ATCO_H,
+6822,MCR,Asset Management
+6823,AVDE,
+6824,AOMN,
+6825,TJAN,
+6826,AVNM,
+6827,SIHY,
+6828,KXI,
+6829,XIDV,
+6830,WES,Oil & Gas Midstream
+6831,VFL,Asset Management
+6832,AIXI,Software - Application
+6833,DNL,
+6834,PML,Asset Management
+6835,OXLCI,
+6836,IXJ,
+6837,CGEM,Biotechnology
+6838,MS_P,
+6839,BUFM,
+6840,LUX,
+6841,BKHY,
+6842,GRDN,Medical Care Facilities
+6843,BOH_B,N/A
+6844,SCYB,
+6845,NCA,Asset Management
+6846,CAF,N/A
+6847,GPJA,
+6848,QHY,
+6849,CIX,Security & Protection Services
+6850,AGNCO,N/A
+6851,TDSB,N/A
+6852,THYF,
+6853,ISVL,
+6854,JBBB,
+6855,RA,Asset Management
+6856,NXST,Broadcasting
+6857,BRHY,
+6858,HYBX,
+6859,DBEM,
+6860,HYRM,N/A
+6861,EZA,
+6862,INHD,Steel
+6863,MNSB,Banks - Regional
+6864,HFRO_B,
+6865,PFL,Asset Management
+6866,HJUL,
+6867,AIA,
+6868,TDEC,
+6869,NBCM,
+6870,XBB,
+6871,AHYB,
+6872,BHV,N/A
+6873,XIJN,N/A
+6874,FRDM,
+6875,OPTN,Drug Manufacturers - Specialty & Generic
+6876,ASIX,Chemicals
+6877,EPV,
+6878,BUYW,
+6879,EMBD,
+6880,TMCWW,Other Industrial Metals & Mining
+6881,AVSD,
+6882,FHN_E,N/A
+6883,HNVR,N/A
+6884,RITM_B,
+6885,EFC_B,
+6886,BSJR,
+6887,MCH,
+6888,FCN,N/A
+6889,RFMZ,N/A
+6890,ISEP,N/A
+6891,MTB_J,N/A
+6892,EMHY,
+6893,DFEM,
+6895,CODI_B,N/A
+6896,XHYF,N/A
+6897,IQHI,
+6899,BASE,Software - Infrastructure
+6904,EAOM,
+6901,RCB,
+6902,KNSA,Drug Manufacturers - Specialty & Generic
+6901,HONDW,
+6902,PTPI,Drug Manufacturers - Specialty & Generic
+6903,LXEH,Education & Training Services
+6904,OSRHW,
+6905,SURG,Telecom Services
+6906,HOFVW,Entertainment
+6907,XBPEW,Software - Infrastructure
+6908,CAPTW,Building Materials
+6909,LCFYW,Internet Content & Information
+6910,EDBL,Farm Products
+6911,DGLY,Internet Content & Information
+6912,NTWOW,
+6913,LZMH,Information Technology Services
+6914,VSEEW,Health Information Services
+6915,RDGT,Pharmaceutical Retailers
+6916,HOUR,Internet Retail
+6917,PAVMZ,Medical Devices
+6918,DATSW,Software - Application
+6919,ULY,Software - Application
+6920,AREB,Footwear & Accessories
+6921,LICN,Specialty Business Services
+6922,THTX,Biotechnology
+6923,BETRW,Mortgage Finance
+6924,SHFSW,Banks - Regional
+6925,CDTTW,Biotechnology
+6926,GB_WS,
+6927,EPSM,Beverages - Wineries & Distilleries
+6928,NVFY,"Furnishings, Fixtures & Appliances"
+6929,PITA,
+6930,NWTNW,Auto Manufacturers
+6931,QNTM,Drug Manufacturers - Specialty & Generic
+6932,ATNM,Biotechnology
+6933,ADGM,Medical Devices
+6934,BUJAR,
+6935,HCAI,Farm & Heavy Construction Machinery
+6936,TBLAW,Internet Content & Information
+6937,XYF,Credit Services
+6938,NVNI,Software - Application
+6939,WLDSW,Consumer Electronics
+6940,AMODW,Software - Application
+6941,LPTX,Biotechnology
+6942,OAKUR,
+6943,IVDAW,Security & Protection Services
+6944,EVEX_WS,
+6945,OXBRW,Insurance - Reinsurance
+6946,ADNWW,Electrical Equipment & Parts
+6947,RAINW,Pollution & Treatment Controls
+6948,OPTXW,Electronic Components
+6949,JYD,Integrated Freight & Logistics
+6950,RFAIR,
+6951,GIGGW,Shell Companies
+6952,NGNE,Biotechnology
+6953,CGTL,Specialty Retail
+6954,VS,Software - Application
+6955,UWMC_WS,
+6956,LGHL,Capital Markets
+6957,BEDU,Education & Training Services
+6958,BIYA,Software - Application
+6959,VSEE,Health Information Services
+6960,MDCXW,
+6961,BAK,Chemicals
+6962,PNBK,Banks - Regional
+6963,NVD,
+6964,SLDPW,Auto Parts
+6965,BSGM,Medical Devices
+6966,TSLQ,
+6967,NVDQ,
+6968,TSDD,
+6969,WCT,Software - Application
+6970,AYRO,Auto Manufacturers
+6971,PHH,Household & Personal Products
+6972,QSG,Education & Training Services
+6973,AAM_WS,
+6974,KPLTW,Software - Infrastructure
+6975,BYON,Internet Retail
+6976,NWTG,Leisure
+6977,TSLZ,
+6978,TXMD,Drug Manufacturers - Specialty & Generic
+6979,MOLN,Biotechnology
+6980,BLNE,Beverages - Wineries & Distilleries
+6981,DGNX,Consulting Services
+6982,CAPT,Building Materials
+6983,TBH,Electronic Gaming & Multimedia
+6984,HONDU,Shell Companies
+6985,VLN_WS,
+6986,ICU,Biotechnology
+6987,STSS,Medical Instruments & Supplies
+6988,CWD,Asset Management
+6989,RENT,Apparel Retail
+6990,SARK,
+6991,BERZ,
+6992,GRAF_WS,
+6993,CNEY,Specialty Chemicals
+6994,YYAI,Leisure
+6995,SSG,
+6996,PLUT,Capital Markets
+6997,ICUCW,Biotechnology
+6998,HPAI,Software - Infrastructure
+6999,ALVOW,Drug Manufacturers - Specialty & Generic
+7000,NAYA,Medical Devices
+7001,GSRTR,
+7002,KYTX,Biotechnology
+7003,FNGD,
+7004,SOXS,
+7005,NVDS,
+7006,SNYR,Medical Distribution
+7007,RSVRW,Entertainment
+7008,SIMAW,
+7009,GRABW,Software - Application
+7010,ARKR,Restaurants
+7011,RZLVW,Software - Infrastructure
+7012,VCICW,
+7013,CARD,
+7014,ETHD,
+7015,HPH,Asset Management
+7016,GV,Education & Training Services
+7017,LDTCW,Software - Application
+7018,GNLN,Tobacco
+7019,TPCS,Metal Fabrication
+7020,ETQ,
+7021,HIBS,
+7022,LGMK,Health Information Services
+7023,PAVM,Medical Devices
+7024,DTSTW,Information Technology Services
+7025,ONCO,Biotechnology
+7026,LITB,Apparel Manufacturing
+7027,TPET,Oil & Gas E&P
+7028,HDL,Restaurants
+7029,LABD,
+7030,MACIW,
+7031,MSTZ,
+7032,CXAIW,
+7033,WVVIP,Beverages - Wineries & Distilleries
+7034,PN,Solar
+7035,CYD,Auto Manufacturers
+7036,WEBS,
+7037,AVD,Agricultural Inputs
+7038,HCTI,Health Information Services
+7039,TECS,
+7040,NCSM,Oil & Gas Equipment & Services
+7041,BOXL,Communication Equipment
+7042,CRSH,
+7043,GPATW,Shell Companies
+7044,DRDBW,Shell Companies
+7045,TRNR,Personal Services
+7046,MVO,Oil & Gas E&P
+7047,FMTO,Software - Application
+7048,SMST,
+7049,JACSr,
+7050,HOND,
+7051,UHG,Residential Construction
+7052,CLRO,Communication Equipment
+7053,LYEL,Biotechnology
+7054,TOPP,Trucking
+7055,QDWN,
+7056,AIBD,
+7057,UVIX,
+7058,NWTN,Auto Manufacturers
+7059,SRM,Leisure
+7060,SHPH,Drug Manufacturers - Specialty & Generic
+7061,ASBPW,Biotechnology
+7062,NVDD,
+7063,XBP,N/A
+7064,EVC,Advertising Agencies
+7065,MSC,Resorts & Casinos
+7066,RILYN,
+7067,FAASW,Software - Infrastructure
+7068,SQQQ,
+7069,SKGRU,Shell Companies
+7070,ZOOZ,Specialty Retail
+7071,ASTC,Scientific & Technical Instruments
+7072,TSLS,
+7073,nan,
+7074,GLE,Information Technology Services
+7075,FIAT,
+7076,GRAB,Software - Application
+7077,XAGE,Household & Personal Products
+7078,RAIN,Pollution & Treatment Controls
+7079,CONI,
+7080,MAIA,Biotechnology
+7081,GNTA,Biotechnology
+7082,AFRIW,Farm Products
+7083,PODC,Internet Content & Information
+7084,ELLO,Utilities - Renewable
+7085,QNRX,Biotechnology
+7086,QFIN,Credit Services
+7087,RILYG,N/A
+7088,XCUR,Biotechnology
+7089,GURE,N/A
+7090,DIPS,
+7091,BOLT,N/A
+7092,GELS,N/A
+7093,ENTO,Biotechnology
+7094,LIEN,Asset Management
+7095,BGM,Drug Manufacturers - Specialty & Generic
+7096,MDCX,
+7097,RERE,Internet Retail
+7098,OCX,Diagnostics & Research
+7099,AEHL,Building Products & Equipment
+7100,UVXY,
+7101,HTZ,Rental & Leasing Services
+7102,BIOX,Agricultural Inputs
+7103,CNTY,Resorts & Casinos
+7104,SLE,Internet Content & Information
+7105,REW,
+7106,KLRS,Biotechnology
+7107,PLTD,
+7108,ANGIV,
+7109,MWYN,"Furnishings, Fixtures & Appliances"
+7110,HVIIR,
+7111,HAIN,Packaged Foods
+7112,FTLF,Packaged Foods
+7113,AMDS,
+7114,IMG,Packaged Foods
+7115,CPOP,Entertainment
+7116,RILY,Financial Conglomerates
+7117,GPUS,Aerospace & Defense
+7118,GIPRW,REIT - Diversified
+7119,HTOOW,Utilities - Renewable
+7120,TLK,Telecom Services
+7121,LGCB,Internet Retail
+7122,TSMZ,
+7123,AMDD,
+7124,VNCE,Apparel Manufacturing
+7125,HHS,Conglomerates
+7126,AGFY,Farm & Heavy Construction Machinery
+7127,TELA,Medical Devices
+7128,LIPO,Biotechnology
+7129,HTCO,Marine Shipping
+7130,STEC,Software - Application
+7131,PEPG,Biotechnology
+7132,BTCZ,
+7133,ICCT,Health Information Services
+7134,VINC,Biotechnology
+7135,NEPH,Medical Instruments & Supplies
+7136,QVCGB,Internet Retail
+7137,ELAB,Biotechnology
+7138,XFOR,Biotechnology
+7139,SBIT,
+7140,BYFC,Banks - Regional
+7141,SETH,
+7142,GP,Farm & Heavy Construction Machinery
+7143,EIDO,
+7144,NCNA,Biotechnology
+7145,LSTA,Biotechnology
+7146,ASA,Asset Management
+7147,DIBS,Internet Retail
+7148,QID,
+7149,USNA,Packaged Foods
+7150,SATX,Communication Equipment
+7151,AARD,Biotechnology
+7152,NXTT,Software - Application
+7153,SPXS,
+7154,CING,Biotechnology
+7155,SPXU,
+7156,CAR,Rental & Leasing Services
+7157,TAL,Education & Training Services
+7158,MSPRW,Health Information Services
+7159,VSTE,Solar
+7160,ACIC,Insurance - Property & Casualty
+7161,CABO,Telecom Services
+7162,IDX,
+7163,AWX,Waste Management
+7164,CVR,Tools & Accessories
+7165,RMTI,Drug Manufacturers - Specialty & Generic
+7166,MVST,Auto Parts
+7167,SRTY,
+7168,SPHL,Residential Construction
+7169,CHSN,Restaurants
+7170,TZA,
+7171,GGLS,
+7172,HBIO,Medical Instruments & Supplies
+7173,FOXXW,Consumer Electronics
+7174,FDSB,Banks - Regional
+7175,AZ,Software - Application
+7176,QQQD,
+7177,ALFUW,
+7178,BROG,Oil & Gas Midstream
+7179,CLBR_WS,
+7180,YXT,Software - Application
+7181,NAMI,Internet Content & Information
+7182,KOS,Oil & Gas E&P
+7183,TSE,Specialty Chemicals
+7184,WHG,Asset Management
+7185,RCMT,Conglomerates
+7186,SONM,Communication Equipment
+7187,ADXN,Biotechnology
+7188,FEAM,Specialty Chemicals
+7189,VIXY,
+7190,FONR,Diagnostics & Research
+7191,MRVI,Biotechnology
+7192,JUNS,Biotechnology
+7193,NRXP,N/A
+7194,EXC,N/A
+7195,GMAB,N/A
+7196,SSY,N/A
+7197,MGLD,N/A
+7198,MNSO,N/A
+7199,COE,Education & Training Services
+7200,BNKD,
+7201,HVT_A,
+7202,IMKTA,Grocery Stores
+7203,NNDM,Computer Hardware
+7204,OXY_WS,
+7205,OST,Electronic Components
+7206,AMCX,Entertainment
+7207,BIS,
+7208,GTE,Oil & Gas E&P
+7209,SPTN,Food Distribution
+7210,FLYD,
+7211,NFXS,
+7212,PSTV,Biotechnology
+7213,EDRY,Marine Shipping
+7214,ONL,REIT - Office
+7215,BTAL,
+7216,BKYI,Security & Protection Services
+7217,TSN,Farm Products
+7218,DAR,Packaged Foods
+7219,GREEL,
+7220,NLSP,Biotechnology
+7221,SCC,
+7222,HRL,Packaged Foods
+7223,JKHY,Information Technology Services
+7224,KLG,Packaged Foods
+7225,KR,Grocery Stores
+7226,HTZWW,Rental & Leasing Services
+7227,IFBD,Software - Application
+7228,LAB,Medical Devices
+7229,METD,
+7230,DG,Discount Stores
+7231,CJMB,Integrated Freight & Logistics
+7232,INDO,Oil & Gas E&P
+7233,GTBP,Biotechnology
+7234,NTCL,Software - Application
+7235,SDOT,Farm Products
+7236,OSTX,Biotechnology
+7237,EQC,REIT - Office
+7238,CPB,Packaged Foods
+7239,ALBT,Real Estate Services
+7240,YHC,Beverages - Wineries & Distilleries
+7241,VXX,
+7242,EVOK,Drug Manufacturers - Specialty & Generic
+7243,EFU,
+7244,VEEA,Information Technology Services
+7245,KSCP,Security & Protection Services
+7246,RGCO,Utilities - Regulated Gas
+7247,REKT,
+7248,PARR,Oil & Gas Refining & Marketing
+7249,FLO,Packaged Foods
+7250,PVLA,Biotechnology
+7251,LI,Auto Manufacturers
+7252,NATH,Restaurants
+7253,HDLB,
+7254,GASS,Marine Shipping
+7255,SDS,
+7256,AREN,Internet Content & Information
+7257,JNVR,Software - Infrastructure
+7258,CLNN,Packaged Foods
+7259,PG,Household & Personal Products
+7260,APRE,Biotechnology
+7261,AIHS,Credit Services
+7262,CAG,Packaged Foods
+7263,MRCC,Asset Management
+7264,GIS,Packaged Foods
+7265,BPRN,Banks - Regional
+7266,ADM,Farm Products
+7267,SBUX,Restaurants
+7268,DGICB,Insurance - Property & Casualty
+7269,BMGL,Medical Care Facilities
+7270,CKX,Oil & Gas E&P
+7271,MCD,Restaurants
+7272,JETD,
+7273,INVE,Building Products & Equipment
+7274,EDZ,
+7275,CF,Agricultural Inputs
+7276,PARA,Entertainment
+7277,CENX,Aluminum
+7278,AMZD,
+7279,EML,Tools & Accessories
+7280,CRCT,Computer Hardware
+7281,TTE,Oil & Gas Integrated
+7282,NVNIW,Software - Application
+7283,TWM,
+7284,CARA,Biotechnology
+7285,WPC,REIT - Diversified
+7286,VIXM,
+7287,FTXG,
+7288,EXEEZ,Oil & Gas E&P
+7289,GPK,Packaging & Containers
+7290,GNFT,Biotechnology
+7291,YUMC,Restaurants
+7292,LSBPW,Biotechnology
+7293,KHC,Packaged Foods
+7294,CTRM,Marine Shipping
+7295,TR,Confectioners
+7296,IMNM,Biotechnology
+7297,INNV,Medical Care Facilities
+7298,MUD,
+7299,ASNS,Communication Equipment
+7300,TRS,Packaging & Containers
+7301,MNRO,Auto Parts
+7302,SMTK,Semiconductor Equipment & Materials
+7303,FG,Insurance - Life
+7304,DRCT,Advertising Agencies
+7305,CVGW,Food Distribution
+7306,VXZ,
+7307,NEGG,Internet Retail
+7308,POST,Packaged Foods
+7309,BWET,
+7310,LBTYK,Telecom Services
+7311,KMB,Household & Personal Products
+7312,D,Utilities - Regulated Electric
+7313,PDLB,Banks - Regional
+7314,BOTJ,Banks - Regional
+7315,VLGEA,Grocery Stores
+7316,QSR,Restaurants
+7317,SMDD,N/A
+7318,GROY_WS,
+7319,SOND,Lodging
+7320,DOLE,Farm Products
+7321,BITI,
+7322,MTNB,Biotechnology
+7323,SCLX,Drug Manufacturers - General
+7324,HCVIU,Shell Companies
+7325,BALL,Packaging & Containers
+7326,YUM,Restaurants
+7327,CSIQ,Solar
+7328,MO,Tobacco
+7329,PSQ,
+7330,VANI,Biotechnology
+7331,CWT,Utilities - Regulated Water
+7332,EDU,Education & Training Services
+7333,ED,Utilities - Regulated Electric
+7334,PCG_C,
+7335,LIDR,Software - Infrastructure
+7336,CNK,Entertainment
+7337,DHAI,Medical Devices
+7338,NXPL,Software - Application
+7339,TIMB,Telecom Services
+7340,ASPS,Real Estate Services
+7341,UX,
+7342,WMK,Grocery Stores
+7343,WTRG,Utilities - Regulated Water
+7344,CMS,Utilities - Regulated Electric
+7345,SANW,Farm Products
+7346,AEE,Utilities - Regulated Electric
+7347,FLSA,
+7348,ELIS,
+7349,EVRG,Utilities - Regulated Electric
+7350,YQQQ,
+7351,CMMB,Biotechnology
+7352,INLX,Software - Application
+7353,CBOE,Financial Data & Stock Exchanges
+7354,MDIA,Broadcasting
+7355,DZZ,
+7356,IYK,
+7357,NAGE,Biotechnology
+7358,NEXA,Other Industrial Metals & Mining
+7359,UTSL,
+7360,NBR,Oil & Gas Drilling
+7361,IZM,Electronics & Computer Distribution
+7362,HLF,Packaged Foods
+7363,GAN,Gambling
+7364,PLAG,Conglomerates
+7365,UUU,Security & Protection Services
+7366,ACI,Grocery Stores
+7367,BAER,Security & Protection Services
+7368,ELV,Healthcare Plans
+7369,BAYAU,Shell Companies
+7370,NEE,Utilities - Regulated Electric
+7371,BRLS,Packaged Foods
+7372,FLG_A,
+7373,UHGWW,
+7374,VIV,Telecom Services
+7375,PNW,Utilities - Regulated Electric
+7376,PRMB,Beverages - Non-Alcoholic
+7377,OLPX,Specialty Retail
+7378,VZ,Telecom Services
+7379,RBKB,Banks - Regional
+7380,DGZ,
+7381,ES,Utilities - Regulated Electric
+7382,LGHLW,Capital Markets
+7383,LBTYA,Telecom Services
+7384,SON,Packaging & Containers
+7385,KOF,Beverages - Non-Alcoholic
+7386,AWR,Utilities - Regulated Water
+7387,FORD,Footwear & Accessories
+7388,BANX,Asset Management
+7389,PPL,Utilities - Regulated Electric
+7390,SO,Utilities - Regulated Electric
+7391,BEKE,Real Estate Services
+7392,OXY,Oil & Gas E&P
+7393,UPW,
+7394,CHD,Household & Personal Products
+7395,BAFN,Banks - Regional
+7396,SILO,Biotechnology
+7397,VMAR,Recreational Vehicles
+7398,VRSK,Consulting Services
+7399,SJW,Utilities - Regulated Water
+7400,XEL,Utilities - Regulated Electric
+7401,CCEP,Beverages - Non-Alcoholic
+7402,BBDO,Banks - Regional
+7403,IMOS,Semiconductors
+7404,TU,Telecom Services
+7405,ETR,Utilities - Regulated Electric
+7406,SDD,
+7407,WEC,Utilities - Regulated Electric
+7408,RWAY,Credit Services
+7409,RC,REIT - Mortgage
+7410,XP,Capital Markets
+7411,LSEAW,Real Estate - Development
+7412,AWK,Utilities - Regulated Water
+7413,BF_B,
+7414,MASK,Software - Application
+7415,SIJ,
+7416,FE,Utilities - Regulated Electric
+7417,SKBL,Engineering & Construction
+7418,PM,Tobacco
+7419,CTLP,Information Technology Services
+7420,MSFD,
+7421,LBAY,
+7422,MNPR,Biotechnology
+7423,MEC,Metal Fabrication
+7424,EXEEL,Oil & Gas E&P
+7425,TK,Oil & Gas Midstream
+7426,AEP,Utilities - Regulated Electric
+7427,EQNR,Oil & Gas Integrated
+7428,IGC,Biotechnology
+7429,SUI,REIT - Residential
+7430,IQ,Entertainment
+7431,HOVRW,Aerospace & Defense
+7432,NOMD,Packaged Foods
+7433,CB,Insurance - Property & Casualty
+7434,FSI,Specialty Chemicals
+7435,DSX_B,
+7436,GSUN,Education & Training Services
+7437,YORW,Utilities - Regulated Water
+7438,RHLD,Specialty Business Services
+7439,ASUR,Software - Application
+7440,SCCD,
+7441,IE,Copper
+7442,ANEB,Biotechnology
+7443,NEE_R,
+7444,AFBI,Banks - Regional
+7445,WEN,Restaurants
+7446,PZG,Gold
+7447,ALUR_WS,
+7448,BANL,Oil & Gas Midstream
+7449,OCC,Communication Equipment
+7450,FDP,Farm Products
+7451,EFZ,
+7452,GILD,Drug Manufacturers - General
+7453,ADV,Advertising Agencies
+7454,IDA,Utilities - Regulated Electric
+7455,BON,Specialty Chemicals
+7456,OTIS,Specialty Industrial Machinery
+7457,BDMD,Medical Devices
+7458,WU,Credit Services
+7459,T,Telecom Services
+7460,HTCR,Software - Application
+7461,MITT_A,
+7462,SSL,Specialty Chemicals
+7463,EEV,
+7464,CVX,Oil & Gas Integrated
+7465,LNT,Utilities - Regulated Electric
+7466,MZZ,
+7467,SCNI,Biotechnology
+7468,MCS,Entertainment
+7469,CCIX,
+7470,BF_A,
+7471,SKRE,
+7472,SLRN,Biotechnology
+7473,IT,Information Technology Services
+7474,BSII,Shell Companies
+7475,NXU,Electrical Equipment & Parts
+7476,KRON,Biotechnology
+7477,SDOW,
+7478,NUS,Household & Personal Products
+7479,PET,Software - Application
+7480,ODP,Specialty Retail
+7481,IAG,Gold
+7482,CMCSA,Telecom Services
+7483,SH,
+7484,CODA,Aerospace & Defense
+7485,EVAX,N/A
+7486,HAO,Advertising Agencies
+7487,PALL,
+7488,NRP,Thermal Coal
+7489,ATHE,Biotechnology
+7490,RCI,Telecom Services
+7491,EBF,Business Equipment & Supplies
+7492,PRZO,Aerospace & Defense
+7493,DINO,Oil & Gas Refining & Marketing
+7494,OP,Marine Shipping
+7495,KLXE,Oil & Gas Equipment & Services
+7496,WMG,Entertainment
+7497,CNXC,Information Technology Services
+7498,AIEV,Auto Manufacturers
+7499,GPMT,REIT - Mortgage
+7500,BLTE,Biotechnology
+7501,OI,Packaging & Containers
+7502,III,Information Technology Services
+7503,COR,Medical Distribution
+7504,DOGG,
+7505,IRIX,Medical Devices
+7506,SPDN,
+7507,SYNX,Communication Equipment
+7508,RWM,
+7509,URGN,Biotechnology
+7510,SY,Health Information Services
+7511,CVI,Oil & Gas Refining & Marketing
+7512,UFI,Textile Manufacturing
+7513,CMP,Other Industrial Metals & Mining
+7514,BEAT,Health Information Services
+7515,FINV,Credit Services
+7516,SKYH,Aerospace & Defense
+7517,IMTXW,Biotechnology
+7518,EPD,N/A
+7519,NNNN,Medical Instruments & Supplies
+7520,BG,Farm Products
+7521,ATNI,Telecom Services
+7522,MASS,Medical Devices
+7523,DBVT,Biotechnology
+7524,TURN,Asset Management
+7525,AAPD,
+7526,MGY,Oil & Gas E&P
+7527,DRVN,Auto & Truck Dealerships
+7528,TAIL,
+7529,CGBD,Asset Management
+7530,TNFA,Biotechnology
+7531,MKC_V,
+7532,IFF,Specialty Chemicals
+7533,ABLV,Advertising Agencies
+7534,SONY,Consumer Electronics
+7535,ZTS,Drug Manufacturers - Specialty & Generic
+7536,OTTR,Conglomerates
+7537,FUSB,Banks - Regional
+7538,SPPP,
+7539,AOS,Specialty Industrial Machinery
+7540,NEE_S,
+7541,RWTO,
+7542,OMC,Advertising Agencies
+7543,NCRA,Packaged Foods
+7544,UNH,Healthcare Plans
+7545,MAMO,Recreational Vehicles
+7546,NGG,Utilities - Regulated Electric
+7547,DTE,Utilities - Regulated Electric
+7548,KTEC,
+7549,INTR,Banks - Regional
+7550,BGSF,Staffing & Employment Services
+7551,BRY,Oil & Gas E&P
+7552,AGL,Medical Care Facilities
+7553,DUK,Utilities - Regulated Electric
+7554,LXU,Chemicals
+7555,UTZ,Packaged Foods
+7556,CNP,Utilities - Regulated Electric
+7557,HWM_,
+7558,MODD,Medical Devices
+7559,SWKH,Asset Management
+7560,BBD,Banks - Regional
+7561,APRQ,
+7562,LIN,Specialty Chemicals
+7563,ZH,Internet Content & Information
+7564,EC,Oil & Gas Integrated
+7565,CLX,Household & Personal Products
+7566,IEP,Oil & Gas Refining & Marketing
+7567,UNF,Specialty Business Services
+7568,PW,REIT - Specialty
+7569,SKGR,Shell Companies
+7570,IMPPP,Oil & Gas Midstream
+7571,PARAA,Entertainment
+7572,IKT,Biotechnology
+7573,HLXB,Shell Companies
+7574,PNNT,Asset Management
+7575,MMS,N/A
+7576,DHCNL,
+7577,DAIO,Electronic Components
+7578,NVCT,Biotechnology
+7579,SBB,
+7580,NCDL,
+7581,GAU,Gold
+7582,GLU,Asset Management
+7583,MKC,Packaged Foods
+7584,PANL,Marine Shipping
+7585,SNDK,
+7586,RELI,Insurance Brokers
+7587,TAIT,Electronics & Computer Distribution
+7588,GPRE,Chemicals
+7589,RMBI,Banks - Regional
+7590,NC,Thermal Coal
+7591,CCEL,Medical Care Facilities
+7592,PBF,Oil & Gas Refining & Marketing
+7593,BPH,
+7594,HCSG,Medical Care Facilities
+7595,KTCC,Computer Hardware
+7596,LILAK,Telecom Services
+7597,DXD,
+7598,ECCC,Asset Management
+7599,IPG,Advertising Agencies
+7600,CPXR,
+7601,AVA,Utilities - Diversified
+7602,RSSS,Software - Application
+7603,PMT_C,
+7604,CEP,Shell Companies
+7605,FGL,Engineering & Construction
+7606,NTR,Agricultural Inputs
+7607,NFG,Oil & Gas Integrated
+7608,NJR,Utilities - Regulated Gas
+7609,PGJ,
+7610,ACOG,Biotechnology
+7611,FAZ,
+7612,DEO,Beverages - Wineries & Distilleries
+7613,CDR_C,
+7614,PALI,Biotechnology
+7615,TFX,Medical Instruments & Supplies
+7616,TPVG,Asset Management
+7617,LMT,Aerospace & Defense
+7618,BCBP,Banks - Regional
+7619,CPSH,Electronic Components
+7620,TNC,Specialty Industrial Machinery
+7621,IDU,
+7622,KT,Telecom Services
+7623,EUM,
+7624,MKTX,Capital Markets
+7625,ELSE,Scientific & Technical Instruments
+7626,BILI,Internet Content & Information
+7627,MKZR,REIT - Diversified
+7628,HRMY,Biotechnology
+7629,AGGH,
+7630,YAAS,Software - Application
+7631,NWFL,Banks - Regional
+7632,XLU,
+7633,REYN,Packaging & Containers
+7634,LANDP,REIT - Specialty
+7635,HIT,Software - Application
+7636,TRT,Semiconductor Equipment & Materials
+7637,UGI,N/A
+7638,CCI,REIT - Specialty
+7639,DK,Oil & Gas Refining & Marketing
+7640,MOMO,Internet Content & Information
+7641,OXSQZ,
+7642,PHAR,Biotechnology
+7643,SKF,
+7644,ESBA,REIT - Office
+7645,AWRE,Software - Application
+7646,EHLD,
+7647,ESGR,Insurance - Diversified
+7648,VPU,
+7649,BRKR,Medical Devices
+7650,FUTY,
+7651,GMRE_A,
+7652,FENC,Biotechnology
+7653,ASEA,
+7654,PBR_A,
+7655,FMST,Other Industrial Metals & Mining
+7656,MYY,
+7657,LILA,Telecom Services
+7658,FFIU,
+7659,KURE,
+7660,FLIA,
+7661,SFBC,Banks - Regional
+7662,PRGO,Drug Manufacturers - Specialty & Generic
+7663,RSPU,
+7664,JOF,Asset Management
+7665,FOX,Entertainment
+7666,DGX,Diagnostics & Research
+7667,RXD,
+7668,SID,Steel
+7669,ELPC,Utilities - Regulated Electric
+7670,SOHOB,REIT - Hotel & Motel
+7671,SIXH,
+7672,GTX,Auto Parts
+7673,AFYA,Education & Training Services
+7674,XRX,Information Technology Services
+7675,VCSA,Travel Services
+7676,SCM,Asset Management
+7677,CPAC,Building Materials
+7678,SEER,Biotechnology
+7679,HYAC_U,
+7680,FSP,REIT - Office
+7681,LUD,Steel
+7682,OESX,"Furnishings, Fixtures & Appliances"
+7683,RAND,Asset Management
+7684,YANG,
+7685,HCWB,Biotechnology
+7686,GNL_A,
+7687,BCE,Telecom Services
+7688,NREF_A,
+7689,CRWS,"Furnishings, Fixtures & Appliances"
+7690,JXI,
+7691,FTS,Utilities - Regulated Electric
+7692,PZZA,Restaurants
+7693,ESP,Electrical Equipment & Parts
+7694,EGY,Oil & Gas E&P
+7695,TSEC,
+7696,IMCR,Biotechnology
+7697,FXU,
+7698,MDV_A,
+7699,ELS,REIT - Residential
+7700,UTF,Asset Management
+7701,ECF_A,
+7702,MPC,Oil & Gas Refining & Marketing
+7703,AKO_B,
+7704,SBGI,Broadcasting
+7705,KBDC,
+7706,EA,Electronic Gaming & Multimedia
+7707,KBUF,
+7708,SNFCA,Mortgage Finance
+7709,IGT,Gambling
+7710,HFBL,Banks - Regional
+7711,SBSW,Other Precious Metals & Mining
+7712,UUP,
+7713,ZSL,
+7714,CELZ,Biotechnology
+7715,FOXA,Entertainment
+7716,STRF,
+7717,KEAT,
+7718,SAT,
+7719,FCAP,Banks - Regional
+7720,TEF,Telecom Services
+7721,ARMK,Specialty Business Services
+7722,ZSB,
+7723,CEPO,Shell Companies
+7724,PCG_B,
+7725,SNV_E,
+7726,CLPS,Information Technology Services
+7727,TPMN,
+7728,JNJ,Drug Manufacturers - General
+7729,PBR,Oil & Gas Integrated
+7730,EMCG,Shell Companies
+7731,FDS,Financial Data & Stock Exchanges
+7732,PTY,Asset Management
+7733,MGPI,Beverages - Wineries & Distilleries
+7734,LOKVU,
+7735,ACNB,Banks - Regional
+7736,SJB,
+7737,SOTK,Scientific & Technical Instruments
+7738,TRUG,Electronic Gaming & Multimedia
+7739,SSSSL,
+7740,ELP,Utilities - Regulated Electric
+7741,DOG,
+7742,TEN_E,
+7743,OBLG,Software - Application
+7744,BCIM,
+7745,BGT,Asset Management
+7746,FXP,
+7747,VALE,Other Industrial Metals & Mining
+7748,SRG_A,
+7749,CIG_C,
+7750,QSEAU,
+7751,AMPS,Utilities - Renewable
+7752,GSRT,Shell Companies
+7753,BFIN,Banks - Regional
+7754,EXOZ,Biotechnology
+7755,NYT,Publishing
+7756,ALF,
+7757,KLIP,
+7758,E,Oil & Gas Integrated
+7759,BP,Oil & Gas Integrated
+7760,GLP_B,
+7761,CMRE_D,
+7762,GHMS,
+7763,NEE_T,
+7764,NYMTL,REIT - Mortgage
+7765,SIF,Aerospace & Defense
+7766,SPCX,
+7767,DMYY,Shell Companies
+7768,LGTY,Software - Application
+7769,TCRX,Biotechnology
+7770,HVIIU,
+7771,OACC,
+7772,SSBK,Banks - Regional
+7773,VERX,Software - Application
+7774,QIS,
+7775,HMST,Banks - Regional
+7776,GBLI,Insurance - Property & Casualty
+7777,EICA,Asset Management
+7778,SSBI,Banks - Regional
+7779,FEDU,Education & Training Services
+7780,ZSC,
+7781,DXLG,Apparel Retail
+7782,GOTU,Education & Training Services
+7783,OCSL,Asset Management
+7784,FORR,Consulting Services
+7785,BGX,Asset Management
+7786,MGF,Asset Management
+7787,CIMO,
+7788,ALUR,Medical Devices
+7789,RDUS,Steel
+7790,CHSCO,Farm Products
+7791,WHF,Asset Management
+7792,ENLT,Utilities - Renewable
+7793,RILYZ,
+7794,LPL,Consumer Electronics
+7795,LPA,Real Estate - Development
+7796,MHNC,
+7797,EQV,
+7798,AACBU,
+7799,HPF,Asset Management
+7800,GECC,Asset Management
+7801,DDT,
+7802,ZTO,Integrated Freight & Logistics
+7803,FERAU,Shell Companies
+7804,GWH,Electrical Equipment & Parts
+7805,HVII,
+7806,APTO,Biotechnology
+7807,SIMA,
+7808,GIGGU,Shell Companies
+7809,SEF,
+7810,BGLD,
+7811,MBAV,
+7812,ECNS,
+7813,LIVE,Home Improvement Retail
+7814,ALFUU,
+7815,BILD,
+7816,BLKB,Software - Application
+7817,MOO,
+7818,ONBPO,Banks - Regional
+7819,YXI,
+7820,FCRX,
+7821,BUD,Beverages - Brewers
+7822,ALE,Utilities - Diversified
+7823,KURA,Biotechnology
+7824,VAMO,
+7825,FLCH,
+7826,BTI,Tobacco
+7827,TACT,Computer Hardware
+7828,MRK,Drug Manufacturers - General
+7829,VETZ,
+7830,AAA,
+7831,NEWTG,
+7832,UCIB,
+7833,BGH,Asset Management
+7834,CHAR,
+7835,CXSE,
+7836,BSLKW,Shell Companies
+7837,CNF,Mortgage Finance
+7838,PRSO,Semiconductors
+7839,DYNX,Shell Companies
+7840,OWLT,Medical Devices
+7841,GMM,Information Technology Services
+7842,JWN,Department Stores
+7843,CME,Financial Data & Stock Exchanges
+7844,AMT,REIT - Specialty
+7845,PETS,Pharmaceutical Retailers
+7846,TCHI,
+7847,AUBN,Banks - Regional
+7848,TUSK,Conglomerates
+7849,CODI_A,
+7850,DWSH,
+7851,OXLCP,Asset Management
+7852,GBAB,Asset Management
+7853,DKL,Oil & Gas Refining & Marketing
+7854,LGF_A,
+7855,NLY_I,
+7856,EH,Aerospace & Defense
+7857,CSWC,Asset Management
+7858,FYBR,Telecom Services
+7859,AZNH,
+7860,STI,Electrical Equipment & Parts
+7861,EELV,
+7862,HRZN,Asset Management
+7863,JHX,Building Materials
+7864,EFC_C,
+7865,GUNR,
+7866,MHH,Staffing & Employment Services
+7867,ACRE,REIT - Mortgage
+7868,SFWL,Integrated Freight & Logistics
+7869,DLNG_A,
+7870,CPER,
+7871,PRA,Insurance - Property & Casualty
+7872,INN_F,
+7873,NRT,Oil & Gas E&P
+7874,AVNS,Medical Devices
+7875,VBF,Asset Management
+7876,PHK,Asset Management
+7877,JACS,Shell Companies
+7878,STWD,REIT - Mortgage
+7879,CMT,Specialty Chemicals
+7880,TSVT,Biotechnology
+7881,MITT_C,
+7882,BACQ,
+7883,YOTAW,Shell Companies
+7884,DRDBU,Shell Companies
+7885,TRTN_A,
+7886,NTZ,"Furnishings, Fixtures & Appliances"
+7887,EURK,Shell Companies
+7888,THLV,
+7889,SHRT,
+7890,PCYO,Utilities - Regulated Water
+7891,AAM,Shell Companies
+7892,IGR,Asset Management
+7893,KVACU,Shell Companies
+7894,JMSI,
+7895,CQQQ,
+7896,SBAC,REIT - Specialty
+7897,HYAC,Shell Companies
+7898,ATHM,Internet Content & Information
+7899,PCMM,
+7900,HSHP,Marine Shipping
+7901,EWM,
+7902,ENZL,
+7903,UL,Household & Personal Products
+7904,USDU,
+7905,SDCP,
+7906,PENN,Resorts & Casinos
+7907,ISRLU,Shell Companies
+7908,DPG,Asset Management
+7909,NYMTZ,REIT - Mortgage
+7910,CHEB_WS,
+7911,EFT,Asset Management
+7912,GAINI,
+7913,RJF_B,
+7914,USDX,
+7915,GAINN,
+7916,CUBI_F,
+7917,FRA,Asset Management
+7918,RWAYZ,
+7919,MLAC,
+7920,ALL_B,
+7921,MAYA,
+7922,JMM,Asset Management
+7923,JGH,Asset Management
+7924,SEAL_A,
+7925,LARK,Banks - Regional
+7926,IRVH,
+7927,FSEC,
+7928,TWO_C,
+7929,PDPA,
+7930,GXC,
+7931,SNRE,
+7932,NHS,Asset Management
+7933,CLOZ,
+7934,VGZ,Gold
+7935,COKE,Beverages - Non-Alcoholic
+7936,MSBIP,Banks - Regional
+7937,PYCR,Software - Application
+7938,TEN,Oil & Gas Midstream
+7939,QBER,
+7940,ECCF,Asset Management
+7941,CMRX,Biotechnology
+7942,INBKZ,
+7943,MCRI,Resorts & Casinos
+7944,OCCIM,Asset Management
+7945,CWCO,Utilities - Regulated Water
+7946,NNY,Asset Management
+7947,CUBI_E,
+7948,VOD,N/A
+7949,MCHS,
+7950,PAAA,
+7951,DABS,
+7952,PTVE,Packaging & Containers
+7953,MACI,
+7954,EQV_U,
+7955,RIBB,
+7956,KFIIU,Shell Companies
+7957,ALDF,Shell Companies
+7958,LVS,Resorts & Casinos
+7959,RIBBU,
+7960,DESP,Travel Services
+7961,WVVI,Beverages - Wineries & Distilleries
+7962,FVN,Shell Companies
+7963,RANGU,
+7964,YHNA,Shell Companies
+7965,HLN,Drug Manufacturers - Specialty & Generic
+7966,IBAC,Shell Companies
+7967,PVI,
+7968,CVAR,
+7969,TECTP,Banks - Regional
+7970,MITQ,Communication Equipment
+7971,USAF,
+7972,GCBC,Banks - Regional
+7973,BML_J,
+7974,SDIV,
+7975,PTMC,
+7976,TMET,
+7977,NEAR,
+7978,SAZ,
+7979,LDRI,
+7980,IVCA,Shell Companies
+7981,EUDAW,Health Information Services
+7982,ABR,REIT - Mortgage
+7983,RSBY,
+7984,MFAO,
+7985,GLDI,
+7986,MFICL,
+7987,GECCO,
+7988,MUSE,
+7989,FNA,Medical Devices
+7990,DWX,
+7991,RBIL,
+7992,IPB,
+7993,PRIF_H,
+7994,TGI,Aerospace & Defense
+7995,TVC,
+7996,HROWL,
+7997,FER,Infrastructure Operations
+7998,IGI,Asset Management
+7999,KTN,
+8000,SLVO,
+8001,K,Packaged Foods
+8002,PCN,Asset Management
+8003,IROQ,Banks - Regional
+8004,NMT,Asset Management
+8005,ALHC,Healthcare Plans

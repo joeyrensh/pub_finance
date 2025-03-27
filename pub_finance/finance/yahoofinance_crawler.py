@@ -241,8 +241,8 @@ def convert_industry(source_file: str, map_file: str, target_file: str) -> None:
 if __name__ == "__main__":
     # free proxy website : http://free-proxy.cz/en/proxylist/country/all/https/ping/level1
     proxy_list = [
-        # "http://118.27.111.97:80",
-        "http://142.93.211.107:3128",
+        "http://44.215.100.135:8118",
+        "http://190.26.208.230:999",
     ]  # 代理列表
     CACHE_FILE = "./usstockinfo/symbol_list_cache.csv"
     OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
