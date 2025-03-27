@@ -72,7 +72,7 @@ def get_industry_info(symbol, proxy_list, max_retries=3):
                 continue  # 继续尝试下一个代理
 
             except Exception as e:
-                logger.error(f"[{symbol}] 处理错误: {str(e)}")
+                logger.warning(f"[{symbol}] 处理错误: {str(e)}")
                 return
 
         # 当前优先级列表全部失败时重置
