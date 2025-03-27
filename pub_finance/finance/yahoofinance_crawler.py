@@ -250,9 +250,9 @@ if __name__ == "__main__":
     CACHE_FILE = "./usstockinfo/symbol_list_cache.csv"
     OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
 
-    main(proxy_list, CACHE_FILE, OUTPUT_FILE)
-    # convert_industry(
-    #     source_file=OUTPUT_FILE,
-    #     map_file="./usstockinfo/industry_yfinance_mapping.csv",
-    #     target_file="./usstockinfo/industry_yfinance_cn.csv",
-    # )
+    # main(proxy_list, CACHE_FILE, OUTPUT_FILE)
+    convert_industry(
+        source_file=OUTPUT_FILE,
+        map_file="./usstockinfo/industry_yfinance_mapping.csv",
+        target_file="./usstockinfo/industry_yfinance_cn.csv",
+    )
