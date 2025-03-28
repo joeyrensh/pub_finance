@@ -481,7 +481,7 @@ li {
 }
 
 .company-logo {
-  width: 40%;
+  width: 30%;
   height: 20%;
   margin-left: 5px;
   margin-top: 20px;
@@ -819,10 +819,10 @@ a:active {
   }
 
   .company-logo {
-    width: 35%;
+    width: 25%;
     aspect-ratio: 9 / 1;
     /* height: 15%; */
-    margin-left: 2px;
+    margin-left: 5px;
     margin-top: 20px;
     /* background-color: rgb(255, 255, 255);
      */
