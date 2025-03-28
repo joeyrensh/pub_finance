@@ -217,6 +217,6 @@ class EMHistoryDataDownload:
 # 文件名称定义
 em = EMHistoryDataDownload()
 start_date = "20240101"
-end_date = "20250323"
-file_path = "./usstockinfo/stock_20250323.csv"
+end_date = "20250326"
+file_path = "./usstockinfo/stock_20250326.csv"
 em.set_his_tick_info_to_csv(start_date, end_date, file_path)
