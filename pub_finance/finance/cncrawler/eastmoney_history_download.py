@@ -46,12 +46,12 @@ class EMCNHistoryDataDownload:
         dict = {}
         list = []
         url = (
-            "https://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
+            "https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
             "&pn=i&pz=200&po=1&np=1&ut=&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
         )
         for mkt_code in ["0", "1"]:
             """请求url，获取数据response"""
-            for i in range(1, 200):
+            for i in range(1, 500):
                 url_re = (
                     url.replace("unix_time", str(current_timestamp))
                     .replace("mkt_code", mkt_code)
@@ -106,7 +106,7 @@ class EMCNHistoryDataDownload:
         """
 
         url = (
-            "https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
+            "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
             "&secid=mkt_code.symbol&ut="
             "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61"
             "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000000&_=unix_time"

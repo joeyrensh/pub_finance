@@ -28,11 +28,11 @@ class EMUsTickerCategoryCrawler:
         dict = {}
         list = []
         url = (
-            "https://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
+            "https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
             "&pn=i&pz=200&po=1&np=1&ut=&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
         )
         for mkt_code in ["105", "106", "107"]:
-            for i in range(1, 200):
+            for i in range(1, 500):
                 """请求url，获取数据response"""
                 url_re = (
                     url.replace("unix_time", str(current_timestamp))
