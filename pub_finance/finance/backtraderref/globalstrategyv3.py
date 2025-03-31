@@ -258,12 +258,16 @@ class GlobalStrategy(bt.Strategy):
             """
             辅助指标：收盘价上穿短期均线
             """
-            self.signals[d._name]["close_crossup_emashort"] = bt.And(
-                bt.indicators.crossover.CrossUp(
-                    d.close, self.inds[d._name]["emashort"]
-                ),
-                self.signals[d._name]["higher"] == 1,
+            self.signals[d._name]["close_crossup_emashort"] = (
+                bt.indicators.crossover.CrossUp(d.close, self.inds[d._name]["emashort"])
             )
+
+            # bt.And(
+            #     bt.indicators.crossover.CrossUp(
+            #         d.close, self.inds[d._name]["emashort"]
+            #     ),
+            #     self.signals[d._name]["higher"] == 1,
+            # )
 
             """ 
             辅助指标：乖离率判断
