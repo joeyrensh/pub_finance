@@ -26,6 +26,7 @@ echo -e "mail_name,mail_password\nmail_name1" > ./git-repo/pub_finance/pub_finan
 \cp -rf ./pub_finance/finance/usstockinfo/industry_yfinance.csv ./git-repo/pub_finance/pub_finance/finance/usstockinfo/
 \cp -rf ./pub_finance/finance/usstockinfo/industry_yfinance_mapping.csv ./git-repo/pub_finance/pub_finance/finance/usstockinfo/
 \cp -rf ./pub_finance/finance/cnstockinfo/marketclosed.config ./git-repo/pub_finance/pub_finance/finance/cnstockinfo/
+\cp -rf ./pub_finance/finance/cnstockinfo/industry.csv ./git-repo/pub_finance/pub_finance/finance/cnstockinfo/
 cd ./git-repo/pub_finance/pub_finance/
 git add *
 git commit -a -m "update"
