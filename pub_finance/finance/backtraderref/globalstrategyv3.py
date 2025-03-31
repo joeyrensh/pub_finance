@@ -272,10 +272,9 @@ class GlobalStrategy(bt.Strategy):
             """ 
             辅助指标：乖离率判断
             """
-            bias20 = (d.close - self.inds[d._name]["mashort"]) / self.inds[d._name][
-                "mashort"
-            ]
-            self.signals[d._name]["slope"] = bias20 <= 0.12
+            self.signals[d._name]["slope"] = (
+                d.close - self.inds[d._name]["mashort"]
+            ) / self.inds[d._name]["mashort"] <= 0.12
 
             """
             买入1: 均线上穿
