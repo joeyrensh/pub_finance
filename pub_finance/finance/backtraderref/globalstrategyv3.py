@@ -190,13 +190,6 @@ class GlobalStrategy(bt.Strategy):
             )
 
             """
-            辅助指标：上影线判定
-            """
-            self.signals[d._name]["upper_shadow"] = bt.And(
-                d.close > ((d.high - d.low) * 0.618 + d.low), d.close > d.open
-            )
-
-            """
             辅助指标：红三兵
             """
             self.signals[d._name]["red3_soldiers"] = bt.And(
@@ -210,6 +203,13 @@ class GlobalStrategy(bt.Strategy):
                 d.close(-2) > ((d.high(-2) - d.low(-2)) * 0.618 + d.low(-2)),
                 d.volume > d.volume(-1),
                 d.volume(-1) > d.volume(-2),
+            )
+
+            """
+            辅助指标：上影线判定
+            """
+            self.signals[d._name]["upper_shadow"] = bt.And(
+                d.close > ((d.high - d.low) * 0.618 + d.low), d.close > d.open
             )
 
             """
@@ -271,10 +271,7 @@ class GlobalStrategy(bt.Strategy):
             bias20 = (d.close - self.inds[d._name]["mashort"]) / self.inds[d._name][
                 "mashort"
             ]
-            self.signals[d._name]["slope"] = bt.And(
-                bias20 >= -0.2,
-                bias20 <= 0.2,
-            )
+            self.signals[d._name]["slope"] = bias20 <= 0.2
 
             """
             买入1: 均线上穿

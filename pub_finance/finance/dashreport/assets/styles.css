@@ -318,7 +318,7 @@ img {
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='NAME'],
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='IND'] {
   white-space: normal !important;
-  min-width: 10vw;
+  min-width: 9vw;
 }
 
 .cn_table .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='NAME'],
