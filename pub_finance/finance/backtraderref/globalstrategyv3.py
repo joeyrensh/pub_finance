@@ -278,7 +278,6 @@ class GlobalStrategy(bt.Strategy):
             """
             self.signals[d._name]["macrossup"] = bt.Or(
                 bt.And(
-                    self.inds[d._name]["emashort"] > self.inds[d._name]["emamid"],
                     self.inds[d._name]["mamid"] > self.inds[d._name]["mamid"](-1),
                     bt.indicators.crossover.CrossUp(
                         self.inds[d._name]["mashort"], self.inds[d._name]["mamid"]
@@ -290,7 +289,6 @@ class GlobalStrategy(bt.Strategy):
                     self.signals[d._name]["slope"] == 1,
                 ),
                 bt.And(
-                    self.inds[d._name]["mashort"] > self.inds[d._name]["mamid"],
                     self.inds[d._name]["emamid"] > self.inds[d._name]["emamid"](-1),
                     bt.indicators.crossover.CrossUp(
                         self.inds[d._name]["emashort"], self.inds[d._name]["emamid"]
@@ -387,7 +385,6 @@ class GlobalStrategy(bt.Strategy):
             """
             self.signals[d._name]["macrossdown"] = bt.Or(
                 bt.And(
-                    self.inds[d._name]["emashort"] < self.inds[d._name]["emamid"],
                     self.inds[d._name]["mamid"] < self.inds[d._name]["mamid"](-1),
                     bt.indicators.crossover.CrossDown(
                         self.inds[d._name]["mashort"], self.inds[d._name]["mamid"]
@@ -398,7 +395,6 @@ class GlobalStrategy(bt.Strategy):
                     self.inds[d._name]["dif"] < self.inds[d._name]["dif"](-1),
                 ),
                 bt.And(
-                    self.inds[d._name]["mashort"] < self.inds[d._name]["mamid"],
                     self.inds[d._name]["emamid"] < self.inds[d._name]["emamid"](-1),
                     bt.indicators.crossover.CrossDown(
                         self.inds[d._name]["emashort"], self.inds[d._name]["emamid"]
