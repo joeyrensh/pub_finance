@@ -203,6 +203,7 @@ class GlobalStrategy(bt.Strategy):
                 d.close(-2) > ((d.high(-2) - d.low(-2)) * 0.618 + d.low(-2)),
                 d.volume > d.volume(-1),
                 d.volume(-1) > d.volume(-2),
+                d.volume > self.inds[d._name]["mavolshort"],
             )
 
             """
@@ -261,13 +262,6 @@ class GlobalStrategy(bt.Strategy):
             self.signals[d._name]["close_crossup_emashort"] = (
                 bt.indicators.crossover.CrossUp(d.close, self.inds[d._name]["emashort"])
             )
-
-            # bt.And(
-            #     bt.indicators.crossover.CrossUp(
-            #         d.close, self.inds[d._name]["emashort"]
-            #     ),
-            #     self.signals[d._name]["higher"] == 1,
-            # )
 
             """ 
             辅助指标：乖离率判断
