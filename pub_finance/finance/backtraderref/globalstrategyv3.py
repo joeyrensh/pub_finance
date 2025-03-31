@@ -271,7 +271,7 @@ class GlobalStrategy(bt.Strategy):
             bias20 = (d.close - self.inds[d._name]["mashort"]) / self.inds[d._name][
                 "mashort"
             ]
-            self.signals[d._name]["slope"] = bias20 <= 0.2
+            self.signals[d._name]["slope"] = bias20 <= 0.12
 
             """
             买入1: 均线上穿
