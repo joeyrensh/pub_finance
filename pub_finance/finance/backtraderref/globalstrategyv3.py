@@ -16,7 +16,7 @@ class GlobalStrategy(bt.Strategy):
     params = (
         ("fastperiod", 10),
         ("slowperiod", 20),
-        ("signalperiod", 7),
+        ("signalperiod", 8),
         ("shortperiod", 20),
         ("midperiod", 60),
         # ("longperiod", 120),
@@ -279,6 +279,7 @@ class GlobalStrategy(bt.Strategy):
             self.signals[d._name]["macrossup"] = bt.Or(
                 bt.And(
                     self.inds[d._name]["mamid"] > self.inds[d._name]["mamid"](-1),
+                    self.inds[d._name]["emashort"] > self.inds[d._name]["emamid"],
                     bt.indicators.crossover.CrossUp(
                         self.inds[d._name]["mashort"], self.inds[d._name]["mamid"]
                     )
@@ -634,6 +635,7 @@ class GlobalStrategy(bt.Strategy):
                     and sum(1 for value in diff_array if value < 2) >= 5
                     and sum(1 for value in diff_array2 if value < 2) >= 5
                     and sum(1 for value in diff_array3 if value < 2) >= 5
+                    and self.signals[d._name]["slope"][0] == 1
                 ):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
@@ -651,7 +653,10 @@ class GlobalStrategy(bt.Strategy):
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "收盘价走高"
-                elif self.signals[d._name]["red3_soldiers"][0] == 1:
+                elif (
+                    self.signals[d._name]["red3_soldiers"][0] == 1
+                    and self.signals[d._name]["slope"][0] == 1
+                ):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
