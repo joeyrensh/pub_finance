@@ -165,14 +165,14 @@ def exec_btstrategy(date):
                 "legend_text": "#333333",
             },
             "dark": {
-                "text": "#FFFFFF",
+                "text": "#ffffffc5",
                 "background": "black",
                 "grid": "#FFFFFF",
                 "cumret": "#FF6B6B",  # 亮蓝
                 "drawdown": "#009900",  # 亮红
                 "table_edge": "#FFFFFF",
                 "table_header": "#404040",
-                "legend_text": "#FFFFFF",
+                "legend_text": "#ffffffc5",
             },
         }
         colors = theme_config[theme]

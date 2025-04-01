@@ -1284,7 +1284,7 @@ class StockProposal:
         # 样式变量
         font_size = 28
         title_font_size = 32
-        light_text_color = "#FFFFFF"
+        light_text_color = "rgba(255, 255, 255, 0.77)"
         dark_text_color = "#000000"
         pie_sequential_color = px.colors.sequential.Reds
         # 策略颜色（保留原有红色系，调整蓝色系为绿色系）
@@ -3576,8 +3576,8 @@ class StockProposal:
                 x=dfdata3["buy_date"],
                 y=dfdata3["sell_cnt"],
                 name="short",
-                marker_color="blue",
-                marker_line_color="blue",
+                marker_color="green",
+                marker_line_color="green",
                 yaxis="y2",
             )
         )
@@ -3642,6 +3642,7 @@ class StockProposal:
             scale=scale_factor,
         )
         # dark mode
+        text_color = "rgba(255, 255, 255, 0.77)"
         fig.update_layout(
             title={
                 "text": "Last 120 days trade info",
@@ -3649,35 +3650,35 @@ class StockProposal:
                 "x": 0.5,
                 # "xanchor": "left",
                 # "yanchor": "top",
-                "font": dict(size=title_font_size, color="white", family="Arial"),
+                "font": dict(size=title_font_size, color=text_color, family="Arial"),
             },
             xaxis=dict(
                 title="Trade Date",
-                titlefont=dict(size=title_font_size, color="white", family="Arial"),
+                titlefont=dict(size=title_font_size, color=text_color, family="Arial"),
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="white", family="Arial", size=font_size),
+                tickfont=dict(color=text_color, family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
                 title="Total Positions",
-                titlefont=dict(size=title_font_size, color="white", family="Arial"),
+                titlefont=dict(size=title_font_size, color=text_color, family="Arial"),
                 side="left",
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color="white", family="Arial", size=font_size),
+                tickfont=dict(color=text_color, family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
                 title="Positions per day",
-                titlefont=dict(size=title_font_size, color="white", family="Arial"),
+                titlefont=dict(size=title_font_size, color=text_color, family="Arial"),
                 side="right",
                 overlaying="y",
                 showgrid=False,
                 ticks="outside",
-                tickfont=dict(color="white", family="Arial", size=font_size),
+                tickfont=dict(color=text_color, family="Arial", size=font_size),
             ),
             legend=dict(
                 orientation="h",
@@ -3685,7 +3686,7 @@ class StockProposal:
                 y=-0.3,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=font_size, color="white", family="Arial"),
+                font=dict(size=font_size, color=text_color, family="Arial"),
             ),
             barmode="stack",
             bargap=0.5,

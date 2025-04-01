@@ -166,14 +166,14 @@ def exec_btstrategy(date):
                 "legend_text": "#333333",
             },
             "dark": {
-                "text": "#FFFFFF",
+                "text": "#ffffffc5",
                 "background": "black",
                 "grid": "#FFFFFF",
                 "cumret": "#FF6B6B",  # 亮蓝
                 "drawdown": "#009900",  # 亮红
                 "table_edge": "#FFFFFF",
                 "table_header": "#404040",
-                "legend_text": "#FFFFFF",
+                "legend_text": "#ffffffc5",
             },
         }
         colors = theme_config[theme]
@@ -319,7 +319,7 @@ def exec_btstrategy(date):
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc-4"""
-    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(1)
+    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
