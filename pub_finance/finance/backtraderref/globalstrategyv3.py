@@ -104,16 +104,16 @@ class GlobalStrategy(bt.Strategy):
             self.myorder[d._name] = dict()
 
             """MA20/60/120指标 """
-            self.inds[d._name]["short_term_ma"] = bt.indicators.SMA(
+            self.inds[d._name]["short_term_sma"] = bt.indicators.SMA(
                 d.close, period=self.params.shortperiod
             )
-            self.inds[d._name]["mid_term_ma"] = bt.indicators.SMA(
+            self.inds[d._name]["mid_term_sma"] = bt.indicators.SMA(
                 d.close, period=self.params.midperiod
             )
-            self.inds[d._name]["annual_ma"] = bt.indicators.SMA(
+            self.inds[d._name]["annual_sma"] = bt.indicators.SMA(
                 d.close, period=self.params.annualperiod
             )
-            # self.inds[d._name]["long_term_ma"] = bt.indicators.SMA(
+            # self.inds[d._name]["long_term_sma"] = bt.indicators.SMA(
             #     d.close, period=self.params.longperiod
             # )
 
@@ -157,13 +157,13 @@ class GlobalStrategy(bt.Strategy):
             """
             MAVOL5、10、20成交量均线
             """
-            self.inds[d._name]["short_term_mavol"] = bt.indicators.EMA(
+            self.inds[d._name]["short_term_smavol"] = bt.indicators.EMA(
                 d.volume, period=self.params.volshortperiod
             )
-            self.inds[d._name]["mid_term_mavol"] = bt.indicators.EMA(
+            self.inds[d._name]["mid_term_smavol"] = bt.indicators.EMA(
                 d.volume, period=self.params.volmidperiod
             )
-            self.inds[d._name]["long_term_mavol"] = bt.indicators.EMA(
+            self.inds[d._name]["long_term_smavol"] = bt.indicators.EMA(
                 d.volume, period=self.params.vollongperiod
             )
 
@@ -201,7 +201,7 @@ class GlobalStrategy(bt.Strategy):
                 d.close(-2) > ((d.high(-2) - d.low(-2)) * 0.618 + d.low(-2)),
                 d.volume > d.volume(-1),
                 d.volume(-1) > d.volume(-2),
-                d.volume > self.inds[d._name]["short_term_mavol"],
+                d.volume > self.inds[d._name]["short_term_smavol"],
             )
 
             """
@@ -242,9 +242,9 @@ class GlobalStrategy(bt.Strategy):
             """ 
             辅助指标：波动过大，避免频繁交易
             """
-            self.signals[d._name]["close_crossdown_short_term_ma"] = (
+            self.signals[d._name]["close_crossdown_short_term_sma"] = (
                 bt.indicators.crossover.CrossDown(
-                    d.close, self.inds[d._name]["short_term_ma"]
+                    d.close, self.inds[d._name]["short_term_sma"]
                 )
             )
 
@@ -267,8 +267,8 @@ class GlobalStrategy(bt.Strategy):
             辅助指标：乖离率判断
             """
             self.signals[d._name]["deviant"] = (
-                d.close - self.inds[d._name]["short_term_ma"]
-            ) / self.inds[d._name]["short_term_ma"] <= 0.12
+                d.close - self.inds[d._name]["short_term_sma"]
+            ) / self.inds[d._name]["short_term_sma"] <= 0.12
 
             """
             辅助指标：Dif和Dea的关系
@@ -312,15 +312,15 @@ class GlobalStrategy(bt.Strategy):
             """
             买入1: 均线上穿
             """
-            self.signals[d._name]["ma_crossup"] = bt.Or(
+            self.signals[d._name]["sma_crossup"] = bt.Or(
                 bt.And(
-                    self.inds[d._name]["mid_term_ma"]
-                    > self.inds[d._name]["mid_term_ma"](-1),
+                    self.inds[d._name]["mid_term_sma"]
+                    > self.inds[d._name]["mid_term_sma"](-1),
                     self.inds[d._name]["short_term_ema"]
                     > self.inds[d._name]["mid_term_ema"],
                     bt.indicators.crossover.CrossUp(
-                        self.inds[d._name]["short_term_ma"],
-                        self.inds[d._name]["mid_term_ma"],
+                        self.inds[d._name]["short_term_sma"],
+                        self.inds[d._name]["mid_term_sma"],
                     )
                     == 1,
                     self.signals[d._name]["golden_cross"] == 1,
@@ -351,15 +351,15 @@ class GlobalStrategy(bt.Strategy):
                     self.signals[d._name]["deviant"] == 1,
                     self.inds[d._name]["short_term_ema"]
                     > self.inds[d._name]["short_term_ema"](-1),
-                    self.inds[d._name]["short_term_mavol"]
-                    > self.inds[d._name]["long_term_mavol"],
+                    self.inds[d._name]["short_term_smavol"]
+                    > self.inds[d._name]["long_term_smavol"],
                     bt.Or(
                         bt.indicators.crossover.CrossUp(
                             d.close, self.inds[d._name]["short_term_ema"]
                         )
                         == 1,
                         bt.indicators.crossover.CrossUp(
-                            d.close, self.inds[d._name]["short_term_ma"]
+                            d.close, self.inds[d._name]["short_term_sma"]
                         )
                         == 1,
                         self.signals[d._name]["golden_cross"] == 1,
@@ -374,7 +374,8 @@ class GlobalStrategy(bt.Strategy):
                 d.close > self.inds[d._name]["short_term_ema"],
                 self.inds[d._name]["short_term_ema"]
                 > self.inds[d._name]["mid_term_ema"],
-                self.inds[d._name]["short_term_ma"] > self.inds[d._name]["mid_term_ma"],
+                self.inds[d._name]["short_term_sma"]
+                > self.inds[d._name]["mid_term_sma"],
                 self.inds[d._name]["short_term_ema"]
                 > self.inds[d._name]["short_term_ema"](-1),
                 self.inds[d._name]["mid_term_ema"]
@@ -387,11 +388,11 @@ class GlobalStrategy(bt.Strategy):
             买入4: 成交量突然增加，价格走高
             """
             self.signals[d._name]["vol_increase"] = bt.And(
-                self.inds[d._name]["short_term_mavol"]
-                > self.inds[d._name]["mid_term_mavol"],
-                self.inds[d._name]["short_term_mavol"]
-                > self.inds[d._name]["long_term_mavol"],
-                d.volume > self.inds[d._name]["short_term_mavol"] * 1.5,
+                self.inds[d._name]["short_term_smavol"]
+                > self.inds[d._name]["mid_term_smavol"],
+                self.inds[d._name]["short_term_smavol"]
+                > self.inds[d._name]["long_term_smavol"],
+                d.volume > self.inds[d._name]["short_term_smavol"] * 1.5,
                 self.signals[d._name]["higher"] == 1,
                 self.signals[d._name]["deviant"] == 1,
             )
@@ -401,27 +402,27 @@ class GlobalStrategy(bt.Strategy):
             """
             self.signals[d._name]["close_crossup_annualline"] = bt.And(
                 bt.indicators.crossover.CrossUp(
-                    d.close, self.inds[d._name]["annual_ma"]
+                    d.close, self.inds[d._name]["annual_sma"]
                 )
                 == 1,
                 bt.Or(
                     self.signals[d._name]["higher"] == 1,
                     self.signals[d._name]["golden_cross"] == 1,
                 ),
-                self.inds[d._name]["annual_ma"] > self.inds[d._name]["annual_ma"](-1),
+                self.inds[d._name]["annual_sma"] > self.inds[d._name]["annual_sma"](-1),
                 self.signals[d._name]["deviant"] == 1,
             )
 
             """
             卖出1: 均线破位
             """
-            self.signals[d._name]["ma_crossdown"] = bt.Or(
+            self.signals[d._name]["sma_crossdown"] = bt.Or(
                 bt.And(
-                    self.inds[d._name]["mid_term_ma"]
-                    < self.inds[d._name]["mid_term_ma"](-1),
+                    self.inds[d._name]["mid_term_sma"]
+                    < self.inds[d._name]["mid_term_sma"](-1),
                     bt.indicators.crossover.CrossDown(
-                        self.inds[d._name]["short_term_ma"],
-                        self.inds[d._name]["mid_term_ma"],
+                        self.inds[d._name]["short_term_sma"],
+                        self.inds[d._name]["mid_term_sma"],
                     )
                     == 1,
                     d.close < d.open,
@@ -443,8 +444,8 @@ class GlobalStrategy(bt.Strategy):
             卖出2: 收盘价走低
             """
             self.signals[d._name]["close_crossdown"] = bt.And(
-                self.inds[d._name]["mid_term_ma"]
-                < self.inds[d._name]["mid_term_ma"](-1),
+                self.inds[d._name]["mid_term_sma"]
+                < self.inds[d._name]["mid_term_sma"](-1),
                 d.close < d.open,
                 self.signals[d._name]["lower"] == 1,
                 bt.Or(
@@ -453,7 +454,7 @@ class GlobalStrategy(bt.Strategy):
                     )
                     == 1,
                     bt.indicators.crossover.CrossDown(
-                        d.close, self.inds[d._name]["short_term_ma"]
+                        d.close, self.inds[d._name]["short_term_sma"]
                     )
                     == 1,
                     self.signals[d._name]["death_cross"] == 1,
@@ -466,7 +467,8 @@ class GlobalStrategy(bt.Strategy):
                 d.close < self.inds[d._name]["short_term_ema"],
                 self.inds[d._name]["short_term_ema"]
                 < self.inds[d._name]["mid_term_ema"],
-                self.inds[d._name]["short_term_ma"] < self.inds[d._name]["mid_term_ma"],
+                self.inds[d._name]["short_term_sma"]
+                < self.inds[d._name]["mid_term_sma"],
                 self.inds[d._name]["mid_term_ema"]
                 < self.inds[d._name]["mid_term_ema"](-1),
                 self.inds[d._name]["short_term_ema"]
@@ -478,14 +480,14 @@ class GlobalStrategy(bt.Strategy):
             """
             self.signals[d._name]["closs_crossdown_annualline"] = bt.And(
                 bt.indicators.crossover.CrossDown(
-                    d.close, self.inds[d._name]["annual_ma"]
+                    d.close, self.inds[d._name]["annual_sma"]
                 )
                 == 1,
                 bt.Or(
                     self.signals[d._name]["lower"] == 1,
                     self.signals[d._name]["death_cross"] == 1,
                 ),
-                self.inds[d._name]["annual_ma"] < self.inds[d._name]["annual_ma"](-1),
+                self.inds[d._name]["annual_sma"] < self.inds[d._name]["annual_sma"](-1),
             )
             """ indicators以及signals初始化进度打印 """
             t.progress_bar(len(self.datas), i)
@@ -605,7 +607,7 @@ class GlobalStrategy(bt.Strategy):
                 """噪声处理"""
                 # # 均线密集判断，短期ema与中期ema近20日内密集排列
                 # if (
-                #     self.signals[d._name]["close_crossdown_short_term_ma"]
+                #     self.signals[d._name]["close_crossdown_short_term_sma"]
                 #     .get(ago=-1, size=self.params.shortperiod)
                 #     .count(1)
                 #     > 2
@@ -627,17 +629,17 @@ class GlobalStrategy(bt.Strategy):
                 y1 = self.inds[d._name]["mid_term_ema"].get(
                     ago=-1, size=self.params.fastperiod
                 )
-                x2 = self.inds[d._name]["short_term_ma"].get(
+                x2 = self.inds[d._name]["short_term_sma"].get(
                     ago=-1, size=self.params.fastperiod
                 )
-                y2 = self.inds[d._name]["mid_term_ma"].get(
+                y2 = self.inds[d._name]["mid_term_sma"].get(
                     ago=-1, size=self.params.fastperiod
                 )
                 diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y != 0]
                 diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y != 0]
                 diff_array3 = [abs((x - y) * 100 / y) for x, y in zip(x1, x2) if y != 0]
 
-                if self.signals[d._name]["ma_crossup"][0] == 1:
+                if self.signals[d._name]["sma_crossup"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
@@ -698,7 +700,7 @@ class GlobalStrategy(bt.Strategy):
                 }
                 list.append(dict)
 
-                if self.signals[d._name]["ma_crossdown"][0] == 1:
+                if self.signals[d._name]["sma_crossdown"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "均线破位"
