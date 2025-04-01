@@ -605,7 +605,7 @@ class GlobalStrategy(bt.Strategy):
                 """噪声处理"""
                 # # 均线密集判断，短期ema与中期ema近20日内密集排列
                 # if (
-                #     self.signals[d._name]["close_crossdown_mashort"]
+                #     self.signals[d._name]["close_crossdown_short_term_ma"]
                 #     .get(ago=-1, size=self.params.shortperiod)
                 #     .count(1)
                 #     > 2
