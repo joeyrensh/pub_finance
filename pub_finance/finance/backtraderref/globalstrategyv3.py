@@ -312,7 +312,7 @@ class GlobalStrategy(bt.Strategy):
             """
             买入1: 均线上穿
             """
-            self.signals[d._name]["sma_crossup"] = bt.Or(
+            self.signals[d._name]["ma_break_up"] = bt.Or(
                 bt.And(
                     self.inds[d._name]["mid_term_sma"]
                     > self.inds[d._name]["mid_term_sma"](-1),
@@ -344,7 +344,7 @@ class GlobalStrategy(bt.Strategy):
             """
             买入2: 收盘价走高
             """
-            self.signals[d._name]["close_crossup"] = (
+            self.signals[d._name]["close_up"] = (
                 bt.And(
                     self.signals[d._name]["higher"] == 1,
                     d.close > d.open,
@@ -416,7 +416,7 @@ class GlobalStrategy(bt.Strategy):
             """
             卖出1: 均线破位
             """
-            self.signals[d._name]["sma_crossdown"] = bt.Or(
+            self.signals[d._name]["ma_break_down"] = bt.Or(
                 bt.And(
                     self.inds[d._name]["mid_term_sma"]
                     < self.inds[d._name]["mid_term_sma"](-1),
@@ -443,7 +443,7 @@ class GlobalStrategy(bt.Strategy):
             """
             卖出2: 收盘价走低
             """
-            self.signals[d._name]["close_crossdown"] = bt.And(
+            self.signals[d._name]["close_down"] = bt.And(
                 self.inds[d._name]["mid_term_sma"]
                 < self.inds[d._name]["mid_term_sma"](-1),
                 d.close < d.open,
@@ -639,7 +639,7 @@ class GlobalStrategy(bt.Strategy):
                 diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y != 0]
                 diff_array3 = [abs((x - y) * 100 / y) for x, y in zip(x1, x2) if y != 0]
 
-                if self.signals[d._name]["sma_crossup"][0] == 1:
+                if self.signals[d._name]["ma_break_up"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
@@ -674,7 +674,7 @@ class GlobalStrategy(bt.Strategy):
                     self.order[d._name] = self.buy(data=d)
                     self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "均线多头"
-                elif self.signals[d._name]["close_crossup"][0] == 1:
+                elif self.signals[d._name]["close_up"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
@@ -700,7 +700,7 @@ class GlobalStrategy(bt.Strategy):
                 }
                 list.append(dict)
 
-                if self.signals[d._name]["sma_crossdown"][0] == 1:
+                if self.signals[d._name]["ma_break_down"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "均线破位"
@@ -712,7 +712,7 @@ class GlobalStrategy(bt.Strategy):
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "均线空头"
-                elif self.signals[d._name]["close_crossdown"][0] == 1:
+                elif self.signals[d._name]["close_down"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "收盘价走低"
