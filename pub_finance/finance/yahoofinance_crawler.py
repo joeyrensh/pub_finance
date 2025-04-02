@@ -115,9 +115,6 @@ def get_us_stock_symbols(cache_file, output_file):
             stock_df = ak.stock_us_spot_em()
             stock_df["clean_symbol"] = stock_df["代码"].str.split(".").str[1]
 
-            # 优化逻辑：仅保留 column "A" > 0 的记录
-            stock_df = stock_df[stock_df["最新价"] > 0]
-
             # 保存缓存
             stock_df.to_csv(cache_file, index=False)
             logger.info(f"已缓存股票代码到 {cache_file}")
@@ -250,9 +247,9 @@ if __name__ == "__main__":
     CACHE_FILE = "./usstockinfo/symbol_list_cache.csv"
     OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
 
-    # main(proxy_list, CACHE_FILE, OUTPUT_FILE)
-    convert_industry(
-        source_file=OUTPUT_FILE,
-        map_file="./usstockinfo/industry_yfinance_mapping.csv",
-        target_file="./usstockinfo/industry_yfinance_cn.csv",
-    )
+    main(proxy_list, CACHE_FILE, OUTPUT_FILE)
+    # convert_industry(
+    #     source_file=OUTPUT_FILE,
+    #     map_file="./usstockinfo/industry_yfinance_mapping.csv",
+    #     target_file="./usstockinfo/industry_yfinance_cn.csv",
+    # )

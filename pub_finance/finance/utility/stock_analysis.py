@@ -1435,23 +1435,11 @@ class StockProposal:
         # hex_colors = px.colors.diverging.RdBu
         text_colors = [get_text_color(color, "dark") for color in hex_colors]
         fig.update_traces(
-            # marker=dict(colors=colorscale, line=dict(width=3)),
-            textinfo="label+value+percent",
-            textfont=dict(size=font_size, color=text_colors, family="Arial"),
-            textposition="inside",
-            marker=dict(colors=hex_colors, line=dict(color=text_colors, width=2)),
-            opacity=0.8,
+            textfont=dict(color=text_colors),
+            marker=dict(colors=hex_colors, line=dict(color=text_colors)),
         )
         fig.update_layout(
-            title="Top10 Position",
-            title_font=dict(
-                size=title_font_size, color=light_text_color, family="Arial"
-            ),
-            showlegend=False,
-            margin=dict(t=50, b=0, l=0, r=0),
-            autosize=True,
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
+            title_font=dict(color=light_text_color),
         )
 
         if self.market == "us":
@@ -1532,23 +1520,11 @@ class StockProposal:
         # dark mode
         text_colors = [get_text_color(color, "dark") for color in hex_colors]
         fig.update_traces(
-            # marker=dict(colors=colors, line=dict(width=3)),
-            textinfo="label+value+percent",
-            textfont=dict(size=font_size, color=text_colors, family="Arial"),
-            textposition="inside",
-            marker=dict(colors=hex_colors, line=dict(color=text_colors, width=2)),
-            opacity=0.8,
+            textfont=dict(color=text_colors),
+            marker=dict(colors=hex_colors, line=dict(color=text_colors)),
         )
         fig.update_layout(
-            title="Top10 Profit",
-            title_font=dict(
-                size=title_font_size, color=light_text_color, family="Arial"
-            ),
-            showlegend=False,
-            margin=dict(t=50, b=0, l=0, r=0),
-            autosize=True,
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
+            title_font=dict(color=light_text_color),
         )
         if self.market == "us":
             fig.write_image(
@@ -1928,63 +1904,23 @@ class StockProposal:
         # dark mode
         fig.update_layout(
             title={
-                "text": "Last 120 days trade info",
-                "y": 0.9,
-                "x": 0.5,
-                # "xanchor": "left",
-                # "yanchor": "top",
-                "font": dict(
-                    size=title_font_size, color=light_text_color, family="Arial"
-                ),
+                "font": dict(color=light_text_color),
             },
             xaxis=dict(
-                title="Trade Date",
-                titlefont=dict(
-                    size=title_font_size, color=light_text_color, family="Arial"
-                ),
-                mirror=True,
-                ticks="outside",
-                tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
-                showline=False,
+                titlefont=dict(color=light_text_color),
+                tickfont=dict(color=light_text_color),
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
-                title="Total Positions",
-                titlefont=dict(
-                    size=title_font_size, color=light_text_color, family="Arial"
-                ),
-                side="left",
-                mirror=True,
-                ticks="outside",
-                tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
-                showline=False,
+                titlefont=dict(color=light_text_color),
+                tickfont=dict(color=light_text_color),
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
-                title="Positions per day",
-                titlefont=dict(
-                    size=title_font_size, color=light_text_color, family="Arial"
-                ),
-                side="right",
-                overlaying="y",
-                showgrid=False,
-                ticks="outside",
-                tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
+                titlefont=dict(color=light_text_color),
+                tickfont=dict(color=light_text_color),
             ),
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.3,
-                xanchor="center",
-                x=0.5,
-                font=dict(size=font_size, color=light_text_color, family="Arial"),
-            ),
-            barmode="stack",
-            bargap=0.5,
-            bargroupgap=0.5,
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
-            margin=dict(t=0, b=0, l=0, r=0),
+            legend=dict(font=dict(color=light_text_color)),
         )
 
         if self.market == "us":
@@ -2101,41 +2037,19 @@ class StockProposal:
             )
         # dark mode
         fig.update_xaxes(
-            mirror=True,
-            ticks="outside",
-            tickfont=dict(color=light_text_color, size=font_size),
-            showline=False,
+            tickfont=dict(color=light_text_color),  
             gridcolor="rgba(255, 255, 255, 0.5)",
-            title_font=dict(
-                size=title_font_size, color=light_text_color, family="Arial"
-            ),
+            title_font=dict(color=light_text_color),
         )
         fig.update_yaxes(
-            mirror=True,
-            ticks="outside",
-            tickfont=dict(color=light_text_color, size=font_size),
-            showline=False,
+            tickfont=dict(color=light_text_color),
             gridcolor="rgba(255, 255, 255, 0.5)",
-            title_font=dict(
-                size=title_font_size, color=light_text_color, family="Arial"
-            ),
+            title_font=dict(color=light_text_color),
         )
         fig.update_layout(
-            title="Last 120 days top5 positions ",
-            title_font=dict(
-                size=title_font_size, color=light_text_color, family="Arial"
-            ),
+            title_font=dict(color=light_text_color),
             legend_title_text="",
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.3,
-                xanchor="center",
-                x=0.5,
-                font=dict(size=font_size, color=light_text_color, family="Arial"),
-            ),
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
+            legend=dict(font=dict(color=light_text_color)),
         )
         if self.market == "us":
             fig.write_image(
