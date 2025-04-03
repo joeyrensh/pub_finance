@@ -171,7 +171,6 @@ def create_layout(app):
         "TOTAL PNL RATIO": ("ratio", "format"),
         "OPEN DATE": ("date", "format"),
         "TOTAL VALUE": ("float",),
-        "EPR": ("float",),
     }
     # 减仓明细
     df_detail_short = pd.read_csv(
