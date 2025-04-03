@@ -324,7 +324,7 @@ img {
 .cn_table .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='NAME'],
 .cn_table .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='IND'] {
   white-space: normal !important;
-  min-width: 8vw;
+  min-width: 7vw;
 }
 
 td {
@@ -657,7 +657,7 @@ a:active {
   .cn_table .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='NAME'],
   .cn_table .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='IND'] {
 
-    min-width: 20vw;
+    min-width: 15vw;
   }
 
   .tab.first {
