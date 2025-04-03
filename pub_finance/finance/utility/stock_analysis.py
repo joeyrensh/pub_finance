@@ -123,7 +123,7 @@ class StockProposal:
         file = FileInfo(self.trade_date, self.market)
         # 最新一日股票信息
         file_name_day = file.get_file_path_latest
-        df_d = pd.read_csv(file_name_day, usecols=[i for i in range(1, 3)])
+        df_d = pd.read_csv(file_name_day, usecols=["name", "symbol", "total_value"])
         # 国债信息
         file_gz = file.get_file_path_gz
         cols = ["code", "name", "date", "new"]
@@ -744,6 +744,7 @@ class StockProposal:
                     , `p&l_ratio` AS pnl_ratio
                     , industry
                     , name
+                    , total_value
                 FROM temp_symbol
             )
             SELECT t1.symbol
@@ -754,6 +755,7 @@ class StockProposal:
                 , t1.pnl_ratio
                 , t1.industry
                 , t1.name
+                , ROUND(t1.total_value / 100000000, 1) AS total_value
                 , COALESCE(t2.his_trade_cnt, 0) AS avg_trans
                 , COALESCE(t2.his_days, 0) / t2.his_trade_cnt AS avg_days
                 , (t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / ( COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0) + t1.pos_cnt + t1.neg_cnt) AS win_rate
@@ -772,6 +774,7 @@ class StockProposal:
                 , pnl_ratio
                 , industry
                 , name
+                , total_value
                 , IF(adjbase >= price, 1, 0) AS pos_cnt
                 , IF(adjbase < price, 1, 0) AS neg_cnt
                 FROM tmp3
@@ -811,6 +814,7 @@ class StockProposal:
                 "symbol": "SYMBOL",
                 "industry": "IND",
                 "name": "NAME",
+                "total_value": "TOTAL VALUE",
                 "epr": "EPR",
                 "buy_date": "OPEN DATE",
                 "price": "BASE",
@@ -846,7 +850,7 @@ class StockProposal:
         html1 = (
             "<h2>Open Position List</h2>"
             "<table>"
-            + dfdata8.style.hide(axis=1, subset=["PNL", "pnl_growth"])
+            + dfdata8.style.hide(axis=1, subset=["PNL", "pnl_growth", "TOTAL VALUE"])
             .format(
                 {
                     "BASE": "{:.2f}",
@@ -2037,7 +2041,7 @@ class StockProposal:
             )
         # dark mode
         fig.update_xaxes(
-            tickfont=dict(color=light_text_color),  
+            tickfont=dict(color=light_text_color),
             gridcolor="rgba(255, 255, 255, 0.5)",
             title_font=dict(color=light_text_color),
         )
@@ -2833,7 +2837,7 @@ class StockProposal:
         file = FileInfo(self.trade_date, self.market)
         # 最新一日股票信息
         file_name_day = file.get_file_path_latest
-        df_d = pd.read_csv(file_name_day, usecols=[i for i in range(1, 3)])
+        df_d = pd.read_csv(file_name_day, usecols=["name", "symbol", "total_value"])
         # 持仓明细, pandas读取
         file_cur_p = file.get_file_path_etf_position
         df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 8)])
@@ -2989,6 +2993,7 @@ class StockProposal:
                     , `p&l` as pnl
                     , `p&l_ratio` as pnl_ratio
                     , name
+                    , total_value
                 FROM temp_symbol
             )
             SELECT t1.symbol
@@ -2998,6 +3003,7 @@ class StockProposal:
                 , t1.pnl
                 , t1.pnl_ratio
                 , t1.name
+                , ROUND(t1.total_value / 100000000, 1) AS total_value
                 , COALESCE(t2.his_trade_cnt, 0) AS avg_trans
                 , COALESCE(t2.his_days, 0) / t2.his_trade_cnt AS avg_days
                 , (t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / ( COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0) + t1.pos_cnt + t1.neg_cnt) AS win_rate
@@ -3012,6 +3018,7 @@ class StockProposal:
                 , pnl
                 , pnl_ratio
                 , name
+                , total_value
                 , IF(adjbase >= price, 1, 0) AS pos_cnt
                 , IF(adjbase < price, 1, 0) AS neg_cnt
                 FROM tmp3
@@ -3034,6 +3041,7 @@ class StockProposal:
                 "win_rate": "WIN RATE",
                 "total_pnl_ratio": "TOTAL PNL RATIO",
                 "name": "NAME",
+                "total_value": "TOTAL VALUE",
                 "buy_strategy": "STRATEGY",
             },
             inplace=True,
@@ -3058,7 +3066,7 @@ class StockProposal:
         html = (
             "<h2>Open Position List</h2>"
             "<table>"
-            + dfdata8.style.hide(axis=1, subset=["PNL"])
+            + dfdata8.style.hide(axis=1, subset=["PNL", "TOTAL VALUE"])
             .format(
                 {
                     "BASE": "{:.2f}",

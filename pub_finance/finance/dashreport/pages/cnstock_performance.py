@@ -137,7 +137,7 @@ def create_layout(app):
 
     # 持仓明细
     df_detail = pd.read_csv(
-        DATA_PATH.joinpath("cn_stockdetail.csv"), usecols=[i for i in range(1, 16)]
+        DATA_PATH.joinpath("cn_stockdetail.csv"), usecols=[i for i in range(1, 17)]
     )
     df_detail["INDEX"] = df_detail.index
     df_detail = df_detail[
@@ -146,6 +146,7 @@ def create_layout(app):
             "SYMBOL",
             "IND",
             "NAME",
+            "TOTAL VALUE",
             "EPR",
             "OPEN DATE",
             "BASE",
@@ -169,6 +170,8 @@ def create_layout(app):
         "WIN RATE": ("ratio", "format"),
         "TOTAL PNL RATIO": ("ratio", "format"),
         "OPEN DATE": ("date", "format"),
+        "TOTAL VALUE": ("float",),
+        "EPR": ("float",),
     }
     # 减仓明细
     df_detail_short = pd.read_csv(
@@ -202,7 +205,7 @@ def create_layout(app):
     }
     # ETF持仓明细
     df_etf = pd.read_csv(
-        DATA_PATH.joinpath("cn_etf.csv"), usecols=[i for i in range(1, 13)]
+        DATA_PATH.joinpath("cn_etf.csv"), usecols=[i for i in range(1, 14)]
     )
     df_etf["INDEX"] = df_etf.index
     df_etf = df_etf[
@@ -210,6 +213,7 @@ def create_layout(app):
             "INDEX",
             "SYMBOL",
             "NAME",
+            "TOTAL VALUE",
             "OPEN DATE",
             "BASE",
             "ADJBASE",
@@ -232,6 +236,7 @@ def create_layout(app):
         "WIN RATE": ("ratio", "format"),
         "TOTAL PNL RATIO": ("ratio", "format"),
         "OPEN DATE": ("date", "format"),
+        "TOTAL VALUE": ("float",),
     }
     return html.Div(
         [

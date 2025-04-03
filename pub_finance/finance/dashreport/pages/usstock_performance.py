@@ -135,7 +135,7 @@ def create_layout(app):
 
     # 持仓明细
     df_detail = pd.read_csv(
-        DATA_PATH.joinpath("us_stockdetail.csv"), usecols=[i for i in range(1, 16)]
+        DATA_PATH.joinpath("us_stockdetail.csv"), usecols=[i for i in range(1, 17)]
     )
     df_detail["INDEX"] = df_detail.index
     df_detail = df_detail[
@@ -144,6 +144,7 @@ def create_layout(app):
             "SYMBOL",
             "IND",
             "NAME",
+            "TOTAL VALUE",
             "EPR",
             "OPEN DATE",
             "BASE",
@@ -167,6 +168,8 @@ def create_layout(app):
         "WIN RATE": ("ratio", "format"),
         "TOTAL PNL RATIO": ("ratio", "format"),
         "OPEN DATE": ("date", "format"),
+        "TOTAL VALUE": ("float",),
+        "EPR": ("float",),
     }
     # 减仓明细
     df_detail_short = pd.read_csv(
