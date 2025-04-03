@@ -318,13 +318,13 @@ img {
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='NAME'],
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='IND'] {
   white-space: normal !important;
-  min-width: 9vw;
+  min-width: 8vw;
 }
 
 .cn_table .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='NAME'],
 .cn_table .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='IND'] {
   white-space: normal !important;
-  min-width: 7vw;
+  min-width: 6vw;
 }
 
 td {
