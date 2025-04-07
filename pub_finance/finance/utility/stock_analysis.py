@@ -17,6 +17,7 @@ from matplotlib.colors import to_rgb
 import re
 import matplotlib.colors as mcolors
 from plotly.colors import sample_colorscale
+from datetime import datetime
 
 
 # mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
@@ -41,74 +42,6 @@ class StockProposal:
         self.market = market
         self.trade_date = trade_date
 
-    def send_strategy_df_by_email(self, dataframe):
-        file = FileInfo(self.trade_date, self.market)
-        file_name_industry = file.get_file_path_industry
-
-        """ 匹配行业信息 """
-        df_ind = pd.read_csv(file_name_industry, usecols=[i for i in range(1, 3)])
-        df_n = pd.merge(dataframe, df_ind, how="left", on="symbol")
-        df_n.sort_values(by=["chg", "amplitude"], ascending=False, inplace=True)
-        df_n.reset_index(drop=True, inplace=True)
-        df_n.rename(
-            columns={
-                "symbol": "股票代码",
-                "close": "收盘价",
-                "chg": "涨幅",
-                "volume": "成交量",
-                "amplitude": "振幅",
-                "tag": "标记",
-                "industry": "所属行业",
-            },
-            inplace=True,
-        )
-        cm = sns.color_palette("Blues", as_cmap=True)
-        html = (
-            df_n.style.hide(axis=1, subset=["标记", "成交量"])
-            .format(
-                {
-                    "收盘价": "{:.2f}",
-                    "涨幅": "{:.2f}",
-                    "成交量": "{:.0f}",
-                    "振幅": "{:.2f}%",
-                }
-            )
-            .background_gradient(subset=["收盘价", "涨幅", "成交量", "振幅"], cmap=cm)
-            .bar(
-                subset=["涨幅"],
-                align="left",
-                color=["#5fba7d", "#d65f5f"],
-                vmin=0,
-                vmax=0.8,
-            )
-            .set_properties(
-                **{
-                    "text-align": "left",
-                    "width": "auto",
-                    "border": "1px solid",
-                    "cellspacing": "0px",
-                    "style": "border-collapse:collapse",
-                }
-            )
-            .set_table_styles(
-                [
-                    dict(
-                        selector="th",
-                        props=[
-                            ("text-align", "left"),
-                            ("width", "auto"),
-                            ("white-space", "nowrap"),
-                            ("position", "fixed"),
-                        ],
-                    )
-                ]
-            )
-            .set_sticky(axis="columns")
-            .to_html(doctype_html=True)
-        )
-        subject = "美股波动"
-        MyEmail().send_email(subject, html)
-
     def send_btstrategy_by_email(self, cash, final_value):
         """
         发送邮件
@@ -121,38 +54,60 @@ class StockProposal:
         读取交易相关数据，交易明细，持仓明细，仓位日志明细，行业信息
         """
         file = FileInfo(self.trade_date, self.market)
-        # 最新一日股票信息
-        file_name_day = file.get_file_path_latest
-        df_d = pd.read_csv(file_name_day, usecols=["name", "symbol", "total_value"])
         # 国债信息
         file_gz = file.get_file_path_gz
         cols = ["code", "name", "date", "new"]
-        df200 = spark.read.csv(file_gz, header=True, inferSchema=True)
-        df200 = df200.toDF(*cols)
-        df200.createOrReplaceTempView("temp200")
-        # 持仓明细, pandas读取
-        file_cur_p = file.get_file_path_position
-        df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 9)])
+        df_gz = spark.read.csv(file_gz, header=True, inferSchema=True)
+        df_gz = df_gz.toDF(*cols)
+        df_gz.createOrReplaceTempView("temp_gz")
         # 交易明细
         file_path_trade = file.get_file_path_trade
         cols = ["idx", "symbol", "date", "trade_type", "price", "size", "strategy"]
-        df1 = spark.read.csv(file_path_trade, header=None, inferSchema=True)
-        df1 = df1.toDF(*cols)
-        df1.createOrReplaceTempView("temp1")
+        df_trade_detail = spark.read.csv(file_path_trade, header=None, inferSchema=True)
+        df_trade_detail = df_trade_detail.toDF(*cols)
+        df_trade_detail.createOrReplaceTempView("temp_trade_detail")
         # 持仓明细, spark读取
-        df = spark.read.csv(file_cur_p, header=True)
-        df.createOrReplaceTempView("temp")
+        file_cur_p = file.get_file_path_position
+        df_cur_p = spark.read.csv(file_cur_p, header=True, inferSchema=True)
+        cols = [
+            "idx",
+            "symbol",
+            "buy_date",
+            "price",
+            "adjbase",
+            "size",
+            "p&l",
+            "p&l_ratio",
+            "industry",
+        ]
+        df_cur_p = df_cur_p.toDF(*cols)
+        df_cur_p.createOrReplaceTempView("temp_cur_p")
+        df_cur_p_pd = df_cur_p[
+            [
+                "symbol",
+                "buy_date",
+                "price",
+                "adjbase",
+                "size",
+                "p&l",
+                "p&l_ratio",
+                "industry",
+            ]
+        ].toPandas()
         # 行业明细
         file_path_indus = file.get_file_path_industry
-        df2 = spark.read.csv(file_path_indus, header=True)
-        df2.createOrReplaceTempView("temp2")
+        df_industry_info = spark.read.csv(file_path_indus, header=True)
+        df_industry_info.createOrReplaceTempView("temp_industry_info")
         # 仓位日志明细
         file_path_position_detail = file.get_file_path_position_detail
         cols = ["idx", "symbol", "date", "price", "adjbase", "pnl"]
-        df3 = spark.read.csv(file_path_position_detail, header=None, inferSchema=True)
-        df3 = df3.toDF(*cols)
-        df3.createOrReplaceTempView("temp3")
-        # 当日股票信息
+        df_position_detail = spark.read.csv(
+            file_path_position_detail, header=None, inferSchema=True
+        )
+        df_position_detail = df_position_detail.toDF(*cols)
+        df_position_detail.createOrReplaceTempView("temp_position_detail")
+        # 最新一日股票信息
+        file_name_day = file.get_file_path_latest
         cols = [
             "idx",
             "symbol",
@@ -172,15 +127,16 @@ class StockProposal:
             "pe",
             "date",
         ]
-        df4 = spark.read.csv(file_name_day, header=True, inferSchema=True)
-        df4 = df4.toDF(*cols)
-        df4.createOrReplaceTempView("temp4")
+        df_latest_day = spark.read.csv(file_name_day, header=True, inferSchema=True)
+        df_latest_day = df_latest_day.toDF(*cols)
+        df_latest_day.createOrReplaceTempView("temp_latest_day")
+        df_latest_day_pd = df_latest_day[["name", "symbol", "total_value"]].toPandas()
 
         # 获取回测股票列表
         stock_list = TickerInfo(self.trade_date, self.market).get_stock_list()
         stock_list_tuples = [(symbol,) for symbol in stock_list]
-        df5 = spark.createDataFrame(stock_list_tuples, schema=["symbol"])
-        df5.createOrReplaceTempView("temp5")
+        df_stock_list = spark.createDataFrame(stock_list_tuples, schema=["symbol"])
+        df_stock_list.createOrReplaceTempView("temp_stock_list")
 
         # 生成时间序列，用于时间序列补齐
         end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
@@ -224,7 +180,7 @@ class StockProposal:
                     ,SUM(`p&l`) AS p_pnl
                     ,SUM(adjbase * size) AS adjbase
                     ,SUM(price * size) AS base
-                FROM temp 
+                FROM temp_cur_p 
                 GROUP BY industry
                 ), tmp1 AS (
                 SELECT symbol
@@ -250,7 +206,7 @@ class StockProposal:
                             ,LEAD(price) OVER (PARTITION BY symbol ORDER BY date)) AS l_price
                         ,IF(trade_type = 'sell', LAG(size) OVER (PARTITION BY symbol ORDER BY date) 
                             ,LEAD(size) OVER (PARTITION BY symbol ORDER BY date)) AS l_size
-                    FROM temp1
+                    FROM temp_trade_detail
                     ORDER BY symbol
                         ,date
                         ,trade_type) t
@@ -286,7 +242,7 @@ class StockProposal:
                     ,SUM(IF(t2.sell_date IS NOT NULL, t2.adj_price * (-t2.adj_size) - t2.base_price * t2.base_size, 0)) AS his_pnl
                     ,SUM(IF(t2.sell_date IS NOT NULL, t2.adj_price * (-t2.adj_size), 0)) AS his_adjbase
                     ,SUM(IF(t2.sell_date IS NOT NULL, t2.base_price * t2.base_size, 0)) AS his_base
-                FROM temp2 t1 JOIN tmp11 t2 ON t1.symbol = t2.symbol
+                FROM temp_industry_info t1 JOIN tmp11 t2 ON t1.symbol = t2.symbol
                 GROUP BY t1.industry
             ), tmp3 AS (
                 SELECT industry
@@ -295,16 +251,16 @@ class StockProposal:
                     SELECT t2.industry, t1.buy_date AS date
                         , SUM(IF(t1.buy_date = t2.date, COALESCE(t2.pnl, 0), 0)) AS pnl
                     FROM temp_timeseries t1 
-                    LEFT JOIN  (SELECT t3.industry, t2.date, SUM(t2.pnl) AS pnl FROM temp3 t2 JOIN temp2 t3 ON t2.symbol = t3.symbol 
+                    LEFT JOIN  (SELECT t3.industry, t2.date, SUM(t2.pnl) AS pnl FROM temp_position_detail t2 JOIN temp_industry_info t3 ON t2.symbol = t3.symbol 
                                 GROUP BY t3.industry, t2.date) t2 ON 1 = 1
                     GROUP BY t2.industry, t1.buy_date
                     ORDER BY t2.industry, t1.buy_date ASC
                     ) t
                 GROUP BY industry
             ), tmp4 AS (
-                SELECT temp2.industry, COUNT(temp2.symbol) AS ticker_cnt
-                FROM temp2 JOIN temp5 ON temp2.symbol = temp5.symbol
-                GROUP BY temp2.industry
+                SELECT temp_industry_info.industry, COUNT(temp_industry_info.symbol) AS ticker_cnt
+                FROM temp_industry_info JOIN temp_stock_list ON temp_industry_info.symbol = temp_stock_list.symbol
+                GROUP BY temp_industry_info.industry
             )                
             SELECT t1.industry
                 ,COALESCE(t2.p_cnt,0) AS p_cnt
@@ -329,7 +285,7 @@ class StockProposal:
             WITH tmp AS (
                 SELECT t2.industry
                     ,SUM(t1.pnl) AS pnl
-                FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
@@ -339,7 +295,7 @@ class StockProposal:
             ), tmp1 AS (
                 SELECT t2.industry
                     ,SUM(t1.pnl) AS pnl
-                FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
@@ -358,7 +314,7 @@ class StockProposal:
             WITH tmp AS (
                 SELECT t2.industry
                     ,SUM(t1.pnl) AS pnl
-                FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
@@ -368,7 +324,7 @@ class StockProposal:
             ), tmp1 AS (
                 SELECT t2.industry
                     ,SUM(t1.pnl) AS pnl
-                FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
@@ -379,7 +335,7 @@ class StockProposal:
             , tmp2 AS (
                 SELECT t2.industry
                     ,SUM(t1.pnl) AS pnl
-                FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
@@ -661,7 +617,12 @@ class StockProposal:
         """
         持仓明细历史交易情况分析
         """
-        df_np = pd.merge(df_cur_p, df_d, how="inner", on="symbol")
+        df_np = pd.merge(
+            df_cur_p_pd,
+            df_latest_day_pd,
+            how="inner",
+            on="symbol",
+        )
 
         df_np_spark = spark.createDataFrame(df_np)
         df_np_spark.createOrReplaceTempView("temp_symbol")
@@ -697,7 +658,7 @@ class StockProposal:
                             , LEAD(size) OVER (PARTITION BY symbol ORDER BY date)) AS l_size
                         ,IF(trade_type = 'sell', LAG(strategy) OVER (PARTITION BY symbol ORDER BY date) 
                             , LEAD(strategy) OVER (PARTITION BY symbol ORDER BY date)) AS l_strategy                               
-                    FROM temp1
+                    FROM temp_trade_detail
                     ORDER BY symbol
                         ,date
                         ,trade_type) t
@@ -779,8 +740,8 @@ class StockProposal:
                 , IF(adjbase < price, 1, 0) AS neg_cnt
                 FROM tmp3
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol
-                LEFT JOIN temp4 t3 ON t1.symbol = t3.symbol
-                LEFT JOIN temp200 t4 ON 1=1
+                LEFT JOIN temp_latest_day t3 ON t1.symbol = t3.symbol
+                LEFT JOIN temp_gz t4 ON 1=1
             """.format(end_date, end_date)
         )
 
@@ -840,9 +801,10 @@ class StockProposal:
         new_date_str = str(
             df_timeseries_sorted.iloc[4]["buy_date"].strftime("%Y-%m-%d")
         )
+        new_date = datetime.strptime(new_date_str, "%Y-%m-%d").date()
 
         def highlight_row(row):
-            if row["OPEN DATE"] >= new_date_str:
+            if row["OPEN DATE"] >= new_date:
                 return ["background-color: orange"] * len(row)
             else:
                 return [""] * len(row)
@@ -1031,7 +993,7 @@ class StockProposal:
                             , LEAD(size) OVER (PARTITION BY symbol ORDER BY date)) AS l_size
                         ,IF(trade_type = 'sell', LAG(strategy) OVER (PARTITION BY symbol ORDER BY date) 
                             , LEAD(strategy) OVER (PARTITION BY symbol ORDER BY date)) AS l_strategy                               
-                    FROM temp1
+                    FROM temp_trade_detail
                     ORDER BY symbol
                         ,date
                         ,trade_type) t
@@ -1060,7 +1022,7 @@ class StockProposal:
                 SELECT t1.symbol
                     ,t1.name
                     ,t2.industry
-                FROM temp4 t1 LEFT JOIN temp2 t2 ON t1.symbol = t2.symbol
+                FROM temp_latest_day t1 LEFT JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 GROUP BY t1.symbol
                     ,t1.name
                     ,t2.industry
@@ -1093,8 +1055,8 @@ class StockProposal:
                                                 ) tt WHERE row_num = 5)
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol AND t1.sell_date = t2.sell_date
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
-                LEFT JOIN temp4 t4 ON t1.symbol = t4.symbol
-                LEFT JOIN temp200 t5 ON 1=1             
+                LEFT JOIN temp_latest_day t4 ON t1.symbol = t4.symbol
+                LEFT JOIN temp_gz t5 ON 1=1             
             """.format(end_date)
         )
 
@@ -1346,7 +1308,7 @@ class StockProposal:
             """ 
             SELECT industry, cnt 
             FROM (
-                SELECT industry, count(*) AS cnt FROM temp GROUP BY industry)
+                SELECT industry, count(*) AS cnt FROM temp_cur_p GROUP BY industry)
             ORDER BY cnt DESC LIMIT 10
             """
         )
@@ -1468,7 +1430,7 @@ class StockProposal:
             """ 
             SELECT industry, ROUND(pl,2) AS pl 
             FROM (
-                SELECT industry, sum(`p&l`) as pl FROM temp GROUP BY industry)
+                SELECT industry, sum(`p&l`) as pl FROM temp_cur_p GROUP BY industry)
             ORDER BY pl DESC LIMIT 10
             """
         )
@@ -1559,7 +1521,7 @@ class StockProposal:
                     ,t1.pnl
                     ,t2.strategy
                     ,ROW_NUMBER() OVER(PARTITION BY t1.date, t1.symbol ORDER BY ABS(t1.date - t2.date) ASC, t2.date DESC) AS rn
-                FROM temp3 t1 LEFT JOIN temp1 t2 ON t1.symbol = t2.symbol AND t1.date >= t2.date AND t2.trade_type = 'buy'
+                FROM temp_position_detail t1 LEFT JOIN temp_trade_detail t2 ON t1.symbol = t2.symbol AND t1.date >= t2.date AND t2.trade_type = 'buy'
                 WHERE t1.date >= DATE_ADD('{}', -120) 
             )
             SELECT date
@@ -1770,7 +1732,7 @@ class StockProposal:
             WITH tmp1 AS (
                 SELECT date
                     ,COUNT(symbol) AS total_cnt
-                FROM temp3
+                FROM temp_position_detail
                 WHERE date >= DATE_ADD('{}', -120)
                 GROUP BY date
             ), tmp11 AS (
@@ -1782,7 +1744,7 @@ class StockProposal:
                 SELECT date
                     ,SUM(IF(trade_type = 'buy', 1, 0)) AS buy_cnt
                     ,SUM(IF(trade_type = 'sell', 1, 0)) AS sell_cnt
-                FROM temp1 
+                FROM temp_trade_detail
                 WHERE date >= DATE_ADD('{}', -120)
                 GROUP BY date
             )
@@ -1952,7 +1914,7 @@ class StockProposal:
                 SELECT industry
                     ,cnt 
                 FROM ( 
-                    SELECT industry, count(*) AS cnt FROM temp GROUP BY industry) t
+                    SELECT industry, count(*) AS cnt FROM temp_cur_p GROUP BY industry) t
                 ORDER BY cnt DESC LIMIT 5
             ), tmp1 AS (
                 SELECT temp_timeseries.buy_date
@@ -1964,7 +1926,7 @@ class StockProposal:
                     ,t2.industry
                     ,t1.date
                     ,t1.pnl
-                FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date >= DATE_ADD('{}', -120)
             ) 
             SELECT t1.buy_date
@@ -2080,7 +2042,7 @@ class StockProposal:
                 SELECT industry
                     ,pl 
                 FROM ( 
-                    SELECT industry, sum(`p&l`) AS pl FROM temp GROUP BY industry) t 
+                    SELECT industry, sum(`p&l`) AS pl FROM temp_cur_p GROUP BY industry) t 
                 ORDER BY pl DESC
             ), tmp1 AS (
                 SELECT temp_timeseries.buy_date
@@ -2092,7 +2054,7 @@ class StockProposal:
                     ,t2.industry
                     ,t1.date
                     ,t1.pnl
-                FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date >= DATE_ADD('{}', -120)
             ), tmp3 AS (
             SELECT t1.buy_date
@@ -2253,7 +2215,7 @@ class StockProposal:
                     t1.date
                     ,t2.industry
                     ,SUM(t1.pnl) AS pnl
-                FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
+                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date >= (
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
@@ -2851,18 +2813,20 @@ class StockProposal:
         # 交易明细
         file_path_trade = file.get_file_path_etf_trade
         cols = ["idx", "symbol", "date", "trade_type", "price", "size", "strategy"]
-        df1 = spark.read.csv(file_path_trade, header=None, inferSchema=True)
-        df1 = df1.toDF(*cols)
-        df1.createOrReplaceTempView("temp1")
+        df_trade_detail = spark.read.csv(file_path_trade, header=None, inferSchema=True)
+        df_trade_detail = df_trade_detail.toDF(*cols)
+        df_trade_detail.createOrReplaceTempView("temp_trade_detail")
         # 持仓明细, spark读取
         df = spark.read.csv(file_cur_p, header=True)
-        df.createOrReplaceTempView("temp")
+        df.createOrReplaceTempView("temp_cur_p")
         # 仓位日志明细
         file_path_position_detail = file.get_file_path_etf_position_detail
         cols = ["idx", "symbol", "date", "price", "adjbase", "pnl"]
-        df3 = spark.read.csv(file_path_position_detail, header=None, inferSchema=True)
-        df3 = df3.toDF(*cols)
-        df3.createOrReplaceTempView("temp3")
+        df_position_detail = spark.read.csv(
+            file_path_position_detail, header=None, inferSchema=True
+        )
+        df_position_detail = df_position_detail.toDF(*cols)
+        df_position_detail.createOrReplaceTempView("temp_position_detail")
         # 当日股票信息
         cols = [
             "idx",
@@ -2883,9 +2847,9 @@ class StockProposal:
             "pe",
             "date",
         ]
-        df4 = spark.read.csv(file_name_day, header=True, inferSchema=True)
-        df4 = df4.toDF(*cols)
-        df4.createOrReplaceTempView("temp4")
+        df_lastest_day_2 = spark.read.csv(file_name_day, header=True, inferSchema=True)
+        df_lastest_day_2 = df_lastest_day_2.toDF(*cols)
+        df_lastest_day_2.createOrReplaceTempView("temp_latest_day_2")
 
         # 生成时间序列，用于时间序列补齐
         end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
@@ -2954,7 +2918,7 @@ class StockProposal:
                             , LEAD(size) OVER (PARTITION BY symbol ORDER BY date)) AS l_size
                         ,IF(trade_type = 'sell', LAG(strategy) OVER (PARTITION BY symbol ORDER BY date) 
                             , LEAD(strategy) OVER (PARTITION BY symbol ORDER BY date)) AS l_strategy                               
-                    FROM temp1
+                    FROM temp_trade_detail
                     ORDER BY symbol
                         ,date
                         ,trade_type) t
@@ -3238,7 +3202,7 @@ class StockProposal:
                             , LEAD(size) OVER (PARTITION BY symbol ORDER BY date)) AS l_size
                         ,IF(trade_type = 'sell', LAG(strategy) OVER (PARTITION BY symbol ORDER BY date) 
                             , LEAD(strategy) OVER (PARTITION BY symbol ORDER BY date)) AS l_strategy                               
-                    FROM temp1
+                    FROM temp_trade_detail
                     ORDER BY symbol
                         ,date
                         ,trade_type) t
@@ -3266,7 +3230,7 @@ class StockProposal:
             ), tmp3 AS (
                 SELECT symbol
                     ,name
-                FROM temp4
+                FROM temp_latest_day_2
                 GROUP BY symbol
                     ,name
             )
@@ -3448,7 +3412,7 @@ class StockProposal:
             WITH tmp1 AS (
                 SELECT date
                     ,COUNT(symbol) AS total_cnt
-                FROM temp3
+                FROM temp_position_detail
                 WHERE date >= DATE_ADD('{}', -120)
                 GROUP BY date
             ), tmp11 AS (
@@ -3461,7 +3425,7 @@ class StockProposal:
                 SELECT date
                     ,SUM(IF(trade_type = 'buy', 1, 0)) AS buy_cnt
                     ,SUM(IF(trade_type = 'sell', 1, 0)) AS sell_cnt
-                FROM temp1 
+                FROM temp_trade_detail
                 WHERE date >= DATE_ADD('{}', -120)
                 GROUP BY date
             )

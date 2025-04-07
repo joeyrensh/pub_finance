@@ -344,12 +344,6 @@ if __name__ == "__main__":
     em = EMWebCrawler()
     em.get_us_daily_stock_info(trade_date)
 
-    # """ 执行策略 """
-    # df = exec_strategy(trade_date)
-    # """ 发送邮件 """
-    # if not df.empty:
-    #     StockProposal("us", trade_date).send_strategy_df_by_email(df)
-
     """ 执行bt相关策略 """
     cash, final_value = exec_btstrategy(trade_date)
 
