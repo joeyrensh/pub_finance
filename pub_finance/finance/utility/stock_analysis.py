@@ -168,7 +168,7 @@ class StockProposal:
         """ 
         行业板块历史数据分析
         """
-        sparkdata7 = spark.sql(
+        sparkdata_industry_tracking = spark.sql(
             """ 
             WITH tmp AS (
                 SELECT industry
@@ -280,7 +280,7 @@ class StockProposal:
             """.format(end_date, end_date)
         )
 
-        sparkdata71 = spark.sql(
+        sparkdata_industry_tracking15 = spark.sql(
             """
             WITH tmp AS (
                 SELECT t2.industry
@@ -309,7 +309,7 @@ class StockProposal:
             ORDER BY tmp.pnl - COALESCE(tmp1.pnl, 0) DESC
             """
         )
-        sparkdata72 = spark.sql(
+        sparkdata_industry_tracking26 = spark.sql(
             """
             WITH tmp AS (
                 SELECT t2.industry
@@ -351,16 +351,18 @@ class StockProposal:
             ORDER BY COALESCE(tmp1.pnl, 0) - COALESCE(tmp2.pnl, 0) DESC
             """
         )
-        dfdata71 = sparkdata71.toPandas()
-        dfdata72 = sparkdata72.toPandas()
-        dfdata7 = sparkdata7.toPandas()
+        df_industry_tracking15 = sparkdata_industry_tracking15.toPandas()
+        df_industry_tracking26 = sparkdata_industry_tracking26.toPandas()
+        df_industry_tracking = sparkdata_industry_tracking.toPandas()
 
         result_df = (
-            dfdata7.merge(dfdata71, on="industry", how="inner")
+            df_industry_tracking.merge(
+                df_industry_tracking15, on="industry", how="inner"
+            )
             .sort_values(by="pnl_growth", ascending=False)
             .reset_index(drop=True)
         )
-        dfdata7 = result_df[
+        df_industry_tracking = result_df[
             [
                 "industry",
                 "p_cnt",
@@ -377,16 +379,21 @@ class StockProposal:
             ]
         ].copy()
         index_diff_dict = {}
-        for index, row in dfdata7.iterrows():
+        for index, row in df_industry_tracking.iterrows():
             industry = row["industry"]
 
-            if industry in dfdata72["industry"].values:
+            if industry in df_industry_tracking26["industry"].values:
                 index_diff = (
-                    dfdata72[dfdata72["industry"] == industry].index.values - index
+                    df_industry_tracking26[
+                        df_industry_tracking26["industry"] == industry
+                    ].index.values
+                    - index
                 )[0]
                 index_diff_dict[index] = index_diff
 
-        dfdata7["index_diff"] = dfdata7.index.map(index_diff_dict)
+        df_industry_tracking["index_diff"] = df_industry_tracking.index.map(
+            index_diff_dict
+        )
 
         def create_arrow(value):
             if pd.isnull(value):
@@ -398,15 +405,15 @@ class StockProposal:
             else:
                 return ""
 
-        dfdata7["industry_new"] = dfdata7["industry"]
-        dfdata7["industry"] = dfdata7.apply(
+        df_industry_tracking["industry_new"] = df_industry_tracking["industry"]
+        df_industry_tracking["industry"] = df_industry_tracking.apply(
             lambda row: f"{row['industry']} {create_arrow(row['index_diff'])}",
             axis=1,
         )
-        dfdata7["pnl_trend"] = dfdata7["pnl_array"].apply(
+        df_industry_tracking["pnl_trend"] = df_industry_tracking["pnl_array"].apply(
             ToolKit("draw line").create_line
         )
-        dfdata7.rename(
+        df_industry_tracking.rename(
             columns={
                 "industry": "IND",
                 "p_cnt": "OPEN",
@@ -423,15 +430,15 @@ class StockProposal:
             inplace=True,
         )
         if self.market == "us":
-            dfdata7.to_csv("./data/us_category.csv", header=True)
+            df_industry_tracking.to_csv("./data/us_category.csv", header=True)
         else:
-            dfdata7.to_csv("./data/cn_category.csv", header=True)
+            df_industry_tracking.to_csv("./data/cn_category.csv", header=True)
         cm = sns.light_palette("seagreen", as_cmap=True)
 
         html = (
             "<h2>Industry Overview</h2>"
             "<table>"
-            + dfdata7.style.hide(
+            + df_industry_tracking.style.hide(
                 axis=1,
                 subset=[
                     "pnl_array",
@@ -627,7 +634,7 @@ class StockProposal:
         df_np_spark = spark.createDataFrame(df_np)
         df_np_spark.createOrReplaceTempView("temp_symbol")
 
-        sparkdata8 = spark.sql(
+        sparkdata_position_history = spark.sql(
             """ 
             WITH tmp1 AS (
                 SELECT symbol
@@ -745,17 +752,20 @@ class StockProposal:
             """.format(end_date, end_date)
         )
 
-        dfdata8 = sparkdata8.toPandas()
+        df_position_history = sparkdata_position_history.toPandas()
 
         # 将df2的索引和'ind'列的值拼接起来
-        dfdata7["combined"] = (
-            dfdata7["IND"].astype(str) + "(" + dfdata7.index.astype(str) + ")"
+        df_industry_tracking["combined"] = (
+            df_industry_tracking["IND"].astype(str)
+            + "("
+            + df_industry_tracking.index.astype(str)
+            + ")"
         )
 
         # 使用merge来找到df1和df2中'ind'相等的行，并保留df1的所有行
-        dfdata8 = (
-            dfdata8.merge(
-                dfdata7[["industry_new", "combined", "pnl_growth"]],
+        df_position_history = (
+            df_position_history.merge(
+                df_industry_tracking[["industry_new", "combined", "pnl_growth"]],
                 left_on="industry",
                 right_on="industry_new",
                 how="inner",
@@ -765,12 +775,12 @@ class StockProposal:
             )
             .reset_index(drop=True)
         )
-        dfdata8["industry"] = dfdata8["combined"]
+        df_position_history["industry"] = df_position_history["combined"]
 
         # 删除添加的'combined_df2'列
-        dfdata8.drop(columns=["combined", "industry_new"], inplace=True)
+        df_position_history.drop(columns=["combined", "industry_new"], inplace=True)
 
-        dfdata8.rename(
+        df_position_history.rename(
             columns={
                 "symbol": "SYMBOL",
                 "industry": "IND",
@@ -791,9 +801,9 @@ class StockProposal:
             inplace=True,
         )
         if self.market == "us":
-            dfdata8.to_csv("./data/us_stockdetail.csv", header=True)
+            df_position_history.to_csv("./data/us_stockdetail.csv", header=True)
         else:
-            dfdata8.to_csv("./data/cn_stockdetail.csv", header=True)
+            df_position_history.to_csv("./data/cn_stockdetail.csv", header=True)
         cm = sns.light_palette("seagreen", as_cmap=True)
 
         # 将新日期转换为字符串
@@ -812,7 +822,9 @@ class StockProposal:
         html1 = (
             "<h2>Open Position List</h2>"
             "<table>"
-            + dfdata8.style.hide(axis=1, subset=["PNL", "pnl_growth", "TOTAL VALUE"])
+            + df_position_history.style.hide(
+                axis=1, subset=["PNL", "pnl_growth", "TOTAL VALUE"]
+            )
             .format(
                 {
                     "BASE": "{:.2f}",
@@ -1066,7 +1078,7 @@ class StockProposal:
             # 使用merge来找到df1和df2中'ind'相等的行，并保留df1的所有行
             dfdata9 = (
                 dfdata9.merge(
-                    dfdata7[["industry_new", "combined", "pnl_growth"]],
+                    df_industry_tracking[["industry_new", "combined", "pnl_growth"]],
                     left_on="industry",
                     right_on="industry_new",
                     how="inner",
@@ -1244,7 +1256,7 @@ class StockProposal:
 
         del dfdata9
         gc.collect()
-        del dfdata7
+        del df_industry_tracking
         gc.collect()
 
         # 样式变量
@@ -2035,7 +2047,7 @@ class StockProposal:
         del dfdata5
         gc.collect()
         # TOP5行业PnL变化趋势
-        sparkdata71.createOrReplaceTempView("tmp_data71")
+        sparkdata_industry_tracking15.createOrReplaceTempView("temp_industry_tracking")
         sparkdata6 = spark.sql(
             """
             WITH tmp AS ( 
@@ -2065,7 +2077,7 @@ class StockProposal:
             )  SELECT t2.buy_date
                 ,t1.industry
                 ,t2.pnl
-            FROM (SELECT * FROM tmp_data71 ORDER BY pnl_growth DESC LIMIT 5) t1
+            FROM (SELECT * FROM temp_industry_tracking ORDER BY pnl_growth DESC LIMIT 5) t1
             LEFT JOIN tmp3 t2 ON t1.industry = t2.industry
             ORDER BY t2.buy_date ASC, t1.pnl_growth DESC
             """.format(end_date)
@@ -2804,12 +2816,6 @@ class StockProposal:
         读取交易相关数据，交易明细，持仓明细，仓位日志明细，行业信息
         """
         file = FileInfo(self.trade_date, self.market)
-        # 最新一日股票信息
-        file_name_day = file.get_file_path_latest
-        df_d = pd.read_csv(file_name_day, usecols=["name", "symbol", "total_value"])
-        # 持仓明细, pandas读取
-        file_cur_p = file.get_file_path_etf_position
-        df_cur_p = pd.read_csv(file_cur_p, usecols=[i for i in range(1, 8)])
         # 交易明细
         file_path_trade = file.get_file_path_etf_trade
         cols = ["idx", "symbol", "date", "trade_type", "price", "size", "strategy"]
@@ -2817,8 +2823,31 @@ class StockProposal:
         df_trade_detail = df_trade_detail.toDF(*cols)
         df_trade_detail.createOrReplaceTempView("temp_trade_detail")
         # 持仓明细, spark读取
-        df = spark.read.csv(file_cur_p, header=True)
-        df.createOrReplaceTempView("temp_cur_p")
+        file_cur_p = file.get_file_path_etf_position
+        cols = [
+            "idx",
+            "symbol",
+            "buy_date",
+            "price",
+            "adjbase",
+            "size",
+            "p&l",
+            "p&l_ratio",
+        ]
+        df_cur_p = spark.read.csv(file_cur_p, header=True, inferSchema=True)
+        df_cur_p = df_cur_p.toDF(*cols)
+        df_cur_p.createOrReplaceTempView("temp_cur_p")
+        df_cur_p_pd = df_cur_p[
+            [
+                "symbol",
+                "buy_date",
+                "price",
+                "adjbase",
+                "size",
+                "p&l",
+                "p&l_ratio",
+            ]
+        ].toPandas()
         # 仓位日志明细
         file_path_position_detail = file.get_file_path_etf_position_detail
         cols = ["idx", "symbol", "date", "price", "adjbase", "pnl"]
@@ -2828,6 +2857,7 @@ class StockProposal:
         df_position_detail = df_position_detail.toDF(*cols)
         df_position_detail.createOrReplaceTempView("temp_position_detail")
         # 当日股票信息
+        file_name_day = file.get_file_path_latest
         cols = [
             "idx",
             "symbol",
@@ -2847,9 +2877,10 @@ class StockProposal:
             "pe",
             "date",
         ]
-        df_lastest_day_2 = spark.read.csv(file_name_day, header=True, inferSchema=True)
-        df_lastest_day_2 = df_lastest_day_2.toDF(*cols)
-        df_lastest_day_2.createOrReplaceTempView("temp_latest_day_2")
+        df_latest_day = spark.read.csv(file_name_day, header=True, inferSchema=True)
+        df_latest_day = df_latest_day.toDF(*cols)
+        df_latest_day.createOrReplaceTempView("temp_latest_day")
+        df_latest_day_pd = df_latest_day[["name", "symbol", "total_value"]].toPandas()
 
         # 生成时间序列，用于时间序列补齐
         end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
@@ -2882,7 +2913,7 @@ class StockProposal:
         """
         持仓明细历史交易情况分析
         """
-        df_np = pd.merge(df_cur_p, df_d, how="inner", on="symbol")
+        df_np = pd.merge(df_cur_p_pd, df_latest_day_pd, how="inner", on="symbol")
 
         df_np_spark = spark.createDataFrame(df_np)
         df_np_spark.createOrReplaceTempView("temp_symbol")
@@ -3027,9 +3058,10 @@ class StockProposal:
         new_date_str = str(
             df_timeseries_sorted.iloc[4]["buy_date"].strftime("%Y-%m-%d")
         )
+        new_date = datetime.strptime(new_date_str, "%Y-%m-%d").date()
 
         def highlight_row(row):
-            if row["OPEN DATE"] >= new_date_str:
+            if row["OPEN DATE"] >= new_date:
                 return ["background-color: orange"] * len(row)
             else:
                 return [""] * len(row)
@@ -3230,7 +3262,7 @@ class StockProposal:
             ), tmp3 AS (
                 SELECT symbol
                     ,name
-                FROM temp_latest_day_2
+                FROM df_latest_day
                 GROUP BY symbol
                     ,name
             )
