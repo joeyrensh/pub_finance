@@ -2105,6 +2105,7 @@ class StockProposal:
                 ,t2.pnl
             FROM (SELECT * FROM tmp_data71 ORDER BY pnl_growth DESC LIMIT 5) t1
             LEFT JOIN tmp3 t2 ON t1.industry = t2.industry
+            ORDER BY t2.buy_date ASC, t1.pnl_growth DESC
             """.format(end_date)
         )
         dfdata6 = sparkdata6.toPandas()
