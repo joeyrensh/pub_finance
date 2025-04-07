@@ -2073,6 +2073,7 @@ class StockProposal:
         del dfdata5
         gc.collect()
         # TOP5行业PnL变化趋势
+        sparkdata71.createOrReplaceTempView("tmp_data71")
         sparkdata6 = spark.sql(
             """
             WITH tmp AS ( 
@@ -2080,7 +2081,7 @@ class StockProposal:
                     ,pl 
                 FROM ( 
                     SELECT industry, sum(`p&l`) AS pl FROM temp GROUP BY industry) t 
-                ORDER BY pl DESC LIMIT 5
+                ORDER BY pl DESC
             ), tmp1 AS (
                 SELECT temp_timeseries.buy_date
                     ,tmp.industry
@@ -2093,12 +2094,17 @@ class StockProposal:
                     ,t1.pnl
                 FROM temp3 t1 JOIN temp2 t2 ON t1.symbol = t2.symbol
                 WHERE t1.date >= DATE_ADD('{}', -120)
-            )   
+            ), tmp3 AS (
             SELECT t1.buy_date
                 ,t1.industry
                 ,SUM(COALESCE(t2.pnl, 0)) AS pnl
             FROM tmp1 t1 LEFT JOIN tmp2 t2 ON t1.industry = t2.industry AND t1.buy_date = t2.date
             GROUP BY t1.buy_date, t1.industry
+            )  SELECT t2.buy_date
+                ,t1.industry
+                ,t2.pnl
+            FROM (SELECT * FROM tmp_data71 ORDER BY pnl_growth DESC LIMIT 5) t1
+            LEFT JOIN tmp3 t2 ON t1.industry = t2.industry
             """.format(end_date)
         )
         dfdata6 = sparkdata6.toPandas()
