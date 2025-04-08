@@ -3327,7 +3327,7 @@ class StockProposal:
             ), tmp3 AS (
                 SELECT symbol
                     ,name
-                FROM df_latest_day
+                FROM temp_latest_stock_info
                 GROUP BY symbol
                     ,name
             )
