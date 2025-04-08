@@ -493,7 +493,7 @@ li {
 }
 
 a:link {
-  color: #ffffffc5;
+  color: var(--a-visited-color);
   /*#8b0202*/
   ;
   text-decoration: none;
