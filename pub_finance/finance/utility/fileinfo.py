@@ -40,39 +40,27 @@ class FileInfo:
         )
         # 仓位日志文件
         self._file_path_position = (
-            base_path + "/" + f"{market}stockinfo" + "/" + f"position_{trade_date}.csv"
+            base_path + "/" + f"{market}stockinfo" + "/" + "position_logs.csv"
         )
         # 仓位明细文件
         self._file_path_position_detail = (
-            base_path
-            + "/"
-            + f"{market}stockinfo"
-            + "/"
-            + f"position_detail_{trade_date}.csv"
+            base_path + "/" + f"{market}stockinfo" + "/" + "position_detail.csv"
         )
         # 交易日志文件
         self._file_path_trade = (
-            base_path + "/" + f"{market}stockinfo" + "/" + f"trade_{trade_date}.csv"
+            base_path + "/" + f"{market}stockinfo" + "/" + "trade_logs.csv"
         )
         # ETF仓位文件
         self._file_path_etf_position = (
-            base_path
-            + "/"
-            + f"{market}stockinfo"
-            + "/"
-            + f"etf_position_{trade_date}.csv"
+            base_path + "/" + f"{market}stockinfo" + "/" + "etf_position_logs.csv"
         )
         # ETF仓位明细文件
         self._file_path_etf_position_detail = (
-            base_path
-            + "/"
-            + f"{market}stockinfo"
-            + "/"
-            + f"etf_position_detail_{trade_date}.csv"
+            base_path + "/" + f"{market}stockinfo" + "/" + "etf_position_detail.csv"
         )
         # ETF交易日志
         self._file_path_etf_trade = (
-            base_path + "/" + f"{market}stockinfo" + "/" + f"etf_trade_{trade_date}.csv"
+            base_path + "/" + f"{market}stockinfo" + "/" + "etf_trade_logs.csv"
         )
 
     """ 返回某日数据文件路径 """
