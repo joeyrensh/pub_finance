@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 import progressbar
-from backtraderref.immediateexecuteorder import ImmediateExecuteBroker
 from utility.toolkit import ToolKit
 from datetime import datetime
 import pandas as pd
@@ -32,8 +31,6 @@ def exec_btstrategy(date):
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
     # cerebro.addobserver(bt.observers.BuySell)
-    cerebro.broker = ImmediateExecuteBroker()
-
     cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
     # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
