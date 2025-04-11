@@ -483,8 +483,9 @@ class GlobalStrategy(bt.Strategy):
         dict = {}
         if order.status in [order.Submitted, order.Accepted]:
             """Buy/Sell order submitted/accepted to/by broker - Nothing to do"""
-            return
-        if order.status in [order.Completed]:
+            pass
+            # return
+        elif order.status in [order.Completed]:
             if order.isbuy():
                 """订单购入成功"""
                 print(
