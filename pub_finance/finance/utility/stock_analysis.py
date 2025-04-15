@@ -1294,7 +1294,7 @@ class StockProposal:
         title_font_size = 32
         light_text_color = "rgba(255, 255, 255, 0.77)"
         dark_text_color = "#000000"
-        pie_sequential_color = px.colors.sequential.Reds
+        pie_sequential_color = px.colors.sequential.Oryel
         # 策略颜色（保留原有红色系，调整蓝色系为绿色系）
         strategy_colors_light = [
             "#228B22",  # 森林绿 (Forest Green) - 主对比色
