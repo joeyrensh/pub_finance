@@ -1384,7 +1384,7 @@ class StockProposal:
                 brightness = np.dot(rgb, [0.299, 0.587, 0.114])  # RGB亮度公式
                 if brightness > 0.7:
                     return dark_text_color
-                elif brightness < 0.2:
+                elif brightness < 0.3:
                     return light_text_color
                 else:
                     return dark_text_color if theme == "light" else light_text_color
