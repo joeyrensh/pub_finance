@@ -1409,7 +1409,7 @@ class StockProposal:
             textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
             marker=dict(colors=hex_colors, line=dict(color=text_colors, width=2)),
-            opacity=0.8,
+            opacity=0.7,
         )
         fig.update_layout(
             title="Top10 Position",
@@ -1497,7 +1497,7 @@ class StockProposal:
             textfont=dict(size=font_size, color=text_colors, family="Arial"),
             textposition="inside",
             marker=dict(colors=hex_colors, line=dict(color=text_colors, width=2)),
-            opacity=0.8,
+            opacity=0.7,
         )
         fig.update_layout(
             title="Top10 Profit",
