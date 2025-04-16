@@ -2442,7 +2442,7 @@ class StockProposal:
                 zeroline=False,
                 showticklabels=True,
                 dtick=1,  # 每天显示一个刻度
-                tickfont=dict(size=20, family="Arial"),
+                tickfont=dict(size=font_size, family="Arial"),
             ),
             yaxis=dict(
                 showgrid=True,
@@ -2597,7 +2597,7 @@ class StockProposal:
                 zeroline=False,
                 showticklabels=True,
                 dtick=1,  # 每天显示一个刻度
-                tickfont=dict(size=20, color=light_text_color, family="Arial"),
+                tickfont=dict(size=font_size, color=light_text_color, family="Arial"),
             ),
             yaxis=dict(
                 showgrid=True,

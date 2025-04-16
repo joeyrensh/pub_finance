@@ -181,7 +181,7 @@ def exec_btstrategy(date):
         # 全局样式设置
         rcParams.update(
             {
-                "font.size": 16,
+                "font.size": 20,
                 "axes.labelcolor": colors["text"],
                 "axes.edgecolor": colors["text"],
                 "xtick.color": colors["text"],
@@ -232,7 +232,7 @@ def exec_btstrategy(date):
         )
         # 统一单元格样式
         for cell in table.get_celld().values():
-            cell.set_text_props(color=colors["text"], fontsize=18)
+            cell.set_text_props(color=colors["text"])
             cell.set_edgecolor(colors["table_edge"])
             cell.set_linewidth(1)
 
@@ -289,7 +289,7 @@ def exec_btstrategy(date):
             labels + labels2,
             loc="upper left",
             frameon=False,
-            fontsize=16,
+            # fontsize=16,
         )
         for text in legend.get_texts():
             text.set_color(colors["legend_text"])

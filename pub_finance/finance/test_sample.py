@@ -26,7 +26,7 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cn")
+    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cnetf")
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
@@ -34,14 +34,14 @@ def exec_btstrategy(date):
     cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
     # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
-    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
+    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=2)
     cerebro.addsizer(FixedAmount, amount=10000)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "cn").get_backtrader_data_feed()
+    list = TickerInfo(date, "cn").get_etf_backtrader_data_feed()
     """ 初始资金100M """
-    start_cash = len(list) * 10000
+    start_cash = len(list) * 20000
     cerebro.broker.setcash(start_cash)
     """ 循环初始化数据进入cerebro """
     for h in list:
@@ -180,7 +180,7 @@ def exec_btstrategy(date):
         # 全局样式设置
         rcParams.update(
             {
-                "font.size": 16,
+                "font.size": 25,
                 "axes.labelcolor": colors["text"],
                 "axes.edgecolor": colors["text"],
                 "xtick.color": colors["text"],
@@ -231,7 +231,7 @@ def exec_btstrategy(date):
         )
         # 统一单元格样式
         for cell in table.get_celld().values():
-            cell.set_text_props(color=colors["text"], fontsize=18)
+            cell.set_text_props(color=colors["text"])
             cell.set_edgecolor(colors["table_edge"])
             cell.set_linewidth(1)
 
@@ -273,7 +273,6 @@ def exec_btstrategy(date):
         )
         ax_chart.grid(True, alpha=0.4)
         ax_drawdown.grid(False)
-
         # ----------------------------
         # 图表美化
         # ----------------------------
@@ -288,7 +287,7 @@ def exec_btstrategy(date):
             labels + labels2,
             loc="upper left",
             frameon=False,
-            fontsize=16,
+            # fontsize=16,
         )
         for text in legend.get_texts():
             text.set_color(colors["legend_text"])
@@ -301,7 +300,7 @@ def exec_btstrategy(date):
 
         # 保存图片
         plt.savefig(
-            f"./dashreport/assets/images/cn_tr_{theme}.svg",
+            f"./dashreport/assets/images/cnetf_tr_{theme}.svg",
             format="svg",
             bbox_inches="tight",  # 保持边界紧凑
             transparent=True,  # 保持背景透明
@@ -346,14 +345,14 @@ if __name__ == "__main__":
     # em.get_cn_daily_stock_info(trade_date)
 
     """ 执行bt相关策略 """
-    # cash, final_value = exec_btstrategy(trade_date)
+    cash, final_value = exec_btstrategy(trade_date)
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(12199163.99, 22953961.99)
+    StockProposal("cn", trade_date).send_etf_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()
