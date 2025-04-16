@@ -1290,8 +1290,8 @@ class StockProposal:
         gc.collect()
 
         # 样式变量
-        font_size = 28
-        title_font_size = 32
+        font_size = 32
+        title_font_size = 35
         light_text_color = "rgba(255, 255, 255, 0.77)"
         dark_text_color = "#000000"
         pie_sequential_color = px.colors.diverging.RdYlGn
@@ -1629,37 +1629,41 @@ class StockProposal:
                 # titlefont=dict(size=20, color="black"),
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color=dark_text_color, size=20, family="Arial"),
+                tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis=dict(
                 title="Success Rate",
-                titlefont=dict(size=20, color=dark_text_color, family="Arial"),
+                titlefont=dict(
+                    size=title_font_size, color=dark_text_color, family="Arial"
+                ),
                 side="left",
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color=dark_text_color, size=20, family="Arial"),
+                tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis2=dict(
                 title="Pnl",
-                titlefont=dict(size=20, color=dark_text_color, family="Arial"),
+                titlefont=dict(
+                    size=title_font_size, color=dark_text_color, family="Arial"
+                ),
                 side="right",
                 overlaying="y",
                 showgrid=False,
                 ticks="outside",
-                tickfont=dict(color=dark_text_color, size=20, family="Arial"),
+                tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 range=[0, max_pnl * 2],
             ),
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
-                y=-0.2,
+                y=-0.25,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=20, color=dark_text_color, family="Arial"),
+                font=dict(size=font_size, color=dark_text_color, family="Arial"),
             ),
             barmode="stack",
             bargap=0.5,
@@ -1721,37 +1725,41 @@ class StockProposal:
                 # titlefont=dict(size=20, color="black"),
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color=light_text_color, size=20, family="Arial"),
+                tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
                 title="Success Rate",
-                titlefont=dict(size=20, color=light_text_color, family="Arial"),
+                titlefont=dict(
+                    size=title_font_size, color=light_text_color, family="Arial"
+                ),
                 side="left",
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color=light_text_color, size=20, family="Arial"),
+                tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
                 title="Pnl",
-                titlefont=dict(size=20, color=light_text_color, family="Arial"),
+                titlefont=dict(
+                    size=title_font_size, color=light_text_color, family="Arial"
+                ),
                 side="right",
                 overlaying="y",
                 showgrid=False,
                 ticks="outside",
-                tickfont=dict(color=light_text_color, size=20, family="Arial"),
+                tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
                 range=[0, max_pnl * 2],
             ),
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
-                y=-0.2,
+                y=-0.25,
                 xanchor="center",
                 x=0.5,
-                font=dict(size=20, color=light_text_color, family="Arial"),
+                font=dict(size=font_size, color=light_text_color, family="Arial"),
             ),
             barmode="stack",
             bargap=0.5,
@@ -2399,11 +2407,11 @@ class StockProposal:
                     title=dict(
                         text="PnL",
                         font=dict(
-                            color=dark_text_color, size=18, family="Arial"
+                            color=dark_text_color, size=font_size, family="Arial"
                         ),  # 设置颜色条标题的颜色和字体大小
                     ),
                     titleside="top",  # 将颜色条标题放在顶部
-                    tickfont=dict(size=18, family="Arial"),
+                    tickfont=dict(size=font_size, family="Arial"),
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
                 ),
@@ -2489,7 +2497,7 @@ class StockProposal:
                 font=dict(
                     color=text_color,
                     family="Arial",
-                    size=20,
+                    size=font_size - 5,
                 ),  # 根据s_pnl值动态设置字体颜色
                 align="center",
                 xanchor="center",
@@ -2555,11 +2563,13 @@ class StockProposal:
                     title=dict(
                         text="PnL",
                         font=dict(
-                            color=light_text_color, size=18, family="Arial"
+                            color=light_text_color, size=font_size, family="Arial"
                         ),  # 设置颜色条标题的颜色和字体大小
                     ),
                     titleside="top",  # 将颜色条标题放在顶部
-                    tickfont=dict(size=18, color=light_text_color, family="Arial"),
+                    tickfont=dict(
+                        size=font_size, color=light_text_color, family="Arial"
+                    ),
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
                 ),
@@ -2630,7 +2640,9 @@ class StockProposal:
                 text=text,
                 showarrow=False,
                 font=dict(
-                    color=text_color, family="Arial", size=20
+                    color=text_color,
+                    family="Arial",
+                    size=font_size - 5,
                 ),  # 根据s_pnl值动态设置字体颜色
                 align="center",
                 xanchor="center",
