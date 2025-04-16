@@ -481,9 +481,26 @@ class GlobalStrategy(bt.Strategy):
     def notify_order(self, order):
         list = []
         dict = {}
-        if order.status in [order.Submitted, order.Accepted]:
-            """Buy/Sell order submitted/accepted to/by broker - Nothing to do"""
-            return
+        # if order.status in [order.Submitted, order.Accepted]:
+        if order.status in [order.Accepted]:
+            if order.isbuy():
+                print(
+                    "{}, Buy {} Created, Price: {:.2f} Size: {:.2f}".format(
+                        bt.num2date(order.created.dt).strftime("%Y-%m-%d"),
+                        order.data._name,
+                        order.created.price,
+                        order.created.size,
+                    )
+                )
+            elif order.issell():
+                print(
+                    "{}, Sell {} Created, Price: {:.2f} Size: {:.2f}".format(
+                        bt.num2date(order.created.dt).strftime("%Y-%m-%d"),
+                        order.data._name,
+                        order.created.price,
+                        order.created.size,
+                    )
+                )
         elif order.status in [order.Completed]:
             if order.isbuy():
                 """订单购入成功"""
@@ -627,19 +644,16 @@ class GlobalStrategy(bt.Strategy):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "均线破线"
                 elif self.signals[d._name]["volume_spike"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "成交放大"
                 elif self.signals[d._name]["close_crossup_annualline"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "上穿年线"
                 elif (
                     self.signals[d._name]["close_crossup_ema_short"][0] == 1
@@ -650,19 +664,16 @@ class GlobalStrategy(bt.Strategy):
                 ):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "均线密集"
                 elif self.signals[d._name]["long_position"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "均线多头"
                 elif self.signals[d._name]["close_rising"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "收盘价走高"
                 elif (
                     self.signals[d._name]["red_three_soldiers"][0] == 1
@@ -671,7 +682,6 @@ class GlobalStrategy(bt.Strategy):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.log("Buy %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "红三兵"
             else:
                 dt = self.datas[0].datetime.date(0)
@@ -686,19 +696,15 @@ class GlobalStrategy(bt.Strategy):
 
                 if self.signals[d._name]["ma_crossover_bearish"][0] == 1:
                     self.order[d._name] = self.close(data=d)
-                    self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "均线破位"
                 elif self.signals[d._name]["closs_crossdown_annualline"][0] == 1:
                     self.order[d._name] = self.close(data=d)
-                    self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "下穿年线"
                 elif self.signals[d._name]["short_position"][0] == 1:
                     self.order[d._name] = self.close(data=d)
-                    self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "均线空头"
                 elif self.signals[d._name]["close_falling"][0] == 1:
                     self.order[d._name] = self.close(data=d)
-                    self.log("Sell %s Created %.2f" % (d._name, d.close[0]))
                     self.myorder[d._name]["strategy"] = "收盘价走低"
 
         df = pd.DataFrame(list)
