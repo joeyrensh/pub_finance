@@ -34,6 +34,8 @@
 
         // console.log(`Setting font size to ${fontSize} for element in SVG: ${svgId}`);
         element.style.setProperty('font-size', fontSize, 'important');
+        element.style.setProperty('font-family', '-apple-system', 'important'); // 设置 font-family
+        
     }
 
     function processSvg(obj) {
