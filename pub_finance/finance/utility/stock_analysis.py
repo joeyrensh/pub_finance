@@ -17,7 +17,6 @@ import re
 from plotly.colors import sample_colorscale
 from datetime import datetime
 
-
 # mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
 
 

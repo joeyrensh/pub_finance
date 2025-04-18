@@ -16,7 +16,6 @@
   --main-title-color: #FF4136;
   --full-view-link-bg-color: #FF4136;
   --border-left-color: #FF4136;
-
 }
 
 @media (prefers-color-scheme: dark) {
@@ -40,8 +39,29 @@
     --border-left-color: #ff413699;
   }
 
-
 }
+
+
+/* 默认显示浅色主题 */
+.svg-light { display: block; }
+.svg-dark { display: none; }
+
+/* 深色模式时切换 */
+@media (prefers-color-scheme: dark) {
+    .svg-light { display: none ;}
+    .svg-dark { display: block !important;}
+}
+
+/* 保持响应式布局 */
+.chart-container {
+    width: 100%;
+    margin: 0 auto;
+}
+.responsive-svg {
+    width: 100%;
+    height: auto;
+}
+
 
 body {
   width: 100%;
@@ -119,8 +139,6 @@ body {
 
 }
 
-
-
 .pagetwo {
   position: relative;
   width: 210mm;
@@ -194,7 +212,6 @@ body {
   align-items: center;
   filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(110%) contrast(105%) saturate(105%);
 }
-
 
 @page {
   size: A4;

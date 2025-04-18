@@ -273,23 +273,23 @@ def create_layout(app):
                                         ["Annual Return"],
                                         className="subtitle padded",
                                     ),
-                                    html.Picture(
-                                        [
-                                            # 深色模式下的图片
-                                            html.Source(
-                                                # srcSet=f"data:image/png;base64,{encoded_image_trdraw_dark}",
-                                                srcSet=encoded_image_trdraw_dark,
-                                                media="(prefers-color-scheme: dark)",
-                                                className="firstimg",
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            # 浅色主题 SVG（默认显示）
+                                            html.ObjectEl(
+                                                data=encoded_image_trdraw,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-light",  # 添加专属类名
+                                                id="annual-return-light",
                                             ),
-                                            html.Img(
-                                                # src=f"data:image/png;base64,{encoded_image_trdraw}",
-                                                src=encoded_image_trdraw,
-                                                style={
-                                                    "overflow-x": "auto",
-                                                    "overflow-y": "auto",
-                                                },
-                                                className="firstimg",
+                                            # 深色主题 SVG（默认隐藏）
+                                            html.ObjectEl(
+                                                data=encoded_image_trdraw_dark,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-dark",
+                                                style={"display": "none"},  # 初始隐藏
+                                                id="annual-return-dark",
                                             ),
                                         ],
                                     ),
@@ -307,24 +307,25 @@ def create_layout(app):
                                         ["Industries Tracking"],
                                         className="subtitle padded",
                                     ),
-                                    html.Picture(
-                                        [
-                                            # 深色模式下的图片
-                                            html.Source(
-                                                # srcSet=f"data:image/png;base64,{encoded_image_ind_trend_dark}",
-                                                srcSet=encoded_image_ind_trend_dark,
-                                                media="(prefers-color-scheme: dark)",
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            # 浅色主题 SVG（默认显示）
+                                            html.ObjectEl(
+                                                data=encoded_image_ind_trend,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-light",  # 添加专属类名
+                                                id="ind-trend-light",
                                             ),
-                                            html.Img(
-                                                # src=f"data:image/png;base64,{encoded_image_ind_trend}",
-                                                src=encoded_image_ind_trend,
-                                                style={
-                                                    "overflow-x": "auto",
-                                                    "width": "100%",
-                                                    "overflow-y": "auto",
-                                                },
+                                            # 深色主题 SVG（默认隐藏）
+                                            html.ObjectEl(
+                                                data=encoded_image_ind_trend_dark,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-dark",
+                                                style={"display": "none"},  # 初始隐藏
+                                                id="ind-trend-dark",
                                             ),
-                                        ]
+                                        ],
                                     ),
                                 ],
                                 className="six columns",
@@ -336,24 +337,25 @@ def create_layout(app):
                                         ["Strategy Tracking"],
                                         className="subtitle padded",
                                     ),
-                                    html.Picture(
-                                        [
-                                            # 深色模式下的图片
-                                            html.Source(
-                                                # srcSet=f"data:image/png;base64,{encoded_image_strategy_dark}",
-                                                srcSet=encoded_image_strategy_dark,
-                                                media="(prefers-color-scheme: dark)",
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            # 浅色主题 SVG（默认显示）
+                                            html.ObjectEl(
+                                                data=encoded_image_strategy,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-light",  # 添加专属类名
+                                                id="strategy-light",
                                             ),
-                                            html.Img(
-                                                # src=f"data:image/png;base64,{encoded_image_strategy}",
-                                                src=encoded_image_strategy,
-                                                style={
-                                                    "overflow-x": "auto",
-                                                    "width": "100%",
-                                                    "overflow-y": "auto",
-                                                },
+                                            # 深色主题 SVG（默认隐藏）
+                                            html.ObjectEl(
+                                                data=encoded_image_strategy_dark,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-dark",
+                                                style={"display": "none"},  # 初始隐藏
+                                                id="strategy-dark",
                                             ),
-                                        ]
+                                        ],
                                     ),
                                 ],
                                 className="six columns",
@@ -369,24 +371,25 @@ def create_layout(app):
                                     html.H6(
                                         ["Position Weight"], className="subtitle padded"
                                     ),
-                                    html.Picture(
-                                        [
-                                            # 深色模式下的图片
-                                            html.Source(
-                                                # srcSet=f"data:image/png;base64,{encoded_image_by_postion_dark}",
-                                                srcSet=encoded_image_by_postion_dark,
-                                                media="(prefers-color-scheme: dark)",
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            # 浅色主题 SVG（默认显示）
+                                            html.ObjectEl(
+                                                data=encoded_image_by_postion,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-light",  # 添加专属类名
+                                                id="by-position-light",
                                             ),
-                                            html.Img(
-                                                # src=f"data:image/png;base64,{encoded_image_by_postion}",
-                                                src=encoded_image_by_postion,
-                                                style={
-                                                    "overflow-x": "auto",
-                                                    "width": "100%",
-                                                    "overflow-y": "auto",
-                                                },
+                                            # 深色主题 SVG（默认隐藏）
+                                            html.ObjectEl(
+                                                data=encoded_image_by_postion_dark,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-dark",
+                                                style={"display": "none"},  # 初始隐藏
+                                                id="by-position-dark",
                                             ),
-                                        ]
+                                        ],
                                     ),
                                 ],
                                 className="six columns",
@@ -398,24 +401,25 @@ def create_layout(app):
                                         ["Earnings Weight"],
                                         className="subtitle padded",
                                     ),
-                                    html.Picture(
-                                        [
-                                            # 深色模式下的图片
-                                            html.Source(
-                                                # srcSet=f"data:image/png;base64,{encoded_image_by_pl_dark}",
-                                                srcSet=encoded_image_by_pl_dark,
-                                                media="(prefers-color-scheme: dark)",
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            # 浅色主题 SVG（默认显示）
+                                            html.ObjectEl(
+                                                data=encoded_image_by_pl,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-light",  # 添加专属类名
+                                                id="by-pl-light",
                                             ),
-                                            html.Img(
-                                                # src=f"data:image/png;base64,{encoded_image_by_pl}",
-                                                src=encoded_image_by_pl,
-                                                style={
-                                                    "overflow-x": "auto",
-                                                    "width": "100%",
-                                                    "overflow-y": "auto",
-                                                },
+                                            # 深色主题 SVG（默认隐藏）
+                                            html.ObjectEl(
+                                                data=encoded_image_by_pl_dark,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-dark",
+                                                style={"display": "none"},  # 初始隐藏
+                                                id="by-pl-dark",
                                             ),
-                                        ]
+                                        ],
                                     ),
                                 ],
                                 className="six columns",
@@ -431,24 +435,25 @@ def create_layout(app):
                                     html.H6(
                                         ["Position Trend"], className="subtitle padded"
                                     ),
-                                    html.Picture(
-                                        [
-                                            # 深色模式下的图片
-                                            html.Source(
-                                                # srcSet=f"data:image/png;base64,{encoded_image_by_positiondate_dark}",
-                                                srcSet=encoded_image_by_positiondate_dark,
-                                                media="(prefers-color-scheme: dark)",
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            # 浅色主题 SVG（默认显示）
+                                            html.ObjectEl(
+                                                data=encoded_image_by_positiondate,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-light",  # 添加专属类名
+                                                id="by-positiondate-light",
                                             ),
-                                            html.Img(
-                                                # src=f"data:image/png;base64,{encoded_image_by_positiondate}",
-                                                src=encoded_image_by_positiondate,
-                                                style={
-                                                    "overflow-x": "auto",
-                                                    "width": "100%",
-                                                    "overflow-y": "auto",
-                                                },
+                                            # 深色主题 SVG（默认隐藏）
+                                            html.ObjectEl(
+                                                data=encoded_image_by_positiondate_dark,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-dark",
+                                                style={"display": "none"},  # 初始隐藏
+                                                id="by-positiondate-dark",
                                             ),
-                                        ]
+                                        ],
                                     ),
                                 ],
                                 className="six columns",
@@ -459,24 +464,25 @@ def create_layout(app):
                                         ["Earnings Trend"],
                                         className="subtitle padded",
                                     ),
-                                    html.Picture(
-                                        [
-                                            # 深色模式下的图片
-                                            html.Source(
-                                                # srcSet=f"data:image/png;base64,{encoded_image_bypl_date_dark}",
-                                                srcSet=encoded_image_bypl_date_dark,
-                                                media="(prefers-color-scheme: dark)",
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            # 浅色主题 SVG（默认显示）
+                                            html.ObjectEl(
+                                                data=encoded_image_bypl_date,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-light",  # 添加专属类名
+                                                id="bypl-date-light",
                                             ),
-                                            html.Img(
-                                                # src=f"data:image/png;base64,{encoded_image_bypl_date}",
-                                                src=encoded_image_bypl_date,
-                                                style={
-                                                    "overflow-x": "auto",
-                                                    "width": "100%",
-                                                    "overflow-y": "auto",
-                                                },
+                                            # 深色主题 SVG（默认隐藏）
+                                            html.ObjectEl(
+                                                data=encoded_image_bypl_date_dark,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-dark",
+                                                style={"display": "none"},  # 初始隐藏
+                                                id="bypl-date-dark",
                                             ),
-                                        ]
+                                        ],
                                     ),
                                 ],
                                 className="six columns",

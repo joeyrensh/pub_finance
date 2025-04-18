@@ -192,6 +192,7 @@ def exec_btstrategy(date):
                 "grid.linewidth": 1.5,
                 "figure.facecolor": colors["background"],
                 "savefig.transparent": True,
+                "svg.fonttype": "none",
             }
         )
         return colors
