@@ -23,6 +23,14 @@
         'bypl-date-dark': { mobile: '2rem', desktop: '2rem' },
     };
 
+    const CLASS_FONT_SIZE_CONFIG = {
+        // 动态配置特殊 class 的字体大小
+        'xtick': { mobile: '2rem', desktop: '2.2rem' },
+        'ytick': { mobile: '2rem', desktop: '2.2rem' },
+        'y2tick': { mobile: '2rem', desktop: '2.2rem' },
+        'legendtext': { mobile: '2rem', desktop: '2.2rem' }
+    };
+
     function replaceFontSize(element, svgId) {
         const screenWidth = window.innerWidth;
 
@@ -30,12 +38,21 @@
         const config = FONT_SIZE_CONFIG[svgId] || { mobile: '1.5rem', desktop: '1.2rem' };
 
         // 根据屏幕宽度选择字体大小
-        const fontSize = screenWidth <= 550 ? config.mobile : config.desktop;
+        let fontSize = screenWidth <= 550 ? config.mobile : config.desktop;
 
-        // console.log(`Setting font size to ${fontSize} for element in SVG: ${svgId}`);
+        // 检查父级是否包含特殊 class 配置
+        let parent = element.closest('[class]');
+        if (parent) {
+            parent.classList.forEach(className => {
+                if (CLASS_FONT_SIZE_CONFIG[className]) {
+                    const classConfig = CLASS_FONT_SIZE_CONFIG[className];
+                    fontSize = screenWidth <= 550 ? classConfig.mobile : classConfig.desktop;
+                }
+            });
+        }
+
         element.style.setProperty('font-size', fontSize, 'important');
         element.style.setProperty('font-family', '-apple-system', 'important'); // 设置 font-family
-        
     }
 
     function processSvg(obj) {
