@@ -28,7 +28,7 @@
         'xtick': { mobile: '2rem', desktop: '2.2rem' },
         'ytick': { mobile: '2rem', desktop: '2.2rem' },
         'y2tick': { mobile: '2rem', desktop: '2.2rem' },
-        'legendtext': { mobile: '2rem', desktop: '2.2rem' }
+        'legendtext': { mobile: '2rem', desktop: '2.1rem' }
     };
 
     function replaceFontSize(element, svgId) {
