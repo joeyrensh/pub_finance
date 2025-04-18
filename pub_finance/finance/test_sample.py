@@ -347,14 +347,14 @@ if __name__ == "__main__":
     # em.get_cn_daily_stock_info(trade_date)
 
     """ 执行bt相关策略 """
-    cash, final_value = exec_btstrategy(trade_date)
+    # cash, final_value = exec_btstrategy(trade_date)
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
+    StockProposal("cn", trade_date).send_btstrategy_by_email(11815025.02, 22096696.0)
 
     """ 结束进度条 """
     pbar.finish()

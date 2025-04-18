@@ -1657,11 +1657,11 @@ class StockProposal:
                 range=[0, max_pnl * 2],
             ),
             legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.25,
-                xanchor="center",
-                x=0.5,
+                orientation="v",
+                yanchor="top",
+                xanchor="right",
+                y=1,  # 将 y 设置为 1，表示顶部
+                x=1,  # 将 x 设置为 1，表示右侧
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
             ),
             barmode="stack",
@@ -1753,11 +1753,11 @@ class StockProposal:
                 range=[0, max_pnl * 2],
             ),
             legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.25,
-                xanchor="center",
-                x=0.5,
+                orientation="v",
+                yanchor="top",
+                xanchor="right",
+                y=1,  # 将 y 设置为 1，表示顶部
+                x=1,  # 将 x 设置为 1，表示右侧
                 font=dict(size=font_size, color=light_text_color, family="Arial"),
             ),
             barmode="stack",
