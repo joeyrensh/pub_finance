@@ -1624,7 +1624,6 @@ class StockProposal:
                 "text": "",
             },
             xaxis=dict(
-                title="",
                 # titlefont=dict(size=20, color="black"),
                 mirror=True,
                 ticks="outside",
@@ -1664,7 +1663,7 @@ class StockProposal:
                 orientation="v",
                 yanchor="top",
                 xanchor="right",
-                y=1,  # 将 y 设置为 1，表示顶部
+                y=0.95,  # 将 y 设置为 1，表示顶部
                 x=1,  # 将 x 设置为 1，表示右侧
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
                 bgcolor="rgba(255,255,255,0.5)",
@@ -1765,7 +1764,7 @@ class StockProposal:
                 orientation="v",
                 yanchor="top",
                 xanchor="right",
-                y=1,  # 将 y 设置为 1，表示顶部
+                y=0.95,  # 将 y 设置为 1，表示顶部
                 x=1,  # 将 x 设置为 1，表示右侧
                 font=dict(size=font_size, color=light_text_color, family="Arial"),
                 bgcolor="rgba(0,0,0,0.5)",
