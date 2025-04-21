@@ -2478,7 +2478,6 @@ class StockProposal:
                     tickfont=dict(size=font_size, family="Arial"),
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
-                    x=0.95,
                 ),
                 text=pd_calendar_heatmap["industry_top3"].apply(
                     lambda x: "<br>".join(x)
@@ -2525,6 +2524,7 @@ class StockProposal:
                 t=0,
                 b=0,
             ),
+            autosize=True,
         )
         # 在每个单元格中添加文本
         for i, row in pd_calendar_heatmap.iterrows():
@@ -2636,7 +2636,6 @@ class StockProposal:
                     ),
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
-                    x=0.95,
                 ),
                 text=pd_calendar_heatmap["industry_top3"].apply(
                     lambda x: "<br>".join(x)
@@ -2680,6 +2679,7 @@ class StockProposal:
                 t=0,
                 b=0,
             ),
+            autosize=True,
         )
         # 在每个单元格中添加文本
         for i, row in pd_calendar_heatmap.iterrows():
