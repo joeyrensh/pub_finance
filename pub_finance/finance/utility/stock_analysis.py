@@ -1605,7 +1605,6 @@ class StockProposal:
                     name=strategy,
                     line=dict(width=2, color=strategy_colors_light[i], shape="spline"),
                     yaxis="y",
-                    zorder=-10,
                 )
             )
             fig.add_trace(
@@ -1668,6 +1667,7 @@ class StockProposal:
                 y=1,  # 将 y 设置为 1，表示顶部
                 x=1,  # 将 x 设置为 1，表示右侧
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
+                bgcolor="rgba(255,255,255,0.5)",
             ),
             barmode="stack",
             bargap=0.5,
