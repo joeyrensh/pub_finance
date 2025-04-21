@@ -1605,6 +1605,7 @@ class StockProposal:
                     name=strategy,
                     line=dict(width=2, color=strategy_colors_light[i], shape="spline"),
                     yaxis="y",
+                    zorder=-10,
                 )
             )
             fig.add_trace(
@@ -1633,9 +1634,11 @@ class StockProposal:
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis=dict(
-                title="Success Rate",
-                titlefont=dict(
-                    size=title_font_size, color=dark_text_color, family="Arial"
+                title=dict(
+                    text="Success Rate",
+                    font=dict(
+                        size=title_font_size, color=dark_text_color, family="Arial"
+                    ),
                 ),
                 side="left",
                 mirror=True,
@@ -1645,9 +1648,11 @@ class StockProposal:
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis2=dict(
-                title="Pnl",
-                titlefont=dict(
-                    size=title_font_size, color=dark_text_color, family="Arial"
+                title=dict(
+                    text="Pnl",
+                    font=dict(
+                        size=title_font_size, color=dark_text_color, family="Arial"
+                    ),
                 ),
                 side="right",
                 overlaying="y",
@@ -1729,9 +1734,11 @@ class StockProposal:
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
-                title="Success Rate",
-                titlefont=dict(
-                    size=title_font_size, color=light_text_color, family="Arial"
+                title=dict(
+                    text="Success Rate",
+                    font=dict(
+                        size=title_font_size, color=light_text_color, family="Arial"
+                    ),
                 ),
                 side="left",
                 mirror=True,
@@ -1741,9 +1748,11 @@ class StockProposal:
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
-                title="Pnl",
-                titlefont=dict(
-                    size=title_font_size, color=light_text_color, family="Arial"
+                title=dict(
+                    text="Pnl",
+                    font=dict(
+                        size=title_font_size, color=light_text_color, family="Arial"
+                    ),
                 ),
                 side="right",
                 overlaying="y",
@@ -1865,9 +1874,11 @@ class StockProposal:
                 ),
             },
             xaxis=dict(
-                title="Trade Date",
-                titlefont=dict(
-                    size=title_font_size, color=dark_text_color, family="Arial"
+                title=dict(
+                    text="Trade Date",
+                    font=dict(
+                        size=title_font_size, color=dark_text_color, family="Arial"
+                    ),
                 ),
                 mirror=True,
                 ticks="outside",
@@ -1876,9 +1887,11 @@ class StockProposal:
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis=dict(
-                title="Total Positions",
-                titlefont=dict(
-                    size=title_font_size, color=dark_text_color, family="Arial"
+                title=dict(
+                    text="Total Positions",
+                    font=dict(
+                        size=title_font_size, color=dark_text_color, family="Arial"
+                    ),
                 ),
                 side="left",
                 mirror=True,
@@ -1888,9 +1901,11 @@ class StockProposal:
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis2=dict(
-                title="Positions per day",
-                titlefont=dict(
-                    size=title_font_size, color=dark_text_color, family="Arial"
+                title=dict(
+                    text="Positions per day",
+                    font=dict(
+                        size=title_font_size, color=dark_text_color, family="Arial"
+                    ),
                 ),
                 side="right",
                 overlaying="y",
@@ -1935,17 +1950,17 @@ class StockProposal:
                 "font": dict(color=light_text_color),
             },
             xaxis=dict(
-                titlefont=dict(color=light_text_color),
+                title=dict(font=dict(color=light_text_color)),
                 tickfont=dict(color=light_text_color),
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
-                titlefont=dict(color=light_text_color),
+                title=dict(font=dict(color=light_text_color)),
                 tickfont=dict(color=light_text_color),
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
-                titlefont=dict(color=light_text_color),
+                title=dict(font=dict(color=light_text_color)),
                 tickfont=dict(color=light_text_color),
             ),
             legend=dict(font=dict(color=light_text_color)),
@@ -2409,7 +2424,6 @@ class StockProposal:
                             color=dark_text_color, size=font_size, family="Arial"
                         ),  # 设置颜色条标题的颜色和字体大小
                     ),
-                    titleside="top",  # 将颜色条标题放在顶部
                     tickfont=dict(size=font_size, family="Arial"),
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
@@ -2565,7 +2579,6 @@ class StockProposal:
                             color=light_text_color, size=font_size, family="Arial"
                         ),  # 设置颜色条标题的颜色和字体大小
                     ),
-                    titleside="top",  # 将颜色条标题放在顶部
                     tickfont=dict(
                         size=font_size, color=light_text_color, family="Arial"
                     ),
@@ -3593,8 +3606,10 @@ class StockProposal:
                 "font": dict(size=title_font_size, color="black", family="Arial"),
             },
             xaxis=dict(
-                title="Trade Date",
-                titlefont=dict(size=title_font_size, color="black", family="Arial"),
+                title=dict(
+                    text="Trade Date",
+                    font=dict(size=title_font_size, color="black", family="Arial"),
+                ),
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color="black", family="Arial", size=font_size),
@@ -3602,8 +3617,10 @@ class StockProposal:
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis=dict(
-                title="Total Positions",
-                titlefont=dict(size=title_font_size, color="black", family="Arial"),
+                title=dict(
+                    text="Total Positions",
+                    font=dict(size=title_font_size, color="black", family="Arial"),
+                ),
                 side="left",
                 mirror=True,
                 ticks="outside",
@@ -3612,8 +3629,10 @@ class StockProposal:
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis2=dict(
-                title="Positions per day",
-                titlefont=dict(size=title_font_size, color="black", family="Arial"),
+                title=dict(
+                    text="Positions per day",
+                    font=dict(size=title_font_size, color="black", family="Arial"),
+                ),
                 side="right",
                 overlaying="y",
                 showgrid=False,
@@ -3654,8 +3673,10 @@ class StockProposal:
                 "font": dict(size=title_font_size, color=text_color, family="Arial"),
             },
             xaxis=dict(
-                title="Trade Date",
-                titlefont=dict(size=title_font_size, color=text_color, family="Arial"),
+                title=dict(
+                    text="Trade Date",
+                    font=dict(size=title_font_size, color=text_color, family="Arial"),
+                ),
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color=text_color, family="Arial", size=font_size),
@@ -3663,8 +3684,10 @@ class StockProposal:
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis=dict(
-                title="Total Positions",
-                titlefont=dict(size=title_font_size, color=text_color, family="Arial"),
+                title=dict(
+                    text="Total Positions",
+                    font=dict(size=title_font_size, color=text_color, family="Arial"),
+                ),
                 side="left",
                 mirror=True,
                 ticks="outside",
@@ -3673,8 +3696,10 @@ class StockProposal:
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
-                title="Positions per day",
-                titlefont=dict(size=title_font_size, color=text_color, family="Arial"),
+                title=dict(
+                    text="Positions per day",
+                    font=dict(size=title_font_size, color=text_color, family="Arial"),
+                ),
                 side="right",
                 overlaying="y",
                 showgrid=False,
