@@ -1423,7 +1423,7 @@ class StockProposal:
         )
         # 设置图像的宽度和高度（例如，1920x1080像素）
         fig_width, fig_height = 1440, 900
-        scale_factor = 1.2
+        scale_factor = 1
         if self.market == "us":
             fig.write_image(
                 "./dashreport/assets/images/us_postion_byindustry_light.svg",
@@ -1621,7 +1621,7 @@ class StockProposal:
         # light mode
         fig.update_layout(
             title={
-                "text": "",
+                "text": None,
             },
             xaxis=dict(
                 # titlefont=dict(size=20, color="black"),
@@ -1633,21 +1633,23 @@ class StockProposal:
             ),
             yaxis=dict(
                 title=dict(
-                    text="Success Rate",
+                    # text="Success Rate",
+                    text=None,
                     font=dict(
                         size=title_font_size, color=dark_text_color, family="Arial"
                     ),
                 ),
                 side="left",
                 mirror=True,
-                ticks="outside",
+                ticks="inside",
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
             ),
             yaxis2=dict(
                 title=dict(
-                    text="Pnl",
+                    # text="Pnl",
+                    text=None,
                     font=dict(
                         size=title_font_size, color=dark_text_color, family="Arial"
                     ),
@@ -1655,7 +1657,7 @@ class StockProposal:
                 side="right",
                 overlaying="y",
                 showgrid=False,
-                ticks="outside",
+                ticks="inside",
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 range=[0, max_pnl * 2],
             ),
@@ -1667,6 +1669,8 @@ class StockProposal:
                 x=1,  # 将 x 设置为 1，表示右侧
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
                 bgcolor="rgba(255,255,255,0.5)",
+                itemwidth=30,  # 控制图例项宽度
+                itemsizing="constant",  # 保持图例符号大小一致
             ),
             barmode="stack",
             bargap=0.5,
@@ -1674,7 +1678,9 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
-            autosize=True,
+            autosize=False,  # 自动调整大小
+            width=fig_width,
+            height=fig_height,
         )
 
         if self.market == "us":
@@ -1722,10 +1728,10 @@ class StockProposal:
             )
         fig.update_layout(
             title={
-                "text": "",
+                "text": None,
             },
             xaxis=dict(
-                title="",
+                title=None,
                 # titlefont=dict(size=20, color="black"),
                 mirror=True,
                 ticks="outside",
@@ -1735,21 +1741,23 @@ class StockProposal:
             ),
             yaxis=dict(
                 title=dict(
-                    text="Success Rate",
+                    # text="Success Rate",
+                    text=None,
                     font=dict(
                         size=title_font_size, color=light_text_color, family="Arial"
                     ),
                 ),
                 side="left",
                 mirror=True,
-                ticks="outside",
+                ticks="inside",
                 tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
             ),
             yaxis2=dict(
                 title=dict(
-                    text="Pnl",
+                    # text="Pnl",
+                    text=None,
                     font=dict(
                         size=title_font_size, color=light_text_color, family="Arial"
                     ),
@@ -1757,7 +1765,7 @@ class StockProposal:
                 side="right",
                 overlaying="y",
                 showgrid=False,
-                ticks="outside",
+                ticks="inside",
                 tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
                 range=[0, max_pnl * 2],
             ),
@@ -1769,6 +1777,8 @@ class StockProposal:
                 x=1,  # 将 x 设置为 1，表示右侧
                 font=dict(size=font_size, color=light_text_color, family="Arial"),
                 bgcolor="rgba(0,0,0,0.5)",
+                itemwidth=30,  # 控制图例项宽度
+                itemsizing="constant",  # 保持图例符号大小一致
             ),
             barmode="stack",
             bargap=0.5,
@@ -1776,7 +1786,9 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
-            autosize=True,
+            autosize=False,  # 自动调整大小
+            width=fig_width,
+            height=fig_height,
         )
 
         if self.market == "us":
@@ -1887,6 +1899,8 @@ class StockProposal:
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
+                domain=[0, 1],  # 强制x轴占据全部可用宽度
+                automargin=False,  # 关闭自动边距计算
             ),
             yaxis=dict(
                 title=dict(
@@ -1897,10 +1911,11 @@ class StockProposal:
                 ),
                 side="left",
                 mirror=True,
-                ticks="outside",
+                ticks="inside",
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
+                # automargin=False,  # 关闭自动边距计算
             ),
             yaxis2=dict(
                 title=dict(
@@ -1912,9 +1927,10 @@ class StockProposal:
                 side="right",
                 overlaying="y",
                 showgrid=False,
-                ticks="outside",
+                ticks="inside",
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 # range=[0, max_sum * 1.2],
+                # automargin=False,  # 关闭自动边距计算
             ),
             legend=dict(
                 orientation="h",
@@ -1923,6 +1939,8 @@ class StockProposal:
                 xanchor="center",
                 x=0.5,
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
+                itemwidth=30,  # 控制图例项宽度
+                itemsizing="constant",  # 保持图例符号大小一致
             ),
             barmode="stack",
             bargap=0.5,
@@ -1930,7 +1948,9 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
-            autosize=True,
+            autosize=False,  # 自动调整大小
+            width=fig_width,
+            height=fig_height,
         )
 
         if self.market == "us":
@@ -2184,7 +2204,9 @@ class StockProposal:
             tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(0, 0, 0, 0.5)",
-            title="",  # 设置为空字符串以隐藏y轴标题
+            title=None,  # 设置为空字符串以隐藏y轴标题
+            ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
+            tickangle=0,  # 确保刻度标签水平显示
         )
         fig.update_layout(
             title="Last 120 days top5 pnl",
@@ -2193,7 +2215,7 @@ class StockProposal:
             ),
             title_x=0.5,
             title_y=0.9,
-            legend_title_text="",
+            legend_title_text=None,
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -2201,12 +2223,24 @@ class StockProposal:
                 xanchor="center",
                 x=0.5,
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
+                itemwidth=30,  # 控制图例项宽度
+                itemsizing="constant",  # 保持图例符号大小一致
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0, 0, 0, 0)",
-            margin=dict(t=0, b=0, l=0, r=20),
-            autosize=True,
+            margin=dict(t=0, b=0, l=0, r=0),
+            autosize=False,  # 自动调整大小
+            width=fig_width,
+            height=fig_height,
+            xaxis=dict(
+                domain=[0, 1],  # 强制x轴占据全部可用宽度
+                automargin=False,  # 关闭自动边距计算
+            ),
+            yaxis=dict(
+                automargin=False  # 关闭自动边距计算
+            ),
         )
+
         if self.market == "us":
             fig.write_image(
                 "./dashreport/assets/images/us_top_industry_pl_trend_light.svg",
@@ -2222,7 +2256,6 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
-
         fig = px.line(
             pd_top5_industry_profit_trend,
             x="buy_date",
@@ -2240,7 +2273,7 @@ class StockProposal:
             gridcolor="rgba(255, 255, 255, 0.5)",
             title=dict(
                 text="Open Date",
-                font=dict(size=title_font_size, color=dark_text_color, family="Arial"),
+                font=dict(size=title_font_size, color=light_text_color, family="Arial"),
             ),
         )
         fig.update_yaxes(
@@ -2252,7 +2285,7 @@ class StockProposal:
             title_font=dict(
                 size=title_font_size, color=light_text_color, family="Arial"
             ),
-            title="",  # 设置为空字符串以隐藏y轴标题
+            title=None,  # 设置为空字符串以隐藏y轴标题
         )
         fig.update_layout(
             title="Last 120 days top5 pnl",
@@ -2261,7 +2294,7 @@ class StockProposal:
             ),
             title_x=0.5,
             title_y=0.9,
-            legend_title_text="",
+            legend_title_text=None,
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -2269,11 +2302,22 @@ class StockProposal:
                 xanchor="center",
                 x=0.5,
                 font=dict(size=font_size, color=light_text_color, family="Arial"),
+                itemwidth=30,  # 控制图例项宽度
+                itemsizing="constant",  # 保持图例符号大小一致
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0, 0, 0, 0)",
-            margin=dict(t=0, b=0, l=0, r=20),
-            autosize=True,
+            margin=dict(t=0, b=0, l=0, r=0),
+            autosize=False,  # 自动调整大小
+            width=fig_width,
+            height=fig_height,
+            xaxis=dict(
+                domain=[0, 1],  # 强制x轴占据全部可用宽度
+                automargin=False,  # 关闭自动边距计算
+            ),
+            yaxis=dict(
+                automargin=False  # 关闭自动边距计算
+            ),
         )
         if self.market == "us":
             fig.write_image(
@@ -2432,6 +2476,7 @@ class StockProposal:
                     tickfont=dict(size=font_size, family="Arial"),
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
+                    x=0.95,
                 ),
                 text=pd_calendar_heatmap["industry_top3"].apply(
                     lambda x: "<br>".join(x)
@@ -2589,6 +2634,7 @@ class StockProposal:
                     ),
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
+                    x=0.95,
                 ),
                 text=pd_calendar_heatmap["industry_top3"].apply(
                     lambda x: "<br>".join(x)
@@ -2882,9 +2928,9 @@ class StockProposal:
         df_result = pd.DataFrame.from_dict(result)
         df_result.to_csv(f"./data/{self.market}_df_result.csv", header=True)
 
-        MyEmail().send_email_embedded_image(
-            subject, html_txt + html + html_img + html1 + html2, image_path
-        )
+        # MyEmail().send_email_embedded_image(
+        #     subject, html_txt + html + html_img + html1 + html2, image_path
+        # )
 
     def send_etf_btstrategy_by_email(self, cash, final_value):
         """
