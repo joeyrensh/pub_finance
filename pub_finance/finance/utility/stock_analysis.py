@@ -2286,6 +2286,8 @@ class StockProposal:
                 size=title_font_size, color=light_text_color, family="Arial"
             ),
             title=None,  # 设置为空字符串以隐藏y轴标题
+            ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
+            tickangle=0,  # 确保刻度标签水平显示
         )
         fig.update_layout(
             title="Last 120 days top5 pnl",
@@ -3678,6 +3680,8 @@ class StockProposal:
                 tickfont=dict(color="black", family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
+                ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
+                tickangle=0,  # 确保刻度标签水平显示
             ),
             yaxis2=dict(
                 title=dict(
@@ -3689,6 +3693,8 @@ class StockProposal:
                 showgrid=False,
                 ticks="outside",
                 tickfont=dict(color="black", family="Arial", size=font_size),
+                ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
+                tickangle=0,  # 确保刻度标签水平显示
             ),
             legend=dict(
                 orientation="h",
