@@ -1768,6 +1768,7 @@ class StockProposal:
                 y=1,  # 将 y 设置为 1，表示顶部
                 x=1,  # 将 x 设置为 1，表示右侧
                 font=dict(size=font_size, color=light_text_color, family="Arial"),
+                bgcolor="rgba(0,0,0,0.5)",
             ),
             barmode="stack",
             bargap=0.5,
@@ -1836,7 +1837,7 @@ class StockProposal:
                 x=pd_trade_info_lst120days["buy_date"],
                 y=pd_trade_info_lst120days["total_cnt"],
                 mode="lines+markers",
-                name="total stock",
+                name="Total",
                 line=dict(color="red", width=3),
                 yaxis="y",
             )
@@ -1845,7 +1846,7 @@ class StockProposal:
             go.Bar(
                 x=pd_trade_info_lst120days["buy_date"],
                 y=pd_trade_info_lst120days["buy_cnt"],
-                name="long",
+                name="Long",
                 marker_color="red",
                 marker_line_color="red",
                 yaxis="y2",
@@ -1855,7 +1856,7 @@ class StockProposal:
             go.Bar(
                 x=pd_trade_info_lst120days["buy_date"],
                 y=pd_trade_info_lst120days["sell_cnt"],
-                name="short",
+                name="Short",
                 marker_color="green",
                 marker_line_color="green",
                 yaxis="y2",
@@ -2170,8 +2171,9 @@ class StockProposal:
             tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(0, 0, 0, 0.5)",
-            title_font=dict(
-                size=title_font_size, color=dark_text_color, family="Arial"
+            title=dict(
+                text="Open Date",
+                font=dict(size=title_font_size, color=dark_text_color, family="Arial"),
             ),
         )
         fig.update_yaxes(
@@ -2234,8 +2236,9 @@ class StockProposal:
             tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(255, 255, 255, 0.5)",
-            title_font=dict(
-                size=title_font_size, color=light_text_color, family="Arial"
+            title=dict(
+                text="Open Date",
+                font=dict(size=title_font_size, color=dark_text_color, family="Arial"),
             ),
         )
         fig.update_yaxes(
