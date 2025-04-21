@@ -2930,9 +2930,9 @@ class StockProposal:
         df_result = pd.DataFrame.from_dict(result)
         df_result.to_csv(f"./data/{self.market}_df_result.csv", header=True)
 
-        # MyEmail().send_email_embedded_image(
-        #     subject, html_txt + html + html_img + html1 + html2, image_path
-        # )
+        MyEmail().send_email_embedded_image(
+            subject, html_txt + html + html_img + html1 + html2, image_path
+        )
 
     def send_etf_btstrategy_by_email(self, cash, final_value):
         """
