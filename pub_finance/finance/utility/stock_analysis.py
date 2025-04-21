@@ -1674,6 +1674,7 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
+            autosize=True,
         )
 
         if self.market == "us":
@@ -1775,6 +1776,7 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
+            autosize=True,
         )
 
         if self.market == "us":
@@ -1928,6 +1930,7 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
+            autosize=True,
         )
 
         if self.market == "us":
