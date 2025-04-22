@@ -1915,6 +1915,8 @@ class StockProposal:
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
+                ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
+                tickangle=0,  # 确保刻度标签水平显示
                 # automargin=False,  # 关闭自动边距计算
             ),
             yaxis2=dict(
@@ -1929,6 +1931,8 @@ class StockProposal:
                 showgrid=False,
                 ticks="inside",
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
+                ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
+                tickangle=0,  # 确保刻度标签水平显示
                 # range=[0, max_sum * 1.2],
                 # automargin=False,  # 关闭自动边距计算
             ),
@@ -2478,6 +2482,8 @@ class StockProposal:
                     tickfont=dict(size=font_size, family="Arial"),
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
+                    xpad=1,
+                    x=1,  # 靠近热图
                 ),
                 text=pd_calendar_heatmap["industry_top3"].apply(
                     lambda x: "<br>".join(x)
@@ -2636,6 +2642,8 @@ class StockProposal:
                     ),
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
+                    xpad=1,
+                    x=1,  # 靠近热图
                 ),
                 text=pd_calendar_heatmap["industry_top3"].apply(
                     lambda x: "<br>".join(x)
@@ -3676,7 +3684,7 @@ class StockProposal:
                 ),
                 side="left",
                 mirror=True,
-                ticks="outside",
+                ticks="inside",
                 tickfont=dict(color="black", family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
@@ -3691,7 +3699,7 @@ class StockProposal:
                 side="right",
                 overlaying="y",
                 showgrid=False,
-                ticks="outside",
+                ticks="inside",
                 tickfont=dict(color="black", family="Arial", size=font_size),
                 ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
                 tickangle=0,  # 确保刻度标签水平显示
