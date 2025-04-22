@@ -316,6 +316,7 @@ def exec_btstrategy(date):
             format="svg",
             bbox_inches="tight",  # 保持边界紧凑
             transparent=True,  # 保持背景透明
+            pad_inches=0.1,
         )
         plt.close()
 
