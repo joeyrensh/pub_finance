@@ -1904,7 +1904,8 @@ class StockProposal:
             ),
             yaxis=dict(
                 title=dict(
-                    text="Total Positions",
+                    # text="Total Positions",
+                    text=None,
                     font=dict(
                         size=title_font_size, color=dark_text_color, family="Arial"
                     ),
@@ -1921,7 +1922,8 @@ class StockProposal:
             ),
             yaxis2=dict(
                 title=dict(
-                    text="Positions per day",
+                    # text="Positions per day",
+                    text=None,
                     font=dict(
                         size=title_font_size, color=dark_text_color, family="Arial"
                     ),
