@@ -300,6 +300,17 @@ def exec_btstrategy(date):
         for spine in ax_drawdown.spines.values():
             spine.set_visible(False)
 
+        # 调整 y 轴刻度标签和轴位置
+        ax_chart.tick_params(axis="x", rotation=-30)  # 将 x 轴刻度标签旋转 45 度
+        ax_chart.tick_params(axis="y", labelright=False, labelleft=True, direction="in")
+        ax_drawdown.tick_params(
+            axis="y", labelright=True, labelleft=False, direction="in"
+        )
+        ax_drawdown.yaxis.set_label_coords(0.99, 0.5)  # 标签向左平移
+        # 调整 y 轴 spines 的位置
+        ax_chart.spines["left"].set_position(("axes", 0.02))  # 左侧 y 轴靠近图表
+        ax_drawdown.spines["right"].set_position(("axes", 0.98))  # 右侧 y 轴靠近图表
+
         # 保存图片
         plt.savefig(
             f"./dashreport/assets/images/cn_tr_{theme}.svg",
