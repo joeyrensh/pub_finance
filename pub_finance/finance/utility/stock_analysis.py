@@ -1600,10 +1600,10 @@ class StockProposal:
             fig.add_trace(
                 go.Scatter(
                     x=data["date"],
-                    y=data["success_rate"],
+                    y=data["ema_success_rate"],
                     mode="lines",
                     name=strategy,
-                    line=dict(width=2, color=strategy_colors_light[i], shape="linear"),
+                    line=dict(width=2, color=strategy_colors_light[i], shape="hv"),
                     yaxis="y",
                 )
             )
@@ -1708,10 +1708,10 @@ class StockProposal:
             fig.add_trace(
                 go.Scatter(
                     x=data["date"],
-                    y=data["success_rate"],
+                    y=data["ema_success_rate"],
                     mode="lines",
                     name=strategy,
-                    line=dict(width=2, color=strategy_colors_dark[i], shape="linear"),
+                    line=dict(width=2, color=strategy_colors_dark[i], shape="hv"),
                     yaxis="y",
                 )
             )
