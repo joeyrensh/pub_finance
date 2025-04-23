@@ -79,7 +79,7 @@ body {
   /* font-weight: 500; */
   /* font-family: inherit; */
   /* font-family: "Helvetica Neue"; */
-  font-family: -apple-system;
+  font-family: -apple-system !important;
   /* 使用苹果系统的默认字体 */
   letter-spacing: -.03rem;
   /* 字母间距微调 */
