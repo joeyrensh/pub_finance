@@ -1600,10 +1600,10 @@ class StockProposal:
             fig.add_trace(
                 go.Scatter(
                     x=data["date"],
-                    y=data["ema_success_rate"],
+                    y=data["success_rate"],
                     mode="lines",
                     name=strategy,
-                    line=dict(width=2, color=strategy_colors_light[i], shape="spline"),
+                    line=dict(width=2, color=strategy_colors_light[i], shape="linear"),
                     yaxis="y",
                 )
             )
@@ -1664,9 +1664,9 @@ class StockProposal:
             legend=dict(
                 orientation="v",
                 yanchor="top",
-                xanchor="right",
+                xanchor="left",
                 y=0.95,  # 将 y 设置为 1，表示顶部
-                x=1,  # 将 x 设置为 1，表示右侧
+                x=0,  # 将 x 设置为 1，表示右侧
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
                 bgcolor="rgba(255,255,255,0.5)",
                 itemwidth=30,  # 控制图例项宽度
@@ -1708,10 +1708,10 @@ class StockProposal:
             fig.add_trace(
                 go.Scatter(
                     x=data["date"],
-                    y=data["ema_success_rate"],
+                    y=data["success_rate"],
                     mode="lines",
                     name=strategy,
-                    line=dict(width=2, color=strategy_colors_dark[i], shape="spline"),
+                    line=dict(width=2, color=strategy_colors_dark[i], shape="linear"),
                     yaxis="y",
                 )
             )
@@ -1772,9 +1772,9 @@ class StockProposal:
             legend=dict(
                 orientation="v",
                 yanchor="top",
-                xanchor="right",
+                xanchor="left",
                 y=0.95,  # 将 y 设置为 1，表示顶部
-                x=1,  # 将 x 设置为 1，表示右侧
+                x=0,  # 将 x 设置为 1，表示右侧
                 font=dict(size=font_size, color=light_text_color, family="Arial"),
                 bgcolor="rgba(0,0,0,0.5)",
                 itemwidth=30,  # 控制图例项宽度
