@@ -1,9 +1,9 @@
 (function () {
-    // console.log('Custom JavaScript loaded');
-
-    const SVG_IDS = ['annual-return-light', 'annual-return-dark', 'ind-trend-light', 'ind-trend-dark',
-        'strategy-light', 'strategy-dark', 'by-position-light', 'by-position-dark', 'by-pl-light', 'by-pl-dark',
-        'by-positiondate-light', 'by-positiondate-dark', 'bypl-date-light', 'bypl-date-dark'
+    const SVG_IDS = [
+        'annual-return-light', 'annual-return-dark', 'ind-trend-light', 'ind-trend-dark',
+        'strategy-light', 'strategy-dark', 'by-position-light', 'by-position-dark',
+        'by-pl-light', 'by-pl-dark', 'by-positiondate-light', 'by-positiondate-dark',
+        'bypl-date-light', 'bypl-date-dark'
     ];
 
     const FONT_SIZE_CONFIG = {
@@ -24,7 +24,6 @@
     };
 
     const CLASS_FONT_SIZE_CONFIG = {
-        // 动态配置特殊 class 的字体大小
         'xtick': { mobile: '2rem', desktop: '2.2rem' },
         'ytick': { mobile: '2rem', desktop: '2.2rem' },
         'y2tick': { mobile: '2rem', desktop: '2.2rem' },
@@ -34,13 +33,9 @@
     function replaceFontSize(element, svgId) {
         const screenWidth = window.innerWidth;
 
-        // 获取对应 SVG 的字体大小配置
         const config = FONT_SIZE_CONFIG[svgId] || { mobile: '1.5rem', desktop: '1.2rem' };
-
-        // 根据屏幕宽度选择字体大小
         let fontSize = screenWidth <= 550 ? config.mobile : config.desktop;
 
-        // 检查父级是否包含特殊 class 配置
         let parent = element.closest('[class]');
         if (parent) {
             parent.classList.forEach(className => {
@@ -52,7 +47,7 @@
         }
 
         element.style.setProperty('font-size', fontSize, 'important');
-        element.style.setProperty('font-family', '-apple-system', 'important'); // 设置 font-family
+        element.style.setProperty('font-family', '-apple-system', 'important');
     }
 
     function processSvg(obj) {
@@ -73,32 +68,37 @@
         }
     }
 
-    function init() {
-        // console.log('Initializing SVG font size replacement');
+    function handleSvgProcessing() {
+        SVG_IDS.forEach(id => {
+            const obj = document.getElementById(id);
+            if (obj) {
+                obj.onload = () => {
+                    processSvg(obj);
+                };
 
-        const observer = new MutationObserver(() => {
-            SVG_IDS.forEach(id => {
-                const obj = document.getElementById(id);
-                if (obj) {
-                    // console.log(`Found object with ID ${id}:`, obj);
-
-                    obj.onload = () => {
-                        // console.log(`SVG object with ID ${id} loaded`);
-                        processSvg(obj);
-                    };
-
-                    if (obj.contentDocument) {
-                        // console.log(`SVG object with ID ${id} already loaded`);
-                        processSvg(obj);
-                    }
-
-                    observer.disconnect();
+                if (obj.contentDocument) {
+                    processSvg(obj);
                 }
-            });
+            }
+        });
+    }
+
+    function init() {
+        console.log('Initializing SVG font size replacement');
+
+        // 监听 DOM 变化
+        const observer = new MutationObserver(() => {
+            handleSvgProcessing();
         });
 
         observer.observe(document.body, { childList: true, subtree: true });
+
+        // 初始处理
+        handleSvgProcessing();
     }
 
+    // 监听页面加载和切换
     window.addEventListener('load', init);
+    window.addEventListener('hashchange', handleSvgProcessing); // 监听页面切换
+    window.addEventListener('popstate', handleSvgProcessing); // 监听浏览器导航
 })();
