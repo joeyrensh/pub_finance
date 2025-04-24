@@ -391,7 +391,7 @@ h6 {
 }
 
 h5 {
-  font-size: 2.6rem;
+  font-size: 2rem;
 }
 
 h6 {
@@ -438,8 +438,8 @@ li {
 .full-view-link {
   background-color: var(--full-view-link-bg-color);
   color: white !important;
-  font-size: medium;
-  padding: 10px 10px;
+  font-size: 1.4rem;
+  padding: 5px 5px;
   float: right;
   /* margin-left: 72%; */
   width: 15%;
