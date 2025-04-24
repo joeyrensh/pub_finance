@@ -219,6 +219,7 @@ body {
   background-position: left top; /* 将背景图片定位到左上角 */
   background-size: contain; /* 确保图片按比例缩放，不会被拉伸 */
   height: 200px; /* 设置背景容器的高度，根据图片大小调整 */
+  filter: contrast(200%); /* 增加对比度 */
 }
 
 @page {
@@ -633,6 +634,7 @@ a:active {
     background-position: left top; /* 将背景图片定位到左上角 */
     background-size: contain; /* 确保图片按比例缩放，不会被拉伸 */
     height: 100px; /* 设置背景容器的高度，根据图片大小调整 */
+    filter: contrast(200%); /* 增加对比度 */
   }
 
   .product {
@@ -891,7 +893,7 @@ a:active {
 
   .all-tabs {
     text-align: center;
-    margin-top: -100px;
+    margin-top: -40px;
     font-size: 1.4rem;
   }
 
