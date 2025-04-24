@@ -218,8 +218,9 @@ body {
   background-repeat: no-repeat; /* 防止背景图片重复 */
   background-position: left top; /* 将背景图片定位到左上角 */
   background-size: contain; /* 确保图片按比例缩放，不会被拉伸 */
-  height: 200px; /* 设置背景容器的高度，根据图片大小调整 */
+  height: 40px; /* 设置背景容器的高度，根据图片大小调整 */
   filter: contrast(200%); /* 增加对比度 */
+  margin-top: 20px;
 }
 
 @page {
@@ -263,7 +264,7 @@ p {
 h6.padded,
 p.padded {
   padding: 2px 5px;
-  margin-top: 5px;
+  margin-top: -5px;
   margin-bottom: 5px;
 }
 
@@ -460,8 +461,7 @@ li {
 .all-tabs {
   text-align: center;
   font-size: 1.4rem;
-  margin-top: -100px;
-
+  margin-top: 40px;
 }
 
 .main-title {
@@ -474,6 +474,7 @@ li {
   /*#8b0202*/
   /* background: #ffffff; */
   padding-left: 10px;
+  margin-top: -10px;
 }
 
 .subtitle {
@@ -595,7 +596,7 @@ a:active {
   padding-left: 15px;
   padding-right: 15px;
   text-transform: none;
-  margin: 15px 15px 10px 5px;
+  margin: 5px 15px 10px 5px;
   border: 0.5px;
   border-color: lightgrey;
   border-style: solid;
@@ -633,8 +634,9 @@ a:active {
     background-repeat: no-repeat; /* 防止背景图片重复 */
     background-position: left top; /* 将背景图片定位到左上角 */
     background-size: contain; /* 确保图片按比例缩放，不会被拉伸 */
-    height: 100px; /* 设置背景容器的高度，根据图片大小调整 */
+    height: 20px; /* 设置背景容器的高度，根据图片大小调整 */
     filter: contrast(200%); /* 增加对比度 */
+    margin-top: 20px;
   }
 
   .product {
@@ -711,7 +713,7 @@ a:active {
 
   .all-tabs {
     text-align: center;
-    margin-top: -40px;
+    margin-top: 20px;
     font-size: 1.1rem;
   }
 
@@ -747,7 +749,7 @@ a:active {
 
     padding: 5px;
     margin-left: 0px;
-    margin-top: 20px;
+    margin-top: 5px;
     margin-right: 13px;
     /* margin-bottom: 10px; */
     border: 0.5px;
@@ -774,6 +776,7 @@ a:active {
     border-left: 15px solid var(--border-left-color);
     font-size: 1.2rem;
     font-weight: bold;
+    margin-top: 0px;
   }
 
   .five.columns {
@@ -893,7 +896,7 @@ a:active {
 
   .all-tabs {
     text-align: center;
-    margin-top: -40px;
+    margin-top: 30px;
     font-size: 1.4rem;
   }
 
@@ -911,7 +914,7 @@ a:active {
 
     padding: 5px;
     margin-left: 0px;
-    margin-top: 20px;
+    margin-top: 10px;
     margin-right: 13px;
     /* margin-bottom: 10px; */
     border: 0.5px;
