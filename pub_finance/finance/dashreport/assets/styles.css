@@ -213,6 +213,14 @@ body {
   /* filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(110%) contrast(105%) saturate(105%); */
 }
 
+.background-header {
+  background-image: url('/assets/buyahouse-background-logo.png'); /* 设置背景图片 */
+  background-repeat: no-repeat; /* 防止背景图片重复 */
+  background-position: left top; /* 将背景图片定位到左上角 */
+  background-size: contain; /* 确保图片按比例缩放，不会被拉伸 */
+  height: 200px; /* 设置背景容器的高度，根据图片大小调整 */
+}
+
 @page {
   size: A4;
   margin: 0;
@@ -451,7 +459,7 @@ li {
 .all-tabs {
   text-align: center;
   font-size: 1.4rem;
-  margin-top: 10px;
+  margin-top: -100px;
 
 }
 
@@ -619,6 +627,14 @@ a:active {
     /* filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(110%) contrast(105%) saturate(105%); */
   }
 
+  .background-header {
+    background-image: url('/assets/buyahouse-background-logo.png'); /* 设置背景图片 */
+    background-repeat: no-repeat; /* 防止背景图片重复 */
+    background-position: left top; /* 将背景图片定位到左上角 */
+    background-size: contain; /* 确保图片按比例缩放，不会被拉伸 */
+    height: 100px; /* 设置背景容器的高度，根据图片大小调整 */
+  }
+
   .product {
     position: relative;
     height: 15%;
@@ -693,7 +709,7 @@ a:active {
 
   .all-tabs {
     text-align: center;
-    margin-top: 0px;
+    margin-top: -40px;
     font-size: 1.1rem;
   }
 
@@ -875,7 +891,7 @@ a:active {
 
   .all-tabs {
     text-align: center;
-    margin-top: 0px;
+    margin-top: -100px;
     font-size: 1.4rem;
   }
 

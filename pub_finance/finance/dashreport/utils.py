@@ -15,63 +15,68 @@ def get_header(app):
         [
             html.Div(
                 [
-                    html.A(
-                        html.Img(
-                            src=app.get_asset_url(
-                                "buyahouse-background-transparent.png"
-                            ),
-                            # style={
-                            #     "width": "40%",
-                            #     "height": "50%",
-                            #     "margin-left": "2px",
-                            #     "margin-top": "5px",
-                            # },
-                            className="company-logo",
-                            # className="pulse",
-                        ),
-                        href="#",
-                    ),
-                    html.A(
-                        html.Button(
-                            "Enterprise Demo",
-                            id="learn-more-button",
-                            style={"margin-left": "-10px"},
-                        ),
-                        href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
-                    ),
-                    html.A(
-                        html.Button(
-                            "Source Code",
-                            id="learn-more-button",
-                        ),
-                        href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
-                    ),
-                ],
-                className="row",
-            ),
-            html.Div(
-                [
                     html.Div(
-                        [html.H5("Data-Driven Empowering Investments")],
-                        className="seven columns main-title",
+                        [
+                            # html.A(
+                            #     html.Img(
+                            #         src=app.get_asset_url(
+                            #             "buyahouse-background-transparent.png"
+                            #         ),
+                            #         # style={
+                            #         #     "width": "40%",
+                            #         #     "height": "50%",
+                            #         #     "margin-left": "2px",
+                            #         #     "margin-top": "5px",
+                            #         # },
+                            #         className="company-logo",
+                            #         # className="pulse",
+                            #     ),
+                            #     href="#",
+                            # ),
+                            html.A(
+                                html.Button(
+                                    "Enterprise Demo",
+                                    id="learn-more-button",
+                                    style={"margin-left": "-10px"},
+                                ),
+                                href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
+                            ),
+                            html.A(
+                                html.Button(
+                                    "Source Code",
+                                    id="learn-more-button",
+                                ),
+                                href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
+                            ),
+                        ],
+                        className="row",
                     ),
                     html.Div(
                         [
-                            dcc.Link(
-                                "Full View",
-                                href="/dash-financial-report/full-view",
-                                className="full-view-link",
-                            )
+                            html.Div(
+                                [html.H5("Data-Driven Empowering Investments")],
+                                className="seven columns main-title",
+                            ),
+                            html.Div(
+                                [
+                                    dcc.Link(
+                                        "Full View",
+                                        href="/dash-financial-report/full-view",
+                                        className="full-view-link",
+                                    )
+                                ],
+                                # className="five columns",
+                            ),
                         ],
-                        # className="five columns",
+                        # className="twelve columns",
+                        className="row",
+                        # style={"padding-left": "0"},
                     ),
                 ],
-                # className="twelve columns",
                 className="row",
-                # style={"padding-left": "0"},
-            ),
+            )
         ],
-        className="row",
+        className="background-header",
     )
     return header
 
