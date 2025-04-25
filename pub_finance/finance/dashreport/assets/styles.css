@@ -470,7 +470,7 @@ li {
   font-size: 1.5rem;
   /* font-weight: 800; */
   width: 80%;
-  border-left: 20px solid var(--border-left-color);
+  border-left: 0px solid var(--border-left-color);
   /*#8b0202*/
   /* background: #ffffff; */
   padding-left: 10px;
@@ -773,7 +773,7 @@ a:active {
     /* width: 55%; */
     /* margin-top: 10px; */
     padding-left: 10px;
-    border-left: 15px solid var(--border-left-color);
+    border-left: 0px solid var(--border-left-color);
     font-size: 1.2rem;
     font-weight: bold;
     margin-top: 0px;
@@ -938,7 +938,7 @@ a:active {
     /* width: 55%; */
     /* margin-top: 10px; */
     padding-left: 10px;
-    border-left: 15px solid var(--border-left-color);
+    border-left: 0px solid var(--border-left-color);
     font-size: 1.4rem;
     font-weight: bold;
   }
