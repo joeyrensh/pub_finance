@@ -202,7 +202,7 @@ body {
   /* background-image: url('/assets/background.jpeg'); */
   background-position: bottom;
   background-position-x: 50%;
-  background-position-y: 86%;
+  background-position-y: 87%;
   background-size: 20%;
   background-repeat: no-repeat;
   /* 防止图片重复 */
@@ -231,6 +231,7 @@ body {
   background-repeat: no-repeat; /* 防止背景图片重复 */
   background-size: contain; /* 确保图片按比例缩放 */
   z-index: -1; /* 将背景图片置于内容下方 */
+  margin-left:10px;
 }
 
 
@@ -658,6 +659,7 @@ a:active {
     background-repeat: no-repeat; /* 防止背景图片重复 */
     background-size: contain; /* 确保图片按比例缩放 */
     z-index: -1; /* 将背景图片置于内容下方 */
+    margin-left:10px;
   }
 
 
@@ -798,7 +800,7 @@ a:active {
     border-left: 0px solid var(--border-left-color);
     font-size: 1.2rem;
     font-weight: bold;
-    margin-top: 0px;
+    margin-top: 5px;
   }
 
   .five.columns {
@@ -862,6 +864,28 @@ a:active {
     align-items: center;
     /* filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(110%) contrast(105%) saturate(105%); */
   }
+
+  .background-header {
+    position: relative; /* 确保子元素相对于父容器定位 */
+    height: auto; /* 让容器高度由内容决定 */
+    overflow: hidden; /* 防止背景图片溢出 */
+    margin-top:20px;
+  }
+  
+  .background-header::before {
+    content: ""; /* 创建伪元素用于背景图片 */
+    position: absolute; /* 绝对定位 */
+    top: 0;
+    left: 0;
+    width: 230px; /* 设置背景图片的宽度 */
+    height: 200px; /* 设置背景图片的高度 */
+    background-image: url('/assets/buyahouse-background-logo.png'); /* 背景图片 */
+    background-repeat: no-repeat; /* 防止背景图片重复 */
+    background-size: contain; /* 确保图片按比例缩放 */
+    z-index: -1; /* 将背景图片置于内容下方 */
+    margin-left:10px;
+  }
+  
 
   .product {
     position: relative;
