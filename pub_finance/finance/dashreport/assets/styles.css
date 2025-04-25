@@ -218,7 +218,7 @@ body {
   background-repeat: no-repeat; /* 防止背景图片重复 */
   background-position: left top; /* 将背景图片定位到左上角 */
   background-size: contain; /* 确保图片按比例缩放，不会被拉伸 */
-  height: 40px; /* 设置背景容器的高度，根据图片大小调整 */
+  height: 50px; /* 设置背景容器的高度，根据图片大小调整 */
   filter: contrast(200%); /* 增加对比度 */
   margin-top: 20px;
   margin-left: 5px;
@@ -635,7 +635,7 @@ a:active {
     background-repeat: no-repeat; /* 防止背景图片重复 */
     background-position: left top; /* 将背景图片定位到左上角 */
     background-size: contain; /* 确保图片按比例缩放，不会被拉伸 */
-    height: 20px; /* 设置背景容器的高度，根据图片大小调整 */
+    height: 25px; /* 设置背景容器的高度，根据图片大小调整 */
     filter: contrast(200%); /* 增加对比度 */
     margin-top: 20px;
   }
