@@ -214,15 +214,25 @@ body {
 }
 
 .background-header {
-  background-image: url('/assets/buyahouse-background-logo.png'); /* 设置背景图片 */
-  background-repeat: no-repeat; /* 防止背景图片重复 */
-  background-position: left top; /* 将背景图片定位到左上角 */
-  background-size: contain; /* 确保图片按比例缩放，不会被拉伸 */
-  height: 50px; /* 设置背景容器的高度，根据图片大小调整 */
-  filter: contrast(200%); /* 增加对比度 */
-  margin-top: 20px;
-  margin-left: 5px;
+  position: relative; /* 确保子元素相对于父容器定位 */
+  height: auto; /* 让容器高度由内容决定 */
+  overflow: hidden; /* 防止背景图片溢出 */
+  margin-top:20px;
 }
+
+.background-header::before {
+  content: ""; /* 创建伪元素用于背景图片 */
+  position: absolute; /* 绝对定位 */
+  top: 0;
+  left: 0;
+  width: 230px; /* 设置背景图片的宽度 */
+  height: 200px; /* 设置背景图片的高度 */
+  background-image: url('/assets/buyahouse-background-logo.png'); /* 背景图片 */
+  background-repeat: no-repeat; /* 防止背景图片重复 */
+  background-size: contain; /* 确保图片按比例缩放 */
+  z-index: -1; /* 将背景图片置于内容下方 */
+}
+
 
 @page {
   size: A4;
@@ -462,7 +472,7 @@ li {
 .all-tabs {
   text-align: center;
   font-size: 1.4rem;
-  margin-top: 40px;
+  margin-top: 0px;
 }
 
 .main-title {
@@ -631,14 +641,25 @@ a:active {
   }
 
   .background-header {
-    background-image: url('/assets/buyahouse-background-logo.png'); /* 设置背景图片 */
-    background-repeat: no-repeat; /* 防止背景图片重复 */
-    background-position: left top; /* 将背景图片定位到左上角 */
-    background-size: contain; /* 确保图片按比例缩放，不会被拉伸 */
-    height: 25px; /* 设置背景容器的高度，根据图片大小调整 */
-    filter: contrast(200%); /* 增加对比度 */
-    margin-top: 20px;
+    position: relative; /* 确保子元素相对于父容器定位 */
+    height: auto; /* 让容器高度由内容决定 */
+    overflow: hidden; /* 防止背景图片溢出 */
+    margin-top:20px;
   }
+  
+  .background-header::before {
+    content: ""; /* 创建伪元素用于背景图片 */
+    position: absolute; /* 绝对定位 */
+    top: 0;
+    left: 0;
+    width: 150px; /* 设置背景图片的宽度 */
+    height: 100px; /* 设置背景图片的高度 */
+    background-image: url('/assets/buyahouse-background-logo.png'); /* 背景图片 */
+    background-repeat: no-repeat; /* 防止背景图片重复 */
+    background-size: contain; /* 确保图片按比例缩放 */
+    z-index: -1; /* 将背景图片置于内容下方 */
+  }
+
 
   .product {
     position: relative;
@@ -714,7 +735,7 @@ a:active {
 
   .all-tabs {
     text-align: center;
-    margin-top: 20px;
+    margin-top: -10px;
     font-size: 1.1rem;
   }
 
@@ -897,7 +918,7 @@ a:active {
 
   .all-tabs {
     text-align: center;
-    margin-top: 30px;
+    margin-top: 0px;
     font-size: 1.4rem;
   }
 
@@ -937,7 +958,7 @@ a:active {
 
   .main-title {
     /* width: 55%; */
-    /* margin-top: 10px; */
+    margin-top: 10px;
     padding-left: 10px;
     border-left: 0px solid var(--border-left-color);
     font-size: 1.4rem;
@@ -954,11 +975,10 @@ a:active {
     width: 15%;
     /* margin-left: 68%; */
     float: right;
-    margin-top: -5px;
+    margin-top: 0px;
     margin-left: 0px;
     margin-right: 12px;
   }
-
 }
 
 
