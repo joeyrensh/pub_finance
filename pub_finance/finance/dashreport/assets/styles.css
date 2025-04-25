@@ -221,6 +221,7 @@ body {
   height: 40px; /* 设置背景容器的高度，根据图片大小调整 */
   filter: contrast(200%); /* 增加对比度 */
   margin-top: 20px;
+  margin-left: 5px;
 }
 
 @page {
