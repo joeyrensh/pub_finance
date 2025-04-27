@@ -429,7 +429,7 @@ li {
   /* color: #0f0101ed; */
   list-style: square;
   padding-left: 0;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
 }
 
 .product {
@@ -844,6 +844,13 @@ a:active {
   .nine.columns {
     padding: 0 20px !important;
   }
+
+  li {
+    /* color: #0f0101ed; */
+    list-style: square;
+    padding-left: 0;
+    font-size: 1.2rem;
+  }  
 
 }
 
