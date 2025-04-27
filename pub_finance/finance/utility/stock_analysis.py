@@ -2509,7 +2509,7 @@ class StockProposal:
                     "Saturday",
                     "Sunday",
                 ],
-                showgrid=True,
+                showgrid=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
                 zeroline=False,
                 showticklabels=True,
@@ -2517,7 +2517,7 @@ class StockProposal:
                 tickfont=dict(size=font_size, family="Arial"),
             ),
             yaxis=dict(
-                showgrid=True,
+                showgrid=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
                 zeroline=False,
                 showticklabels=False,
@@ -2579,6 +2579,30 @@ class StockProposal:
                 # bordercolor="white",  # 添加白色边框
                 # borderwidth=1,  # 设置边框宽度
                 # bgcolor="rgba(255, 255, 255, 0.7)",  # 设置背景色为半透明白色
+            )
+
+        # 在每周之间添加横向分隔线
+        unique_weeks = pd_calendar_heatmap["week_order"].unique()
+        for week in unique_weeks[1:]:  # 跳过最后一个 week
+            fig.add_hline(
+                y=week - 0.5,
+                line_dash="solid",
+                line_color="gray",
+                opacity=0.5,
+                layer="below",
+            )
+
+        # 在每列之间添加纵向分割线
+        unique_days = sorted(
+            pd_calendar_heatmap["day_of_week"].unique()
+        )  # 确保按0-6排序
+        for day in unique_days[1:]:  # 跳过最后一个 day
+            fig.add_vline(
+                x=day - 0.5,
+                line_dash="solid",
+                line_color="gray",
+                opacity=0.5,
+                layer="below",
             )
 
         if self.market == "us":
@@ -2666,7 +2690,7 @@ class StockProposal:
                     "Saturday",
                     "Sunday",
                 ],
-                showgrid=True,
+                showgrid=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
                 zeroline=False,
                 showticklabels=True,
@@ -2674,7 +2698,7 @@ class StockProposal:
                 tickfont=dict(size=font_size, color=light_text_color, family="Arial"),
             ),
             yaxis=dict(
-                showgrid=True,
+                showgrid=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
                 zeroline=False,
                 showticklabels=False,
@@ -2726,6 +2750,30 @@ class StockProposal:
                 # bordercolor="white",  # 添加白色边框
                 # borderwidth=1,  # 设置边框宽度
                 # bgcolor="rgba(255, 255, 255, 0.7)",  # 设置背景色为半透明白色
+            )
+
+        # 在每周之间添加横向分隔线
+        unique_weeks = pd_calendar_heatmap["week_order"].unique()
+        for week in unique_weeks[1:]:  # 跳过最后一个 week
+            fig.add_hline(
+                y=week - 0.5,
+                line_dash="solid",
+                line_color="white",
+                opacity=0.5,
+                layer="below",
+            )
+
+        # 在每列之间添加纵向分割线
+        unique_days = sorted(
+            pd_calendar_heatmap["day_of_week"].unique()
+        )  # 确保按0-6排序
+        for day in unique_days[1:]:  # 跳过最后一个 day
+            fig.add_vline(
+                x=day - 0.5,
+                line_dash="solid",
+                line_color="white",
+                opacity=0.5,
+                layer="below",
             )
 
         if self.market == "us":
