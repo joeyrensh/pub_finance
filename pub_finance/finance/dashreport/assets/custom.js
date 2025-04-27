@@ -46,8 +46,18 @@
             });
         }
 
+        // 如果是特定的 SVG，设置字体加粗
+        if (svgId === 'annual-return-light' || svgId === 'annual-return-dark')
+            { 
+                const parentDiv = element.closest('g');
+                if (parentDiv && parentDiv.id === "text_6") {
+                    fontSize = screenWidth <= 550 ? '2.5rem' : '2rem'; // 特殊的 font-size
+                }
+            }        
+
         element.style.setProperty('font-size', fontSize, 'important');
         element.style.setProperty('font-family', '-apple-system', 'important');
+    
     }
 
     function processSvg(obj) {
