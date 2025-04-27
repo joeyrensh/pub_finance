@@ -47,13 +47,32 @@
         }
 
         // 如果是特定的 SVG，设置字体加粗
-        if (svgId === 'annual-return-light' || svgId === 'annual-return-dark')
-            { 
+        if (svgId === 'annual-return-light' || svgId === 'annual-return-dark') { 
+            // 查找 element 的父级是否以 "table" 为前缀
+            const parent = element.closest('[id^="table"]');
+            if (parent) {
+                // 初始化计数器
+                let totalCount = 0;
+
+                // 遍历 parent 的直接子节点，统计 id 以 "text_" 为前缀的节点数量
+                const textElements = Array.from(parent.children).filter(child =>
+                    child.id && child.id.startsWith("text_")
+                );
+
+                // 计算总数
+                totalCount = textElements.length;                
+
+                // 计算结果：总数除以 5 再乘以 2
+                const num = (totalCount / 5) * 2;
+
+                // 查找 id 为 `text_${num}` 且父级为 <g> 的节点
                 const parentDiv = element.closest('g');
-                if (parentDiv && parentDiv.id === "text_6") {
+                if (parentDiv && parentDiv.id === `text_${num}`) {
                     fontSize = screenWidth <= 550 ? '2.5rem' : '2rem'; // 特殊的 font-size
+                    element.style.setProperty('font-weight', 'bold', 'important');
                 }
-            }        
+            }
+        }
 
         element.style.setProperty('font-size', fontSize, 'important');
         element.style.setProperty('font-family', '-apple-system', 'important');
