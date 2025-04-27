@@ -70,7 +70,15 @@
                 if (parentDiv && parentDiv.id === `text_${num}`) {
                     fontSize = screenWidth <= 550 ? '2.5rem' : '2rem'; // 特殊的 font-size
                     element.style.setProperty('font-weight', 'bold', 'important');
-                }
+                    // 获取该标签内的文本内容
+                    const textContent = parentDiv.textContent.trim(); // 去除多余的空格                    
+                        // 判断文本内容是否包含 "-" 前缀
+                    if (textContent.startsWith('-')) {
+                        element.style.setProperty('fill', 'Green', 'important'); // 设置为绿色
+                    } else {
+                        element.style.setProperty('fill', 'Red', 'important'); // 设置为红色
+                    }
+                }             
             }
         }
 
