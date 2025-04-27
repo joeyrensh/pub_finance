@@ -2422,6 +2422,18 @@ class StockProposal:
             drop=True
         )
 
+        # 过滤最近 20 个自然日（不包括周六和周日）
+        latest_date = pd_calendar_heatmap["date"].max()  # 获取数据中的最新日期
+        filtered_dates = pd.date_range(
+            end=latest_date, periods=40, freq="B"
+        )  # 获取最近 40 个工作日（包括周一到周五）
+        filtered_dates = filtered_dates[-20:]  # 取最近 20 个自然日（不包括周六和周日）
+
+        # 过滤数据
+        pd_calendar_heatmap = pd_calendar_heatmap[
+            pd_calendar_heatmap["date"].isin(filtered_dates)
+        ].reset_index(drop=True)
+
         # 计算每周的起始日期
         pd_calendar_heatmap["week_start"] = pd_calendar_heatmap[
             "date"
@@ -2605,6 +2617,43 @@ class StockProposal:
                 layer="below",
             )
 
+        # 找出所有日期范围
+        all_dates = pd.date_range(
+            start=pd_calendar_heatmap["date"].min(),
+            end=pd_calendar_heatmap["date"].max(),
+            freq="D",
+        )
+
+        # 找出没有数据的日期
+        missing_dates = set(all_dates) - set(pd_calendar_heatmap["date"])
+        # 排除周六和周日
+        missing_dates = [date for date in missing_dates if date.weekday() < 5]
+
+        # 为每个缺失日期添加 annotation
+        for missing_date in missing_dates:
+            # 计算对应的 day_of_week 和 week_order
+            day_of_week = missing_date.dayofweek  # 星期几 (0=Monday, 6=Sunday)
+            week_start = missing_date - pd.to_timedelta(day_of_week, unit="d")
+            week_order = week_mapping[
+                week_start
+            ]  # 根据已有的 week_mapping 获取 week_order
+
+            # 添加 annotation
+            fig.add_annotation(
+                x=day_of_week,
+                y=week_order,
+                text="休市",
+                showarrow=False,
+                font=dict(
+                    color=text_color,
+                    family="Arial",
+                    size=font_size - 5,
+                ),  # 根据s_pnl值动态设置字体颜色
+                align="center",
+                xanchor="center",
+                yanchor="middle",
+            )
+
         if self.market == "us":
             fig.write_image(
                 "./dashreport/assets/images/us_industry_trend_heatmap_light.svg",
@@ -2774,6 +2823,42 @@ class StockProposal:
                 line_color="white",
                 opacity=0.5,
                 layer="below",
+            )
+        # 找出所有日期范围
+        all_dates = pd.date_range(
+            start=pd_calendar_heatmap["date"].min(),
+            end=pd_calendar_heatmap["date"].max(),
+            freq="D",
+        )
+
+        # 找出没有数据的日期
+        missing_dates = set(all_dates) - set(pd_calendar_heatmap["date"])
+        # 排除周六和周日
+        missing_dates = [date for date in missing_dates if date.weekday() < 5]
+
+        # 为每个缺失日期添加 annotation
+        for missing_date in missing_dates:
+            # 计算对应的 day_of_week 和 week_order
+            day_of_week = missing_date.dayofweek  # 星期几 (0=Monday, 6=Sunday)
+            week_start = missing_date - pd.to_timedelta(day_of_week, unit="d")
+            week_order = week_mapping[
+                week_start
+            ]  # 根据已有的 week_mapping 获取 week_order
+
+            # 添加 annotation
+            fig.add_annotation(
+                x=day_of_week,
+                y=week_order,
+                text="休市",
+                showarrow=False,
+                font=dict(
+                    color=text_color,
+                    family="Arial",
+                    size=font_size - 5,
+                ),  # 根据s_pnl值动态设置字体颜色
+                align="center",
+                xanchor="center",
+                yanchor="middle",
             )
 
         if self.market == "us":
