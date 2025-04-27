@@ -281,7 +281,7 @@ def create_layout(app):
                                                 data=encoded_image_trdraw,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="annual-return-light",
+                                                id="us-annual-return-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -289,7 +289,7 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="annual-return-dark",
+                                                id="us-annual-return-dark",
                                             ),
                                         ],
                                     ),
@@ -315,7 +315,7 @@ def create_layout(app):
                                                 data=encoded_image_ind_trend,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="ind-trend-light",
+                                                id="us-ind-trend-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -323,7 +323,7 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="ind-trend-dark",
+                                                id="us-ind-trend-dark",
                                             ),
                                         ],
                                     ),
@@ -345,7 +345,7 @@ def create_layout(app):
                                                 data=encoded_image_strategy,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="strategy-light",
+                                                id="us-strategy-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -353,7 +353,7 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="strategy-dark",
+                                                id="us-strategy-dark",
                                             ),
                                         ],
                                     ),
@@ -379,7 +379,7 @@ def create_layout(app):
                                                 data=encoded_image_by_postion,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="by-position-light",
+                                                id="us-by-position-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -387,7 +387,7 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="by-position-dark",
+                                                id="us-by-position-dark",
                                             ),
                                         ],
                                     ),
@@ -409,7 +409,7 @@ def create_layout(app):
                                                 data=encoded_image_by_pl,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="by-pl-light",
+                                                id="us-by-pl-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -417,7 +417,7 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="by-pl-dark",
+                                                id="us-by-pl-dark",
                                             ),
                                         ],
                                     ),
@@ -443,7 +443,7 @@ def create_layout(app):
                                                 data=encoded_image_by_positiondate,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="by-positiondate-light",
+                                                id="us-by-positiondate-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -451,7 +451,7 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="by-positiondate-dark",
+                                                id="us-by-positiondate-dark",
                                             ),
                                         ],
                                     ),
@@ -472,7 +472,7 @@ def create_layout(app):
                                                 data=encoded_image_bypl_date,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="bypl-date-light",
+                                                id="us-bypl-date-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -480,7 +480,7 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="bypl-date-dark",
+                                                id="us-bypl-date-dark",
                                             ),
                                         ],
                                     ),

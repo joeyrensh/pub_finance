@@ -1,12 +1,17 @@
 (function () {
     const SVG_IDS = [
-        'annual-return-light', 'annual-return-dark', 'ind-trend-light', 'ind-trend-dark',
-        'strategy-light', 'strategy-dark', 'by-position-light', 'by-position-dark',
-        'by-pl-light', 'by-pl-dark', 'by-positiondate-light', 'by-positiondate-dark',
-        'bypl-date-light', 'bypl-date-dark'
+        'cn-annual-return-light', 'cn-annual-return-dark', 'cn-ind-trend-light', 'cn-ind-trend-dark',
+        'cn-strategy-light', 'cn-strategy-dark', 'cn-by-position-light', 'cn-by-position-dark',
+        'cn-by-pl-light', 'cn-by-pl-dark', 'cn-by-positiondate-light', 'cn-by-positiondate-dark',
+        'cn-bypl-date-light', 'cn-bypl-date-dark',
+        'us-annual-return-light', 'us-annual-return-dark', 'us-ind-trend-light', 'us-ind-trend-dark',
+        'us-strategy-light', 'us-strategy-dark', 'us-by-position-light', 'us-by-position-dark',
+        'us-by-pl-light', 'us-by-pl-dark', 'us-by-positiondate-light', 'us-by-positiondate-dark',
+        'us-bypl-date-light', 'us-bypl-date-dark',
     ];
 
-    const FONT_SIZE_CONFIG = {
+    // 基础配置（无前缀）
+    const BASE_FONT_SIZE_CONFIG = {
         'annual-return-light': { mobile: '1.7rem', desktop: '1.3rem' },
         'annual-return-dark': { mobile: '1.7rem', desktop: '1.3rem' },
         'ind-trend-light': { mobile: '1.7rem', desktop: '1.7rem' },
@@ -22,6 +27,14 @@
         'bypl-date-light': { mobile: '2rem', desktop: '2rem' },
         'bypl-date-dark': { mobile: '2rem', desktop: '2rem' },
     };
+
+    // 动态生成带前缀的配置
+    const FONT_SIZE_CONFIG = {};
+    ['cn', 'us'].forEach(prefix => {
+        Object.keys(BASE_FONT_SIZE_CONFIG).forEach(key => {
+            FONT_SIZE_CONFIG[`${prefix}-${key}`] = BASE_FONT_SIZE_CONFIG[key];
+        });
+    });
 
     const CLASS_FONT_SIZE_CONFIG = {
         'xtick': { mobile: '2rem', desktop: '2.2rem' },
@@ -47,7 +60,8 @@
         }
 
         // 如果是特定的 SVG，设置字体加粗
-        if (svgId === 'annual-return-light' || svgId === 'annual-return-dark') { 
+        if (svgId === 'cn-annual-return-light' || svgId === 'cn-annual-return-dark' 
+            || svgId === 'us-annual-return-light' || svgId === 'us-annual-return-dark') { 
             // 查找 element 的父级是否以 "table" 为前缀
             const parent = element.closest('[id^="table"]');
             if (parent) {
