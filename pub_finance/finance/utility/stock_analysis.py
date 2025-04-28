@@ -2356,7 +2356,7 @@ class StockProposal:
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
-                    WHERE row_num = 21 )
+                    WHERE row_num = 26 )
                 GROUP BY t1.date, t2.industry
             ), tmp1 AS (
             SELECT t.date
@@ -2375,7 +2375,7 @@ class StockProposal:
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
-                    WHERE row_num = 20 )
+                    WHERE row_num = 25 )
             ), tmp2 AS (
             SELECT 
                 date
@@ -2430,7 +2430,7 @@ class StockProposal:
 
         # 根据周几动态调整交易日数量
         # 周五 -> 25 个交易日，周四 -> 24 个交易日，...，周一 -> 21 个交易日
-        trading_days = 25 - weekday
+        trading_days = 21 + weekday
 
         # 生成最近的交易日范围
         filtered_dates = pd.date_range(end=latest_date, periods=trading_days, freq="B")
