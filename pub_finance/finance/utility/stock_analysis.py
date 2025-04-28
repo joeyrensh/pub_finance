@@ -1344,17 +1344,17 @@ class StockProposal:
             "rgba(240, 80, 80, 0.6)",  # 保持原红
             "rgba(220, 40, 40, 0.8)",  # 保持原红
         ]
-        # TOP10热门行业
-        spark_top10_industry = spark.sql(
+        # TOP20热门行业
+        spark_top20_industry = spark.sql(
             """ 
             SELECT industry, cnt 
             FROM (
                 SELECT industry, count(*) AS cnt FROM temp_cur_position GROUP BY industry)
-            ORDER BY cnt DESC LIMIT 10
+            ORDER BY cnt DESC LIMIT 20
             """
         )
 
-        pd_top10_industry = spark_top10_industry.toPandas()
+        pd_top20_industry = spark_top20_industry.toPandas()
 
         def get_text_color(hex_color, theme):
             """根据颜色亮度返回黑色或白色文本"""
@@ -1386,7 +1386,7 @@ class StockProposal:
         # 生成动态文本颜色列表（适用于所有区块）
         hex_colors = sample_colorscale(
             pie_sequential_color,  # 原始色阶
-            samplepoints=np.linspace(0, 1, 10),  # 生成 10 个等间距点
+            samplepoints=np.linspace(0, 1, 20),  # 生成 10 个等间距点
             colortype="rgb",  # 输出为十六进制
         )
         alpha = 0.2
@@ -1400,11 +1400,14 @@ class StockProposal:
         # 创建 Treemap 图
         fig = go.Figure(
             go.Treemap(
-                labels=pd_top10_industry["industry"],
-                parents=[""] * len(pd_top10_industry),  # 顶层节点为空
-                values=pd_top10_industry["cnt"],
-                textinfo="label+value+percent parent",  # 显示标签、值和百分比
-                insidetextfont=dict(size=8, color=dark_text_color, family="Arial"),
+                labels=pd_top20_industry["industry"],
+                parents=[""] * len(pd_top20_industry),  # 顶层节点为空
+                values=pd_top20_industry["cnt"],
+                texttemplate="%{label}<br>%{value}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
+                insidetextfont=dict(
+                    size=font_size, color=dark_text_color, family="Arial"
+                ),
+                outsidetextfont=dict(color="grey"),
                 textposition="middle center",
                 marker=dict(
                     colors=rgba_colors,
@@ -1478,28 +1481,31 @@ class StockProposal:
                 height=fig_height,
                 scale=scale_factor,
             )
-        del pd_top10_industry
+        del pd_top20_industry
         gc.collect()
 
-        # TOP10盈利行业
-        spark_top10_profit_industry = spark.sql(
+        # TOP20盈利行业
+        spark_top20_profit_industry = spark.sql(
             """ 
             SELECT industry, ROUND(pl,2) AS pl 
             FROM (
                 SELECT industry, sum(`p&l`) as pl FROM temp_cur_position GROUP BY industry)
-            ORDER BY pl DESC LIMIT 10
+            ORDER BY pl DESC LIMIT 20
             """
         )
 
-        pd_top10_profit_industry = spark_top10_profit_industry.toPandas()
+        pd_top20_profit_industry = spark_top20_profit_industry.toPandas()
         # 创建 Treemap 图
         fig = go.Figure(
             go.Treemap(
-                labels=pd_top10_profit_industry["industry"],
-                parents=[""] * len(pd_top10_profit_industry),  # 顶层节点为空
-                values=pd_top10_profit_industry["pl"],
-                textinfo="label+value+percent parent",  # 显示标签、值和百分比
-                insidetextfont=dict(size=8, color=dark_text_color, family="Arial"),
+                labels=pd_top20_profit_industry["industry"],
+                parents=[""] * len(pd_top20_profit_industry),  # 顶层节点为空
+                values=pd_top20_profit_industry["pl"],
+                texttemplate="%{label}<br>%{value}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
+                insidetextfont=dict(
+                    size=font_size, color=dark_text_color, family="Arial"
+                ),
+                outsidetextfont=dict(color="grey"),
                 textposition="middle center",
                 marker=dict(
                     colors=rgba_colors,
@@ -1567,7 +1573,7 @@ class StockProposal:
                 scale=scale_factor,
             )
 
-        del pd_top10_profit_industry
+        del pd_top20_profit_industry
         gc.collect()
 
         # 120天内策略交易概率
