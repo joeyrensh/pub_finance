@@ -2422,12 +2422,18 @@ class StockProposal:
             drop=True
         )
 
-        # 过滤最近 20 个自然日（不包括周六和周日）
-        latest_date = pd_calendar_heatmap["date"].max()  # 获取数据中的最新日期
-        filtered_dates = pd.date_range(
-            end=latest_date, periods=40, freq="B"
-        )  # 获取最近 40 个工作日（包括周一到周五）
-        filtered_dates = filtered_dates[-20:]  # 取最近 20 个自然日（不包括周六和周日）
+        # 获取数据中的最新日期
+        latest_date = pd_calendar_heatmap["date"].max()
+
+        # 获取最新日期是周几（0=周一，1=周二，..., 6=周日）
+        weekday = latest_date.weekday()
+
+        # 根据周几动态调整交易日数量
+        # 周五 -> 25 个交易日，周四 -> 24 个交易日，...，周一 -> 21 个交易日
+        trading_days = 25 - weekday
+
+        # 生成最近的交易日范围
+        filtered_dates = pd.date_range(end=latest_date, periods=trading_days, freq="B")
 
         # 过滤数据
         pd_calendar_heatmap = pd_calendar_heatmap[
