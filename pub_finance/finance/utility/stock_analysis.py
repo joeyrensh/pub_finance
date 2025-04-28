@@ -1350,24 +1350,22 @@ class StockProposal:
             SELECT industry, cnt 
             FROM (
                 SELECT industry, count(*) AS cnt FROM temp_cur_position GROUP BY industry)
-            ORDER BY cnt DESC LIMIT 10
+            ORDER BY cnt DESC LIMIT 20
             """
         )
 
         pd_top10_industry = spark_top10_industry.toPandas()
-        fig = go.Figure(
-            data=[
-                go.Pie(
-                    labels=pd_top10_industry["industry"],
-                    values=pd_top10_industry["cnt"],
-                    hole=0.3,
-                    pull=[0.1] * 5,
-                )
-            ]
-        )
 
-        # colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
-        # colorscale = "Viridis"
+        # fig = go.Figure(
+        #     data=[
+        #         go.Pie(
+        #             labels=pd_top10_industry["industry"],
+        #             values=pd_top10_industry["cnt"],
+        #             hole=0.3,
+        #             pull=[0.1] * 5,
+        #         )
+        #     ]
+        # )
         def get_text_color(hex_color, theme):
             """根据颜色亮度返回黑色或白色文本"""
             try:
@@ -1398,32 +1396,73 @@ class StockProposal:
         # 生成动态文本颜色列表（适用于所有区块）
         hex_colors = sample_colorscale(
             pie_sequential_color,  # 原始色阶
-            samplepoints=np.linspace(0, 1, 10),  # 生成 10 个等间距点
+            samplepoints=np.linspace(0, 1, 20),  # 生成 10 个等间距点
             colortype="rgb",  # 输出为十六进制
         )
         text_colors = [get_text_color(color, "light") for color in hex_colors]
-        fig.update_traces(
-            # marker=dict(colors=colorscale, line=dict(width=2)),
-            textinfo="label+value+percent",
-            textfont=dict(size=font_size, color=text_colors, family="Arial"),
-            textposition="inside",
-            marker=dict(colors=hex_colors, line=dict(color=text_colors, width=2)),
-            opacity=0.7,
-        )
-        fig.update_layout(
-            title="Top10 Position",
-            title_font=dict(
-                size=title_font_size, color=dark_text_color, family="Arial"
-            ),
-            showlegend=False,
-            margin=dict(t=50, b=0, l=0, r=0),
-            autosize=True,
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
+
+        # fig.update_traces(
+        #     # marker=dict(colors=colorscale, line=dict(width=2)),
+        #     textinfo="label+value+percent",
+        #     textfont=dict(size=font_size, color=text_colors, family="Arial"),
+        #     textposition="inside",
+        #     marker=dict(colors=hex_colors, line=dict(color=text_colors, width=2)),
+        #     opacity=0.7,
+        # )
+        # fig.update_layout(
+        #     title="Top10 Position",
+        #     title_font=dict(
+        #         size=title_font_size, color=dark_text_color, family="Arial"
+        #     ),
+        #     showlegend=False,
+        #     margin=dict(t=50, b=0, l=0, r=0),
+        #     autosize=True,
+        #     plot_bgcolor="rgba(0,0,0,0)",
+        #     paper_bgcolor="rgba(0,0,0,0)",
+        # )
+
+        # 创建 Treemap 图
+        fig = go.Figure(
+            go.Treemap(
+                labels=pd_top10_industry["industry"],
+                parents=[None] * len(pd_top10_industry),  # 顶层节点为空
+                values=pd_top10_industry["cnt"],
+                textinfo="label+value+percent entry",  # 显示标签、值和百分比
+                textfont=dict(size=font_size, color=text_colors, family="Arial"),
+                marker=dict(
+                    colors=hex_colors,
+                    line=dict(color=text_colors, width=2),
+                    showscale=False,  # 显示颜色条
+                ),
+                opacity=0.7,
+                branchvalues="remainder",
+                tiling=dict(
+                    squarifyratio=1.6,  # 更接近正方形 (0.8 比 1 更紧凑)
+                    pad=0,  # 完全取消区块间隙
+                    flip="y",
+                ),
+            )
         )
         # 设置图像的宽度和高度（例如，1920x1080像素）
         fig_width, fig_height = 1440, 900
         scale_factor = 1
+        # 更新布局
+        fig.update_layout(
+            # title="Top10 Position",
+            title=None,
+            title_font=dict(
+                size=title_font_size, color=dark_text_color, family="Arial"
+            ),
+            showlegend=False,
+            margin=dict(t=0, b=0, l=0, r=0),
+            autosize=False,
+            width=fig_width,
+            height=fig_height,
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            treemapcolorway=hex_colors,  # 确保颜色一致
+        )
+
         if self.market == "us":
             fig.write_image(
                 "./dashreport/assets/images/us_postion_byindustry_light.svg",
@@ -1472,42 +1511,83 @@ class StockProposal:
             SELECT industry, ROUND(pl,2) AS pl 
             FROM (
                 SELECT industry, sum(`p&l`) as pl FROM temp_cur_position GROUP BY industry)
-            ORDER BY pl DESC LIMIT 10
+            ORDER BY pl DESC LIMIT 20
             """
         )
 
         pd_top10_profit_industry = spark_top10_profit_industry.toPandas()
-        fig = go.Figure(
-            data=[
-                go.Pie(
-                    labels=pd_top10_profit_industry["industry"],
-                    values=pd_top10_profit_industry["pl"],
-                    hole=0.3,
-                    pull=[0.1] * 5,
-                )
-            ]
-        )
+        # fig = go.Figure(
+        #     data=[
+        #         go.Pie(
+        #             labels=pd_top10_profit_industry["industry"],
+        #             values=pd_top10_profit_industry["pl"],
+        #             hole=0.3,
+        #             pull=[0.1] * 5,
+        #         )
+        #     ]
+        # )
         # colors = ["gold", "mediumturquoise", "darkorange", "lightgreen"]
         # light mode
         text_colors = [get_text_color(color, "light") for color in hex_colors]
-        fig.update_traces(
-            # marker=dict(colors=colors, line=dict(width=2)),
-            textinfo="label+value+percent",
-            textfont=dict(size=font_size, color=text_colors, family="Arial"),
-            textposition="inside",
-            marker=dict(colors=hex_colors, line=dict(color=text_colors, width=2)),
-            opacity=0.7,
+        # fig.update_traces(
+        #     # marker=dict(colors=colors, line=dict(width=2)),
+        #     textinfo="label+value+percent",
+        #     textfont=dict(size=font_size, color=text_colors, family="Arial"),
+        #     textposition="inside",
+        #     marker=dict(colors=hex_colors, line=dict(color=text_colors, width=2)),
+        #     opacity=0.7,
+        # )
+        # fig.update_layout(
+        #     title="Top10 Profit",
+        #     title_font=dict(
+        #         size=title_font_size, color=dark_text_color, family="Arial"
+        #     ),
+        #     showlegend=False,
+        #     margin=dict(t=50, b=0, l=0, r=0),
+        #     autosize=True,
+        #     plot_bgcolor="rgba(0,0,0,0)",
+        #     paper_bgcolor="rgba(0,0,0,0)",
+        # )
+        # 创建 Treemap 图
+        fig = go.Figure(
+            go.Treemap(
+                labels=pd_top10_profit_industry["industry"],
+                parents=[None] * len(pd_top10_profit_industry),  # 顶层节点为空
+                values=pd_top10_profit_industry["pl"],
+                textinfo="label+value+percent entry",  # 显示标签、值和百分比
+                textfont=dict(size=font_size, color=text_colors, family="Arial"),
+                marker=dict(
+                    colors=hex_colors,
+                    line=dict(color=text_colors, width=2),
+                    showscale=False,  # 显示颜色条
+                ),
+                opacity=0.7,
+                branchvalues="remainder",
+                tiling=dict(
+                    squarifyratio=1.6,  # 更接近正方形 (0.8 比 1 更紧凑)
+                    pad=0,  # 完全取消区块间隙
+                    flip="y",
+                ),
+            )
         )
+        # 设置图像的宽度和高度（例如，1920x1080像素）
+        fig_width, fig_height = 1440, 900
+        scale_factor = 1
+        # 更新布局
         fig.update_layout(
-            title="Top10 Profit",
+            # title="Top10 Position",
+            title=None,
             title_font=dict(
                 size=title_font_size, color=dark_text_color, family="Arial"
             ),
             showlegend=False,
-            margin=dict(t=50, b=0, l=0, r=0),
-            autosize=True,
+            margin=dict(t=0, b=0, l=0, r=0),
+            autosize=False,
+            width=fig_width,
+            height=fig_height,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
+            treemapcolorway=hex_colors,  # 确保颜色一致
         )
 
         if self.market == "us":
@@ -3079,9 +3159,9 @@ class StockProposal:
         df_result = pd.DataFrame.from_dict(result)
         df_result.to_csv(f"./data/{self.market}_df_result.csv", header=True)
 
-        MyEmail().send_email_embedded_image(
-            subject, html_txt + html + html_img + html1 + html2, image_path
-        )
+        # MyEmail().send_email_embedded_image(
+        #     subject, html_txt + html + html_img + html1 + html2, image_path
+        # )
 
     def send_etf_btstrategy_by_email(self, cash, final_value):
         """
