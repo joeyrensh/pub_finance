@@ -1389,7 +1389,7 @@ class StockProposal:
             samplepoints=np.linspace(0, 1, 20),  # 生成 10 个等间距点
             colortype="rgb",  # 输出为十六进制
         )
-        alpha = 0.2
+        alpha = 0.3
         # 将 RGB 转换为 RGBA，添加透明度
         rgba_colors = [
             f"rgba({int(color[4:-1].split(',')[0])}, {int(color[4:-1].split(',')[1])}, {int(color[4:-1].split(',')[2])}, {alpha})"
@@ -1411,14 +1411,14 @@ class StockProposal:
                 textposition="middle center",
                 marker=dict(
                     colors=rgba_colors,
-                    line=dict(color=dark_text_color, width=2),
+                    line=dict(color=rgba_colors, width=2),
                     showscale=False,  # 显示颜色条
                 ),
                 opacity=1,
                 tiling=dict(
                     squarifyratio=1.8,  # 更接近正方形 (0.8 比 1 更紧凑)
-                    pad=0,  # 完全取消区块间隙
-                    flip="y",
+                    pad=10,  # 完全取消区块间隙
+                    # flip="y",
                 ),
             )
         )
@@ -1439,7 +1439,7 @@ class StockProposal:
             height=fig_height,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            treemapcolorway=hex_colors,  # 确保颜色一致
+            treemapcolorway=rgba_colors,  # 确保颜色一致
         )
 
         if self.market == "us":
@@ -1461,7 +1461,7 @@ class StockProposal:
         text_colors = [get_text_color(color, "dark") for color in rgba_colors]
         fig.update_traces(
             insidetextfont=dict(color=light_text_color),
-            marker=dict(colors=rgba_colors, line=dict(color=light_text_color)),
+            marker=dict(colors=rgba_colors, line=dict(color=rgba_colors)),
         )
         fig.update_layout(
             title_font=dict(color=light_text_color),
@@ -1509,14 +1509,14 @@ class StockProposal:
                 textposition="middle center",
                 marker=dict(
                     colors=rgba_colors,
-                    line=dict(color=dark_text_color, width=2),
+                    line=dict(color=rgba_colors, width=2),
                     showscale=False,  # 显示颜色条
                 ),
                 opacity=1,
                 tiling=dict(
                     squarifyratio=1.8,  # 更接近正方形 (0.8 比 1 更紧凑)
-                    pad=0,  # 完全取消区块间隙
-                    flip="y",
+                    pad=10,  # 完全取消区块间隙
+                    # flip="y",
                 ),
             )
         )
@@ -1533,7 +1533,7 @@ class StockProposal:
             height=fig_height,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            treemapcolorway=hex_colors,  # 确保颜色一致
+            treemapcolorway=rgba_colors,  # 确保颜色一致
         )
         if self.market == "us":
             fig.write_image(
@@ -1553,7 +1553,7 @@ class StockProposal:
         text_colors = [get_text_color(color, "dark") for color in hex_colors]
         fig.update_traces(
             insidetextfont=dict(color=light_text_color),
-            marker=dict(colors=rgba_colors, line=dict(color=light_text_color)),
+            marker=dict(colors=rgba_colors, line=dict(color=rgba_colors)),
         )
         fig.update_layout(
             title_font=dict(color=light_text_color),
