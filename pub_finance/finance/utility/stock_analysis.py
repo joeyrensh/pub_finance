@@ -1401,24 +1401,23 @@ class StockProposal:
         fig = go.Figure(
             go.Treemap(
                 labels=pd_top20_industry["industry"],
-                parents=[""] * len(pd_top20_industry),  # 顶层节点为空
+                parents=[None] * len(pd_top20_industry),  # 顶层节点为空
                 values=pd_top20_industry["cnt"],
                 texttemplate="%{label}<br>%{value}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
                 insidetextfont=dict(
                     size=font_size, color=dark_text_color, family="Arial"
                 ),
-                outsidetextfont=dict(color="grey"),
                 textposition="middle center",
                 marker=dict(
                     colors=rgba_colors,
                     line=dict(color=rgba_colors, width=2),
                     showscale=False,  # 显示颜色条
+                    pad=dict(t=0, b=0, l=0, r=0),
                 ),
                 opacity=1,
                 tiling=dict(
                     squarifyratio=1.8,  # 更接近正方形 (0.8 比 1 更紧凑)
                     pad=10,  # 完全取消区块间隙
-                    # flip="y",
                 ),
             )
         )
@@ -1427,10 +1426,8 @@ class StockProposal:
         scale_factor = 1
         # 更新布局
         fig.update_layout(
-            # title="Top10 Position",
-            title=None,
-            title_font=dict(
-                size=title_font_size, color=dark_text_color, family="Arial"
+            title=dict(
+                text=None,  # 标题文本
             ),
             showlegend=False,
             margin=dict(t=0, b=0, l=0, r=0),
@@ -1511,6 +1508,7 @@ class StockProposal:
                     colors=rgba_colors,
                     line=dict(color=rgba_colors, width=2),
                     showscale=False,  # 显示颜色条
+                    pad=dict(t=0, b=0, l=0, r=0),
                 ),
                 opacity=1,
                 tiling=dict(
@@ -1522,9 +1520,8 @@ class StockProposal:
         )
         # 更新布局
         fig.update_layout(
-            title=None,
-            title_font=dict(
-                size=title_font_size, color=dark_text_color, family="Arial"
+            title=dict(
+                text=None,  # 标题文本
             ),
             showlegend=False,
             margin=dict(t=0, b=0, l=0, r=0),
