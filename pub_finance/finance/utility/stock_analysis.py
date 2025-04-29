@@ -1291,58 +1291,61 @@ class StockProposal:
         # 样式变量
         font_size = 32
         title_font_size = 35
+        # 设置图像的宽度和高度（例如，1920x1080像素）
+        fig_width, fig_height = 1440, 900
+        scale_factor = 1
         light_text_color = "rgba(255, 255, 255, 0.77)"
         dark_text_color = "#000000"
         pie_sequential_color = px.colors.diverging.RdYlGn
-        # 策略颜色（保留原有红色系，调整蓝色系为绿色系）
+        # 策略颜色
         strategy_colors_light = [
-            "#228B22",  # 森林绿 (Forest Green) - 主对比色
-            "#32CD32",  # 酸橙绿 (Lime Green) - 次级绿色
-            "#20B2AA",  # 浅海绿 (Light Sea Green) - 补充冷色调
-            "#FF6B6B",  # 珊瑚红 (Coral Red) - 中等强调色
-            "#FF4500",  # 橙红 (Orange Red) - 高对比辅助色
-            "#e60606",  # 深红 (Dark Red) - 最高级重要数据
-            "#8B0000",  # 深红 (Dark Red) - 最高级重要数据
+            "#228B22",
+            "#32CD32",
+            "#20B2AA",
+            "#FF6B6B",
+            "#FF4500",
+            "#e60606",
+            "#8B0000",
         ]
 
         strategy_colors_dark = [
-            "#00FA9A",  # 中春绿 (Medium Spring Green) - 高亮强调色
-            "#7CFC00",  # 草坪绿 (Lawn Green) - 增强对比
-            "#00FF7F",  # 春绿 (Spring Green) - 冷色补充
-            "#FFA07A",  # 浅橙红 (Light Salmon) - 中间过渡色
-            "#DC143C",  # 深红 (Crimson) - 保持红色系
-            "#dc5037",  # 番茄红 (Tomato) - 提高暗背景可见度
-            "#FF6347",  # 番茄红 (Tomato) - 提高暗背景可见度
+            "#00FA9A",
+            "#7CFC00",
+            "#00FF7F",
+            "#FFA07A",
+            "#DC143C",
+            "#dc5037",
+            "#FF6347",
         ]
 
-        # 多样化颜色（调整为绿色渐变）
+        # 多样化颜色
         diverse_colors5_light = [
-            "#C53030",  # 保持原红色
-            "#318231",  # 深绿替代蓝
-            "#63B363",  # 中绿替代浅蓝
-            "#90EE90",  # 浅绿
-            "#F56565",  # 保持原红色
+            "#C53030",
+            "#318231",
+            "#63B363",
+            "#90EE90",
+            "#F56565",
         ]
         diverse_colors5_dark = [
-            "#C53030",  # 保持原红色
-            "#318231",  # 深绿替代蓝
-            "#63B363",  # 中绿替代浅蓝
-            "#90EE90",  # 浅绿
-            "#F56565",  # 保持原红色
+            "#C53030",
+            "#318231",
+            "#63B363",
+            "#90EE90",
+            "#F56565",
         ]
 
-        # 热图颜色（蓝改绿，保留红）
+        # 热图颜色
         heatmap_colors4_light = [
-            "rgba(34, 139, 34, 0.7)",  # 森林绿 (替代蓝)
-            "rgba(50, 205, 50, 0.5)",  # 酸橙绿 (替代蓝)
-            "rgba(212, 55, 55, 0.5)",  # 保持原红
-            "rgba(207, 12, 12, 0.7)",  # 保持原红
+            "rgba(34, 139, 34, 0.7)",
+            "rgba(50, 205, 50, 0.5)",
+            "rgba(212, 55, 55, 0.5)",
+            "rgba(207, 12, 12, 0.7)",
         ]
         heatmap_colors4_dark = [
-            "rgba(34, 139, 34, 0.8)",  # 森林绿 (替代蓝)
-            "rgba(50, 205, 50, 0.6)",  # 酸橙绿 (替代蓝)
-            "rgba(240, 80, 80, 0.6)",  # 保持原红
-            "rgba(220, 40, 40, 0.8)",  # 保持原红
+            "rgba(34, 139, 34, 0.8)",
+            "rgba(50, 205, 50, 0.6)",
+            "rgba(240, 80, 80, 0.6)",
+            "rgba(220, 40, 40, 0.8)",
         ]
         # TOP20热门行业
         spark_top20_industry = spark.sql(
@@ -1386,7 +1389,7 @@ class StockProposal:
         # 生成动态文本颜色列表（适用于所有区块）
         hex_colors = sample_colorscale(
             pie_sequential_color,  # 原始色阶
-            samplepoints=np.linspace(0, 1, 20),  # 生成 10 个等间距点
+            samplepoints=np.linspace(0, 1, 20),  # 生成 20 个等间距点
             colortype="rgb",  # 输出为十六进制
         )
         alpha = 0.3
@@ -1395,6 +1398,7 @@ class StockProposal:
             f"rgba({int(color[4:-1].split(',')[0])}, {int(color[4:-1].split(',')[1])}, {int(color[4:-1].split(',')[2])}, {alpha})"
             for color in hex_colors
         ]
+        # 文本颜色
         text_colors = [get_text_color(color, "light") for color in rgba_colors]
 
         # 创建 Treemap 图
@@ -1411,26 +1415,23 @@ class StockProposal:
                 marker=dict(
                     colors=rgba_colors,
                     line=dict(color=rgba_colors, width=2),
-                    showscale=False,  # 显示颜色条
+                    showscale=False,
                     pad=dict(t=0, b=0, l=0, r=0),
                 ),
                 opacity=1,
                 tiling=dict(
-                    squarifyratio=1.8,  # 更接近正方形 (0.8 比 1 更紧凑)
-                    pad=10,  # 完全取消区块间隙
+                    squarifyratio=1.8,
+                    pad=10,
                 ),
             )
         )
-        # 设置图像的宽度和高度（例如，1920x1080像素）
-        fig_width, fig_height = 1440, 900
-        scale_factor = 1
         # 更新布局
         fig.update_layout(
             title=dict(
                 text=None,  # 标题文本
             ),
             showlegend=False,
-            margin=dict(t=0, b=0, l=0, r=0),
+            margin=dict(t=0, b=20, l=0, r=0),
             autosize=False,
             width=fig_width,
             height=fig_height,
@@ -1454,7 +1455,6 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
-        # hex_colors = px.colors.diverging.RdBu
         text_colors = [get_text_color(color, "dark") for color in rgba_colors]
         fig.update_traces(
             insidetextfont=dict(color=light_text_color),
@@ -1507,14 +1507,13 @@ class StockProposal:
                 marker=dict(
                     colors=rgba_colors,
                     line=dict(color=rgba_colors, width=2),
-                    showscale=False,  # 显示颜色条
+                    showscale=False,
                     pad=dict(t=0, b=0, l=0, r=0),
                 ),
                 opacity=1,
                 tiling=dict(
-                    squarifyratio=1.8,  # 更接近正方形 (0.8 比 1 更紧凑)
-                    pad=10,  # 完全取消区块间隙
-                    # flip="y",
+                    squarifyratio=1.8,
+                    pad=10,
                 ),
             )
         )
@@ -1524,7 +1523,7 @@ class StockProposal:
                 text=None,  # 标题文本
             ),
             showlegend=False,
-            margin=dict(t=0, b=0, l=0, r=0),
+            margin=dict(t=0, b=20, l=0, r=0),
             autosize=False,
             width=fig_width,
             height=fig_height,
@@ -1574,8 +1573,6 @@ class StockProposal:
         gc.collect()
 
         # 120天内策略交易概率
-        # 获取不同策略的颜色列表
-
         spark_strategy_tracking_lst120days = spark.sql(
             """ 
             WITH tmp1 AS (
@@ -1612,9 +1609,7 @@ class StockProposal:
         max_pnl = pd_strategy_tracking_lst120days_group["pnl"].max()
 
         # 创建带有两个 y 轴的子图布局
-
         fig = go.Figure()
-
         # 遍历每个策略并添加数据
         for i, (strategy, data) in enumerate(
             pd_strategy_tracking_lst120days.groupby("strategy")
@@ -1646,7 +1641,6 @@ class StockProposal:
                 "text": None,
             },
             xaxis=dict(
-                # titlefont=dict(size=20, color="black"),
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
@@ -1655,7 +1649,6 @@ class StockProposal:
             ),
             yaxis=dict(
                 title=dict(
-                    # text="Success Rate",
                     text=None,
                     font=dict(
                         size=title_font_size, color=dark_text_color, family="Arial"
@@ -1670,7 +1663,6 @@ class StockProposal:
             ),
             yaxis2=dict(
                 title=dict(
-                    # text="Pnl",
                     text=None,
                     font=dict(
                         size=title_font_size, color=dark_text_color, family="Arial"
@@ -1722,7 +1714,6 @@ class StockProposal:
 
         # dark mode
         fig = go.Figure()
-
         # 遍历每个策略并添加数据
         for i, (strategy, data) in enumerate(
             pd_strategy_tracking_lst120days.groupby("strategy")
@@ -1754,7 +1745,6 @@ class StockProposal:
             },
             xaxis=dict(
                 title=None,
-                # titlefont=dict(size=20, color="black"),
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
@@ -1763,7 +1753,6 @@ class StockProposal:
             ),
             yaxis=dict(
                 title=dict(
-                    # text="Success Rate",
                     text=None,
                     font=dict(
                         size=title_font_size, color=light_text_color, family="Arial"
@@ -1778,7 +1767,6 @@ class StockProposal:
             ),
             yaxis2=dict(
                 title=dict(
-                    # text="Pnl",
                     text=None,
                     font=dict(
                         size=title_font_size, color=light_text_color, family="Arial"
@@ -1903,8 +1891,6 @@ class StockProposal:
                 "text": "Last 120 days trade info",
                 "y": 0.9,
                 "x": 0.5,
-                # "xanchor": "left",
-                # "yanchor": "top",
                 "font": dict(
                     size=title_font_size, color=dark_text_color, family="Arial"
                 ),
@@ -1926,7 +1912,6 @@ class StockProposal:
             ),
             yaxis=dict(
                 title=dict(
-                    # text="Total Positions",
                     text=None,
                     font=dict(
                         size=title_font_size, color=dark_text_color, family="Arial"
@@ -1944,7 +1929,6 @@ class StockProposal:
             ),
             yaxis2=dict(
                 title=dict(
-                    # text="Positions per day",
                     text=None,
                     font=dict(
                         size=title_font_size, color=dark_text_color, family="Arial"
@@ -1957,8 +1941,6 @@ class StockProposal:
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
                 tickangle=0,  # 确保刻度标签水平显示
-                # range=[0, max_sum * 1.2],
-                # automargin=False,  # 关闭自动边距计算
             ),
             legend=dict(
                 orientation="h",
@@ -2069,13 +2051,16 @@ class StockProposal:
             by=["buy_date", "total_cnt"], ascending=[False, False], inplace=True
         )
 
-        fig = px.area(
+        fig = px.line(
             pd_top5_industry_position_trend,
             x="buy_date",
             y="total_cnt",
             color="industry",
             line_group="industry",
+            color_discrete_sequence=diverse_colors5_light,
         )
+        # light mode
+        fig.update_traces(line=dict(width=3))  # 设置线条宽度为2
         # light mode
         fig.update_xaxes(
             mirror=True,
@@ -2083,26 +2068,29 @@ class StockProposal:
             tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(0, 0, 0, 0.5)",
-            title_font=dict(
-                size=title_font_size, color=dark_text_color, family="Arial"
+            title=dict(
+                text="Open Date",
+                font=dict(size=title_font_size, color=dark_text_color, family="Arial"),
             ),
         )
         fig.update_yaxes(
             mirror=True,
-            ticks="outside",
+            ticks="inside",
             tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(0, 0, 0, 0.5)",
-            title_font=dict(
-                size=title_font_size, color=dark_text_color, family="Arial"
-            ),
+            title=None,  # 设置为空字符串以隐藏y轴标题
+            ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
+            tickangle=0,  # 确保刻度标签水平显示
         )
         fig.update_layout(
-            title="Last 120 days top5 positions ",
+            title="Last 120 days top5 Positions",
             title_font=dict(
                 size=title_font_size, color=dark_text_color, family="Arial"
             ),
-            legend_title_text="",
+            title_x=0.5,
+            title_y=0.9,
+            legend_title_text=None,
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -2110,9 +2098,22 @@ class StockProposal:
                 xanchor="center",
                 x=0.5,
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
+                itemwidth=30,  # 控制图例项宽度
+                itemsizing="constant",  # 保持图例符号大小一致
             ),
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0, 0, 0, 0)",
+            paper_bgcolor="rgba(0, 0, 0, 0)",
+            margin=dict(t=0, b=0, l=0, r=0),
+            autosize=False,  # 自动调整大小
+            width=fig_width,
+            height=fig_height,
+            xaxis=dict(
+                domain=[0, 1],  # 强制x轴占据全部可用宽度
+                automargin=False,  # 关闭自动边距计算
+            ),
+            yaxis=dict(
+                automargin=False  # 关闭自动边距计算
+            ),
         )
 
         if self.market == "us":
@@ -2716,20 +2717,20 @@ class StockProposal:
                 ygap=10,  # 设置行之间的间隙为10像素
                 # 定义自定义颜色比例
                 colorscale=[
-                    [0, heatmap_colors4_dark[0]],  # 更亮的绿色，增加透明度
+                    [0, heatmap_colors4_dark[0]],
                     [
                         (mid_val - min_val) / (max_val - min_val) / 2,
-                        heatmap_colors4_dark[1],  # 更亮的浅绿色，降低透明度
+                        heatmap_colors4_dark[1],
                     ],
                     [
                         (mid_val - min_val) / (max_val - min_val),
-                        "rgba(0, 0, 0, 0)",  # 更亮的白色，增加透明度
+                        "rgba(0, 0, 0, 0)",
                     ],
                     [
                         1 - (max_val - mid_val) / (max_val - min_val) / 2,
-                        heatmap_colors4_dark[2],  # 更亮的红色，降低透明度
+                        heatmap_colors4_dark[2],
                     ],
-                    [1, heatmap_colors4_dark[3]],  # 更亮的深红色，增加透明度
+                    [1, heatmap_colors4_dark[3]],
                 ],
                 zmin=min_val,
                 zmax=max_val,
@@ -3825,8 +3826,6 @@ class StockProposal:
                 "text": "Last 120 days trade info",
                 "y": 0.9,
                 "x": 0.5,
-                # "xanchor": "left",
-                # "yanchor": "top",
                 "font": dict(size=title_font_size, color="black", family="Arial"),
             },
             xaxis=dict(
@@ -3839,10 +3838,12 @@ class StockProposal:
                 tickfont=dict(color="black", family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.5)",
+                domain=[0, 1],  # 强制x轴占据全部可用宽度
+                automargin=False,  # 关闭自动边距计算
             ),
             yaxis=dict(
                 title=dict(
-                    text="Total Positions",
+                    text=None,
                     font=dict(size=title_font_size, color="black", family="Arial"),
                 ),
                 side="left",
@@ -3856,7 +3857,7 @@ class StockProposal:
             ),
             yaxis2=dict(
                 title=dict(
-                    text="Positions per day",
+                    text=None,
                     font=dict(size=title_font_size, color="black", family="Arial"),
                 ),
                 side="right",
@@ -3881,6 +3882,9 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
+            autosize=False,  # 自动调整大小
+            width=fig_width,
+            height=fig_height,
         )
 
         fig.write_image(
@@ -3896,8 +3900,6 @@ class StockProposal:
                 "text": "Last 120 days trade info",
                 "y": 0.9,
                 "x": 0.5,
-                # "xanchor": "left",
-                # "yanchor": "top",
                 "font": dict(size=title_font_size, color=text_color, family="Arial"),
             },
             xaxis=dict(
@@ -3910,10 +3912,12 @@ class StockProposal:
                 tickfont=dict(color=text_color, family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
+                domain=[0, 1],  # 强制x轴占据全部可用宽度
+                automargin=False,  # 关闭自动边距计算
             ),
             yaxis=dict(
                 title=dict(
-                    text="Total Positions",
+                    text=None,
                     font=dict(size=title_font_size, color=text_color, family="Arial"),
                 ),
                 side="left",
@@ -3922,10 +3926,12 @@ class StockProposal:
                 tickfont=dict(color=text_color, family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.5)",
+                ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
+                tickangle=0,  # 确保刻度标签水平显示
             ),
             yaxis2=dict(
                 title=dict(
-                    text="Positions per day",
+                    text=None,
                     font=dict(size=title_font_size, color=text_color, family="Arial"),
                 ),
                 side="right",
@@ -3933,6 +3939,8 @@ class StockProposal:
                 showgrid=False,
                 ticks="outside",
                 tickfont=dict(color=text_color, family="Arial", size=font_size),
+                ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
+                tickangle=0,  # 确保刻度标签水平显示
             ),
             legend=dict(
                 orientation="h",
@@ -3948,6 +3956,9 @@ class StockProposal:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
+            autosize=False,  # 自动调整大小
+            width=fig_width,
+            height=fig_height,
         )
 
         fig.write_image(
