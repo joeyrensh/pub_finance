@@ -2674,7 +2674,7 @@ class StockProposal:
                 text="休市",
                 showarrow=False,
                 font=dict(
-                    color=text_color,
+                    color=dark_text_color,
                     family="Arial",
                     size=font_size - 5,
                 ),  # 根据s_pnl值动态设置字体颜色
@@ -2881,7 +2881,7 @@ class StockProposal:
                 text="休市",
                 showarrow=False,
                 font=dict(
-                    color=text_color,
+                    color=light_text_color,
                     family="Arial",
                     size=font_size - 5,
                 ),  # 根据s_pnl值动态设置字体颜色
