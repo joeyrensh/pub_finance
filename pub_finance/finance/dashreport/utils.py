@@ -292,9 +292,9 @@ def make_dash_format_table(df, cols_format, market):
 
             row[key] = format_value(new_value, value_type)
     if market == "us":
-        trade_date = get_us_latest_trade_date(5)
+        trade_date = get_us_latest_trade_date(4)
     elif market == "cn":
-        trade_date = get_cn_latest_trade_date(5)
+        trade_date = get_cn_latest_trade_date(4)
 
     date_threshold = datetime.strptime(trade_date, "%Y%m%d").strftime("%Y-%m-%d")
     # date_threshold = str(datetime.now() - timedelta(days=5))[0:10]
