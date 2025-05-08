@@ -503,7 +503,7 @@ def create_layout(app):
                                         [
                                             html.Div(
                                                 children=make_dash_format_table(
-                                                    df, cols_format_category
+                                                    df, cols_format_category, "us"
                                                 ),
                                             )
                                         ],
@@ -533,7 +533,7 @@ def create_layout(app):
                                         [
                                             html.Div(
                                                 children=make_dash_format_table(
-                                                    df_detail, cols_format_detail
+                                                    df_detail, cols_format_detail, "us"
                                                 ),
                                             )
                                         ],
@@ -564,6 +564,7 @@ def create_layout(app):
                                                 children=make_dash_format_table(
                                                     df_detail_short,
                                                     cols_format_detail_short,
+                                                    "us",
                                                 ),
                                             )
                                         ],

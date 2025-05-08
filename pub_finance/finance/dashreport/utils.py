@@ -238,7 +238,7 @@ def data_bars(df, column):
     return styles
 
 
-def make_dash_format_table(df, cols_format):
+def make_dash_format_table(df, cols_format, market):
     """Return a dash_table.DataTable for a Pandas dataframe"""
     columns = [
         {
@@ -291,9 +291,13 @@ def make_dash_format_table(df, cols_format):
                 new_value, value_type = check_value_type(value)
 
             row[key] = format_value(new_value, value_type)
+    if market == "us":
+        trade_date = get_us_latest_trade_date(5)
+    elif market == "cn":
+        trade_date = get_cn_latest_trade_date(5)
 
-    # Flatten the list of styles
-    date_threshold = str(datetime.now() - timedelta(days=5))[0:10]
+    date_threshold = datetime.strptime(trade_date, "%Y%m%d").strftime("%Y-%m-%d")
+    # date_threshold = str(datetime.now() - timedelta(days=5))[0:10]
     style_data_conditional = (
         [
             {
@@ -420,3 +424,56 @@ def make_dash_format_table(df, cols_format):
         },
         style_data_conditional=style_data_conditional,
     )
+
+
+def get_us_latest_trade_date(offset) -> str | None:
+    """
+    utc_us = datetime.fromisoformat('2021-01-18 01:00:00')
+    美股休市日，https://www.nyse.com/markets/hours-calendars
+    marketclosed.config 是2021和2022两年的美股法定休市配置文件
+    """
+    f = open("../usstockinfo/marketclosed.config").readlines()
+    x = []
+    for i in f:
+        x.append(re.sub(",.*\n", "", i))
+    """ 循环遍历最近一个交易日期 """
+    counter = 0
+    for h in range(0, 365):
+        """当前美国时间 UTC-4"""
+        utc_us = datetime.now() - timedelta(hours=12) - timedelta(days=h)
+        """ 周末正常休市 """
+        if utc_us.isoweekday() in [1, 2, 3, 4, 5]:
+            if str(utc_us)[0:10] in x:
+                continue
+            else:
+                """返回日期字符串格式20200101"""
+                counter += 1
+                if counter == offset + 1:  # 找到第 offset 个交易日
+                    print("trade date: ", str(utc_us)[0:10].replace("-", ""))
+                    return str(utc_us)[0:10].replace("-", "")
+        else:
+            continue
+
+
+def get_cn_latest_trade_date(offset) -> str | None:
+    f = open("../cnstockinfo/marketclosed.config").readlines()
+    x = []
+    for i in f:
+        x.append(re.sub(",.*\n", "", i))
+    """ 循环遍历最近一个交易日期 """
+    counter = 0
+    for h in range(0, 365):
+        """当前北京时间 UTC+8"""
+        utc_cn = datetime.now() - timedelta(days=h)
+        """ 周末正常休市 """
+        if utc_cn.isoweekday() in [1, 2, 3, 4, 5]:
+            if str(utc_cn)[0:10] in x:
+                continue
+            else:
+                """返回日期字符串格式20200101"""
+                counter += 1
+                if counter == offset + 1:  # 找到第 offset 个交易日
+                    print("trade date: ", str(utc_cn)[0:10].replace("-", ""))
+                    return str(utc_cn)[0:10].replace("-", "")
+        else:
+            continue

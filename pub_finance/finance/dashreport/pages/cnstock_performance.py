@@ -540,8 +540,7 @@ def create_layout(app):
                                         [
                                             html.Div(
                                                 children=make_dash_format_table(
-                                                    df,
-                                                    cols_format_category,
+                                                    df, cols_format_category, "cn"
                                                 ),
                                                 className="cn_table",
                                             )
@@ -572,7 +571,7 @@ def create_layout(app):
                                         [
                                             html.Div(
                                                 children=make_dash_format_table(
-                                                    df_detail, cols_format_detail
+                                                    df_detail, cols_format_detail, "cn"
                                                 ),
                                                 className="cn_table",
                                             )
@@ -602,7 +601,7 @@ def create_layout(app):
                                         [
                                             html.Div(
                                                 children=make_dash_format_table(
-                                                    df_etf, cols_format_etf
+                                                    df_etf, cols_format_etf, "cn"
                                                 ),
                                                 className="cn_table",
                                             )
@@ -634,6 +633,7 @@ def create_layout(app):
                                                 children=make_dash_format_table(
                                                     df_detail_short,
                                                     cols_format_detail_short,
+                                                    "cn",
                                                 ),
                                                 className="cn_table",
                                             )

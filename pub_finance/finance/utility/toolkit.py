@@ -72,14 +72,13 @@ class ToolKit:
         美股休市日，https://www.nyse.com/markets/hours-calendars
         marketclosed.config 是2021和2022两年的美股法定休市配置文件
         """
-        if offset == 0:
-            return str(datetime.now() - timedelta(hours=12))[0:10].replace("-", "")
         f = open("./usstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(re.sub(",.*\n", "", i))
         """ 循环遍历最近一个交易日期 """
-        for h in range(offset, 365):
+        counter = 0
+        for h in range(0, 365):
             """当前美国时间 UTC-4"""
             utc_us = datetime.now() - timedelta(hours=12) - timedelta(days=h)
             """ 周末正常休市 """
@@ -88,8 +87,10 @@ class ToolKit:
                     continue
                 else:
                     """返回日期字符串格式20200101"""
-                    print("trade date: ", str(utc_us)[0:10].replace("-", ""))
-                    return str(utc_us)[0:10].replace("-", "")
+                    counter += 1
+                    if counter == offset + 1:  # 找到第 offset 个交易日
+                        print("trade date: ", str(utc_us)[0:10].replace("-", ""))
+                        return str(utc_us)[0:10].replace("-", "")
             else:
                 continue
 
@@ -148,14 +149,13 @@ class ToolKit:
 
     @staticmethod
     def get_cn_latest_trade_date(offset) -> str | None:
-        if offset == 0:
-            return str(datetime.now())[0:10].replace("-", "")
         f = open("./cnstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(re.sub(",.*\n", "", i))
         """ 循环遍历最近一个交易日期 """
-        for h in range(offset, 365):
+        counter = 0
+        for h in range(0, 365):
             """当前北京时间 UTC+8"""
             utc_cn = datetime.now() - timedelta(days=h)
             """ 周末正常休市 """
@@ -164,8 +164,10 @@ class ToolKit:
                     continue
                 else:
                     """返回日期字符串格式20200101"""
-                    print("trade date: ", str(utc_cn)[0:10].replace("-", ""))
-                    return str(utc_cn)[0:10].replace("-", "")
+                    counter += 1
+                    if counter == offset + 1:  # 找到第 offset 个交易日
+                        print("trade date: ", str(utc_cn)[0:10].replace("-", ""))
+                        return str(utc_cn)[0:10].replace("-", "")
             else:
                 continue
 

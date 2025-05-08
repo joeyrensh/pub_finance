@@ -12,7 +12,6 @@ from flask_compress import Compress
 from urllib.parse import urlparse, parse_qs
 import configparser
 
-
 server = Flask(__name__)
 Compress(server)
 
