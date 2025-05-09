@@ -4,6 +4,8 @@ import re
 import dash_table
 from datetime import datetime, timedelta
 from dash.dash_table.Format import Format, Scheme, Trim
+import pathlib
+import pandas as pd
 
 
 def Header(app):
@@ -438,19 +440,27 @@ def get_us_latest_trade_date(offset) -> str | None:
         x.append(re.sub(",.*\n", "", i))
     """ 循环遍历最近一个交易日期 """
     counter = 0
+    PATH = pathlib.Path(__file__).parent
+    # 收益率曲线
+    DATA_PATH = PATH.joinpath("../data").resolve()
+    df_overall = pd.read_csv(
+        DATA_PATH.joinpath("us_df_result.csv"),
+        usecols=[i for i in range(1, 5)],
+    )
+    utc_us = datetime.strptime(df_overall["end_date"].iloc[0], "%Y-%m-%d")
     for h in range(0, 365):
-        """当前美国时间 UTC-4"""
-        utc_us = datetime.now() - timedelta(hours=12) - timedelta(days=h)
-        """ 周末正常休市 """
-        if utc_us.isoweekday() in [1, 2, 3, 4, 5]:
-            if str(utc_us)[0:10] in x:
+        # 当前美国时间 UTC-4
+        current_date = utc_us - timedelta(days=h)
+        # 周末正常休市
+        if current_date.isoweekday() in [1, 2, 3, 4, 5]:
+            if str(current_date)[0:10] in x:
                 continue
             else:
                 """返回日期字符串格式20200101"""
                 counter += 1
                 if counter == offset + 1:  # 找到第 offset 个交易日
-                    print("trade date: ", str(utc_us)[0:10].replace("-", ""))
-                    return str(utc_us)[0:10].replace("-", "")
+                    print("trade date: ", str(current_date)[0:10].replace("-", ""))
+                    return str(current_date)[0:10].replace("-", "")
         else:
             continue
 
@@ -462,18 +472,26 @@ def get_cn_latest_trade_date(offset) -> str | None:
         x.append(re.sub(",.*\n", "", i))
     """ 循环遍历最近一个交易日期 """
     counter = 0
+    PATH = pathlib.Path(__file__).parent
+    # 收益率曲线
+    DATA_PATH = PATH.joinpath("../data").resolve()
+    df_overall = pd.read_csv(
+        DATA_PATH.joinpath("cn_df_result.csv"),
+        usecols=[i for i in range(1, 5)],
+    )
+    utc_cn = datetime.strptime(df_overall["end_date"].iloc[0], "%Y-%m-%d")
     for h in range(0, 365):
-        """当前北京时间 UTC+8"""
-        utc_cn = datetime.now() - timedelta(days=h)
-        """ 周末正常休市 """
-        if utc_cn.isoweekday() in [1, 2, 3, 4, 5]:
-            if str(utc_cn)[0:10] in x:
+        # 当前北京时间 UTC+8
+        current_date = utc_cn - timedelta(days=h)
+        # 周末正常休市
+        if current_date.isoweekday() in [1, 2, 3, 4, 5]:
+            if str(current_date)[0:10] in x:
                 continue
             else:
                 """返回日期字符串格式20200101"""
                 counter += 1
                 if counter == offset + 1:  # 找到第 offset 个交易日
-                    print("trade date: ", str(utc_cn)[0:10].replace("-", ""))
-                    return str(utc_cn)[0:10].replace("-", "")
+                    print("trade date: ", str(current_date)[0:10].replace("-", ""))
+                    return str(current_date)[0:10].replace("-", "")
         else:
             continue
