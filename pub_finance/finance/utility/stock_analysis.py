@@ -448,10 +448,18 @@ class StockProposal:
             pd_industry_history_tracking.to_csv("./data/cn_category.csv", header=True)
         cm = sns.light_palette("seagreen", as_cmap=True)
 
-        html = (
-            "<h2>Industry Overview</h2>"
-            "<table>"
-            + pd_industry_history_tracking.style.hide(
+        total_rows = len(pd_industry_history_tracking)
+        rows_per_page = 20
+        total_pages = (total_rows + rows_per_page - 1) // rows_per_page  # 计算总页数
+        html_pages = []
+
+        for page in range(total_pages):
+            start_row = page * rows_per_page
+            end_row = min(start_row + rows_per_page, total_rows)
+            page_data = pd_industry_history_tracking.iloc[start_row:end_row]
+
+            # 生成表格 HTML
+            table_html = "<h2>Industry Overview</h2>" + page_data.style.hide(
                 axis=1,
                 subset=[
                     "pnl_array",
@@ -459,8 +467,7 @@ class StockProposal:
                     "industry_new",
                     "pnl_growth",
                 ],
-            )
-            .format(
+            ).format(
                 {
                     "OPEN": "{:.2f}",
                     "LRATIO": "{:.2%}",
@@ -472,43 +479,35 @@ class StockProposal:
                     "AVG DAYS": "{:.0f}",
                     "WIN RATE": "{:.2%}",
                 }
-            )
-            .background_gradient(
-                subset=["PROFIT", "OPEN", "L5 OPEN", "L5 CLOSE"], cmap=cm
-            )
-            .bar(
+            ).background_gradient(
+                subset=["PROFIT", "OPEN", "L5 OPEN", "L5 CLOSE"], cmap="Greens"
+            ).bar(
                 subset=["WIN RATE"],
                 align="left",
                 color=["#99CC66", "#FF6666"],
                 vmin=0,
                 vmax=0.8,
-                # width=50,
-            )
-            .bar(
+            ).bar(
                 subset=["LRATIO"],
                 align="left",
                 color=["#99CC66", "#FF6666"],
                 vmin=0,
                 vmax=0.8,
-            )
-            .bar(
+            ).bar(
                 subset=["PNL RATIO"],
                 align="mid",
                 color=["#99CC66", "#FF6666"],
                 vmin=-0.8,
                 vmax=0.8,
-            )
-            .set_properties(
+            ).set_properties(
                 **{
                     "text-align": "left",
                     "border": "1px solid #ccc",
                     "cellspacing": "0",
                     "style": "border-collapse: collapse; ",
                 }
-            )
-            .set_table_styles(
+            ).set_table_styles(
                 [
-                    # 表头样式
                     dict(
                         selector="th",
                         props=[
@@ -518,7 +517,6 @@ class StockProposal:
                             ("font-size", "24px"),
                         ],
                     ),
-                    # 表格数据单元格样式
                     dict(
                         selector="td",
                         props=[
@@ -529,10 +527,8 @@ class StockProposal:
                         ],
                     ),
                 ],
-            )
-            .set_table_styles(
+            ).set_table_styles(
                 {
-                    # 针对盈亏趋势列增加列宽
                     "PROFIT TREND": [
                         {
                             "selector": "th",
@@ -563,37 +559,35 @@ class StockProposal:
                             "props": [
                                 ("min-width", "200px"),
                                 ("max-width", "500px"),
-                                # ("white-space", "nowrap"),
                             ],
-                        },
-                    ],
-                    "PNL RATIO": [
-                        {
-                            "selector": "th",
-                            "props": [("min-width", "50px"), ("max-width", "100px")],
-                        },
-                        {
-                            "selector": "td",
-                            "props": [("min-width", "50px"), ("max-width", "100px")],
-                        },
-                    ],
-                    "WIN RATE": [
-                        {
-                            "selector": "th",
-                            "props": [("min-width", "50px"), ("max-width", "100px")],
-                        },
-                        {
-                            "selector": "td",
-                            "props": [("min-width", "50px"), ("max-width", "100px")],
                         },
                     ],
                 },
                 overwrite=False,
-            )
-            .set_sticky(axis="columns")
-            .to_html(doctype_html=True, escape=False)
-            + "<table>"
-        )
+            ).set_sticky(axis="columns").to_html(doctype_html=True, escape=False)
+
+            # 添加分页导航
+            navigation_html = "<div style='text-align: center; margin: 32px;'>"
+            if page > 0:
+                navigation_html += (
+                    f"<a href='#page-{page}' style='margin-right: 32px;'>Previous</a>"
+                )
+            if page < total_pages - 1:
+                navigation_html += (
+                    f"<a href='#page-{page + 2}' style='margin-left: 32px;'>Next</a>"
+                )
+            navigation_html += "</div>"
+
+            # 包装每页内容
+            page_html = f"""
+            <div id='page-{page + 1}' style='margin-bottom: 20px;'>
+                <h3 style='text-align: center;'>Page {page + 1} of {total_pages}</h3>
+                {table_html}
+                {navigation_html}
+            </div>
+            """
+            html_pages.append(page_html)
+        paged_html = "\n".join(html_pages)
 
         css = """
             <style>
@@ -632,7 +626,7 @@ class StockProposal:
             </style>
         """
 
-        html = css + html
+        html = css + paged_html
 
         """
         持仓明细历史交易情况分析
@@ -838,13 +832,21 @@ class StockProposal:
             else:
                 return [""] * len(row)
 
-        html1 = (
-            "<h2>Open Position List</h2>"
-            "<table>"
-            + pd_position_history.style.hide(
-                axis=1, subset=["PNL", "pnl_growth", "TOTAL VALUE"]
-            )
-            .format(
+        total_rows = len(pd_position_history)
+        rows_per_page = 20
+        total_pages = (total_rows + rows_per_page - 1) // rows_per_page  # 计算总页数
+        html_pages = []
+
+        for page in range(total_pages):
+            start_row = page * rows_per_page
+            end_row = min(start_row + rows_per_page, total_rows)
+            page_data = pd_position_history.iloc[start_row:end_row]
+
+            # 生成表格 HTML
+            table_html = "<h2>Open Position List</h2>" + page_data.style.hide(
+                axis=1,
+                subset=["PNL", "pnl_growth", "TOTAL VALUE"],
+            ).format(
                 {
                     "BASE": "{:.2f}",
                     "ADJBASE": "{:.2f}",
@@ -854,32 +856,28 @@ class StockProposal:
                     "WIN RATE": "{:.2%}",
                     "TOTAL PNL RATIO": "{:.2%}",
                 }
-            )
-            .apply(highlight_row, axis=1)
-            .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
-            .bar(
+            ).apply(highlight_row, axis=1).background_gradient(
+                subset=["BASE", "ADJBASE"], cmap=cm
+            ).bar(
                 subset=["PNL RATIO", "TOTAL PNL RATIO"],
                 align="mid",
                 color=["#99CC66", "#FF6666"],
                 vmin=-0.8,
                 vmax=0.8,
-            )
-            .bar(
+            ).bar(
                 subset=["WIN RATE"],
                 align="left",
                 color=["#99CC66", "#FF6666"],
                 vmin=0,
                 vmax=0.8,
-            )
-            .set_properties(
+            ).set_properties(
                 **{
                     "text-align": "left",
                     "border": "1px solid #ccc",
                     "cellspacing": "0",
                     "style": "border-collapse: collapse; ",
                 }
-            )
-            .set_table_styles(
+            ).set_table_styles(
                 [
                     # 表头样式
                     dict(
@@ -905,8 +903,7 @@ class StockProposal:
                         ],
                     ),
                 ]
-            )
-            .set_table_styles(
+            ).set_table_styles(
                 {
                     "IND": [
                         {
@@ -942,11 +939,30 @@ class StockProposal:
                     ],
                 },
                 overwrite=False,
-            )
-            .set_sticky(axis="columns")
-            .to_html(doctype_html=True, escape=False)
-            + "<table>"
-        )
+            ).set_sticky(axis="columns").to_html(doctype_html=True, escape=False)
+
+            # 添加分页导航
+            navigation_html = "<div style='text-align: center; margin: 32px;'>"
+            if page > 0:
+                navigation_html += (
+                    f"<a href='#page-{page}' style='margin-right: 32px;'>Previous</a>"
+                )
+            if page < total_pages - 1:
+                navigation_html += (
+                    f"<a href='#page-{page + 2}' style='margin-left: 32px;'>Next</a>"
+                )
+            navigation_html += "</div>"
+
+            # 包装每页内容
+            page_html = f"""
+            <div id='page-{page + 1}' style='margin-bottom: 20px;'>
+                <h3 style='text-align: center;'>Page {page + 1} of {total_pages}</h3>
+                {table_html}
+                {navigation_html}
+            </div>
+            """
+            html_pages.append(page_html)
+        paged_html1 = "\n".join(html_pages)
 
         css1 = """
             <style>
@@ -984,8 +1000,7 @@ class StockProposal:
                 }
             </style>
         """
-
-        html1 = css1 + html1
+        html1 = css1 + paged_html1
 
         del pd_cur_position_with_latest_stock_info
         del pd_position_history
@@ -1145,103 +1160,133 @@ class StockProposal:
                     "./data/cn_stockdetail_short.csv", header=True
                 )
             cm = sns.light_palette("seagreen", as_cmap=True)
-            html2 = (
-                "<h2>Close Position List Last 5 Days</h2>"
-                "<table>"
-                + pd_position_reduction.style.hide(axis=1, subset=["PNL", "pnl_growth"])
-                .format(
-                    {
-                        "BASE": "{:.2f}",
-                        "ADJBASE": "{:.2f}",
-                        "HIS DAYS": "{:.2f}",
-                        "PNL RATIO": "{:.2%}",
-                    }
-                )
-                .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
-                .bar(
-                    subset=["PNL RATIO"],
-                    align="mid",
-                    color=["#99CC66", "#FF6666"],
-                    vmin=-0.8,
-                    vmax=0.8,
-                )
-                .set_properties(
-                    **{
-                        "text-align": "left",
-                        "border": "1px solid #ccc",
-                        "cellspacing": "0",
-                        "style": "border-collapse: collapse; ",
-                    }
-                )
-                .set_table_styles(
-                    [
-                        # 表头样式
-                        dict(
-                            selector="th",
-                            props=[
-                                ("border", "1px solid #ccc"),
-                                ("text-align", "left"),
-                                ("padding", "8px"),
-                                ("font-size", "18px"),
-                            ],
-                        ),
-                        # 表格数据单元格样式
-                        dict(
-                            selector="td",
-                            props=[
-                                ("border", "1px solid #ccc"),
-                                ("text-align", "left"),
-                                ("padding", "8px"),
-                                (
-                                    "font-size",
-                                    "18px",
-                                ),
-                            ],
-                        ),
-                    ]
-                )
-                .set_table_styles(
-                    {
-                        "IND": [
-                            {
-                                "selector": "th",
-                                "props": [
-                                    ("min-width", "150px"),
-                                    ("max-width", "300px"),
-                                ],
-                            },
-                            {
-                                "selector": "td",
-                                "props": [
-                                    ("min-width", "150px"),
-                                    ("max-width", "300px"),
-                                ],
-                            },
-                        ],
-                        "NAME": [
-                            {
-                                "selector": "th",
-                                "props": [
-                                    ("min-width", "150px"),
-                                    ("max-width", "300px"),
-                                ],
-                            },
-                            {
-                                "selector": "td",
-                                "props": [
-                                    ("min-width", "150px"),
-                                    ("max-width", "300px"),
-                                ],
-                            },
-                        ],
-                    },
-                    overwrite=False,
-                )
-                .set_sticky(axis="columns")
-                .to_html(doctype_html=True, escape=False)
-                + "</table>"
-            )
 
+            total_rows = len(pd_position_reduction)
+            rows_per_page = 20
+            total_pages = (
+                total_rows + rows_per_page - 1
+            ) // rows_per_page  # 计算总页数
+            html_pages = []
+
+            for page in range(total_pages):
+                start_row = page * rows_per_page
+                end_row = min(start_row + rows_per_page, total_rows)
+                page_data = pd_position_reduction.iloc[start_row:end_row]
+
+                # 生成表格 HTML
+                table_html = (
+                    "<h2>Close Position List Last 5 Days</h2>"
+                    + page_data.style.hide(axis=1, subset=["PNL", "pnl_growth"])
+                    .format(
+                        {
+                            "BASE": "{:.2f}",
+                            "ADJBASE": "{:.2f}",
+                            "HIS DAYS": "{:.2f}",
+                            "PNL RATIO": "{:.2%}",
+                        }
+                    )
+                    .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
+                    .bar(
+                        subset=["PNL RATIO"],
+                        align="mid",
+                        color=["#99CC66", "#FF6666"],
+                        vmin=-0.8,
+                        vmax=0.8,
+                    )
+                    .set_properties(
+                        **{
+                            "text-align": "left",
+                            "border": "1px solid #ccc",
+                            "cellspacing": "0",
+                            "style": "border-collapse: collapse; ",
+                        }
+                    )
+                    .set_table_styles(
+                        [
+                            # 表头样式
+                            dict(
+                                selector="th",
+                                props=[
+                                    ("border", "1px solid #ccc"),
+                                    ("text-align", "left"),
+                                    ("padding", "8px"),
+                                    ("font-size", "18px"),
+                                ],
+                            ),
+                            # 表格数据单元格样式
+                            dict(
+                                selector="td",
+                                props=[
+                                    ("border", "1px solid #ccc"),
+                                    ("text-align", "left"),
+                                    ("padding", "8px"),
+                                    (
+                                        "font-size",
+                                        "18px",
+                                    ),
+                                ],
+                            ),
+                        ]
+                    )
+                    .set_table_styles(
+                        {
+                            "IND": [
+                                {
+                                    "selector": "th",
+                                    "props": [
+                                        ("min-width", "150px"),
+                                        ("max-width", "300px"),
+                                    ],
+                                },
+                                {
+                                    "selector": "td",
+                                    "props": [
+                                        ("min-width", "150px"),
+                                        ("max-width", "300px"),
+                                    ],
+                                },
+                            ],
+                            "NAME": [
+                                {
+                                    "selector": "th",
+                                    "props": [
+                                        ("min-width", "150px"),
+                                        ("max-width", "300px"),
+                                    ],
+                                },
+                                {
+                                    "selector": "td",
+                                    "props": [
+                                        ("min-width", "150px"),
+                                        ("max-width", "300px"),
+                                    ],
+                                },
+                            ],
+                        },
+                        overwrite=False,
+                    )
+                    .set_sticky(axis="columns")
+                    .to_html(doctype_html=True, escape=False)
+                )
+
+                # 添加分页导航
+                navigation_html = "<div style='text-align: center; margin: 32px;'>"
+                if page > 0:
+                    navigation_html += f"<a href='#page-{page}' style='margin-right: 32px;'>Previous</a>"
+                if page < total_pages - 1:
+                    navigation_html += f"<a href='#page-{page + 2}' style='margin-left: 32px;'>Next</a>"
+                navigation_html += "</div>"
+
+                # 包装每页内容
+                page_html = f"""
+                <div id='page-{page + 1}' style='margin-bottom: 20px;'>
+                    <h3 style='text-align: center;'>Page {page + 1} of {total_pages}</h3>
+                    {table_html}
+                    {navigation_html}
+                </div>
+                """
+                html_pages.append(page_html)
+            paged_html2 = "\n".join(html_pages)
             css2 = """
                 <style>
                     :root {
@@ -1278,7 +1323,7 @@ class StockProposal:
                     }
                 </style>
             """
-            html2 = css2 + html2
+            html2 = css2 + paged_html2
         else:
             html2 = ""
 
@@ -3380,11 +3425,20 @@ class StockProposal:
             else:
                 return [""] * len(row)
 
-        html = (
-            "<h2>Open Position List</h2>"
-            "<table>"
-            + pd_position_history.style.hide(axis=1, subset=["PNL", "TOTAL VALUE"])
-            .format(
+        total_rows = len(pd_position_history)
+        rows_per_page = 20
+        total_pages = (total_rows + rows_per_page - 1) // rows_per_page  # 计算总页数
+        html_pages = []
+
+        for page in range(total_pages):
+            start_row = page * rows_per_page
+            end_row = min(start_row + rows_per_page, total_rows)
+            page_data = pd_position_history.iloc[start_row:end_row]
+
+            # 生成表格 HTML
+            table_html = "<h2>Open Position List</h2>" + page_data.style.hide(
+                axis=1, subset=["PNL", "TOTAL VALUE"]
+            ).format(
                 {
                     "BASE": "{:.2f}",
                     "ADJBASE": "{:.2f}",
@@ -3394,32 +3448,28 @@ class StockProposal:
                     "WIN RATE": "{:.2%}",
                     "TOTAL PNL RATIO": "{:.2%}",
                 }
-            )
-            .apply(highlight_row, axis=1)
-            .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
-            .bar(
+            ).apply(highlight_row, axis=1).background_gradient(
+                subset=["BASE", "ADJBASE"], cmap=cm
+            ).bar(
                 subset=["PNL RATIO", "TOTAL PNL RATIO"],
                 align="mid",
                 color=["#99CC66", "#FF6666"],
                 vmin=-0.8,
                 vmax=0.8,
-            )
-            .bar(
+            ).bar(
                 subset=["WIN RATE"],
                 align="left",
                 color=["#99CC66", "#FF6666"],
                 vmin=0,
                 vmax=0.8,
-            )
-            .set_properties(
+            ).set_properties(
                 **{
                     "text-align": "left",
                     "border": "1px solid #ccc",
                     "cellspacing": "0",
                     "style": "border-collapse: collapse; ",
                 }
-            )
-            .set_table_styles(
+            ).set_table_styles(
                 [
                     # 表头样式
                     dict(
@@ -3445,8 +3495,7 @@ class StockProposal:
                         ],
                     ),
                 ]
-            )
-            .set_table_styles(
+            ).set_table_styles(
                 {
                     "NAME": [
                         {
@@ -3466,11 +3515,30 @@ class StockProposal:
                     ],
                 },
                 overwrite=False,
-            )
-            .set_sticky(axis="columns")
-            .to_html(doctype_html=True, escape=False)
-            + "<table>"
-        )
+            ).set_sticky(axis="columns").to_html(doctype_html=True, escape=False)
+
+            # 添加分页导航
+            navigation_html = "<div style='text-align: center; margin: 32px;'>"
+            if page > 0:
+                navigation_html += (
+                    f"<a href='#page-{page}' style='margin-right: 32px;'>Previous</a>"
+                )
+            if page < total_pages - 1:
+                navigation_html += (
+                    f"<a href='#page-{page + 2}' style='margin-left: 32px;'>Next</a>"
+                )
+            navigation_html += "</div>"
+
+            # 包装每页内容
+            page_html = f"""
+            <div id='page-{page + 1}' style='margin-bottom: 20px;'>
+                <h3 style='text-align: center;'>Page {page + 1} of {total_pages}</h3>
+                {table_html}
+                {navigation_html}
+            </div>
+            """
+            html_pages.append(page_html)
+        paged_html = "\n".join(html_pages)
 
         css = """
             <style>
@@ -3509,7 +3577,7 @@ class StockProposal:
             </style>
         """
 
-        html = css + html
+        html = css + paged_html
 
         del pd_cur_position_with_latest_stock_info
         gc.collect()
@@ -3627,86 +3695,116 @@ class StockProposal:
             )
             cm = sns.light_palette("seagreen", as_cmap=True)
 
-            html2 = (
-                "<h2>Close Position List Last 5 Days</h2>"
-                "<table>"
-                + pd_position_reduction.style.hide(axis=1, subset=["PNL"])
-                .format(
-                    {
-                        "BASE": "{:.2f}",
-                        "ADJBASE": "{:.2f}",
-                        "PNL RATIO": "{:.2%}",
-                        "HIS DAYS": "{:.0f}",
-                    }
-                )
-                .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
-                .bar(
-                    subset=["PNL RATIO"],
-                    align="mid",
-                    color=["#99CC66", "#FF6666"],
-                    vmin=-0.8,
-                    vmax=0.8,
-                )
-                .set_properties(
-                    **{
-                        "text-align": "left",
-                        "border": "1px solid #ccc",
-                        "cellspacing": "0",
-                        "style": "border-collapse: collapse; ",
-                    }
-                )
-                .set_table_styles(
-                    [
-                        # 表头样式
-                        dict(
-                            selector="th",
-                            props=[
-                                ("border", "1px solid #ccc"),
-                                ("text-align", "left"),
-                                ("padding", "8px"),
-                                ("font-size", "18px"),
-                            ],
-                        ),
-                        # 表格数据单元格样式
-                        dict(
-                            selector="td",
-                            props=[
-                                ("border", "1px solid #ccc"),
-                                ("text-align", "left"),
-                                ("padding", "8px"),
-                                (
-                                    "font-size",
-                                    "18px",
-                                ),
-                            ],
-                        ),
-                    ]
-                )
-                .set_table_styles(
-                    {
-                        "NAME": [
-                            {
-                                "selector": "th",
-                                "props": [
-                                    ("min-width", "150px"),
-                                    ("max-width", "300px"),
+            total_rows = len(pd_position_reduction)
+            rows_per_page = 20
+            total_pages = (
+                total_rows + rows_per_page - 1
+            ) // rows_per_page  # 计算总页数
+            html_pages = []
+
+            for page in range(total_pages):
+                start_row = page * rows_per_page
+                end_row = min(start_row + rows_per_page, total_rows)
+                page_data = pd_position_reduction.iloc[start_row:end_row]
+
+                # 生成表格 HTML
+                table_html = (
+                    "<h2>Close Position List Last 5 Days</h2>"
+                    + page_data.style.hide(axis=1, subset=["PNL"])
+                    .format(
+                        {
+                            "BASE": "{:.2f}",
+                            "ADJBASE": "{:.2f}",
+                            "PNL RATIO": "{:.2%}",
+                            "HIS DAYS": "{:.0f}",
+                        }
+                    )
+                    .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
+                    .bar(
+                        subset=["PNL RATIO"],
+                        align="mid",
+                        color=["#99CC66", "#FF6666"],
+                        vmin=-0.8,
+                        vmax=0.8,
+                    )
+                    .set_properties(
+                        **{
+                            "text-align": "left",
+                            "border": "1px solid #ccc",
+                            "cellspacing": "0",
+                            "style": "border-collapse: collapse; ",
+                        }
+                    )
+                    .set_table_styles(
+                        [
+                            # 表头样式
+                            dict(
+                                selector="th",
+                                props=[
+                                    ("border", "1px solid #ccc"),
+                                    ("text-align", "left"),
+                                    ("padding", "8px"),
+                                    ("font-size", "18px"),
                                 ],
-                            },
-                            {
-                                "selector": "td",
-                                "props": [
-                                    ("min-width", "150px"),
-                                    ("max-width", "300px"),
+                            ),
+                            # 表格数据单元格样式
+                            dict(
+                                selector="td",
+                                props=[
+                                    ("border", "1px solid #ccc"),
+                                    ("text-align", "left"),
+                                    ("padding", "8px"),
+                                    (
+                                        "font-size",
+                                        "18px",
+                                    ),
                                 ],
-                            },
-                        ],
-                    },
-                    overwrite=False,
+                            ),
+                        ]
+                    )
+                    .set_table_styles(
+                        {
+                            "NAME": [
+                                {
+                                    "selector": "th",
+                                    "props": [
+                                        ("min-width", "150px"),
+                                        ("max-width", "300px"),
+                                    ],
+                                },
+                                {
+                                    "selector": "td",
+                                    "props": [
+                                        ("min-width", "150px"),
+                                        ("max-width", "300px"),
+                                    ],
+                                },
+                            ],
+                        },
+                        overwrite=False,
+                    )
+                    .set_sticky(axis="columns")
+                    .to_html(doctype_html=True, escape=False)
                 )
-                .set_sticky(axis="columns")
-                .to_html(doctype_html=True, escape=False)
-                + "</table>"
-            )
+
+                # 添加分页导航
+                navigation_html = "<div style='text-align: center; margin: 32px;'>"
+                if page > 0:
+                    navigation_html += f"<a href='#page-{page}' style='margin-right: 32px;'>Previous</a>"
+                if page < total_pages - 1:
+                    navigation_html += f"<a href='#page-{page + 2}' style='margin-left: 32px;'>Next</a>"
+                navigation_html += "</div>"
+
+                # 包装每页内容
+                page_html = f"""
+                <div id='page-{page + 1}' style='margin-bottom: 20px;'>
+                    <h3 style='text-align: center;'>Page {page + 1} of {total_pages}</h3>
+                    {table_html}
+                    {navigation_html}
+                </div>
+                """
+                html_pages.append(page_html)
+            paged_html2 = "\n".join(html_pages)
 
             css2 = """
                 <style>
@@ -3744,7 +3842,7 @@ class StockProposal:
                     }
                 </style>
             """
-            html2 = css2 + html2
+            html2 = css2 + paged_html2
         else:
             html2 = ""
 
