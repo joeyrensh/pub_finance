@@ -832,6 +832,7 @@ class StockProposal:
             else:
                 return [""] * len(row)
 
+        pd_position_history = pd_position_history.head(100)
         total_rows = len(pd_position_history)
         rows_per_page = 20
         total_pages = (total_rows + rows_per_page - 1) // rows_per_page  # 计算总页数
@@ -1160,7 +1161,7 @@ class StockProposal:
                     "./data/cn_stockdetail_short.csv", header=True
                 )
             cm = sns.light_palette("seagreen", as_cmap=True)
-
+            pd_position_reduction = pd_position_reduction.head(100)
             total_rows = len(pd_position_reduction)
             rows_per_page = 20
             total_pages = (
@@ -3425,6 +3426,7 @@ class StockProposal:
             else:
                 return [""] * len(row)
 
+        pd_position_history = pd_position_history.head(100)
         total_rows = len(pd_position_history)
         rows_per_page = 20
         total_pages = (total_rows + rows_per_page - 1) // rows_per_page  # 计算总页数
@@ -3695,6 +3697,7 @@ class StockProposal:
             )
             cm = sns.light_palette("seagreen", as_cmap=True)
 
+            pd_position_reduction = pd_position_reduction.head(100)
             total_rows = len(pd_position_reduction)
             rows_per_page = 20
             total_pages = (
