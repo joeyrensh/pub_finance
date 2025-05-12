@@ -3,6 +3,7 @@ from utils import Header, make_dash_format_table
 import pandas as pd
 import pathlib
 import base64
+from dash import html, dcc, callback, Input, Output, State, MATCH
 
 # 定义全局变量 df_detail
 df_detail = None
@@ -268,10 +269,25 @@ def create_layout(app):
                         [
                             html.Div(
                                 [
-                                    # html.Br([]),
-                                    html.H6(
-                                        ["Annual Return"],
-                                        className="subtitle padded",
+                                    html.Button(
+                                        html.H6(
+                                            ["Annual Return ▼"],
+                                            className="subtitle padded",
+                                            id="us-annual-return-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": "us",
+                                            "index": 0,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
                                     ),
                                     html.Div(
                                         className="chart-container",
@@ -292,6 +308,12 @@ def create_layout(app):
                                                 id="us-annual-return-dark",
                                             ),
                                         ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": "us",
+                                            "index": 0,
+                                        },
+                                        style={"display": "block"},  # 初始展开状态
                                     ),
                                 ],
                                 className="twelve columns",
@@ -302,10 +324,25 @@ def create_layout(app):
                         [
                             html.Div(
                                 [
-                                    # html.Br([]),
-                                    html.H6(
-                                        ["Industries Tracking"],
-                                        className="subtitle padded",
+                                    html.Button(
+                                        html.H6(
+                                            ["Industries Tracking ▼"],
+                                            className="subtitle padded",
+                                            id="us-industries-tracking-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": "us",
+                                            "index": 1,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
                                     ),
                                     html.Div(
                                         className="chart-container",
@@ -326,16 +363,37 @@ def create_layout(app):
                                                 id="us-ind-trend-dark",
                                             ),
                                         ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": "us",
+                                            "index": 1,
+                                        },
+                                        style={"display": "block"},  # 初始展开状态
                                     ),
                                 ],
                                 className="six columns",
                             ),
                             html.Div(
                                 [
-                                    # html.Br([]),
-                                    html.H6(
-                                        ["Strategy Tracking"],
-                                        className="subtitle padded",
+                                    html.Button(
+                                        html.H6(
+                                            ["Strategy Tracking ▼"],
+                                            className="subtitle padded",
+                                            id="us-strategy-tracking-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": "us",
+                                            "index": 2,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
                                     ),
                                     html.Div(
                                         className="chart-container",
@@ -356,6 +414,12 @@ def create_layout(app):
                                                 id="us-strategy-dark",
                                             ),
                                         ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": "us",
+                                            "index": 2,
+                                        },
+                                        style={"display": "block"},  # 初始展开状态
                                     ),
                                 ],
                                 className="six columns",
@@ -367,9 +431,25 @@ def create_layout(app):
                         [
                             html.Div(
                                 [
-                                    # html.Br([]),
-                                    html.H6(
-                                        ["Position Weight"], className="subtitle padded"
+                                    html.Button(
+                                        html.H6(
+                                            ["Position Weight ▼"],
+                                            className="subtitle padded",
+                                            id="us-position-weight-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": "us",
+                                            "index": 3,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
                                     ),
                                     html.Div(
                                         className="chart-container",
@@ -390,16 +470,37 @@ def create_layout(app):
                                                 id="us-by-position-dark",
                                             ),
                                         ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": "us",
+                                            "index": 3,
+                                        },
+                                        style={"display": "block"},  # 初始展开状态
                                     ),
                                 ],
                                 className="six columns",
                             ),
                             html.Div(
                                 [
-                                    # html.Br([]),
-                                    html.H6(
-                                        ["Earnings Weight"],
-                                        className="subtitle padded",
+                                    html.Button(
+                                        html.H6(
+                                            ["Earnings Weight ▼"],
+                                            className="subtitle padded",
+                                            id="us-earnings-weight-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": "us",
+                                            "index": 4,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
                                     ),
                                     html.Div(
                                         className="chart-container",
@@ -420,6 +521,12 @@ def create_layout(app):
                                                 id="us-by-pl-dark",
                                             ),
                                         ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": "us",
+                                            "index": 4,
+                                        },
+                                        style={"display": "block"},  # 初始展开状态
                                     ),
                                 ],
                                 className="six columns",
@@ -432,8 +539,25 @@ def create_layout(app):
                         [
                             html.Div(
                                 [
-                                    html.H6(
-                                        ["Position Trend"], className="subtitle padded"
+                                    html.Button(
+                                        html.H6(
+                                            ["Position Trend ▼"],
+                                            className="subtitle padded",
+                                            id="us-position-trend-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": "us",
+                                            "index": 5,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
                                     ),
                                     html.Div(
                                         className="chart-container",
@@ -454,15 +578,37 @@ def create_layout(app):
                                                 id="us-by-positiondate-dark",
                                             ),
                                         ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": "us",
+                                            "index": 5,
+                                        },
+                                        style={"display": "block"},  # 初始展开状态
                                     ),
                                 ],
                                 className="six columns",
                             ),
                             html.Div(
                                 [
-                                    html.H6(
-                                        ["Earnings Trend"],
-                                        className="subtitle padded",
+                                    html.Button(
+                                        html.H6(
+                                            ["Earnings Trend ▼"],
+                                            className="subtitle padded",
+                                            id="us-earnings-trend-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": "us",
+                                            "index": 6,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
                                     ),
                                     html.Div(
                                         className="chart-container",
@@ -483,6 +629,12 @@ def create_layout(app):
                                                 id="us-bypl-date-dark",
                                             ),
                                         ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": "us",
+                                            "index": 6,
+                                        },
+                                        style={"display": "block"},  # 初始展开状态
                                     ),
                                 ],
                                 className="six columns",

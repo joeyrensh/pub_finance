@@ -3055,6 +3055,30 @@ class StockProposal:
                     <body>
                         <picture>
                             <!-- 深色模式下的图片 -->
+                            <source srcset="cid:image15" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%"/>
+                            <!-- 默认模式下的图片 -->
+                            <img src="cid:image14" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%">
+                            <figcaption>The diagram shows the last x years cumulative return and max drawdown trend,
+                                        to track the stock market and stategy execution information</figcaption>
+                        </picture>    
+                        <picture>
+                            <!-- 深色模式下的图片 -->
+                            <source srcset="cid:image11" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top3 industries:" style="width:100%"/>
+                            <!-- 默认模式下的图片 -->
+                            <img src="cid:image10" alt="The diagram shows the last x days top3 industries:" style="width:100%">
+                            <figcaption>The diagram shows the last x days top3 industries, to track last x days
+                                        the top3 industries</figcaption>
+                        </picture>
+                        <picture>
+                            <!-- 深色模式下的图片 -->
+                            <source srcset="cid:image13" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days strategy success ratio:" style="width:100%"/>
+                            <!-- 默认模式下的图片 -->
+                            <img src="cid:image12" alt="The diagram shows the last x days strategy success ratio:" style="width:100%">
+                            <figcaption>The diagram shows the last x days strategy success ratio, to track last x days
+                                        the strategy success ratio</figcaption>
+                        </picture>                                           
+                        <picture>
+                            <!-- 深色模式下的图片 -->
                             <source srcset="cid:image1" media="(prefers-color-scheme: dark)" alt="The industry distribution of current positions is as follows:" style="width:100%"/>
                             <!-- 默认模式下的图片 -->
                             <img src="cid:image0" alt="The industry distribution of current positions is as follows:" style="width:100%">
@@ -3093,30 +3117,6 @@ class StockProposal:
                             <figcaption>The diagram shows the last x days top5 industry pnl trend, to stat last x days
                                         the top5 industry pnl change status</figcaption>
                         </picture>
-                        <picture>
-                            <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image11" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top3 industries:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image10" alt="The diagram shows the last x days top3 industries:" style="width:100%">
-                            <figcaption>The diagram shows the last x days top3 industries, to track last x days
-                                        the top3 industries</figcaption>
-                        </picture>
-                        <picture>
-                            <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image13" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days strategy success ratio:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image12" alt="The diagram shows the last x days strategy success ratio:" style="width:100%">
-                            <figcaption>The diagram shows the last x days strategy success ratio, to track last x days
-                                        the strategy success ratio</figcaption>
-                        </picture>                                                   
-                        <picture>
-                            <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image15" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image14" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%">
-                            <figcaption>The diagram shows the last x years cumulative return and max drawdown trend,
-                                        to track the stock market and stategy execution information</figcaption>
-                        </picture>
                     </body>
                 </html>
                 """
@@ -3149,7 +3149,7 @@ class StockProposal:
         df_result.to_csv(f"./data/{self.market}_df_result.csv", header=True)
 
         MyEmail().send_email_embedded_image(
-            subject, html_txt + html + html_img + html1 + html2, image_path
+            subject, html_txt + html_img + html + html1 + html2, image_path
         )
 
     def send_etf_btstrategy_by_email(self, cash, final_value):
@@ -4146,20 +4146,20 @@ class StockProposal:
                     <body>
                         <picture>
                             <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image1" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days trade detail info:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image0" alt="The diagram shows the last x days trade detail info:" style="width:100%">
-                            <figcaption>The diagram shows the last x days trade detail info, which include the short/long/position
-                                        info every day.</figcaption>
-                        </picture>
-                        <picture>
-                            <!-- 深色模式下的图片 -->
                             <source srcset="cid:image3" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%"/>
                             <!-- 默认模式下的图片 -->
                             <img src="cid:image2" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%">
                             <figcaption>The diagram shows the last x years cumulative return and max drawdown trend,
                                         to track the stock market and stategy execution information</figcaption>
-                        </picture>                        
+                        </picture>                    
+                        <picture>
+                            <!-- 深色模式下的图片 -->
+                            <source srcset="cid:image1" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days trade detail info:" style="width:100%"/>
+                            <!-- 默认模式下的图片 -->
+                            <img src="cid:image0" alt="The diagram shows the last x days trade detail info:" style="width:100%">
+                            <figcaption>The diagram shows the last x days trade detail info, which include the short/long/position
+                                        info every day.</figcaption>
+                        </picture>                   
                     </body>
                 </html>
                 """
@@ -4180,5 +4180,5 @@ class StockProposal:
                     """.format(cash=cash, final_value=final_value)
 
         MyEmail().send_email_embedded_image(
-            subject, html_txt + html + html2 + html_img, image_path
+            subject, html_txt + html_img + html + html2, image_path
         )

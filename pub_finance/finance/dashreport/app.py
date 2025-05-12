@@ -2,7 +2,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, MATCH
 from pages import cnstock_performance, news_reviews, usstock_performance
 from pages import (
     overview,
@@ -151,6 +151,31 @@ def update_page_content(pathname):
         ]
     else:
         return (cnstock_performance.create_layout(app),)
+
+
+@app.callback(
+    Output({"type": "collapsible", "page": MATCH, "index": MATCH}, "style"),
+    Output({"type": "collapse-btn", "page": MATCH, "index": MATCH}, "children"),
+    Input({"type": "collapse-btn", "page": MATCH, "index": MATCH}, "n_clicks"),
+    State({"type": "collapsible", "page": MATCH, "index": MATCH}, "style"),
+    State({"type": "collapse-btn", "page": MATCH, "index": MATCH}, "children"),
+    prevent_initial_call=True,
+)
+def toggle_collapse(n_clicks, current_style, btn_content):
+    # 获取当前显示状态
+    current_display = current_style.get("display", "block")
+
+    # 切换显示状态
+    new_display = "none" if current_display == "block" else "block"
+
+    # 解析原始标题文本（去掉箭头）
+    original_text = btn_content["props"]["children"][0].rstrip(" ▼▶")
+    new_arrow = "▼" if new_display == "block" else "▶"
+
+    # 构建新的标题元素
+    new_title = html.H6([f"{original_text} {new_arrow}"], className="subtitle padded")
+
+    return {"display": new_display}, new_title
 
 
 if __name__ == "__main__":
