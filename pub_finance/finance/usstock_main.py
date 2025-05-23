@@ -214,7 +214,7 @@ def exec_btstrategy(date):
             1,
             2,
             gridspec_kw={"width_ratios": [1, 4]},
-            figsize=(20, 10),
+            figsize=(18, 10),
             facecolor=colors["background"],
         )
         fig.subplots_adjust(wspace=0.1)
