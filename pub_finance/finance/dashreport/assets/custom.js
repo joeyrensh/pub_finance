@@ -12,8 +12,8 @@
 
     // 基础配置（无前缀）
     const BASE_FONT_SIZE_CONFIG = {
-        'annual-return-light': { mobile: '1.7rem', desktop: '1.3rem' },
-        'annual-return-dark': { mobile: '1.7rem', desktop: '1.3rem' },
+        'annual-return-light': { mobile: '1.7rem', desktop: '1.2rem' },
+        'annual-return-dark': { mobile: '1.7rem', desktop: '1.2rem' },
         'ind-trend-light': { mobile: '1.7rem', desktop: '1.7rem' },
         'ind-trend-dark': { mobile: '1.7rem', desktop: '1.7rem' },
         'strategy-light': { mobile: '1.5rem', desktop: '1.5rem' },
