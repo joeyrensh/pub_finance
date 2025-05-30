@@ -193,7 +193,7 @@ class EMHistoryDataDownload:
         tool = ToolKit("历史数据下载")
 
         with open(file_path, "a") as csvfile:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
                 for h in range(0, len(tickinfo), batch_size):
                     """休眠, 避免IP Block"""
                     time.sleep(1 + random.uniform(1, 3))
