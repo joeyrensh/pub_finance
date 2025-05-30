@@ -62,7 +62,7 @@ class EMCNHistoryDataDownload:
         list = []
         url = (
             "https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
-            "&pn=i&pz=200&po=1&np=1&ut=&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
+            "&pn=i&pz=200&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
         )
         for mkt_code in ["0", "1"]:
             """请求url，获取数据response"""
@@ -127,7 +127,7 @@ class EMCNHistoryDataDownload:
 
         url = (
             "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
-            "&secid=mkt_code.symbol&ut="
+            "&secid=mkt_code.symbol&ut=fa5fd1943c7b386f172d6893dbfba10b"
             "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61"
             "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000000&_=unix_time"
         )
