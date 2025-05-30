@@ -5,6 +5,7 @@ from utility.toolkit import ToolKit
 import re
 from datetime import datetime
 import time
+import random
 import pandas as pd
 import requests
 import json
@@ -38,6 +39,7 @@ class EMCNTickerCategoryCrawler:
                     .replace("mkt_code", mkt_code)
                     .replace("pn=i", "pn=" + str(i))
                 )
+                time.sleep(random.uniform(0.5, 1))
                 res = requests.get(url_re).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
@@ -84,6 +86,7 @@ class EMCNTickerCategoryCrawler:
             #     print(i)
             url = "https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax?code=mkt_codesymbol"
             url_re = url.replace("mkt_codesymbol", i["symbol"])
+            time.sleep(random.uniform(0.5, 1))
             res = requests.get(url_re).text.lower()
             # print(res)
             try:

@@ -5,6 +5,7 @@ from utility.toolkit import ToolKit
 import re
 from datetime import datetime
 import time
+import random
 import pandas as pd
 import requests
 import json
@@ -57,6 +58,7 @@ class EMCNHistoryDataDownload:
                     .replace("mkt_code", mkt_code)
                     .replace("pn=i", "pn=" + str(i))
                 )
+                time.sleep(random.uniform(0.5, 1))
                 res = requests.get(url_re).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
@@ -215,7 +217,7 @@ class EMCNHistoryDataDownload:
 # 文件名称定义
 
 emc = EMCNHistoryDataDownload()
-start_date = "20240101"
-end_date = "20250327"
-file_path = "./cnstockinfo/stock_20250327.csv"
+start_date = "20250529"
+end_date = "20250529"
+file_path = "./cnstockinfo/stock_20250529.csv"
 emc.set_his_tick_info_to_csv(start_date, end_date, file_path)

@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 
 import time
+import random
 import requests
 import re
 import json
@@ -44,6 +45,8 @@ class EMCNWebCrawler:
                     .replace("market", market)
                     .replace("pn=i", "pn=" + str(i))
                 )
+                print("url: ", url)
+                time.sleep(random.uniform(0.5, 1))
                 res = requests.get(url).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
