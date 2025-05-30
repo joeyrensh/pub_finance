@@ -15,6 +15,13 @@ from utility.fileinfo import FileInfo
 
 
 class EMCNTickerCategoryCrawler:
+    def __init__(self):
+        self.proxy = {
+            "http": "http://60.210.40.190:9091",
+            "https": "http://60.210.40.190:9091",
+        }
+        self.proxy = None
+
     def get_cn_stock_list(self):
         """url里需要传递unixtime当前时间戳"""
         current_timestamp = int(time.mktime(datetime.now().timetuple()))
@@ -40,7 +47,7 @@ class EMCNTickerCategoryCrawler:
                     .replace("pn=i", "pn=" + str(i))
                 )
                 time.sleep(random.uniform(0.5, 1))
-                res = requests.get(url_re).text
+                res = requests.get(url_re, proxies=self.proxy).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
                 try:
@@ -87,7 +94,7 @@ class EMCNTickerCategoryCrawler:
             url = "https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax?code=mkt_codesymbol"
             url_re = url.replace("mkt_codesymbol", i["symbol"])
             time.sleep(random.uniform(0.5, 1))
-            res = requests.get(url_re).text.lower()
+            res = requests.get(url_re, proxies=self.proxy).text.lower()
             # print(res)
             try:
                 json_object = json.loads(res)

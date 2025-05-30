@@ -6,6 +6,7 @@ from utility.toolkit import ToolKit
 import re
 from datetime import datetime
 import time
+import random
 import pandas as pd
 import requests
 import json
@@ -15,6 +16,13 @@ from utility.fileinfo import FileInfo
 
 
 class EMUsTickerCategoryCrawler:
+    def __init__(self):
+        self.proxy = {
+            "http": "http://60.210.40.190:9091",
+            "https": "http://60.210.40.190:9091",
+        }
+        self.proxy = None
+
     def get_us_stock_list(self):
         """url里需要传递unixtime当前时间戳"""
         current_timestamp = int(time.mktime(datetime.now().timetuple()))
@@ -39,7 +47,8 @@ class EMUsTickerCategoryCrawler:
                     .replace("mkt_code", mkt_code)
                     .replace("pn=i", "pn=" + str(i))
                 )
-                res = requests.get(url_re).text
+                time.sleep(random.uniform(0.5, 1))
+                res = requests.get(url_re, proxies=self.proxy).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
                 try:
@@ -85,7 +94,8 @@ class EMUsTickerCategoryCrawler:
             else:
                 mkt_code = "A"
             url_re = url.replace("symbol", i["symbol"]).replace("mkt_code", mkt_code)
-            res = requests.get(url_re).text.lower()
+            time.sleep(random.uniform(0.5, 1))
+            res = requests.get(url_re, proxies=self.proxy).text.lower()
             try:
                 json_object = json.loads(res)
             except ValueError:

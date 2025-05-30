@@ -25,6 +25,11 @@ class EMWebCrawler:
             "https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
             "&pn=i&pz=200&po=1&np=1&ut=&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f3,f4,f5,f6,f7,f9,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
         )
+        self.proxy = {
+            "http": "http://60.210.40.190:9091",
+            "https": "http://60.210.40.190:9091",
+        }
+        self.proxy = None
 
     """ 获取数据列表 """
 
@@ -42,7 +47,7 @@ class EMWebCrawler:
                     .replace("pn=i", "pn=" + str(i))
                 )
                 time.sleep(random.uniform(0.5, 1))
-                res = requests.get(url).text
+                res = requests.get(url, proxies=self.proxy).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
                 """         
@@ -100,7 +105,7 @@ class EMWebCrawler:
 
         # 10年期国债收益率
         url = "https://quote.eastmoney.com/center/api/qqzq.js?"
-        res = requests.get(url).text
+        res = requests.get(url, proxies=self.proxy).text
 
         lines = res.strip().split("\n")
         data = []
