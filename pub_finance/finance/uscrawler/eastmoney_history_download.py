@@ -196,7 +196,7 @@ class EMHistoryDataDownload:
             with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
                 for h in range(0, len(tickinfo), batch_size):
                     """休眠, 避免IP Block"""
-                    time.sleep(1 + random.uniform(0, 1))
+                    time.sleep(1 + random.uniform(1, 3))
                     batch_count += 1
                     batch_list = []
                     futures = []
