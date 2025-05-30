@@ -18,10 +18,17 @@ from utility.fileinfo import FileInfo
 class EMUsTickerCategoryCrawler:
     def __init__(self):
         self.proxy = {
-            "http": "http://60.210.40.190:9091",
-            "https": "http://60.210.40.190:9091",
+            # "http": "http://60.210.40.190:9091",
+            # "https": "http://60.210.40.190:9091",
         }
         self.proxy = None
+        self.headers = {
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "host": "push2.eastmoney.com",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, deflate, br",
+            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+        }
 
     def get_us_stock_list(self):
         """url里需要传递unixtime当前时间戳"""
@@ -47,8 +54,10 @@ class EMUsTickerCategoryCrawler:
                     .replace("mkt_code", mkt_code)
                     .replace("pn=i", "pn=" + str(i))
                 )
-                time.sleep(random.uniform(0.5, 1))
-                res = requests.get(url_re, proxies=self.proxy).text
+                time.sleep(random.uniform(1, 2))
+                res = requests.get(
+                    url_re, proxies=self.proxy, headers=self.headers
+                ).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
                 try:
@@ -94,8 +103,10 @@ class EMUsTickerCategoryCrawler:
             else:
                 mkt_code = "A"
             url_re = url.replace("symbol", i["symbol"]).replace("mkt_code", mkt_code)
-            time.sleep(random.uniform(0.5, 1))
-            res = requests.get(url_re, proxies=self.proxy).text.lower()
+            time.sleep(random.uniform(1, 2))
+            res = requests.get(
+                url_re, proxies=self.proxy, headers=self.headers
+            ).text.lower()
             try:
                 json_object = json.loads(res)
             except ValueError:

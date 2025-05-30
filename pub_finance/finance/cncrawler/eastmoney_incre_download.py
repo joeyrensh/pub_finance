@@ -26,10 +26,17 @@ class EMCNWebCrawler:
             "&fields=f2,f3,f4,f5,f6,f7,f9,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
         )
         self.proxy = {
-            "http": "http://60.210.40.190:9091",
-            "https": "http://60.210.40.190:9091",
+            # "http": "http://60.210.40.190:9091",
+            # "https": "http://60.210.40.190:9091",
         }
         self.proxy = None
+        self.headers = {
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "host": "push2.eastmoney.com",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, deflate, br",
+            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+        }
 
     """ 获取数据列表 """
 
@@ -51,8 +58,8 @@ class EMCNWebCrawler:
                     .replace("pn=i", "pn=" + str(i))
                 )
                 print("url: ", url)
-                time.sleep(random.uniform(0.5, 1))
-                res = requests.get(url, proxies=self.proxy).text
+                time.sleep(random.uniform(1, 2))
+                res = requests.get(url, proxies=self.proxy, headers=self.headers).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
                 try:
@@ -114,7 +121,7 @@ class EMCNWebCrawler:
 
         # 10年期国债收益率
         url = "https://quote.eastmoney.com/center/api/qqzq.js?"
-        res = requests.get(url, proxies=self.proxy).text
+        res = requests.get(url, proxies=self.proxy, headers=self.headers).text
 
         lines = res.strip().split("\n")
         data = []

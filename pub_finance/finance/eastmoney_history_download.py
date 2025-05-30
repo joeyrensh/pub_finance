@@ -41,10 +41,17 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 class EMHistoryDataDownload:
     def __init__(self):
         self.proxy = {
-            "http": "http://60.210.40.190:9091",
-            "https": "http://60.210.40.190:9091",
+            # "http": "http://60.210.40.190:9091",
+            # "https": "http://60.210.40.190:9091",
         }
         self.proxy = None
+        self.headers = {
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "host": "push2.eastmoney.com",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, deflate, br",
+            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+        }
 
     def get_us_stock_list(self):
         """url里需要传递unixtime当前时间戳"""
@@ -71,8 +78,10 @@ class EMHistoryDataDownload:
                     .replace("mkt_code", mkt_code)
                     .replace("pn=i", "pn=" + str(i))
                 )
-                time.sleep(random.uniform(0.5, 1))
-                res = requests.get(url_re, proxies=self.proxy).text
+                time.sleep(random.uniform(1, 2))
+                res = requests.get(
+                    url_re, proxies=self.proxy, headers=self.headers
+                ).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
                 try:
@@ -135,7 +144,7 @@ class EMHistoryDataDownload:
             .replace("unix_time", str(current_timestamp))
         )
 
-        res = requests.get(url_re, proxies=self.proxy).text
+        res = requests.get(url_re, proxies=self.proxy, headers=self.headers).text
         """ 抽取公司名称 """
         name = re.search('\\"name\\":\\"(.*?)\\",', res).group(1)
         print("开始处理：", name)
@@ -187,7 +196,7 @@ class EMHistoryDataDownload:
             with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
                 for h in range(0, len(tickinfo), batch_size):
                     """休眠, 避免IP Block"""
-                    time.sleep(0.5)
+                    time.sleep(1 + random.uniform(0, 1))
                     batch_count += 1
                     batch_list = []
                     futures = []
