@@ -39,6 +39,13 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 
 
 class EMHistoryDataDownload:
+    def __init__(self):
+        self.proxy = {
+            "http": "http://60.210.40.190:9091",
+            "https": "http://60.210.40.190:9091",
+        }
+        self.proxy = None
+
     def get_us_stock_list(self):
         """url里需要传递unixtime当前时间戳"""
         current_timestamp = int(time.mktime(datetime.now().timetuple()))
@@ -65,7 +72,7 @@ class EMHistoryDataDownload:
                     .replace("pn=i", "pn=" + str(i))
                 )
                 time.sleep(random.uniform(0.5, 1))
-                res = requests.get(url_re).text
+                res = requests.get(url_re, proxies=self.proxy).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
                 try:
@@ -128,7 +135,7 @@ class EMHistoryDataDownload:
             .replace("unix_time", str(current_timestamp))
         )
 
-        res = requests.get(url_re).text
+        res = requests.get(url_re, proxies=self.proxy).text
         """ 抽取公司名称 """
         name = re.search('\\"name\\":\\"(.*?)\\",', res).group(1)
         print("开始处理：", name)
@@ -218,7 +225,7 @@ class EMHistoryDataDownload:
 # 历史数据起始时间，结束时间
 # 文件名称定义
 em = EMHistoryDataDownload()
-start_date = "20240101"
-end_date = "20250326"
-file_path = "./usstockinfo/stock_20250326.csv"
+start_date = "20230101"
+end_date = "20240222"
+file_path = "./usstockinfo/stock_20240222.csv"
 em.set_his_tick_info_to_csv(start_date, end_date, file_path)

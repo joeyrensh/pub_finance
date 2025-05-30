@@ -41,7 +41,7 @@ class EMCNHistoryDataDownload:
         }
         self.proxy = None
 
-    def get_us_stock_list(self):
+    def get_cn_stock_list(self):
         """url里需要传递unixtime当前时间戳"""
         current_timestamp = int(time.mktime(datetime.now().timetuple()))
 
@@ -177,7 +177,7 @@ class EMCNHistoryDataDownload:
 
     def set_his_tick_info_to_csv(self, start_date, end_date, file_path):
         """获取股票列表"""
-        tickinfo = self.get_us_stock_list()
+        tickinfo = self.get_cn_stock_list()
         """ 多线程获取，每次步长为3，为3线程 """
         batch_size = 10  # Number of tickinfo items to process in each batch
         batch_count = 0
