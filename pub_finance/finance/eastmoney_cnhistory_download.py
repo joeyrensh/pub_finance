@@ -36,8 +36,8 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 class EMCNHistoryDataDownload:
     def __init__(self):
         self.proxy = {
-            # "http": "http://110.42.246.153:2080",
-            # "https": "http://110.42.246.153:2080",
+            # "http": "http://119.84.46.226:5566",
+            # "https": "http://119.84.46.226:5566",
         }
         self.proxy = None
         self.headers = {
@@ -50,8 +50,8 @@ class EMCNHistoryDataDownload:
             "connection": "keep-alive",
         }
         self.cookies = {
-            "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
-            "st_pvi": "19026945941909",
+            # "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
+            # "st_pvi": "19026945941909",
             "st_si": "33255977060076",
             "st_asi": "delete",
             "st_inirUrl": "https://quote.eastmoney.com",
@@ -70,7 +70,7 @@ class EMCNHistoryDataDownload:
         dict = {}
         list = []
         url = (
-            "http://push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
+            "https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
             "&pn=i&pz=100&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
         )
         for mkt_code in ["0", "1"]:

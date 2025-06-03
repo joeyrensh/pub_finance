@@ -7,6 +7,14 @@ from utility.tickerinfo import TickerInfo
 import pandas as pd
 import seaborn as sns
 from pyspark.sql import SparkSession
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+    DoubleType,
+    IntegerType,
+    DateType,
+)
 import plotly.graph_objects as go
 import plotly.express as px
 import gc
@@ -108,7 +116,6 @@ class StockProposal:
         # 最新一日股票信息
         file_name_day = file.get_file_path_latest
         cols = [
-            "idx",
             "symbol",
             "name",
             "open",
@@ -116,20 +123,14 @@ class StockProposal:
             "high",
             "low",
             "volume",
-            "turnover",
-            "chg",
-            "change",
-            "amplitude",
-            "preclose",
             "total_value",
-            "circulation_value",
             "pe",
             "date",
         ]
         spark_latest_stock_info = spark.read.csv(
             file_name_day, header=True, inferSchema=True
         )
-        spark_latest_stock_info = spark_latest_stock_info.toDF(*cols)
+        spark_latest_stock_info = spark_latest_stock_info.select(cols)
         spark_latest_stock_info.createOrReplaceTempView("temp_latest_stock_info")
         pd_latest_stock_info = spark_latest_stock_info[
             ["name", "symbol", "total_value"]
@@ -3209,7 +3210,6 @@ class StockProposal:
         # 当日股票信息
         file_name_day = file.get_file_path_latest
         cols = [
-            "idx",
             "symbol",
             "name",
             "open",
@@ -3217,20 +3217,16 @@ class StockProposal:
             "high",
             "low",
             "volume",
-            "turnover",
-            "chg",
-            "change",
-            "amplitude",
-            "preclose",
             "total_value",
-            "circulation_value",
             "pe",
             "date",
         ]
         spark_latest_stock_info = spark.read.csv(
-            file_name_day, header=True, inferSchema=True
+            file_name_day,
+            header=True,
+            inferSchema=True,
         )
-        spark_latest_stock_info = spark_latest_stock_info.toDF(*cols)
+        spark_latest_stock_info = spark_latest_stock_info.select(cols)
         spark_latest_stock_info.createOrReplaceTempView("temp_latest_stock_info")
         pd_latest_stock_info = spark_latest_stock_info[
             ["name", "symbol", "total_value"]
