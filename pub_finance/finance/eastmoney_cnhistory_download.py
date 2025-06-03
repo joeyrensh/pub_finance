@@ -43,9 +43,18 @@ class EMCNHistoryDataDownload:
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "host": "push2.eastmoney.com",
-            "accept": "application/json, text/plain, */*",
-            "accept-encoding": "gzip, deflate, br",
-            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "zh-CN,zh;q=0.9",
+            "referer": "https://quote.eastmoney.com",
+            "connection": "keep-alive",
+        }
+        self.cookies = {
+            "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
+            "st_pvi": "19026945941909",
+            "st_si": "33255977060076",
+            "st_asi": "delete",
+            "st_inirUrl": "https://quote.eastmoney.com",
         }
 
     def get_cn_stock_list(self):
@@ -61,8 +70,8 @@ class EMCNHistoryDataDownload:
         dict = {}
         list = []
         url = (
-            "https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
-            "&pn=i&pz=200&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
+            "http://push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
+            "&pn=i&pz=100&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
         )
         for mkt_code in ["0", "1"]:
             """请求url，获取数据response"""
@@ -76,7 +85,10 @@ class EMCNHistoryDataDownload:
                 print("url: ", url_re)
                 """ 获取数据 """
                 res = requests.get(
-                    url_re, proxies=self.proxy, headers=self.headers
+                    url_re,
+                    proxies=self.proxy,
+                    headers=self.headers,
+                    cookies=self.cookies,
                 ).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
@@ -129,7 +141,7 @@ class EMCNHistoryDataDownload:
             "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
             "&secid=mkt_code.symbol&ut=fa5fd1943c7b386f172d6893dbfba10b"
             "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61"
-            "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000000&_=unix_time"
+            "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000&_=unix_time"
         )
 
         url_re = (
@@ -140,7 +152,9 @@ class EMCNHistoryDataDownload:
             .replace("unix_time", str(current_timestamp))
         )
 
-        res = requests.get(url_re, proxies=self.proxy, headers=self.headers).text
+        res = requests.get(
+            url_re, proxies=self.proxy, headers=self.headers, cookies=self.cookies
+        ).text
         """ 抽取公司名称 """
         name = re.search('\\"name\\":\\"(.*?)\\",', res).group(1)
         print("开始处理：", name)
@@ -193,7 +207,7 @@ class EMCNHistoryDataDownload:
         tool = ToolKit("历史数据下载")
 
         with open(file_path, "a") as csvfile:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
                 for h in range(0, len(tickinfo), batch_size):
                     """休眠, 避免IP Block"""
                     time.sleep(1 + random.uniform(1, 3))
@@ -236,6 +250,6 @@ class EMCNHistoryDataDownload:
 
 emc = EMCNHistoryDataDownload()
 start_date = "20250529"
-end_date = "20250529"
-file_path = "./cnstockinfo/stock_20250529.csv"
+end_date = "20250530"
+file_path = "./cnstockinfo/stock_20250530.csv"
 emc.set_his_tick_info_to_csv(start_date, end_date, file_path)

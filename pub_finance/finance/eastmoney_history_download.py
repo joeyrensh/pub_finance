@@ -51,6 +51,7 @@ class EMHistoryDataDownload:
             "accept": "application/json, text/plain, */*",
             "accept-encoding": "gzip, deflate, br",
             "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "referer": "https://quote.eastmoney.com/bj/837748.html",
         }
 
     def get_us_stock_list(self):
@@ -79,6 +80,7 @@ class EMHistoryDataDownload:
                     .replace("pn=i", "pn=" + str(i))
                 )
                 time.sleep(random.uniform(1, 2))
+                print("url: ", url_re)
                 res = requests.get(
                     url_re, proxies=self.proxy, headers=self.headers
                 ).text
