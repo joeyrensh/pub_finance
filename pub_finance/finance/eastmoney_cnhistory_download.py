@@ -71,7 +71,7 @@ class EMCNHistoryDataDownload:
         list = []
         url = (
             "https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
-            "&pn=i&pz=100&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f3,f4,f5,f6,f7,f12,f14,f15,f16,f17,f18,f20,f21&_=unix_time"
+            "&pn=i&pz=200&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f5,f9,f12,f14,f15,f16,f17,f20&_=unix_time"
         )
         for mkt_code in ["0", "1"]:
             """请求url，获取数据response"""
@@ -245,6 +245,6 @@ class EMCNHistoryDataDownload:
 
 emc = EMCNHistoryDataDownload()
 start_date = "20250529"
-end_date = "20250530"
-file_path = "./cnstockinfo/stock_20250530.csv"
+end_date = "20250603"
+file_path = "./cnstockinfo/stock_20250603.csv"
 emc.set_his_tick_info_to_csv(start_date, end_date, file_path)
