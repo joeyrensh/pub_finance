@@ -37,10 +37,10 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 class EMCNHistoryDataDownload:
     def __init__(self):
         self.proxy = {
-            "http": "http://203.19.38.114:1080",
-            "https": "http://203.19.38.114:1080",
+            # "http": "http://203.19.38.114:1080",
+            # "https": "http://203.19.38.114:1080",
         }
-        # self.proxy = None
+        self.proxy = None
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "Host": "push2.eastmoney.com",
@@ -52,10 +52,11 @@ class EMCNHistoryDataDownload:
         }
         self.cookies = {
             "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
-            "st_pvi": "19026945941901",
-            "st_si": "33255977060012",
+            "st_pvi": "19026945941909",
+            "st_si": "33255977060076",
             "st_asi": "delete",
             "st_inirUrl": "https://quote.eastmoney.com",
+            "st_psi": "2025060417523664-113200301321-5927662537",
         }
 
     def get_cn_stock_list(self):

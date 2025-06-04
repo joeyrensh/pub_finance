@@ -175,8 +175,8 @@ def get_proxies_listv4_for_eastmoney(proxies_list):
     }
     cookies = {
         "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
-        "st_pvi": "19026945941901",
-        "st_si": "33255977060012",
+        "st_pvi": "19026945941909",
+        "st_si": "33255977060076",
         "st_asi": "delete",
         "st_inirUrl": "https://quote.eastmoney.com",
     }
@@ -217,7 +217,6 @@ proxies_list = [
     "http://221.231.13.198:1080",
     "http://203.19.38.114:1080",
     "http://183.215.23.242:9091",
-    "socks5://219.154.210.157:9999",
 ]
 # get_proxies_listv3(proxies_list, url)
 # get_proxies_listv2(url)
