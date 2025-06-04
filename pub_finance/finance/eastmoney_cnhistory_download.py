@@ -10,6 +10,7 @@ import pandas as pd
 import requests
 import json
 import concurrent.futures
+import akshare as ak
 
 """
 东方财经的A股日K数据获取接口：
@@ -239,6 +240,65 @@ class EMCNHistoryDataDownload:
                         except IOError:
                             pass
 
+    def get_cn_stock_history_ak(self, start_date, end_date, file_path):
+        stock_sh_a_spot_em = ak.stock_sh_a_spot_em()
+        pd_stock_sh = stock_sh_a_spot_em[
+            [
+                "代码",
+                "名称",
+                "今开",
+                "最新价",
+                "最高",
+                "最低",
+                "成交量",
+                "总市值",
+                "市盈率-动态",
+            ]
+        ].copy()
+        # 过滤“最新价”大于0的数据
+        pd_stock_sh = pd_stock_sh[pd_stock_sh["最新价"] > 0]
+
+        # 重命名列名
+        pd_stock_sh = pd_stock_sh.rename(
+            columns={
+                "代码": "symbol",
+                "名称": "name",
+                "今开": "open",
+                "最新价": "close",
+                "最高": "high",
+                "最低": "low",
+                "成交量": "volume",
+                "总市值": "total_value",
+                "市盈率-动态": "pe",
+            }
+        )
+        list = []
+
+        for index, row in pd_stock_sh.iterrows():
+            symbol = row["symbol"]
+            # 获取历史数据
+            stock_zh_a_hist_df = ak.stock_zh_a_hist(
+                symbol=symbol,
+                period="daily",
+                start_date=start_date,
+                end_date=end_date,
+                adjust="qfq",
+            )
+            for i, r in stock_zh_a_hist_df.iterrows():
+                dict = {
+                    "symbol": "SH" + symbol,
+                    "name": row["name"],
+                    "open": r["open"],
+                    "close": r["close"],
+                    "high": r["high"],
+                    "low": r["low"],
+                    "volume": r["volume"],
+                    "date": r["date"],
+                }
+                list.append(dict)
+        print("获取到数据条数：", len(list))
+        print(list)
+
 
 # 历史数据起始时间，结束时间
 # 文件名称定义
@@ -247,4 +307,5 @@ emc = EMCNHistoryDataDownload()
 start_date = "20250529"
 end_date = "20250603"
 file_path = "./cnstockinfo/stock_20250603.csv"
-emc.set_his_tick_info_to_csv(start_date, end_date, file_path)
+# emc.set_his_tick_info_to_csv(start_date, end_date, file_path)
+emc.get_cn_stock_history_ak(start_date, end_date, file_path)
