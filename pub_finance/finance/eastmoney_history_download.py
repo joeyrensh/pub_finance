@@ -48,10 +48,18 @@ class EMHistoryDataDownload:
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "host": "push2.eastmoney.com",
-            "accept": "application/json, text/plain, */*",
-            "accept-encoding": "gzip, deflate, br",
-            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
-            "referer": "https://quote.eastmoney.com/bj/837748.html",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "zh-CN,zh;q=0.9",
+            "referer": "https://quote.eastmoney.com",
+            "connection": "keep-alive",
+        }
+        self.cookies = {
+            # "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
+            # "st_pvi": "19026945941909",
+            "st_si": "33255977060076",
+            "st_asi": "delete",
+            "st_inirUrl": "https://quote.eastmoney.com",
         }
 
     def get_us_stock_list(self):
@@ -82,7 +90,10 @@ class EMHistoryDataDownload:
                 time.sleep(random.uniform(1, 2))
                 print("url: ", url_re)
                 res = requests.get(
-                    url_re, proxies=self.proxy, headers=self.headers
+                    url_re,
+                    proxies=self.proxy,
+                    headers=self.headers,
+                    cookies=self.cookies,
                 ).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
@@ -146,7 +157,9 @@ class EMHistoryDataDownload:
             .replace("unix_time", str(current_timestamp))
         )
 
-        res = requests.get(url_re, proxies=self.proxy, headers=self.headers).text
+        res = requests.get(
+            url_re, proxies=self.proxy, headers=self.headers, cookies=self.cookies
+        ).text
         """ 抽取公司名称 """
         name = re.search('\\"name\\":\\"(.*?)\\",', res).group(1)
         print("开始处理：", name)
