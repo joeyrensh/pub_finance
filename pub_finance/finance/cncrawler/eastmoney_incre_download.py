@@ -81,13 +81,13 @@ class EMCNWebCrawler:
                 for i in json_object:
                     if (
                         i["f12"] == "-"
+                        or i["f14"] == "-"
                         or i["f17"] == "-"
                         or i["f2"] == "-"
                         or i["f15"] == "-"
                         or i["f16"] == "-"
                         or i["f5"] == "-"
                         or i["f20"] == "-"
-                        or i["f21"] == "-"
                     ):
                         continue
                     dict = {
@@ -98,13 +98,7 @@ class EMCNWebCrawler:
                         "high": i["f15"],
                         "low": i["f16"],
                         "volume": i["f5"],
-                        "turnover": i["f6"],
-                        "chg": i["f3"],
-                        "change": i["f4"],
-                        "amplitude": i["f7"],
-                        "preclose": i["f18"],
                         "total_value": i["f20"],
-                        "circulation_value": i["f21"],
                         "pe": i["f9"],
                     }
                     list.append(dict)

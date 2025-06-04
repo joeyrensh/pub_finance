@@ -91,13 +91,13 @@ class EMHistoryDataDownload:
                 for i in json_object:
                     if (
                         i["f12"] == "-"
+                        or i["f14"] == "-"
                         or i["f17"] == "-"
                         or i["f2"] == "-"
                         or i["f15"] == "-"
                         or i["f16"] == "-"
                         or i["f5"] == "-"
                         or i["f20"] == "-"
-                        or i["f21"] == "-"
                     ):
                         continue
                     dict = {"symbol": i["f12"], "mkt_code": mkt_code}
@@ -174,11 +174,6 @@ class EMHistoryDataDownload:
                 "high": i.split(",")[3],
                 "low": i.split(",")[4],
                 "volume": i.split(",")[5],
-                "turnover": i.split(",")[6],
-                "chg": i.split(",")[8],
-                "change": i.split(",")[9],
-                "amplitude": i.split(",")[7],
-                "preclose": None,
                 "date": i.split(",")[0],
             }
             list.append(dict)

@@ -70,13 +70,13 @@ class EMCNTickerCategoryCrawler:
                 for i in json_object:
                     if (
                         i["f12"] == "-"
+                        or i["f14"] == "-"
                         or i["f17"] == "-"
                         or i["f2"] == "-"
                         or i["f15"] == "-"
                         or i["f16"] == "-"
                         or i["f5"] == "-"
                         or i["f20"] == "-"
-                        or i["f21"] == "-"
                     ):
                         continue
                     dict = {"symbol": market + i["f12"], "mkt_code": mkt_code}
