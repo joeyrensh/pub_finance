@@ -37,10 +37,10 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 class EMCNHistoryDataDownload:
     def __init__(self):
         self.proxy = {
-            # "http": "http://203.19.38.114:1080",
-            # "https": "http://203.19.38.114:1080",
+            "http": "http://120.25.1.15:7890",
+            "https": "http://120.25.1.15:7890",
         }
-        self.proxy = None
+        # self.proxy = None
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "Host": "push2.eastmoney.com",
@@ -475,5 +475,5 @@ emc = EMCNHistoryDataDownload()
 start_date = "20240101"
 end_date = "20250603"
 file_path = "./cnstockinfo/stock_20250603.csv"
-emc.set_his_tick_info_to_csv(start_date, end_date, file_path)
-# emc.get_cn_stock_history_ak(start_date, end_date, file_path)
+# emc.set_his_tick_info_to_csv(start_date, end_date, file_path)
+emc.get_cn_stock_history_ak(start_date, end_date, file_path)

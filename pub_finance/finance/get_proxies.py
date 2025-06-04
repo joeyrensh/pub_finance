@@ -204,19 +204,7 @@ def get_proxies_listv4_for_eastmoney(proxies_list):
 # url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
 url = "http://sh.ke.com/xiaoqu/xuhui/pg1cro21/"
 proxies_list = [
-    "http://119.3.113.152:9094",
-    "http://36.138.53.26:10019",
-    "http://113.108.13.120:8083",
-    "http://119.3.113.151:9094",
-    "http://218.77.183.214:5224",
-    "http://119.3.113.150:9094",
-    "socks5://43.229.48.10:80",
-    "http://183.60.141.41:443",
-    "http://218.75.224.4:3309",
-    "http://59.53.80.122:10024",
-    "http://221.231.13.198:1080",
-    "http://203.19.38.114:1080",
-    "http://183.215.23.242:9091",
+    "http://120.25.1.15:7890",
 ]
 # get_proxies_listv3(proxies_list, url)
 # get_proxies_listv2(url)
