@@ -9,6 +9,8 @@ import json
 import time
 import pandas as pd
 from utility.toolkit import ToolKit
+import re
+import json
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -158,40 +160,66 @@ def get_proxies_listv3(proxies_list, url):
     print(dlist)
 
 
+def get_proxies_listv4_for_eastmoney(proxies_list):
+    # self.proxy = None
+    t1 = ToolKit("检验中......")
+    url = "https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery&pn=1&pz=200&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:0&fields=f2,f5,f9,f12,f14,f15,f16,f17,f20&_=1749027417"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+        "Host": "push2.eastmoney.com",
+        "Accept-Encoding": "gzip, deflate",
+        "Accept": "*/*",
+        "Accept-language": "zh-CN,zh;q=0.9",
+        "Referer": "https://quote.eastmoney.com/center/gridlist.html",
+        "Connection": "close",
+    }
+    cookies = {
+        "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
+        "st_pvi": "19026945941901",
+        "st_si": "33255977060012",
+        "st_asi": "delete",
+        "st_inirUrl": "https://quote.eastmoney.com",
+    }
+    list = []
+    for idx, item in enumerate(proxies_list):
+        proxy = {"https": item, "http": item}
+        t1.progress_bar(len(proxies_list), idx)
+        try:
+            res = requests.get(
+                url,
+                proxies=proxy,
+                headers=headers,
+                cookies=cookies,
+            ).text
+            """ 替换成valid json格式 """
+            res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
+            json_object = json.loads(res_p)
+            list.append(item)
+        except Exception as e:
+            continue
+
+    print(list)
+
+
 # url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
 url = "http://sh.ke.com/xiaoqu/xuhui/pg1cro21/"
 proxies_list = [
-    "http://60.217.33.47:9999",
-    "http://223.70.184.125:3128",
-    "http://180.88.111.187:3128",
-    "http://221.217.48.3:9000",
-    "http://117.40.32.135:8080",
-    "http://59.173.30.2:8118",
-    "http://120.202.162.210:80",
-    "http://59.173.31.37:8090",
-    "http://123.112.214.52:9000",
-    "http://113.66.115.160:8118",
-    "http://101.66.194.66:8085",
-    "http://221.200.209.236:9002",
-    "http://222.129.139.112:9000",
-    "http://27.197.146.140:8888",
-    "http://120.246.44.38:1080",
-    "http://115.223.31.70:22045",
-    "http://140.246.157.86:10800",
-    "http://116.169.54.253:8080",
-    "http://123.103.51.22:3128",
-    "http://117.40.32.133:8080",
-    "http://101.126.44.74:8080",
-    "http://124.236.25.252:8080",
-    "http://122.136.212.132:53281",
-    "http://119.96.113.193:30000",
-    "http://119.96.118.113:30000",
-    "http://153.34.245.29:8443",
-    "http://119.96.188.171:30000",
-    "http://115.223.11.212:8103",
-    "http://221.217.50.94:9000",
-    "http://218.76.247.34:30000",
+    "http://119.3.113.152:9094",
+    "http://36.138.53.26:10019",
+    "http://113.108.13.120:8083",
+    "http://119.3.113.151:9094",
+    "http://218.77.183.214:5224",
+    "http://119.3.113.150:9094",
+    "socks5://43.229.48.10:80",
+    "http://183.60.141.41:443",
+    "http://218.75.224.4:3309",
+    "http://59.53.80.122:10024",
+    "http://221.231.13.198:1080",
+    "http://203.19.38.114:1080",
+    "http://183.215.23.242:9091",
+    "socks5://219.154.210.157:9999",
 ]
-get_proxies_listv3(proxies_list, url)
+# get_proxies_listv3(proxies_list, url)
 # get_proxies_listv2(url)
 # get_proxies_listv1(url)
+get_proxies_listv4_for_eastmoney(proxies_list)

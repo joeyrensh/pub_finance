@@ -9,8 +9,8 @@ import csv
 import os
 
 # # 东财股票实时行情
-# stock_zh_a_spot_em_df = ak.stock_zh_a_spot_em()
-# print(stock_zh_a_spot_em_df)
+stock_zh_a_spot_em_df = ak.stock_zh_a_spot_em()
+print(stock_zh_a_spot_em_df)
 
 # 新浪股票实时行情-缺失总市值
 # stock_zh_a_spot_df = ak.stock_zh_a_spot()
@@ -239,5 +239,34 @@ import os
 # pd_all = pd_all.drop_duplicates(subset=["symbol"], keep="first").reset_index(drop=True)
 
 
-stock_us_spot_em_df = ak.stock_us_spot_em()
-print(stock_us_spot_em_df)
+# stock_us_spot_em_df = ak.stock_us_spot_em()
+# pd_stock_sh = stock_us_spot_em_df[
+#     [
+#         "代码",
+#         "名称",
+#         "开盘价",
+#         "最新价",
+#         "最高价",
+#         "最低价",
+#         "成交量",
+#         "总市值",
+#         "市盈率-动态",
+#     ]
+# ].copy()
+# # 过滤“最新价”大于0的数据
+# pd_stock_sh = pd_stock_sh[pd_stock_sh["最新价"] > 0]
+
+# # 重命名列名
+# pd_stock_sh = pd_stock_sh.rename(
+#     columns={
+#         "代码": "symbol",
+#         "名称": "name",
+#         "今开": "open",
+#         "最新价": "close",
+#         "最高": "high",
+#         "最低": "low",
+#         "成交量": "volume",
+#         "总市值": "total_value",
+#         "市盈率-动态": "pe",
+#     }
+# )

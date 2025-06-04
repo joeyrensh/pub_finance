@@ -37,23 +37,23 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 class EMCNHistoryDataDownload:
     def __init__(self):
         self.proxy = {
-            "http": "http://119.84.46.227:5566",
-            "https": "http://119.84.46.227:5566",
+            "http": "http://203.19.38.114:1080",
+            "https": "http://203.19.38.114:1080",
         }
         # self.proxy = None
         self.headers = {
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
-            "host": "push2.eastmoney.com",
-            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "accept-encoding": "gzip, deflate, br, zstd",
-            "accept-language": "zh-CN,zh;q=0.9",
-            "referer": "https://quote.eastmoney.com",
-            "connection": "keep-alive",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "Host": "push2.eastmoney.com",
+            "Accept-Encoding": "gzip, deflate",
+            "Accept": "*/*",
+            "Accept-language": "zh-CN,zh;q=0.9",
+            "Referer": "https://quote.eastmoney.com/center/gridlist.html",
+            "Connection": "close",
         }
         self.cookies = {
-            # "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
-            # "st_pvi": "19026945941909",
-            "st_si": "33255977060076",
+            "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
+            "st_pvi": "19026945941901",
+            "st_si": "33255977060012",
             "st_asi": "delete",
             "st_inirUrl": "https://quote.eastmoney.com",
         }
@@ -474,5 +474,5 @@ emc = EMCNHistoryDataDownload()
 start_date = "20240101"
 end_date = "20250603"
 file_path = "./cnstockinfo/stock_20250603.csv"
-# emc.set_his_tick_info_to_csv(start_date, end_date, file_path)
-emc.get_cn_stock_history_ak(start_date, end_date, file_path)
+emc.set_his_tick_info_to_csv(start_date, end_date, file_path)
+# emc.get_cn_stock_history_ak(start_date, end_date, file_path)
