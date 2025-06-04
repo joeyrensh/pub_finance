@@ -37,10 +37,10 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 class EMCNHistoryDataDownload:
     def __init__(self):
         self.proxy = {
-            # "http": "http://119.84.46.226:5566",
-            # "https": "http://119.84.46.226:5566",
+            "http": "http://119.84.46.227:5566",
+            "https": "http://119.84.46.227:5566",
         }
-        self.proxy = None
+        # self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "host": "push2.eastmoney.com",

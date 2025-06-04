@@ -10,6 +10,7 @@ import pandas as pd
 import requests
 import json
 import concurrent.futures
+import akshare as ak
 
 """
 东方财经的A股日K数据获取接口：
@@ -36,16 +37,25 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 class EMCNHistoryDataDownload:
     def __init__(self):
         self.proxy = {
-            # "http": "http://110.42.246.153:2080",
-            # "https": "http://110.42.246.153:2080",
+            "http": "http://119.84.46.227:5566",
+            "https": "http://119.84.46.227:5566",
         }
-        self.proxy = None
+        # self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "host": "push2.eastmoney.com",
-            "accept": "application/json, text/plain, */*",
-            "accept-encoding": "gzip, deflate, br",
-            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "zh-CN,zh;q=0.9",
+            "referer": "https://quote.eastmoney.com",
+            "connection": "keep-alive",
+        }
+        self.cookies = {
+            # "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
+            # "st_pvi": "19026945941909",
+            "st_si": "33255977060076",
+            "st_asi": "delete",
+            "st_inirUrl": "https://quote.eastmoney.com",
         }
 
     def get_cn_stock_list(self):
@@ -76,7 +86,10 @@ class EMCNHistoryDataDownload:
                 print("url: ", url_re)
                 """ 获取数据 """
                 res = requests.get(
-                    url_re, proxies=self.proxy, headers=self.headers
+                    url_re,
+                    proxies=self.proxy,
+                    headers=self.headers,
+                    cookies=self.cookies,
                 ).text
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
@@ -129,7 +142,7 @@ class EMCNHistoryDataDownload:
             "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
             "&secid=mkt_code.symbol&ut=fa5fd1943c7b386f172d6893dbfba10b"
             "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56"
-            "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000000&_=unix_time"
+            "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000&_=unix_time"
         )
 
         url_re = (
@@ -140,7 +153,9 @@ class EMCNHistoryDataDownload:
             .replace("unix_time", str(current_timestamp))
         )
 
-        res = requests.get(url_re, proxies=self.proxy, headers=self.headers).text
+        res = requests.get(
+            url_re, proxies=self.proxy, headers=self.headers, cookies=self.cookies
+        ).text
         """ 抽取公司名称 """
         name = re.search('\\"name\\":\\"(.*?)\\",', res).group(1)
         print("开始处理：", name)
@@ -166,8 +181,12 @@ class EMCNHistoryDataDownload:
                 or i.split(",")[5] == "-"
             ):
                 continue
+            if "ETF" in i["f14"]:
+                symbol_val = "ETF" + symbol
+            else:
+                symbol_val = market + symbol
             dict = {
-                "symbol": market + symbol,
+                "symbol": symbol_val,
                 "name": name,
                 "open": i.split(",")[1],
                 "close": i.split(",")[2],
@@ -188,7 +207,7 @@ class EMCNHistoryDataDownload:
         tool = ToolKit("历史数据下载")
 
         with open(file_path, "a") as csvfile:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
                 for h in range(0, len(tickinfo), batch_size):
                     """休眠, 避免IP Block"""
                     time.sleep(1 + random.uniform(1, 3))
@@ -225,12 +244,235 @@ class EMCNHistoryDataDownload:
                         except IOError:
                             pass
 
+    def get_cn_stock_history_ak(self, start_date, end_date, file_path):
+        """
+        获取A股历史数据，上海市场
+        """
+        stock_sh_a_spot_em = ak.stock_sh_a_spot_em()
+        pd_stock_sh = stock_sh_a_spot_em[
+            [
+                "代码",
+                "名称",
+                "今开",
+                "最新价",
+                "最高",
+                "最低",
+                "成交量",
+                "总市值",
+                "市盈率-动态",
+            ]
+        ].copy()
+        # 过滤“最新价”大于0的数据
+        pd_stock_sh = pd_stock_sh[pd_stock_sh["最新价"] > 0]
+
+        # 重命名列名
+        pd_stock_sh = pd_stock_sh.rename(
+            columns={
+                "代码": "symbol",
+                "名称": "name",
+                "今开": "open",
+                "最新价": "close",
+                "最高": "high",
+                "最低": "low",
+                "成交量": "volume",
+                "总市值": "total_value",
+                "市盈率-动态": "pe",
+            }
+        )
+        tool = ToolKit("历史数据下载")
+        list = []
+        for index, row in pd_stock_sh.iterrows():
+            symbol = "sh" + row["symbol"]
+            # 获取历史数据-东方财富
+            # stock_zh_a_hist_df = ak.stock_zh_a_hist(
+            #     symbol=symbol,
+            #     period="daily",
+            #     start_date=start_date,
+            #     end_date=end_date,
+            #     adjust="qfq",
+            # )
+            # 获取历史数据-新浪
+            try:
+                stock_zh_a_daily_qfq_df = ak.stock_zh_a_daily(
+                    symbol=symbol,
+                    start_date=start_date,
+                    end_date=end_date,
+                    adjust="qfq",
+                )
+                for i, r in stock_zh_a_daily_qfq_df.iterrows():
+                    dict = {
+                        "symbol": symbol.upper(),
+                        "name": row["name"],
+                        "open": r["open"],
+                        "close": r["close"],
+                        "high": r["high"],
+                        "low": r["low"],
+                        "volume": r["volume"],
+                        "date": r["date"],
+                    }
+                    list.append(dict)
+            except Exception as e:
+                print("获取历史数据失败：", symbol, e)
+                continue
+            tool.progress_bar(len(pd_stock_sh), index)
+        df = pd.DataFrame(list)
+        df.to_csv(
+            file_path,
+            mode="a",
+            index=True,
+            header=True,
+        )
+        """
+        获取A股历史数据, 深圳市场
+        """
+        stock_sz_a_spot_em = ak.stock_sz_a_spot_em()
+        pd_stock_sz = stock_sz_a_spot_em[
+            [
+                "代码",
+                "名称",
+                "今开",
+                "最新价",
+                "最高",
+                "最低",
+                "成交量",
+                "总市值",
+                "市盈率-动态",
+            ]
+        ].copy()
+        # 过滤“最新价”大于0的数据
+        pd_stock_sz = pd_stock_sz[pd_stock_sz["最新价"] > 0]
+
+        # 重命名列名
+        pd_stock_sz = pd_stock_sz.rename(
+            columns={
+                "代码": "symbol",
+                "名称": "name",
+                "今开": "open",
+                "最新价": "close",
+                "最高": "high",
+                "最低": "low",
+                "成交量": "volume",
+                "总市值": "total_value",
+                "市盈率-动态": "pe",
+            }
+        )
+        tool = ToolKit("历史数据下载")
+        list = []
+        for index, row in pd_stock_sz.iterrows():
+            symbol = "sz" + row["symbol"]
+            # 获取历史数据-东方财富
+            # stock_zh_a_hist_df = ak.stock_zh_a_hist(
+            #     symbol=symbol,
+            #     period="daily",
+            #     start_date=start_date,
+            #     end_date=end_date,
+            #     adjust="qfq",
+            # )
+            # 获取历史数据-新浪
+            try:
+                stock_zh_a_daily_qfq_df = ak.stock_zh_a_daily(
+                    symbol=symbol,
+                    start_date=start_date,
+                    end_date=end_date,
+                    adjust="qfq",
+                )
+                for i, r in stock_zh_a_daily_qfq_df.iterrows():
+                    dict = {
+                        "symbol": symbol.upper(),
+                        "name": row["name"],
+                        "open": r["open"],
+                        "close": r["close"],
+                        "high": r["high"],
+                        "low": r["low"],
+                        "volume": r["volume"],
+                        "date": r["date"],
+                    }
+                    list.append(dict)
+            except Exception as e:
+                print("获取历史数据失败：", symbol, e)
+                continue
+            tool.progress_bar(len(pd_stock_sz), index)
+        df = pd.DataFrame(list)
+        df.to_csv(
+            file_path,
+            mode="a",
+            index=True,
+            header=False,
+        )
+        """
+        ETF历史数据
+        """
+        fund_etf_spot_em_df = ak.fund_etf_spot_em()
+        pd_etf = fund_etf_spot_em_df[
+            [
+                "代码",
+                "名称",
+                "开盘价",
+                "最新价",
+                "最高价",
+                "最低价",
+                "成交量",
+                "总市值",
+            ]
+        ].copy()
+        pd_etf = pd_etf[pd_etf["最新价"] > 0]
+        # 重命名列名
+        pd_etf = pd_etf.rename(
+            columns={
+                "代码": "symbol",
+                "名称": "name",
+                "开盘价": "open",
+                "最新价": "close",
+                "最高价": "high",
+                "最低价": "low",
+                "成交量": "volume",
+                "总市值": "total_value",
+            }
+        )
+        tool = ToolKit("历史数据下载")
+        list = []
+        for index, row in pd_etf.iterrows():
+            symbol = row["symbol"]
+            try:
+                time.sleep(1 + random.uniform(1, 3))
+                fund_etf_hist_em_df = ak.fund_etf_hist_em(
+                    symbol=symbol,
+                    period="daily",
+                    start_date=start_date,
+                    end_date=end_date,
+                    adjust="qfq",
+                )
+                for i, r in fund_etf_hist_em_df.iterrows():
+                    dict = {
+                        "symbol": "ETF" + symbol.upper(),
+                        "name": row["name"],
+                        "open": r["开盘"],
+                        "close": r["收盘"],
+                        "high": r["最高"],
+                        "low": r["最低"],
+                        "volume": r["成交量"],
+                        "date": r["日期"],
+                    }
+                    list.append(dict)
+            except Exception as e:
+                print("获取ETF历史数据失败：", symbol, e)
+                continue
+            tool.progress_bar(len(pd_etf), index)
+        df = pd.DataFrame(list)
+        df.to_csv(
+            file_path,
+            mode="a",
+            index=True,
+            header=False,
+        )
+
 
 # 历史数据起始时间，结束时间
 # 文件名称定义
 
 emc = EMCNHistoryDataDownload()
-start_date = "20250529"
-end_date = "20250529"
-file_path = "./cnstockinfo/stock_20250529.csv"
-emc.set_his_tick_info_to_csv(start_date, end_date, file_path)
+start_date = "20240101"
+end_date = "20250603"
+file_path = "./cnstockinfo/stock_20250603.csv"
+# emc.set_his_tick_info_to_csv(start_date, end_date, file_path)
+emc.get_cn_stock_history_ak(start_date, end_date, file_path)
