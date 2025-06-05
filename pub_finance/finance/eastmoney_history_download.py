@@ -47,12 +47,12 @@ class EMHistoryDataDownload:
         self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
-            "host": "push2.eastmoney.com",
-            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "accept-encoding": "gzip, deflate, br, zstd",
-            "accept-language": "zh-CN,zh;q=0.9",
-            "referer": "https://quote.eastmoney.com",
-            "connection": "keep-alive",
+            # "host": "push2.eastmoney.com",
+            # "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            # "accept-encoding": "gzip, deflate, br, zstd",
+            # "accept-language": "zh-CN,zh;q=0.9",
+            # "referer": "https://quote.eastmoney.com",
+            # "connection": "keep-alive",
         }
         self.cookies = {
             # "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
@@ -203,7 +203,7 @@ class EMHistoryDataDownload:
         tool = ToolKit("历史数据下载")
 
         with open(file_path, "a") as csvfile:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
                 for h in range(0, len(tickinfo), batch_size):
                     """休眠, 避免IP Block"""
                     time.sleep(1 + random.uniform(1, 3))
