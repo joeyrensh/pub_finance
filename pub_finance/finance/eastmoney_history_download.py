@@ -10,6 +10,7 @@ import pandas as pd
 import requests
 import json
 import concurrent.futures
+import os
 
 """ 
 东方财经的美股日K数据获取接口：
@@ -44,7 +45,7 @@ class EMHistoryDataDownload:
             "http": "http://118.190.142.208:80",
             "https": "http://118.190.142.208:80",
         }
-        self.proxy = None
+        # self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             # "host": "push2.eastmoney.com",
@@ -62,7 +63,11 @@ class EMHistoryDataDownload:
             # "st_inirUrl": "https://quote.eastmoney.com",
         }
 
-    def get_us_stock_list(self):
+    def get_us_stock_list(self, cache_path="./usstockinfo/us_stock_list_cache.csv"):
+        # 如果缓存文件存在，直接读取
+        if os.path.exists(cache_path):
+            print(f"读取美股列表缓存: {cache_path}")
+            return pd.read_csv(cache_path).to_dict(orient="records")
         """url里需要传递unixtime当前时间戳"""
         current_timestamp = int(time.mktime(datetime.now().timetuple()))
 
@@ -115,6 +120,8 @@ class EMHistoryDataDownload:
                         continue
                     dict = {"symbol": i["f12"], "mkt_code": mkt_code}
                     list.append(dict)
+        # 保存到本地缓存
+        pd.DataFrame(list).to_csv(cache_path, index=False)
         return list
 
     def get_his_tick_info(self, mkt_code, symbol, start_date, end_date):
@@ -150,7 +157,7 @@ class EMHistoryDataDownload:
         )
 
         url_re = (
-            url.replace("mkt_code", mkt_code)
+            url.replace("mkt_code", str(mkt_code))
             .replace("symbol", symbol)
             .replace("start_date", start_date)
             .replace("end_date", end_date)
@@ -197,6 +204,18 @@ class EMHistoryDataDownload:
     def set_his_tick_info_to_csv(self, start_date, end_date, file_path):
         """获取股票列表"""
         tickinfo = self.get_us_stock_list()
+        # 断点续爬：读取已存在的symbol
+        done_symbols = set()
+        if os.path.exists(file_path):
+            try:
+                df_exist = pd.read_csv(file_path)
+                if "symbol" in df_exist.columns:
+                    done_symbols = set(df_exist["symbol"].astype(str).unique())
+            except Exception:
+                pass
+
+        # 过滤已完成的symbol
+        tickinfo = [item for item in tickinfo if item["symbol"] not in done_symbols]
         """ 多线程获取，每次步长为3，为3线程 """
         batch_size = 10  # Number of tickinfo items to process in each batch
         batch_count = 0
