@@ -41,10 +41,10 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 class EMHistoryDataDownload:
     def __init__(self):
         self.proxy = {
-            # "http": "http://60.210.40.190:9091",
-            # "https": "http://60.210.40.190:9091",
+            "http": "http://120.25.1.15:7890",
+            "https": "http://120.25.1.15:7890",
         }
-        self.proxy = None
+        # self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "host": "push2.eastmoney.com",
