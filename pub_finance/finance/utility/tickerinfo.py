@@ -138,7 +138,7 @@ class TickerInfo:
                     "close": np.float32,
                     "high": np.float32,
                     "low": np.float32,
-                    "volume": np.int64,
+                    "volume": np.float64,
                     "date": str,
                 },
             )

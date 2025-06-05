@@ -9,8 +9,8 @@ import csv
 import os
 
 # # 东财股票实时行情
-stock_zh_a_spot_em_df = ak.stock_zh_a_spot_em()
-print(stock_zh_a_spot_em_df)
+# stock_zh_a_spot_em_df = ak.stock_zh_a_spot_em()
+# print(stock_zh_a_spot_em_df)
 
 # 新浪股票实时行情-缺失总市值
 # stock_zh_a_spot_df = ak.stock_zh_a_spot()
