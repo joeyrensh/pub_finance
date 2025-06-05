@@ -44,7 +44,7 @@ class EMHistoryDataDownload:
             "http": "http://118.190.142.208:80",
             "https": "http://118.190.142.208:80",
         }
-        # self.proxy = None
+        self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "host": "push2.eastmoney.com",
@@ -57,9 +57,9 @@ class EMHistoryDataDownload:
         self.cookies = {
             # "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
             # "st_pvi": "19026945941909",
-            "st_si": "33255977060076",
-            "st_asi": "delete",
-            "st_inirUrl": "https://quote.eastmoney.com",
+            # "st_si": "33255977060076",
+            # "st_asi": "delete",
+            # "st_inirUrl": "https://quote.eastmoney.com",
         }
 
     def get_us_stock_list(self):
