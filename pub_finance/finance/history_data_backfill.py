@@ -121,7 +121,11 @@ class StockDataUpdater:
     def _read_csv_in_chunks(self, file_path):
         with open(file_path, "r") as f:
             reader = csv.reader(f)
-            header = next(reader)
+            try:
+                header = next(reader)
+            except StopIteration:
+                print(f"文件 {file_path} 为空，已跳过。")
+                return
         # 如果首列为空字符串，说明有 idx 列
         if header[0] == "":
             # pandas 会自动命名为 'Unnamed: 0'
@@ -202,6 +206,16 @@ class StockDataUpdater:
             for row in df.itertuples(index=False, name=None):
                 writer.writerow(row)
 
+    def replace_old_files_with_new(self):
+        """
+        将所有 stock_xxx_new.csv 文件重命名为 stock_xxx.csv，覆盖原文件
+        """
+        new_files = glob.glob(os.path.join(self.data_dir, "stock_*_new.csv"))
+        for new_file in new_files:
+            old_file = new_file.replace("_new.csv", ".csv")
+            os.replace(new_file, old_file)
+        print("所有 *_new.csv 文件已重命名为 *.csv")
+
     def get_latest_updated_data(
         self, symbol_list, start_date, end_date, NEW_DATA_PATH, market
     ):
@@ -244,7 +258,7 @@ class StockDataUpdater:
                 res = requests.get(
                     url_re,
                     proxies=self.proxy,
-                    headers=self.headers,
+                    # headers=self.headers,
                 ).text
                 print("res:", res)
                 """ 抽取公司名称 """
@@ -298,19 +312,21 @@ if __name__ == "__main__":
 
     # # 创建更新器
     updater = StockDataUpdater(DATA_DIR, UPDATE_COLS, batch_size=BATCH_SIZE)
-    updater.get_latest_updated_data(
-        symbol_list, "20240101", "20250604", NEW_DATA_PATH, market="us"
-    )
+    # updater.get_latest_updated_data(
+    #     symbol_list, "20240101", "20250604", NEW_DATA_PATH, market="us"
+    # )
 
-    # # 加载新数据到字典
-    # try:
-    #     new_data_dict = updater.load_new_data(NEW_DATA_PATH)
-    #     print(f"加载了 {len(new_data_dict)} 条新数据记录")
-    # except Exception as e:
-    #     print(f"加载新数据失败: {e}")
-    #     exit(1)
+    # 加载新数据到字典
+    try:
+        new_data_dict = updater.load_new_data(NEW_DATA_PATH)
+        print(f"加载了 {len(new_data_dict)} 条新数据记录")
+    except Exception as e:
+        print(f"加载新数据失败: {e}")
+        exit(1)
 
-    # # 处理所有文件
-    # updater.process_files(new_data_dict)
+    # 处理所有文件
+    updater.process_files(new_data_dict)
+    # 全部无异常后，重命名
+    updater.replace_old_files_with_new()
 
-    # print("所有文件处理完成！新文件已保存为 *_new.csv 格式")
+    print("所有文件处理完成！新文件已保存为 *_new.csv 格式")
