@@ -1,0 +1,293 @@
+import pandas as pd
+import os
+import glob
+import csv
+import tempfile
+from datetime import datetime
+from tqdm import tqdm  # 进度条库，可选安装
+import akshare as ak  # 爬取股票数据的库，可选安装
+import time
+import requests
+import re
+import json
+
+
+class StockDataUpdater:
+    def __init__(
+        self, data_dir, update_cols, key_cols=["symbol", "date"], batch_size=10000
+    ):
+        """
+        初始化股票数据更新器
+        :param data_dir: 数据文件目录
+        :param update_cols: 需要更新的列名列表
+        :param key_cols: 关键列（用于匹配数据行），默认['symbol', 'date']
+        :param batch_size: 批次处理大小，默认10000行
+        """
+        self.data_dir = data_dir
+        self.update_cols = update_cols
+        self.key_cols = key_cols
+        self.batch_size = batch_size
+        self.all_files = glob.glob(os.path.join(data_dir, "stock_*.csv"))
+
+        self.proxy = {
+            "http": "http://120.25.1.15:7890",
+            "https": "http://120.25.1.15:7890",
+        }
+        # self.proxy = None
+        self.headers = {
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+            "host": "push2.eastmoney.com",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "zh-CN,zh;q=0.9",
+            "referer": "https://quote.eastmoney.com",
+            "connection": "keep-alive",
+        }
+
+        # 验证关键列和更新列不重叠
+        if set(key_cols) & set(update_cols):
+            raise ValueError("关键列和更新列不能重叠")
+
+    def load_new_data(self, new_data_path):
+        """加载新爬取的股票数据"""
+        new_df = pd.read_csv(new_data_path)
+
+        # 验证新数据包含必要的列
+        required_cols = set(self.key_cols + self.update_cols)
+        if not required_cols.issubset(set(new_df.columns)):
+            missing = required_cols - set(new_df.columns)
+            raise ValueError(f"新数据缺少必要的列: {missing}")
+
+        # 创建查找字典 {(symbol, date): {col: value}}
+        return new_df.set_index(self.key_cols)[self.update_cols].to_dict("index")
+
+    def process_files(self, new_data_dict):
+        """处理所有文件，逐个替换并生成新文件"""
+        for file_path in tqdm(self.all_files, desc="处理文件中"):
+            # 生成新文件名
+            base_name = os.path.basename(file_path)
+            new_file_path = os.path.join(
+                self.data_dir, base_name.replace(".csv", "_new.csv")
+            )
+
+            # 处理单个文件
+            self._process_single_file(file_path, new_file_path, new_data_dict)
+
+    def _process_single_file(self, input_path, output_path, new_data_dict):
+        """处理单个文件，分批读取、更新、排序和保存"""
+        # 创建临时文件用于存储更新后的数据
+        temp_file = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".csv")
+        temp_path = temp_file.name
+
+        try:
+            # 读取文件头
+            with open(input_path, "r") as f:
+                header = next(csv.reader(f))
+
+            # 写入临时文件头
+            temp_writer = csv.DictWriter(temp_file, fieldnames=header)
+            temp_writer.writeheader()
+
+            # 分批读取输入文件
+            processed_rows = 0
+            for chunk in self._read_csv_in_chunks(input_path):
+                # 更新当前批次
+                updated_chunk = self._update_chunk(chunk, new_data_dict)
+
+                # 写入更新后的批次到临时文件
+                for _, row in updated_chunk.iterrows():
+                    temp_writer.writerow(row.to_dict())
+
+                processed_rows += len(chunk)
+                print(f"已处理 {processed_rows} 行...", end="\r")
+
+            # 关闭临时文件
+            temp_file.close()
+
+            # 读取临时文件，排序并重置索引
+            self._sort_and_save(temp_path, output_path, header)
+
+            print(f"\n文件 {os.path.basename(input_path)} 处理完成")
+
+        finally:
+            # 确保删除临时文件
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+
+    def _read_csv_in_chunks(self, file_path):
+        """分批读取CSV文件"""
+        chunk_iterator = pd.read_csv(
+            file_path,
+            chunksize=self.batch_size,
+            dtype={col: str for col in self.key_cols},  # 确保关键列为字符串类型
+        )
+        return chunk_iterator
+
+    def _update_chunk(self, chunk_df, new_data_dict):
+        """更新数据块中的行（不新增行）"""
+        # 创建临时键列
+        chunk_df["temp_key"] = chunk_df.apply(
+            lambda row: (str(row[self.key_cols[0]]), str(row[self.key_cols[1]])), axis=1
+        )
+
+        # 标记需要更新的行
+        chunk_df["needs_update"] = chunk_df["temp_key"].isin(new_data_dict.keys())
+
+        # 更新标记的行
+        for idx, row in chunk_df.iterrows():
+            if row["needs_update"]:
+                key = row["temp_key"]
+                for col in self.update_cols:
+                    # 只更新存在的列
+                    if col in chunk_df.columns:
+                        chunk_df.at[idx, col] = new_data_dict[key].get(col, row[col])
+
+        # 清理临时列
+        chunk_df.drop(
+            columns=["temp_key", "needs_update"], inplace=True, errors="ignore"
+        )
+
+        return chunk_df
+
+    def _sort_and_save(self, temp_path, output_path, header):
+        """读取临时文件，排序并保存最终结果"""
+        # 读取整个临时文件
+        full_df = pd.read_csv(temp_path)
+
+        # 按symbol和date排序
+        if self.key_cols[0] in full_df.columns and self.key_cols[1] in full_df.columns:
+            full_df.sort_values(by=self.key_cols, inplace=True)
+
+        # 重置索引
+        full_df.reset_index(drop=True, inplace=True)
+
+        # 保存排序后的数据
+        full_df.to_csv(output_path, index=False)
+
+        # 确保文件包含正确的列顺序
+        self._ensure_header_order(output_path, header)
+
+    def _ensure_header_order(self, file_path, original_header):
+        """确保输出文件的列顺序与原始文件一致"""
+        df = pd.read_csv(file_path)
+
+        # 检查列顺序
+        if list(df.columns) != original_header:
+            # 如果顺序不一致，调整顺序
+            ordered_columns = [col for col in original_header if col in df.columns]
+            df = df[ordered_columns]
+            df.to_csv(file_path, index=False)
+
+    def get_latest_updated_data(
+        self, symbol_list, start_date, end_date, NEW_DATA_PATH, market
+    ):
+        """获取最新更新的数据"""
+        if market == "us":
+            stock_list = []
+            symbol_dict = {}
+            stock_us_spot_em_df = ak.stock_us_spot_em()
+            for symbol in symbol_list:
+                # 查找包含该 symbol 的行
+                matched_rows = stock_us_spot_em_df[
+                    stock_us_spot_em_df["代码"].str.endswith(symbol)
+                ]
+                for code in matched_rows["代码"]:
+                    prefix = code.split(".")[0]
+                    symbol_dict = {"symbol": symbol, "mkt_code": prefix}
+                    stock_list.append(symbol_dict)
+            dict = {}
+            list = []
+            for h in range(0, len(stock_list)):
+                mkt_code = stock_list[h]["mkt_code"]
+                symbol = stock_list[h]["symbol"]
+
+                url = (
+                    "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
+                    "&secid=mkt_code.symbol&ut=fa5fd1943c7b386f172d6893dbfba10b"
+                    "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56"
+                    "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000000&_=unix_time"
+                )
+                current_timestamp = int(time.mktime(datetime.now().timetuple()))
+
+                url_re = (
+                    url.replace("mkt_code", mkt_code)
+                    .replace("symbol", symbol)
+                    .replace("start_date", start_date)
+                    .replace("end_date", end_date)
+                    .replace("unix_time", str(current_timestamp))
+                )
+                print("url:", url_re)
+                res = requests.get(
+                    url_re,
+                    proxies=self.proxy,
+                    headers=self.headers,
+                ).text
+                print("res:", res)
+                """ 抽取公司名称 """
+                name = re.search('\\"name\\":\\"(.*?)\\",', res).group(1)
+                print("开始处理：", name)
+                """ 替换成valid json格式 """
+                res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
+                json_object = json.loads(res_p)
+                print("json_object:", json_object)
+                for i in json_object:
+                    """
+                    历史数据返回字段列表：
+                    date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
+                    """
+                    if (
+                        i.split(",")[1] == "-"
+                        or i.split(",")[2] == "-"
+                        or i.split(",")[3] == "-"
+                        or i.split(",")[4] == "-"
+                        or i.split(",")[5] == "-"
+                    ):
+                        continue
+                    dict = {
+                        "symbol": symbol,
+                        "name": name,
+                        "open": i.split(",")[1],
+                        "close": i.split(",")[2],
+                        "high": i.split(",")[3],
+                        "low": i.split(",")[4],
+                        "volume": i.split(",")[5],
+                        "date": i.split(",")[0],
+                    }
+                    list.append(dict)
+            df = pd.DataFrame(list)
+            df.to_csv(
+                NEW_DATA_PATH,
+                mode="w",
+                index=True,
+                header=True,
+            )
+
+
+# 使用示例
+if __name__ == "__main__":
+    # 配置参数
+    DATA_DIR = "./usstockinfo"  # 数据文件目录
+    UPDATE_COLS = ["open", "close", "high", "low", "volume"]  # 需要更新的列
+    NEW_DATA_PATH = "./usstockinfo/new_stock_data.csv"  # 新爬取的数据文件
+    BATCH_SIZE = 10000  # 每批处理的行数
+    """每股列表，需要重新匹配market code"""
+    symbol_list = ["SBET"]  # 示例股票代码列表
+
+    # 创建更新器
+    updater = StockDataUpdater(DATA_DIR, UPDATE_COLS, batch_size=BATCH_SIZE)
+    updater.get_latest_updated_data(
+        symbol_list, "20240101", "20250604", NEW_DATA_PATH, market="us"
+    )
+
+    # # 加载新数据到字典
+    # try:
+    #     new_data_dict = updater.load_new_data(NEW_DATA_PATH)
+    #     print(f"加载了 {len(new_data_dict)} 条新数据记录")
+    # except Exception as e:
+    #     print(f"加载新数据失败: {e}")
+    #     exit(1)
+
+    # # 处理所有文件
+    # updater.process_files(new_data_dict)
+
+    # print("所有文件处理完成！新文件已保存为 *_new.csv 格式")
