@@ -42,8 +42,8 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 class EMHistoryDataDownload:
     def __init__(self):
         self.proxy = {
-            "http": "http://118.190.142.208:80",
-            "https": "http://118.190.142.208:80",
+            "http": "http://120.25.1.15:7890",
+            "https": "http://120.25.1.15:7890",
         }
         # self.proxy = None
         self.headers = {
@@ -155,27 +155,41 @@ class EMHistoryDataDownload:
             "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56"
             "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000000&_=unix_time"
         )
-
         url_re = (
             url.replace("mkt_code", str(mkt_code))
-            .replace("symbol", symbol)
+            .replace("symbol", str(symbol))
             .replace("start_date", start_date)
             .replace("end_date", end_date)
             .replace("unix_time", str(current_timestamp))
         )
+        """ 请求url，获取数据response """
 
         res = requests.get(
             url_re, proxies=self.proxy, headers=self.headers, cookies=self.cookies
-        ).text
-        """ 抽取公司名称 """
-        name = re.search('\\"name\\":\\"(.*?)\\",', res).group(1)
+        ).text.strip()
+        if res.startswith("jQuery") and res.endswith(");"):
+            res = res[res.find("(") + 1 : -2]
+
+        # 解析JSON
+        data = json.loads(res)
+
+        # 检查返回码
+        if data.get("rc") != 0:
+            print(f"API错误: {symbol} - {data.get('rt')}")
+            return []
+
+        # 获取klines数据
+        klines = data.get("data", {}).get("klines", [])
+        if not klines:
+            return []  # 返回空列表
+
+        # 提取公司名称
+        name = data.get("data", {}).get("name", "")
         print("开始处理：", name)
-        """ 替换成valid json格式 """
-        res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
-        json_object = json.loads(res_p)
-        dict = {}
+
+        # 处理 klines 数据
         list = []
-        for i in json_object:
+        for i in klines:
             """
             历史数据返回字段列表：
             date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率

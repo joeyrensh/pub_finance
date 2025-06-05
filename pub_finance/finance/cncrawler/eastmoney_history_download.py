@@ -155,7 +155,7 @@ class EMCNHistoryDataDownload:
 
         url_re = (
             url.replace("mkt_code", str(mkt_code))
-            .replace("symbol", symbol)
+            .replace("symbol", str(symbol))
             .replace("start_date", start_date)
             .replace("end_date", end_date)
             .replace("unix_time", str(current_timestamp))
@@ -163,20 +163,32 @@ class EMCNHistoryDataDownload:
 
         res = requests.get(
             url_re, proxies=self.proxy, headers=self.headers, cookies=self.cookies
-        ).text
-        """ 抽取公司名称 """
-        name = re.search('\\"name\\":\\"(.*?)\\",', res).group(1)
+        ).text.strip()
+        if res.startswith("jQuery") and res.endswith(");"):
+            res = res[res.find("(") + 1 : -2]
+
+        # 解析JSON
+        data = json.loads(res)
+        # 检查返回码
+        if data.get("rc") != 0:
+            print(f"API错误: {symbol} - {data.get('rt')}")
+            return []
+
+        # 获取klines数据
+        klines = data.get("data", {}).get("klines", [])
+        if not klines:
+            return []  # 返回空列表
+
+        # 提取公司名称
+        name = data.get("data", {}).get("name", "")
         print("开始处理：", name)
-        """ 替换成valid json格式 """
-        res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
-        json_object = json.loads(res_p)
         dict = {}
         list = []
         if mkt_code == "0":
             market = "SZ"
         else:
             market = "SH"
-        for i in json_object:
+        for i in klines:
             """
             历史数据返回字段列表：
             date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
