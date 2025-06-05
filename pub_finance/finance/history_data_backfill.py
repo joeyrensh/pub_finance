@@ -82,7 +82,11 @@ class StockDataUpdater:
         try:
             # 读取文件头
             with open(input_path, "r") as f:
-                header = next(csv.reader(f))
+                try:
+                    header = next(csv.reader(f))
+                except Exception:
+                    print(f"文件 {input_path} 为空，已跳过。")
+                    return
 
             # 写入临时文件头
             temp_writer = csv.DictWriter(temp_file, fieldnames=header)
@@ -298,6 +302,78 @@ class StockDataUpdater:
                 index=True,
                 header=True,
             )
+        elif market == "cn":
+            for h in range(0, len(symbol_list)):
+                mkt_code = symbol_list[h]["mkt_code"]
+                symbol = symbol_list[h]["symbol"]
+                url = (
+                    "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
+                    "&secid=mkt_code.symbol&ut=fa5fd1943c7b386f172d6893dbfba10b"
+                    "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56"
+                    "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000&_=unix_time"
+                )
+
+                url_re = (
+                    url.replace("mkt_code", mkt_code)
+                    .replace("symbol", symbol)
+                    .replace("start_date", start_date)
+                    .replace("end_date", end_date)
+                    .replace("unix_time", str(current_timestamp))
+                )
+
+                res = requests.get(
+                    url_re,
+                    proxies=self.proxy,
+                    # headers=self.headers,
+                    # cookies=self.cookies,
+                ).text
+                """ 抽取公司名称 """
+                name = re.search('\\"name\\":\\"(.*?)\\",', res).group(1)
+                print("开始处理：", name)
+                """ 替换成valid json格式 """
+                res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
+                json_object = json.loads(res_p)
+                dict = {}
+                list = []
+                if mkt_code == "0":
+                    market = "SZ"
+                else:
+                    market = "SH"
+                for i in json_object:
+                    """
+                    历史数据返回字段列表：
+                    date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
+                    """
+                    if (
+                        i.split(",")[1] == "-"
+                        or i.split(",")[2] == "-"
+                        or i.split(",")[3] == "-"
+                        or i.split(",")[4] == "-"
+                        or i.split(",")[5] == "-"
+                    ):
+                        continue
+                    if "ETF" in i["f14"]:
+                        symbol_val = "ETF" + symbol
+                    else:
+                        symbol_val = market + symbol
+                    dict = {
+                        "symbol": symbol_val,
+                        "name": name,
+                        "open": i.split(",")[1],
+                        "close": i.split(",")[2],
+                        "high": i.split(",")[3],
+                        "low": i.split(",")[4],
+                        "volume": i.split(",")[5],
+                        "date": i.split(",")[0],
+                    }
+                    list.append(dict)
+            df = pd.DataFrame(list)
+            df.to_csv(
+                NEW_DATA_PATH,
+                mode="w",
+                index=True,
+                header=True,
+            )
 
 
 # 使用示例
@@ -308,7 +384,10 @@ if __name__ == "__main__":
     NEW_DATA_PATH = "./usstockinfo/new_stock_data.csv"  # 新爬取的数据文件
     BATCH_SIZE = 10000  # 每批处理的行数
     """每股列表，需要重新匹配market code"""
+    # 美股如下
     symbol_list = ["SBET"]  # 示例股票代码列表
+    # A股如下 - SZ:0 / SH:1
+    # 例如：symbol_list = [{"symbol": "000001", "mkt_code": 0}, {"symbol": "600000", "mkt_code": 1}]
 
     # # 创建更新器
     updater = StockDataUpdater(DATA_DIR, UPDATE_COLS, batch_size=BATCH_SIZE)
