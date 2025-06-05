@@ -30,10 +30,10 @@ class StockDataUpdater:
         self.all_files = glob.glob(os.path.join(data_dir, "stock_*.csv"))
 
         self.proxy = {
-            "http": "http://120.25.1.15:7890",
-            "https": "http://120.25.1.15:7890",
+            "http": "http://118.190.142.208:80",
+            "https": "http://118.190.142.208:80",
         }
-        # self.proxy = None
+        self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "host": "push2.eastmoney.com",
@@ -94,6 +94,10 @@ class StockDataUpdater:
                 # 更新当前批次
                 updated_chunk = self._update_chunk(chunk, new_data_dict)
 
+                # 修正列名：如果 header[0] == ""，则将 'Unnamed: 0' 列重命名为 ''
+                if header[0] == "" and "Unnamed: 0" in updated_chunk.columns:
+                    updated_chunk = updated_chunk.rename(columns={"Unnamed: 0": ""})
+
                 # 写入更新后的批次到临时文件
                 for _, row in updated_chunk.iterrows():
                     temp_writer.writerow(row.to_dict())
@@ -115,13 +119,26 @@ class StockDataUpdater:
                 os.remove(temp_path)
 
     def _read_csv_in_chunks(self, file_path):
-        """分批读取CSV文件"""
-        chunk_iterator = pd.read_csv(
-            file_path,
-            chunksize=self.batch_size,
-            dtype={col: str for col in self.key_cols},  # 确保关键列为字符串类型
-        )
-        return chunk_iterator
+        with open(file_path, "r") as f:
+            reader = csv.reader(f)
+            header = next(reader)
+        # 如果首列为空字符串，说明有 idx 列
+        if header[0] == "":
+            # pandas 会自动命名为 'Unnamed: 0'
+            return pd.read_csv(
+                file_path,
+                chunksize=self.batch_size,
+                header=0,
+                dtype={col: str for col in self.key_cols},
+            )
+        else:
+            return pd.read_csv(
+                file_path,
+                chunksize=self.batch_size,
+                header=0,
+                names=header,
+                dtype={col: str for col in self.key_cols},
+            )
 
     def _update_chunk(self, chunk_df, new_data_dict):
         """更新数据块中的行（不新增行）"""
@@ -158,25 +175,32 @@ class StockDataUpdater:
         if self.key_cols[0] in full_df.columns and self.key_cols[1] in full_df.columns:
             full_df.sort_values(by=self.key_cols, inplace=True)
 
-        # 重置索引
-        full_df.reset_index(drop=True, inplace=True)
+        # 只有当没有 idx 列时才重置索引
+        if not (header[0] == "" or header[0].lower() == "unnamed: 0"):
+            full_df.reset_index(drop=True, inplace=True)
 
-        # 保存排序后的数据
-        full_df.to_csv(output_path, index=False)
+        # 保证列顺序与header一致
+        full_df = full_df[[col for col in header if col in full_df.columns]]
 
-        # 确保文件包含正确的列顺序
-        self._ensure_header_order(output_path, header)
+        # 写出时手动写header，保证idx列无header
+        with open(output_path, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+            # 让 index 作为首列写出
+            for idx, row in full_df.iterrows():
+                writer.writerow([idx] + list(row))
 
     def _ensure_header_order(self, file_path, original_header):
-        """确保输出文件的列顺序与原始文件一致"""
         df = pd.read_csv(file_path)
-
-        # 检查列顺序
-        if list(df.columns) != original_header:
-            # 如果顺序不一致，调整顺序
-            ordered_columns = [col for col in original_header if col in df.columns]
-            df = df[ordered_columns]
-            df.to_csv(file_path, index=False)
+        # 保持原 header 顺序
+        ordered_columns = [col for col in original_header if col in df.columns]
+        df = df[ordered_columns]
+        # 写出时保留空表头
+        with open(file_path, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(original_header)
+            for row in df.itertuples(index=False, name=None):
+                writer.writerow(row)
 
     def get_latest_updated_data(
         self, symbol_list, start_date, end_date, NEW_DATA_PATH, market
@@ -229,7 +253,6 @@ class StockDataUpdater:
                 """ 替换成valid json格式 """
                 res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
                 json_object = json.loads(res_p)
-                print("json_object:", json_object)
                 for i in json_object:
                     """
                     历史数据返回字段列表：
@@ -273,7 +296,7 @@ if __name__ == "__main__":
     """每股列表，需要重新匹配market code"""
     symbol_list = ["SBET"]  # 示例股票代码列表
 
-    # 创建更新器
+    # # 创建更新器
     updater = StockDataUpdater(DATA_DIR, UPDATE_COLS, batch_size=BATCH_SIZE)
     updater.get_latest_updated_data(
         symbol_list, "20240101", "20250604", NEW_DATA_PATH, market="us"

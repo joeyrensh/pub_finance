@@ -41,8 +41,8 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 class EMHistoryDataDownload:
     def __init__(self):
         self.proxy = {
-            "http": "http://120.25.1.15:7890",
-            "https": "http://120.25.1.15:7890",
+            "http": "http://118.190.142.208:80",
+            "https": "http://118.190.142.208:80",
         }
         # self.proxy = None
         self.headers = {

@@ -203,7 +203,10 @@ def get_proxies_listv4_for_eastmoney(proxies_list):
 
 # url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
 url = "http://sh.ke.com/xiaoqu/xuhui/pg1cro21/"
-proxies_list = ["http://120.25.1.15:7890", "http://118.190.142.208:80"]
+proxies_list = [
+    "http://120.25.1.15:7890",
+    "http://118.190.142.208:80",
+]
 # get_proxies_listv3(proxies_list, url)
 # get_proxies_listv2(url)
 # get_proxies_listv1(url)
