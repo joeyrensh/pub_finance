@@ -106,7 +106,7 @@ class EMWebCrawler:
 
         # 10年期国债收益率
         url = "https://quote.eastmoney.com/center/api/qqzq.js?"
-        res = requests.get(url, proxies=self.proxy, headers=self.headers).text
+        res = requests.get(url, proxies=self.proxy).text
 
         lines = res.strip().split("\n")
         data = []
