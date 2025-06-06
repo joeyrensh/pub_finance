@@ -259,6 +259,7 @@ class EMCNHistoryDataDownload:
             if item["symbol"] not in done_symbols
             and item["symbol"] not in empty_klines_symbols
         ]
+        batch0 = len(done_symbols)
         """ 多线程获取，每次步长为3，为3线程 """
         batch_size = 10  # Number of tickinfo items to process in each batch
         batch_count = 0
@@ -298,7 +299,7 @@ class EMCNHistoryDataDownload:
                                 csvfile,
                                 mode="a",
                                 index=True,
-                                header=(h == 0),
+                                header=(h == 0 and batch0 == 0),
                             )
                         except IOError:
                             pass
