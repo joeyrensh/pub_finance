@@ -7,6 +7,8 @@ import logging
 from requests.exceptions import ProxyError, ConnectionError, Timeout, HTTPError
 import csv
 import os
+from datetime import datetime
+import json
 
 # # 东财股票实时行情
 # stock_zh_a_spot_em_df = ak.stock_zh_a_spot_em()
@@ -271,11 +273,8 @@ import os
 #     }
 # )
 
-stock_us_hist_df = ak.stock_us_hist(
-    symbol="106.TTE",
-    period="daily",
-    start_date="20250501",
-    end_date="20250529",
-    adjust="qfq",
-)
-print(stock_us_hist_df)
+from uscrawler.eastmoney_incre_crawler import EMWebCrawler
+import math
+
+em = EMWebCrawler()
+em.get_us_daily_stock_info("20250605")

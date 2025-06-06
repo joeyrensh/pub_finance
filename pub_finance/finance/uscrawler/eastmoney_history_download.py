@@ -11,6 +11,7 @@ import requests
 import json
 import concurrent.futures
 import os
+import math
 
 """ 
 东方财经的美股日K数据获取接口：
@@ -63,6 +64,21 @@ class EMHistoryDataDownload:
             "st_inirUrl": "https://quote.eastmoney.com",
         }
 
+    def get_total_pages(self, url, market):
+        current_timestamp = int(time.mktime(datetime.now().timetuple()))
+        url_re = (
+            url.replace("unix_time", str(current_timestamp))
+            .replace("mkt_code", market)
+            .replace("pn=i", "pn=1")
+        )
+        res = requests.get(
+            url_re, proxies=self.proxy, headers=self.headers
+        ).text.strip()
+        if res.startswith("jQuery") and res.endswith(");"):
+            res = res[res.find("(") + 1 : -2]
+        total_page_no = math.ceil(json.loads(res)["data"]["total"] / 100)
+        return total_page_no
+
     def get_us_stock_list(self, cache_path):
         # 如果缓存文件存在，直接读取
         if os.path.exists(cache_path):
@@ -85,7 +101,8 @@ class EMHistoryDataDownload:
             "&pn=i&pz=200&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f5,f9,f12,f14,f15,f16,f17,f20&_=unix_time"
         )
         for mkt_code in ["105", "106", "107"]:
-            for i in range(1, 500):
+            max_page = self.get_total_pages(url, mkt_code)
+            for i in range(1, max_page + 1):
                 """请求url，获取数据response"""
                 url_re = (
                     url.replace("unix_time", str(current_timestamp))
