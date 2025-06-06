@@ -43,7 +43,7 @@ import os
 # print(stock_zh_a_hist_tx_df)
 
 # stock_zh_a_daily_qfq_df = ak.stock_zh_a_daily(
-#     symbol="512670", start_date="20250520", end_date="20250603", adjust="qfq"
+#     symbol="sz512670", start_date="20250520", end_date="20250603", adjust="qfq"
 # )
 # print(stock_zh_a_daily_qfq_df)
 
@@ -270,3 +270,12 @@ import os
 #         "市盈率-动态": "pe",
 #     }
 # )
+
+stock_us_hist_df = ak.stock_us_hist(
+    symbol="106.TTE",
+    period="daily",
+    start_date="20250501",
+    end_date="20250529",
+    adjust="qfq",
+)
+print(stock_us_hist_df)

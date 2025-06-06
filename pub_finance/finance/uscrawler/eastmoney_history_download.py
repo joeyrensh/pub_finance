@@ -42,25 +42,25 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 class EMHistoryDataDownload:
     def __init__(self):
         self.proxy = {
-            "http": "http://120.25.1.15:7890",
-            "https": "http://120.25.1.15:7890",
+            "http": "http://101.132.222.120:80",
+            "https": "http://101.132.222.120:80",
         }
         # self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
-            # "host": "push2.eastmoney.com",
-            # "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            # "accept-encoding": "gzip, deflate, br, zstd",
-            # "accept-language": "zh-CN,zh;q=0.9",
-            # "referer": "https://quote.eastmoney.com",
-            # "connection": "keep-alive",
+            "host": "push2.eastmoney.com",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "zh-CN,zh;q=0.9",
+            "referer": "https://quote.eastmoney.com",
+            "connection": "keep-alive",
         }
         self.cookies = {
-            # "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
-            # "st_pvi": "19026945941909",
-            # "st_si": "33255977060076",
-            # "st_asi": "delete",
-            # "st_inirUrl": "https://quote.eastmoney.com",
+            "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
+            "st_pvi": "19026945941909",
+            "st_si": "33255977060076",
+            "st_asi": "delete",
+            "st_inirUrl": "https://quote.eastmoney.com",
         }
 
     def get_us_stock_list(self, cache_path="./usstockinfo/us_stock_list_cache.csv"):
@@ -124,7 +124,14 @@ class EMHistoryDataDownload:
         pd.DataFrame(list).to_csv(cache_path, index=False)
         return list
 
-    def get_his_tick_info(self, mkt_code, symbol, start_date, end_date):
+    def get_his_tick_info(
+        self,
+        mkt_code,
+        symbol,
+        start_date,
+        end_date,
+        cache_path="./usstockinfo/us_empty_klines_stock_list_cache.csv",
+    ):
         """
         历史数据URL：
         https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery&secid=106.BABA&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20210101&end=20500101&smplmt=755&lmt=1000000&_=1636002112627
@@ -150,7 +157,7 @@ class EMHistoryDataDownload:
         """
 
         url = (
-            "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
+            "http://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
             "&secid=mkt_code.symbol&ut=fa5fd1943c7b386f172d6893dbfba10b"
             "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56"
             "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000000&_=unix_time"
@@ -162,16 +169,24 @@ class EMHistoryDataDownload:
             .replace("end_date", end_date)
             .replace("unix_time", str(current_timestamp))
         )
+        print("请求URL: ", url_re)
         """ 请求url，获取数据response """
-
-        res = requests.get(
-            url_re, proxies=self.proxy, headers=self.headers, cookies=self.cookies
-        ).text.strip()
+        try:
+            res = requests.get(
+                url_re, proxies=self.proxy, headers=self.headers, cookies=self.cookies
+            ).text.strip()
+        except requests.RequestException as e:
+            return []
+        print("请求结果: ", res)
         if res.startswith("jQuery") and res.endswith(");"):
             res = res[res.find("(") + 1 : -2]
 
         # 解析JSON
-        data = json.loads(res)
+        try:
+            data = json.loads(res)
+        except json.JSONDecodeError:
+            print(f"{symbol} 响应不是合法JSON，跳过。内容：{res[:100]}")
+            return []
 
         # 检查返回码
         if data.get("rc") != 0:
@@ -181,6 +196,9 @@ class EMHistoryDataDownload:
         # 获取klines数据
         klines = data.get("data", {}).get("klines", [])
         if not klines:
+            # 记录 symbol 到空klines缓存文件
+            with open(cache_path, "a") as f:
+                f.write(f"{symbol}\n")
             return []  # 返回空列表
 
         # 提取公司名称
@@ -228,22 +246,34 @@ class EMHistoryDataDownload:
             except Exception:
                 pass
 
-        # 过滤已完成的symbol
-        tickinfo = [item for item in tickinfo if item["symbol"] not in done_symbols]
+        # 读取 klines 为空的 symbol
+        empty_klines_symbols = set()
+        empty_klines_path = "./usstockinfo/us_empty_klines_stock_list_cache.csv"
+        if os.path.exists(empty_klines_path):
+            with open(empty_klines_path, "r") as f:
+                empty_klines_symbols = set(line.strip() for line in f if line.strip())
+
+        # 过滤已完成和klines为空的symbol
+        tickinfo = [
+            item
+            for item in tickinfo
+            if item["symbol"] not in done_symbols
+            and item["symbol"] not in empty_klines_symbols
+        ]
         """ 多线程获取，每次步长为3，为3线程 """
         batch_size = 10  # Number of tickinfo items to process in each batch
         batch_count = 0
         tool = ToolKit("历史数据下载")
 
         with open(file_path, "a") as csvfile:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
                 for h in range(0, len(tickinfo), batch_size):
-                    """休眠, 避免IP Block"""
-                    time.sleep(1 + random.uniform(1, 3))
                     batch_count += 1
                     batch_list = []
                     futures = []
                     for t in range(1, batch_size + 1):
+                        """休眠, 避免IP Block"""
+                        time.sleep(1 + random.uniform(1, 3))
                         index = h + t - 1
                         if index < len(tickinfo):
                             future = executor.submit(

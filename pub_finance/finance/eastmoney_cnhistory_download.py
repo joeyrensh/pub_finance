@@ -121,7 +121,14 @@ class EMCNHistoryDataDownload:
         pd.DataFrame(list).to_csv(cache_path, index=False)
         return list
 
-    def get_his_tick_info(self, mkt_code, symbol, start_date, end_date):
+    def get_his_tick_info(
+        self,
+        mkt_code,
+        symbol,
+        start_date,
+        end_date,
+        cache_path="./cnstockinfo/cn_empty_klines_stock_list_cache.csv",
+    ):
         """
         历史数据URL：
         https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery&secid=0.300063&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20210101&end=20500101&smplmt=755&lmt=1000000&_=1636002112627
@@ -168,7 +175,12 @@ class EMCNHistoryDataDownload:
             res = res[res.find("(") + 1 : -2]
 
         # 解析JSON
-        data = json.loads(res)
+        try:
+            data = json.loads(res)
+        except json.JSONDecodeError:
+            print(f"{symbol} 响应不是合法JSON，跳过。内容：{res[:100]}")
+            return []
+
         # 检查返回码
         if data.get("rc") != 0:
             print(f"API错误: {symbol} - {data.get('rt')}")
@@ -177,6 +189,9 @@ class EMCNHistoryDataDownload:
         # 获取klines数据
         klines = data.get("data", {}).get("klines", [])
         if not klines:
+            # 记录 symbol 到空klines缓存文件
+            with open(cache_path, "a") as f:
+                f.write(f"{symbol}\n")
             return []  # 返回空列表
 
         # 提取公司名称
@@ -231,8 +246,20 @@ class EMCNHistoryDataDownload:
             except Exception:
                 pass
 
-        # 过滤已完成的symbol
-        tickinfo = [item for item in tickinfo if item["symbol"] not in done_symbols]
+        # 读取 klines 为空的 symbol
+        empty_klines_symbols = set()
+        empty_klines_path = "./cnstockinfo/cn_empty_klines_stock_list_cache.csv"
+        if os.path.exists(empty_klines_path):
+            with open(empty_klines_path, "r") as f:
+                empty_klines_symbols = set(line.strip() for line in f if line.strip())
+
+        # 过滤已完成和klines为空的symbol
+        tickinfo = [
+            item
+            for item in tickinfo
+            if item["symbol"] not in done_symbols
+            and item["symbol"] not in empty_klines_symbols
+        ]
         """ 多线程获取，每次步长为3，为3线程 """
         batch_size = 10  # Number of tickinfo items to process in each batch
         batch_count = 0
