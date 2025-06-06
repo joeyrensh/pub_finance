@@ -60,7 +60,7 @@ class EMCNHistoryDataDownload:
             "st_psi": "2025060417523664-113200301321-5927662537",
         }
 
-    def get_cn_stock_list(self, cache_path="./cnstockinfo/cn_stock_list_cache.csv"):
+    def get_cn_stock_list(self, cache_path):
         # 如果缓存文件存在，直接读取
         if os.path.exists(cache_path):
             print(f"读取A股列表缓存: {cache_path}")
@@ -121,14 +121,7 @@ class EMCNHistoryDataDownload:
         pd.DataFrame(list).to_csv(cache_path, index=False)
         return list
 
-    def get_his_tick_info(
-        self,
-        mkt_code,
-        symbol,
-        start_date,
-        end_date,
-        cache_path="./cnstockinfo/cn_empty_klines_stock_list_cache.csv",
-    ):
+    def get_his_tick_info(self, mkt_code, symbol, start_date, end_date, cache_path):
         """
         历史数据URL：
         https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery&secid=0.300063&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20210101&end=20500101&smplmt=755&lmt=1000000&_=1636002112627
@@ -233,9 +226,16 @@ class EMCNHistoryDataDownload:
             list.append(dict)
         return list
 
-    def set_his_tick_info_to_csv(self, start_date, end_date, file_path):
+    def set_his_tick_info_to_csv(
+        self,
+        start_date,
+        end_date,
+        file_path,
+        empty_klines_cache_path="./cnstockinfo/cn_empty_klines_stock_list_cache.csv",
+        stock_list_cache_path="./cnstockinfo/cn_stock_list_cache.csv",
+    ):
         """获取股票列表"""
-        tickinfo = self.get_cn_stock_list()
+        tickinfo = self.get_cn_stock_list(cache_path=stock_list_cache_path)
         # 断点续爬：读取已存在的symbol
         done_symbols = set()
         if os.path.exists(file_path):
@@ -248,9 +248,8 @@ class EMCNHistoryDataDownload:
 
         # 读取 klines 为空的 symbol
         empty_klines_symbols = set()
-        empty_klines_path = "./cnstockinfo/cn_empty_klines_stock_list_cache.csv"
-        if os.path.exists(empty_klines_path):
-            with open(empty_klines_path, "r") as f:
+        if os.path.exists(empty_klines_cache_path):
+            with open(empty_klines_cache_path, "r") as f:
                 empty_klines_symbols = set(line.strip() for line in f if line.strip())
 
         # 过滤已完成和klines为空的symbol
@@ -268,12 +267,12 @@ class EMCNHistoryDataDownload:
         with open(file_path, "a") as csvfile:
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
                 for h in range(0, len(tickinfo), batch_size):
+                    """休眠, 避免IP Block"""
+                    time.sleep(1 + random.uniform(1, 3))
                     batch_count += 1
                     batch_list = []
                     futures = []
                     for t in range(1, batch_size + 1):
-                        """休眠, 避免IP Block"""
-                        time.sleep(1 + random.uniform(1, 3))
                         index = h + t - 1
                         if index < len(tickinfo):
                             future = executor.submit(
@@ -282,6 +281,7 @@ class EMCNHistoryDataDownload:
                                 tickinfo[index]["symbol"],
                                 start_date,
                                 end_date,
+                                empty_klines_cache_path,
                             )
                             futures.append(future)
                     for future in concurrent.futures.as_completed(futures):
