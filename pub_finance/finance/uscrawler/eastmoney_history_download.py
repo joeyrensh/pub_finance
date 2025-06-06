@@ -126,7 +126,7 @@ class EMHistoryDataDownload:
 
     def get_his_tick_info(self, mkt_code, symbol, start_date, end_date, cache_path):
         """
-        历史数据URL：
+        历史数据URL：可以是http或者https
         https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery&secid=106.BABA&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20210101&end=20500101&smplmt=755&lmt=1000000&_=1636002112627
 
         历史数据返回字段列表：
@@ -203,7 +203,7 @@ class EMHistoryDataDownload:
         for i in klines:
             """
             历史数据返回字段列表：
-            date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
+            open,close,high,low,volume,date
             """
             if (
                 i.split(",")[1] == "-"
@@ -231,7 +231,7 @@ class EMHistoryDataDownload:
         start_date,
         end_date,
         file_path,
-        empty_klines_cache_path="./usstockinfo/us_empty_klines_stock_list_cache.csv",
+        empty_klines_cache_path="./usstockinfo/us_empty_klines_cache.csv",
         stock_list_cache_path="./usstockinfo/us_stock_list_cache.csv",
     ):
         """获取股票列表"""

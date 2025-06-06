@@ -150,9 +150,11 @@ class EMCNWebCrawler:
             # 写入数据行
             writer.writerows(filtered_rows)
 
+    """ AKshare获取A股历史数据"""
+
     def get_cn_daily_stock_info_ak(self, trade_date):
         """
-        获取A股历史数据，上海市场
+        获取A股数据，上海市场
         """
         stock_sh_a_spot_em = ak.stock_sh_a_spot_em()
         pd_stock_sh = stock_sh_a_spot_em[
@@ -168,10 +170,7 @@ class EMCNWebCrawler:
                 "市盈率-动态",
             ]
         ].copy()
-        # 过滤“最新价”大于0的数据
         pd_stock_sh = pd_stock_sh[pd_stock_sh["最新价"] > 0]
-
-        # 重命名列名
         pd_stock_sh = pd_stock_sh.rename(
             columns={
                 "代码": "symbol",
@@ -198,7 +197,7 @@ class EMCNWebCrawler:
         pd_stock_sh.to_csv(file_name_d, mode="w", index=True, header=True)
 
         """
-        获取A股历史数据, 深圳市场
+        获取A股数据, 深圳市场
         """
         stock_sz_a_spot_em = ak.stock_sz_a_spot_em()
         pd_stock_sz = stock_sz_a_spot_em[
@@ -214,10 +213,7 @@ class EMCNWebCrawler:
                 "市盈率-动态",
             ]
         ].copy()
-        # 过滤“最新价”大于0的数据
         pd_stock_sz = pd_stock_sz[pd_stock_sz["最新价"] > 0]
-
-        # 重命名列名
         pd_stock_sz = pd_stock_sz.rename(
             columns={
                 "代码": "symbol",
@@ -237,7 +233,7 @@ class EMCNWebCrawler:
         pd_stock_sz.to_csv(file_name_d, mode="a", index=True, header=False)
 
         """
-        ETF历史数据
+        ETF数据
         """
         fund_etf_spot_em_df = ak.fund_etf_spot_em()
         pd_etf = fund_etf_spot_em_df[
@@ -253,7 +249,6 @@ class EMCNWebCrawler:
             ]
         ].copy()
         pd_etf = pd_etf[pd_etf["最新价"] > 0]
-        # 重命名列名
         pd_etf = pd_etf.rename(
             columns={
                 "代码": "symbol",

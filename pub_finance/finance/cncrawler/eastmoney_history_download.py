@@ -199,7 +199,7 @@ class EMCNHistoryDataDownload:
         for i in klines:
             """
             历史数据返回字段列表：
-            date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
+            open,close,high,low,volume,date
             """
             if (
                 i.split(",")[1] == "-"
@@ -231,7 +231,7 @@ class EMCNHistoryDataDownload:
         start_date,
         end_date,
         file_path,
-        empty_klines_cache_path="./cnstockinfo/cn_empty_klines_stock_list_cache.csv",
+        empty_klines_cache_path="./cnstockinfo/cn_empty_klines_cache.csv",
         stock_list_cache_path="./cnstockinfo/cn_stock_list_cache.csv",
     ):
         """获取股票列表"""
@@ -304,6 +304,10 @@ class EMCNHistoryDataDownload:
                         except IOError:
                             pass
 
+    """
+    akshare获取A股历史数据
+    """
+
     def get_cn_stock_history_ak(self, start_date, end_date, file_path):
         """
         获取A股历史数据，上海市场
@@ -322,10 +326,7 @@ class EMCNHistoryDataDownload:
                 "市盈率-动态",
             ]
         ].copy()
-        # 过滤“最新价”大于0的数据
         pd_stock_sh = pd_stock_sh[pd_stock_sh["最新价"] > 0]
-
-        # 重命名列名
         pd_stock_sh = pd_stock_sh.rename(
             columns={
                 "代码": "symbol",
@@ -399,10 +400,7 @@ class EMCNHistoryDataDownload:
                 "市盈率-动态",
             ]
         ].copy()
-        # 过滤“最新价”大于0的数据
         pd_stock_sz = pd_stock_sz[pd_stock_sz["最新价"] > 0]
-
-        # 重命名列名
         pd_stock_sz = pd_stock_sz.rename(
             columns={
                 "代码": "symbol",
@@ -476,7 +474,6 @@ class EMCNHistoryDataDownload:
             ]
         ].copy()
         pd_etf = pd_etf[pd_etf["最新价"] > 0]
-        # 重命名列名
         pd_etf = pd_etf.rename(
             columns={
                 "代码": "symbol",
@@ -529,7 +526,6 @@ class EMCNHistoryDataDownload:
 
 # 历史数据起始时间，结束时间
 # 文件名称定义
-
 emc = EMCNHistoryDataDownload()
 start_date = "20240101"
 end_date = "20250603"

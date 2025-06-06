@@ -244,7 +244,7 @@ class StockDataUpdater:
                 symbol = stock_list[h]["symbol"]
 
                 url = (
-                    "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
+                    "https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
                     "&secid=mkt_code.symbol&ut=fa5fd1943c7b386f172d6893dbfba10b"
                     "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56"
                     "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000000&_=unix_time"
@@ -262,7 +262,7 @@ class StockDataUpdater:
                 res = requests.get(
                     url_re,
                     proxies=self.proxy,
-                    # headers=self.headers,
+                    headers=self.headers,
                 ).text
                 print("res:", res)
                 """ 抽取公司名称 """
@@ -274,7 +274,7 @@ class StockDataUpdater:
                 for i in json_object:
                     """
                     历史数据返回字段列表：
-                    date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
+                    date,open,close,high,low,volume
                     """
                     if (
                         i.split(",")[1] == "-"
@@ -307,7 +307,7 @@ class StockDataUpdater:
                 mkt_code = symbol_list[h]["mkt_code"]
                 symbol = symbol_list[h]["symbol"]
                 url = (
-                    "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
+                    "https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
                     "&secid=mkt_code.symbol&ut=fa5fd1943c7b386f172d6893dbfba10b"
                     "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56"
                     "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000&_=unix_time"
@@ -342,7 +342,7 @@ class StockDataUpdater:
                 for i in json_object:
                     """
                     历史数据返回字段列表：
-                    date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
+                    date,open,close,high,low,volume
                     """
                     if (
                         i.split(",")[1] == "-"
@@ -391,9 +391,9 @@ if __name__ == "__main__":
 
     # # 创建更新器
     updater = StockDataUpdater(DATA_DIR, UPDATE_COLS, batch_size=BATCH_SIZE)
-    # updater.get_latest_updated_data(
-    #     symbol_list, "20240101", "20250604", NEW_DATA_PATH, market="us"
-    # )
+    updater.get_latest_updated_data(
+        symbol_list, "20240101", "20250604", NEW_DATA_PATH, market="us"
+    )
 
     # 加载新数据到字典
     try:

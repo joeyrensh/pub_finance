@@ -11,6 +11,7 @@ import pandas as pd
 import requests
 import json
 from utility.fileinfo import FileInfo
+import os
 
 """ 东方财经美股股票对应行业板块数据获取接口 """
 
@@ -30,7 +31,11 @@ class EMUsTickerCategoryCrawler:
             "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
         }
 
-    def get_us_stock_list(self):
+    def get_us_stock_list(self, cache_path="./usstockinfo/us_stock_list_cache.csv"):
+        # 如果缓存文件存在，直接读取
+        if os.path.exists(cache_path):
+            print(f"读取美股列表缓存: {cache_path}")
+            return pd.read_csv(cache_path).to_dict(orient="records")
         """url里需要传递unixtime当前时间戳"""
         current_timestamp = int(time.mktime(datetime.now().timetuple()))
 
@@ -78,6 +83,8 @@ class EMUsTickerCategoryCrawler:
                         continue
                     dict = {"symbol": i["f12"], "mkt_code": mkt_code}
                     list.append(dict)
+        # 保存到本地缓存
+        pd.DataFrame(list).to_csv(cache_path, index=False)
         return list
 
     def get_us_ticker_category(self, trade_date):
