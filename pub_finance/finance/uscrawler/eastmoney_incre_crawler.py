@@ -25,7 +25,7 @@ class EMWebCrawler:
         """
         self.__url = (
             "https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
-            "&pn=i&pz=200&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f5,f9,f12,f14,f15,f16,f17,f20&_=unix_time"
+            "&pn=i&pz=100&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f5,f9,f12,f14,f15,f16,f17,f20&_=unix_time"
         )
         self.proxy = {
             # "http": "http://60.210.40.190:9091",

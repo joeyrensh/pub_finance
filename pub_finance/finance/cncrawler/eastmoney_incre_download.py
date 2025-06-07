@@ -24,7 +24,7 @@ class EMCNWebCrawler:
         1: 上证/科创板		SH
         """
         self.__url = (
-            "http://push2.eastmoney.com/api/qt/clist/get?cb=jQuery&pn=i&pz=200"
+            "http://push2.eastmoney.com/api/qt/clist/get?cb=jQuery&pn=i&pz=100"
             "&po=1&np=1&ut=&fltt=2&invt=2&fid=f12&fs=m:market"
             "&fields=f2,f5,f9,f12,f14,f15,f16,f17,f20&_=unix_time"
         )
