@@ -12,6 +12,7 @@ import os
 from utility.fileinfo import FileInfo
 import csv
 import math
+from utility.em_stock_uti import EMWebCrawlerUti
 
 
 class EMWebCrawler:
@@ -41,19 +42,6 @@ class EMWebCrawler:
 
     """ 获取数据列表 """
 
-    def get_total_pages(self, market):
-        current_timestamp = int(time.mktime(datetime.now().timetuple()))
-        url = (
-            self.__url.replace("unix_time", str(current_timestamp))
-            .replace("mkt_code", market)
-            .replace("pn=i", "pn=1")
-        )
-        res = requests.get(url, proxies=self.proxy, headers=self.headers).text.strip()
-        if res.startswith("jQuery") and res.endswith(");"):
-            res = res[res.find("(") + 1 : -2]
-        total_page_no = math.ceil(json.loads(res)["data"]["total"] / 100)
-        return total_page_no
-
     def get_us_daily_stock_info(self, trade_date):
         """url里需要传递unixtime当前时间戳"""
         current_timestamp = int(time.mktime(datetime.now().timetuple()))
@@ -61,7 +49,8 @@ class EMWebCrawler:
         list = []
         dic_a = {}
         for mkt_code in ["105", "106", "107"]:
-            max_page = self.get_total_pages(mkt_code)
+            em = EMWebCrawlerUti()
+            max_page = em.get_total_pages(mkt_code)
             for i in range(1, max_page + 1):
                 url = (
                     self.__url.replace("unix_time", str(current_timestamp))

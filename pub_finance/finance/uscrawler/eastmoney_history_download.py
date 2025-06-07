@@ -12,6 +12,7 @@ import json
 import concurrent.futures
 import os
 import math
+from utility.em_stock_uti import EMWebCrawlerUti
 
 """ 
 东方财经的美股日K数据获取接口：
@@ -63,83 +64,6 @@ class EMHistoryDataDownload:
             "st_asi": "delete",
             "st_inirUrl": "https://quote.eastmoney.com",
         }
-
-    def get_total_pages(self, url, market):
-        current_timestamp = int(time.mktime(datetime.now().timetuple()))
-        url_re = (
-            url.replace("unix_time", str(current_timestamp))
-            .replace("mkt_code", market)
-            .replace("pn=i", "pn=1")
-        )
-        res = requests.get(
-            url_re, proxies=self.proxy, headers=self.headers
-        ).text.strip()
-        if res.startswith("jQuery") and res.endswith(");"):
-            res = res[res.find("(") + 1 : -2]
-        total_page_no = math.ceil(json.loads(res)["data"]["total"] / 100)
-        return total_page_no
-
-    def get_us_stock_list(self, cache_path):
-        # 如果缓存文件存在，直接读取
-        if os.path.exists(cache_path):
-            print(f"读取美股列表缓存: {cache_path}")
-            return pd.read_csv(cache_path).to_dict(orient="records")
-        """url里需要传递unixtime当前时间戳"""
-        current_timestamp = int(time.mktime(datetime.now().timetuple()))
-
-        """     
-        市场代码：
-        105:纳斯达克 NASDAQ
-        106:纽交所 NYSE
-        107:美国交易所 AMEX    
-        """
-        dict = {}
-        list = []
-        """url定义"""
-        url = (
-            "https://push2.eastmoney.com/api/qt/clist/get?cb=jQuery"
-            "&pn=i&pz=200&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f5,f9,f12,f14,f15,f16,f17,f20&_=unix_time"
-        )
-        for mkt_code in ["105", "106", "107"]:
-            max_page = self.get_total_pages(url, mkt_code)
-            for i in range(1, max_page + 1):
-                """请求url，获取数据response"""
-                url_re = (
-                    url.replace("unix_time", str(current_timestamp))
-                    .replace("mkt_code", mkt_code)
-                    .replace("pn=i", "pn=" + str(i))
-                )
-                time.sleep(random.uniform(1, 2))
-                print("url: ", url_re)
-                res = requests.get(
-                    url_re,
-                    proxies=self.proxy,
-                    headers=self.headers,
-                    cookies=self.cookies,
-                ).text
-                """ 替换成valid json格式 """
-                res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
-                try:
-                    json_object = json.loads(res_p)
-                except ValueError:
-                    break
-                for i in json_object:
-                    if (
-                        i["f12"] == "-"
-                        or i["f14"] == "-"
-                        or i["f17"] == "-"
-                        or i["f2"] == "-"
-                        or i["f15"] == "-"
-                        or i["f16"] == "-"
-                        or i["f5"] == "-"
-                        or i["f20"] == "-"
-                    ):
-                        continue
-                    dict = {"symbol": i["f12"], "mkt_code": mkt_code}
-                    list.append(dict)
-        # 保存到本地缓存
-        pd.DataFrame(list).to_csv(cache_path, index=False)
-        return list
 
     def get_his_tick_info(self, mkt_code, symbol, start_date, end_date, cache_path):
         """
@@ -252,7 +176,8 @@ class EMHistoryDataDownload:
         stock_list_cache_path="./usstockinfo/us_stock_list_cache.csv",
     ):
         """获取股票列表"""
-        tickinfo = self.get_us_stock_list(cache_path=stock_list_cache_path)
+        em = EMWebCrawlerUti()
+        tickinfo = em.get_us_stock_list(cache_path=stock_list_cache_path)
         # 断点续爬：读取已存在的symbol
         done_symbols = set()
         if os.path.exists(file_path):

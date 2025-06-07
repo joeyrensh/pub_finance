@@ -273,8 +273,8 @@ import json
 #     }
 # )
 
-from uscrawler.eastmoney_incre_crawler import EMWebCrawler
+from cncrawler.eastmoney_incre_download import EMCNWebCrawler
 import math
 
-em = EMWebCrawler()
-em.get_us_daily_stock_info("20250605")
+em = EMCNWebCrawler()
+em.get_cn_daily_stock_info("20250605")
