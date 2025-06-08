@@ -2573,7 +2573,7 @@ class StockProposal:
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
                     xpad=1,
-                    x=1,  # 靠近热图
+                    x=0.99,  # 靠近热图
                 ),
                 text=pd_calendar_heatmap["industry_top3"].apply(
                     lambda x: "<br>".join(x)
@@ -2794,7 +2794,7 @@ class StockProposal:
                     thickness=20,  # 增加颜色条厚度
                     len=0.5,  # 调整颜色条长度以适应布局
                     xpad=1,
-                    x=1,  # 靠近热图
+                    x=0.99,  # 靠近热图
                 ),
                 text=pd_calendar_heatmap["industry_top3"].apply(
                     lambda x: "<br>".join(x)

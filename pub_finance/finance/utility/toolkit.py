@@ -82,7 +82,8 @@ class ToolKit:
         counter = 0
         for h in range(0, 365):
             """当前美国时间 UTC-4"""
-            utc_us = datetime.now() - timedelta(hours=12) - timedelta(days=h)
+            # utc_us = datetime.now() - timedelta(hours=12) - timedelta(days=h)
+            utc_us = datetime.now() - timedelta(days=h)
             """ 周末正常休市 """
             if utc_us.isoweekday() in [1, 2, 3, 4, 5]:
                 if str(utc_us)[0:10] in x:
@@ -90,7 +91,7 @@ class ToolKit:
                 else:
                     """返回日期字符串格式20200101"""
                     counter += 1
-                    if counter == offset + 1:  # 找到第 offset 个交易日
+                    if counter == offset:  # 找到第 offset 个交易日
                         print("trade date: ", str(utc_us)[0:10].replace("-", ""))
                         return str(utc_us)[0:10].replace("-", "")
             else:
@@ -169,7 +170,7 @@ class ToolKit:
                 else:
                     """返回日期字符串格式20200101"""
                     counter += 1
-                    if counter == offset + 1:  # 找到第 offset 个交易日
+                    if counter == offset:  # 找到第 offset 个交易日
                         print("trade date: ", str(utc_cn)[0:10].replace("-", ""))
                         return str(utc_cn)[0:10].replace("-", "")
             else:
