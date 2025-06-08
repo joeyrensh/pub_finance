@@ -2562,19 +2562,22 @@ class StockProposal:
                 ],
                 zmin=min_val,
                 zmax=max_val,
-                colorbar=dict(
-                    title=dict(
-                        text="PnL",
-                        font=dict(
-                            color=dark_text_color, size=font_size, family="Arial"
-                        ),  # 设置颜色条标题的颜色和字体大小
-                    ),
-                    tickfont=dict(size=font_size, family="Arial"),
-                    thickness=20,  # 增加颜色条厚度
-                    len=0.5,  # 调整颜色条长度以适应布局
-                    xpad=1,
-                    x=1,  # 靠近热图
-                ),
+                showscale=False,
+                # colorbar=dict(
+                #     title=dict(
+                #         text="PnL",
+                #         font=dict(
+                #             color=dark_text_color, size=font_size, family="Arial"
+                #         ),  # 设置颜色条标题的颜色和字体大小
+                #     ),
+                #     tickfont=dict(
+                #         size=font_size, color=dark_text_color, family="Arial"
+                #     ),
+                #     thickness=10,  # 增加颜色条厚度
+                #     len=0.5,  # 调整颜色条长度以适应布局
+                #     xpad=0,
+                #     x=1,  # 靠近热图
+                # ),
                 text=pd_calendar_heatmap["industry_top3"].apply(
                     lambda x: "<br>".join(x)
                 ),
@@ -2781,21 +2784,22 @@ class StockProposal:
                 ],
                 zmin=min_val,
                 zmax=max_val,
-                colorbar=dict(
-                    title=dict(
-                        text="PnL",
-                        font=dict(
-                            color=light_text_color, size=font_size, family="Arial"
-                        ),  # 设置颜色条标题的颜色和字体大小
-                    ),
-                    tickfont=dict(
-                        size=font_size, color=light_text_color, family="Arial"
-                    ),
-                    thickness=20,  # 增加颜色条厚度
-                    len=0.5,  # 调整颜色条长度以适应布局
-                    xpad=1,
-                    x=1,  # 靠近热图
-                ),
+                showscale=False,
+                # colorbar=dict(
+                #     title=dict(
+                #         text="PnL",
+                #         font=dict(
+                #             color=light_text_color, size=font_size, family="Arial"
+                #         ),  # 设置颜色条标题的颜色和字体大小
+                #     ),
+                #     tickfont=dict(
+                #         size=font_size, color=light_text_color, family="Arial"
+                #     ),
+                #     thickness=10,  # 增加颜色条厚度
+                #     len=0.5,  # 调整颜色条长度以适应布局
+                #     xpad=0,
+                #     x=1,  # 靠近热图
+                # ),
                 text=pd_calendar_heatmap["industry_top3"].apply(
                     lambda x: "<br>".join(x)
                 ),
