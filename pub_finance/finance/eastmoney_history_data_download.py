@@ -6,9 +6,9 @@ from cncrawler.ak_history_crawler import AKCNHistoryDataCrawler
 em = EMWebCrawlerUti()
 start_date = "20250609"
 end_date = "20250609"
-file_path = "./usstockinfo/test.csv"
+file_path = "./cnstockinfo/test.csv"
 em.get_his_stock_info_list(
-    "us",
+    "cn",
     start_date,
     end_date,
     file_path,

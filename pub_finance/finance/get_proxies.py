@@ -161,7 +161,6 @@ def get_proxies_listv3(proxies_list, url):
 
 
 def get_proxies_listv4_for_eastmoney(proxies_list):
-    # self.proxy = None
     t1 = ToolKit("检验中......")
     url = "http://92.push2.eastmoney.com/api/qt/clist/get"
     headers = {
@@ -177,6 +176,7 @@ def get_proxies_listv4_for_eastmoney(proxies_list):
     for idx, item in enumerate(proxies_list):
         proxy = {"https": item, "http": item}
         t1.progress_bar(len(proxies_list), idx)
+        proxy = None
         params = {
             "pn": "1",
             "pz": "100",
@@ -186,7 +186,7 @@ def get_proxies_listv4_for_eastmoney(proxies_list):
             "fltt": "2",
             "invt": "2",
             "fid": "f12",
-            "fs": "105",
+            "fs": "m:105",
             "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
         }
         try:
@@ -207,7 +207,7 @@ def get_proxies_listv4_for_eastmoney(proxies_list):
 proxies_list = [
     # "http://120.25.1.15:7890",
     # "http://118.190.142.208:80",
-    "http://39.102.211.162:3128",
+    "http://101.132.222.120:80",
 ]
 # get_proxies_listv3(proxies_list, url)
 # get_proxies_listv2(url)
