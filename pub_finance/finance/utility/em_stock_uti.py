@@ -200,7 +200,15 @@ class EMWebCrawlerUti:
                         or i["f20"] == "-"
                     ):
                         continue
+                    if m in ["105", "106", "107"]:
+                        symbol_val = i["f12"]
+                    elif m in {"0", "1"}:
+                        prefix = (
+                            "ETF" if "ETF" in i["f14"] else {"0": "SZ", "1": "SH"}[m]
+                        )
+                        symbol_val = prefix + i["f12"]
                     dict = {
+                        "symbol": symbol_val,
                         "name": i["f14"],
                         "open": i["f17"],
                         "close": i["f2"],
@@ -210,13 +218,7 @@ class EMWebCrawlerUti:
                         "total_value": i["f20"],
                         "pe": i["f9"],
                     }
-                    if m in ["105", "106", "107"]:
-                        dict["symbol"] = ["f12"]
-                    elif m in {"0", "1"}:
-                        prefix = (
-                            "ETF" if "ETF" in i["f14"] else {"0": "SZ", "1": "SH"}[m]
-                        )
-                        dict["symbol"] = prefix + i["f12"]
+
                     list.append(dict)
         """ 获取美股数据文件地址 """
         file_name_d = FileInfo(trade_date, market).get_file_path_latest
