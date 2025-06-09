@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-from tabulate import tabulate
 import progressbar
 from utility.toolkit import ToolKit
 from datetime import datetime
@@ -10,7 +9,6 @@ import sys
 from backtraderref.globalstrategyv3 import GlobalStrategy
 import backtrader as bt
 from utility.tickerinfo import TickerInfo
-from uscrawler.eastmoney_incre_crawler import EMWebCrawler
 from backtraderref.pandasdata_ext import BTPandasDataExt
 from utility.stock_analysis import StockProposal
 import matplotlib.pyplot as plt
@@ -19,6 +17,7 @@ import pyfolio as pf
 import gc
 from backtraderref.usfixedamount import FixedAmount
 from matplotlib import rcParams
+from utility.em_stock_uti import EMWebCrawlerUti
 
 """ 执行策略 """
 """ backtrader策略 """
@@ -354,8 +353,8 @@ if __name__ == "__main__":
 
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
-    em = EMWebCrawler()
-    em.get_us_daily_stock_info(trade_date)
+    em = EMWebCrawlerUti()
+    em.get_daily_stock_info("us", trade_date)
 
     """ 执行bt相关策略 """
     cash, final_value = exec_btstrategy(trade_date)

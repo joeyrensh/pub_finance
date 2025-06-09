@@ -8,7 +8,6 @@ import sys
 from backtraderref.globalstrategyv3 import GlobalStrategy
 import backtrader as bt
 from utility.tickerinfo import TickerInfo
-from cncrawler.eastmoney_incre_download import EMCNWebCrawler
 from backtraderref.pandasdata_ext import BTPandasDataExt
 from utility.stock_analysis import StockProposal
 import matplotlib.pyplot as plt
@@ -17,6 +16,8 @@ import pyfolio as pf
 import gc
 from backtraderref.cnfixedamount import FixedAmount
 from matplotlib import rcParams
+from cncrawler.ak_incre_crawler import AKCNWebCrawler
+from utility.em_stock_uti import EMWebCrawlerUti
 
 """ backtrader策略 """
 
@@ -354,8 +355,10 @@ if __name__ == "__main__":
 
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
-    # em = EMCNWebCrawler()
-    # em.get_cn_daily_stock_info(trade_date)
+    # em = EMWebCrawlerUti()
+    # em.get_daily_stock_info("cn", trade_date)
+
+    # em = AKCNWebCrawler()
     # em.get_cn_daily_stock_info_ak(trade_date)
 
     """ 执行bt相关策略 """

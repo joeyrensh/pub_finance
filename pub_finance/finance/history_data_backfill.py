@@ -325,7 +325,6 @@ class StockDataUpdater:
                     url_re,
                     proxies=self.proxy,
                     # headers=self.headers,
-                    # cookies=self.cookies,
                 ).text
                 """ 抽取公司名称 """
                 name = re.search('\\"name\\":\\"(.*?)\\",', res).group(1)

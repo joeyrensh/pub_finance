@@ -47,19 +47,23 @@ class EMUsTickerCategoryCrawler:
         tool = ToolKit("行业下载进度")
         """ 遍历股票列表获取对应行业板块信息 """
         em = EMWebCrawlerUti()
-        tick_list = em.get_us_stock_list()
+        tick_list = em.get_stock_list(
+            "us", cache_path="../usstockinfo/us_stock_list_cache.csv"
+        )
         for i in tick_list:
-            url = "https://emweb.eastmoney.com/pc_usf10/CompanyInfo/PageAjax?fullCode=symbol.mkt_code"
+            url = "https://emweb.eastmoney.com/pc_usf10/CompanyInfo/PageAjax"
             if i["mkt_code"] == "105":
                 mkt_code = "O"
             elif i["mkt_code"] == "106":
                 mkt_code = "N"
             else:
                 mkt_code = "A"
-            url_re = url.replace("symbol", i["symbol"]).replace("mkt_code", mkt_code)
+            params = {
+                "fullCode": f"{i['symbol']}.{mkt_code}",
+            }
             time.sleep(random.uniform(1, 2))
             res = requests.get(
-                url_re, proxies=self.proxy, headers=self.headers
+                url, params=params, proxies=self.proxy, headers=self.headers
             ).text.lower()
             try:
                 json_object = json.loads(res)

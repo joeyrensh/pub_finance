@@ -45,18 +45,22 @@ class EMCNTickerCategoryCrawler:
         tool = ToolKit("行业下载进度")
         """ 遍历股票列表获取对应行业板块信息 """
         em = EMWebCrawlerUti()
-        tick_list = em.get_cn_stock_list()
-        # tick_list = [{"symbol":"600444", "mkt_code":"SH"}]
+        tick_list = em.get_stock_list(
+            "cn", cache_path="../cnstockinfo/cn_stock_list_cache.csv"
+        )
         for i in tick_list:
-            # if i["symbol"] == '600444':
-            #     print(i)
-            url = "https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax?code=mkt_codesymbol"
-            url_re = url.replace("mkt_codesymbol", i["symbol"])
+            # ETF基金不需要获取行业板块信息
+            if str(i["symbol"]).startswith("ETF"):
+                continue
+            url = "https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax"
+            params = {
+                "code": f"{i['symbol']}",
+            }
             time.sleep(random.uniform(1, 2))
             res = requests.get(
-                url_re, proxies=self.proxy, headers=self.headers
+                url, params=params, proxies=self.proxy, headers=self.headers
             ).text.lower()
-            # print(res)
+            print(res)
             try:
                 json_object = json.loads(res)
             except ValueError:
@@ -69,10 +73,8 @@ class EMCNTickerCategoryCrawler:
             ):
                 if json_object["jbzl"]["sshy"] == "--":
                     continue
-                # print(json_object["jbzl"]["sshy"])
                 dict = {"symbol": i["symbol"], "industry": json_object["jbzl"]["sshy"]}
                 list.append(dict)
-                # print(dict)
             tool.progress_bar(len(tick_list), tick_list.index(i))
         df = pd.DataFrame(list)
         df.drop_duplicates(subset=["symbol", "industry"], keep="last", inplace=True)
