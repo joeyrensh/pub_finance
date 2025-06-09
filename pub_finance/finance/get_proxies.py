@@ -163,7 +163,7 @@ def get_proxies_listv3(proxies_list, url):
 def get_proxies_listv4_for_eastmoney(proxies_list):
     # self.proxy = None
     t1 = ToolKit("检验中......")
-    url = "https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery&secid=106.BABA&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20210101&end=20500101&smplmt=755&lmt=1000000&_=1636002112627"
+    url = "http://92.push2.eastmoney.com/api/qt/clist/get"
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
         "Host": "push2.eastmoney.com",
@@ -173,24 +173,28 @@ def get_proxies_listv4_for_eastmoney(proxies_list):
         "Referer": "https://quote.eastmoney.com/center/gridlist.html",
         "Connection": "close",
     }
-    cookies = {
-        # "qgqp_b_id": "378b9e6080d1d273d0660a6cf2e3f3c4",
-        # "st_pvi": "19026945941909",
-        # "st_si": "33255977060076",
-        # "st_asi": "delete",
-        # "st_inirUrl": "https://quote.eastmoney.com",
-    }
     list = []
     for idx, item in enumerate(proxies_list):
         proxy = {"https": item, "http": item}
         t1.progress_bar(len(proxies_list), idx)
+        params = {
+            "pn": "1",
+            "pz": "100",
+            "po": "1",
+            "np": "1",
+            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            "fltt": "2",
+            "invt": "2",
+            "fid": "f12",
+            "fs": "105",
+            "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
+        }
         try:
             res = requests.get(
-                url,
-                proxies=proxy,
-                headers=headers,
-                cookies=cookies,
-            ).text
+                url, params=params, proxies=proxy, headers=headers
+            ).json()
+            total_page_no = math.ceil(res["data"]["total"] / 100)
+            print(f"市场代码: 105, 总页数: {total_page_no}")
             list.append(item)
         except Exception as e:
             continue
@@ -199,11 +203,11 @@ def get_proxies_listv4_for_eastmoney(proxies_list):
 
 
 # url = "http://sh.lianjia.com/xiaoqu/xuhui/pgpgnobp0ep100/"
-url = "http://sh.ke.com/xiaoqu/xuhui/pg1cro21/"
+# url = "http://sh.ke.com/xiaoqu/xuhui/pg1cro21/"
 proxies_list = [
     # "http://120.25.1.15:7890",
     # "http://118.190.142.208:80",
-    "http://118.190.142.208:80",
+    "http://39.102.211.162:3128",
 ]
 # get_proxies_listv3(proxies_list, url)
 # get_proxies_listv2(url)

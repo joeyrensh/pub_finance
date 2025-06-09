@@ -30,15 +30,15 @@ class EMWebCrawlerUti:
         # A股/美股最新股票数据获取
         https://92.push2.eastmoney.com/api/qt/clist/get?pn=i&pz=100&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f5,f9,f12,f14,f15,f16,f17,f20
         # A股/美股历史数据获取
-        http://92.push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.600066&ut=&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20211101&end=20211115&smplmt=755&lmt=1000000
+        https://92.push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.600066&ut=&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20211101&end=20211115&smplmt=755&lmt=1000000
         """
-        self.__url_list = "https://92.push2.eastmoney.com/api/qt/clist/get"
+        self.__url_list = "http://92.push2.eastmoney.com/api/qt/clist/get"
         self.__url_history = "https://92.push2his.eastmoney.com/api/qt/stock/kline/get"
         self.proxy = {
-            "http": "http://202.117.115.6:80",
-            "https": "http://202.117.115.6:80",
+            "http": "http://101.132.222.120:80",
+            "https": "http://101.132.222.120:80",
         }
-        # self.proxy = None
+        self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "host": "push2.eastmoney.com",
@@ -60,9 +60,11 @@ class EMWebCrawlerUti:
             "fs": f"m:{mkt_code}",
             "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
         }
+
         res = requests.get(
             self.__url_list, params=params, proxies=self.proxy, headers=self.headers
         ).json()
+
         total_page_no = math.ceil(res["data"]["total"] / 100)
         print(f"市场代码: {mkt_code}, 总页数: {total_page_no}")
         return total_page_no

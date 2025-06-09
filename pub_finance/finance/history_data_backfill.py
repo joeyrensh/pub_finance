@@ -10,6 +10,7 @@ import time
 import requests
 import re
 import json
+from utility.em_stock_uti import EMWebCrawlerUti
 
 
 class StockDataUpdater:
@@ -237,64 +238,16 @@ class StockDataUpdater:
                     prefix = code.split(".")[0]
                     symbol_dict = {"symbol": symbol, "mkt_code": prefix}
                     stock_list.append(symbol_dict)
-            dict = {}
             list = []
+            list_s = []
+            em = EMWebCrawlerUti()
             for h in range(0, len(stock_list)):
                 mkt_code = stock_list[h]["mkt_code"]
                 symbol = stock_list[h]["symbol"]
-
-                url = (
-                    "https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
-                    "&secid=mkt_code.symbol&ut=fa5fd1943c7b386f172d6893dbfba10b"
-                    "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56"
-                    "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000000&_=unix_time"
+                list_s = em.get_his_stock_info(
+                    mkt_code, symbol, start_date, end_date, cache_path=None
                 )
-                current_timestamp = int(time.mktime(datetime.now().timetuple()))
-
-                url_re = (
-                    url.replace("mkt_code", mkt_code)
-                    .replace("symbol", symbol)
-                    .replace("start_date", start_date)
-                    .replace("end_date", end_date)
-                    .replace("unix_time", str(current_timestamp))
-                )
-                print("url:", url_re)
-                res = requests.get(
-                    url_re,
-                    proxies=self.proxy,
-                    headers=self.headers,
-                ).text
-                print("res:", res)
-                """ 抽取公司名称 """
-                name = re.search('\\"name\\":\\"(.*?)\\",', res).group(1)
-                print("开始处理：", name)
-                """ 替换成valid json格式 """
-                res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
-                json_object = json.loads(res_p)
-                for i in json_object:
-                    """
-                    历史数据返回字段列表：
-                    date,open,close,high,low,volume
-                    """
-                    if (
-                        i.split(",")[1] == "-"
-                        or i.split(",")[2] == "-"
-                        or i.split(",")[3] == "-"
-                        or i.split(",")[4] == "-"
-                        or i.split(",")[5] == "-"
-                    ):
-                        continue
-                    dict = {
-                        "symbol": symbol,
-                        "name": name,
-                        "open": i.split(",")[1],
-                        "close": i.split(",")[2],
-                        "high": i.split(",")[3],
-                        "low": i.split(",")[4],
-                        "volume": i.split(",")[5],
-                        "date": i.split(",")[0],
-                    }
-                    list.append(dict)
+                list.extend(list_s)
             df = pd.DataFrame(list)
             df.to_csv(
                 NEW_DATA_PATH,
@@ -303,69 +256,16 @@ class StockDataUpdater:
                 header=True,
             )
         elif market == "cn":
+            em = EMWebCrawlerUti()
+            list_s = []
+            list = []
             for h in range(0, len(symbol_list)):
                 mkt_code = symbol_list[h]["mkt_code"]
                 symbol = symbol_list[h]["symbol"]
-                url = (
-                    "https://92.push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery"
-                    "&secid=mkt_code.symbol&ut=fa5fd1943c7b386f172d6893dbfba10b"
-                    "&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56"
-                    "&klt=101&fqt=1&beg=start_date&end=end_date&smplmt=755&lmt=1000&_=unix_time"
+                list_s = em.get_his_stock_info(
+                    mkt_code, symbol, start_date, end_date, cache_path=None
                 )
-
-                url_re = (
-                    url.replace("mkt_code", mkt_code)
-                    .replace("symbol", symbol)
-                    .replace("start_date", start_date)
-                    .replace("end_date", end_date)
-                    .replace("unix_time", str(current_timestamp))
-                )
-
-                res = requests.get(
-                    url_re,
-                    proxies=self.proxy,
-                    # headers=self.headers,
-                ).text
-                """ 抽取公司名称 """
-                name = re.search('\\"name\\":\\"(.*?)\\",', res).group(1)
-                print("开始处理：", name)
-                """ 替换成valid json格式 """
-                res_p = re.sub("\\].*", "]", re.sub(".*:\\[", "[", res, 1), 1)
-                json_object = json.loads(res_p)
-                dict = {}
-                list = []
-                if mkt_code == "0":
-                    market = "SZ"
-                else:
-                    market = "SH"
-                for i in json_object:
-                    """
-                    历史数据返回字段列表：
-                    date,open,close,high,low,volume
-                    """
-                    if (
-                        i.split(",")[1] == "-"
-                        or i.split(",")[2] == "-"
-                        or i.split(",")[3] == "-"
-                        or i.split(",")[4] == "-"
-                        or i.split(",")[5] == "-"
-                    ):
-                        continue
-                    if "ETF" in i["f14"]:
-                        symbol_val = "ETF" + symbol
-                    else:
-                        symbol_val = market + symbol
-                    dict = {
-                        "symbol": symbol_val,
-                        "name": name,
-                        "open": i.split(",")[1],
-                        "close": i.split(",")[2],
-                        "high": i.split(",")[3],
-                        "low": i.split(",")[4],
-                        "volume": i.split(",")[5],
-                        "date": i.split(",")[0],
-                    }
-                    list.append(dict)
+                list.extend(list_s)
             df = pd.DataFrame(list)
             df.to_csv(
                 NEW_DATA_PATH,
