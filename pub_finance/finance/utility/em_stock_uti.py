@@ -35,10 +35,10 @@ class EMWebCrawlerUti:
         self.__url_list = "https://92.push2.eastmoney.com/api/qt/clist/get"
         self.__url_history = "https://92.push2his.eastmoney.com/api/qt/stock/kline/get"
         self.proxy = {
-            "http": "http://119.3.113.152:9094",
-            "https": "http://119.3.113.152:9094",
+            "http": "http://202.117.115.6:80",
+            "https": "http://202.117.115.6:80",
         }
-        self.proxy = None
+        # self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "host": "push2.eastmoney.com",
