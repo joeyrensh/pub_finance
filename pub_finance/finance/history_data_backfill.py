@@ -30,21 +30,6 @@ class StockDataUpdater:
         self.batch_size = batch_size
         self.all_files = glob.glob(os.path.join(data_dir, "stock_*.csv"))
 
-        self.proxy = {
-            "http": "http://118.190.142.208:80",
-            "https": "http://118.190.142.208:80",
-        }
-        self.proxy = None
-        self.headers = {
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
-            "host": "push2.eastmoney.com",
-            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-            "accept-encoding": "gzip, deflate, br, zstd",
-            "accept-language": "zh-CN,zh;q=0.9",
-            "referer": "https://quote.eastmoney.com",
-            "connection": "keep-alive",
-        }
-
         # 验证关键列和更新列不重叠
         if set(key_cols) & set(update_cols):
             raise ValueError("关键列和更新列不能重叠")
@@ -295,16 +280,16 @@ if __name__ == "__main__":
     )
 
     # 加载新数据到字典
-    try:
-        new_data_dict = updater.load_new_data(NEW_DATA_PATH)
-        print(f"加载了 {len(new_data_dict)} 条新数据记录")
-    except Exception as e:
-        print(f"加载新数据失败: {e}")
-        exit(1)
+    # try:
+    #     new_data_dict = updater.load_new_data(NEW_DATA_PATH)
+    #     print(f"加载了 {len(new_data_dict)} 条新数据记录")
+    # except Exception as e:
+    #     print(f"加载新数据失败: {e}")
+    #     exit(1)
 
-    # 处理所有文件
-    updater.process_files(new_data_dict)
-    # 全部无异常后，重命名
-    updater.replace_old_files_with_new()
+    # # 处理所有文件
+    # updater.process_files(new_data_dict)
+    # # 全部无异常后，重命名
+    # updater.replace_old_files_with_new()
 
-    print("所有文件处理完成！新文件已保存为 *_new.csv 格式")
+    # print("所有文件处理完成！新文件已保存为 *_new.csv 格式")
