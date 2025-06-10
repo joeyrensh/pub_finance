@@ -386,8 +386,8 @@ class EMWebCrawlerUti:
         )
         stock_list_cache_path = stock_list_cache_path or paths[market]["stock_list"]
         """获取股票列表"""
-        # tickinfo = self.get_stock_list(market, cache_path=stock_list_cache_path)
-        tickinfo = [{"symbol": "BABA", "mkt_code": "106"}]
+        tickinfo = self.get_stock_list(market, cache_path=stock_list_cache_path)
+        # tickinfo = [{"symbol": "BABA", "mkt_code": "106"}]
         # 断点续爬：读取已存在的symbol
         done_symbols = set()
         if os.path.exists(file_path):
