@@ -34,6 +34,7 @@ class EMWebCrawlerUti:
         """
         self.__url_list = "http://92.push2.eastmoney.com/api/qt/clist/get"
         self.__url_history = "http://92.push2his.eastmoney.com/api/qt/stock/kline/get"
+        # 不配置proxy，klines有时候返回为空，但response status是正常的
         self.proxy = {
             # "http": "http://101.132.222.120:80",
             # "https": "http://101.132.222.120:80",

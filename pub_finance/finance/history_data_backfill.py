@@ -18,7 +18,7 @@ class StockDataUpdater:
         self, data_dir, update_cols, key_cols=["symbol", "date"], batch_size=10000
     ):
         """
-        初始化股票数据更新器
+        指定特定股票进行历史数据回刷，解决前复权的问题
         :param data_dir: 数据文件目录
         :param update_cols: 需要更新的列名列表
         :param key_cols: 关键列（用于匹配数据行），默认['symbol', 'date']
