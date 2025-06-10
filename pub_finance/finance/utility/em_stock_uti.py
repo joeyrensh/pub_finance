@@ -33,10 +33,10 @@ class EMWebCrawlerUti:
         https://92.push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.600066&ut=&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20211101&end=20211115&smplmt=755&lmt=1000000
         """
         self.__url_list = "http://92.push2.eastmoney.com/api/qt/clist/get"
-        self.__url_history = "https://92.push2his.eastmoney.com/api/qt/stock/kline/get"
+        self.__url_history = "http://92.push2his.eastmoney.com/api/qt/stock/kline/get"
         self.proxy = {
-            "http": "http://101.132.222.120:80",
-            "https": "http://101.132.222.120:80",
+            # "http": "http://101.132.222.120:80",
+            # "https": "http://101.132.222.120:80",
         }
         self.proxy = None
         self.headers = {
@@ -309,6 +309,14 @@ class EMWebCrawlerUti:
                 proxies=self.proxy,
                 headers=self.headers,
             ).json()
+            req = requests.Request(
+                "GET",
+                self.__url_history,
+                params=params,
+            )
+            prepared = req.prepare()
+            print("请求URL:", prepared.url)
+            print(res)
         except requests.RequestException as e:
             return [res]
         if res.get("rc") != 0 or not res.get("data"):
@@ -385,7 +393,8 @@ class EMWebCrawlerUti:
         )
         stock_list_cache_path = stock_list_cache_path or paths[market]["stock_list"]
         """获取股票列表"""
-        tickinfo = self.get_stock_list(market, cache_path=stock_list_cache_path)
+        # tickinfo = self.get_stock_list(market, cache_path=stock_list_cache_path)
+        tickinfo = [{"symbol": "BABA", "mkt_code": "106"}]
         # 断点续爬：读取已存在的symbol
         done_symbols = set()
         if os.path.exists(file_path):
