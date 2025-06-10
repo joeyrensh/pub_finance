@@ -309,14 +309,6 @@ class EMWebCrawlerUti:
                 proxies=self.proxy,
                 headers=self.headers,
             ).json()
-            req = requests.Request(
-                "GET",
-                self.__url_history,
-                params=params,
-            )
-            prepared = req.prepare()
-            print("请求URL:", prepared.url)
-            print(res)
         except requests.RequestException as e:
             return [res]
         if res.get("rc") != 0 or not res.get("data"):
