@@ -16,6 +16,7 @@ class AKCNWebCrawler:
         0: 深证/创业板/新三板/ SZ
         1: 上证/科创板		SH
         """
+        self.proxy = None
 
     """ AKshare获取A股历史数据"""
 
