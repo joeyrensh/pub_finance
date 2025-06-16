@@ -203,7 +203,7 @@ body {
   background-position: bottom;
   background-position-x: 50%;
   background-position-y: 87%;
-  background-size: 20%;
+  background-size: 15%;
   background-repeat: no-repeat;
   /* 防止图片重复 */
   height: 70vb;
@@ -631,7 +631,7 @@ a:active {
     background-position: bottom;
     background-position-x: 50%;
     background-position-y: 95%;
-    background-size: 80%;
+    background-size: 60%;
     background-repeat: no-repeat;
     /* 防止图片重复 */
     height: 70vb;
@@ -860,9 +860,9 @@ a:active {
   .background {
     background-image: url('/assets/buyahouse-background-logo.png');
     background-position: bottom;
-    background-position-x: 50%;
-    background-position-y: 95%;
-    background-size: 80%;
+    background-position-x: 35%;
+    background-position-y: 20%;
+    background-size: 20%;
     background-repeat: no-repeat;
     /* 防止图片重复 */
     height: 70vb;
