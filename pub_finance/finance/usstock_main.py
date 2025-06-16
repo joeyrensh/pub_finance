@@ -199,11 +199,11 @@ def exec_btstrategy(date):
     def plot_chart(theme="light"):
         """绘制图表（含表格和曲线）"""
         cols_names = [
-            "Date",
-            "AnnualR",
-            "CumR",
-            "MaxDD",
-            "DailyRisk",
+            "Year",
+            "Ann.R",
+            "Cum.R",
+            "Mx.DD",
+            "D.Rsk",
         ]
         plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
         colors = configure_theme(theme)
@@ -212,7 +212,7 @@ def exec_btstrategy(date):
         fig, (ax_table, ax_chart) = plt.subplots(
             1,
             2,
-            gridspec_kw={"width_ratios": [1, 4]},
+            gridspec_kw={"width_ratios": [1, 3]},
             figsize=(18, 10),
             facecolor=colors["background"],
         )
