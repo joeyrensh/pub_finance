@@ -1439,7 +1439,7 @@ class StockProposal:
             samplepoints=np.linspace(0, 1, 20),  # 生成 20 个等间距点
             colortype="rgb",  # 输出为十六进制
         )
-        alpha = 0.3
+        alpha = 0.4
         # 将 RGB 转换为 RGBA，添加透明度
         rgba_colors = [
             f"rgba({int(color[4:-1].split(',')[0])}, {int(color[4:-1].split(',')[1])}, {int(color[4:-1].split(',')[2])}, {alpha})"

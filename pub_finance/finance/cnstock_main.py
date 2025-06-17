@@ -270,7 +270,7 @@ def exec_btstrategy(date):
             zorder=3,  # 设置更高层级
             marker="o",
             markersize=4,
-            markerfacecolor=colors["text"],
+            markerfacecolor=colors["cumret"],
             markeredgecolor=colors["cumret"],
         )
         ax_chart.grid(True, alpha=0.4)

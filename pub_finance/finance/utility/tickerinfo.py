@@ -291,7 +291,7 @@ class TickerInfo:
     def get_etf_backtrader_data_feed(self):
         tickers = self.get_etf_list()
         his_data = self.get_history_data().groupby(by="symbol")
-        t = ToolKit("加载历史数据")
+        t = ToolKit("读取历史数据文件")
         """ 存放策略结果 """
         list = []
         results = []
