@@ -156,7 +156,7 @@ class TickerInfo:
     def get_backtrader_data_feed(self):
         tickers = self.get_stock_list()
         his_data = self.get_history_data().groupby(by="symbol")
-        t = ToolKit("加载历史数据")
+        t = ToolKit("读取历史数据文件")
         """ 存放策略结果 """
         list = []
         results = []
@@ -200,32 +200,30 @@ class TickerInfo:
             market = 1
         elif self.market == "cn":
             market = 2
-        df_copy = (
-            pd.DataFrame(
-                {
-                    "open": group_obj["open"]
-                    .values.astype("float32")
-                    .round(decimals=2),
-                    "close": group_obj["close"]
-                    .values.astype("float32")
-                    .round(decimals=2),
-                    "high": group_obj["high"]
-                    .values.astype("float32")
-                    .round(decimals=2),
-                    "low": group_obj["low"].values.astype("float32").round(decimals=2),
-                    "volume": group_obj["volume"].values.astype("int64"),
-                    # "symbol": group_obj["symbol"].values.astype(str),
-                    "symbol": i,
-                    "market": market,
-                    "datetime": pd.to_datetime(
-                        group_obj["date"].values, format="%Y-%m-%d"
-                    ),
-                },
-                # index=pd.to_datetime(group_obj["date"].values, format="%Y-%m-%d"),
-            )
-            # .copy()
-            .sort_values(by=["datetime"])
-        )
+        df_copy = pd.DataFrame(
+            {
+                "open": group_obj["open"]
+                .fillna(0)
+                .values.astype("float32")
+                .round(decimals=2),
+                "close": group_obj["close"]
+                .fillna(0)
+                .values.astype("float32")
+                .round(decimals=2),
+                "high": group_obj["high"]
+                .fillna(0)
+                .values.astype("float32")
+                .round(decimals=2),
+                "low": group_obj["low"]
+                .fillna(0)
+                .values.astype("float32")
+                .round(decimals=2),
+                "volume": group_obj["volume"].fillna(0).values.astype("int64"),
+                "symbol": i,
+                "market": market,
+                "datetime": pd.to_datetime(group_obj["date"].values, format="%Y-%m-%d"),
+            },
+        ).sort_values(by=["datetime"])
         return df_copy
 
     def get_backtrader_data_feed_testonly(self, stocklist):
