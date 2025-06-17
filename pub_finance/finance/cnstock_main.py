@@ -62,8 +62,8 @@ def exec_btstrategy(date):
     print("\nStarting Portfolio Value: %.2f" % cerebro.broker.getvalue())
 
     # 节约内存
-    del list
-    del data
+    list = None
+    data = None
     gc.collect()
 
     """ 运行cerebro """
@@ -363,7 +363,36 @@ if __name__ == "__main__":
     em.get_cn_daily_stock_info_ak(trade_date)
 
     """ 执行bt相关策略 """
-    cash, final_value = exec_btstrategy(trade_date)
+
+    def run_backtest_in_process(date):
+        """在独立进程中运行回测，确保内存完全释放"""
+        import multiprocessing
+        from multiprocessing import Queue
+
+        def _worker(q, trade_date):
+            try:
+                cash, final_value = exec_btstrategy(trade_date)
+                q.put((cash, final_value))
+            except Exception as e:
+                q.put(("error", str(e)))
+
+        q = Queue()
+        p = multiprocessing.Process(target=_worker, args=(q, date))
+        p.start()
+        p.join(timeout=3600)  # 1小时超时
+
+        if p.is_alive():
+            p.terminate()
+            raise TimeoutError("Backtest timed out")
+
+        result = q.get()
+        if result[0] == "error":
+            raise RuntimeError(result[1])
+        return result[0], result[1]
+
+    # 主函数中替换原有调用
+    # cash, final_value = exec_btstrategy(trade_date)
+    cash, final_value = run_backtest_in_process(trade_date)
 
     collected = gc.collect()
 

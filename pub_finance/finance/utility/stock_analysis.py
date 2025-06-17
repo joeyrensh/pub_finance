@@ -1004,8 +1004,8 @@ class StockProposal:
         """
         html1 = css1 + paged_html1
 
-        del pd_cur_position_with_latest_stock_info
-        del pd_position_history
+        pd_cur_position_with_latest_stock_info = None
+        pd_position_history = None
         gc.collect()
 
         """
@@ -1329,10 +1329,10 @@ class StockProposal:
         else:
             html2 = ""
 
-        del pd_position_reduction
-        del pd_industry_history_tracking
-        del pd_industry_history_tracking_lst5days
-        del pd_industry_history_tracking_5daysbeforeyesterday
+        pd_position_reduction = None
+        pd_industry_history_tracking = None
+        pd_industry_history_tracking_lst5days = None
+        pd_industry_history_tracking_5daysbeforeyesterday = None
         gc.collect()
 
         # 样式变量
@@ -1525,7 +1525,7 @@ class StockProposal:
                 height=fig_height,
                 scale=scale_factor,
             )
-        del pd_top20_industry
+        pd_top20_industry = None
         gc.collect()
 
         # TOP20盈利行业
@@ -1616,7 +1616,7 @@ class StockProposal:
                 scale=scale_factor,
             )
 
-        del pd_top20_profit_industry
+        pd_top20_profit_industry = None
         gc.collect()
 
         # 120天内策略交易概率
@@ -1863,7 +1863,7 @@ class StockProposal:
                 scale=scale_factor,
             )
 
-        del pd_strategy_tracking_lst120days
+        pd_strategy_tracking_lst120days = None
         gc.collect()
 
         # 120天内交易明细分析
@@ -2061,7 +2061,7 @@ class StockProposal:
                 scale=scale_factor,
             )
 
-        del pd_trade_info_lst120days
+        pd_trade_info_lst120days = None
         gc.collect()
 
         # TOP5行业仓位变化趋势
@@ -2208,7 +2208,7 @@ class StockProposal:
                 scale=scale_factor,
             )
 
-        del pd_top5_industry_position_trend
+        pd_top5_industry_position_trend = None
         gc.collect()
         # TOP5行业PnL变化趋势
         spark_industry_history_tracking_lst5days.createOrReplaceTempView(
@@ -2411,7 +2411,7 @@ class StockProposal:
                 height=fig_height,
                 scale=scale_factor,
             )
-        del pd_top5_industry_profit_trend
+        pd_top5_industry_profit_trend = None
         gc.collect()
 
         spark_calendar_heatmap = spark.sql(
@@ -3581,7 +3581,7 @@ class StockProposal:
 
         html = css + paged_html
 
-        del pd_cur_position_with_latest_stock_info
+        pd_cur_position_with_latest_stock_info = None
         gc.collect()
 
         """
@@ -3849,8 +3849,8 @@ class StockProposal:
         else:
             html2 = ""
 
-        del pd_position_reduction
-        del pd_position_history
+        pd_position_reduction = None
+        pd_position_history = None
         gc.collect()
 
         # 120天内交易明细分析
@@ -4069,7 +4069,7 @@ class StockProposal:
             scale=scale_factor,
         )
 
-        del pd_trade_info_lst120days
+        pd_trade_info_lst120days = None
         gc.collect()
 
         spark.stop()

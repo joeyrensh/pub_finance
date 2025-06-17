@@ -157,34 +157,24 @@ class TickerInfo:
         tickers = self.get_stock_list()
         his_data = self.get_history_data().groupby(by="symbol")
         t = ToolKit("读取历史数据文件")
-        """ 存放策略结果 """
-        list = []
-        results = []
-        """ 创建多进程 """
-        pool = multiprocessing.Pool(processes=4)
-        for i in tickers:
-            """
-            适配BackTrader数据结构
-            每个股票数据为一组
-            """
-            group_obj = his_data.get_group(i)
-            result = pool.apply_async(self.reconstruct_dataframe, (group_obj, i))
-            results.append(result)
-        """ 关闭进程池，表示不能再往进程池中添加进程，需要在join之前调用 """
-        pool.close()
-        """ 等待进程池中的所有进程执行完毕 """
-        pool.join()
+        list_results = []
 
-        """ 获取进程内数据 """
-        for dic in results:
-            if len(dic.get()) > 0:
-                list.append(dic.get())
-            t.progress_bar(len(results), results.index(dic))
-        """ 垃圾回收 """
-        del his_data
-        del results
+        with multiprocessing.Pool(processes=4) as pool:
+            results = [
+                pool.apply_async(self.reconstruct_dataframe, (his_data.get_group(i), i))
+                for i in tickers
+            ]
+            for idx, result in enumerate(results):
+                df = result.get()
+                if not df.empty:
+                    list_results.append(df)
+                t.progress_bar(len(results), idx)
+
+        # 手动清理不再需要的对象
+        his_data = None
         gc.collect()
-        return list
+
+        return list_results
 
     """ 重构dataframe封装 """
 
@@ -254,8 +244,8 @@ class TickerInfo:
                 list.append(dic.get())
             t.progress_bar(len(results), results.index(dic))
         """ 垃圾回收 """
-        del his_data
-        del results
+        his_data = None
+        results = None
         gc.collect()
         return list
 
@@ -292,31 +282,21 @@ class TickerInfo:
         tickers = self.get_etf_list()
         his_data = self.get_history_data().groupby(by="symbol")
         t = ToolKit("读取历史数据文件")
-        """ 存放策略结果 """
-        list = []
-        results = []
-        """ 创建多进程 """
-        pool = multiprocessing.Pool(processes=4)
-        for i in tickers:
-            """
-            适配BackTrader数据结构
-            每个股票数据为一组
-            """
-            group_obj = his_data.get_group(i)
-            result = pool.apply_async(self.reconstruct_dataframe, (group_obj, i))
-            results.append(result)
-        """ 关闭进程池，表示不能再往进程池中添加进程，需要在join之前调用 """
-        pool.close()
-        """ 等待进程池中的所有进程执行完毕 """
-        pool.join()
+        list_results = []
 
-        """ 获取进程内数据 """
-        for dic in results:
-            if len(dic.get()) > 0:
-                list.append(dic.get())
-            t.progress_bar(len(results), results.index(dic))
-        """ 垃圾回收 """
-        del his_data
-        del results
+        with multiprocessing.Pool(processes=4) as pool:
+            results = [
+                pool.apply_async(self.reconstruct_dataframe, (his_data.get_group(i), i))
+                for i in tickers
+            ]
+            for idx, result in enumerate(results):
+                df = result.get()
+                if not df.empty:
+                    list_results.append(df)
+                t.progress_bar(len(results), idx)
+
+        # 手动清理不再需要的对象
+        his_data = None
         gc.collect()
-        return list
+
+        return list_results
