@@ -481,27 +481,10 @@ class GlobalStrategy(bt.Strategy):
     def notify_order(self, order):
         list = []
         dict = {}
-        # if order.status in [order.Submitted, order.Accepted]:
-        if order.status in [order.Accepted]:
-            if order.isbuy():
-                print(
-                    "{}, Buy {} Created, Price: {:.2f} Size: {:.2f}".format(
-                        bt.num2date(order.created.dt).strftime("%Y-%m-%d"),
-                        order.data._name,
-                        order.created.price,
-                        order.created.size,
-                    )
-                )
-            elif order.issell():
-                print(
-                    "{}, Sell {} Created, Price: {:.2f} Size: {:.2f}".format(
-                        bt.num2date(order.created.dt).strftime("%Y-%m-%d"),
-                        order.data._name,
-                        order.created.price,
-                        order.created.size,
-                    )
-                )
-        elif order.status in [order.Completed]:
+        if order.status in [order.Submitted, order.Accepted]:
+            """Buy/Sell order submitted/accepted to/by broker - Nothing to do"""
+            return
+        if order.status in [order.Completed]:
             if order.isbuy():
                 """订单购入成功"""
                 print(
@@ -561,9 +544,8 @@ class GlobalStrategy(bt.Strategy):
                 self.log("Sell %s Order Canceled/Margin/Rejected" % (order.data._name))
         self.order[order.data._name] = None
         if dict:
-            list.append(dict)
-            df = pd.DataFrame(list)
-            df.to_csv(self.file_path_trade, header=False)
+            df = pd.DataFrame([dict])
+            df.to_csv(self.file_path_trade, header=False, mode="a")
 
     """
     交易状态改变回调方法
@@ -709,7 +691,7 @@ class GlobalStrategy(bt.Strategy):
 
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
-        df.to_csv(self.file_path_position_detail, header=None)
+        df.to_csv(self.file_path_position_detail, header=False, mode="a")
         # # 最后一日剔除多余现金
         # if len(self) == self.data.buflen() - 1 and self.broker.cash > self.params.restcash:
         #     self.broker.add_cash(self.params.restcash - self.broker.cash)
@@ -793,6 +775,7 @@ class GlobalStrategy(bt.Strategy):
         elif self.market == "cnetf":
             df_n = df.sort_values(by=["buy_date", "p&l_ratio"], ascending=False)
         df_n.reset_index(drop=True, inplace=True)
-        df_n.to_csv(self.file_path_position)
+        df_n.to_csv(self.file_path_position, header=True, mode="w")
         self.file_path_position.close()
         self.file_path_position_detail.close()
+        self.file_path_trade.close()
