@@ -1,0 +1,17 @@
+*.log
+*.csv
+*.out
+*.png
+*.svg
+*.gz
+.vscode
+
+# 忽略所有 __pycache__ 目录及其内容
+**/__pycache__/
+spark-warehouse/
+
+#例外文件
+!houseinfo/proxies.csv
+!usstockinfo/industry_yfinance.csv
+!usstockinfo/industry_yfinance_mapping.csv
+!cnstockinfo/industry.csv
