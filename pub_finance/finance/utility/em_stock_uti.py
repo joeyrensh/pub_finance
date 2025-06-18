@@ -139,8 +139,6 @@ class EMWebCrawlerUti:
                             "ETF" if "ETF" in i["f14"] else {"0": "SZ", "1": "SH"}[m]
                         )
                         dict = {"symbol": prefix + i["f12"], "mkt_code": m}
-
-                    print(dict)
                     list.append(dict)
         # 保存到本地缓存
         pd.DataFrame(list).to_csv(cache_path, index=False)
