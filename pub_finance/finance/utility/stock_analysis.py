@@ -7,14 +7,6 @@ from utility.tickerinfo import TickerInfo
 import pandas as pd
 import seaborn as sns
 from pyspark.sql import SparkSession
-from pyspark.sql.types import (
-    StructType,
-    StructField,
-    StringType,
-    DoubleType,
-    IntegerType,
-    DateType,
-)
 import plotly.graph_objects as go
 import plotly.express as px
 import gc
@@ -1446,7 +1438,7 @@ class StockProposal:
             for color in hex_colors
         ]
         # 文本颜色
-        text_colors = [get_text_color(color, "light") for color in rgba_colors]
+        # text_colors = [get_text_color(color, "light") for color in rgba_colors]
 
         # 创建 Treemap 图
         fig = go.Figure(
@@ -1502,7 +1494,7 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
-        text_colors = [get_text_color(color, "dark") for color in rgba_colors]
+        # text_colors = [get_text_color(color, "dark") for color in rgba_colors]
         fig.update_traces(
             insidetextfont=dict(color=light_text_color),
             marker=dict(colors=rgba_colors, line=dict(color=rgba_colors)),
@@ -1593,7 +1585,7 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
-        text_colors = [get_text_color(color, "dark") for color in hex_colors]
+        # text_colors = [get_text_color(color, "dark") for color in hex_colors]
         fig.update_traces(
             insidetextfont=dict(color=light_text_color),
             marker=dict(colors=rgba_colors, line=dict(color=rgba_colors)),
@@ -1896,11 +1888,11 @@ class StockProposal:
             """.format(end_date, end_date)
         )
         pd_trade_info_lst120days = spark_trade_info_lst120days.toPandas()
-        df_grouped = pd_trade_info_lst120days.groupby("buy_date")[
-            ["buy_cnt", "sell_cnt"]
-        ].sum()
+        # df_grouped = pd_trade_info_lst120days.groupby("buy_date")[
+        #     ["buy_cnt", "sell_cnt"]
+        # ].sum()
 
-        max_sum = df_grouped.sum(axis=1).max()
+        # max_sum = df_grouped.sum(axis=1).max()
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(

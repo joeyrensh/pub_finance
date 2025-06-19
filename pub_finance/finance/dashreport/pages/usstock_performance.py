@@ -2,8 +2,6 @@ import dash_html_components as html
 from utils import Header, make_dash_format_table
 import pandas as pd
 import pathlib
-import base64
-from dash import html, dcc, callback, Input, Output, State, MATCH
 
 # 定义全局变量 df_detail
 df_detail = None
@@ -12,7 +10,7 @@ df_detail = None
 def create_layout(app):
     # get relative data folder
     PATH = pathlib.Path(__file__).parent
-    IMAGE_PATH = PATH.joinpath("../../images").resolve()
+    # IMAGE_PATH = PATH.joinpath("../../images").resolve()
     DATA_PATH = PATH.joinpath("../../data").resolve()
     """ annual return """
     # dark mode

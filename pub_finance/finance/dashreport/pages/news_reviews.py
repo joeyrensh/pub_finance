@@ -1,7 +1,6 @@
 import dash_html_components as html
 from utils import Header
 import pathlib
-import base64
 
 PATH = pathlib.Path(__file__).parent
 IMAGE_PATH = PATH.joinpath("../assets").resolve()

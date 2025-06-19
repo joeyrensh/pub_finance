@@ -2,18 +2,10 @@
 # -*- coding: UTF-8 -*-
 
 from utility.toolkit import ToolKit
-import re
-from datetime import datetime
 import time
 import random
 import pandas as pd
-import requests
-import json
-import concurrent.futures
 import akshare as ak
-import os
-import math
-from utility.em_stock_uti import EMWebCrawlerUti
 
 """
 东方财经的A股日K数据获取接口：

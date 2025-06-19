@@ -3,13 +3,8 @@ import os
 import glob
 import csv
 import tempfile
-from datetime import datetime
 from tqdm import tqdm  # 进度条库，可选安装
 import akshare as ak  # 爬取股票数据的库，可选安装
-import time
-import requests
-import re
-import json
 from utility.em_stock_uti import EMWebCrawlerUti
 
 
@@ -280,16 +275,16 @@ if __name__ == "__main__":
     )
 
     # 加载新数据到字典
-    # try:
-    #     new_data_dict = updater.load_new_data(NEW_DATA_PATH)
-    #     print(f"加载了 {len(new_data_dict)} 条新数据记录")
-    # except Exception as e:
-    #     print(f"加载新数据失败: {e}")
-    #     exit(1)
+    try:
+        new_data_dict = updater.load_new_data(NEW_DATA_PATH)
+        print(f"加载了 {len(new_data_dict)} 条新数据记录")
+    except Exception as e:
+        print(f"加载新数据失败: {e}")
+        exit(1)
 
-    # # 处理所有文件
-    # updater.process_files(new_data_dict)
-    # # 全部无异常后，重命名
-    # updater.replace_old_files_with_new()
+    # 处理所有文件
+    updater.process_files(new_data_dict)
+    # 全部无异常后，重命名
+    updater.replace_old_files_with_new()
 
-    # print("所有文件处理完成！新文件已保存为 *_new.csv 格式")
+    print("所有文件处理完成！新文件已保存为 *_new.csv 格式")

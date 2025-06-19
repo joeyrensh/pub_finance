@@ -9,7 +9,6 @@ from email.header import Header
 import base64
 import csv
 import os
-from email.mime.base import MIMEBase
 
 
 class MyEmail(object):

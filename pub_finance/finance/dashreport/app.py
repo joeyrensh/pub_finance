@@ -4,9 +4,10 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State, MATCH
 from pages import cnstock_performance, news_reviews, usstock_performance
-from pages import (
-    overview,
-)
+
+# from pages import (
+#     overview,
+# )
 from flask import Flask
 from flask_compress import Compress
 import configparser

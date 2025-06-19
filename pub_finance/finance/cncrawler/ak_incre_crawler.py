@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-import requests
 from datetime import datetime
 import os
 from utility.fileinfo import FileInfo
-import csv
 import akshare as ak
 from utility.em_stock_uti import EMWebCrawlerUti
 

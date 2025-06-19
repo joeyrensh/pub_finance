@@ -1,18 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-
 from utility.toolkit import ToolKit
-import re
-from datetime import datetime
 import time
 import random
 import pandas as pd
 import requests
 import json
 from utility.fileinfo import FileInfo
-import os
-import math
 from utility.em_stock_uti import EMWebCrawlerUti
 
 """ 东方财经美股股票对应行业板块数据获取接口 """

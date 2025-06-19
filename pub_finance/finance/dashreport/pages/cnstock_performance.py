@@ -2,8 +2,6 @@ import dash_html_components as html
 from utils import Header, make_dash_format_table
 import pandas as pd
 import pathlib
-import base64
-from dash import html, dcc, callback, Input, Output, State, MATCH
 
 
 def create_layout(app):
@@ -11,7 +9,7 @@ def create_layout(app):
     PATH = pathlib.Path(__file__).parent
 
     # 收益率曲线
-    IMAGE_PATH = PATH.joinpath("../../images").resolve()
+    # IMAGE_PATH = PATH.joinpath("../../images").resolve()
     DATA_PATH = PATH.joinpath("../../data").resolve()
 
     """ annual return """
