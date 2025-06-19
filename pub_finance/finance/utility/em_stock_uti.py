@@ -94,7 +94,9 @@ class EMWebCrawlerUti:
             mkt_code = ["0", "1"]
         for m in mkt_code:
             max_page = self.get_total_pages(m)
+            tool = ToolKit(f"市场代码{m}，下载中...")
             for i in range(1, max_page + 1):
+                tool.progress_bar(max_page, i)
                 params = {
                     "pn": f"{i}",
                     "pz": "100",
