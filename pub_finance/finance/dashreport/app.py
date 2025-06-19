@@ -9,7 +9,6 @@ from pages import (
 )
 from flask import Flask
 from flask_compress import Compress
-from urllib.parse import urlparse, parse_qs
 import configparser
 
 server = Flask(__name__)
