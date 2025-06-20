@@ -72,8 +72,8 @@ class EMWebCrawlerUti:
 
     def get_stock_list(self, market, cache_path=None):
         # 如果缓存文件存在，直接读取
-        # 美股："../usstockinfo/us_stock_list_cache.csv"
-        # A股："../cnstockinfo/cn_stock_list_cache.csv"
+        # 美股："./usstockinfo/us_stock_list_cache.csv"
+        # A股："./cnstockinfo/cn_stock_list_cache.csv"
         if os.path.exists(cache_path):
             print(f"读取美股列表缓存: {cache_path}")
             return pd.read_csv(cache_path).to_dict(orient="records")
