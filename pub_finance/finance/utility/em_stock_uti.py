@@ -333,6 +333,11 @@ class EMWebCrawlerUti:
 
         # 处理 klines 数据
         list = []
+        if str(mkt_code) in ["105", "106", "107"]:
+            symbol_val = symbol
+        elif str(mkt_code) in ["0", "1"]:
+            prefix = "ETF" if "ETF" in name else {"0": "SZ", "1": "SH"}[mkt_code]
+            symbol_val = prefix + symbol
         for i in klines:
             """
             历史数据返回字段列表：
@@ -346,11 +351,7 @@ class EMWebCrawlerUti:
                 or i.split(",")[5] == "-"
             ):
                 continue
-            if mkt_code in ["105", "106", "107"]:
-                symbol_val = symbol
-            elif mkt_code in ["0", "1"]:
-                prefix = "ETF" if "ETF" in name else {"0": "SZ", "1": "SH"}[mkt_code]
-                symbol_val = prefix + symbol
+
             dict = {
                 "symbol": symbol_val,
                 "name": name,

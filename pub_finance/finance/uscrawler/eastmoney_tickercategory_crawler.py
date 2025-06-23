@@ -47,9 +47,9 @@ class EMUsTickerCategoryCrawler:
         tool = ToolKit("行业下载进度")
         for i in tick_list:
             url = "https://emweb.eastmoney.com/pc_usf10/CompanyInfo/PageAjax"
-            if i["mkt_code"] == "105":
+            if str(i["mkt_code"]) == "105":
                 mkt_code = "O"
-            elif i["mkt_code"] == "106":
+            elif str(i["mkt_code"]) == "106":
                 mkt_code = "N"
             else:
                 mkt_code = "A"
