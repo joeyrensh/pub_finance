@@ -57,9 +57,7 @@ class EMUsTickerCategoryCrawler:
                 "fullCode": f"{i['symbol']}.{mkt_code}",
             }
             time.sleep(random.uniform(1, 2))
-            res = requests.get(
-                url, params=params, proxies=self.proxy, headers=self.headers
-            ).text.lower()
+            res = requests.get(url, params=params, proxies=self.proxy).text.lower()
             try:
                 json_object = json.loads(res)
             except ValueError:
