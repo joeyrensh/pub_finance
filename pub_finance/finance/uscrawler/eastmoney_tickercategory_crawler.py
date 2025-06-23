@@ -39,12 +39,12 @@ class EMUsTickerCategoryCrawler:
 
         list = []
         dict = {}
-        tool = ToolKit("行业下载进度")
         """ 遍历股票列表获取对应行业板块信息 """
         em = EMWebCrawlerUti()
         tick_list = em.get_stock_list(
             "us", cache_path="./usstockinfo/us_stock_list_cache.csv"
         )
+        tool = ToolKit("行业下载进度")
         for i in tick_list:
             url = "https://emweb.eastmoney.com/pc_usf10/CompanyInfo/PageAjax"
             if i["mkt_code"] == "105":

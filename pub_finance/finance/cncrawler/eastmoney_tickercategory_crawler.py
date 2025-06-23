@@ -38,12 +38,12 @@ class EMCNTickerCategoryCrawler:
         """
         list = []
         dict = {}
-        tool = ToolKit("行业下载进度")
         """ 遍历股票列表获取对应行业板块信息 """
         em = EMWebCrawlerUti()
         tick_list = em.get_stock_list(
             "cn", cache_path="./cnstockinfo/cn_stock_list_cache.csv"
         )
+        tool = ToolKit("行业下载进度")
         for i in tick_list:
             # ETF基金不需要获取行业板块信息
             if str(i["symbol"]).startswith("ETF"):
