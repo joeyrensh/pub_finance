@@ -2889,15 +2889,9 @@ class StockProposal:
                 opacity=0.5,
                 layer="below",
             )
-        # 找出所有日期范围
-        all_dates = pd.date_range(
-            start=pd_calendar_heatmap["date"].min(),
-            end=pd_calendar_heatmap["date"].max(),
-            freq="D",
-        )
 
         # 找出没有数据的日期
-        missing_dates = set(all_dates) - set(pd_calendar_heatmap["date"])
+        missing_dates = set(filtered_dates) - set(pd_calendar_heatmap["date"])
         # 排除周六和周日
         missing_dates = [date for date in missing_dates if date.weekday() < 5]
 
