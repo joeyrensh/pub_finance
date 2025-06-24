@@ -80,7 +80,7 @@ class ToolKit:
             x.append(re.sub(",.*\n", "", i))
         """ 循环遍历最近一个交易日期 """
         counter = 0
-        for h in range(0, 365):
+        for h in range(1, 365):
             """当前美国时间 UTC-4"""
             # utc_us = datetime.now() - timedelta(hours=12) - timedelta(days=h)
             utc_us = datetime.now() - timedelta(days=h)
@@ -160,7 +160,7 @@ class ToolKit:
             x.append(re.sub(",.*\n", "", i))
         """ 循环遍历最近一个交易日期 """
         counter = 0
-        for h in range(0, 365):
+        for h in range(1, 365):
             """当前北京时间 UTC+8"""
             utc_cn = datetime.now() - timedelta(days=h)
             """ 周末正常休市 """
