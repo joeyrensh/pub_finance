@@ -63,7 +63,7 @@ class EMUsTickerCategoryCrawler:
                 json_object = json.loads(res)
             except ValueError:
                 continue
-            if json_object["msg"]:
+            if "msg" in json_object:
                 print(f"Error fetching data for {i['symbol']}: {json_object['msg']}")
             if "data" in json_object and "gszl" in json_object["data"]:
                 for h in json_object["data"]["gszl"]:
