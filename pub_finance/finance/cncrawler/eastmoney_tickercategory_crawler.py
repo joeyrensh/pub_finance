@@ -58,8 +58,11 @@ class EMCNTickerCategoryCrawler:
             try:
                 json_object = json.loads(res)
             except ValueError:
-                print(f"Error parsing JSON for {i['symbol']}: {res}")
                 continue
+            if json_object["status"] != 0:
+                print(
+                    f"Error fetching data for {i['symbol']}: {json_object['message']}"
+                )
             if (
                 json_object is not None
                 and "jbzl" in json_object
