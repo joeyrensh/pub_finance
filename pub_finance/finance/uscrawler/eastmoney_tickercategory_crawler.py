@@ -15,9 +15,10 @@ from utility.em_stock_uti import EMWebCrawlerUti
 
 class EMUsTickerCategoryCrawler:
     def __init__(self):
+        self.item = "http://60.210.40.190:9091"
         self.proxy = {
-            # "http": "http://60.210.40.190:9091",
-            # "https": "http://60.210.40.190:9091",
+            "http": self.item,
+            "https": self.item,
         }
         self.proxy = None
         self.headers = {
@@ -61,6 +62,7 @@ class EMUsTickerCategoryCrawler:
             try:
                 json_object = json.loads(res)
             except ValueError:
+                print(f"Error parsing JSON for {i['symbol']}: {res}")
                 continue
             if "data" in json_object and "gszl" in json_object["data"]:
                 for h in json_object["data"]["gszl"]:

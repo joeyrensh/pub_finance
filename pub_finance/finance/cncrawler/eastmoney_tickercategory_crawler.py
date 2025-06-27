@@ -15,11 +15,12 @@ from utility.em_stock_uti import EMWebCrawlerUti
 
 class EMCNTickerCategoryCrawler:
     def __init__(self):
+        self.item = "http://60.210.40.190:9091"
         self.proxy = {
-            "http": "http://60.210.40.190:9091",
-            "https": "http://60.210.40.190:9091",
+            "http": self.item,
+            "https": self.item,
         }
-        # self.proxy = None
+        self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "host": "push2.eastmoney.com",
@@ -54,10 +55,10 @@ class EMCNTickerCategoryCrawler:
             }
             time.sleep(random.uniform(1, 2))
             res = requests.get(url, params=params, proxies=self.proxy).text.lower()
-            print(res)
             try:
                 json_object = json.loads(res)
             except ValueError:
+                print(f"Error parsing JSON for {i['symbol']}: {res}")
                 continue
             if (
                 json_object is not None

@@ -31,20 +31,7 @@ date,open,close,high,low,volume,turnover,amplitude,chg,change,换手率
 
 class AKCNHistoryDataCrawler:
     def __init__(self):
-        self.proxy = {
-            "http": "http://120.25.1.15:7890",
-            "https": "http://120.25.1.15:7890",
-        }
-        # self.proxy = None
-        self.headers = {
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
-            "Host": "push2.eastmoney.com",
-            "Accept-Encoding": "gzip, deflate",
-            "Accept": "*/*",
-            "Accept-language": "zh-CN,zh;q=0.9",
-            "Referer": "https://quote.eastmoney.com/center/gridlist.html",
-            "Connection": "close",
-        }
+        self.proxy = None
 
     """
     akshare获取A股历史数据

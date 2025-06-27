@@ -35,9 +35,10 @@ class EMWebCrawlerUti:
         self.__url_list = "http://92.push2.eastmoney.com/api/qt/clist/get"
         self.__url_history = "http://92.push2his.eastmoney.com/api/qt/stock/kline/get"
         # 不配置proxy，klines有时候返回为空，但response status是正常的
+        self.item = "http://101.132.222.120:80"
         self.proxy = {
-            # "http": "http://101.132.222.120:80",
-            # "https": "http://101.132.222.120:80",
+            "http": self.item,
+            "https": self.item,
         }
         self.proxy = None
         self.headers = {
@@ -75,7 +76,7 @@ class EMWebCrawlerUti:
         # 美股："./usstockinfo/us_stock_list_cache.csv"
         # A股："./cnstockinfo/cn_stock_list_cache.csv"
         if os.path.exists(cache_path):
-            print(f"读取美股列表缓存: {cache_path}")
+            print(f"读取股票列表缓存: {cache_path}")
             return pd.read_csv(cache_path).to_dict(orient="records")
 
         """
@@ -305,7 +306,7 @@ class EMWebCrawlerUti:
             "lmt": "1000000",
         }
 
-        """ 请求url，获取数据response """
+        """ 请求url, 获取数据response """
         try:
             res = requests.get(
                 self.__url_history,
