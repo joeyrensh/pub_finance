@@ -2981,146 +2981,219 @@ class StockProposal:
                 image_path_return_light,
                 image_path_return_dark,
             ]
-        html_img = """
-                <html>
-                    <head>
-                        <style>
-                            body {
-                                font-family: Arial, sans-serif;
-                                background-color: white; /* 设置默认背景颜色为白色 */
-                                color: black; /* 设置默认字体颜色为黑色 */
-                            }
-
-                            figure {
-                                margin: 0;
-                                padding: 5px;
-                                border-radius: 8px;
-                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                            }
-
-                            img {
-                                width: 100%;
-                                height: auto;
-                                border-radius: 2px;
-                            }
-
-                            figcaption {
-                                padding: 5px;
-                                text-align: center;
-                                font-style: italic;
-                                font-size: 24px;
-                            }
-
-                            /* Light Mode */
-                            @media (prefers-color-scheme: light) {
-                                body {
-                                    background-color: white;
-                                    color: black;
-                                }
-
-                                figure {
-                                    border: 1px solid #ddd;
-                                }
-                            }
-
-                            /* Dark Mode */
-                            @media (prefers-color-scheme: dark) {
-                                body {
-                                    background-color: black;
-                                    color: white;
-                                }
-
-                                figure {
-                                    border: 1px solid #444;
-                                }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <picture>
-                            <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image15" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image14" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%">
-                            <figcaption>The diagram shows the last x years cumulative return and max drawdown trend,
-                                        to track the stock market and stategy execution information</figcaption>
-                        </picture>    
-                        <picture>
-                            <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image11" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top3 industries:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image10" alt="The diagram shows the last x days top3 industries:" style="width:100%">
-                            <figcaption>The diagram shows the last x days top3 industries, to track last x days
-                                        the top3 industries</figcaption>
-                        </picture>
-                        <picture>
-                            <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image13" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days strategy success ratio:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image12" alt="The diagram shows the last x days strategy success ratio:" style="width:100%">
-                            <figcaption>The diagram shows the last x days strategy success ratio, to track last x days
-                                        the strategy success ratio</figcaption>
-                        </picture>                                           
-                        <picture>
-                            <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image1" media="(prefers-color-scheme: dark)" alt="The industry distribution of current positions is as follows:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image0" alt="The industry distribution of current positions is as follows:" style="width:100%">
-                            <figcaption> The industry position distribution of the top 10 shows the current distribution of industry
-                                        positions that meet the strategy.</figcaption>
-                        </picture>
-                        <picture>
-                            <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image3" media="(prefers-color-scheme: dark)" alt="The industry distribution of current pnl is as follows:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image2" alt="The industry distribution of current pnl is as follows:" style="width:100%">
-                            <figcaption>The industry pnl distribution of the top 10 shows the current distribution of industry
-                                        pnl that meet the strategy.</figcaption>
-                        </picture>
-                        <picture>
-                            <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image5" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days trade detail info:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image4" alt="The diagram shows the last x days trade detail info:" style="width:100%">
-                            <figcaption>The diagram shows the last x days trade detail info, which include the short/long/position
-                                        info every day.</figcaption>
-                        </picture>
-                        <picture>
-                            <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image7" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top5 industry position info:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image6" alt="The diagram shows the last x days top5 industry position info:" style="width:100%">
-                            <figcaption>The diagram shows the last x days top5 industry position trend, to stat last x days
-                                        the top5 industry positions change status</figcaption>
-                        </picture>
-                        <picture>
-                            <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image9" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top5 industry pnl info:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image8" alt="The diagram shows the last x days top5 industry pnl info:" style="width:100%">
-                            <figcaption>The diagram shows the last x days top5 industry pnl trend, to stat last x days
-                                        the top5 industry pnl change status</figcaption>
-                        </picture>
-                    </body>
-                </html>
-                """
-        html_txt = """
+        html_content = """
                     <!DOCTYPE html>
                     <html>
                     <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
                         <style>
+                            /* 基础样式 - 确保兼容性 */
+                            * {{
+                                box-sizing: border-box;
+                                margin: 0;
+                                padding: 0;
+                                -webkit-text-size-adjust: 100%;
+                                text-size-adjust: 100%;
+                            }}
+                            
+                            body {{
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                                line-height: 1.5;
+                                min-width: 100% !important;
+                                width: 100% !important;
+                            }}
+                            
+                            .email-container {{
+                                max-width: 600px;
+                                min-width: 100% !important;
+                                width: 100%;
+                                margin: 0 auto;
+                                padding: 0px;
+                            }}
+                            
                             h1 {{
                                 font-style: italic;
+                                font-size: 24px;
+                                margin-bottom: 20px;
+                                text-align: center;
+                            }}
+                            
+                            .image-container {{
+                                margin-bottom: 10px;
+                                border-radius: 0px;
+                                overflow: hidden;
+                                width: 100% !important;
+                                min-width: 100% !important;
+                            }}
+                            
+                            img {{
+                                display: block;
+                                height: auto !important;
+                                margin: 0 auto !important;
+                                width: 100% !important;
+                                min-width: 100% !important;
+                            }}
+                            
+                            figcaption {{
+                                padding: 12px;
+                                text-align: center;
+                                font-style: italic;
+                                font-size: 18px;
+                                line-height: 1.4;
+                            }}
+
+                            /* 浅色模式 */
+                            @media (prefers-color-scheme: light) {{
+                                body {{
+                                    background-color: #ffffff;
+                                    color: #333333;
+                                }}
+                                
+                                .image-container {{
+                                    border: 1px solid #e0e0e0;
+                                    background-color: #f8f8f8;
+                                }}
+                                
+                                figcaption {{
+                                    background-color: #f0f0f0;
+                                    color: #555555;
+                                }}
+                            }}
+
+                            /* 深色模式 */
+                            @media (prefers-color-scheme: dark) {{
+                                body {{
+                                    background-color: #121212;
+                                    color: #e0e0e0;
+                                }}
+                                
+                                .image-container {{
+                                    border: 1px solid #333333;
+                                    background-color: #1a1a1a;
+                                }}
+                                
+                                figcaption {{
+                                    background-color: #222222;
+                                    color: #cccccc;
+                                }}
+                            }}
+                            
+                            /* 移动设备优化 */
+                            @media screen and (max-width: 480px) {{
+                                .email-container {{
+                                    padding: 10px;
+                                }}
+                                
+                                h1 {{
+                                    font-size: 20px;
+                                }}
+                                
+                                figcaption {{
+                                    font-size: 16px;
+                                    padding: 10px;
+                                }}
                             }}
                         </style>
-                    </head>                    
+                    </head>
                     <body>
-                        <h1>The current cash is {cash}, the final portfolio value is {final_value}, the number of backtesting list is {stock_cnt}</h1>
+                        <div class="email-container">
+                            <h1>The current cash is {cash}, the final portfolio value is {final_value}, the number of backtesting list is {stock_cnt}</h1>
+                            <div class="image-container">
+                                <picture>
+                                    <!-- 深色模式下的图片 -->
+                                    <source srcset="cid:image15" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%"/>
+                                    <!-- 默认模式下的图片 -->
+                                    <img src="cid:image14" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%">
+                                </picture>
+                                <figcaption>The diagram shows the last x years cumulative return and max drawdown trend,
+                                            to track the stock market and stategy execution information
+                                </figcaption>
+                            </div>
+                            <div class="image-container">
+                                <picture>
+                                    <!-- 深色模式下的图片 -->
+                                    <source srcset="cid:image11" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top3 industries:" style="width:100%"/>
+                                    <!-- 默认模式下的图片 -->
+                                    <img src="cid:image10" alt="The diagram shows the last x days top3 industries:" style="width:100%">
+                                </picture>
+                                <figcaption>The diagram shows the last x days top3 industries, to track last x days
+                                            the top3 industries
+                                </figcaption>
+                            </div>
+                            <div class="image-container">
+                                <picture>
+                                    <!-- 深色模式下的图片 -->
+                                    <source srcset="cid:image13" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days strategy success ratio:" style="width:100%"/>
+                                    <!-- 默认模式下的图片 -->
+                                    <img src="cid:image12" alt="The diagram shows the last x days strategy success ratio:" style="width:100%">
+                                </picture>
+                                <figcaption>The diagram shows the last x days strategy success ratio, to track last x days
+                                            the strategy success ratio
+                                </figcaption>
+                            </div>
+                            <div class="image-container">                                          
+                                <picture>
+                                    <!-- 深色模式下的图片 -->
+                                    <source srcset="cid:image1" media="(prefers-color-scheme: dark)" alt="The industry distribution of current positions is as follows:" style="width:100%"/>
+                                    <!-- 默认模式下的图片 -->
+                                    <img src="cid:image0" alt="The industry distribution of current positions is as follows:" style="width:100%">
+                                </picture>
+                                <figcaption> The industry position distribution of the top 10 shows the current distribution of industry
+                                            positions that meet the strategy.
+                                </figcaption>
+                            </div>
+                            <div class="image-container">
+                                <picture>
+                                    <!-- 深色模式下的图片 -->
+                                    <source srcset="cid:image3" media="(prefers-color-scheme: dark)" alt="The industry distribution of current pnl is as follows:" style="width:100%"/>
+                                    <!-- 默认模式下的图片 -->
+                                    <img src="cid:image2" alt="The industry distribution of current pnl is as follows:" style="width:100%">
+                                </picture>
+                                <figcaption>The industry pnl distribution of the top 10 shows the current distribution of industry
+                                            pnl that meet the strategy.
+                                </figcaption>
+                            </div>
+                            <div class="image-container">
+                                <picture>
+                                    <!-- 深色模式下的图片 -->
+                                    <source srcset="cid:image5" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days trade detail info:" style="width:100%"/>
+                                    <!-- 默认模式下的图片 -->
+                                    <img src="cid:image4" alt="The diagram shows the last x days trade detail info:" style="width:100%">
+                                </picture>
+                                <figcaption>The diagram shows the last x days trade detail info, which include the short/long/position
+                                            info every day.
+                                </figcaption>
+                            </div>
+                            <div class="image-container">
+                                <picture>
+                                    <!-- 深色模式下的图片 -->
+                                    <source srcset="cid:image7" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top5 industry position info:" style="width:100%"/>
+                                    <!-- 默认模式下的图片 -->
+                                    <img src="cid:image6" alt="The diagram shows the last x days top5 industry position info:" style="width:100%">
+                                </picture>
+                                <figcaption>The diagram shows the last x days top5 industry position trend, to stat last x days
+                                            the top5 industry positions change status
+                                </figcaption>
+                            </div>
+                            <div class="image-container">
+                                <picture>
+                                    <!-- 深色模式下的图片 -->
+                                    <source srcset="cid:image9" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top5 industry pnl info:" style="width:100%"/>
+                                    <!-- 默认模式下的图片 -->
+                                    <img src="cid:image8" alt="The diagram shows the last x days top5 industry pnl info:" style="width:100%">
+                                </picture>
+                                <figcaption>The diagram shows the last x days top5 industry pnl trend, to stat last x days
+                                            the top5 industry pnl change status
+                                </figcaption>
+                            </div>
+                        </div>
                     </body>
                     </html>
                     """.format(
             cash=cash, final_value=final_value, stock_cnt=len(stock_list)
         )
+
         result = [
             {
                 "cash": cash,
@@ -3133,7 +3206,7 @@ class StockProposal:
         df_result.to_csv(f"./data/{self.market}_df_result.csv", header=True)
 
         MyEmail().send_email_embedded_image(
-            subject, html_txt + html_img + html + html1 + html2, image_path
+            subject, html_content + html + html1 + html2, image_path
         )
 
     def send_etf_btstrategy_by_email(self, cash, final_value):
@@ -4067,97 +4140,146 @@ class StockProposal:
             image_path_return_light,
             image_path_return_dark,
         ]
-        html_img = """
-                <html>
-                    <head>
-                        <style>
-                            body {
-                                font-family: Arial, sans-serif;
-                                background-color: white; /* 设置默认背景颜色为白色 */
-                                color: black; /* 设置默认字体颜色为黑色 */
-                            }
+        html_content = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+            <style>
+                /* 基础样式 - 确保兼容性 */
+                * {{
+                    box-sizing: border-box;
+                    margin: 0;
+                    padding: 0;
+                    -webkit-text-size-adjust: 100%;
+                    text-size-adjust: 100%;
+                }}
+                
+                body {{
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    line-height: 1.5;
+                    min-width: 100% !important;
+                    width: 100% !important;
+                }}
+                
+                .email-container {{
+                    max-width: 600px;
+                    min-width: 100% !important;
+                    width: 100%;
+                    margin: 0 auto;
+                    padding: 0px;
+                }}
+                
+                h1 {{
+                    font-style: italic;
+                    font-size: 24px;
+                    margin-bottom: 20px;
+                    text-align: center;
+                }}
+                
+                .image-container {{
+                    margin-bottom: 10px;
+                    border-radius: 0px;
+                    overflow: hidden;
+                    width: 100% !important;
+                    min-width: 100% !important;
+                }}
+                
+                img {{
+                    display: block;
+                    height: auto !important;
+                    margin: 0 auto !important;
+                    width: 100% !important;
+                    min-width: 100% !important;
+                }}
+                
+                figcaption {{
+                    padding: 0px;
+                    text-align: center;
+                    font-style: italic;
+                    font-size: 18px;
+                    line-height: 1.4;
+                }}
 
-                            figure {
-                                margin: 0;
-                                padding: 5px;
-                                border-radius: 8px;
-                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                            }
+                /* 浅色模式 */
+                @media (prefers-color-scheme: light) {{
+                    body {{
+                        background-color: #ffffff;
+                        color: #333333;
+                    }}
+                    
+                    .image-container {{
+                        border: 1px solid #e0e0e0;
+                        background-color: #f8f8f8;
+                    }}
+                    
+                    figcaption {{
+                        background-color: #f0f0f0;
+                        color: #555555;
+                    }}
+                }}
 
-                            img {
-                                width: 100%;
-                                height: auto;
-                                border-radius: 2px;
-                            }
-
-                            figcaption {
-                                padding: 5px;
-                                text-align: center;
-                                font-style: italic;
-                                font-size: 24px;
-                            }
-
-                            /* Light Mode */
-                            @media (prefers-color-scheme: light) {
-                                body {
-                                    background-color: white;
-                                    color: black;
-                                }
-
-                                figure {
-                                    border: 1px solid #ddd;
-                                }
-                            }
-
-                            /* Dark Mode */
-                            @media (prefers-color-scheme: dark) {
-                                body {
-                                    background-color: black;
-                                    color: white;
-                                }
-
-                                figure {
-                                    border: 1px solid #444;
-                                }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <picture>
-                            <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image3" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image2" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%">
-                            <figcaption>The diagram shows the last x years cumulative return and max drawdown trend,
-                                        to track the stock market and stategy execution information</figcaption>
-                        </picture>                    
-                        <picture>
-                            <!-- 深色模式下的图片 -->
-                            <source srcset="cid:image1" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days trade detail info:" style="width:100%"/>
-                            <!-- 默认模式下的图片 -->
-                            <img src="cid:image0" alt="The diagram shows the last x days trade detail info:" style="width:100%">
-                            <figcaption>The diagram shows the last x days trade detail info, which include the short/long/position
-                                        info every day.</figcaption>
-                        </picture>                   
-                    </body>
-                </html>
-                """
-        html_txt = """
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <style>
-                            h1 {{
-                                font-style: italic;
-                            }}
-                        </style>
-                    </head>                    
-                    <body>
-                        <h1>The current cash is {cash}, the final portfolio value is {final_value}</h1>
-                    </body>
-                    </html>
-                    """.format(cash=cash, final_value=final_value)
-
+                /* 深色模式 */
+                @media (prefers-color-scheme: dark) {{
+                    body {{
+                        background-color: #121212;
+                        color: #e0e0e0;
+                    }}
+                    
+                    .image-container {{
+                        border: 1px solid #333333;
+                        background-color: #1a1a1a;
+                    }}
+                    
+                    figcaption {{
+                        background-color: #222222;
+                        color: #cccccc;
+                    }}
+                }}
+                
+                /* 移动设备优化 */
+                @media screen and (max-width: 480px) {{
+                    .email-container {{
+                        padding: 10px;
+                    }}
+                    
+                    h1 {{
+                        font-size: 20px;
+                    }}
+                    
+                    figcaption {{
+                        font-size: 16px;
+                        padding: 10px;
+                    }}
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                <h1>The current cash is {cash}, the final portfolio value is {final_value}</h1>
+                <div class="image-container">
+                    <picture>                                    
+                        <source srcset="cid:image3" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%"/>                                    
+                        <img src="cid:image2" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%">
+                    </picture>
+                    <figcaption>The diagram shows the last x years cumulative return and max drawdown trend,
+                                to track the stock market and strategy execution information
+                    </figcaption>                                
+                </div>
+                <div class="image-container">             
+                    <picture>                                    
+                        <source srcset="cid:image1" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days trade detail info:" style="width:100%"/>                                    
+                        <img src="cid:image0" alt="The diagram shows the last x days trade detail info:" style="width:100%">
+                    </picture>
+                    <figcaption>The diagram shows the last x days trade detail info, which include the short/long/position
+                                info every day.
+                    </figcaption>
+                </div>
+            </div>
+        </body>
+        </html>
+        """.format(cash=cash, final_value=final_value)
         MyEmail().send_email_embedded_image(
-            subject, html_txt + html_img + html + html2, image_path
+            subject, html_content + html + html2, image_path
         )
