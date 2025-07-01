@@ -507,7 +507,7 @@ class StockProposal:
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
                             ("padding", "5px"),
-                            ("font-size", "24px"),
+                            ("font-size", "18px"),
                         ],
                     ),
                     dict(
@@ -516,7 +516,7 @@ class StockProposal:
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
                             ("padding", "5px"),
-                            ("font-size", "24px"),
+                            ("font-size", "18px"),
                         ],
                     ),
                 ],
@@ -543,14 +543,14 @@ class StockProposal:
                         {
                             "selector": "th",
                             "props": [
-                                ("min-width", "200px"),
+                                ("min-width", "150px"),
                                 ("max-width", "500px"),
                             ],
                         },
                         {
                             "selector": "td",
                             "props": [
-                                ("min-width", "200px"),
+                                ("min-width", "150px"),
                                 ("max-width", "500px"),
                             ],
                         },
@@ -879,7 +879,7 @@ class StockProposal:
                         props=[
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
-                            ("padding", "8px"),
+                            ("padding", "5px"),
                             ("font-size", "18px"),
                         ],
                     ),
@@ -889,7 +889,7 @@ class StockProposal:
                         props=[
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
-                            ("padding", "8px"),
+                            ("padding", "5px"),
                             (
                                 "font-size",
                                 "18px",
@@ -3531,7 +3531,7 @@ class StockProposal:
                         props=[
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
-                            ("padding", "8px"),
+                            ("padding", "5px"),
                             ("font-size", "18px"),
                         ],
                     ),
@@ -3541,7 +3541,7 @@ class StockProposal:
                         props=[
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
-                            ("padding", "8px"),
+                            ("padding", "5px"),
                             (
                                 "font-size",
                                 "18px",
@@ -3798,7 +3798,7 @@ class StockProposal:
                                 props=[
                                     ("border", "1px solid #ccc"),
                                     ("text-align", "left"),
-                                    ("padding", "8px"),
+                                    ("padding", "5px"),
                                     ("font-size", "18px"),
                                 ],
                             ),
@@ -3808,7 +3808,7 @@ class StockProposal:
                                 props=[
                                     ("border", "1px solid #ccc"),
                                     ("text-align", "left"),
-                                    ("padding", "8px"),
+                                    ("padding", "5px"),
                                     (
                                         "font-size",
                                         "18px",
