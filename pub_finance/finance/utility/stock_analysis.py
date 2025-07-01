@@ -963,16 +963,19 @@ class StockProposal:
                 :root {
                     color-scheme: dark light;
                     supported-color-schemes: dark light;
-                    background-color: white;
+                    background-color: transparent;
                     color: black;
                     display: table ;
+                    -webkit-text-size-adjust: 100%;
+                    text-size-adjust: 100%;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;                         
                 }                
                 /* Your light mode (default) styles: */
                 body {
                     background-color: white;
                     color: black;
                     display: table ;
-                    width: 100%;                          
+                    width: 80%;                          
                 }
                 table {
                     background-color: white;
@@ -984,7 +987,7 @@ class StockProposal:
                         background-color: black;
                         color: white;
                         display: table ;
-                        width: 100%;                              
+                        width: 80%;                              
                     }
                     table {
                         background-color: black;
@@ -992,6 +995,16 @@ class StockProposal:
                         width: 100%;
                     }
                 }
+                /* 移动设备优化 */
+                @media screen and (max-width: 480px) {
+                    body {
+                        width: 100%;                              
+                    }
+                    table {
+                        width: 100%;
+                        margin: 0 auto;  /* 居中显示 */
+                    }
+                }                
             </style>
         """
         html1 = css1 + paged_html1
@@ -1286,16 +1299,19 @@ class StockProposal:
                     :root {
                         color-scheme: dark light;
                         supported-color-schemes: dark light;
-                        background-color: white;
+                        background-color: transparent;
                         color: black;
                         display: table ;
+                        -webkit-text-size-adjust: 100%;
+                        text-size-adjust: 100%;
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;                             
                     }                
                     /* Your light mode (default) styles: */
                     body {
                         background-color: white;
                         color: black;
                         display: table ;
-                        width: 100%;                          
+                        width: 80%;                          
                     }
                     table {
                         background-color: white;
@@ -1307,7 +1323,7 @@ class StockProposal:
                             background-color: black;
                             color: white;
                             display: table ;
-                            width: 100%;                              
+                            width: 80%;                              
                         }
                         table {
                             background-color: black;
@@ -1315,6 +1331,16 @@ class StockProposal:
                             width: 100%;
                         }
                     }
+                    /* 移动设备优化 */
+                    @media screen and (max-width: 480px) {
+                        body {
+                            width: 100%;                              
+                        }
+                        table {
+                            width: 100%;
+                            margin: 0 auto;  /* 居中显示 */
+                        }
+                    }                           
                 </style>
             """
             html2 = css2 + paged_html2
@@ -3000,8 +3026,8 @@ class StockProposal:
                             body {{
                                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                                 line-height: 1.5;
-                                min-width: 100% !important;
-                                width: 100% !important;
+                                min-width: 80% !important;
+                                width: 80% !important;
                             }}
                             
                             .email-container {{
@@ -3016,7 +3042,7 @@ class StockProposal:
                                 font-style: italic;
                                 font-size: 32px;
                                 margin-bottom: 20px;
-                                text-align: center;
+                                text-align: left !important;
                             }}
                             
                             .image-container {{
@@ -3082,8 +3108,19 @@ class StockProposal:
                             /* 移动设备优化 */
                             @media screen and (max-width: 480px) {{
                                 .email-container {{
-                                    padding: 10px;
+                                    margin: 0 auto;
+                                    padding: 0px;
+                                    width: 100% !important;
+                                    min-width: 100% !important;                        
                                 }}
+
+                                .image-container {{
+                                    margin-bottom: 10px;
+                                    border-radius: 0px;
+                                    overflow: hidden;
+                                    width: 100% !important;
+                                    min-width: 100% !important;
+                                }} 
                                 
                                 h1 {{
                                     font-size: 32px;
@@ -3599,35 +3636,50 @@ class StockProposal:
                 :root {
                     color-scheme: dark light;
                     supported-color-schemes: dark light;
-                    background-color: white;
+                    background-color: transparent;
                     color: black;
                     display: table ;
+                    -webkit-text-size-adjust: 100%;
+                    text-size-adjust: 100%;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;                            
                 }                
                 /* Your light mode (default) styles: */
                 body {
                     background-color: white;
                     color: black;
                     display: table ;
-                    width: 100%;                          
+                    width: 80%;                                    
                 }
                 table {
                     background-color: white;
                     color: black;
                     width: 100%;
+                    margin: 0 auto;  /* 居中显示 */
                 }
                 @media (prefers-color-scheme: dark) {            
                     body {
                         background-color: black;
                         color: white;
                         display: table ;
-                        width: 100%;                              
+                        width: 80%;                              
                     }
                     table {
                         background-color: black;
                         color: white;
                         width: 100%;
+                        margin: 0 auto;  /* 居中显示 */
                     }
                 }
+                /* 移动设备优化 */
+                @media screen and (max-width: 480px) {
+                    body {
+                        width: 100%;                              
+                    }
+                    table {
+                        width: 100%;
+                        margin: 0 auto;  /* 居中显示 */
+                    }
+                }                    
             </style>
         """
 
@@ -3866,7 +3918,7 @@ class StockProposal:
                     :root {
                         color-scheme: dark light;
                         supported-color-schemes: dark light;
-                        background-color: white;
+                        background-color: transparent;
                         color: black;
                         display: table ;
                     }                
@@ -3875,7 +3927,7 @@ class StockProposal:
                         background-color: white;
                         color: black;
                         display: table ;
-                        width: 100%;                          
+                        width: 80%;                          
                     }
                     table {
                         background-color: white;
@@ -3887,7 +3939,7 @@ class StockProposal:
                             background-color: black;
                             color: white;
                             display: table ;
-                            width: 100%;                              
+                            width: 80%;                              
                         }
                         table {
                             background-color: black;
@@ -3895,6 +3947,15 @@ class StockProposal:
                             width: 100%;
                         }
                     }
+                    /* 移动设备优化 */
+                    @media screen and (max-width: 480px) {
+                        body {
+                            width: 100%;                              
+                        }
+                        table {
+                            width: 100%;
+                        }
+                    }                  
                 </style>
             """
             html2 = css2 + paged_html2
@@ -4159,8 +4220,8 @@ class StockProposal:
                 body {{
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                     line-height: 1.5;
-                    min-width: 100% !important;
-                    width: 100% !important;
+                    min-width: 80% !important;
+                    width: 80% !important;
                 }}
                 
                 .email-container {{
@@ -4175,7 +4236,7 @@ class StockProposal:
                     font-style: italic;
                     font-size: 32px;
                     margin-bottom: 20px;
-                    text-align: center;
+                    text-align: left !important;
                 }}
                 
                 .image-container {{
@@ -4241,8 +4302,19 @@ class StockProposal:
                 /* 移动设备优化 */
                 @media screen and (max-width: 480px) {{
                     .email-container {{
-                        padding: 10px;
+                        margin: 0 auto;
+                        padding: 0px;
+                        width: 100% !important;
+                        min-width: 100% !important;                        
                     }}
+
+                    .image-container {{
+                        margin-bottom: 10px;
+                        border-radius: 0px;
+                        overflow: hidden;
+                        width: 100% !important;
+                        min-width: 100% !important;
+                    }}                    
                     
                     h1 {{
                         font-size: 32px;
