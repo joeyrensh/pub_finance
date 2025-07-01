@@ -3014,7 +3014,7 @@ class StockProposal:
                             
                             h1 {{
                                 font-style: italic;
-                                font-size: 24px;
+                                font-size: 32px;
                                 margin-bottom: 20px;
                                 text-align: center;
                             }}
@@ -3039,7 +3039,7 @@ class StockProposal:
                                 padding: 12px;
                                 text-align: center;
                                 font-style: italic;
-                                font-size: 18px;
+                                font-size: 24px;
                                 line-height: 1.4;
                             }}
 
@@ -3086,11 +3086,11 @@ class StockProposal:
                                 }}
                                 
                                 h1 {{
-                                    font-size: 20px;
+                                    font-size: 32px;
                                 }}
                                 
                                 figcaption {{
-                                    font-size: 16px;
+                                    font-size: 24px;
                                     padding: 10px;
                                 }}
                             }}
@@ -4173,7 +4173,7 @@ class StockProposal:
                 
                 h1 {{
                     font-style: italic;
-                    font-size: 24px;
+                    font-size: 32px;
                     margin-bottom: 20px;
                     text-align: center;
                 }}
@@ -4198,7 +4198,7 @@ class StockProposal:
                     padding: 0px;
                     text-align: center;
                     font-style: italic;
-                    font-size: 18px;
+                    font-size: 24px;
                     line-height: 1.4;
                 }}
 
@@ -4245,11 +4245,11 @@ class StockProposal:
                     }}
                     
                     h1 {{
-                        font-size: 20px;
+                        font-size: 32px;
                     }}
                     
                     figcaption {{
-                        font-size: 16px;
+                        font-size: 24px;
                         padding: 10px;
                     }}
                 }}
