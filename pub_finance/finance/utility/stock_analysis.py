@@ -507,7 +507,7 @@ class StockProposal:
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
                             ("padding", "5px"),
-                            ("font-size", "18px"),
+                            ("font-size", "20px"),
                         ],
                     ),
                     dict(
@@ -516,7 +516,7 @@ class StockProposal:
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
                             ("padding", "5px"),
-                            ("font-size", "18px"),
+                            ("font-size", "20px"),
                         ],
                     ),
                 ],
@@ -880,7 +880,7 @@ class StockProposal:
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
                             ("padding", "5px"),
-                            ("font-size", "18px"),
+                            ("font-size", "20px"),
                         ],
                     ),
                     # 表格数据单元格样式
@@ -892,7 +892,7 @@ class StockProposal:
                             ("padding", "5px"),
                             (
                                 "font-size",
-                                "18px",
+                                "20px",
                             ),
                         ],
                     ),
@@ -3038,7 +3038,7 @@ class StockProposal:
                                 padding: 0px;
                             }}
                             
-                            h2 {{
+                            h1 {{
                                 font-style: italic;
                                 font-size: 32px;
                                 margin-bottom: 20px;
@@ -3122,7 +3122,7 @@ class StockProposal:
                                     min-width: 100% !important;
                                 }} 
                                 
-                                h2 {{
+                                h1 {{
                                     font-size: 32px;
                                 }}
                                 
@@ -3135,7 +3135,7 @@ class StockProposal:
                     </head>
                     <body>
                         <div class="email-container">
-                            <h2>The current cash is {cash}, the final portfolio value is {final_value}, the number of backtesting list is {stock_cnt}</h2>
+                            <h1>The current cash is {cash}, the final portfolio value is {final_value}, the number of backtesting list is {stock_cnt}</h1>
                             <div class="image-container">
                                 <picture>
                                     <!-- 深色模式下的图片 -->
@@ -3569,7 +3569,7 @@ class StockProposal:
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
                             ("padding", "5px"),
-                            ("font-size", "18px"),
+                            ("font-size", "20px"),
                         ],
                     ),
                     # 表格数据单元格样式
@@ -3581,7 +3581,7 @@ class StockProposal:
                             ("padding", "5px"),
                             (
                                 "font-size",
-                                "18px",
+                                "20px",
                             ),
                         ],
                     ),
@@ -3851,7 +3851,7 @@ class StockProposal:
                                     ("border", "1px solid #ccc"),
                                     ("text-align", "left"),
                                     ("padding", "5px"),
-                                    ("font-size", "18px"),
+                                    ("font-size", "20px"),
                                 ],
                             ),
                             # 表格数据单元格样式
@@ -3863,7 +3863,7 @@ class StockProposal:
                                     ("padding", "5px"),
                                     (
                                         "font-size",
-                                        "18px",
+                                        "20px",
                                     ),
                                 ],
                             ),
