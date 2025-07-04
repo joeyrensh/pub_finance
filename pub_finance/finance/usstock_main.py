@@ -231,8 +231,25 @@ def exec_btstrategy(date):
             # colColours=[colors["table_header"]] * len(cols_names),
         )
         # 统一单元格样式
-        for cell in table.get_celld().values():
-            cell.set_text_props(color=colors["text"])
+        for (row, col), cell in table.get_celld().items():
+            # 跳过表头（row==0），只处理第二列（col==1）
+            if col == 1 and row != 0:
+                try:
+                    # 获取单元格的原始数值（去掉百分号等）
+                    val_str = (
+                        str(cell.get_text().get_text())
+                        .replace("%", "")
+                        .replace(",", "")
+                    )
+                    val = float(val_str)
+                    if val < 0:
+                        cell.set_text_props(color="green")
+                    elif val >= 0:
+                        cell.set_text_props(color="red")
+                except Exception:
+                    pass  # 非数字或转换失败时跳过
+            else:
+                cell.set_text_props(color=colors["text"])
             cell.set_edgecolor(colors["table_edge"])
             cell.set_linewidth(1)
 

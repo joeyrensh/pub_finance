@@ -3038,7 +3038,7 @@ class StockProposal:
                                 padding: 0px;
                             }}
                             
-                            h1 {{
+                            h2 {{
                                 font-style: italic;
                                 font-size: 32px;
                                 margin-bottom: 20px;
@@ -3122,7 +3122,7 @@ class StockProposal:
                                     min-width: 100% !important;
                                 }} 
                                 
-                                h1 {{
+                                h2 {{
                                     font-size: 32px;
                                 }}
                                 
@@ -3135,7 +3135,7 @@ class StockProposal:
                     </head>
                     <body>
                         <div class="email-container">
-                            <h1>The current cash is {cash}, the final portfolio value is {final_value}, the number of backtesting list is {stock_cnt}</h1>
+                            <h2>The current cash is {cash}, the final portfolio value is {final_value}, the number of backtesting list is {stock_cnt}</h2>
                             <div class="image-container">
                                 <picture>
                                     <!-- 深色模式下的图片 -->
