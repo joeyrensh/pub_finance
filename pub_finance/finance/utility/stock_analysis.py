@@ -1216,8 +1216,8 @@ class StockProposal:
                                 props=[
                                     ("border", "1px solid #ccc"),
                                     ("text-align", "left"),
-                                    ("padding", "8px"),
-                                    ("font-size", "18px"),
+                                    ("padding", "5px"),
+                                    ("font-size", "20px"),
                                 ],
                             ),
                             # 表格数据单元格样式
@@ -1226,10 +1226,10 @@ class StockProposal:
                                 props=[
                                     ("border", "1px solid #ccc"),
                                     ("text-align", "left"),
-                                    ("padding", "8px"),
+                                    ("padding", "5px"),
                                     (
                                         "font-size",
-                                        "18px",
+                                        "20px",
                                     ),
                                 ],
                             ),
