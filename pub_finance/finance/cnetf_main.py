@@ -16,6 +16,7 @@ import pyfolio as pf
 import gc
 from backtraderref.cnfixedamount import FixedAmount
 from matplotlib import rcParams
+import matplotlib.colors as mcolors
 from cncrawler.ak_incre_crawler import AKCNWebCrawler
 from utility.em_stock_uti import EMWebCrawlerUti
 
@@ -188,7 +189,7 @@ def exec_btstrategy(date):
                 "ytick.color": colors["text"],
                 "grid.color": colors["grid"],
                 "grid.linestyle": "-",
-                "grid.alpha": 1,
+                "grid.alpha": 0.2,
                 "grid.linewidth": 1.5,
                 "figure.facecolor": colors["background"],
                 "savefig.transparent": True,
@@ -251,7 +252,7 @@ def exec_btstrategy(date):
                     pass  # 非数字或转换失败时跳过
             else:
                 cell.set_text_props(color=colors["text"])
-            cell.set_edgecolor(colors["table_edge"])
+            cell.set_edgecolor(mcolors.to_rgba(colors["table_edge"], alpha=0.2))
             cell.set_linewidth(1)
 
         # ----------------------------
@@ -270,7 +271,7 @@ def exec_btstrategy(date):
             drawdown.values,
             y2=0,
             color=colors["drawdown"],
-            alpha=0.4,  # 适当降低透明度
+            alpha=0.5,  # 适当降低透明度
             zorder=2,  # 设置较低层级
             edgecolor=colors["drawdown"],
             linewidth=1,
@@ -290,7 +291,7 @@ def exec_btstrategy(date):
             markerfacecolor=colors["cumret"],
             markeredgecolor=colors["cumret"],
         )
-        ax_chart.grid(True, alpha=0.4)
+        ax_chart.grid(True, alpha=0.2)
         ax_drawdown.grid(False)
         # ----------------------------
         # 图表美化

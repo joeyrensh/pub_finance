@@ -1710,7 +1710,7 @@ class StockProposal:
                 ticks="outside",
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
-                gridcolor="rgba(0, 0, 0, 0.5)",
+                gridcolor="rgba(0, 0, 0, 0.2)",
             ),
             yaxis=dict(
                 title=dict(
@@ -1724,7 +1724,7 @@ class StockProposal:
                 ticks="inside",
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
-                gridcolor="rgba(0, 0, 0, 0.5)",
+                gridcolor="rgba(0, 0, 0, 0.2)",
             ),
             yaxis2=dict(
                 title=dict(
@@ -1814,7 +1814,7 @@ class StockProposal:
                 ticks="outside",
                 tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
                 showline=False,
-                gridcolor="rgba(255, 255, 255, 0.5)",
+                gridcolor="rgba(255, 255, 255, 0.2)",
             ),
             yaxis=dict(
                 title=dict(
@@ -1828,7 +1828,7 @@ class StockProposal:
                 ticks="inside",
                 tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
                 showline=False,
-                gridcolor="rgba(255, 255, 255, 0.5)",
+                gridcolor="rgba(255, 255, 255, 0.2)",
             ),
             yaxis2=dict(
                 title=dict(
@@ -1971,7 +1971,7 @@ class StockProposal:
                 ticks="outside",
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
-                gridcolor="rgba(0, 0, 0, 0.5)",
+                gridcolor="rgba(0, 0, 0, 0.2)",
                 domain=[0, 1],  # 强制x轴占据全部可用宽度
                 automargin=False,  # 关闭自动边距计算
             ),
@@ -1987,7 +1987,7 @@ class StockProposal:
                 ticks="inside",
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
-                gridcolor="rgba(0, 0, 0, 0.5)",
+                gridcolor="rgba(0, 0, 0, 0.2)",
                 ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
                 tickangle=0,  # 确保刻度标签水平显示
                 # automargin=False,  # 关闭自动边距计算
@@ -2050,12 +2050,12 @@ class StockProposal:
             xaxis=dict(
                 title=dict(font=dict(color=light_text_color)),
                 tickfont=dict(color=light_text_color),
-                gridcolor="rgba(255, 255, 255, 0.5)",
+                gridcolor="rgba(255, 255, 255, 0.2)",
             ),
             yaxis=dict(
                 title=dict(font=dict(color=light_text_color)),
                 tickfont=dict(color=light_text_color),
-                gridcolor="rgba(255, 255, 255, 0.5)",
+                gridcolor="rgba(255, 255, 255, 0.2)",
             ),
             yaxis2=dict(
                 title=dict(font=dict(color=light_text_color)),
@@ -2132,7 +2132,7 @@ class StockProposal:
             ticks="outside",
             tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
-            gridcolor="rgba(0, 0, 0, 0.5)",
+            gridcolor="rgba(0, 0, 0, 0.2)",
             title=dict(
                 text="Open Date",
                 font=dict(size=title_font_size, color=dark_text_color, family="Arial"),
@@ -2143,7 +2143,7 @@ class StockProposal:
             ticks="inside",
             tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
-            gridcolor="rgba(0, 0, 0, 0.5)",
+            gridcolor="rgba(0, 0, 0, 0.2)",
             title=None,  # 设置为空字符串以隐藏y轴标题
             ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
             tickangle=0,  # 确保刻度标签水平显示
@@ -2198,12 +2198,12 @@ class StockProposal:
         # dark mode
         fig.update_xaxes(
             tickfont=dict(color=light_text_color),
-            gridcolor="rgba(255, 255, 255, 0.5)",
+            gridcolor="rgba(255, 255, 255, 0.2)",
             title_font=dict(color=light_text_color),
         )
         fig.update_yaxes(
             tickfont=dict(color=light_text_color),
-            gridcolor="rgba(255, 255, 255, 0.5)",
+            gridcolor="rgba(255, 255, 255, 0.2)",
             title_font=dict(color=light_text_color),
         )
         fig.update_layout(
@@ -2286,7 +2286,7 @@ class StockProposal:
             ticks="outside",
             tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
-            gridcolor="rgba(0, 0, 0, 0.5)",
+            gridcolor="rgba(0, 0, 0, 0.2)",
             title=dict(
                 text="Open Date",
                 font=dict(size=title_font_size, color=dark_text_color, family="Arial"),
@@ -2297,7 +2297,7 @@ class StockProposal:
             ticks="inside",
             tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
-            gridcolor="rgba(0, 0, 0, 0.5)",
+            gridcolor="rgba(0, 0, 0, 0.2)",
             title=None,  # 设置为空字符串以隐藏y轴标题
             ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
             tickangle=0,  # 确保刻度标签水平显示
@@ -2364,7 +2364,7 @@ class StockProposal:
             ticks="outside",
             tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
             showline=False,
-            gridcolor="rgba(255, 255, 255, 0.5)",
+            gridcolor="rgba(255, 255, 255, 0.2)",
             title=dict(
                 text="Open Date",
                 font=dict(size=title_font_size, color=light_text_color, family="Arial"),
@@ -2375,7 +2375,7 @@ class StockProposal:
             ticks="inside",
             tickfont=dict(color=light_text_color, size=font_size),
             showline=False,
-            gridcolor="rgba(255, 255, 255, 0.5)",
+            gridcolor="rgba(255, 255, 255, 0.2)",
             title_font=dict(
                 size=title_font_size, color=light_text_color, family="Arial"
             ),
@@ -2619,7 +2619,7 @@ class StockProposal:
                     "Sunday",
                 ],
                 showgrid=False,
-                gridcolor="rgba(0, 0, 0, 0.5)",
+                gridcolor="rgba(0, 0, 0, 0.2)",
                 zeroline=False,
                 showticklabels=True,
                 dtick=1,  # 每天显示一个刻度
@@ -2627,7 +2627,7 @@ class StockProposal:
             ),
             yaxis=dict(
                 showgrid=False,
-                gridcolor="rgba(0, 0, 0, 0.5)",
+                gridcolor="rgba(0, 0, 0, 0.2)",
                 zeroline=False,
                 showticklabels=False,
                 # title="Week",
@@ -2831,7 +2831,7 @@ class StockProposal:
                     "Sunday",
                 ],
                 showgrid=False,
-                gridcolor="rgba(255, 255, 255, 0.5)",
+                gridcolor="rgba(255, 255, 255, 0.2)",
                 zeroline=False,
                 showticklabels=True,
                 dtick=1,  # 每天显示一个刻度
@@ -2839,7 +2839,7 @@ class StockProposal:
             ),
             yaxis=dict(
                 showgrid=False,
-                gridcolor="rgba(255, 255, 255, 0.5)",
+                gridcolor="rgba(255, 255, 255, 0.2)",
                 zeroline=False,
                 showticklabels=False,
                 # title="Week",
@@ -4051,7 +4051,7 @@ class StockProposal:
                 ticks="outside",
                 tickfont=dict(color="black", family="Arial", size=font_size),
                 showline=False,
-                gridcolor="rgba(0, 0, 0, 0.5)",
+                gridcolor="rgba(0, 0, 0, 0.2)",
                 domain=[0, 1],  # 强制x轴占据全部可用宽度
                 automargin=False,  # 关闭自动边距计算
             ),
@@ -4065,7 +4065,7 @@ class StockProposal:
                 ticks="inside",
                 tickfont=dict(color="black", family="Arial", size=font_size),
                 showline=False,
-                gridcolor="rgba(0, 0, 0, 0.5)",
+                gridcolor="rgba(0, 0, 0, 0.2)",
                 ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
                 tickangle=0,  # 确保刻度标签水平显示
             ),
@@ -4125,7 +4125,7 @@ class StockProposal:
                 ticks="outside",
                 tickfont=dict(color=text_color, family="Arial", size=font_size),
                 showline=False,
-                gridcolor="rgba(255, 255, 255, 0.5)",
+                gridcolor="rgba(255, 255, 255, 0.2)",
                 domain=[0, 1],  # 强制x轴占据全部可用宽度
                 automargin=False,  # 关闭自动边距计算
             ),
@@ -4139,7 +4139,7 @@ class StockProposal:
                 ticks="outside",
                 tickfont=dict(color=text_color, family="Arial", size=font_size),
                 showline=False,
-                gridcolor="rgba(255, 255, 255, 0.5)",
+                gridcolor="rgba(255, 255, 255, 0.2)",
                 ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
                 tickangle=0,  # 确保刻度标签水平显示
             ),
