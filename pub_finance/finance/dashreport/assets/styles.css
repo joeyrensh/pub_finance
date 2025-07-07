@@ -313,14 +313,23 @@ img {
 
 }
 
+#idAssignedToDataTable table {
+border-collapse: separate !important;
+border-spacing: 0 !important;
+}
+
+#idAssignedToDataTable table td, #idAssignedToDataTable table th {
+border-width: 0.01px !important;
+border-color: var(--dash-table-border-color) !important;
+}
+
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
   background: none;
   --hover: #d3d3d382;
-  border-width: 0.7px !important;
+  border-width: 0.01px !important;
   border-color: var(--dash-table-border-color) !important;
   font-family: Raleway, HelveticaNeue, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-
 
 #idAssignedToDataTable .dash-filter input:not([type=radio]):not([type=checkbox]) {
   color: #007eff;
