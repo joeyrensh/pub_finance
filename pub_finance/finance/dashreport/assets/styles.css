@@ -322,7 +322,6 @@ border-spacing: 0 !important;
 border-width: 0.01px !important;
 border-color: var(--dash-table-border-color) !important;
 }
-
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
   background: none;
   --hover: #d3d3d382;
