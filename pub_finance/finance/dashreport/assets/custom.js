@@ -65,34 +65,27 @@
             // 查找 element 的父级是否以 "table" 为前缀
             const parent = element.closest('[id^="table"]');
             if (parent) {
-                // 初始化计数器
-                let totalCount = 0;
-
-                // 遍历 parent 的直接子节点，统计 id 以 "text_" 为前缀的节点数量
+                // 获取所有 id 以 "text_" 开头的子节点
                 const textElements = Array.from(parent.children).filter(child =>
                     child.id && child.id.startsWith("text_")
                 );
+                const colCount = 3; // 或 4，根据你的表格实际列数设置
 
-                // 计算总数
-                totalCount = textElements.length;                
-
-                // 计算结果：总数除以 5 再乘以 2
-                const num = (totalCount / 5) * 2;
-
-                // 查找 id 为 `text_${num}` 且父级为 <g> 的节点
+                // 找到当前 element 所在 <g> 的索引
                 const parentDiv = element.closest('g');
-                if (parentDiv && parentDiv.id === `text_${num}`) {
-                    fontSize = screenWidth <= 550 ? '2.5rem' : '2rem'; // 特殊的 font-size
+                const idx = textElements.findIndex(child => child === parentDiv);
+
+                // 判断是否为第二列且不是第一行
+                if (idx >= colCount && (idx % colCount === 2)) {
+                    fontSize = screenWidth <= 550 ? '2.5rem' : '2rem';
                     element.style.setProperty('font-weight', 'bold', 'important');
-                    // 获取该标签内的文本内容
-                    const textContent = parentDiv.textContent.trim(); // 去除多余的空格                    
-                        // 判断文本内容是否包含 "-" 前缀
+                    const textContent = parentDiv.textContent.trim();
                     if (textContent.startsWith('-')) {
-                        element.style.setProperty('fill', 'Green', 'important'); // 设置为绿色
+                        element.style.setProperty('fill', 'Green', 'important');
                     } else {
-                        element.style.setProperty('fill', 'Red', 'important'); // 设置为红色
+                        element.style.setProperty('fill', 'Red', 'important');
                     }
-                }             
+                }
             }
         }
 
