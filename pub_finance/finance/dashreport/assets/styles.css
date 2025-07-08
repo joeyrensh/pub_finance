@@ -12,7 +12,7 @@
   --subtitle-color: #000000;
   --a-visited-color: #000000;
   --learn-more-button-color: #000000;
-  --dash-table-border-color: rgba(211, 211, 211, 0.4);
+  --dash-table-border-color: rgba(211, 211, 211, 0.6);
   --main-title-color: #FF4136;
   --full-view-link-bg-color: #FF4136;
   --border-left-color: #FF4136;
@@ -33,7 +33,7 @@
     --subtitle-color: #ffffffc5;
     --a-visited-color: #ffffffc5;
     --learn-more-button-color: #9fa6b7;
-    --dash-table-border-color: rgba(255, 255, 255, 0.3);
+    --dash-table-border-color: rgba(255, 255, 255, 0.6);
     --main-title-color: #ffffffc5;
     --full-view-link-bg-color: #ff413699;
     --border-left-color: #ff413699;
@@ -288,10 +288,10 @@ table {
   width: 100%;
   font-size: 1.3rem;
   border-spacing: 0;
-  border-collapse: collapse;
+  border-collapse: separate;
   margin: 0;
   padding: 0;
-  border: 0px solid #050505;
+  border: 0.1px solid var(--dash-table-border-color) !important;
   /* filter: brightness(110%); */
   /* filter:
     contrast(105%) saturate(110%); */
@@ -322,24 +322,32 @@ border-spacing: 0 !important;
 border-width: 0.01px !important;
 border-color: var(--dash-table-border-color) !important;
 }
+
+#idAssignedToDataTable .dash-table-container {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border-width: 0.1px !important;
+  border-color: var(--dash-table-border-color) !important;
+}
+
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
   background: none;
   --hover: #d3d3d382;
-  border-width: 0.01px !important;
-  border-color: var(--dash-table-border-color) !important;
+  /* border-width: 0.01px !important;
+  border-color: var(--dash-table-border-color) !important; */
   font-family: Raleway, HelveticaNeue, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 #idAssignedToDataTable .dash-filter input:not([type=radio]):not([type=checkbox]) {
   color: #007eff;
   text-align: left;
-  line-height: 0%;
-  height: 100%;
-  margin-left: -6px;
-  /* margin-bottom: -10px; */
   padding: 0;
   font-size: 0.9rem;
-
+}
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th.dash-filter input.dash-filter--case--sensitive {
+  border-radius: 0px !important;
+  border-width: 0px !important;
+  font-size: 0px !important;
 }
 
 #idAssignedToDataTable .dash-spreadsheet-container .dash-spreadsheet-inner .column-header-name {
@@ -396,9 +404,11 @@ table.reversed tr:nth-child(even) {
 
 td,
 th {
-  border: 0px solid #ddd;
-  padding: 8px;
+  border: 0.1px solid var(--dash-table-border-color) !important;
+  padding: 0px;
   text-align: left;
+  border-spacing: 0;
+  border-collapse: separate;
 
 }
 
@@ -703,11 +713,11 @@ a:active {
     margin: 0 auto;
   }
 
-  .table {
+  table {
     width: 100%;
-    font-size: 1rem;
-    border-spacing: 0;
-    border-collapse: collapse;
+    font-size: 1rem !important;
+    /* border-spacing: 0;
+    border-collapse: collapse; */
     margin: 0;
     padding: 0;
     /* border: 0px solid #050505; */
@@ -928,11 +938,11 @@ a:active {
     /* filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(120%) contrast(105%) saturate(105%); */
   }
 
-  .table {
+  table {
     width: 100%;
-    font-size: 1.2rem;
-    border-spacing: 0;
-    border-collapse: collapse;
+    font-size: 1.2rem !important;
+    /* border-spacing: 0;
+    border-collapse: collapse; */
     margin: 0;
     padding: 0;
     /* border: 0px solid #050505; */
