@@ -410,14 +410,14 @@ if __name__ == "__main__":
 
     # 主函数中替换原有调用
     # cash, final_value = exec_btstrategy(trade_date)
-    cash, final_value = run_backtest_in_process(trade_date)
+    # cash, final_value = run_backtest_in_process(trade_date)
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
+    StockProposal("cn", trade_date).send_btstrategy_by_email(9921833.0, 28242585.99)
 
     """ 结束进度条 """
     pbar.finish()

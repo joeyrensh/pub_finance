@@ -136,7 +136,7 @@ class StockProposal:
 
         # 生成时间序列，用于时间序列补齐
         end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
-        start_date = pd.to_datetime(end_date) - pd.DateOffset(days=120)
+        start_date = pd.to_datetime(end_date) - pd.DateOffset(days=180)
         date_range = pd.date_range(
             start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
         )
@@ -215,7 +215,7 @@ class StockProposal:
                     ,price AS adj_price
                     ,size AS adj_size
                 FROM 
-                tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -120)
+                tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -180)
                 UNION ALL
                 SELECT symbol
                     ,date AS buy_date
@@ -683,7 +683,7 @@ class StockProposal:
                     ,price AS adj_price
                     ,size AS adj_size
                     ,strategy AS sell_strategy
-                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -120)
+                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -180)
                 UNION ALL
                 SELECT symbol
                     ,date AS buy_date
@@ -1062,7 +1062,7 @@ class StockProposal:
                     ,size AS adj_size
                     ,strategy AS sell_strategy
                     ,ROW_NUMBER() OVER(PARTITION BY symbol ORDER BY l_date DESC) AS row_num
-                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -120)
+                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -180)
                 AND  symbol NOT IN (SELECT symbol FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL)
             ), tmp2 AS (
                 SELECT symbol
@@ -1364,7 +1364,7 @@ class StockProposal:
         pie_sequential_color = px.colors.sequential.Reds_r
         customized_sequential_color = [
             "#d32748",
-            "#de3761",
+            "#ffa700",
             "#00a380",
             "#0d876d",
         ]
@@ -1373,7 +1373,7 @@ class StockProposal:
             "#0c6552",
             "#0d876d",
             "#00a380",
-            "#656e76",
+            "#ffa700",
             "#de3761",
             "#af2d4e",
             "#80233b",
@@ -1383,7 +1383,7 @@ class StockProposal:
             "#0d7b67",
             "#0e987f",
             "#01b08f",
-            "#778189",
+            "#ffa700",
             "#f44577",
             "#d1315a",
             "#b52748",
@@ -1409,13 +1409,13 @@ class StockProposal:
         heatmap_colors4_light = [
             "rgba(13, 135, 109, 0.8)",
             "rgba(0, 163, 128, 0.6)",
-            "rgba(222, 55, 97, 0.6)",
+            "rgba(255, 167, 0, 0.6)",
             "rgba(175, 45, 78, 0.8)",
         ]
         heatmap_colors4_dark = [
             "rgba(13, 135, 109, 0.8)",
             "rgba(0, 163, 128, 0.6)",
-            "rgba(222, 55, 97, 0.6)",
+            "rgba(255, 167, 0, 0.6)",
             "rgba(175, 45, 78, 0.8)",
         ]
         # TOP20热门行业
@@ -1647,8 +1647,8 @@ class StockProposal:
         pd_top20_profit_industry = None
         gc.collect()
 
-        # 120天内策略交易概率
-        spark_strategy_tracking_lst120days = spark.sql(
+        # 180天内策略交易概率
+        spark_strategy_tracking_lst180days = spark.sql(
             """ 
             WITH tmp1 AS (
                 SELECT t1.date
@@ -1657,7 +1657,7 @@ class StockProposal:
                     ,t2.strategy
                     ,ROW_NUMBER() OVER(PARTITION BY t1.date, t1.symbol ORDER BY ABS(t1.date - t2.date) ASC, t2.date DESC) AS rn
                 FROM temp_position_detail t1 LEFT JOIN temp_transaction_detail t2 ON t1.symbol = t2.symbol AND t1.date >= t2.date AND t2.trade_type = 'buy'
-                WHERE t1.date >= DATE_ADD('{}', -120) 
+                WHERE t1.date >= DATE_ADD('{}', -180) 
             )
             SELECT date
                     ,strategy
@@ -1669,25 +1669,25 @@ class StockProposal:
             ORDER BY date, pnl
             """.format(end_date)
         )
-        pd_strategy_tracking_lst120days = spark_strategy_tracking_lst120days.toPandas()
-        pd_strategy_tracking_lst120days["date"] = pd.to_datetime(
-            pd_strategy_tracking_lst120days["date"]
+        pd_strategy_tracking_lst180days = spark_strategy_tracking_lst180days.toPandas()
+        pd_strategy_tracking_lst180days["date"] = pd.to_datetime(
+            pd_strategy_tracking_lst180days["date"]
         )
-        pd_strategy_tracking_lst120days["ema_success_rate"] = (
-            pd_strategy_tracking_lst120days["success_rate"]
+        pd_strategy_tracking_lst180days["ema_success_rate"] = (
+            pd_strategy_tracking_lst180days["success_rate"]
             .ewm(span=5, adjust=False)
             .mean()
         )
-        pd_strategy_tracking_lst120days_group = (
-            pd_strategy_tracking_lst120days.groupby("date")["pnl"].sum().reset_index()
+        pd_strategy_tracking_lst180days_group = (
+            pd_strategy_tracking_lst180days.groupby("date")["pnl"].sum().reset_index()
         )  # 按日期分组并求和
-        max_pnl = pd_strategy_tracking_lst120days_group["pnl"].max()
+        max_pnl = pd_strategy_tracking_lst180days_group["pnl"].max()
 
         # 创建带有两个 y 轴的子图布局
         fig = go.Figure()
         # 遍历每个策略并添加数据
         for i, (strategy, data) in enumerate(
-            pd_strategy_tracking_lst120days.groupby("strategy")
+            pd_strategy_tracking_lst180days.groupby("strategy")
         ):
             fig.add_trace(
                 go.Scatter(
@@ -1791,7 +1791,7 @@ class StockProposal:
         fig = go.Figure()
         # 遍历每个策略并添加数据
         for i, (strategy, data) in enumerate(
-            pd_strategy_tracking_lst120days.groupby("strategy")
+            pd_strategy_tracking_lst180days.groupby("strategy")
         ):
             fig.add_trace(
                 go.Scatter(
@@ -1891,17 +1891,17 @@ class StockProposal:
                 scale=scale_factor,
             )
 
-        pd_strategy_tracking_lst120days = None
+        pd_strategy_tracking_lst180days = None
         gc.collect()
 
-        # 120天内交易明细分析
-        spark_trade_info_lst120days = spark.sql(
+        # 180天内交易明细分析
+        spark_trade_info_lst180days = spark.sql(
             """ 
             WITH tmp1 AS (
                 SELECT date
                     ,COUNT(symbol) AS total_cnt
                 FROM temp_position_detail
-                WHERE date >= DATE_ADD('{}', -120)
+                WHERE date >= DATE_ADD('{}', -180)
                 GROUP BY date
             ), tmp11 AS (
                 SELECT temp_timeseries.buy_date
@@ -1913,7 +1913,7 @@ class StockProposal:
                     ,SUM(IF(trade_type = 'buy', 1, 0)) AS buy_cnt
                     ,SUM(IF(trade_type = 'sell', 1, 0)) AS sell_cnt
                 FROM temp_transaction_detail
-                WHERE date >= DATE_ADD('{}', -120)
+                WHERE date >= DATE_ADD('{}', -180)
                 GROUP BY date
             )
             SELECT t1.buy_date AS buy_date
@@ -1923,8 +1923,8 @@ class StockProposal:
             FROM tmp11 t1 LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
             """.format(end_date, end_date)
         )
-        pd_trade_info_lst120days = spark_trade_info_lst120days.toPandas()
-        # df_grouped = pd_trade_info_lst120days.groupby("buy_date")[
+        pd_trade_info_lst180days = spark_trade_info_lst180days.toPandas()
+        # df_grouped = pd_trade_info_lst180days.groupby("buy_date")[
         #     ["buy_cnt", "sell_cnt"]
         # ].sum()
 
@@ -1932,8 +1932,8 @@ class StockProposal:
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
-                x=pd_trade_info_lst120days["buy_date"],
-                y=pd_trade_info_lst120days["total_cnt"],
+                x=pd_trade_info_lst180days["buy_date"],
+                y=pd_trade_info_lst180days["total_cnt"],
                 mode="lines+markers",
                 name="Total",
                 line=dict(color="#e01c3a", width=3),
@@ -1942,8 +1942,8 @@ class StockProposal:
         )
         fig.add_trace(
             go.Bar(
-                x=pd_trade_info_lst120days["buy_date"],
-                y=pd_trade_info_lst120days["buy_cnt"],
+                x=pd_trade_info_lst180days["buy_date"],
+                y=pd_trade_info_lst180days["buy_cnt"],
                 name="Long",
                 marker_color="#e01c3a",
                 marker_line_color="#e01c3a",
@@ -1952,8 +1952,8 @@ class StockProposal:
         )
         fig.add_trace(
             go.Bar(
-                x=pd_trade_info_lst120days["buy_date"],
-                y=pd_trade_info_lst120days["sell_cnt"],
+                x=pd_trade_info_lst180days["buy_date"],
+                y=pd_trade_info_lst180days["sell_cnt"],
                 name="Short",
                 marker_color="#0d876d",
                 marker_line_color="#0d876d",
@@ -1963,7 +1963,7 @@ class StockProposal:
         # light mode
         fig.update_layout(
             title={
-                "text": "Last 120 days trade info",
+                "text": "Last 180 days trade info",
                 "y": 0.9,
                 "x": 0.5,
                 "font": dict(
@@ -2089,7 +2089,7 @@ class StockProposal:
                 scale=scale_factor,
             )
 
-        pd_trade_info_lst120days = None
+        pd_trade_info_lst180days = None
         gc.collect()
 
         # TOP5行业仓位变化趋势
@@ -2112,7 +2112,7 @@ class StockProposal:
                     ,t1.date
                     ,t1.pnl
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
-                WHERE t1.date >= DATE_ADD('{}', -120)
+                WHERE t1.date >= DATE_ADD('{}', -180)
             ) 
             SELECT t1.buy_date
                 ,t1.industry
@@ -2159,7 +2159,7 @@ class StockProposal:
             tickangle=0,  # 确保刻度标签水平显示
         )
         fig.update_layout(
-            title="Last 120 days top5 Positions",
+            title="Last 180 days top5 Positions",
             title_font=dict(
                 size=title_font_size, color=dark_text_color, family="Arial"
             ),
@@ -2261,7 +2261,7 @@ class StockProposal:
                     ,t1.date
                     ,t1.pnl
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
-                WHERE t1.date >= DATE_ADD('{}', -120)
+                WHERE t1.date >= DATE_ADD('{}', -180)
             ), tmp3 AS (
             SELECT t1.buy_date
                 ,t1.industry
@@ -2313,7 +2313,7 @@ class StockProposal:
             tickangle=0,  # 确保刻度标签水平显示
         )
         fig.update_layout(
-            title="Last 120 days top5 pnl",
+            title="Last 180 days top5 pnl",
             title_font=dict(
                 size=title_font_size, color=dark_text_color, family="Arial"
             ),
@@ -2394,7 +2394,7 @@ class StockProposal:
             tickangle=0,  # 确保刻度标签水平显示
         )
         fig.update_layout(
-            title="Last 120 days top5 pnl",
+            title="Last 180 days top5 pnl",
             title_font=dict(
                 size=title_font_size, color=light_text_color, family="Arial"
             ),
@@ -3337,7 +3337,7 @@ class StockProposal:
 
         # 生成时间序列，用于时间序列补齐
         end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
-        start_date = pd.to_datetime(end_date) - pd.DateOffset(days=120)
+        start_date = pd.to_datetime(end_date) - pd.DateOffset(days=180)
         date_range = pd.date_range(
             start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
         )
@@ -3422,7 +3422,7 @@ class StockProposal:
                     ,price AS adj_price
                     ,size AS adj_size
                     ,strategy AS sell_strategy
-                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -120)
+                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -180)
                 UNION ALL
                 SELECT symbol
                     ,date AS buy_date
@@ -3747,7 +3747,7 @@ class StockProposal:
                     ,size AS adj_size
                     ,strategy AS sell_strategy
                     ,ROW_NUMBER() OVER(PARTITION BY symbol ORDER BY l_date DESC) AS row_num
-                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -120)
+                FROM tmp1 WHERE trade_type = 'sell' AND date >= DATE_ADD('{}', -180)
                 AND  symbol NOT IN (SELECT symbol FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL)
             ), tmp2 AS (
                 SELECT symbol
@@ -3976,14 +3976,14 @@ class StockProposal:
         pd_position_history = None
         gc.collect()
 
-        # 120天内交易明细分析
-        spark_trade_info_lst120days = spark.sql(
+        # 180天内交易明细分析
+        spark_trade_info_lst180days = spark.sql(
             """ 
             WITH tmp1 AS (
                 SELECT date
                     ,COUNT(symbol) AS total_cnt
                 FROM temp_position_detail
-                WHERE date >= DATE_ADD('{}', -120)
+                WHERE date >= DATE_ADD('{}', -180)
                 GROUP BY date
             ), tmp11 AS (
                 SELECT temp_timeseries.buy_date
@@ -3996,7 +3996,7 @@ class StockProposal:
                     ,SUM(IF(trade_type = 'buy', 1, 0)) AS buy_cnt
                     ,SUM(IF(trade_type = 'sell', 1, 0)) AS sell_cnt
                 FROM temp_transaction_detail
-                WHERE date >= DATE_ADD('{}', -120)
+                WHERE date >= DATE_ADD('{}', -180)
                 GROUP BY date
             )
             SELECT t1.buy_date AS buy_date
@@ -4006,7 +4006,7 @@ class StockProposal:
             FROM tmp11 t1 LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
             """.format(end_date, end_date)
         )
-        pd_trade_info_lst120days = spark_trade_info_lst120days.toPandas()
+        pd_trade_info_lst180days = spark_trade_info_lst180days.toPandas()
 
         # 设置图像的宽度和高度（例如，1920x1080像素）
         fig_width, fig_height = 1440, 900
@@ -4016,8 +4016,8 @@ class StockProposal:
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
-                x=pd_trade_info_lst120days["buy_date"],
-                y=pd_trade_info_lst120days["total_cnt"],
+                x=pd_trade_info_lst180days["buy_date"],
+                y=pd_trade_info_lst180days["total_cnt"],
                 mode="lines+markers",
                 name="total stock",
                 line=dict(color="red", width=3),
@@ -4026,8 +4026,8 @@ class StockProposal:
         )
         fig.add_trace(
             go.Bar(
-                x=pd_trade_info_lst120days["buy_date"],
-                y=pd_trade_info_lst120days["buy_cnt"],
+                x=pd_trade_info_lst180days["buy_date"],
+                y=pd_trade_info_lst180days["buy_cnt"],
                 name="long",
                 marker_color="red",
                 marker_line_color="red",
@@ -4036,8 +4036,8 @@ class StockProposal:
         )
         fig.add_trace(
             go.Bar(
-                x=pd_trade_info_lst120days["buy_date"],
-                y=pd_trade_info_lst120days["sell_cnt"],
+                x=pd_trade_info_lst180days["buy_date"],
+                y=pd_trade_info_lst180days["sell_cnt"],
                 name="short",
                 marker_color="green",
                 marker_line_color="green",
@@ -4047,7 +4047,7 @@ class StockProposal:
         # light mode
         fig.update_layout(
             title={
-                "text": "Last 120 days trade info",
+                "text": "Last 180 days trade info",
                 "y": 0.9,
                 "x": 0.5,
                 "font": dict(size=title_font_size, color="black", family="Arial"),
@@ -4121,7 +4121,7 @@ class StockProposal:
         text_color = "rgba(255, 255, 255, 0.77)"
         fig.update_layout(
             title={
-                "text": "Last 120 days trade info",
+                "text": "Last 180 days trade info",
                 "y": 0.9,
                 "x": 0.5,
                 "font": dict(size=title_font_size, color=text_color, family="Arial"),
@@ -4192,7 +4192,7 @@ class StockProposal:
             scale=scale_factor,
         )
 
-        pd_trade_info_lst120days = None
+        pd_trade_info_lst180days = None
         gc.collect()
 
         spark.stop()
