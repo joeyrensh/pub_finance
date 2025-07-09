@@ -81,9 +81,9 @@
                     element.style.setProperty('font-weight', 'bold', 'important');
                     const textContent = parentDiv.textContent.trim();
                     if (textContent.startsWith('-')) {
-                        element.style.setProperty('fill', 'Green', 'important');
+                        element.style.setProperty('fill', '#0d876d', 'important');
                     } else {
-                        element.style.setProperty('fill', 'Red', 'important');
+                        element.style.setProperty('fill', '#D9534F', 'important');
                     }
                 }
             }

@@ -210,7 +210,7 @@ class ToolKit:
         config = {
             "up_color": "#ff4444",  # Yahoo 上涨绿色
             "down_color": "#00a859",  # Yahoo 下跌红色
-            "line_width": 1.2,
+            "line_width": 1.5,
             "marker_size": 3.5,
             "gradient_steps": 100,  # 渐变精度
             "zero_line_alpha": 0.2,

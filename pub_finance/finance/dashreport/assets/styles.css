@@ -1,9 +1,9 @@
 :root {
   /* table浅色样式 */
   --data-bar-color: rgb(125, 207, 255);
-  --date-bg-color: rgba(255, 127, 80, 0.73);
-  --negative-value-bg-color: #3d9970d4;
-  --positive-value-bg-color: #ff4036c7;
+  --date-bg-color: #ffdc50cc;
+  --negative-value-bg-color: #0d876cd9;
+  --positive-value-bg-color: #d9544fd8;
 
   /* 浅色通用样式 */
   --background-color: #f6f8f9;
@@ -13,16 +13,16 @@
   --a-visited-color: #000000;
   --learn-more-button-color: #000000;
   --dash-table-border-color: rgba(211, 211, 211, 0.6);
-  --main-title-color: #FF4136;
-  --full-view-link-bg-color: #FF4136;
-  --border-left-color: #FF4136;
+  --main-title-color: #D9534F;
+  --full-view-link-bg-color: #D9534F;
+  --border-left-color: #D9534F;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     /* table深色样式 */
     --data-bar-color: #0074d973;
-    --date-bg-color: #ff7f50ba;
+    --date-bg-color: #8f7a22c4;
     --negative-value-bg-color: #3d997096;
     --positive-value-bg-color: #ff413696;
 
@@ -35,8 +35,8 @@
     --learn-more-button-color: #9fa6b7;
     --dash-table-border-color: rgba(255, 255, 255, 0.2);
     --main-title-color: #ffffffc5;
-    --full-view-link-bg-color: #ff413699;
-    --border-left-color: #ff413699;
+    --full-view-link-bg-color: #D9534F;
+    --border-left-color: #D9534F;
   }
 
 }
@@ -297,10 +297,12 @@ table {
     contrast(105%) saturate(110%); */
 }
 
+/* 
 img {
-  /* filter: brightness(110%) contrast(120%) saturate(120%); */
+  filter: brightness(110%) contrast(120%) saturate(120%);
   filter: contrast(120%) saturate(120%);
 }
+*/
 
 .firstimg {
   width: 100%;

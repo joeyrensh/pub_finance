@@ -1359,58 +1359,64 @@ class StockProposal:
         # 设置图像的宽度和高度（例如，1920x1080像素）
         fig_width, fig_height = 1440, 900
         scale_factor = 1
-        light_text_color = "rgba(255, 255, 255, 0.77)"
+        light_text_color = "rgba(255, 255, 255, 0.8)"
         dark_text_color = "#000000"
-        pie_sequential_color = px.colors.diverging.RdYlGn
+        pie_sequential_color = px.colors.sequential.Reds_r
+        customized_sequential_color = [
+            "#d32748",
+            "#de3761",
+            "#00a380",
+            "#0d876d",
+        ]
         # 策略颜色
         strategy_colors_light = [
-            "#228B22",
-            "#32CD32",
-            "#20B2AA",
-            "#FF6B6B",
-            "#FF4500",
-            "#e60606",
-            "#8B0000",
+            "#0c6552",
+            "#0d876d",
+            "#00a380",
+            "#656e76",
+            "#de3761",
+            "#af2d4e",
+            "#80233b",
         ]
 
         strategy_colors_dark = [
-            "#00FA9A",
-            "#7CFC00",
-            "#00FF7F",
-            "#FFA07A",
-            "#DC143C",
-            "#dc5037",
-            "#FF6347",
+            "#0d7b67",
+            "#0e987f",
+            "#01b08f",
+            "#778189",
+            "#f44577",
+            "#d1315a",
+            "#b52748",
         ]
 
         # 多样化颜色
         diverse_colors5_light = [
-            "#C53030",
-            "#318231",
-            "#63B363",
-            "#90EE90",
-            "#F56565",
+            "#80233b",
+            "#af2d4e",
+            "#de3761",
+            "#0d876d",
+            "#0c6552",
         ]
         diverse_colors5_dark = [
-            "#C53030",
-            "#318231",
-            "#63B363",
-            "#90EE90",
-            "#F56565",
+            "#b52748",
+            "#d1315a",
+            "#f44577",
+            "#0e987f",
+            "#0d7b67",
         ]
 
         # 热图颜色
         heatmap_colors4_light = [
-            "rgba(34, 139, 34, 0.7)",
-            "rgba(50, 205, 50, 0.5)",
-            "rgba(212, 55, 55, 0.5)",
-            "rgba(207, 12, 12, 0.7)",
+            "rgba(13, 135, 109, 0.8)",
+            "rgba(0, 163, 128, 0.6)",
+            "rgba(222, 55, 97, 0.6)",
+            "rgba(175, 45, 78, 0.8)",
         ]
         heatmap_colors4_dark = [
-            "rgba(34, 139, 34, 0.8)",
-            "rgba(50, 205, 50, 0.6)",
-            "rgba(240, 80, 80, 0.6)",
-            "rgba(220, 40, 40, 0.8)",
+            "rgba(13, 135, 109, 0.8)",
+            "rgba(0, 163, 128, 0.6)",
+            "rgba(222, 55, 97, 0.6)",
+            "rgba(175, 45, 78, 0.8)",
         ]
         # TOP20热门行业
         spark_top20_industry = spark.sql(
@@ -1452,19 +1458,31 @@ class StockProposal:
 
         # light mode
         # 生成动态文本颜色列表（适用于所有区块）
-        hex_colors = sample_colorscale(
-            pie_sequential_color,  # 原始色阶
-            samplepoints=np.linspace(0, 1, 20),  # 生成 20 个等间距点
-            colortype="rgb",  # 输出为十六进制
-        )
-        alpha = 0.4
+        # hex_colors = sample_colorscale(
+        #     # pie_sequential_color,  # 原始色阶
+        #     customized_sequential_color,
+        #     samplepoints=np.linspace(0, 1, 20),  # 生成 20 个等间距点
+        #     colortype="rgb",  # 输出为十六进制
+        # )
+        # 生成20个颜色，分段填充
+        hex_colors = [customized_sequential_color[i // 5] for i in range(20)]
+        alpha = 0.6
         # 将 RGB 转换为 RGBA，添加透明度
-        rgba_colors = [
-            f"rgba({int(color[4:-1].split(',')[0])}, {int(color[4:-1].split(',')[1])}, {int(color[4:-1].split(',')[2])}, {alpha})"
-            for color in hex_colors
-        ]
+        rgba_colors = []
+        for color in hex_colors:
+            if isinstance(color, str) and color.startswith("rgb"):
+                values = [
+                    float(x)
+                    for x in color[color.find("(") + 1 : color.find(")")].split(",")[:3]
+                ]
+                rgba_colors.append(
+                    f"rgba({int(values[0])}, {int(values[1])}, {int(values[2])}, {alpha})"
+                )
+            else:
+                r, g, b = [int(x * 255) for x in to_rgb(color)]
+                rgba_colors.append(f"rgba({r}, {g}, {b}, {alpha})")
         # 文本颜色
-        # text_colors = [get_text_color(color, "light") for color in rgba_colors]
+        text_colors = [get_text_color(color, "light") for color in rgba_colors]
 
         # 创建 Treemap 图
         fig = go.Figure(
@@ -1473,13 +1491,11 @@ class StockProposal:
                 parents=[None] * len(pd_top20_industry),  # 顶层节点为空
                 values=pd_top20_industry["cnt"],
                 texttemplate="%{label}<br>%{value}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
-                insidetextfont=dict(
-                    size=font_size, color=dark_text_color, family="Arial"
-                ),
+                insidetextfont=dict(size=font_size, color=text_colors, family="Arial"),
                 textposition="middle center",
                 marker=dict(
                     colors=rgba_colors,
-                    line=dict(color=rgba_colors, width=2),
+                    line=dict(color=rgba_colors, width=1),
                     showscale=False,
                     pad=dict(t=0, b=0, l=0, r=0),
                 ),
@@ -1520,13 +1536,10 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
-        # text_colors = [get_text_color(color, "dark") for color in rgba_colors]
+        text_colors = [get_text_color(color, "dark") for color in rgba_colors]
         fig.update_traces(
-            insidetextfont=dict(color=light_text_color),
+            insidetextfont=dict(color=text_colors),
             marker=dict(colors=rgba_colors, line=dict(color=rgba_colors)),
-        )
-        fig.update_layout(
-            title_font=dict(color=light_text_color),
         )
 
         if self.market == "us":
@@ -1557,6 +1570,8 @@ class StockProposal:
         )
 
         pd_top20_profit_industry = spark_top20_profit_industry.toPandas()
+        # 文本颜色
+        text_colors = [get_text_color(color, "light") for color in rgba_colors]
         # 创建 Treemap 图
         fig = go.Figure(
             go.Treemap(
@@ -1564,14 +1579,12 @@ class StockProposal:
                 parents=[""] * len(pd_top20_profit_industry),  # 顶层节点为空
                 values=pd_top20_profit_industry["pl"],
                 texttemplate="%{label}<br>%{value}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
-                insidetextfont=dict(
-                    size=font_size, color=dark_text_color, family="Arial"
-                ),
+                insidetextfont=dict(size=font_size, color=text_colors, family="Arial"),
                 outsidetextfont=dict(color="grey"),
                 textposition="middle center",
                 marker=dict(
                     colors=rgba_colors,
-                    line=dict(color=rgba_colors, width=2),
+                    line=dict(color=rgba_colors, width=1),
                     showscale=False,
                     pad=dict(t=0, b=0, l=0, r=0),
                 ),
@@ -1611,13 +1624,10 @@ class StockProposal:
                 scale=scale_factor,
             )
         # dark mode
-        # text_colors = [get_text_color(color, "dark") for color in hex_colors]
+        text_colors = [get_text_color(color, "dark") for color in hex_colors]
         fig.update_traces(
-            insidetextfont=dict(color=light_text_color),
+            insidetextfont=dict(color=text_colors),
             marker=dict(colors=rgba_colors, line=dict(color=rgba_colors)),
-        )
-        fig.update_layout(
-            title_font=dict(color=light_text_color),
         )
         if self.market == "us":
             fig.write_image(
@@ -1926,7 +1936,7 @@ class StockProposal:
                 y=pd_trade_info_lst120days["total_cnt"],
                 mode="lines+markers",
                 name="Total",
-                line=dict(color="red", width=3),
+                line=dict(color="#e01c3a", width=3),
                 yaxis="y",
             )
         )
@@ -1935,8 +1945,8 @@ class StockProposal:
                 x=pd_trade_info_lst120days["buy_date"],
                 y=pd_trade_info_lst120days["buy_cnt"],
                 name="Long",
-                marker_color="red",
-                marker_line_color="red",
+                marker_color="#e01c3a",
+                marker_line_color="#e01c3a",
                 yaxis="y2",
             )
         )
@@ -1945,8 +1955,8 @@ class StockProposal:
                 x=pd_trade_info_lst120days["buy_date"],
                 y=pd_trade_info_lst120days["sell_cnt"],
                 name="Short",
-                marker_color="green",
-                marker_line_color="green",
+                marker_color="#0d876d",
+                marker_line_color="#0d876d",
                 yaxis="y2",
             )
         )
@@ -2697,7 +2707,7 @@ class StockProposal:
                 y=week - 0.5,
                 line_dash="solid",
                 line_color="gray",
-                opacity=0.5,
+                opacity=0.2,
                 layer="below",
             )
 
@@ -2710,7 +2720,7 @@ class StockProposal:
                 x=day - 0.5,
                 line_dash="solid",
                 line_color="gray",
-                opacity=0.5,
+                opacity=0.2,
                 layer="below",
             )
 
@@ -2899,7 +2909,7 @@ class StockProposal:
                 y=week - 0.5,
                 line_dash="solid",
                 line_color="white",
-                opacity=0.5,
+                opacity=0.2,
                 layer="below",
             )
 
@@ -2912,7 +2922,7 @@ class StockProposal:
                 x=day - 0.5,
                 line_dash="solid",
                 line_color="white",
-                opacity=0.5,
+                opacity=0.2,
                 layer="below",
             )
 

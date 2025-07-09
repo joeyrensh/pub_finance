@@ -161,7 +161,7 @@ def exec_btstrategy(date):
                 "background": "white",
                 "grid": "#333333",
                 "cumret": "#D9534F",  # 深蓝
-                "drawdown": "#009900",  # 红色
+                "drawdown": "#0d876d",  # 红色
                 "table_edge": "#333333",
                 "table_header": "#F5F5F5",
                 "legend_text": "#333333",
@@ -171,7 +171,7 @@ def exec_btstrategy(date):
                 "background": "black",
                 "grid": "#FFFFFF",
                 "cumret": "#FF6B6B",  # 亮蓝
-                "drawdown": "#009900",  # 亮红
+                "drawdown": "#0d876d",  # 亮红
                 "table_edge": "#FFFFFF",
                 "table_header": "#404040",
                 "legend_text": "#ffffffc5",
@@ -271,7 +271,7 @@ def exec_btstrategy(date):
             drawdown.values,
             y2=0,
             color=colors["drawdown"],
-            alpha=0.5,  # 适当降低透明度
+            alpha=0.6,  # 适当降低透明度
             zorder=2,  # 设置较低层级
             edgecolor=colors["drawdown"],
             linewidth=1,
@@ -350,7 +350,7 @@ def exec_btstrategy(date):
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc+8"""
-    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(1)
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
@@ -410,14 +410,14 @@ if __name__ == "__main__":
 
     # 主函数中替换原有调用
     # cash, final_value = exec_btstrategy(trade_date)
-    # cash, final_value = run_backtest_in_process(trade_date)
+    cash, final_value = run_backtest_in_process(trade_date)
 
     collected = gc.collect()
 
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(10061157.02, 26962165.01)
+    StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()
