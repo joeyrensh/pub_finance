@@ -4020,7 +4020,7 @@ class StockProposal:
                 y=pd_trade_info_lst180days["total_cnt"],
                 mode="lines+markers",
                 name="total stock",
-                line=dict(color="red", width=3),
+                line=dict(color="#e01c3a", width=3),
                 yaxis="y",
             )
         )
@@ -4029,8 +4029,8 @@ class StockProposal:
                 x=pd_trade_info_lst180days["buy_date"],
                 y=pd_trade_info_lst180days["buy_cnt"],
                 name="long",
-                marker_color="red",
-                marker_line_color="red",
+                marker_color="#e01c3a",
+                marker_line_color="#e01c3a",
                 yaxis="y2",
             )
         )
@@ -4039,8 +4039,8 @@ class StockProposal:
                 x=pd_trade_info_lst180days["buy_date"],
                 y=pd_trade_info_lst180days["sell_cnt"],
                 name="short",
-                marker_color="green",
-                marker_line_color="green",
+                marker_color="#0d876d",
+                marker_line_color="#0d876d",
                 yaxis="y2",
             )
         )

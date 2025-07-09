@@ -244,9 +244,9 @@ def exec_btstrategy(date):
                     )
                     val = float(val_str)
                     if val < 0:
-                        cell.set_text_props(color="green")
+                        cell.set_text_props(color="#0d876d")
                     elif val >= 0:
-                        cell.set_text_props(color="red")
+                        cell.set_text_props(color="#e01c3a")
                 except Exception:
                     pass  # 非数字或转换失败时跳过
             else:
