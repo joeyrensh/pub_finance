@@ -1363,7 +1363,7 @@ class StockProposal:
         dark_text_color = "#000000"
         pie_sequential_color = px.colors.sequential.Reds_r
         customized_sequential_color = [
-            "#d32748",
+            "#af2d4e",
             "#ffa700",
             "#00a380",
             "#0d876d",
@@ -1407,16 +1407,16 @@ class StockProposal:
 
         # 热图颜色
         heatmap_colors4_light = [
-            "rgba(13, 135, 109, 0.8)",
-            "rgba(0, 163, 128, 0.6)",
-            "rgba(255, 167, 0, 0.6)",
-            "rgba(175, 45, 78, 0.8)",
+            "rgba(13, 135, 109, 0.9)",
+            "rgba(0, 163, 128, 0.3)",
+            "rgba(255, 167, 0, 0.3)",
+            "rgba(175, 45, 78, 0.9)",
         ]
         heatmap_colors4_dark = [
-            "rgba(13, 135, 109, 0.8)",
-            "rgba(0, 163, 128, 0.6)",
-            "rgba(255, 167, 0, 0.6)",
-            "rgba(175, 45, 78, 0.8)",
+            "rgba(13, 135, 109, 0.9)",
+            "rgba(0, 163, 128, 0.3)",
+            "rgba(255, 167, 0, 0.3)",
+            "rgba(175, 45, 78, 0.9)",
         ]
         # TOP20热门行业
         spark_top20_industry = spark.sql(
