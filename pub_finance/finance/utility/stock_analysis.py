@@ -1363,7 +1363,7 @@ class StockProposal:
         dark_text_color = "#000000"
         pie_sequential_color = px.colors.sequential.Reds_r
         customized_sequential_color = [
-            "#af2d4e",
+            "#ab0d34",
             "#ffa700",
             "#00a380",
             "#0d876d",
@@ -1374,9 +1374,9 @@ class StockProposal:
             "#0d876d",
             "#00a380",
             "#ffa700",
-            "#de3761",
-            "#af2d4e",
-            "#80233b",
+            "#d50b3e",
+            "#a90a3f",
+            "#7a0925",
         ]
 
         strategy_colors_dark = [
@@ -1384,25 +1384,39 @@ class StockProposal:
             "#0e987f",
             "#01b08f",
             "#ffa700",
-            "#f44577",
-            "#d1315a",
-            "#b52748",
+            "#e90c4a",
+            "#cf1745",
+            "#b6183d",
         ]
 
         # 多样化颜色
+        # diverse_colors5_light = [
+        #     "#80233b",
+        #     "#af2d4e",
+        #     "#de3761",
+        #     "#0d876d",
+        #     "#0c6552",
+        # ]
+        # diverse_colors5_dark = [
+        #     "#b52748",
+        #     "#d1315a",
+        #     "#f44577",
+        #     "#0e987f",
+        #     "#0d7b67",
+        # ]
         diverse_colors5_light = [
-            "#80233b",
-            "#af2d4e",
-            "#de3761",
-            "#0d876d",
-            "#0c6552",
+            "#d60a22",
+            "#ea7034",
+            "#ffd747",
+            "#81a949",
+            "#037b66",
         ]
         diverse_colors5_dark = [
-            "#b52748",
-            "#d1315a",
-            "#f44577",
-            "#0e987f",
-            "#0d7b67",
+            "#d60a22",
+            "#ea7034",
+            "#ffd747",
+            "#81a949",
+            "#037b66",
         ]
 
         # 热图颜色
