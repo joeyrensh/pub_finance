@@ -5,12 +5,12 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State, MATCH
 from pages import cnstock_performance, news_reviews, usstock_performance
 
-# from pages import (
-#     overview,
-# )
 from flask import Flask
 from flask_compress import Compress
 import configparser
+from flask import session
+import os
+from datetime import timedelta
 
 server = Flask(__name__)
 Compress(server)
@@ -22,26 +22,43 @@ config.read("login.ini")
 VALID_USERNAME = config["credentials"]["username"]
 VALID_PASSWORD = config["credentials"]["password"]
 
+# 设置flask session的密钥和过期时间
+server.secret_key = os.urandom(24)
+server.permanent_session_lifetime = timedelta(minutes=30)
+
 app = dash.Dash(
     __name__,
     meta_tags=[
         {
             "name": "viewport",
             "content": "width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0",
-            # "content": "width=device-width, initial-scale=1.0",
         }
     ],
     server=server,
 )
 app.title = "Financial Report"
 
-
 # Describe the layout/ UI of the app
 app.layout = html.Div(
     children=[
         dcc.Location(id="url", refresh=False),
+        dcc.Store(id="auth-checked", data=False),  # 标记是否已检查登录
+        html.Div(
+            id="loading-mask",
+            children=[
+                dcc.Loading(
+                    id="init-loading",
+                    type="dot",
+                    fullscreen=True,
+                    color="#119DFF",
+                    children=[],
+                )
+            ],
+            style={"display": "block"},
+        ),
         html.Div(
             id="login-page",
+            style={"display": "none"},
             children=[
                 html.Div(
                     className="login-box",
@@ -52,20 +69,26 @@ app.layout = html.Div(
                             type="text",
                             placeholder="Username",
                             className="input-box",
+                            name="username",
+                            autoComplete="username",
                         ),
                         dcc.Input(
                             id="password",
                             type="password",
                             placeholder="Password",
                             className="input-box",
+                            name="password",
+                            autoComplete="current-password",
                         ),
                         html.Button(
-                            "Login", id="login-button", className="login-button"
+                            "Login",
+                            id="login-button",
+                            className="login-button",
+                            type="submit",
                         ),
                         html.Div(id="output-state"),
-                        # 添加备案号链接
                         html.Div(
-                            className="备案号",  # 可以自定义一个类名用于样式
+                            className="备案号",
                             children=[
                                 html.A(
                                     "沪ICP备2024089333号",
@@ -81,6 +104,7 @@ app.layout = html.Div(
         ),
         html.Div(
             id="main-page",
+            style={"display": "none"},
             children=[
                 dcc.Loading(
                     id="loading",
@@ -94,9 +118,6 @@ app.layout = html.Div(
                     className="loading-dot",
                 ),
             ],
-            style={
-                "display": "block",
-            },
         ),
     ],
 )
@@ -107,24 +128,51 @@ app.layout = html.Div(
         Output("output-state", "children"),
         Output("login-page", "style"),
         Output("main-page", "style"),
+        Output("loading-mask", "style"),
+        Output("auth-checked", "data"),
     ],
     [
         Input("login-button", "n_clicks"),
         State("username", "value"),
         State("password", "value"),
+        State("auth-checked", "data"),
     ],
 )
-def handle_login(n_clicks, username, password):
-    if n_clicks is None:
-        return "", {"display": "flex"}, {"display": "none"}
+def handle_login(n_clicks, username, password, auth_checked):
+    # 页面首次加载或刷新时，n_clicks is None
+    if n_clicks is None and not auth_checked:
+        if session.get("logged_in"):
+            # 已登录，显示主页面
+            return (
+                "",
+                {"display": "none"},
+                {"display": "block"},
+                {"display": "none"},
+                True,
+            )
+        else:
+            # 未登录，显示登录页面
+            return (
+                "",
+                {"display": "flex"},
+                {"display": "none"},
+                {"display": "none"},
+                True,
+            )
 
+    # 登录按钮被点击
     if username == VALID_USERNAME and password == VALID_PASSWORD:
-        return "", {"display": "none"}, {"display": "block"}
+        session.permanent = True
+        session["logged_in"] = True
+        return "", {"display": "none"}, {"display": "block"}, {"display": "none"}, True
     else:
+        session["logged_in"] = False
         return (
             html.Div("Invalid username or password", style={"color": "red"}),
             {"display": "flex"},
             {"display": "none"},
+            {"display": "none"},
+            True,
         )
 
 
