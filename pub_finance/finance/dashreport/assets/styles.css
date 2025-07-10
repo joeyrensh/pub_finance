@@ -1,9 +1,9 @@
 :root {
   /* table浅色样式 */
   --data-bar-color: rgb(125, 207, 255);
-  --date-bg-color: #ffa700;
+  --date-bg-color: #ffeb3b;
   --negative-value-bg-color: #0d876cd9;
-  --positive-value-bg-color: #d9544fd8;
+  --positive-value-bg-color: #f44336c7;
 
   /* 浅色通用样式 */
   --background-color: #f6f8f9;
@@ -22,7 +22,7 @@
   :root {
     /* table深色样式 */
     --data-bar-color: #0074d973;
-    --date-bg-color: #8f7a22c4;
+    --date-bg-color: #ae9d07bd;
     --negative-value-bg-color: #3d997096;
     --positive-value-bg-color: #ff413696;
 
