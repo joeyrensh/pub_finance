@@ -1715,7 +1715,7 @@ class StockProposal:
                     y=data["ema_success_rate"],
                     mode="lines",
                     name=strategy,
-                    line=dict(width=2, color=strategy_colors_light[i], shape="hv"),
+                    line=dict(width=3, color=strategy_colors_light[i], shape="hv"),
                     yaxis="y",
                 )
             )
@@ -1782,8 +1782,8 @@ class StockProposal:
                 itemsizing="constant",  # 保持图例符号大小一致
             ),
             barmode="stack",
-            bargap=0.5,
-            bargroupgap=0.5,
+            bargap=0.2,
+            bargroupgap=0.2,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
@@ -1819,7 +1819,7 @@ class StockProposal:
                     y=data["ema_success_rate"],
                     mode="lines",
                     name=strategy,
-                    line=dict(width=2, color=strategy_colors_dark[i], shape="hv"),
+                    line=dict(width=3, color=strategy_colors_dark[i], shape="hv"),
                     yaxis="y",
                 )
             )
@@ -1886,8 +1886,8 @@ class StockProposal:
                 itemsizing="constant",  # 保持图例符号大小一致
             ),
             barmode="stack",
-            bargap=0.5,
-            bargroupgap=0.5,
+            bargap=0.2,
+            bargroupgap=0.2,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
@@ -2048,8 +2048,8 @@ class StockProposal:
                 itemsizing="constant",  # 保持图例符号大小一致
             ),
             barmode="stack",
-            bargap=0.5,
-            bargroupgap=0.5,
+            bargap=0.2,
+            bargroupgap=0.2,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
@@ -2155,8 +2155,7 @@ class StockProposal:
             color_discrete_sequence=diverse_colors5_light,
         )
         # light mode
-        fig.update_traces(line=dict(width=3))  # 设置线条宽度为2
-        # light mode
+        fig.update_traces(line=dict(width=3))
         fig.update_xaxes(
             mirror=True,
             ticks="outside",
@@ -2309,8 +2308,8 @@ class StockProposal:
             line_group="industry",
             color_discrete_sequence=diverse_colors5_light,
         )
-        fig.update_traces(line=dict(width=3))  # 设置线条宽度为2
         # light mode
+        fig.update_traces(line=dict(width=3))
         fig.update_xaxes(
             mirror=True,
             ticks="outside",
@@ -2388,7 +2387,7 @@ class StockProposal:
             line_group="industry",
             color_discrete_sequence=diverse_colors5_dark,
         )
-        fig.update_traces(line=dict(width=3))  # 设置线条宽度为2
+        fig.update_traces(line=dict(width=3))
         fig.update_xaxes(
             mirror=True,
             ticks="outside",
@@ -3056,13 +3055,9 @@ class StockProposal:
                             body {{
                                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                                 line-height: 1.5;
-                                min-width: 80% !important;
-                                width: 80% !important;
                             }}
                             
                             .email-container {{
-                                max-width: 600px;
-                                min-width: 100% !important;
                                 width: 100%;
                                 margin: 0 auto;
                                 padding: 0px;
@@ -3272,9 +3267,40 @@ class StockProposal:
         df_result = pd.DataFrame.from_dict(result)
         df_result.to_csv(f"./data/{self.market}_df_result.csv", header=True)
 
-        MyEmail().send_email_embedded_image(
-            subject, html_content + html + html1 + html2, image_path
-        )
+        final_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+            <style>
+                /* 合并所有样式到这里 */
+                .email-wrapper {{
+                    width: 800px !important;
+                    margin: 0 auto;
+                    padding: 0;
+                }}
+                @media screen and (max-width: 480px) {{
+                    .email-wrapper {{
+                        width: 100% !important;
+                        min-width: 100% !important;
+                    }}
+                }}
+                /* 其它样式... */
+            </style>
+        </head>
+        <body>
+            <div class="email-wrapper">
+                {html_content}
+                {html}
+                {html1}
+                {html2}
+            </div>
+        </body>
+        </html>
+        """
+
+        MyEmail().send_email_embedded_image(subject, final_html, image_path)
 
     def send_etf_btstrategy_by_email(self, cash, final_value):
         """
@@ -4121,8 +4147,8 @@ class StockProposal:
                 font=dict(size=font_size, color="black", family="Arial"),
             ),
             barmode="stack",
-            bargap=0.5,
-            bargroupgap=0.5,
+            bargap=0.2,
+            bargroupgap=0.2,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
@@ -4195,8 +4221,8 @@ class StockProposal:
                 font=dict(size=font_size, color=text_color, family="Arial"),
             ),
             barmode="stack",
-            bargap=0.5,
-            bargroupgap=0.5,
+            bargap=0.2,
+            bargroupgap=0.2,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
