@@ -506,8 +506,8 @@ class StockProposal:
                         props=[
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
-                            ("padding", "5px"),
-                            ("font-size", "20px"),
+                            ("padding", "2px"),
+                            # ("font-size", "20px"),
                         ],
                     ),
                     dict(
@@ -515,49 +515,20 @@ class StockProposal:
                         props=[
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
-                            ("padding", "5px"),
-                            ("font-size", "20px"),
+                            ("padding", "2px"),
+                            # ("font-size", "20px"),
                         ],
                     ),
                 ],
-            ).set_table_styles(
-                {
-                    "PROFIT TREND": [
-                        {
-                            "selector": "th",
-                            "props": [
-                                ("min-width", "300px"),
-                                ("max-width", "100%"),
-                            ],
-                        },
-                        {
-                            "selector": "td",
-                            "props": [
-                                ("min-width", "300px"),
-                                ("max-width", "100%"),
-                                ("padding", "0"),
-                            ],
-                        },
-                    ],
-                    "IND": [
-                        {
-                            "selector": "th",
-                            "props": [
-                                ("min-width", "150px"),
-                                ("max-width", "500px"),
-                            ],
-                        },
-                        {
-                            "selector": "td",
-                            "props": [
-                                ("min-width", "150px"),
-                                ("max-width", "500px"),
-                            ],
-                        },
-                    ],
+            ).set_properties(
+                subset=["PROFIT TREND", "IND"],
+                **{
+                    "min-width": "150px !important",
+                    "max-width": "100%",
+                    "padding": "0",
                 },
                 overwrite=False,
-            ).set_sticky(axis="columns").to_html(doctype_html=True, escape=False)
+            ).set_sticky(axis="columns").to_html(doctype_html=False, escape=False)
 
             # 添加分页导航
             navigation_html = "<div style='text-align: center; margin: 32px;'>"
@@ -879,8 +850,8 @@ class StockProposal:
                         props=[
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
-                            ("padding", "5px"),
-                            ("font-size", "20px"),
+                            ("padding", "2px"),
+                            # ("font-size", "20px"),
                         ],
                     ),
                     # 表格数据单元格样式
@@ -889,51 +860,23 @@ class StockProposal:
                         props=[
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
-                            ("padding", "5px"),
-                            (
-                                "font-size",
-                                "20px",
-                            ),
+                            ("padding", "2px"),
+                            # (
+                            #     "font-size",
+                            #     "20px",
+                            # ),
                         ],
                     ),
                 ]
-            ).set_table_styles(
-                {
-                    "IND": [
-                        {
-                            "selector": "th",
-                            "props": [
-                                ("min-width", "150px"),
-                                ("max-width", "300px"),
-                            ],
-                        },
-                        {
-                            "selector": "td",
-                            "props": [
-                                ("min-width", "150px"),
-                                ("max-width", "300px"),
-                            ],
-                        },
-                    ],
-                    "NAME": [
-                        {
-                            "selector": "th",
-                            "props": [
-                                ("min-width", "150px"),
-                                ("max-width", "300px"),
-                            ],
-                        },
-                        {
-                            "selector": "td",
-                            "props": [
-                                ("min-width", "150px"),
-                                ("max-width", "300px"),
-                            ],
-                        },
-                    ],
+            ).set_properties(
+                subset=["NAME", "IND"],
+                **{
+                    "min-width": "60px !important",
+                    "max-width": "100%",
+                    "padding": "0",
                 },
                 overwrite=False,
-            ).set_sticky(axis="columns").to_html(doctype_html=True, escape=False)
+            ).set_sticky(axis="columns").to_html(doctype_html=False, escape=False)
 
             # 添加分页导航
             navigation_html = "<div style='text-align: center; margin: 32px;'>"
@@ -975,7 +918,7 @@ class StockProposal:
                     background-color: white;
                     color: black;
                     display: table ;
-                    width: 80%;                          
+                    width: 100%;                          
                 }
                 table {
                     background-color: white;
@@ -987,7 +930,7 @@ class StockProposal:
                         background-color: black;
                         color: white;
                         display: table ;
-                        width: 80%;                              
+                        width: 100%;                              
                     }
                     table {
                         background-color: black;
@@ -1216,8 +1159,8 @@ class StockProposal:
                                 props=[
                                     ("border", "1px solid #ccc"),
                                     ("text-align", "left"),
-                                    ("padding", "5px"),
-                                    ("font-size", "20px"),
+                                    ("padding", "2px"),
+                                    # ("font-size", "20px"),
                                 ],
                             ),
                             # 表格数据单元格样式
@@ -1226,54 +1169,26 @@ class StockProposal:
                                 props=[
                                     ("border", "1px solid #ccc"),
                                     ("text-align", "left"),
-                                    ("padding", "5px"),
-                                    (
-                                        "font-size",
-                                        "20px",
-                                    ),
+                                    ("padding", "2px"),
+                                    # (
+                                    #     "font-size",
+                                    #     "20px",
+                                    # ),
                                 ],
                             ),
                         ]
                     )
-                    .set_table_styles(
-                        {
-                            "IND": [
-                                {
-                                    "selector": "th",
-                                    "props": [
-                                        ("min-width", "150px"),
-                                        ("max-width", "300px"),
-                                    ],
-                                },
-                                {
-                                    "selector": "td",
-                                    "props": [
-                                        ("min-width", "150px"),
-                                        ("max-width", "300px"),
-                                    ],
-                                },
-                            ],
-                            "NAME": [
-                                {
-                                    "selector": "th",
-                                    "props": [
-                                        ("min-width", "150px"),
-                                        ("max-width", "300px"),
-                                    ],
-                                },
-                                {
-                                    "selector": "td",
-                                    "props": [
-                                        ("min-width", "150px"),
-                                        ("max-width", "300px"),
-                                    ],
-                                },
-                            ],
+                    .set_properties(
+                        subset=["NAME", "IND"],
+                        **{
+                            "min-width": "150px !important",
+                            "max-width": "100%",
+                            "padding": "0",
                         },
                         overwrite=False,
                     )
                     .set_sticky(axis="columns")
-                    .to_html(doctype_html=True, escape=False)
+                    .to_html(doctype_html=False, escape=False)
                 )
 
                 # 添加分页导航
@@ -1311,7 +1226,7 @@ class StockProposal:
                         background-color: white;
                         color: black;
                         display: table ;
-                        width: 80%;                          
+                        width: 100%;                          
                     }
                     table {
                         background-color: white;
@@ -1323,7 +1238,7 @@ class StockProposal:
                             background-color: black;
                             color: white;
                             display: table ;
-                            width: 80%;                              
+                            width: 100%;                              
                         }
                         table {
                             background-color: black;
@@ -3037,11 +2952,8 @@ class StockProposal:
                 image_path_return_dark,
             ]
         html_content = """
-                    <!DOCTYPE html>
                     <html>
                     <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
                         <style>
                             /* 基础样式 - 确保兼容性 */
                             * {{
@@ -3067,30 +2979,29 @@ class StockProposal:
                                 font-style: italic;
                                 font-size: 32px;
                                 margin-bottom: 20px;
-                                text-align: left !important;
+                                text-align: left ;
                             }}
                             
                             .image-container {{
                                 margin-bottom: 10px;
                                 border-radius: 0px;
                                 overflow: hidden;
-                                width: 100% !important;
-                                min-width: 100% !important;
+                                width: 100% ;
+                                min-width: 100% ;
                             }}
                             
                             img {{
                                 display: block;
-                                height: auto !important;
-                                margin: 0 auto !important;
-                                width: 100% !important;
-                                min-width: 100% !important;
+                                height: auto ;
+                                margin: 0 auto ;
+                                width: 100% ;
+                                min-width: 100% ;
                             }}
                             
                             figcaption {{
                                 padding: 12px;
                                 text-align: center;
                                 font-style: italic;
-                                font-size: 24px;
                                 line-height: 1.4;
                             }}
 
@@ -3135,16 +3046,16 @@ class StockProposal:
                                 .email-container {{
                                     margin: 0 auto;
                                     padding: 0px;
-                                    width: 100% !important;
-                                    min-width: 100% !important;                        
+                                    width: 100%;
+                                    min-width: 100%; 
                                 }}
 
                                 .image-container {{
                                     margin-bottom: 10px;
                                     border-radius: 0px;
                                     overflow: hidden;
-                                    width: 100% !important;
-                                    min-width: 100% !important;
+                                    width: 100%;
+                                    min-width: 100%;
                                 }} 
                                 
                                 h1 {{
@@ -3152,7 +3063,6 @@ class StockProposal:
                                 }}
                                 
                                 figcaption {{
-                                    font-size: 24px;
                                     padding: 10px;
                                 }}
                             }}
@@ -3160,7 +3070,7 @@ class StockProposal:
                     </head>
                     <body>
                         <div class="email-container">
-                            <h1>The current cash is {cash}, the final portfolio value is {final_value}, the number of backtesting list is {stock_cnt}</h1>
+                            <h2>The current cash is {cash}, the final portfolio value is {final_value}, the number of backtesting list is {stock_cnt}</h2>
                             <div class="image-container">
                                 <picture>
                                     <!-- 深色模式下的图片 -->
@@ -3275,11 +3185,17 @@ class StockProposal:
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
             <style>
                 /* 合并所有样式到这里 */
+                body {{
+                    margin: 0;
+                    padding: 0;
+                    width: 100vw;
+                    min-width: 100vw;
+                }}            
                 .email-wrapper {{
                     width: 800px !important;
-                    margin: 0 auto;
-                    padding: 0;
-                }}
+                    margin: 0 auto !important;
+                    padding: 0;                    
+                }}               
                 @media screen and (max-width: 480px) {{
                     .email-wrapper {{
                         width: 100% !important;
@@ -3624,8 +3540,8 @@ class StockProposal:
                         props=[
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
-                            ("padding", "5px"),
-                            ("font-size", "20px"),
+                            ("padding", "2px"),
+                            # ("font-size", "20px"),
                         ],
                     ),
                     # 表格数据单元格样式
@@ -3634,32 +3550,20 @@ class StockProposal:
                         props=[
                             ("border", "1px solid #ccc"),
                             ("text-align", "left"),
-                            ("padding", "5px"),
-                            (
-                                "font-size",
-                                "20px",
-                            ),
+                            ("padding", "2px"),
+                            # (
+                            #     "font-size",
+                            #     "20px",
+                            # ),
                         ],
                     ),
                 ]
-            ).set_table_styles(
-                {
-                    "NAME": [
-                        {
-                            "selector": "th",
-                            "props": [
-                                ("min-width", "150px"),
-                                ("max-width", "300px"),
-                            ],
-                        },
-                        {
-                            "selector": "td",
-                            "props": [
-                                ("min-width", "150px"),
-                                ("max-width", "300px"),
-                            ],
-                        },
-                    ],
+            ).set_properties(
+                subset=["NAME"],
+                **{
+                    "min-width": "100px !important",
+                    "max-width": "100%",
+                    "padding": "0",
                 },
                 overwrite=False,
             ).set_sticky(axis="columns").to_html(doctype_html=True, escape=False)
@@ -3704,7 +3608,7 @@ class StockProposal:
                     background-color: white;
                     color: black;
                     display: table ;
-                    width: 80%;                                    
+                    width: 100%;                                    
                 }
                 table {
                     background-color: white;
@@ -3717,7 +3621,7 @@ class StockProposal:
                         background-color: black;
                         color: white;
                         display: table ;
-                        width: 80%;                              
+                        width: 100%;                              
                     }
                     table {
                         background-color: black;
@@ -3906,8 +3810,8 @@ class StockProposal:
                                 props=[
                                     ("border", "1px solid #ccc"),
                                     ("text-align", "left"),
-                                    ("padding", "5px"),
-                                    ("font-size", "20px"),
+                                    ("padding", "2px"),
+                                    # ("font-size", "20px"),
                                 ],
                             ),
                             # 表格数据单元格样式
@@ -3916,33 +3820,21 @@ class StockProposal:
                                 props=[
                                     ("border", "1px solid #ccc"),
                                     ("text-align", "left"),
-                                    ("padding", "5px"),
-                                    (
-                                        "font-size",
-                                        "20px",
-                                    ),
+                                    ("padding", "2px"),
+                                    # (
+                                    #     "font-size",
+                                    #     "20px",
+                                    # ),
                                 ],
                             ),
                         ]
                     )
-                    .set_table_styles(
-                        {
-                            "NAME": [
-                                {
-                                    "selector": "th",
-                                    "props": [
-                                        ("min-width", "150px"),
-                                        ("max-width", "300px"),
-                                    ],
-                                },
-                                {
-                                    "selector": "td",
-                                    "props": [
-                                        ("min-width", "150px"),
-                                        ("max-width", "300px"),
-                                    ],
-                                },
-                            ],
+                    .set_properties(
+                        subset=["NAME"],
+                        **{
+                            "min-width": "100px !important",
+                            "max-width": "100%",
+                            "padding": "0",
                         },
                         overwrite=False,
                     )
@@ -3983,7 +3875,7 @@ class StockProposal:
                         background-color: white;
                         color: black;
                         display: table ;
-                        width: 80%;                          
+                        width: 100%;                          
                     }
                     table {
                         background-color: white;
@@ -3995,7 +3887,7 @@ class StockProposal:
                             background-color: black;
                             color: white;
                             display: table ;
-                            width: 80%;                              
+                            width: 100%;                              
                         }
                         table {
                             background-color: black;
@@ -4261,8 +4153,6 @@ class StockProposal:
         <!DOCTYPE html>
         <html>
         <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
             <style>
                 /* 基础样式 - 确保兼容性 */
                 * {{
@@ -4276,13 +4166,9 @@ class StockProposal:
                 body {{
                     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                     line-height: 1.5;
-                    min-width: 80% !important;
-                    width: 80% !important;
                 }}
                 
                 .email-container {{
-                    max-width: 600px;
-                    min-width: 100% !important;
                     width: 100%;
                     margin: 0 auto;
                     padding: 0px;
@@ -4292,30 +4178,29 @@ class StockProposal:
                     font-style: italic;
                     font-size: 32px;
                     margin-bottom: 20px;
-                    text-align: left !important;
+                    text-align: left ;
                 }}
                 
                 .image-container {{
                     margin-bottom: 10px;
                     border-radius: 0px;
                     overflow: hidden;
-                    width: 100% !important;
-                    min-width: 100% !important;
+                    width: 100% ;
+                    min-width: 100% ;
                 }}
                 
                 img {{
                     display: block;
-                    height: auto !important;
-                    margin: 0 auto !important;
-                    width: 100% !important;
-                    min-width: 100% !important;
+                    height: auto ;
+                    margin: 0 auto ;
+                    width: 100% ;
+                    min-width: 100% ;
                 }}
                 
                 figcaption {{
-                    padding: 0px;
+                    padding: 12px;
                     text-align: center;
                     font-style: italic;
-                    font-size: 24px;
                     line-height: 1.4;
                 }}
 
@@ -4360,24 +4245,23 @@ class StockProposal:
                     .email-container {{
                         margin: 0 auto;
                         padding: 0px;
-                        width: 100% !important;
-                        min-width: 100% !important;                        
+                        width: 100%;
+                        min-width: 100%; 
                     }}
 
                     .image-container {{
                         margin-bottom: 10px;
                         border-radius: 0px;
                         overflow: hidden;
-                        width: 100% !important;
-                        min-width: 100% !important;
-                    }}                    
+                        width: 100%;
+                        min-width: 100%;
+                    }} 
                     
                     h1 {{
                         font-size: 32px;
                     }}
                     
                     figcaption {{
-                        font-size: 24px;
                         padding: 10px;
                     }}
                 }}
@@ -4385,7 +4269,7 @@ class StockProposal:
         </head>
         <body>
             <div class="email-container">
-                <h1>The current cash is {cash}, the final portfolio value is {final_value}</h1>
+                <h2>The current cash is {cash}, the final portfolio value is {final_value}</h2>
                 <div class="image-container">
                     <picture>                                    
                         <source srcset="cid:image3" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x years cumulative return and max drawdown trend:" style="width:100%"/>                                    
@@ -4408,6 +4292,42 @@ class StockProposal:
         </body>
         </html>
         """.format(cash=cash, final_value=final_value)
-        MyEmail().send_email_embedded_image(
-            subject, html_content + html + html2, image_path
-        )
+
+        final_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+            <style>
+                /* 合并所有样式到这里 */
+                body {{
+                    margin: 0;
+                    padding: 0;
+                    width: 100vw;
+                    min-width: 100vw;
+                }}            
+                .email-wrapper {{
+                    width: 800px !important;
+                    margin: 0 auto !important;
+                    padding: 0;                    
+                }}               
+                @media screen and (max-width: 480px) {{
+                    .email-wrapper {{
+                        width: 100% !important;
+                        min-width: 100% !important;
+                    }}
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="email-wrapper">
+                {html_content}
+                {html}
+                {html2}
+            </div>
+        </body>
+        </html>
+        """
+
+        MyEmail().send_email_embedded_image(subject, final_html, image_path)
