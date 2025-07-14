@@ -528,7 +528,11 @@ class StockProposal:
                     "padding": "0",
                 },
                 overwrite=False,
-            ).set_sticky(axis="columns").to_html(doctype_html=False, escape=False)
+            ).set_sticky(axis="columns").to_html(
+                doctype_html=False,
+                escape=False,
+                table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
+            )
 
             # 添加分页导航
             navigation_html = "<div style='text-align: center; margin: 32px;'>"
@@ -876,7 +880,11 @@ class StockProposal:
                     "padding": "0",
                 },
                 overwrite=False,
-            ).set_sticky(axis="columns").to_html(doctype_html=False, escape=False)
+            ).set_sticky(axis="columns").to_html(
+                doctype_html=False,
+                escape=False,
+                table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
+            )
 
             # 添加分页导航
             navigation_html = "<div style='text-align: center; margin: 32px;'>"
@@ -1188,7 +1196,11 @@ class StockProposal:
                         overwrite=False,
                     )
                     .set_sticky(axis="columns")
-                    .to_html(doctype_html=False, escape=False)
+                    .to_html(
+                        doctype_html=False,
+                        escape=False,
+                        table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
+                    )
                 )
 
                 # 添加分页导航
@@ -3566,7 +3578,11 @@ class StockProposal:
                     "padding": "0",
                 },
                 overwrite=False,
-            ).set_sticky(axis="columns").to_html(doctype_html=True, escape=False)
+            ).set_sticky(axis="columns").to_html(
+                doctype_html=True,
+                escape=False,
+                table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
+            )
 
             # 添加分页导航
             navigation_html = "<div style='text-align: center; margin: 32px;'>"
@@ -3839,7 +3855,11 @@ class StockProposal:
                         overwrite=False,
                     )
                     .set_sticky(axis="columns")
-                    .to_html(doctype_html=True, escape=False)
+                    .to_html(
+                        doctype_html=True,
+                        escape=False,
+                        table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
+                    )
                 )
 
                 # 添加分页导航
