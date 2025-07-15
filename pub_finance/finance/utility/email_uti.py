@@ -45,7 +45,7 @@ class MyEmail(object):
         self.msg["MIME-Version"] = "1.1"
         self.msg["To"] = self.send_from
         self.msg["From"] = self.format_addr(
-            "Quantitative trading <%s>" % self.send_from
+            "Quantitative Analysis <%s>" % self.send_from
         )
 
     def send_email(self, subject, message):

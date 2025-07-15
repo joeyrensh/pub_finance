@@ -2920,7 +2920,9 @@ class StockProposal:
         spark.stop()
 
         if self.market == "us":
-            subject = "US Stock Market Trends"
+            subject = f"""US Stock Market Trends - {end_date}""".format(
+                end_date=end_date
+            )
             image_path_return_light = "./dashreport/assets/images/us_tr_light.svg"
             image_path_return_dark = "./dashreport/assets/images/us_tr_dark.svg"
             image_path = [
@@ -2942,7 +2944,9 @@ class StockProposal:
                 image_path_return_dark,
             ]
         elif self.market == "cn":
-            subject = "CN Stock Market Trends"
+            subject = f"""CN Stock Market Trends - {end_date}""".format(
+                end_date=end_date
+            )
             image_path_return_light = "./dashreport/assets/images/cn_tr_light.svg"
             image_path_return_dark = "./dashreport/assets/images/cn_tr_dark.svg"
             image_path = [
@@ -4160,7 +4164,9 @@ class StockProposal:
             image_path_return_light = "./dashreport/assets/images/etf_tr_light.svg"
             image_path_return_dark = "./dashreport/assets/images/etf_tr_dark.svg"
         elif self.market == "cn":
-            subject = "CN Stock Market ETF Trends"
+            subject = f"""CN Stock Market ETF Trends - {end_date}""".format(
+                end_date=end_date
+            )
             image_path_return_light = "./dashreport/assets/images/cnetf_tr_light.svg"
             image_path_return_dark = "./dashreport/assets/images/cnetf_tr_dark.svg"
         image_path = [
