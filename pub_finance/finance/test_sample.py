@@ -270,7 +270,7 @@ def exec_btstrategy(date):
             drawdown.values,
             y2=0,
             color=colors["drawdown"],
-            alpha=0.7,  # 适当降低透明度
+            alpha=0.8,  # 适当降低透明度
             zorder=2,  # 设置较低层级
             edgecolor=colors["drawdown"],
             linewidth=1,
