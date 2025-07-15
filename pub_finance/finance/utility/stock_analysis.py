@@ -875,7 +875,7 @@ class StockProposal:
             ).set_properties(
                 subset=["NAME", "IND"],
                 **{
-                    "min-width": "60px !important",
+                    "min-width": "100px !important",
                     "max-width": "100%",
                     "padding": "0",
                 },
