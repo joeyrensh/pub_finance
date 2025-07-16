@@ -3973,8 +3973,8 @@ class StockProposal:
         # 设置图像的宽度和高度（例如，1920x1080像素）
         fig_width, fig_height = 1440, 900
         scale_factor = 1.2
-        font_size = 28
-        title_font_size = 32
+        font_size = 32
+        title_font_size = 35
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(

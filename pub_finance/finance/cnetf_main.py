@@ -182,7 +182,7 @@ def exec_btstrategy(date):
         # 全局样式设置
         rcParams.update(
             {
-                "font.size": 24,
+                "font.size": 30,
                 "axes.labelcolor": colors["text"],
                 "axes.edgecolor": colors["text"],
                 "xtick.color": colors["text"],
