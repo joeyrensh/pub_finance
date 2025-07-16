@@ -51,7 +51,7 @@ def exec_btstrategy(date):
         data = BTPandasDataExt(
             dataname=h,
             name=h["symbol"][0],
-            fromdate=datetime(2023, 1, 1),
+            fromdate=datetime(2024, 1, 1),
             todate=datetime.strptime(date, "%Y%m%d"),
             datetime=-1,
             timeframe=bt.TimeFrame.Days,
@@ -232,6 +232,7 @@ def exec_btstrategy(date):
             edges="horizontal",
             # colColours=[colors["table_header"]] * len(cols_names),
         )
+        table.auto_set_font_size(False)
         # 统一单元格样式
         for (row, col), cell in table.get_celld().items():
             # 跳过表头（row==0），只处理第二列（col==1）
