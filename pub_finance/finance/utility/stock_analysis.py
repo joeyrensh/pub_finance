@@ -2978,6 +2978,7 @@ class StockProposal:
                                 padding: 0;
                                 -webkit-text-size-adjust: 100%;
                                 text-size-adjust: 100%;
+                                -ms-text-size-adjust: 100%;
                             }}
                             
                             body {{
@@ -2991,11 +2992,11 @@ class StockProposal:
                                 padding: 0px;
                             }}
                             
-                            h1 {{
-                                font-style: italic;
+                            h2 {{
                                 font-size: 32px;
                                 margin-bottom: 20px;
                                 text-align: left ;
+                                word-break: break-all;
                             }}
                             
                             .image-container {{
@@ -3074,8 +3075,9 @@ class StockProposal:
                                     min-width: 100%;
                                 }} 
                                 
-                                h1 {{
+                                h2 {{
                                     font-size: 32px;
+                                    word-break: break-all;
                                 }}
                                 
                                 figcaption {{
@@ -4200,11 +4202,11 @@ class StockProposal:
                     padding: 0px;
                 }}
                 
-                h1 {{
-                    font-style: italic;
+                h2 {{
                     font-size: 32px;
                     margin-bottom: 20px;
                     text-align: left ;
+                    word-break: break-all;
                 }}
                 
                 .image-container {{
@@ -4283,8 +4285,9 @@ class StockProposal:
                         min-width: 100%;
                     }} 
                     
-                    h1 {{
+                    h2 {{
                         font-size: 32px;
+                        word-break: break-all;
                     }}
                     
                     figcaption {{
