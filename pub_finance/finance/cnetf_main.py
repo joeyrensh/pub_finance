@@ -233,6 +233,7 @@ def exec_btstrategy(date):
             # colColours=[colors["table_header"]] * len(cols_names),
         )
         table.auto_set_font_size(False)
+        table.auto_set_column_width(range(len(perf_stats_.T.columns)))
         # 统一单元格样式
         for (row, col), cell in table.get_celld().items():
             # 跳过表头（row==0），只处理第二列（col==1）
