@@ -825,7 +825,7 @@ a:active {
   }
 
   .main-title {
-    /* width: 55%; */
+    width: 70%;
     /* margin-top: 10px; */
     padding-left: 10px;
     border-left: 0px solid var(--border-left-color);
@@ -844,13 +844,13 @@ a:active {
 
   .full-view-link {
     font-size: 0.8em;
-    padding: 3px 3px;
-    width: 15%;
+    padding: 5px 5px;
+    width: 20%;
     /* margin-left: 68%; */
     float: right;
     margin-top: 8px;
     margin-left: 0px;
-    margin-right: 8px;
+    margin-right: 10px;
   }
 
   .row>.columns:not(:first-child) {
