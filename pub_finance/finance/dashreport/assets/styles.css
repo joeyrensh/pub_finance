@@ -481,7 +481,7 @@ li {
   background-color: var(--full-view-link-bg-color);
   color: white !important;
   font-size: 1.4rem;
-  padding: 5px 5px;
+  padding: 10px 5px;
   float: right;
   /* margin-left: 72%; */
   width: 15%;
@@ -628,7 +628,7 @@ a:active {
   padding-left: 15px;
   padding-right: 15px;
   text-transform: none;
-  margin: 5px 8px 10px 5px;
+  margin: 5px 10px 10px 5px;
   border: 0.5px;
   border-color: lightgrey;
   border-style: solid;
@@ -802,11 +802,11 @@ a:active {
     height: 15px;
     /* margin: auto; */
 
-    padding: 5px;
+    padding: 10px;
     margin-left: 0px;
     margin-top: 5px;
-    margin-right: 8px;
-    /* margin-bottom: 10px; */
+    margin-right: 10px;
+    margin-bottom: 0px;
     border: 0.5px;
     border-color: lightgrey;
     border-style: solid;
