@@ -172,7 +172,7 @@ def create_layout(app):
     # 减仓明细
     df_detail_short = pd.read_csv(
         DATA_PATH.joinpath("us_stockdetail_short.csv"),
-        usecols=[i for i in range(1, 14)],
+        usecols=[i for i in range(1, 15)],
     )
     df_detail_short["INDEX"] = df_detail_short.index
     df_detail_short = df_detail_short[
