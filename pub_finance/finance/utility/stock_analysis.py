@@ -695,22 +695,22 @@ class StockProposal:
                 FROM temp_cur_position_with_latest_stock_info
             )
             SELECT t1.symbol
+                , t1.industry
+                , t1.name
+                , ROUND(t1.total_value / 100000000, 1) AS total_value
+                , CASE WHEN t3.pe IS NULL OR t3.pe = '' OR t3.pe = '-'
+                    OR NOT t3.pe RLIKE '^-?[0-9]+(\\.[0-9]+)?$' OR t4.new IS NULL THEN '-'
+                  ELSE ROUND((1/CAST(t3.pe AS INT) - t4.new / 100) * 100, 1) END AS epr                    
                 , t1.buy_date
                 , t1.price
                 , t1.adjbase
                 , t1.pnl
                 , t1.pnl_ratio
-                , t1.industry
-                , t1.name
-                , ROUND(t1.total_value / 100000000, 1) AS total_value
                 , COALESCE(t2.his_trade_cnt, 0) AS avg_trans
                 , COALESCE(t2.his_days, 0) / t2.his_trade_cnt AS avg_days
                 , (t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / ( COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0) + t1.pos_cnt + t1.neg_cnt) AS win_rate
                 , (COALESCE(t2.his_pnl,0) + (t1.adjbase - t1.price) * t1.size) / (COALESCE(t2.his_base_price,0) + t1.price * t1.size) AS total_pnl_ratio
                 , t2.buy_strategy
-                , CASE WHEN t3.pe IS NULL OR t3.pe = '' OR t3.pe = '-'
-                    OR NOT t3.pe RLIKE '^-?[0-9]+(\\.[0-9]+)?$' OR t4.new IS NULL THEN '-'
-                  ELSE ROUND((1/CAST(t3.pe AS INT) - t4.new / 100) * 100, 1) END AS epr
             FROM (
                 SELECT symbol
                 , buy_date
@@ -814,9 +814,10 @@ class StockProposal:
             # 生成表格 HTML
             table_html = "<h2>Open Position List</h2>" + page_data.style.hide(
                 axis=1,
-                subset=["PNL", "pnl_growth", "TOTAL VALUE"],
+                subset=["PNL", "pnl_growth"],
             ).format(
                 {
+                    "TOTAL VALUE": "{:.2f}",
                     "BASE": "{:.2f}",
                     "ADJBASE": "{:.2f}",
                     "PNL RATIO": "{:.2%}",
@@ -1027,25 +1028,28 @@ class StockProposal:
                 SELECT t1.symbol
                     ,t1.name
                     ,t2.industry
+                    ,ROUND(t1.total_value / 100000000, 1) AS total_value  
                 FROM temp_latest_stock_info t1 LEFT JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 GROUP BY t1.symbol
                     ,t1.name
                     ,t2.industry
+                    ,t1.total_value
             )
             SELECT t1.symbol
+                , t3.industry
+                , t3.name
+                , t3.total_value
+                , CASE WHEN t4.pe IS NULL OR t4.pe = '' OR t4.pe = '-'
+                    OR NOT t4.pe RLIKE '^-?[0-9]+(\\.[0-9]+)?$' OR t5.new IS NULL THEN '-'
+                  ELSE ROUND((1/CAST(t4.pe AS INT) - t5.new / 100) * 100, 1) END AS epr                           
                 , t1.buy_date
                 , t1.sell_date
                 , t1.base_price AS price
                 , t1.adj_price AS adjbase
                 , t1.pnl
                 , t1.pnl_ratio
-                , t3.industry
-                , t3.name
                 , COALESCE(t2.his_days, 0) AS his_days
-                , t2.sell_strategy
-                , CASE WHEN t4.pe IS NULL OR t4.pe = '' OR t4.pe = '-'
-                    OR NOT t4.pe RLIKE '^-?[0-9]+(\\.[0-9]+)?$' OR t5.new IS NULL THEN '-'
-                  ELSE ROUND((1/CAST(t4.pe AS INT) - t5.new / 100) * 100, 1) END AS epr                
+                , t2.sell_strategy            
             FROM (
                 SELECT symbol
                     , buy_date
@@ -1104,6 +1108,7 @@ class StockProposal:
                     "his_days": "HIS DAYS",
                     "industry": "IND",
                     "name": "NAME",
+                    "total_value": "TOTAL VALUE",
                     "sell_strategy": "STRATEGY",
                 },
                 inplace=True,
@@ -1137,6 +1142,7 @@ class StockProposal:
                     + page_data.style.hide(axis=1, subset=["PNL", "pnl_growth"])
                     .format(
                         {
+                            "TOTAL VALUE": "{:.2f}",
                             "BASE": "{:.2f}",
                             "ADJBASE": "{:.2f}",
                             "HIS DAYS": "{:.2f}",
@@ -3438,13 +3444,13 @@ class StockProposal:
                 FROM temp_cur_position_with_latest_stock_info
             )
             SELECT t1.symbol
+                , t1.name
+                , ROUND(t1.total_value / 100000000, 1) AS total_value            
                 , t1.buy_date
                 , t1.price
                 , t1.adjbase
                 , t1.pnl
                 , t1.pnl_ratio
-                , t1.name
-                , ROUND(t1.total_value / 100000000, 1) AS total_value
                 , COALESCE(t2.his_trade_cnt, 0) AS avg_trans
                 , COALESCE(t2.his_days, 0) / t2.his_trade_cnt AS avg_days
                 , (t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / ( COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0) + t1.pos_cnt + t1.neg_cnt) AS win_rate
@@ -3518,9 +3524,10 @@ class StockProposal:
 
             # 生成表格 HTML
             table_html = "<h2>Open Position List</h2>" + page_data.style.hide(
-                axis=1, subset=["PNL", "TOTAL VALUE"]
+                axis=1, subset=["PNL"]
             ).format(
                 {
+                    "TOTAL VALUE": "{:.2f}",
                     "BASE": "{:.2f}",
                     "ADJBASE": "{:.2f}",
                     "PNL RATIO": "{:.2%}",
@@ -3732,18 +3739,21 @@ class StockProposal:
             ), tmp3 AS (
                 SELECT symbol
                     ,name
+                    ,ROUND(total_value / 100000000, 1) AS total_value
                 FROM temp_latest_stock_info
                 GROUP BY symbol
                     ,name
+                    ,total_value
             )
             SELECT t1.symbol
+                , t3.name
+                , t3.total_value            
                 , t1.buy_date
                 , t1.sell_date
                 , t1.base_price AS price
                 , t1.adj_price AS adjbase
                 , t1.pnl
                 , t1.pnl_ratio
-                , t3.name
                 , COALESCE(t2.his_days, 0) AS his_days
                 , t2.sell_strategy AS sell_strategy           
             FROM (
@@ -3769,6 +3779,8 @@ class StockProposal:
             pd_position_reduction.rename(
                 columns={
                     "symbol": "SYMBOL",
+                    "name": "NAME",
+                    "total_value": "TOTAL VALUE",
                     "buy_date": "OPEN DATE",
                     "sell_date": "CLOSE DATE",
                     "price": "BASE",
@@ -3776,7 +3788,6 @@ class StockProposal:
                     "pnl": "PNL",
                     "pnl_ratio": "PNL RATIO",
                     "his_days": "HIS DAYS",
-                    "name": "NAME",
                     "sell_strategy": "STRATEGY",
                 },
                 inplace=True,
@@ -3802,6 +3813,7 @@ class StockProposal:
                     + page_data.style.hide(axis=1, subset=["PNL"])
                     .format(
                         {
+                            "TOTAL VALUE": "{:.2f}",
                             "BASE": "{:.2f}",
                             "ADJBASE": "{:.2f}",
                             "PNL RATIO": "{:.2%}",

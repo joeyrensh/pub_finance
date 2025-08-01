@@ -181,6 +181,7 @@ def create_layout(app):
             "SYMBOL",
             "IND",
             "NAME",
+            "TOTAL VALUE",
             "EPR",
             "OPEN DATE",
             "CLOSE DATE",
@@ -193,6 +194,7 @@ def create_layout(app):
         ]
     ].copy()
     cols_format_detail_short = {
+        "TOTAL VALUE": ("float",),
         "BASE": ("float",),
         "ADJBASE": ("float",),
         "PNL": ("float", "format"),
