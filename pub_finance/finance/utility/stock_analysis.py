@@ -800,7 +800,11 @@ class StockProposal:
             else:
                 return [""] * len(row)
 
-        pd_position_history = pd_position_history.head(100)
+        # pd_position_history = pd_position_history.head(100)
+        # 按IND分组，每组取最多20条记录
+        pd_position_history = (
+            pd_position_history.groupby("IND").head(10).reset_index(drop=True).head(100)
+        )
         total_rows = len(pd_position_history)
         rows_per_page = 20
         total_pages = (total_rows + rows_per_page - 1) // rows_per_page  # 计算总页数

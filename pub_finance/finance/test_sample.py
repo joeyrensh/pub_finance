@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-
 import progressbar
 from utility.toolkit import ToolKit
 from datetime import datetime
@@ -15,12 +14,12 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pyfolio as pf
 import gc
-from backtraderref.usfixedamount import FixedAmount
+from backtraderref.cnfixedamount import FixedAmount
 from matplotlib import rcParams
 import matplotlib.colors as mcolors
+from cncrawler.ak_incre_crawler import AKCNWebCrawler
 from utility.em_stock_uti import EMWebCrawlerUti
 
-""" 执行策略 """
 """ backtrader策略 """
 
 
@@ -29,20 +28,20 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="us")
+    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cn")
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
     # cerebro.addobserver(bt.observers.BuySell)
+    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
-    # cerebro.addsizer(bt.sizers.FixedSize, stake=10)
+    # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
     # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
     cerebro.addsizer(FixedAmount, amount=10000)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
-    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "us").get_backtrader_data_feed()
+    list = TickerInfo(date, "cn").get_backtrader_data_feed()
     """ 初始资金100M """
     start_cash = len(list) * 10000
     cerebro.broker.setcash(start_cash)
@@ -57,7 +56,7 @@ def exec_btstrategy(date):
             datetime=-1,
             timeframe=bt.TimeFrame.Days,
         )
-        cerebro.adddata(data, name=h["symbol"][0])
+        cerebro.adddata(data)
         # 周数据
         # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
     """ 起始资金池 """
@@ -70,6 +69,7 @@ def exec_btstrategy(date):
 
     """ 运行cerebro """
     result = cerebro.run()
+
     """ 最终资金池 """
     print("\n当前现金持有: ", cerebro.broker.get_cash())
     print("\nFinal Portfolio Value: %.2f" % cerebro.broker.getvalue())
@@ -120,6 +120,7 @@ def exec_btstrategy(date):
     perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
         lambda x: x.map(lambda y: f"{y * 100:.2f}%")
     )
+
     # 绘制图形
     """ 
     年度回报率 (Annual return)：衡量投资组合或股票在一年内的收益率。它通常以百分比表示，计算方法是将期末价值减去期初价值，再除以期初价值，并乘以100。
@@ -333,7 +334,7 @@ def exec_btstrategy(date):
 
         # 保存图片
         plt.savefig(
-            f"./dashreport/assets/images/us_tr_{theme}.svg",
+            f"./dashreport/assets/images/cn_tr_{theme}.svg",
             format="svg",
             bbox_inches="tight",  # 保持边界紧凑
             transparent=True,  # 保持背景透明
@@ -350,11 +351,11 @@ def exec_btstrategy(date):
 
 # 主程序入口
 if __name__ == "__main__":
-    """美股交易日期 utc-4"""
-    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(0)
+    """美股交易日期 utc+8"""
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
-    if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
+    if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
         pass
     else:
         sys.exit()
@@ -371,10 +372,15 @@ if __name__ == "__main__":
     """ 创建进度条并开始运行 """
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
+    print("trade_date is :", trade_date)
+
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
     # em = EMWebCrawlerUti()
-    # em.get_daily_stock_info("us", trade_date)
+    # em.get_daily_stock_info("cn", trade_date)
+
+    # em = AKCNWebCrawler()
+    # em.get_cn_daily_stock_info_ak(trade_date)
 
     """ 执行bt相关策略 """
 
@@ -413,7 +419,7 @@ if __name__ == "__main__":
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("us", trade_date).send_btstrategy_by_email(3516878.97, 13467319.1)
+    StockProposal("cn", trade_date).send_btstrategy_by_email(10602807.01, 30194782.0)
 
     """ 结束进度条 """
     pbar.finish()
