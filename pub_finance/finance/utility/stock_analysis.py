@@ -3003,7 +3003,7 @@ class StockProposal:
                             }}
                             
                             h2 {{
-                                font-size: 32px;
+                                font-size: 24px;
                                 margin-bottom: 20px;
                                 text-align: left ;
                                 word-break: break-all;
@@ -3086,7 +3086,7 @@ class StockProposal:
                                 }} 
                                 
                                 h2 {{
-                                    font-size: 32px;
+                                    font-size: 35px;
                                     word-break: break-all;
                                 }}
                                 
@@ -4219,7 +4219,7 @@ class StockProposal:
                 }}
                 
                 h2 {{
-                    font-size: 32px;
+                    font-size: 24px;
                     margin-bottom: 20px;
                     text-align: left ;
                     word-break: break-all;
@@ -4302,7 +4302,7 @@ class StockProposal:
                     }} 
                     
                     h2 {{
-                        font-size: 32px;
+                        font-size: 35px;
                         word-break: break-all;
                     }}
                     
