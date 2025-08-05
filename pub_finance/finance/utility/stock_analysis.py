@@ -524,7 +524,29 @@ class StockProposal:
                 subset=["PROFIT TREND", "IND"],
                 **{
                     "min-width": "150px !important",
-                    "max-width": "100%",
+                    # "max-width": "100%",
+                    # "width": "150px",
+                    "padding": "0",
+                },
+                overwrite=False,
+            ).set_properties(
+                subset=["LRATIO", "WIN RATE", "PNL RATIO"],
+                **{
+                    "width": "100px",
+                    "padding": "0",
+                },
+                overwrite=False,
+            ).set_properties(
+                subset=[
+                    "OPEN",
+                    "L5 OPEN",
+                    "L5 CLOSE",
+                    "PROFIT",
+                    "AVG TRANS",
+                    "AVG DAYS",
+                ],
+                **{
+                    "width": "70px",
                     "padding": "0",
                 },
                 overwrite=False,
