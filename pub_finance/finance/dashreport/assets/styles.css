@@ -197,6 +197,11 @@ body {
   background-color: #0056b3;
 }
 
+@keyframes color-cycle {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
 .background {
   background-image: url('/assets/buyahouse-background-logo.png');
   /* background-image: url('/assets/background.jpeg'); */
@@ -232,6 +237,8 @@ body {
   background-size: contain; /* 确保图片按比例缩放 */
   z-index: -1; /* 将背景图片置于内容下方 */
   margin-left:10px;
+  animation: color-cycle 10s linear infinite;
+
 }
 
 
