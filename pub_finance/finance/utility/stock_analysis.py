@@ -445,6 +445,7 @@ class StockProposal:
         rows_per_page = 20
         total_pages = (total_rows + rows_per_page - 1) // rows_per_page  # 计算总页数
         html_pages = []
+        counter = total_pages
 
         for page in range(total_pages):
             start_row = page * rows_per_page
@@ -916,18 +917,14 @@ class StockProposal:
             # 添加分页导航
             navigation_html = "<div style='text-align: center; margin: 32px;'>"
             if page > 0:
-                navigation_html += (
-                    f"<a href='#page-{page}' style='margin-right: 32px;'>Previous</a>"
-                )
+                navigation_html += f"<a href='#page-{page + counter}' style='margin-right: 32px;'>Previous</a>"
             if page < total_pages - 1:
-                navigation_html += (
-                    f"<a href='#page-{page + 2}' style='margin-left: 32px;'>Next</a>"
-                )
+                navigation_html += f"<a href='#page-{page + 2 + counter}' style='margin-left: 32px;'>Next</a>"
             navigation_html += "</div>"
 
             # 包装每页内容
             page_html = f"""
-            <div id='page-{page + 1}' style='margin-bottom: 20px;'>
+            <div id='page-{page + 1 + counter}' style='margin-bottom: 20px;'>
                 <h3 style='text-align: center;'>Page {page + 1} of {total_pages}</h3>
                 {table_html}
                 {navigation_html}
@@ -935,6 +932,7 @@ class StockProposal:
             """
             html_pages.append(page_html)
         paged_html1 = "\n".join(html_pages)
+        counter += total_pages
 
         css1 = """
             <style>
@@ -1238,14 +1236,14 @@ class StockProposal:
                 # 添加分页导航
                 navigation_html = "<div style='text-align: center; margin: 32px;'>"
                 if page > 0:
-                    navigation_html += f"<a href='#page-{page}' style='margin-right: 32px;'>Previous</a>"
+                    navigation_html += f"<a href='#page-{page + counter}' style='margin-right: 32px;'>Previous</a>"
                 if page < total_pages - 1:
-                    navigation_html += f"<a href='#page-{page + 2}' style='margin-left: 32px;'>Next</a>"
+                    navigation_html += f"<a href='#page-{page + 2 + counter}' style='margin-left: 32px;'>Next</a>"
                 navigation_html += "</div>"
 
                 # 包装每页内容
                 page_html = f"""
-                <div id='page-{page + 1}' style='margin-bottom: 20px;'>
+                <div id='page-{page + 1 + counter}' style='margin-bottom: 20px;'>
                     <h3 style='text-align: center;'>Page {page + 1} of {total_pages}</h3>
                     {table_html}
                     {navigation_html}
@@ -1253,6 +1251,7 @@ class StockProposal:
                 """
                 html_pages.append(page_html)
             paged_html2 = "\n".join(html_pages)
+            counter += total_pages
             css2 = """
                 <style>
                     :root {
@@ -3542,6 +3541,7 @@ class StockProposal:
         rows_per_page = 20
         total_pages = (total_rows + rows_per_page - 1) // rows_per_page  # 计算总页数
         html_pages = []
+        counter = total_pages
 
         for page in range(total_pages):
             start_row = page * rows_per_page
@@ -3909,14 +3909,14 @@ class StockProposal:
                 # 添加分页导航
                 navigation_html = "<div style='text-align: center; margin: 32px;'>"
                 if page > 0:
-                    navigation_html += f"<a href='#page-{page}' style='margin-right: 32px;'>Previous</a>"
+                    navigation_html += f"<a href='#page-{page + counter}' style='margin-right: 32px;'>Previous</a>"
                 if page < total_pages - 1:
-                    navigation_html += f"<a href='#page-{page + 2}' style='margin-left: 32px;'>Next</a>"
+                    navigation_html += f"<a href='#page-{page + 2 + counter}' style='margin-left: 32px;'>Next</a>"
                 navigation_html += "</div>"
 
                 # 包装每页内容
                 page_html = f"""
-                <div id='page-{page + 1}' style='margin-bottom: 20px;'>
+                <div id='page-{page + 1 + counter}' style='margin-bottom: 20px;'>
                     <h3 style='text-align: center;'>Page {page + 1} of {total_pages}</h3>
                     {table_html}
                     {navigation_html}
