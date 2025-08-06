@@ -463,13 +463,13 @@ class StockProposal:
                 ],
             ).format(
                 {
-                    "OPEN": "{:.2f}",
+                    "OPEN": "{:.0f}",
                     "LRATIO": "{:.2%}",
-                    "L5 OPEN": "{:.2f}",
-                    "L5 CLOSE": "{:.2f}",
+                    "L5 OPEN": "{:.0f}",
+                    "L5 CLOSE": "{:.0f}",
                     "PROFIT": "{:.2f}",
                     "PNL RATIO": "{:.2%}",
-                    "AVG TRANS": "{:.2f}",
+                    "AVG TRANS": "{:.0f}",
                     "AVG DAYS": "{:.0f}",
                     "WIN RATE": "{:.2%}",
                 }
@@ -848,7 +848,7 @@ class StockProposal:
                     "BASE": "{:.2f}",
                     "ADJBASE": "{:.2f}",
                     "PNL RATIO": "{:.2%}",
-                    "AVG TRANS": "{:.2f}",
+                    "AVG TRANS": "{:.0f}",
                     "AVG DAYS": "{:.0f}",
                     "WIN RATE": "{:.2%}",
                     "TOTAL PNL RATIO": "{:.2%}",
@@ -1169,7 +1169,7 @@ class StockProposal:
                             "TOTAL VALUE": "{:.2f}",
                             "BASE": "{:.2f}",
                             "ADJBASE": "{:.2f}",
-                            "HIS DAYS": "{:.2f}",
+                            "HIS DAYS": "{:.0f}",
                             "PNL RATIO": "{:.2%}",
                         }
                     )
@@ -3557,7 +3557,7 @@ class StockProposal:
                     "BASE": "{:.2f}",
                     "ADJBASE": "{:.2f}",
                     "PNL RATIO": "{:.2%}",
-                    "AVG TRANS": "{:.2f}",
+                    "AVG TRANS": "{:.0f}",
                     "AVG DAYS": "{:.0f}",
                     "WIN RATE": "{:.2%}",
                     "TOTAL PNL RATIO": "{:.2%}",
