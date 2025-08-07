@@ -240,22 +240,23 @@ def data_bars(df, column):
     return styles
 
 
-def extract_arrow_num(text):
-    """
-    提取字符串中上升箭头（↑）后面的数字
-    :param text: 输入字符串
-    :return: 提取到的数字（字符串类型），如果没有则返回None
-    """
-    match = re.search(r"↑\s*([\d,\.]+)", text)
-    if match:
-        return match.group(1)
-    return None
+def extract_arrow_num(s):
+    # 提取向上箭头后的数字
+    arrow_num = re.search(r"↑(\d+)", s)
+    arrow_num = int(arrow_num.group(1)) if arrow_num else None
+
+    # 提取括号内的数字（在箭头后）
+    bracket_num = re.search(r"↑[^()]*\((\d+)\)", s)
+    bracket_num = int(bracket_num.group(1)) if bracket_num else None
+
+    return arrow_num, bracket_num
 
 
 def make_dash_format_table(df, cols_format, market):
     """Return a dash_table.DataTable for a Pandas dataframe"""
     required_cols = ["IND", "EPR", "OPEN DATE", "PNL RATIO", "AVG TRANS", "WIN RATE"]
     has_all_required_cols = all(col in df.columns for col in required_cols)
+
     columns = [
         {
             "name": col,
@@ -277,8 +278,10 @@ def make_dash_format_table(df, cols_format, market):
     ]
     # 如果有IND列，先生成辅助列
     if has_all_required_cols:
-        print(df["IND"])
-        df["IND_ARROW_NUM"] = df["IND"].apply(extract_arrow_num)
+        df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = df["IND"].apply(
+            lambda x: pd.Series(extract_arrow_num(x))
+        )
+
     # 创建一个新的 DataFrame 来存储原始列的副本
     original_df = df.copy()
     # 遍历 DataFrame 的所有列
@@ -349,11 +352,11 @@ def make_dash_format_table(df, cols_format, market):
                 {
                     "if": {
                         "filter_query": (
-                            "{IND_ARROW_NUM} > 20 && "
+                            "({IND_ARROW_NUM} >= 20 || {IND_BRACKET_NUM} <= 20) && "
                             "{EPR_o} > 0 && "
                             "{OPEN DATE_o} >= '" + date_threshold_l20 + "' && "
                             "{PNL RATIO_o} < 0.2 && "
-                            "{AVG TRANS_o} < 3 && "
+                            "{AVG TRANS_o} <= 3 && "
                             "{WIN RATE_o} > 0.8"
                         )
                     },
