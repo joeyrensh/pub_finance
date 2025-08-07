@@ -332,7 +332,7 @@ def make_dash_format_table(df, cols_format, market):
                 "if": {
                     "column_id": col,
                 },
-                "backgroundColor": "initial",
+                "background": "none",
             }
             for col in df.columns
             if col in cols_format and len(cols_format[col]) == 1
@@ -342,7 +342,7 @@ def make_dash_format_table(df, cols_format, market):
                 "if": {
                     "column_id": col,
                 },
-                "backgroundColor": "initial",
+                "background": "none",
             }
             for col in df.columns
             if col not in cols_format
@@ -360,7 +360,7 @@ def make_dash_format_table(df, cols_format, market):
                             "{WIN RATE_o} > 0.8"
                         )
                     },
-                    "backgroundColor": ("""var(--row-bg-color)"""),
+                    "background": ("""var(--row-bg-color)"""),
                 }
             ]
             if has_all_required_cols and "IND_ARROW_NUM" in df.columns
@@ -376,7 +376,7 @@ def make_dash_format_table(df, cols_format, market):
                 },
                 # "backgroundColor": "RebeccaPurple",
                 # "backgroundColor": "coral",
-                "backgroundColor": ("""var(--date-bg-color)"""),
+                "background": ("""var(--date-bg-color)"""),
                 # "color": "white",
             }
             for col in df.columns
@@ -392,7 +392,7 @@ def make_dash_format_table(df, cols_format, market):
                     "column_id": col,
                 },
                 # "backgroundColor": "#3D9970",
-                "backgroundColor": ("""var(--negative-value-bg-color)"""),
+                "background": ("""var(--negative-value-bg-color)"""),
                 # "color": "white",
             }
             for col in df.columns
@@ -408,7 +408,7 @@ def make_dash_format_table(df, cols_format, market):
                     "column_id": col,
                 },
                 # "backgroundColor": "#FF4136",
-                "backgroundColor": ("""var(--positive-value-bg-color)"""),
+                "background": ("""var(--positive-value-bg-color)"""),
                 # "color": "white",
             }
             for col in df.columns

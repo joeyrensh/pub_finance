@@ -345,6 +345,7 @@ border-spacing: 0 !important;
 #idAssignedToDataTable table td, #idAssignedToDataTable table th {
 border-width: 0.01px !important;
 border-color: var(--dash-table-border-color) !important;
+background-color: transparent ;
 }
 
 #idAssignedToDataTable .dash-table-container {
