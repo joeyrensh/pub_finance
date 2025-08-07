@@ -276,11 +276,15 @@ def make_dash_format_table(df, cols_format, market):
         }
         for col in df.columns
     ]
+
     # 如果有IND列，先生成辅助列
     if has_all_required_cols:
         df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = df["IND"].apply(
             lambda x: pd.Series(extract_arrow_num(x))
         )
+        ind_arrow_num_threshold = df["IND_ARROW_NUM"].quantile(0.8)
+        win_rate_threshold = df["WIN RATE"].quantile(0.8)
+        avg_trans_threshold = df["AVG TRANS"].quantile(0.2)
 
     # 创建一个新的 DataFrame 来存储原始列的副本
     original_df = df.copy()
@@ -352,12 +356,14 @@ def make_dash_format_table(df, cols_format, market):
                 {
                     "if": {
                         "filter_query": (
-                            "({IND_ARROW_NUM} >= 20 || {IND_BRACKET_NUM} <= 20) && "
+                            "({IND_ARROW_NUM} >= "
+                            + str(ind_arrow_num_threshold)
+                            + " || {IND_BRACKET_NUM} <= 20) && "
                             "{EPR_o} > 0 && "
                             "{OPEN DATE_o} >= '" + date_threshold_l20 + "' && "
-                            "{PNL RATIO_o} < 0.2 && "
-                            "{AVG TRANS_o} <= 3 && "
-                            "{WIN RATE_o} > 0.8"
+                            "{PNL RATIO_o} < 0.2 && {PNL RATIO_o} > 0 &&"
+                            "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
+                            "{WIN RATE_o} >= " + str(win_rate_threshold)
                         )
                     },
                     "background": ("""var(--row-bg-color)"""),
