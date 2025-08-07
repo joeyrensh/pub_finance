@@ -240,8 +240,22 @@ def data_bars(df, column):
     return styles
 
 
+def extract_arrow_num(text):
+    """
+    提取字符串中上升箭头（↑）后面的数字
+    :param text: 输入字符串
+    :return: 提取到的数字（字符串类型），如果没有则返回None
+    """
+    match = re.search(r"↑\s*([\d,\.]+)", text)
+    if match:
+        return match.group(1)
+    return None
+
+
 def make_dash_format_table(df, cols_format, market):
     """Return a dash_table.DataTable for a Pandas dataframe"""
+    required_cols = ["IND", "EPR", "OPEN DATE", "PNL RATIO", "AVG TRANS", "WIN RATE"]
+    has_all_required_cols = all(col in df.columns for col in required_cols)
     columns = [
         {
             "name": col,
@@ -261,6 +275,10 @@ def make_dash_format_table(df, cols_format, market):
         }
         for col in df.columns
     ]
+    # 如果有IND列，先生成辅助列
+    if has_all_required_cols:
+        print(df["IND"])
+        df["IND_ARROW_NUM"] = df["IND"].apply(extract_arrow_num)
     # 创建一个新的 DataFrame 来存储原始列的副本
     original_df = df.copy()
     # 遍历 DataFrame 的所有列
@@ -294,18 +312,62 @@ def make_dash_format_table(df, cols_format, market):
 
             row[key] = format_value(new_value, value_type)
     if market == "us":
-        trade_date = get_us_latest_trade_date(4)
+        trade_date_l5 = get_us_latest_trade_date(4)
+        trade_date_l20 = get_us_latest_trade_date(19)
     elif market == "cn":
-        trade_date = get_cn_latest_trade_date(4)
+        trade_date_l5 = get_cn_latest_trade_date(4)
+        trade_date_l20 = get_cn_latest_trade_date(19)
 
-    date_threshold = datetime.strptime(trade_date, "%Y%m%d").strftime("%Y-%m-%d")
+    date_threshold_l5 = datetime.strptime(trade_date_l5, "%Y%m%d").strftime("%Y-%m-%d")
+    date_threshold_l20 = datetime.strptime(trade_date_l20, "%Y%m%d").strftime(
+        "%Y-%m-%d"
+    )
     # date_threshold = str(datetime.now() - timedelta(days=5))[0:10]
     style_data_conditional = (
         [
             {
                 "if": {
+                    "column_id": col,
+                },
+                "backgroundColor": "initial",
+            }
+            for col in df.columns
+            if col in cols_format and len(cols_format[col]) == 1
+        ]
+        + [
+            {
+                "if": {
+                    "column_id": col,
+                },
+                "backgroundColor": "initial",
+            }
+            for col in df.columns
+            if col not in cols_format
+        ]
+        + (
+            [
+                {
+                    "if": {
+                        "filter_query": (
+                            "{IND_ARROW_NUM} > 20 && "
+                            "{EPR_o} > 0 && "
+                            "{OPEN DATE_o} >= '" + date_threshold_l20 + "' && "
+                            "{PNL RATIO_o} < 0.2 && "
+                            "{AVG TRANS_o} < 3 && "
+                            "{WIN RATE_o} > 0.8"
+                        )
+                    },
+                    "backgroundColor": ("""var(--row-bg-color)"""),
+                }
+            ]
+            if has_all_required_cols and "IND_ARROW_NUM" in df.columns
+            else []
+        )
+        + [
+            {
+                "if": {
                     "filter_query": "{{{column}}} >= {value} and {{{column}}} != 'nan'".format(
-                        column=col + "_o", value=date_threshold
+                        column=col + "_o", value=date_threshold_l5
                     ),
                     "column_id": col,
                 },
@@ -351,26 +413,6 @@ def make_dash_format_table(df, cols_format, market):
             and len(cols_format[col]) > 1
             and cols_format[col][0] == "float"
             and cols_format[col][1] == "format"
-        ]
-        + [
-            {
-                "if": {
-                    "column_id": col,
-                },
-                "backgroundColor": "initial",
-            }
-            for col in df.columns
-            if col in cols_format and len(cols_format[col]) == 1
-        ]
-        + [
-            {
-                "if": {
-                    "column_id": col,
-                },
-                "backgroundColor": "initial",
-            }
-            for col in df.columns
-            if col not in cols_format
         ]
     )
 
