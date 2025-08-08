@@ -245,8 +245,8 @@ def extract_arrow_num(s):
     arrow_num = re.search(r"↑(\d+)", s)
     arrow_num = int(arrow_num.group(1)) if arrow_num else None
 
-    # 提取括号内的数字（在箭头后）
-    bracket_num = re.search(r"↑[^()]*\((\d+)\)", s)
+    # 提取第一个括号内的数字（无论是否有箭头）
+    bracket_num = re.search(r"\((\d+)\)", s)
     bracket_num = int(bracket_num.group(1)) if bracket_num else None
 
     return arrow_num, bracket_num
@@ -276,7 +276,6 @@ def make_dash_format_table(df, cols_format, market):
         }
         for col in df.columns
     ]
-
     # 如果有IND列，先生成辅助列
     if has_all_required_cols:
         df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = df["IND"].apply(
@@ -285,6 +284,19 @@ def make_dash_format_table(df, cols_format, market):
         ind_arrow_num_threshold = df["IND_ARROW_NUM"].quantile(0.8)
         win_rate_threshold = df["WIN RATE"].quantile(0.8)
         avg_trans_threshold = df["AVG TRANS"].quantile(0.2)
+        df["pnl_ratio_threshold_20"] = df.groupby("IND")["PNL RATIO"].transform(
+            lambda x: x.quantile(0.2)
+        )
+        df["pnl_ratio_threshold_80"] = df.groupby("IND")["PNL RATIO"].transform(
+            lambda x: x.quantile(0.8)
+        )
+        # 确保 EPR 列为数值类型，无法转换的变为 NaN
+        df["EPR"] = pd.to_numeric(df["EPR"], errors="coerce")
+
+        # 按 IND 分组，计算每组的 EPR 80分位，赋值到新列
+        df["epr_threshold_80"] = df.groupby("IND")["EPR"].transform(
+            lambda x: x.quantile(0.8)
+        )
 
     # 创建一个新的 DataFrame 来存储原始列的副本
     original_df = df.copy()
@@ -356,14 +368,22 @@ def make_dash_format_table(df, cols_format, market):
                 {
                     "if": {
                         "filter_query": (
-                            "({IND_ARROW_NUM} >= "
+                            "( {IND_ARROW_NUM} >= "
                             + str(ind_arrow_num_threshold)
-                            + " || {IND_BRACKET_NUM} <= 20) && "
-                            "{EPR_o} > 0 && "
-                            "{OPEN DATE_o} >= '" + date_threshold_l20 + "' && "
-                            "{PNL RATIO_o} < 0.2 && {PNL RATIO_o} > 0 &&"
+                            + " && "
+                            "{EPR_o} >= {epr_threshold_80_o} && "
+                            "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
+                            "{PNL RATIO_o} >= {pnl_ratio_threshold_80_o} && "
+                            + "{PNL RATIO_o} > 0 && "
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
-                            "{WIN RATE_o} >= " + str(win_rate_threshold)
+                            "{WIN RATE_o} >= " + str(win_rate_threshold) + ") || ("
+                            "{IND_BRACKET_NUM} <= 20 && "
+                            "{EPR_o} >= {epr_threshold_80_o} && "
+                            "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
+                            "{PNL RATIO_o} <= {pnl_ratio_threshold_20_o} && "
+                            + "{PNL RATIO_o} > 0 &&"
+                            "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
+                            "{WIN RATE_o} >= " + str(win_rate_threshold) + ")"
                         )
                     },
                     "background": ("""var(--row-bg-color)"""),
