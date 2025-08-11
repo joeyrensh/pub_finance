@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from dash.dash_table.Format import Format, Scheme, Trim
 import pathlib
 import pandas as pd
+import numpy as np
 
 
 def Header(app):
@@ -276,26 +277,38 @@ def make_dash_format_table(df, cols_format, market):
         }
         for col in df.columns
     ]
+
     # 如果有IND列，先生成辅助列
+    if "EPR" in df.columns:
+        df["EPR"] = pd.to_numeric(df["EPR"], errors="coerce")
+
+    def get_real_quantile(series, q):
+        s = series.dropna().sort_values()
+        if len(s) == 0:
+            return np.nan
+        idx = int(np.ceil(q * len(s))) - 1
+        idx = min(max(idx, 0), len(s) - 1)
+        return s.iloc[idx]
+
     if has_all_required_cols:
         df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = df["IND"].apply(
             lambda x: pd.Series(extract_arrow_num(x))
         )
-        ind_arrow_num_threshold = df["IND_ARROW_NUM"].quantile(0.8)
-        win_rate_threshold = df["WIN RATE"].quantile(0.8)
-        avg_trans_threshold = df["AVG TRANS"].quantile(0.2)
+        ind_arrow_num_threshold = get_real_quantile(df["IND_ARROW_NUM"], 0.8)
+        win_rate_threshold = get_real_quantile(df["WIN RATE"], 0.8)
+        avg_trans_threshold = get_real_quantile(df["AVG TRANS"], 0.2)
+
+        # 分组后取真实分位值
         df["pnl_ratio_threshold_20"] = df.groupby("IND")["PNL RATIO"].transform(
-            lambda x: x.quantile(0.2)
+            lambda x: get_real_quantile(x, 0.2)
         )
         df["pnl_ratio_threshold_80"] = df.groupby("IND")["PNL RATIO"].transform(
-            lambda x: x.quantile(0.8)
+            lambda x: get_real_quantile(x, 0.8)
         )
-        # 确保 EPR 列为数值类型，无法转换的变为 NaN
-        df["EPR"] = pd.to_numeric(df["EPR"], errors="coerce")
 
-        # 按 IND 分组，计算每组的 EPR 80分位，赋值到新列
+        # 确保 EPR 列为数值类型，无法转换的变为 NaN
         df["epr_threshold_80"] = df.groupby("IND")["EPR"].transform(
-            lambda x: x.quantile(0.8)
+            lambda x: get_real_quantile(x, 0.8)
         )
 
     # 创建一个新的 DataFrame 来存储原始列的副本
@@ -323,6 +336,8 @@ def make_dash_format_table(df, cols_format, market):
     # Convert data to support markdown for images and rich text
     for row in data:
         for key in row:
+            if key.endswith("_o"):
+                continue  # 跳过副本列
             if key in cols_format:
                 new_value, value_type = row[key], cols_format[key][0]
             else:
