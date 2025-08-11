@@ -257,27 +257,17 @@ def make_dash_format_table(df, cols_format, market):
     """Return a dash_table.DataTable for a Pandas dataframe"""
     required_cols = ["IND", "EPR", "OPEN DATE", "PNL RATIO", "AVG TRANS", "WIN RATE"]
     has_all_required_cols = all(col in df.columns for col in required_cols)
+    if market == "us":
+        trade_date_l5 = get_us_latest_trade_date(4)
+        trade_date_l20 = get_us_latest_trade_date(19)
+    elif market == "cn":
+        trade_date_l5 = get_cn_latest_trade_date(4)
+        trade_date_l20 = get_cn_latest_trade_date(19)
 
-    columns = [
-        {
-            "name": col,
-            "id": col,
-            "type": "numeric"
-            if col in cols_format and cols_format[col][0] in ("ratio", "float")
-            else "text",
-            "format": Format(
-                precision=2,
-                scheme=Scheme.percentage,
-            )
-            if col in cols_format and cols_format[col][0] == "ratio"
-            else None,
-            "presentation": None
-            if col in cols_format and cols_format[col][0] == "ratio"
-            else "markdown",
-        }
-        for col in df.columns
-    ]
-
+    date_threshold_l5 = datetime.strptime(trade_date_l5, "%Y%m%d").strftime("%Y-%m-%d")
+    date_threshold_l20 = datetime.strptime(trade_date_l20, "%Y%m%d").strftime(
+        "%Y-%m-%d"
+    )
     # 如果有IND列，先生成辅助列
     if "EPR" in df.columns:
         df["EPR"] = pd.to_numeric(df["EPR"], errors="coerce")
@@ -313,6 +303,60 @@ def make_dash_format_table(df, cols_format, market):
             lambda x: get_real_quantile(x, head_quantile)
         )
 
+        df["TAG"] = "N"
+
+        # 标记满足条件的行
+        condition1 = (
+            (df["IND_ARROW_NUM"] >= ind_arrow_num_threshold)
+            & (df["EPR"] >= df["epr_threshold"])
+            & (df["OPEN DATE"] >= date_threshold_l20)
+            & (df["PNL RATIO"] >= df["pnl_ratio_threshold_head"])
+            & (df["PNL RATIO"] > 0)
+            & (df["AVG TRANS"] <= avg_trans_threshold)
+            & (df["WIN RATE"] >= win_rate_threshold)
+        )
+
+        condition2 = (
+            (df["IND_BRACKET_NUM"] <= 20)
+            & (df["EPR"] >= df["epr_threshold"])
+            & (df["OPEN DATE"] >= date_threshold_l20)
+            & (df["PNL RATIO"] <= df["pnl_ratio_threshold_tail"])
+            & (df["PNL RATIO"] > 0)
+            & (df["AVG TRANS"] <= avg_trans_threshold)
+            & (df["WIN RATE"] >= win_rate_threshold)
+        )
+
+        # 将满足任一条件的行标记为"Y"
+        df.loc[condition1 | condition2, "TAG"] = "Y"
+
+    columns = [
+        {
+            "name": col,
+            "id": col,
+            "type": "numeric"
+            if col in cols_format and cols_format[col][0] in ("ratio", "float")
+            else "text",
+            "format": Format(
+                precision=2,
+                scheme=Scheme.percentage,
+            )
+            if col in cols_format and cols_format[col][0] == "ratio"
+            else None,
+            "presentation": None
+            if col in cols_format and cols_format[col][0] == "ratio"
+            else "markdown",
+        }
+        for col in df.columns
+        if col
+        not in [
+            "IND_ARROW_NUM",
+            "IND_BRACKET_NUM",
+            "epr_threshold",
+            "pnl_ratio_threshold_tail",
+            "pnl_ratio_threshold_head",
+        ]
+    ]
+
     # 创建一个新的 DataFrame 来存储原始列的副本
     original_df = df.copy()
     # 遍历 DataFrame 的所有列
@@ -347,17 +391,7 @@ def make_dash_format_table(df, cols_format, market):
                 new_value, value_type = check_value_type(value)
 
             row[key] = format_value(new_value, value_type)
-    if market == "us":
-        trade_date_l5 = get_us_latest_trade_date(4)
-        trade_date_l20 = get_us_latest_trade_date(19)
-    elif market == "cn":
-        trade_date_l5 = get_cn_latest_trade_date(4)
-        trade_date_l20 = get_cn_latest_trade_date(19)
 
-    date_threshold_l5 = datetime.strptime(trade_date_l5, "%Y%m%d").strftime("%Y-%m-%d")
-    date_threshold_l20 = datetime.strptime(trade_date_l20, "%Y%m%d").strftime(
-        "%Y-%m-%d"
-    )
     # date_threshold = str(datetime.now() - timedelta(days=5))[0:10]
     style_data_conditional = (
         [
