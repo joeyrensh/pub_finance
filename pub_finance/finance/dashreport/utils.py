@@ -291,24 +291,26 @@ def make_dash_format_table(df, cols_format, market):
         return s.iloc[idx]
 
     if has_all_required_cols:
+        head_quantile = 0.7
+        tail_quantile = 0.3
         df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = df["IND"].apply(
             lambda x: pd.Series(extract_arrow_num(x))
         )
-        ind_arrow_num_threshold = get_real_quantile(df["IND_ARROW_NUM"], 0.8)
-        win_rate_threshold = get_real_quantile(df["WIN RATE"], 0.8)
-        avg_trans_threshold = get_real_quantile(df["AVG TRANS"], 0.2)
+        ind_arrow_num_threshold = get_real_quantile(df["IND_ARROW_NUM"], head_quantile)
+        win_rate_threshold = get_real_quantile(df["WIN RATE"], head_quantile)
+        avg_trans_threshold = get_real_quantile(df["AVG TRANS"], tail_quantile)
 
         # 分组后取真实分位值
-        df["pnl_ratio_threshold_20"] = df.groupby("IND")["PNL RATIO"].transform(
-            lambda x: get_real_quantile(x, 0.2)
+        df["pnl_ratio_threshold_tail"] = df.groupby("IND")["PNL RATIO"].transform(
+            lambda x: get_real_quantile(x, tail_quantile)
         )
-        df["pnl_ratio_threshold_80"] = df.groupby("IND")["PNL RATIO"].transform(
-            lambda x: get_real_quantile(x, 0.8)
+        df["pnl_ratio_threshold_head"] = df.groupby("IND")["PNL RATIO"].transform(
+            lambda x: get_real_quantile(x, head_quantile)
         )
 
         # 确保 EPR 列为数值类型，无法转换的变为 NaN
-        df["epr_threshold_80"] = df.groupby("IND")["EPR"].transform(
-            lambda x: get_real_quantile(x, 0.8)
+        df["epr_threshold"] = df.groupby("IND")["EPR"].transform(
+            lambda x: get_real_quantile(x, head_quantile)
         )
 
     # 创建一个新的 DataFrame 来存储原始列的副本
@@ -386,16 +388,16 @@ def make_dash_format_table(df, cols_format, market):
                             "( {IND_ARROW_NUM} >= "
                             + str(ind_arrow_num_threshold)
                             + " && "
-                            "{EPR_o} >= {epr_threshold_80_o} && "
+                            "{EPR_o} >= {epr_threshold_o} && "
                             "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
-                            "{PNL RATIO_o} >= {pnl_ratio_threshold_80_o} && "
+                            "{PNL RATIO_o} >= {pnl_ratio_threshold_head_o} && "
                             + "{PNL RATIO_o} > 0 && "
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
                             "{WIN RATE_o} >= " + str(win_rate_threshold) + ") || ("
                             "{IND_BRACKET_NUM} <= 20 && "
-                            "{EPR_o} >= {epr_threshold_80_o} && "
+                            "{EPR_o} >= {epr_threshold_o} && "
                             "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
-                            "{PNL RATIO_o} <= {pnl_ratio_threshold_20_o} && "
+                            "{PNL RATIO_o} <= {pnl_ratio_threshold_tail_o} && "
                             + "{PNL RATIO_o} > 0 &&"
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
                             "{WIN RATE_o} >= " + str(win_rate_threshold) + ")"
