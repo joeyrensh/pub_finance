@@ -303,7 +303,7 @@ def make_dash_format_table(df, cols_format, market):
             lambda x: get_real_quantile(x, head_quantile)
         )
 
-        df["TAG"] = "N"
+        df["_TAG_"] = ""
 
         # 标记满足条件的行
         condition1 = (
@@ -327,7 +327,7 @@ def make_dash_format_table(df, cols_format, market):
         )
 
         # 将满足任一条件的行标记为"Y"
-        df.loc[condition1 | condition2, "TAG"] = "Y"
+        df.loc[condition1 | condition2, "_TAG_"] = "Marked"
 
     columns = [
         {
