@@ -337,18 +337,18 @@ img {
 
 }
 
-#idAssignedToDataTable table {
+#defult-table table {
 border-collapse: separate !important;
 border-spacing: 0 !important;
 }
 
-#idAssignedToDataTable table td, #idAssignedToDataTable table th {
+#defult-table table td, #defult-table table th {
 border-width: 0.01px !important;
 border-color: var(--dash-table-border-color) !important;
 background-color: transparent ;
 }
 
-#idAssignedToDataTable .dash-table-container {
+#defult-table .dash-table-container {
   border-collapse: separate !important;
   border-spacing: 0 !important;
   border-width: 0.1px !important;
@@ -363,7 +363,7 @@ background-color: transparent ;
   font-family: Raleway, HelveticaNeue, "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-#idAssignedToDataTable .dash-filter input:not([type=radio]):not([type=checkbox]) {
+#defult-table .dash-filter input:not([type=radio]):not([type=checkbox]) {
   color: #007eff;
   text-align: left;
   padding: 0;
@@ -375,7 +375,7 @@ background-color: transparent ;
   font-size: 0px !important;
 }
 
-#idAssignedToDataTable .dash-spreadsheet-container .dash-spreadsheet-inner .column-header-name {
+#defult-table .dash-spreadsheet-container .dash-spreadsheet-inner .column-header-name {
   font-weight: normal;
   /* color: #2d4fdc; */
   /* color: #0e0e0e; */
