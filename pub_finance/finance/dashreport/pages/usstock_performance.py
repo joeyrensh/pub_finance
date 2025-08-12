@@ -105,10 +105,10 @@ def create_layout(app):
     df = pd.read_csv(
         DATA_PATH.joinpath("us_category.csv"), usecols=[i for i in range(1, 16)]
     )
-    df["INDEX"] = df.index
+    df["IDX"] = df.index
     df = df[
         [
-            "INDEX",
+            "IDX",
             "IND",
             "OPEN",
             "LRATIO",
@@ -136,10 +136,10 @@ def create_layout(app):
     df_detail = pd.read_csv(
         DATA_PATH.joinpath("us_stockdetail.csv"), usecols=[i for i in range(1, 17)]
     )
-    df_detail["INDEX"] = df_detail.index
+    df_detail["IDX"] = df_detail.index
     df_detail = df_detail[
         [
-            "INDEX",
+            "IDX",
             "SYMBOL",
             "IND",
             "NAME",
@@ -174,10 +174,10 @@ def create_layout(app):
         DATA_PATH.joinpath("us_stockdetail_short.csv"),
         usecols=[i for i in range(1, 15)],
     )
-    df_detail_short["INDEX"] = df_detail_short.index
+    df_detail_short["IDX"] = df_detail_short.index
     df_detail_short = df_detail_short[
         [
-            "INDEX",
+            "IDX",
             "SYMBOL",
             "IND",
             "NAME",
