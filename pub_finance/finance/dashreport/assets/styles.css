@@ -821,7 +821,7 @@ a:active {
   #learn-more-button {
     float: right;
     line-height: 0;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     height: 15px;
     /* margin: auto; */
     color: var(--learn-more-button-color);

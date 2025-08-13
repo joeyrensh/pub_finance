@@ -281,8 +281,9 @@ def make_dash_format_table(df, cols_format, market):
         return s.iloc[idx]
 
     if has_all_required_cols:
-        head_quantile = 0.7
-        tail_quantile = 0.3
+        head_quantile = 0.8
+        mid_quantile = 0.5
+        tail_quantile = 0.2
         df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = df["IND"].apply(
             lambda x: pd.Series(extract_arrow_num(x))
         )
@@ -300,7 +301,7 @@ def make_dash_format_table(df, cols_format, market):
 
         # 确保 EPR 列为数值类型，无法转换的变为 NaN
         df["epr_threshold"] = df.groupby("IND")["EPR"].transform(
-            lambda x: get_real_quantile(x, head_quantile)
+            lambda x: get_real_quantile(x, mid_quantile)
         )
 
         df["CLUSTER"] = ""

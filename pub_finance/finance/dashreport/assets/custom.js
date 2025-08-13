@@ -38,9 +38,9 @@
 
     const CLASS_FONT_SIZE_CONFIG = {
         'xtick': { mobile: '2.2rem', desktop: '2.4rem' },
-        'ytick': { mobile: '2.2rem', desktop: '2.4rem' },
-        'y2tick': { mobile: '2.2rem', desktop: '2.4rem' },
-        'legendtext': { mobile: '2.2rem', desktop: '2.4rem' },
+        'ytick': { mobile: '2.2rem', desktop: '2.2rem' },
+        'y2tick': { mobile: '2.2rem', desktop: '2.2rem' },
+        'legendtext': { mobile: '2.1rem', desktop: '2.1rem' },
         'gtitle': { mobile: '2.2rem', desktop: '2.4rem' },
         'xtitle': { mobile: '2.2rem', desktop: '2.4rem' }
     };
@@ -90,7 +90,6 @@
                 }
             }
         }
-
         element.style.setProperty('font-size', fontSize, 'important');
         element.style.setProperty('font-weight', fontWeight, 'important');
         element.style.setProperty('font-family', '-apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI"', 'important');                
