@@ -90,7 +90,7 @@
         }
 
         element.style.setProperty('font-size', fontSize, 'important');
-        element.style.setProperty('font-family', '-apple-system', 'important');
+        element.style.setProperty('font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', 'important');
     
     }
 
