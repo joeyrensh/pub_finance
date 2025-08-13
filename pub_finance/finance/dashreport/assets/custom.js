@@ -37,10 +37,12 @@
     });
 
     const CLASS_FONT_SIZE_CONFIG = {
-        'xtick': { mobile: '2rem', desktop: '2.2rem' },
-        'ytick': { mobile: '2rem', desktop: '2.2rem' },
-        'y2tick': { mobile: '2rem', desktop: '2.2rem' },
-        'legendtext': { mobile: '2rem', desktop: '2.1rem' }
+        'xtick': { mobile: '2.2rem', desktop: '2.4rem' },
+        'ytick': { mobile: '2.2rem', desktop: '2.4rem' },
+        'y2tick': { mobile: '2.2rem', desktop: '2.4rem' },
+        'legendtext': { mobile: '2.2rem', desktop: '2.4rem' },
+        'gtitle': { mobile: '2.2rem', desktop: '2.4rem' },
+        'xtitle': { mobile: '2.2rem', desktop: '2.4rem' }
     };
 
     function replaceFontSize(element, svgId) {
@@ -48,7 +50,7 @@
 
         const config = FONT_SIZE_CONFIG[svgId] || { mobile: '1.5rem', desktop: '1.2rem' };
         let fontSize = screenWidth <= 550 ? config.mobile : config.desktop;
-
+        let fontWeight = 400;
         let parent = element.closest('[class]');
         if (parent) {
             parent.classList.forEach(className => {
@@ -78,7 +80,7 @@
                 // 判断是否为第二列且不是第一行
                 if (idx >= colCount && (idx % colCount === 2)) {
                     fontSize = screenWidth <= 550 ? '2.5rem' : '2rem';
-                    element.style.setProperty('font-weight', 'bold', 'important');
+                    fontWeight = 'bold';
                     const textContent = parentDiv.textContent.trim();
                     if (textContent.startsWith('-')) {
                         element.style.setProperty('fill', '#0d876d', 'important');
@@ -90,7 +92,8 @@
         }
 
         element.style.setProperty('font-size', fontSize, 'important');
-        element.style.setProperty('font-family', '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', 'important');
+        element.style.setProperty('font-weight', fontWeight, 'important');
+        element.style.setProperty('font-family', '-apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI"', 'important');                
     
     }
 
