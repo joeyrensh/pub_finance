@@ -80,7 +80,7 @@
                 // 判断是否为第二列且不是第一行
                 if (idx >= colCount && (idx % colCount === 2)) {
                     fontSize = screenWidth <= 550 ? '2.5rem' : '2rem';
-                    // fontWeight = 'bold';
+                    fontWeight = 500;
                     const textContent = parentDiv.textContent.trim();
                     if (textContent.startsWith('-')) {
                         element.style.setProperty('fill', '#0d876d', 'important');
