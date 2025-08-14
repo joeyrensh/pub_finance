@@ -92,7 +92,7 @@
         }
         element.style.setProperty('font-size', fontSize, 'important');
         element.style.setProperty('font-weight', fontWeight, 'important');
-        element.style.setProperty('font-family', '-apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI"', 'important');                
+        element.style.setProperty('font-family', '"Helvetica Neue", -apple-system, BlinkMacSystemFont,  "Segoe UI"', 'important');                
     
     }
 
