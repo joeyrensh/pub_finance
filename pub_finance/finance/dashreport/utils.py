@@ -332,6 +332,17 @@ def make_dash_format_table(df, cols_format, market):
         # 将满足任一条件的行标记为"Y"
         df.loc[condition1 | condition2, "CLUSTER"] = "Marked"
 
+    def create_link(symbol):
+        if symbol.startswith(("SH", "SZ")):
+            return f"[{symbol}](https://quote.eastmoney.com/{symbol}.html)"
+        elif symbol.startswith("ETF"):
+            return f"[{symbol}](https://quote.eastmoney.com/{symbol[3:]}.html)"
+        else:
+            return f"[{symbol}](https://quote.eastmoney.com/us/{symbol}.html)"
+
+    if "SYMBOL" in df.columns:
+        df["SYMBOL"] = df["SYMBOL"].apply(create_link)
+
     columns = [
         {
             "name": col,
@@ -524,7 +535,7 @@ def make_dash_format_table(df, cols_format, market):
             # "color": "black",
             # "overflow": "hidden",
         },
-        markdown_options={"html": True},
+        markdown_options={"html": True, "link_target": "_blank"},
         fill_width=True,
         editable=True,
         style_header={
