@@ -59,7 +59,7 @@ def get_header(app):
                             html.Div(
                                 # [html.H5("Data-Driven Empowering Investments")],
                                 # [html.H5("你是一个小呀小呀小苹果！！！")],
-                                [html.H5("Financial Report Dashboard")],
+                                [html.H5("HaiFeng Capital Investment")],
                                 className="seven columns main-title",
                             ),
                             html.Div(
