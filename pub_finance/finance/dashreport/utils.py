@@ -306,7 +306,7 @@ def make_dash_format_table(df, cols_format, market):
             lambda x: get_real_quantile(x, mid_quantile)
         )
 
-        df["CLUSTER"] = ""
+        # df["CLUSTER"] = ""
 
         # 标记满足条件的行
         condition1 = (
@@ -329,8 +329,10 @@ def make_dash_format_table(df, cols_format, market):
             & (df["WIN RATE"] >= win_rate_threshold)
         )
 
-        # 将满足任一条件的行标记为"Y"
-        df.loc[condition1 | condition2, "CLUSTER"] = "Marked"
+        # 然后进行赋值操作
+        df.loc[condition1 | condition2, "NAME"] = (
+            "M-" + df.loc[condition1 | condition2, "NAME"]
+        )
 
     def create_link(symbol):
         if symbol.startswith(("SH", "SZ")):
