@@ -40,7 +40,7 @@ def get_header(app):
                                 html.Button(
                                     "Enterprise Demo",
                                     id="learn-more-button",
-                                    style={"margin-left": "-10px"},
+                                    style={"margin-left": "-8px"},
                                 ),
                                 href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
                             ),
