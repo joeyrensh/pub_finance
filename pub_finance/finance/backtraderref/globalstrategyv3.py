@@ -289,6 +289,7 @@ class GlobalStrategy(bt.Strategy):
                     self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
                     self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
                 ),
+                d.volume > self.inds[d._name]["emavol_short"] * 1.25,
             )
             self.signals[d._name]["death_cross"] = bt.Or(
                 bt.And(
