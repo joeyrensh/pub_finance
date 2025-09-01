@@ -1306,7 +1306,7 @@ class StockProposal:
             html2 = ""
 
         pd_position_reduction = None
-        pd_industry_history_tracking = None
+        # pd_industry_history_tracking = None
         pd_industry_history_tracking_lst5days = None
         pd_industry_history_tracking_5daysbeforeyesterday = None
         gc.collect()
@@ -1407,6 +1407,14 @@ class StockProposal:
         )
 
         pd_top20_industry = spark_top20_industry.toPandas()
+        replace_dict = pd_industry_history_tracking.set_index("industry_new")[
+            "combined"
+        ].to_dict()
+        pd_top20_industry["industry"] = (
+            pd_top20_industry["industry"]
+            .map(replace_dict)
+            .combine_first(pd_top20_industry["industry"])
+        )
 
         def get_text_color(hex_color, theme):
             """根据颜色亮度返回黑色或白色文本"""
@@ -1554,6 +1562,11 @@ class StockProposal:
         )
 
         pd_top20_profit_industry = spark_top20_profit_industry.toPandas()
+        pd_top20_profit_industry["industry"] = (
+            pd_top20_profit_industry["industry"]
+            .map(replace_dict)
+            .combine_first(pd_top20_profit_industry["industry"])
+        )
         # 文本颜色
         text_colors = [get_text_color(color, "light") for color in rgba_colors]
         # 创建 Treemap 图
@@ -2652,9 +2665,19 @@ class StockProposal:
 
             # 计算实际字体大小
             dynamic_font_size = base_font_size + int(size_ratio * max_size_increase)
+            positive_median = np.median(
+                np.abs(
+                    pd_calendar_heatmap.loc[pd_calendar_heatmap["s_pnl"] > 0, "s_pnl"]
+                )
+            )
+            negative_median = np.median(
+                np.abs(
+                    pd_calendar_heatmap.loc[pd_calendar_heatmap["s_pnl"] < 0, "s_pnl"]
+                )
+            )
 
             # 根据 s_pnl 的值确定文本颜色
-            if col3_value > 0:
+            if col3_value > 0 and abs(col3_value) >= positive_median:
                 # 正值 - 使用红色系，值越大红色越深
                 # 使用非线性函数增强颜色反差
                 # red_intensity = int(
@@ -2662,7 +2685,7 @@ class StockProposal:
                 # )  # 1.5次方增强颜色反差
                 # text_color = f"rgb({red_intensity}, 0, 0)"
                 text_color = "#d60a22"
-            elif col3_value < 0:
+            elif col3_value < 0 and abs(col3_value) >= negative_median:
                 # 负值 - 使用绿色系，绝对值越大绿色越深
                 # 使用非线性函数增强颜色反差
                 # green_intensity = int(
@@ -2672,8 +2695,8 @@ class StockProposal:
                 text_color = "#037b66"
             else:
                 # 零值 - 使用灰色
-                text_color = "rgb(150, 150, 150)"
-                dynamic_font_size = base_font_size - 2  # 零值使用更小的字体
+                text_color = dark_text_color
+                dynamic_font_size = base_font_size
 
             # 创建文本内容，显示日期和行业
             text = f"<b>{date}</b><br>" + "<br>".join(col2_values[:3])
@@ -2873,9 +2896,19 @@ class StockProposal:
 
             # 计算实际字体大小
             dynamic_font_size = base_font_size + int(size_ratio * max_size_increase)
+            positive_median = np.median(
+                np.abs(
+                    pd_calendar_heatmap.loc[pd_calendar_heatmap["s_pnl"] > 0, "s_pnl"]
+                )
+            )
+            negative_median = np.median(
+                np.abs(
+                    pd_calendar_heatmap.loc[pd_calendar_heatmap["s_pnl"] < 0, "s_pnl"]
+                )
+            )
 
             # 根据 s_pnl 的值确定文本颜色 - 暗黑模式适配
-            if col3_value > 0:
+            if col3_value > 0 and abs(col3_value) >= positive_median:
                 # 正值 - 使用亮红色系，值越大红色越亮
                 # 在暗黑模式下使用更亮的红色
                 # red_intensity = int(
@@ -2883,7 +2916,7 @@ class StockProposal:
                 # )  # 提高基础亮度和减少范围
                 # text_color = f"rgb({red_intensity}, 100, 100)"  # 添加一些绿色和蓝色成分使颜色更柔和
                 text_color = "#e90c4a"
-            elif col3_value < 0:
+            elif col3_value < 0 and abs(col3_value) >= negative_median:
                 # 负值 - 使用亮绿色系，绝对值越大绿色越亮
                 # 在暗黑模式下使用更亮的绿色
                 # green_intensity = int(
@@ -2893,8 +2926,8 @@ class StockProposal:
                 text_color = "#0e987f"
             else:
                 # 零值 - 使用浅灰色，在暗黑模式下更易读
-                text_color = "rgb(180, 180, 180)"
-                dynamic_font_size = base_font_size - 2  # 零值使用更小的字体
+                text_color = light_text_color
+                dynamic_font_size = base_font_size
 
             # 创建文本内容，显示日期和行业
             text = f"<b>{date}</b><br>" + "<br>".join(col2_values[:3])
