@@ -331,7 +331,7 @@ def make_dash_format_table(df, cols_format, market):
 
         # 然后进行赋值操作
         df.loc[condition1 | condition2, "NAME"] = (
-            "M-" + df.loc[condition1 | condition2, "NAME"]
+            "A+" + df.loc[condition1 | condition2, "NAME"]
         )
 
     def create_link(symbol, market):
