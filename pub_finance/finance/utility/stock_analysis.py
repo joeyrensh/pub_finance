@@ -1443,8 +1443,9 @@ class StockProposal:
         #     colortype="rgb",  # 输出为十六进制
         # )
         # 生成20个颜色，分段填充
-        hex_colors = [customized_sequential_color[i // 5] for i in range(20)]
-        alpha = 0.6
+        # hex_colors = [customized_sequential_color[i // 5] for i in range(20)]
+        hex_colors = ["rgba(0,0,0,0)" for _ in range(20)]
+        alpha = 1
         # 将 RGB 转换为 RGBA，添加透明度
         rgba_colors = []
         for color in hex_colors:
@@ -1468,12 +1469,14 @@ class StockProposal:
                 labels=pd_top20_industry["industry"],
                 parents=[None] * len(pd_top20_industry),  # 顶层节点为空
                 values=pd_top20_industry["cnt"],
-                texttemplate="%{label}<br>%{value}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
-                insidetextfont=dict(size=font_size, color=text_colors, family="Arial"),
+                texttemplate="%{label}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
+                insidetextfont=dict(
+                    size=font_size, color=dark_text_color, family="Arial"
+                ),
                 textposition="middle center",
                 marker=dict(
-                    colors=rgba_colors,
-                    line=dict(color=rgba_colors, width=1),
+                    colors=hex_colors,
+                    line=dict(color="rgba(200, 200, 200, 0.8)", width=1),
                     showscale=False,
                     pad=dict(t=0, b=0, l=0, r=0),
                 ),
@@ -1496,7 +1499,7 @@ class StockProposal:
             height=fig_height,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            treemapcolorway=rgba_colors,  # 确保颜色一致
+            treemapcolorway=hex_colors,  # 确保颜色一致
         )
 
         if self.market == "us":
@@ -1516,8 +1519,11 @@ class StockProposal:
         # dark mode
         text_colors = [get_text_color(color, "dark") for color in rgba_colors]
         fig.update_traces(
-            insidetextfont=dict(color=text_colors),
-            marker=dict(colors=rgba_colors, line=dict(color=rgba_colors)),
+            insidetextfont=dict(color=light_text_color),
+            marker=dict(
+                colors=hex_colors,
+                line=dict(color="rgba(240, 240, 240, 0.9)", width=1),
+            ),
         )
 
         if self.market == "us":
@@ -1556,13 +1562,15 @@ class StockProposal:
                 labels=pd_top20_profit_industry["industry"],
                 parents=[""] * len(pd_top20_profit_industry),  # 顶层节点为空
                 values=pd_top20_profit_industry["pl"],
-                texttemplate="%{label}<br>%{value}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
-                insidetextfont=dict(size=font_size, color=text_colors, family="Arial"),
+                texttemplate="%{label}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
+                insidetextfont=dict(
+                    size=font_size, color=dark_text_color, family="Arial"
+                ),
                 outsidetextfont=dict(color="grey"),
                 textposition="middle center",
                 marker=dict(
-                    colors=rgba_colors,
-                    line=dict(color=rgba_colors, width=1),
+                    colors=hex_colors,
+                    line=dict(color="rgba(200, 200, 200, 0.8)", width=1),
                     showscale=False,
                     pad=dict(t=0, b=0, l=0, r=0),
                 ),
@@ -1585,7 +1593,7 @@ class StockProposal:
             height=fig_height,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            treemapcolorway=rgba_colors,  # 确保颜色一致
+            treemapcolorway=hex_colors,  # 确保颜色一致
         )
         if self.market == "us":
             fig.write_image(
@@ -1604,8 +1612,11 @@ class StockProposal:
         # dark mode
         text_colors = [get_text_color(color, "dark") for color in hex_colors]
         fig.update_traces(
-            insidetextfont=dict(color=text_colors),
-            marker=dict(colors=rgba_colors, line=dict(color=rgba_colors)),
+            insidetextfont=dict(color=light_text_color),
+            marker=dict(
+                colors=hex_colors,
+                line=dict(color="rgba(240, 240, 240, 0.9)", width=1),
+            ),
         )
         if self.market == "us":
             fig.write_image(
@@ -2550,20 +2561,8 @@ class StockProposal:
                 ygap=10,  # 设置行之间的间隙为10像素
                 # 定义自定义颜色比例
                 colorscale=[
-                    [0, heatmap_colors4_light[0]],
-                    [
-                        (mid_val - min_val) / (max_val - min_val) / 2,
-                        heatmap_colors4_light[1],
-                    ],
-                    [
-                        (mid_val - min_val) / (max_val - min_val),
-                        "rgba(255, 255, 255, 0)",
-                    ],
-                    [
-                        1 - (max_val - mid_val) / (max_val - min_val) / 2,
-                        heatmap_colors4_light[2],
-                    ],
-                    [1, heatmap_colors4_light[3]],
+                    [0, "rgba(0, 0, 0, 0)"],  # 完全透明
+                    [1, "rgba(0, 0, 0, 0)"],  # 完全透明
                 ],
                 zmin=min_val,
                 zmax=max_val,
@@ -2638,25 +2637,44 @@ class StockProposal:
             col3_value = row["s_pnl"]
             date = row["date"].strftime("%Y-%m-%d")
 
-            # 根据s_pnl的值确定文本颜色
-            # 假设当s_pnl接近min_val时，我们使用深色背景（绿色系），接近max_val时，我们使用浅色背景（红色系）
-            # 这里简单地使用阈值来判断，但您可以根据实际需求调整逻辑
-            text_color = dark_text_color  # 默认黑色
-            if (
-                col3_value <= min_val + (max_val - min_val) * 0.05
-            ):  # 当s_pnl非常小时（接近最小值）
-                text_color = (
-                    light_text_color if max_val > 0 else dark_text_color
-                )  # 如果最大值大于0，则使用白色，否则保持黑色（避免全黑背景）
-            elif (
-                col3_value >= max_val - (max_val - min_val) * 0.05
-            ):  # 当s_pnl非常大时（接近最大值）
-                text_color = light_text_color  # 使用白色
+            # 计算基于 s_pnl 绝对值的大小比例
+            abs_max = max(abs(min_val), abs(max_val))
+            if abs_max == 0:  # 防止除以零
+                size_ratio = 0
+            else:
+                # 使用非线性函数增强反差 - 平方函数使大值更大，小值更小
+                normalized_value = abs(col3_value) / abs_max
+                size_ratio = normalized_value**2  # 平方函数增强反差
 
-            # 将col2的list按3行展示（这里可能需要根据实际情况调整）
-            text = f"<b>{date}</b><br>" + "<br>".join(
-                col2_values[:3]
-            )  # 假设我们只展示前三个行业
+            # 基础字体大小和最大增量
+            base_font_size = font_size - 16
+            max_size_increase = 16  # 增加最大增量以增强反差
+
+            # 计算实际字体大小
+            dynamic_font_size = base_font_size + int(size_ratio * max_size_increase)
+
+            # 根据 s_pnl 的值确定文本颜色
+            if col3_value > 0:
+                # 正值 - 使用红色系，值越大红色越深
+                # 使用非线性函数增强颜色反差
+                red_intensity = int(
+                    120 + 135 * (normalized_value**1.5)
+                )  # 1.5次方增强颜色反差
+                text_color = f"rgb({red_intensity}, 0, 0)"
+            elif col3_value < 0:
+                # 负值 - 使用绿色系，绝对值越大绿色越深
+                # 使用非线性函数增强颜色反差
+                green_intensity = int(
+                    120 + 135 * (normalized_value**1.5)
+                )  # 1.5次方增强颜色反差
+                text_color = f"rgb(0, {green_intensity}, 0)"
+            else:
+                # 零值 - 使用灰色
+                text_color = "rgb(150, 150, 150)"
+                dynamic_font_size = base_font_size - 2  # 零值使用更小的字体
+
+            # 创建文本内容，显示日期和行业
+            text = f"<b>{date}</b><br>" + "<br>".join(col2_values[:3])
 
             fig.add_annotation(
                 x=day_of_week,
@@ -2666,7 +2684,7 @@ class StockProposal:
                 font=dict(
                     color=text_color,
                     family="Arial",
-                    size=font_size - 5,
+                    size=dynamic_font_size,
                 ),  # 根据s_pnl值动态设置字体颜色
                 align="center",
                 xanchor="center",
@@ -2765,20 +2783,8 @@ class StockProposal:
                 ygap=10,  # 设置行之间的间隙为10像素
                 # 定义自定义颜色比例
                 colorscale=[
-                    [0, heatmap_colors4_dark[0]],
-                    [
-                        (mid_val - min_val) / (max_val - min_val) / 2,
-                        heatmap_colors4_dark[1],
-                    ],
-                    [
-                        (mid_val - min_val) / (max_val - min_val),
-                        "rgba(0, 0, 0, 0)",
-                    ],
-                    [
-                        1 - (max_val - mid_val) / (max_val - min_val) / 2,
-                        heatmap_colors4_dark[2],
-                    ],
-                    [1, heatmap_colors4_dark[3]],
+                    [0, "rgba(0, 0, 0, 0)"],  # 完全透明
+                    [1, "rgba(0, 0, 0, 0)"],  # 完全透明
                 ],
                 zmin=min_val,
                 zmax=max_val,
@@ -2850,15 +2856,44 @@ class StockProposal:
             col3_value = row["s_pnl"]
             date = row["date"].strftime("%Y-%m-%d")
 
-            # 根据s_pnl的值确定文本颜色
-            # 假设当s_pnl接近min_val时，我们使用深色背景（绿色系），接近max_val时，我们使用浅色背景（红色系）
-            # 这里简单地使用阈值来判断，但您可以根据实际需求调整逻辑
-            text_color = light_text_color  # 默认白色
+            # 计算基于 s_pnl 绝对值的大小比例
+            abs_max = max(abs(min_val), abs(max_val))
+            if abs_max == 0:  # 防止除以零
+                size_ratio = 0
+            else:
+                # 使用非线性函数增强反差 - 平方函数使大值更大，小值更小
+                normalized_value = abs(col3_value) / abs_max
+                size_ratio = normalized_value**2  # 平方函数增强反差
 
-            # 将col2的list按3行展示（这里可能需要根据实际情况调整）
-            text = f"<b>{date}</b><br>" + "<br>".join(
-                col2_values[:3]
-            )  # 假设我们只展示前三个行业
+            # 基础字体大小和最大增量
+            base_font_size = font_size - 16
+            max_size_increase = 16  # 增加最大增量以增强反差
+
+            # 计算实际字体大小
+            dynamic_font_size = base_font_size + int(size_ratio * max_size_increase)
+
+            # 根据 s_pnl 的值确定文本颜色 - 暗黑模式适配
+            if col3_value > 0:
+                # 正值 - 使用亮红色系，值越大红色越亮
+                # 在暗黑模式下使用更亮的红色
+                red_intensity = int(
+                    180 + 75 * (normalized_value**1.5)
+                )  # 提高基础亮度和减少范围
+                text_color = f"rgb({red_intensity}, 100, 100)"  # 添加一些绿色和蓝色成分使颜色更柔和
+            elif col3_value < 0:
+                # 负值 - 使用亮绿色系，绝对值越大绿色越亮
+                # 在暗黑模式下使用更亮的绿色
+                green_intensity = int(
+                    180 + 75 * (normalized_value**1.5)
+                )  # 提高基础亮度和减少范围
+                text_color = f"rgb(100, {green_intensity}, 100)"  # 添加一些红色和蓝色成分使颜色更柔和
+            else:
+                # 零值 - 使用浅灰色，在暗黑模式下更易读
+                text_color = "rgb(180, 180, 180)"
+                dynamic_font_size = base_font_size - 2  # 零值使用更小的字体
+
+            # 创建文本内容，显示日期和行业
+            text = f"<b>{date}</b><br>" + "<br>".join(col2_values[:3])
 
             fig.add_annotation(
                 x=day_of_week,
@@ -2868,7 +2903,7 @@ class StockProposal:
                 font=dict(
                     color=text_color,
                     family="Arial",
-                    size=font_size - 5,
+                    size=dynamic_font_size,
                 ),  # 根据s_pnl值动态设置字体颜色
                 align="center",
                 xanchor="center",

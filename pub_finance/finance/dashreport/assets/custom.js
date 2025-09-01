@@ -14,8 +14,8 @@
     const BASE_FONT_SIZE_CONFIG = {
         'annual-return-light': { mobile: '1.7rem', desktop: '1.2rem' },
         'annual-return-dark': { mobile: '1.7rem', desktop: '1.2rem' },
-        'ind-trend-light': { mobile: '1.7rem', desktop: '1.7rem' },
-        'ind-trend-dark': { mobile: '1.7rem', desktop: '1.7rem' },
+        // 'ind-trend-light': { mobile: '1.7rem', desktop: '1.7rem' },
+        // 'ind-trend-dark': { mobile: '1.7rem', desktop: '1.7rem' },
         'strategy-light': { mobile: '1.5rem', desktop: '1.5rem' },
         'strategy-dark': { mobile: '1.5rem', desktop: '1.5rem' },
         'by-position-light': { mobile: '2rem', desktop: '2rem' },
@@ -48,7 +48,7 @@
     function replaceFontSize(element, svgId) {
         const screenWidth = window.innerWidth;
 
-        const config = FONT_SIZE_CONFIG[svgId] || { mobile: '1.5rem', desktop: '1.2rem' };
+        const config = FONT_SIZE_CONFIG[svgId];
         let fontSize = screenWidth <= 550 ? config.mobile : config.desktop;
         let fontWeight = 400;
         let parent = element.closest('[class]');

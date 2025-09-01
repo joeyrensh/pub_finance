@@ -268,15 +268,13 @@ def exec_btstrategy(date):
         ax_chart.patch.set_visible(False)  # 隐藏主轴背景避免遮挡
 
         # 绘制面积图（关键点3：使用 zorder 控制层级）
-        ax_drawdown.fill_between(
+        ax_drawdown.plot(
             drawdown.index,
             drawdown.values,
-            y2=0,
             color=colors["drawdown"],
             alpha=0.8,  # 适当降低透明度
             zorder=2,  # 设置较低层级
-            edgecolor=colors["drawdown"],
-            linewidth=1,
+            linewidth=2,  # 设置线宽
             label="Drawdown",
         )
 
