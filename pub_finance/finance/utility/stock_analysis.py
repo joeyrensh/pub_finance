@@ -2657,17 +2657,19 @@ class StockProposal:
             if col3_value > 0:
                 # 正值 - 使用红色系，值越大红色越深
                 # 使用非线性函数增强颜色反差
-                red_intensity = int(
-                    120 + 135 * (normalized_value**1.5)
-                )  # 1.5次方增强颜色反差
-                text_color = f"rgb({red_intensity}, 0, 0)"
+                # red_intensity = int(
+                #     120 + 135 * (normalized_value**1.5)
+                # )  # 1.5次方增强颜色反差
+                # text_color = f"rgb({red_intensity}, 0, 0)"
+                text_color = "#d60a22"
             elif col3_value < 0:
                 # 负值 - 使用绿色系，绝对值越大绿色越深
                 # 使用非线性函数增强颜色反差
-                green_intensity = int(
-                    120 + 135 * (normalized_value**1.5)
-                )  # 1.5次方增强颜色反差
-                text_color = f"rgb(0, {green_intensity}, 0)"
+                # green_intensity = int(
+                #     120 + 135 * (normalized_value**1.5)
+                # )  # 1.5次方增强颜色反差
+                # text_color = f"rgb(0, {green_intensity}, 0)"
+                text_color = "#037b66"
             else:
                 # 零值 - 使用灰色
                 text_color = "rgb(150, 150, 150)"
@@ -2876,17 +2878,19 @@ class StockProposal:
             if col3_value > 0:
                 # 正值 - 使用亮红色系，值越大红色越亮
                 # 在暗黑模式下使用更亮的红色
-                red_intensity = int(
-                    180 + 75 * (normalized_value**1.5)
-                )  # 提高基础亮度和减少范围
-                text_color = f"rgb({red_intensity}, 100, 100)"  # 添加一些绿色和蓝色成分使颜色更柔和
+                # red_intensity = int(
+                #     180 + 75 * (normalized_value**1.5)
+                # )  # 提高基础亮度和减少范围
+                # text_color = f"rgb({red_intensity}, 100, 100)"  # 添加一些绿色和蓝色成分使颜色更柔和
+                text_color = "#e90c4a"
             elif col3_value < 0:
                 # 负值 - 使用亮绿色系，绝对值越大绿色越亮
                 # 在暗黑模式下使用更亮的绿色
-                green_intensity = int(
-                    180 + 75 * (normalized_value**1.5)
-                )  # 提高基础亮度和减少范围
-                text_color = f"rgb(100, {green_intensity}, 100)"  # 添加一些红色和蓝色成分使颜色更柔和
+                # green_intensity = int(
+                #     180 + 75 * (normalized_value**1.5)
+                # )  # 提高基础亮度和减少范围
+                # text_color = f"rgb(100, {green_intensity}, 100)"  # 添加一些红色和蓝色成分使颜色更柔和
+                text_color = "#0e987f"
             else:
                 # 零值 - 使用浅灰色，在暗黑模式下更易读
                 text_color = "rgb(180, 180, 180)"
