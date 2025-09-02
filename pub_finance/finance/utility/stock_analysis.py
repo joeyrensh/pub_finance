@@ -2660,7 +2660,7 @@ class StockProposal:
                 size_ratio = normalized_value**2  # 平方函数增强反差
 
             # 基础字体大小和最大增量
-            base_font_size = font_size - 10
+            base_font_size = font_size - 8
             max_size_increase = 20  # 增加最大增量以增强反差
 
             # 计算实际字体大小
@@ -2891,7 +2891,7 @@ class StockProposal:
                 size_ratio = normalized_value**2  # 平方函数增强反差
 
             # 基础字体大小和最大增量
-            base_font_size = font_size - 10
+            base_font_size = font_size - 8
             max_size_increase = 20  # 增加最大增量以增强反差
 
             # 计算实际字体大小
