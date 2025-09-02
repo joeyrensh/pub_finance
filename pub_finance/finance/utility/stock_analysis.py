@@ -2936,7 +2936,7 @@ class StockProposal:
                 ),  # 根据s_pnl值动态设置字体颜色
                 align="center",
                 xanchor="center",
-                yanchor="top",
+                yanchor="middle",
                 # 以下选项是可选的，用于提高可读性
                 # bordercolor="white",  # 添加白色边框
                 # borderwidth=1,  # 设置边框宽度
