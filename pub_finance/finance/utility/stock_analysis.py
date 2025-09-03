@@ -413,7 +413,7 @@ class StockProposal:
             "industry"
         ]
         pd_industry_history_tracking["industry"] = pd_industry_history_tracking.apply(
-            lambda row: f"{row['industry']} {create_arrow(row['index_diff'])}",
+            lambda row: f"{row['industry']}{create_arrow(row['index_diff'])}",
             axis=1,
         )
         pd_industry_history_tracking["pnl_trend"] = pd_industry_history_tracking[
