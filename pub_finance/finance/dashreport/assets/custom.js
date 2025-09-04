@@ -79,7 +79,7 @@
 
                 // 判断是否为第二列且不是第一行
                 if (idx >= colCount && (idx % colCount === 2)) {
-                    fontSize = screenWidth <= 550 ? '2.5rem' : '2rem';
+                    fontSize = screenWidth <= 550 ? '3rem' : '2.5rem';
                     fontWeight = 500;
                     const textContent = parentDiv.textContent.trim();
                     if (textContent.startsWith('-')) {
