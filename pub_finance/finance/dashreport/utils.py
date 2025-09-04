@@ -245,7 +245,7 @@ def data_bars(df, column):
 
 def extract_arrow_num(s):
     # 提取向上箭头后的数字
-    arrow_num = re.search(r"↑(\d+)", s)
+    arrow_num = re.search(r"↑(\d+)", re.sub("<[^<]+?>", "", s))
     arrow_num = int(arrow_num.group(1)) if arrow_num else None
 
     # 提取第一个括号内的数字（无论是否有箭头）
