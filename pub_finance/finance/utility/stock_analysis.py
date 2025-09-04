@@ -403,9 +403,9 @@ class StockProposal:
             if pd.isnull(value):
                 return ""
             elif value > 0:
-                return f"<span style='color:red;'><b>⤴</b>{abs(value):.0f}</span>"
+                return f"<span style='color:red;'><b>↑</b>{abs(value):.0f}</span>"
             elif value < 0:
-                return f"<span style='color:green;'><b>⤵</b>{abs(value):.0f}</span>"
+                return f"<span style='color:green;'><b>↓</b>{abs(value):.0f}</span>"
             else:
                 return ""
 
