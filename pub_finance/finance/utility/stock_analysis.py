@@ -723,7 +723,7 @@ class StockProposal:
                 , ROUND(t1.total_value / 100000000, 1) AS total_value
                 , CASE WHEN t3.pe IS NULL OR t3.pe = '' OR t3.pe = '-'
                     OR NOT t3.pe RLIKE '^-?[0-9]+(\\.[0-9]+)?$' OR t4.new IS NULL THEN '-'
-                  ELSE ROUND((1/CAST(t3.pe AS INT) - t4.new / 100) * 100, 1) END AS epr                    
+                  ELSE ROUND((1/CAST(t3.pe AS INT) - t4.new / 100) * 100, 1) END AS erp                    
                 , t1.buy_date
                 , t1.price
                 , t1.adjbase
@@ -790,7 +790,7 @@ class StockProposal:
                 "industry": "IND",
                 "name": "NAME",
                 "total_value": "TOTAL VALUE",
-                "epr": "EPR",
+                "erp": "ERP",
                 "buy_date": "OPEN DATE",
                 "price": "BASE",
                 "adjbase": "ADJBASE",
@@ -1065,7 +1065,7 @@ class StockProposal:
                 , t3.total_value
                 , CASE WHEN t4.pe IS NULL OR t4.pe = '' OR t4.pe = '-'
                     OR NOT t4.pe RLIKE '^-?[0-9]+(\\.[0-9]+)?$' OR t5.new IS NULL THEN '-'
-                  ELSE ROUND((1/CAST(t4.pe AS INT) - t5.new / 100) * 100, 1) END AS epr                           
+                  ELSE ROUND((1/CAST(t4.pe AS INT) - t5.new / 100) * 100, 1) END AS erp                          
                 , t1.buy_date
                 , t1.sell_date
                 , t1.base_price AS price
@@ -1122,7 +1122,7 @@ class StockProposal:
             pd_position_reduction.rename(
                 columns={
                     "symbol": "SYMBOL",
-                    "epr": "EPR",
+                    "erp": "ERP",
                     "buy_date": "OPEN DATE",
                     "sell_date": "CLOSE DATE",
                     "price": "BASE",

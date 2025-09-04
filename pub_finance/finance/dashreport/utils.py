@@ -257,7 +257,7 @@ def extract_arrow_num(s):
 
 def make_dash_format_table(df, cols_format, market):
     """Return a dash_table.DataTable for a Pandas dataframe"""
-    required_cols = ["IND", "EPR", "OPEN DATE", "PNL RATIO", "AVG TRANS", "WIN RATE"]
+    required_cols = ["IND", "ERP", "OPEN DATE", "PNL RATIO", "AVG TRANS", "WIN RATE"]
     has_all_required_cols = all(col in df.columns for col in required_cols)
     if market == "us":
         trade_date_l5 = get_us_latest_trade_date(4)
@@ -271,8 +271,8 @@ def make_dash_format_table(df, cols_format, market):
         "%Y-%m-%d"
     )
     # 如果有IND列，先生成辅助列
-    if "EPR" in df.columns:
-        df["EPR"] = pd.to_numeric(df["EPR"], errors="coerce")
+    if "ERP" in df.columns:
+        df["ERP"] = pd.to_numeric(df["ERP"], errors="coerce")
 
     def get_real_quantile(series, q):
         s = series.dropna().sort_values()
@@ -301,8 +301,8 @@ def make_dash_format_table(df, cols_format, market):
             lambda x: get_real_quantile(x, head_quantile)
         )
 
-        # 确保 EPR 列为数值类型，无法转换的变为 NaN
-        df["epr_threshold"] = df.groupby("IND")["EPR"].transform(
+        # 确保 ERP 列为数值类型，无法转换的变为 NaN
+        df["erp_threshold"] = df.groupby("IND")["ERP"].transform(
             lambda x: get_real_quantile(x, mid_quantile)
         )
 
@@ -311,7 +311,7 @@ def make_dash_format_table(df, cols_format, market):
         # 标记满足条件的行
         condition1 = (
             (df["IND_ARROW_NUM"] >= ind_arrow_num_threshold)
-            & (df["EPR"] >= df["epr_threshold"])
+            & (df["ERP"] >= df["erp_threshold"])
             & (df["OPEN DATE"] >= date_threshold_l20)
             & (df["PNL RATIO"] >= df["pnl_ratio_threshold_head"])
             & (df["PNL RATIO"] > 0)
@@ -321,7 +321,7 @@ def make_dash_format_table(df, cols_format, market):
 
         condition2 = (
             (df["IND_BRACKET_NUM"] <= 20)
-            & (df["EPR"] >= df["epr_threshold"])
+            & (df["ERP"] >= df["erp_threshold"])
             & (df["OPEN DATE"] >= date_threshold_l20)
             & (df["PNL RATIO"] <= df["pnl_ratio_threshold_tail"])
             & (df["PNL RATIO"] > 0)
@@ -367,7 +367,7 @@ def make_dash_format_table(df, cols_format, market):
         not in [
             "IND_ARROW_NUM",
             "IND_BRACKET_NUM",
-            "epr_threshold",
+            "erp_threshold",
             "pnl_ratio_threshold_tail",
             "pnl_ratio_threshold_head",
         ]
@@ -438,14 +438,14 @@ def make_dash_format_table(df, cols_format, market):
                             "( {IND_ARROW_NUM} >= "
                             + str(ind_arrow_num_threshold)
                             + " && "
-                            "{EPR_o} >= {epr_threshold_o} && "
+                            "{ERP_o} >= {erp_threshold_o} && "
                             "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
                             "{PNL RATIO_o} >= {pnl_ratio_threshold_head_o} && "
                             + "{PNL RATIO_o} > 0 && "
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
                             "{WIN RATE_o} >= " + str(win_rate_threshold) + ") || ("
                             "{IND_BRACKET_NUM} <= 20 && "
-                            "{EPR_o} >= {epr_threshold_o} && "
+                            "{ERP_o} >= {erp_threshold_o} && "
                             "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
                             "{PNL RATIO_o} <= {pnl_ratio_threshold_tail_o} && "
                             + "{PNL RATIO_o} > 0 &&"
