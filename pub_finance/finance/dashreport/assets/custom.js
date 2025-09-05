@@ -14,8 +14,8 @@
     const BASE_FONT_SIZE_CONFIG = {
         'annual-return-light': { mobile: '1.7rem', desktop: '1.2rem' },
         'annual-return-dark': { mobile: '1.7rem', desktop: '1.2rem' },
-        // 'ind-trend-light': { mobile: '1.7rem', desktop: '1.7rem' },
-        // 'ind-trend-dark': { mobile: '1.7rem', desktop: '1.7rem' },
+        'ind-trend-light': { mobile: 'unset', desktop: 'unset' },
+        'ind-trend-dark': { mobile: 'unset', desktop: 'unset' },
         'strategy-light': { mobile: '1.5rem', desktop: '1.5rem' },
         'strategy-dark': { mobile: '1.5rem', desktop: '1.5rem' },
         'by-position-light': { mobile: '2.2rem', desktop: '2.2rem' },
@@ -90,9 +90,11 @@
                 }
             }
         }
-        element.style.setProperty('font-size', fontSize, 'important');
+        if (fontSize != 'unset') {
+            element.style.setProperty('font-size', fontSize);
+        }
         element.style.setProperty('font-weight', fontWeight, 'important');
-        element.style.setProperty('font-family', '"Helvetica Neue", -apple-system, BlinkMacSystemFont,  "Segoe UI"', 'important');                
+        element.style.setProperty('font-family', '"Helvetica Neue", -apple-system, BlinkMacSystemFont,  "Segoe UI"', 'important');
     
     }
 
