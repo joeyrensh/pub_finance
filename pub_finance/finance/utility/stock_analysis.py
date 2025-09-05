@@ -2651,35 +2651,27 @@ class StockProposal:
             date = row["date"].strftime("%Y-%m-%d")
 
             # 计算基于 s_pnl 绝对值的大小比例
+            pnl_quantile = np.quantile(
+                np.abs(pd_calendar_heatmap["s_pnl"]),
+                0.2,
+            )
+
             abs_max = max(abs(min_val), abs(max_val))
             if abs_max == 0:  # 防止除以零
                 size_ratio = 0
             else:
                 # 使用非线性函数增强反差 - 平方函数使大值更大，小值更小
                 normalized_value = abs(col3_value) / abs_max
-                size_ratio = normalized_value**2  # 平方函数增强反差
+                size_ratio = normalized_value**2 * 1.2  # 平方函数增强反差
 
             # 基础字体大小和最大增量
-            base_font_size = font_size - 8
-            max_size_increase = 20  # 增加最大增量以增强反差
+            base_font_size = font_size - 15
+            max_size_increase = 30  # 增加最大增量以增强反差
 
-            # 计算实际字体大小
             dynamic_font_size = base_font_size + int(size_ratio * max_size_increase)
-            positive_quantile = np.quantile(
-                np.abs(
-                    pd_calendar_heatmap.loc[pd_calendar_heatmap["s_pnl"] > 0, "s_pnl"]
-                ),
-                0.2,
-            )
-            negative_quantile = np.quantile(
-                np.abs(
-                    pd_calendar_heatmap.loc[pd_calendar_heatmap["s_pnl"] < 0, "s_pnl"]
-                ),
-                0.2,
-            )
 
             # 根据 s_pnl 的值确定文本颜色
-            if col3_value > 0 and abs(col3_value) >= positive_quantile:
+            if col3_value > 0 and abs(col3_value) >= pnl_quantile:
                 # 正值 - 使用红色系，值越大红色越深
                 # 使用非线性函数增强颜色反差
                 # red_intensity = int(
@@ -2687,7 +2679,7 @@ class StockProposal:
                 # )  # 1.5次方增强颜色反差
                 # text_color = f"rgb({red_intensity}, 0, 0)"
                 text_color = "#d60a22"
-            elif col3_value < 0 and abs(col3_value) >= negative_quantile:
+            elif col3_value < 0 and abs(col3_value) >= pnl_quantile:
                 # 负值 - 使用绿色系，绝对值越大绿色越深
                 # 使用非线性函数增强颜色反差
                 # green_intensity = int(
@@ -2890,17 +2882,17 @@ class StockProposal:
             else:
                 # 使用非线性函数增强反差 - 平方函数使大值更大，小值更小
                 normalized_value = abs(col3_value) / abs_max
-                size_ratio = normalized_value**2  # 平方函数增强反差
+                size_ratio = normalized_value**2 * 1.2  # 平方函数增强反差
 
             # 基础字体大小和最大增量
-            base_font_size = font_size - 8
-            max_size_increase = 20  # 增加最大增量以增强反差
+            base_font_size = font_size - 15
+            max_size_increase = 30  # 增加最大增量以增强反差
 
             # 计算实际字体大小
             dynamic_font_size = base_font_size + int(size_ratio * max_size_increase)
 
             # 根据 s_pnl 的值确定文本颜色 - 暗黑模式适配
-            if col3_value > 0 and abs(col3_value) >= positive_quantile:
+            if col3_value > 0 and abs(col3_value) >= pnl_quantile:
                 # 正值 - 使用亮红色系，值越大红色越亮
                 # 在暗黑模式下使用更亮的红色
                 # red_intensity = int(
@@ -2908,7 +2900,7 @@ class StockProposal:
                 # )  # 提高基础亮度和减少范围
                 # text_color = f"rgb({red_intensity}, 100, 100)"  # 添加一些绿色和蓝色成分使颜色更柔和
                 text_color = "#e90c4a"
-            elif col3_value < 0 and abs(col3_value) >= negative_quantile:
+            elif col3_value < 0 and abs(col3_value) >= pnl_quantile:
                 # 负值 - 使用亮绿色系，绝对值越大绿色越亮
                 # 在暗黑模式下使用更亮的绿色
                 # green_intensity = int(
