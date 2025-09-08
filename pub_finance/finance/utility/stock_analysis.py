@@ -2665,8 +2665,8 @@ class StockProposal:
                 size_ratio = normalized_value**2 * 1.2  # 平方函数增强反差
 
             # 基础字体大小和最大增量
-            base_font_size = font_size - 15
-            max_size_increase = 30  # 增加最大增量以增强反差
+            base_font_size = font_size - 9
+            max_size_increase = 25  # 增加最大增量以增强反差
 
             dynamic_font_size = base_font_size + int(size_ratio * max_size_increase)
 
@@ -2884,9 +2884,8 @@ class StockProposal:
                 normalized_value = abs(col3_value) / abs_max
                 size_ratio = normalized_value**2 * 1.2  # 平方函数增强反差
 
-            # 基础字体大小和最大增量
-            base_font_size = font_size - 15
-            max_size_increase = 30  # 增加最大增量以增强反差
+            base_font_size = font_size - 9
+            max_size_increase = 25  # 增加最大增量以增强反差
 
             # 计算实际字体大小
             dynamic_font_size = base_font_size + int(size_ratio * max_size_increase)
