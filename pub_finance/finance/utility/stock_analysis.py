@@ -2650,48 +2650,32 @@ class StockProposal:
             col3_value = row["s_pnl"]
             date = row["date"].strftime("%Y-%m-%d")
 
-            # 计算基于 s_pnl 绝对值的大小比例
-            pnl_quantile = np.quantile(
-                np.abs(pd_calendar_heatmap["s_pnl"]),
-                0.2,
+            # 基础字体大小和最大增量
+            base_font_size = font_size - 8
+            max_size_increase = 16  # 增加最大增量以增强反差
+
+            # 计算绝对值的分位点
+            abs_values = np.abs(pd_calendar_heatmap["s_pnl"])
+            quantiles = np.quantile(abs_values, [0.2, 0.4, 0.6, 0.8])
+
+            # 计算每档的字体大小
+            font_steps = np.linspace(
+                base_font_size, base_font_size + max_size_increase, 5
             )
 
-            abs_max = max(abs(min_val), abs(max_val))
-            if abs_max == 0:  # 防止除以零
-                size_ratio = 0
+            abs_col3 = abs(col3_value)
+            if abs_col3 <= quantiles[0]:
+                dynamic_font_size = font_steps[0]
+            elif abs_col3 <= quantiles[1]:
+                dynamic_font_size = font_steps[1]
+            elif abs_col3 <= quantiles[2]:
+                dynamic_font_size = font_steps[2]
+            elif abs_col3 <= quantiles[3]:
+                dynamic_font_size = font_steps[3]
             else:
-                # 使用非线性函数增强反差 - 平方函数使大值更大，小值更小
-                normalized_value = abs(col3_value) / abs_max
-                size_ratio = normalized_value**2 * 1.2  # 平方函数增强反差
+                dynamic_font_size = font_steps[4]
+            dynamic_font_size = int(dynamic_font_size)
 
-            # 基础字体大小和最大增量
-            base_font_size = font_size - 9
-            max_size_increase = 25  # 增加最大增量以增强反差
-
-            dynamic_font_size = base_font_size + int(size_ratio * max_size_increase)
-
-            # # 根据 s_pnl 的值确定文本颜色
-            # if col3_value > 0 and abs(col3_value) >= pnl_quantile:
-            #     # 正值 - 使用红色系，值越大红色越深
-            #     # 使用非线性函数增强颜色反差
-            #     # red_intensity = int(
-            #     #     120 + 135 * (normalized_value**1.5)
-            #     # )  # 1.5次方增强颜色反差
-            #     # text_color = f"rgb({red_intensity}, 0, 0)"
-            #     text_color = "#d60a22"
-            # elif col3_value < 0 and abs(col3_value) >= pnl_quantile:
-            #     # 负值 - 使用绿色系，绝对值越大绿色越深
-            #     # 使用非线性函数增强颜色反差
-            #     # green_intensity = int(
-            #     #     120 + 135 * (normalized_value**1.5)
-            #     # )  # 1.5次方增强颜色反差
-            #     # text_color = f"rgb(0, {green_intensity}, 0)"
-            #     text_color = "#037b66"
-            # else:
-            #     # 零值 - 使用灰色
-            #     text_color = dark_text_color
-            #     dynamic_font_size = base_font_size
-            # 根据 s_pnl 的值确定文本颜色
             if col3_value > 0:
                 text_color = "#d60a22"
             elif col3_value < 0:
@@ -2884,50 +2868,39 @@ class StockProposal:
             col3_value = row["s_pnl"]
             date = row["date"].strftime("%Y-%m-%d")
 
-            # 计算基于 s_pnl 绝对值的大小比例
-            abs_max = max(abs(min_val), abs(max_val))
-            if abs_max == 0:  # 防止除以零
-                size_ratio = 0
+            # 基础字体大小和最大增量
+            base_font_size = font_size - 8
+            max_size_increase = 16  # 增加最大增量以增强反差
+
+            # 计算绝对值的分位点
+            abs_values = np.abs(pd_calendar_heatmap["s_pnl"])
+            quantiles = np.quantile(abs_values, [0.2, 0.4, 0.6, 0.8])
+
+            # 计算每档的字体大小
+            font_steps = np.linspace(
+                base_font_size, base_font_size + max_size_increase, 5
+            )
+
+            abs_col3 = abs(col3_value)
+            if abs_col3 <= quantiles[0]:
+                dynamic_font_size = font_steps[0]
+            elif abs_col3 <= quantiles[1]:
+                dynamic_font_size = font_steps[1]
+            elif abs_col3 <= quantiles[2]:
+                dynamic_font_size = font_steps[2]
+            elif abs_col3 <= quantiles[3]:
+                dynamic_font_size = font_steps[3]
             else:
-                # 使用非线性函数增强反差 - 平方函数使大值更大，小值更小
-                normalized_value = abs(col3_value) / abs_max
-                size_ratio = normalized_value**2 * 1.2  # 平方函数增强反差
+                dynamic_font_size = font_steps[4]
+            dynamic_font_size = int(dynamic_font_size)
 
-            base_font_size = font_size - 9
-            max_size_increase = 25  # 增加最大增量以增强反差
-
-            # 计算实际字体大小
-            dynamic_font_size = base_font_size + int(size_ratio * max_size_increase)
-
-            # # 根据 s_pnl 的值确定文本颜色 - 暗黑模式适配
-            # if col3_value > 0 and abs(col3_value) >= pnl_quantile:
-            #     # 正值 - 使用亮红色系，值越大红色越亮
-            #     # 在暗黑模式下使用更亮的红色
-            #     # red_intensity = int(
-            #     #     180 + 75 * (normalized_value**1.5)
-            #     # )  # 提高基础亮度和减少范围
-            #     # text_color = f"rgb({red_intensity}, 100, 100)"  # 添加一些绿色和蓝色成分使颜色更柔和
-            #     text_color = "#e90c4a"
-            # elif col3_value < 0 and abs(col3_value) >= pnl_quantile:
-            #     # 负值 - 使用亮绿色系，绝对值越大绿色越亮
-            #     # 在暗黑模式下使用更亮的绿色
-            #     # green_intensity = int(
-            #     #     180 + 75 * (normalized_value**1.5)
-            #     # )  # 提高基础亮度和减少范围
-            #     # text_color = f"rgb(100, {green_intensity}, 100)"  # 添加一些红色和蓝色成分使颜色更柔和
-            #     text_color = "#0e987f"
-            # else:
-            #     # 零值 - 使用浅灰色，在暗黑模式下更易读
-            #     text_color = light_text_color
-            #     dynamic_font_size = base_font_size
-            # 根据 s_pnl 的值确定文本颜色 - 暗黑模式适配
             if col3_value > 0:
-                text_color = "#e90c4a"
+                text_color = "#d60a22"
             elif col3_value < 0:
-                text_color = "#0e987f"
+                text_color = "#037b66"
             else:
-                # 零值 - 使用浅灰色，在暗黑模式下更易读
-                text_color = light_text_color
+                # 零值 - 使用灰色
+                text_color = dark_text_color
                 dynamic_font_size = base_font_size
 
             # 创建文本内容，显示日期和行业
