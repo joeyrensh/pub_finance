@@ -15,8 +15,6 @@ import datetime
 class TickerInfo:
     def __init__(self, trade_date, market) -> None:
         """获取市场代码"""
-        if market == "us_special":
-            market = "us"
         self.market = market
         """ 获取交易日期 """
         self.trade_date = trade_date
@@ -97,6 +95,8 @@ class TickerInfo:
                     and float(i["low"]) > 0
                 ):
                     tickers.append(i["symbol"])
+        elif self.market == "us_special":
+            tickers = self.get_special_us_stock_list_180d()
         return tickers
 
     """ 获取最新一天股票数据 """
@@ -193,7 +193,7 @@ class TickerInfo:
         if len(group_obj) < 241:
             return pd.DataFrame()
         """ 适配BackTrader数据结构 """
-        if self.market == "us":
+        if self.market in ("us", "us_special"):
             market = 1
         elif self.market == "cn":
             market = 2
@@ -356,8 +356,10 @@ class TickerInfo:
         print(f"近180天内的记录数: {len(df_recent)}")
         # 3. 条件筛选
         cond = (
-            (df_recent["total_value"] <= 1000000000)
-            & (df_recent["total_value"] > 0)
+            # (df_recent["total_value"] <= 1000000000)
+            # & (df_recent["total_value"] > 50000000)
+            (df_recent["total_value"] <= 200000000)
+            & (df_recent["total_value"] > 100000000)
             & (df_recent["close"] > 1)
             & (
                 df_recent["close"] * df_recent["volume"] / df_recent["total_value"]
@@ -365,10 +367,13 @@ class TickerInfo:
             )
         )
         stock_list = df_recent.loc[cond, "symbol"].unique().tolist()
-        print(f"满足条件的股票数量: {len(stock_list)}")
+        df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
+        valid_symbols = df_o["symbol"].unique()
+        stock_list_with_industry = [s for s in stock_list if s in valid_symbols]
+        print(f"满足条件的股票数量: {len(stock_list_with_industry)}")
         dfs, df_all, df_recent, df = None, None, None, None
         gc.collect()
-        return stock_list
+        return stock_list_with_industry
 
     def get_special_us_backtrader_data_feed(self):
         tickers = self.get_special_us_stock_list_180d()
