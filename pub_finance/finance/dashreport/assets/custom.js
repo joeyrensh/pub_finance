@@ -8,6 +8,10 @@
         'us-strategy-light', 'us-strategy-dark', 'us-by-position-light', 'us-by-position-dark',
         'us-by-pl-light', 'us-by-pl-dark', 'us-by-positiondate-light', 'us-by-positiondate-dark',
         'us-bypl-date-light', 'us-bypl-date-dark',
+        'us_special-annual-return-light', 'us_special-annual-return-dark', 'us_special-ind-trend-light', 'us_special-ind-trend-dark',
+        'us_special-strategy-light', 'us_special-strategy-dark', 'us_special-by-position-light', 'us_special-by-position-dark',
+        'us_special-by-pl-light', 'us_special-by-pl-dark', 'us_special-by-positiondate-light', 'us_special-by-positiondate-dark',
+        'us_special-bypl-date-light', 'us_special-bypl-date-dark',        
     ];
 
     // 基础配置（无前缀）
@@ -30,7 +34,7 @@
 
     // 动态生成带前缀的配置
     const FONT_SIZE_CONFIG = {};
-    ['cn', 'us'].forEach(prefix => {
+    ['cn', 'us', 'us_special'].forEach(prefix => {
         Object.keys(BASE_FONT_SIZE_CONFIG).forEach(key => {
             FONT_SIZE_CONFIG[`${prefix}-${key}`] = BASE_FONT_SIZE_CONFIG[key];
         });
@@ -63,7 +67,9 @@
 
         // 如果是特定的 SVG，设置字体加粗
         if (svgId === 'cn-annual-return-light' || svgId === 'cn-annual-return-dark' 
-            || svgId === 'us-annual-return-light' || svgId === 'us-annual-return-dark') { 
+            || svgId === 'us-annual-return-light' || svgId === 'us-annual-return-dark'
+            || svgId === 'us_special-annual-return-light' || svgId === 'us_special-annual-return-dark'
+        ) { 
             // 查找 element 的父级是否以 "table" 为前缀
             const parent = element.closest('[id^="table"]');
             if (parent) {

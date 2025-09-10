@@ -6,6 +6,7 @@ from utility.fileinfo import FileInfo
 from utility.toolkit import ToolKit
 import multiprocessing
 import gc
+import datetime
 
 
 """ 组合每日股票数据为一个dataframe """
@@ -14,6 +15,8 @@ import gc
 class TickerInfo:
     def __init__(self, trade_date, market) -> None:
         """获取市场代码"""
+        if market == "us_special":
+            market = "us"
         self.market = market
         """ 获取交易日期 """
         self.trade_date = trade_date
@@ -73,6 +76,7 @@ class TickerInfo:
                     and float(i["open"]) > 0
                     and float(i["high"]) > 0
                     and float(i["low"]) > 0
+                    and (float(i["close"]) - float(i["open"])) / float(i["open"]) < 2
                 ):
                     tickers.append(i["symbol"])
         elif self.market == "cn":
@@ -291,6 +295,95 @@ class TickerInfo:
             results = [
                 pool.apply_async(self.reconstruct_dataframe, (his_data.get_group(i), i))
                 for i in tickers
+            ]
+            for idx, result in enumerate(results):
+                df = result.get()
+                if not df.empty:
+                    list_results.append(df)
+                t.progress_bar(len(results), idx)
+
+        # 手动清理不再需要的对象
+        his_data = None
+        gc.collect()
+
+        return list_results
+
+    def get_special_us_stock_list_180d(self):
+        """
+        获取近180天内，任意一天满足：
+        1. total_value < 10亿
+        2. close > 1元
+        3. close * volume / total_value >= 0.05
+        的股票代码列表
+        """
+        # 预定义列的数据类型
+        column_dtypes = {
+            "symbol": str,
+            "open": np.float32,
+            "close": np.float32,
+            "high": np.float32,
+            "low": np.float32,
+            "volume": np.float64,
+            "total_value": np.float64,
+            "date": str,
+        }
+
+        dfs = []
+        for file in self.files:
+            # 读取数据
+            df = pd.read_csv(file)
+
+            # 检查并添加 total_value 列（如果不存在）
+            if "total_value" not in df.columns:
+                df["total_value"] = 0.0
+
+            # 选择我们需要的列并转换数据类型
+            df = df[list(column_dtypes.keys())].astype(column_dtypes)
+            dfs.append(df)
+
+        df_all = pd.concat(dfs, ignore_index=True)
+        df_all.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
+        # 2. 取近180天的日期
+        trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
+        date_threshold = trade_date_dt - datetime.timedelta(days=179)
+
+        # 将 datetime 对象转换回字符串格式 (YYYYMMDD)
+        date_threshold_str = date_threshold.strftime("%Y-%m-%d")
+        print(f"筛选日期阈值: {date_threshold_str}")
+
+        # 使用相同格式的字符串进行筛选
+        df_recent = df_all[df_all["date"] >= date_threshold_str]
+        print(f"近180天内的记录数: {len(df_recent)}")
+        # 3. 条件筛选
+        cond = (
+            (df_recent["total_value"] <= 1000000000)
+            & (df_recent["total_value"] > 0)
+            & (df_recent["close"] > 1)
+            & (
+                df_recent["close"] * df_recent["volume"] / df_recent["total_value"]
+                >= 0.05
+            )
+        )
+        stock_list = df_recent.loc[cond, "symbol"].unique().tolist()
+        print(f"满足条件的股票数量: {len(stock_list)}")
+        dfs, df_all, df_recent, df = None, None, None, None
+        gc.collect()
+        return stock_list
+
+    def get_special_us_backtrader_data_feed(self):
+        tickers = self.get_special_us_stock_list_180d()
+        tickers_clean = [
+            t for t in tickers if isinstance(t, str) and t != "nan" and t != ""
+        ]
+
+        his_data = self.get_history_data().groupby(by="symbol")
+        t = ToolKit("读取历史数据文件")
+        list_results = []
+
+        with multiprocessing.Pool(processes=4) as pool:
+            results = [
+                pool.apply_async(self.reconstruct_dataframe, (his_data.get_group(i), i))
+                for i in tickers_clean
             ]
             for idx, result in enumerate(results):
                 df = result.get()

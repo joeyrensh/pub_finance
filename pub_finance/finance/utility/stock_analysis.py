@@ -146,7 +146,7 @@ class StockProposal:
 
         # 根据市场类型过滤非交易日
         toolkit = ToolKit("identify trade date")
-        if self.market == "us":
+        if self.market in ("us", "us_special"):
             pd_timeseries = pd_timeseries[
                 pd_timeseries["trade_date"].apply(toolkit.is_us_trade_date)
             ]
@@ -435,10 +435,9 @@ class StockProposal:
             },
             inplace=True,
         )
-        if self.market == "us":
-            pd_industry_history_tracking.to_csv("./data/us_category.csv", header=True)
-        else:
-            pd_industry_history_tracking.to_csv("./data/cn_category.csv", header=True)
+        pd_industry_history_tracking.to_csv(
+            f"./data/{self.market}_category.csv", header=True
+        )
         cm = sns.light_palette("seagreen", as_cmap=True)
 
         total_rows = len(pd_industry_history_tracking)
@@ -804,10 +803,7 @@ class StockProposal:
             },
             inplace=True,
         )
-        if self.market == "us":
-            pd_position_history.to_csv("./data/us_stockdetail.csv", header=True)
-        else:
-            pd_position_history.to_csv("./data/cn_stockdetail.csv", header=True)
+        pd_position_history.to_csv(f"./data/{self.market}_stockdetail.csv", header=True)
         cm = sns.light_palette("seagreen", as_cmap=True)
 
         # 将新日期转换为字符串
@@ -1138,14 +1134,9 @@ class StockProposal:
                 inplace=True,
             )
 
-            if self.market == "us":
-                pd_position_reduction.to_csv(
-                    "./data/us_stockdetail_short.csv", header=True
-                )
-            else:
-                pd_position_reduction.to_csv(
-                    "./data/cn_stockdetail_short.csv", header=True
-                )
+            pd_position_reduction.to_csv(
+                f"./data/{self.market}_stockdetail_short.csv", header=True
+            )
             cm = sns.light_palette("seagreen", as_cmap=True)
             pd_position_reduction = pd_position_reduction.head(100)
             total_rows = len(pd_position_reduction)
@@ -1510,20 +1501,12 @@ class StockProposal:
             treemapcolorway=hex_colors,  # 确保颜色一致
         )
 
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_postion_byindustry_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_postion_byindustry_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_postion_byindustry_light.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=scale_factor,
+        )
         # dark mode
         text_colors = [get_text_color(color, "dark") for color in rgba_colors]
         fig.update_traces(
@@ -1534,20 +1517,12 @@ class StockProposal:
             ),
         )
 
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_postion_byindustry_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_postion_byindustry_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_postion_byindustry_dark.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=scale_factor,
+        )
         pd_top20_industry = None
         gc.collect()
 
@@ -1608,20 +1583,13 @@ class StockProposal:
             paper_bgcolor="rgba(0,0,0,0)",
             treemapcolorway=hex_colors,  # 确保颜色一致
         )
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_pl_byindustry_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_pl_byindustry_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
+
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_pl_byindustry_light.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=scale_factor,
+        )
         # dark mode
         text_colors = [get_text_color(color, "dark") for color in hex_colors]
         fig.update_traces(
@@ -1631,20 +1599,13 @@ class StockProposal:
                 line=dict(color="rgba(240, 240, 240, 0.9)", width=1),
             ),
         )
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_pl_byindustry_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_pl_byindustry_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
+
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_pl_byindustry_dark.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=scale_factor,
+        )
 
         pd_top20_profit_industry = None
         gc.collect()
@@ -1774,21 +1735,12 @@ class StockProposal:
             height=fig_height,
         )
 
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_strategy_tracking_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_strategy_tracking_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
-
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_strategy_tracking_light.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=scale_factor,
+        )
         # dark mode
         fig = go.Figure()
         # 遍历每个策略并添加数据
@@ -1878,20 +1830,12 @@ class StockProposal:
             height=fig_height,
         )
 
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_strategy_tracking_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_strategy_tracking_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_strategy_tracking_dark.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=scale_factor,
+        )
 
         pd_strategy_tracking_lst180days = None
         gc.collect()
@@ -2040,20 +1984,12 @@ class StockProposal:
             height=fig_height,
         )
 
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_trade_trend_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_trade_trend_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_trade_trend_light.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=scale_factor,
+        )
         # dark mode
         fig.update_layout(
             title={
@@ -2076,20 +2012,12 @@ class StockProposal:
             legend=dict(font=dict(color=light_text_color)),
         )
 
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_trade_trend_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_trade_trend_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_trade_trend_dark.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=scale_factor,
+        )
 
         pd_trade_info_lst180days = None
         gc.collect()
@@ -2192,20 +2120,12 @@ class StockProposal:
             ),
         )
 
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_top_industry_position_trend_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_top_industry_position_trend_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_top_industry_position_trend_light.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=scale_factor,
+        )
         # dark mode
         fig.update_xaxes(
             tickfont=dict(color=light_text_color),
@@ -2222,20 +2142,12 @@ class StockProposal:
             legend_title_text="",
             legend=dict(font=dict(color=light_text_color)),
         )
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_top_industry_position_trend_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_top_industry_position_trend_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_top_industry_position_trend_dark.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=scale_factor,
+        )
 
         pd_top5_industry_position_trend = None
         gc.collect()
@@ -2346,20 +2258,12 @@ class StockProposal:
             ),
         )
 
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_top_industry_pl_trend_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_top_industry_pl_trend_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_top_industry_pl_trend_light.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=scale_factor,
+        )
         # dark mode
         fig = px.line(
             pd_top5_industry_profit_trend,
@@ -2426,20 +2330,13 @@ class StockProposal:
                 automargin=False  # 关闭自动边距计算
             ),
         )
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_top_industry_pl_trend_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_top_industry_pl_trend_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=scale_factor,
-            )
+
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_top_industry_pl_trend_dark.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=scale_factor,
+        )
         pd_top5_industry_profit_trend = None
         gc.collect()
 
@@ -2761,20 +2658,12 @@ class StockProposal:
                 yanchor="top",
             )
 
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_industry_trend_heatmap_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=2,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_industry_trend_heatmap_light.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=2,
-            )
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_industry_trend_heatmap_light.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=2,
+        )
 
         # dark mode
         # 创建日历图
@@ -2979,71 +2868,39 @@ class StockProposal:
                 yanchor="middle",
             )
 
-        if self.market == "us":
-            fig.write_image(
-                "./dashreport/assets/images/us_industry_trend_heatmap_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=2,
-            )
-        else:
-            fig.write_image(
-                "./dashreport/assets/images/cn_industry_trend_heatmap_dark.svg",
-                width=fig_width,
-                height=fig_height,
-                scale=2,
-            )
+        fig.write_image(
+            f"./dashreport/assets/images/{self.market}_industry_trend_heatmap_dark.svg",
+            width=fig_width,
+            height=fig_height,
+            scale=2,
+        )
 
         spark.stop()
-
-        if self.market == "us":
-            subject = f"""US Stock Market Trends - {end_date}""".format(
-                end_date=end_date
-            )
-            image_path_return_light = "./dashreport/assets/images/us_tr_light.svg"
-            image_path_return_dark = "./dashreport/assets/images/us_tr_dark.svg"
-            image_path = [
-                "./dashreport/assets/images/us_postion_byindustry_light.svg",
-                "./dashreport/assets/images/us_postion_byindustry_dark.svg",
-                "./dashreport/assets/images/us_pl_byindustry_light.svg",
-                "./dashreport/assets/images/us_pl_byindustry_dark.svg",
-                "./dashreport/assets/images/us_trade_trend_light.svg",
-                "./dashreport/assets/images/us_trade_trend_dark.svg",
-                "./dashreport/assets/images/us_top_industry_position_trend_light.svg",
-                "./dashreport/assets/images/us_top_industry_position_trend_dark.svg",
-                "./dashreport/assets/images/us_top_industry_pl_trend_light.svg",
-                "./dashreport/assets/images/us_top_industry_pl_trend_dark.svg",
-                "./dashreport/assets/images/us_industry_trend_heatmap_light.svg",
-                "./dashreport/assets/images/us_industry_trend_heatmap_dark.svg",
-                "./dashreport/assets/images/us_strategy_tracking_light.svg",
-                "./dashreport/assets/images/us_strategy_tracking_dark.svg",
-                image_path_return_light,
-                image_path_return_dark,
-            ]
-        elif self.market == "cn":
-            subject = f"""CN Stock Market Trends - {end_date}""".format(
-                end_date=end_date
-            )
-            image_path_return_light = "./dashreport/assets/images/cn_tr_light.svg"
-            image_path_return_dark = "./dashreport/assets/images/cn_tr_dark.svg"
-            image_path = [
-                "./dashreport/assets/images/cn_postion_byindustry_light.svg",
-                "./dashreport/assets/images/cn_postion_byindustry_dark.svg",
-                "./dashreport/assets/images/cn_pl_byindustry_light.svg",
-                "./dashreport/assets/images/cn_pl_byindustry_dark.svg",
-                "./dashreport/assets/images/cn_trade_trend_light.svg",
-                "./dashreport/assets/images/cn_trade_trend_dark.svg",
-                "./dashreport/assets/images/cn_top_industry_position_trend_light.svg",
-                "./dashreport/assets/images/cn_top_industry_position_trend_dark.svg",
-                "./dashreport/assets/images/cn_top_industry_pl_trend_light.svg",
-                "./dashreport/assets/images/cn_top_industry_pl_trend_dark.svg",
-                "./dashreport/assets/images/cn_industry_trend_heatmap_light.svg",
-                "./dashreport/assets/images/cn_industry_trend_heatmap_dark.svg",
-                "./dashreport/assets/images/cn_strategy_tracking_light.svg",
-                "./dashreport/assets/images/cn_strategy_tracking_dark.svg",
-                image_path_return_light,
-                image_path_return_dark,
-            ]
+        subject = f"""{self.market.upper()} Stock Market Trends - {end_date}""".format(
+            end_date=end_date
+        )
+        image_path_return_light = (
+            f"./dashreport/assets/images/{self.market}_tr_light.svg"
+        )
+        image_path_return_dark = f"./dashreport/assets/images/{self.market}_tr_dark.svg"
+        image_path = [
+            f"./dashreport/assets/images/{self.market}_postion_byindustry_light.svg",
+            f"./dashreport/assets/images/{self.market}_postion_byindustry_dark.svg",
+            f"./dashreport/assets/images/{self.market}_pl_byindustry_light.svg",
+            f"./dashreport/assets/images/{self.market}_pl_byindustry_dark.svg",
+            f"./dashreport/assets/images/{self.market}_trade_trend_light.svg",
+            f"./dashreport/assets/images/{self.market}_trade_trend_dark.svg",
+            f"./dashreport/assets/images/{self.market}_top_industry_position_trend_light.svg",
+            f"./dashreport/assets/images/{self.market}_top_industry_position_trend_dark.svg",
+            f"./dashreport/assets/images/{self.market}_top_industry_pl_trend_light.svg",
+            f"./dashreport/assets/images/{self.market}_top_industry_pl_trend_dark.svg",
+            f"./dashreport/assets/images/{self.market}_industry_trend_heatmap_light.svg",
+            f"./dashreport/assets/images/{self.market}_industry_trend_heatmap_dark.svg",
+            f"./dashreport/assets/images/{self.market}_strategy_tracking_light.svg",
+            f"./dashreport/assets/images/{self.market}_strategy_tracking_dark.svg",
+            image_path_return_light,
+            image_path_return_dark,
+        ]
         html_content = """
                     <html>
                     <head>

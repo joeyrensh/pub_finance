@@ -3,7 +3,12 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State, MATCH
-from pages import cnstock_performance, news_reviews, usstock_performance
+from pages import (
+    cnstock_performance,
+    news_reviews,
+    usstock_performance,
+    usspecialstock_performance,
+)
 
 from flask import Flask
 from flask_compress import Compress
@@ -188,6 +193,8 @@ def update_page_content(pathname):
         return cnstock_performance.create_layout(app)
     elif pathname == "/dash-financial-report/us-stock-performance":
         return usstock_performance.create_layout(app)
+    elif pathname == "/dash-financial-report/us-special-stock-performance":
+        return usspecialstock_performance.create_layout(app)
     elif pathname == "/dash-financial-report/news-and-reviews":
         return news_reviews.create_layout(app)
     elif pathname == "/dash-financial-report/full-view":

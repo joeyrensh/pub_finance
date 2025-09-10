@@ -90,13 +90,18 @@ def get_menu():
     menu = html.Div(
         [
             dcc.Link(
-                "A Stock Market",
+                "A Stock",
                 href="/dash-financial-report/cn-stock-performance",
                 className="tab first",
             ),
             dcc.Link(
-                "US Stock Market",
+                "U Stock",
                 href="/dash-financial-report/us-stock-performance",
+                className="tab",
+            ),
+            dcc.Link(
+                "U Stock Special",
+                href="/dash-financial-report/us-special-stock-performance",
                 className="tab",
             ),
             # dcc.Link(
@@ -259,7 +264,7 @@ def make_dash_format_table(df, cols_format, market):
     """Return a dash_table.DataTable for a Pandas dataframe"""
     required_cols = ["IND", "ERP", "OPEN DATE", "PNL RATIO", "AVG TRANS", "WIN RATE"]
     has_all_required_cols = all(col in df.columns for col in required_cols)
-    if market == "us":
+    if market in ("us", "us_special"):
         trade_date_l5 = get_us_latest_trade_date(4)
         trade_date_l20 = get_us_latest_trade_date(19)
     elif market == "cn":

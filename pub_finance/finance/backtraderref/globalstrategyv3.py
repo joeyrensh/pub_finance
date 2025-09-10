@@ -70,6 +70,9 @@ class GlobalStrategy(bt.Strategy):
         """
 
         """ backtrader一些常用属性的初始化 """
+        # 针对us market会有特殊标志"us_special"，但整体策略和文件共享us
+        if market == "us_special":
+            market = "us"
         self.trade_date = trade_date
         self.market = market
         self.trade = None

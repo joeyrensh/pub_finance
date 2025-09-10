@@ -16,6 +16,8 @@ class FileInfo:
 
     def __init__(self, trade_date=None, market=None):
         # 市场编码
+        if market == "us_special":
+            market = "us"
         self.market = market
         # 交易日期
         self.trade_date = trade_date

@@ -10,100 +10,66 @@ df_detail = None
 def create_layout(app):
     # get relative data folder
     PATH = pathlib.Path(__file__).parent
-    # IMAGE_PATH = PATH.joinpath("../../images").resolve()
     DATA_PATH = PATH.joinpath("../../data").resolve()
+    prefix = "us"
     """ annual return """
     # dark mode
-    # encoded_image_trdraw_dark = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_tr_dark.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_trdraw_dark = "/assets/images/us_tr_dark.svg"
+    encoded_image_trdraw_dark = f"/assets/images/{prefix}_tr_dark.svg"
     # light mode
-    # encoded_image_trdraw = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_tr_light.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_trdraw = "/assets/images/us_tr_light.svg"
+    encoded_image_trdraw = f"/assets/images/{prefix}_tr_light.svg"
 
     """ position weight """
     # dark mode
-    # encoded_image_by_postion_dark = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_postion_byindustry_dark.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_by_postion_dark = "/assets/images/us_postion_byindustry_dark.svg"
+    encoded_image_by_postion_dark = (
+        f"/assets/images/{prefix}_postion_byindustry_dark.svg"
+    )
     # light mode
-    # encoded_image_by_postion = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_postion_byindustry_light.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_by_postion = "/assets/images/us_postion_byindustry_light.svg"
+    encoded_image_by_postion = f"/assets/images/{prefix}_postion_byindustry_light.svg"
 
     """ earnings weight """
     # dark mode
-    # encoded_image_by_pl_dark = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_pl_byindustry_dark.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_by_pl_dark = "/assets/images/us_pl_byindustry_dark.svg"
+    encoded_image_by_pl_dark = f"/assets/images/{prefix}_pl_byindustry_dark.svg"
     # light mode
-    # encoded_image_by_pl = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_pl_byindustry_light.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_by_pl = "/assets/images/us_pl_byindustry_light.svg"
+    encoded_image_by_pl = f"/assets/images/{prefix}_pl_byindustry_light.svg"
 
     """ position trend """
     # dark mode
-    # encoded_image_by_positiondate_dark = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_trade_trend_dark.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_by_positiondate_dark = "/assets/images/us_trade_trend_dark.svg"
+    encoded_image_by_positiondate_dark = f"/assets/images/{prefix}_trade_trend_dark.svg"
     # light mode
-    # encoded_image_by_positiondate = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_trade_trend_light.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_by_positiondate = "/assets/images/us_trade_trend_light.svg"
+    encoded_image_by_positiondate = f"/assets/images/{prefix}_trade_trend_light.svg"
 
     """ earnings trend """
     # dark mode
-    # encoded_image_bypl_date_dark = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_top_industry_pl_trend_dark.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_bypl_date_dark = "/assets/images/us_top_industry_pl_trend_dark.svg"
+    encoded_image_bypl_date_dark = (
+        f"/assets/images/{prefix}_top_industry_pl_trend_dark.svg"
+    )
     # light mode
-    # encoded_image_bypl_date = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_top_industry_pl_trend_light.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_bypl_date = "/assets/images/us_top_industry_pl_trend_light.svg"
+    encoded_image_bypl_date = f"/assets/images/{prefix}_top_industry_pl_trend_light.svg"
 
     """ strategy tracking """
     # dark mode
-    # encoded_image_strategy_dark = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_strategy_tracking_dark.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_strategy_dark = "/assets/images/us_strategy_tracking_dark.svg"
+    encoded_image_strategy_dark = f"/assets/images/{prefix}_strategy_tracking_dark.svg"
     # light mode
-    # encoded_image_strategy = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_strategy_tracking_light.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_strategy = "/assets/images/us_strategy_tracking_light.svg"
+    encoded_image_strategy = f"/assets/images/{prefix}_strategy_tracking_light.svg"
 
     """ industry trend """
     # dark mode
-    # encoded_image_ind_trend_dark = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_industry_trend_heatmap_dark.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_ind_trend_dark = "/assets/images/us_industry_trend_heatmap_dark.svg"
+    encoded_image_ind_trend_dark = (
+        f"/assets/images/{prefix}_industry_trend_heatmap_dark.svg"
+    )
     # light mode
-    # encoded_image_ind_trend = base64.b64encode(
-    #     IMAGE_PATH.joinpath("us_industry_trend_heatmap_light.png").read_bytes()
-    # ).decode("utf-8")
-    encoded_image_ind_trend = "/assets/images/us_industry_trend_heatmap_light.svg"
+    encoded_image_ind_trend = (
+        f"/assets/images/{prefix}_industry_trend_heatmap_light.svg"
+    )
 
     # Overall 信息
     df_overall = pd.read_csv(
-        DATA_PATH.joinpath("us_df_result.csv"),
+        DATA_PATH.joinpath(f"{prefix}_df_result.csv"),
         usecols=[i for i in range(1, 5)],
     )
     # 板块数据
     df = pd.read_csv(
-        DATA_PATH.joinpath("us_category.csv"), usecols=[i for i in range(1, 16)]
+        DATA_PATH.joinpath(f"{prefix}_category.csv"), usecols=[i for i in range(1, 16)]
     )
     df["IDX"] = df.index
     df = df[
@@ -134,7 +100,8 @@ def create_layout(app):
 
     # 持仓明细
     df_detail = pd.read_csv(
-        DATA_PATH.joinpath("us_stockdetail.csv"), usecols=[i for i in range(1, 17)]
+        DATA_PATH.joinpath(f"{prefix}_stockdetail.csv"),
+        usecols=[i for i in range(1, 17)],
     )
     df_detail["IDX"] = df_detail.index
     df_detail = df_detail[
@@ -171,7 +138,7 @@ def create_layout(app):
     }
     # 减仓明细
     df_detail_short = pd.read_csv(
-        DATA_PATH.joinpath("us_stockdetail_short.csv"),
+        DATA_PATH.joinpath(f"{prefix}_stockdetail_short.csv"),
         usecols=[i for i in range(1, 15)],
     )
     df_detail_short["IDX"] = df_detail_short.index
@@ -273,11 +240,11 @@ def create_layout(app):
                                         html.H6(
                                             ["Annual Return ▼"],
                                             className="subtitle padded",
-                                            id="us-annual-return-title",
+                                            id=f"{prefix}-annual-return-title",
                                         ),
                                         id={
                                             "type": "collapse-btn",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 0,
                                         },
                                         style={
@@ -297,7 +264,7 @@ def create_layout(app):
                                                 data=encoded_image_trdraw,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="us-annual-return-light",
+                                                id=f"{prefix}-annual-return-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -305,12 +272,12 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="us-annual-return-dark",
+                                                id=f"{prefix}-annual-return-dark",
                                             ),
                                         ],
                                         id={
                                             "type": "collapsible",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 0,
                                         },
                                         style={"display": "block"},  # 初始展开状态
@@ -328,11 +295,11 @@ def create_layout(app):
                                         html.H6(
                                             ["Industries Tracking ▼"],
                                             className="subtitle padded",
-                                            id="us-industries-tracking-title",
+                                            id=f"{prefix}-industries-tracking-title",
                                         ),
                                         id={
                                             "type": "collapse-btn",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 1,
                                         },
                                         style={
@@ -352,7 +319,7 @@ def create_layout(app):
                                                 data=encoded_image_ind_trend,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="us-ind-trend-light",
+                                                id=f"{prefix}-ind-trend-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -360,12 +327,12 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="us-ind-trend-dark",
+                                                id=f"{prefix}-ind-trend-dark",
                                             ),
                                         ],
                                         id={
                                             "type": "collapsible",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 1,
                                         },
                                         style={"display": "block"},  # 初始展开状态
@@ -379,11 +346,11 @@ def create_layout(app):
                                         html.H6(
                                             ["Strategy Tracking ▼"],
                                             className="subtitle padded",
-                                            id="us-strategy-tracking-title",
+                                            id=f"{prefix}-strategy-tracking-title",
                                         ),
                                         id={
                                             "type": "collapse-btn",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 2,
                                         },
                                         style={
@@ -403,7 +370,7 @@ def create_layout(app):
                                                 data=encoded_image_strategy,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="us-strategy-light",
+                                                id=f"{prefix}-strategy-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -411,12 +378,12 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="us-strategy-dark",
+                                                id=f"{prefix}-strategy-dark",
                                             ),
                                         ],
                                         id={
                                             "type": "collapsible",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 2,
                                         },
                                         style={"display": "block"},  # 初始展开状态
@@ -435,11 +402,11 @@ def create_layout(app):
                                         html.H6(
                                             ["Position Weight ▼"],
                                             className="subtitle padded",
-                                            id="us-position-weight-title",
+                                            id=f"{prefix}-position-weight-title",
                                         ),
                                         id={
                                             "type": "collapse-btn",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 3,
                                         },
                                         style={
@@ -459,7 +426,7 @@ def create_layout(app):
                                                 data=encoded_image_by_postion,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="us-by-position-light",
+                                                id=f"{prefix}-by-position-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -467,12 +434,12 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="us-by-position-dark",
+                                                id=f"{prefix}-by-position-dark",
                                             ),
                                         ],
                                         id={
                                             "type": "collapsible",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 3,
                                         },
                                         style={"display": "block"},  # 初始展开状态
@@ -486,11 +453,11 @@ def create_layout(app):
                                         html.H6(
                                             ["Earnings Weight ▼"],
                                             className="subtitle padded",
-                                            id="us-earnings-weight-title",
+                                            id=f"{prefix}-earnings-weight-title",
                                         ),
                                         id={
                                             "type": "collapse-btn",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 4,
                                         },
                                         style={
@@ -510,7 +477,7 @@ def create_layout(app):
                                                 data=encoded_image_by_pl,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="us-by-pl-light",
+                                                id=f"{prefix}-by-pl-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -518,12 +485,12 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="us-by-pl-dark",
+                                                id=f"{prefix}-by-pl-dark",
                                             ),
                                         ],
                                         id={
                                             "type": "collapsible",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 4,
                                         },
                                         style={"display": "block"},  # 初始展开状态
@@ -543,11 +510,11 @@ def create_layout(app):
                                         html.H6(
                                             ["Position Trend ▼"],
                                             className="subtitle padded",
-                                            id="us-position-trend-title",
+                                            id=f"{prefix}-position-trend-title",
                                         ),
                                         id={
                                             "type": "collapse-btn",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 5,
                                         },
                                         style={
@@ -567,7 +534,7 @@ def create_layout(app):
                                                 data=encoded_image_by_positiondate,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="us-by-positiondate-light",
+                                                id=f"{prefix}-by-positiondate-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -575,12 +542,12 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="us-by-positiondate-dark",
+                                                id=f"{prefix}-by-positiondate-dark",
                                             ),
                                         ],
                                         id={
                                             "type": "collapsible",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 5,
                                         },
                                         style={"display": "block"},  # 初始展开状态
@@ -594,11 +561,11 @@ def create_layout(app):
                                         html.H6(
                                             ["Earnings Trend ▼"],
                                             className="subtitle padded",
-                                            id="us-earnings-trend-title",
+                                            id=f"{prefix}-earnings-trend-title",
                                         ),
                                         id={
                                             "type": "collapse-btn",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 6,
                                         },
                                         style={
@@ -618,7 +585,7 @@ def create_layout(app):
                                                 data=encoded_image_bypl_date,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-light",  # 添加专属类名
-                                                id="us-bypl-date-light",
+                                                id=f"{prefix}-bypl-date-light",
                                             ),
                                             # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
@@ -626,12 +593,12 @@ def create_layout(app):
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
                                                 style={"display": "none"},  # 初始隐藏
-                                                id="us-bypl-date-dark",
+                                                id=f"{prefix}-bypl-date-dark",
                                             ),
                                         ],
                                         id={
                                             "type": "collapsible",
-                                            "page": "us",
+                                            "page": f"{prefix}",
                                             "index": 6,
                                         },
                                         style={"display": "block"},  # 初始展开状态
@@ -655,7 +622,9 @@ def create_layout(app):
                                         [
                                             html.Div(
                                                 children=make_dash_format_table(
-                                                    df, cols_format_category, "us"
+                                                    df,
+                                                    cols_format_category,
+                                                    f"{prefix}",
                                                 ),
                                             )
                                         ],
@@ -685,7 +654,9 @@ def create_layout(app):
                                         [
                                             html.Div(
                                                 children=make_dash_format_table(
-                                                    df_detail, cols_format_detail, "us"
+                                                    df_detail,
+                                                    cols_format_detail,
+                                                    f"{prefix}",
                                                 ),
                                             )
                                         ],
@@ -716,7 +687,7 @@ def create_layout(app):
                                                 children=make_dash_format_table(
                                                     df_detail_short,
                                                     cols_format_detail_short,
-                                                    "us",
+                                                    f"{prefix}",
                                                 ),
                                             )
                                         ],

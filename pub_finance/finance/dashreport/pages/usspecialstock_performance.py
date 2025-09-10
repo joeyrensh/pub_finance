@@ -3,20 +3,17 @@ from utils import Header, make_dash_format_table
 import pandas as pd
 import pathlib
 
+# 定义全局变量 df_detail
+df_detail = None
+
 
 def create_layout(app):
     # get relative data folder
     PATH = pathlib.Path(__file__).parent
-
-    # 收益率曲线
     DATA_PATH = PATH.joinpath("../../data").resolve()
-    prefix = "cn"
-
+    prefix = "us_special"
     """ annual return """
-    # dark mode
     encoded_image_trdraw_dark = f"/assets/images/{prefix}_tr_dark.svg"
-
-    # light mode
     encoded_image_trdraw = f"/assets/images/{prefix}_tr_light.svg"
 
     """ position weight """
@@ -24,14 +21,12 @@ def create_layout(app):
     encoded_image_by_postion_dark = (
         f"/assets/images/{prefix}_postion_byindustry_dark.svg"
     )
-
     # light mode
     encoded_image_by_postion = f"/assets/images/{prefix}_postion_byindustry_light.svg"
 
     """ earnings weight """
     # dark mode
     encoded_image_by_pl_dark = f"/assets/images/{prefix}_pl_byindustry_dark.svg"
-
     # light mode
     encoded_image_by_pl = f"/assets/images/{prefix}_pl_byindustry_light.svg"
 
@@ -91,6 +86,7 @@ def create_layout(app):
             "PROFIT TREND",
         ]
     ].copy()
+
     cols_format_category = {
         "LRATIO": ("ratio", "format"),
         "PROFIT": ("float", "format"),
@@ -170,41 +166,7 @@ def create_layout(app):
         "PNL RATIO": ("ratio", "format"),
         "HIS DAYS": ("float",),
     }
-    # ETF持仓明细
-    df_etf = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_etf.csv"), usecols=[i for i in range(1, 14)]
-    )
-    df_etf["IDX"] = df_etf.index
-    df_etf = df_etf[
-        [
-            "IDX",
-            "SYMBOL",
-            "NAME",
-            "TOTAL VALUE",
-            "OPEN DATE",
-            "BASE",
-            "ADJBASE",
-            "PNL",
-            "PNL RATIO",
-            "AVG TRANS",
-            "AVG DAYS",
-            "WIN RATE",
-            "TOTAL PNL RATIO",
-            "STRATEGY",
-        ]
-    ]
-    cols_format_etf = {
-        "BASE": ("float",),
-        "ADJBASE": ("float",),
-        "PNL": ("float", "format"),
-        "AVG TRANS": ("float",),
-        "AVG DAYS": ("float",),
-        "PNL RATIO": ("ratio", "format"),
-        "WIN RATE": ("ratio", "format"),
-        "TOTAL PNL RATIO": ("ratio", "format"),
-        "OPEN DATE": ("date", "format"),
-        "TOTAL VALUE": ("float",),
-    }
+
     return html.Div(
         [
             Header(app),
@@ -267,16 +229,14 @@ def create_layout(app):
                                 className="product",
                             ),
                         ],
-                        className="row",
                     ),
                     html.Div(
                         [
                             html.Div(
                                 [
-                                    # 修改后的可点击标题
                                     html.Button(
                                         html.H6(
-                                            ["Annual Return ▼"],  # 添加箭头指示符
+                                            ["Annual Return ▼"],
                                             className="subtitle padded",
                                             id=f"{prefix}-annual-return-title",
                                         ),
@@ -294,23 +254,22 @@ def create_layout(app):
                                             "text-align": "left",
                                         },
                                     ),
-                                    # 可折叠内容容器
                                     html.Div(
                                         className="chart-container",
                                         children=[
-                                            # 浅色主题 SVG
+                                            # 浅色主题 SVG（默认显示）
                                             html.ObjectEl(
                                                 data=encoded_image_trdraw,
                                                 type="image/svg+xml",
-                                                className="responsive-svg svg-light",
+                                                className="responsive-svg svg-light",  # 添加专属类名
                                                 id=f"{prefix}-annual-return-light",
                                             ),
-                                            # 深色主题 SVG
+                                            # 深色主题 SVG（默认隐藏）
                                             html.ObjectEl(
                                                 data=encoded_image_trdraw_dark,
                                                 type="image/svg+xml",
                                                 className="responsive-svg svg-dark",
-                                                style={"display": "none"},
+                                                style={"display": "none"},  # 初始隐藏
                                                 id=f"{prefix}-annual-return-dark",
                                             ),
                                         ],
@@ -325,7 +284,6 @@ def create_layout(app):
                                 className="twelve columns",
                             )
                         ],
-                        className="row",
                     ),
                     html.Div(
                         [
@@ -375,10 +333,9 @@ def create_layout(app):
                                             "page": f"{prefix}",
                                             "index": 1,
                                         },
-                                        style={"display": "block"},
+                                        style={"display": "block"},  # 初始展开状态
                                     ),
                                 ],
-                                # className="twelve columns",
                                 className="six columns",
                             ),
                             html.Div(
@@ -427,13 +384,14 @@ def create_layout(app):
                                             "page": f"{prefix}",
                                             "index": 2,
                                         },
-                                        style={"display": "block"},
+                                        style={"display": "block"},  # 初始展开状态
                                     ),
                                 ],
                                 className="six columns",
                             ),
                         ],
                     ),
+                    # Row
                     html.Div(
                         [
                             html.Div(
@@ -482,7 +440,7 @@ def create_layout(app):
                                             "page": f"{prefix}",
                                             "index": 3,
                                         },
-                                        style={"display": "block"},
+                                        style={"display": "block"},  # 初始展开状态
                                     ),
                                 ],
                                 className="six columns",
@@ -533,12 +491,13 @@ def create_layout(app):
                                             "page": f"{prefix}",
                                             "index": 4,
                                         },
-                                        style={"display": "block"},
+                                        style={"display": "block"},  # 初始展开状态
                                     ),
                                 ],
                                 className="six columns",
                             ),
                         ],
+                        className="row",
                     ),
                     # Row 2
                     html.Div(
@@ -589,7 +548,7 @@ def create_layout(app):
                                             "page": f"{prefix}",
                                             "index": 5,
                                         },
-                                        style={"display": "block"},
+                                        style={"display": "block"},  # 初始展开状态
                                     ),
                                 ],
                                 className="six columns",
@@ -640,12 +599,13 @@ def create_layout(app):
                                             "page": f"{prefix}",
                                             "index": 6,
                                         },
-                                        style={"display": "block"},
+                                        style={"display": "block"},  # 初始展开状态
                                     ),
                                 ],
                                 className="six columns",
                             ),
                         ],
+                        className="row",
                     ),
                     # Row 3
                     html.Div(
@@ -664,15 +624,14 @@ def create_layout(app):
                                                     cols_format_category,
                                                     f"{prefix}",
                                                 ),
-                                                className="cn_table",
                                             )
                                         ],
+                                        className="table",
                                         style={
                                             "overflow-x": "auto",
                                             "max-height": 400,
                                             "overflow-y": "auto",
                                         },
-                                        className="table",
                                     ),
                                 ],
                                 className="twelve columns",
@@ -697,45 +656,14 @@ def create_layout(app):
                                                     cols_format_detail,
                                                     f"{prefix}",
                                                 ),
-                                                className="cn_table",
                                             )
                                         ],
+                                        className="table",
                                         style={
                                             "overflow-x": "auto",
                                             "max-height": 400,
                                             "overflow-y": "auto",
                                         },
-                                        className="table",
-                                    ),
-                                ],
-                                className="twelve columns",
-                            ),
-                        ],
-                        className="row",
-                    ),
-                    html.Div(
-                        [
-                            html.Div(
-                                [
-                                    html.H6(
-                                        "ETF Position Holding",
-                                        className="subtitle padded",
-                                    ),
-                                    html.Div(
-                                        [
-                                            html.Div(
-                                                children=make_dash_format_table(
-                                                    df_etf, cols_format_etf, f"{prefix}"
-                                                ),
-                                                className="cn_table",
-                                            )
-                                        ],
-                                        style={
-                                            "overflow-x": "auto",
-                                            "max-height": 300,
-                                            "overflow-y": "auto",
-                                        },
-                                        className="table",
                                     ),
                                 ],
                                 className="twelve columns",
@@ -759,7 +687,6 @@ def create_layout(app):
                                                     cols_format_detail_short,
                                                     f"{prefix}",
                                                 ),
-                                                className="cn_table",
                                             )
                                         ],
                                         style={
