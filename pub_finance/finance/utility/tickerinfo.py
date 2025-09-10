@@ -63,6 +63,7 @@ class TickerInfo:
                             * float(i["volume"])
                             / float(i["total_value"])
                             >= 0.05
+                            and float(i["total_value"]) > 1000000000
                             and float(i["total_value"]) < 10000000000
                         )
                         or float(i["total_value"]) >= 10000000000
