@@ -30,74 +30,142 @@ class TickerInfo:
     """ 获取股票代码列表 """
 
     def get_stock_list(self):
-        tickers = list()
-        df = pd.read_csv(
-            self.file_day,
-            usecols=[
-                "symbol",
-                "name",
-                "open",
-                "close",
-                "high",
-                "low",
-                "volume",
-                "total_value",
-                "pe",
-                "date",
-            ],
-        )
-        df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
-        df.sort_values(by=["symbol"], ascending=True, inplace=True)
-        """ 匹配行业信息 """
-        df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
-        df_n = pd.merge(df, df_o, how="inner", on="symbol")
+        if self.market in ("us", "cn"):
+            # 预定义列的数据类型
+            column_dtypes = {
+                "symbol": str,
+                "open": np.float32,
+                "close": np.float32,
+                "high": np.float32,
+                "low": np.float32,
+                "volume": np.float64,
+                "total_value": np.float64,
+                "date": str,
+            }
+
+            dfs = []
+            for file in self.files:
+                # 读取数据
+                df = pd.read_csv(file)
+
+                # 检查并添加 total_value 列（如果不存在）
+                if "total_value" not in df.columns:
+                    df["total_value"] = 0.0
+
+                # 选择我们需要的列并转换数据类型
+                df = df[list(column_dtypes.keys())].astype(column_dtypes)
+                dfs.append(df)
+
+            df_all = pd.concat(dfs, ignore_index=True)
+            df_all.drop_duplicates(
+                subset=["symbol", "date"], keep="first", inplace=True
+            )
+
+            # 获取近180天的日期
+            trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
+            date_threshold = trade_date_dt - datetime.timedelta(days=179)
+
+            # 将 datetime 对象转换回字符串格式 (YYYYMMDD)
+            date_threshold_str = date_threshold.strftime("%Y-%m-%d")
+
+            # 使用相同格式的字符串进行筛选
+            df_recent = df_all[df_all["date"] >= date_threshold_str]
+            dfs, df_all, df = None, None, None
+            gc.collect()
+
+        tickers = []
+
         if self.market == "us":
-            for index, i in df_n.iterrows():
-                """
-                美股：10亿以上的公司
-                A股：100亿以上的公司
-                """
-                if (
-                    (
-                        (
-                            float(i["close"])
-                            * float(i["volume"])
-                            / float(i["total_value"])
-                            >= 0.05
-                            and float(i["total_value"]) > 1000000000
-                            and float(i["total_value"]) < 10000000000
-                        )
-                        or float(i["total_value"]) >= 10000000000
-                    )
-                    and float(i["close"]) > 1
-                    and float(i["close"]) < 10000
-                    and float(i["open"]) > 0
-                    and float(i["high"]) > 0
-                    and float(i["low"]) > 0
-                    and (float(i["close"]) - float(i["open"])) / float(i["open"]) < 2
-                ):
-                    tickers.append(i["symbol"])
+            # 美股筛选条件
+            # 条件1: 市值超过100亿的股票直接入选
+            large_cap_cond = (
+                (df_recent["total_value"] >= 10000000000)
+                & (df_recent["close"] > 1)
+                & (df_recent["close"] < 10000)
+                & (df_recent["open"] > 0)
+                & (df_recent["high"] > 0)
+                & (df_recent["low"] > 0)
+                & ((df_recent["close"] - df_recent["open"]) / df_recent["open"] < 2)
+            )
+            large_cap_symbols = (
+                df_recent.loc[large_cap_cond, "symbol"].unique().tolist()
+            )
+            tickers.extend(large_cap_symbols)
+
+            # 条件2: 市值小于100亿但超过10个交易日成交额大于5%市值的股票
+            small_cap_cond = (
+                (df_recent["total_value"] < 10000000000)
+                & (df_recent["total_value"] > 1000000000)
+                & (df_recent["close"] > 1)
+                & (df_recent["close"] < 10000)
+                & (df_recent["open"] > 0)
+                & (df_recent["high"] > 0)
+                & (df_recent["low"] > 0)
+                & ((df_recent["close"] - df_recent["open"]) / df_recent["open"] < 2)
+                & (
+                    df_recent["close"] * df_recent["volume"]
+                    >= 0.05 * df_recent["total_value"]
+                )
+            )
+
+            # 筛选出满足条件的行
+            filtered_df = df_recent[small_cap_cond]
+
+            # 计算每个股票满足条件的次数
+            symbol_counts = filtered_df["symbol"].value_counts()
+
+            # 只选择出现10次或以上的股票
+            frequent_symbols = symbol_counts[symbol_counts >= 10].index.tolist()
+            tickers.extend(frequent_symbols)
+
         elif self.market == "cn":
-            for index, i in df_n.iterrows():
-                if (
-                    (
-                        (
-                            float(i["close"]) * float(i["volume"]) * 100 >= 200000000
-                            and float(i["total_value"]) >= 5000000000
-                            and float(i["total_value"]) < 10000000000
-                        )
-                        or float(i["total_value"]) >= 10000000000
-                    )
-                    and float(i["close"]) > 1
-                    and float(i["close"]) < 10000
-                    and float(i["open"]) > 0
-                    and float(i["high"]) > 0
-                    and float(i["low"]) > 0
-                ):
-                    tickers.append(i["symbol"])
+            # A股筛选条件
+            # 条件1: 市值超过100亿的股票直接入选
+            large_cap_cond = (
+                (df_recent["total_value"] >= 10000000000)
+                & (df_recent["close"] > 1)
+                & (df_recent["close"] < 10000)
+                & (df_recent["open"] > 0)
+                & (df_recent["high"] > 0)
+                & (df_recent["low"] > 0)
+            )
+            large_cap_symbols = (
+                df_recent.loc[large_cap_cond, "symbol"].unique().tolist()
+            )
+            tickers.extend(large_cap_symbols)
+
+            # 条件2: 市值小于100亿但超过10个交易日成交额大于5%市值的股票
+            small_cap_cond = (
+                (df_recent["total_value"] < 10000000000)
+                & (df_recent["total_value"] > 5000000000)
+                & (df_recent["close"] > 1)
+                & (df_recent["close"] < 10000)
+                & (df_recent["open"] > 0)
+                & (df_recent["high"] > 0)
+                & (df_recent["low"] > 0)
+                & (df_recent["close"] * df_recent["volume"] * 100 >= 300000000)
+            )
+
+            # 筛选出满足条件的行
+            filtered_df = df_recent[small_cap_cond]
+
+            # 计算每个股票满足条件的次数
+            symbol_counts = filtered_df["symbol"].value_counts()
+
+            # 只选择出现10次或以上的股票
+            frequent_symbols = symbol_counts[symbol_counts >= 10].index.tolist()
+            tickers.extend(frequent_symbols)
+
         elif self.market == "us_special":
+            # 特殊美股筛选条件
             tickers = self.get_special_us_stock_list_180d()
-        return tickers
+
+        # 去重并返回
+        df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
+        valid_symbols = df_o["symbol"].unique()
+        stock_list_with_industry = [s for s in list(set(tickers)) if s in valid_symbols]
+        print(f"满足条件的股票数量: {len(stock_list_with_industry)}")
+        return stock_list_with_industry
 
     """ 获取最新一天股票数据 """
 
@@ -349,15 +417,12 @@ class TickerInfo:
 
         # 将 datetime 对象转换回字符串格式 (YYYYMMDD)
         date_threshold_str = date_threshold.strftime("%Y-%m-%d")
-        print(f"筛选日期阈值: {date_threshold_str}")
 
         # 使用相同格式的字符串进行筛选
         df_recent = df_all[df_all["date"] >= date_threshold_str]
-        print(f"近180天内的记录数: {len(df_recent)}")
+
         # 3. 条件筛选
         cond = (
-            # (df_recent["total_value"] <= 1000000000)
-            # & (df_recent["total_value"] > 50000000)
             (df_recent["total_value"] < 1000000000)
             & (df_recent["total_value"] > 100000000)
             & (df_recent["close"] > 1)
@@ -377,14 +442,10 @@ class TickerInfo:
 
         # 更新 stock_list
         stock_list = frequent_symbols
-        # stock_list = df_recent.loc[cond, "symbol"].unique().tolist()
-        df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
-        valid_symbols = df_o["symbol"].unique()
-        stock_list_with_industry = [s for s in stock_list if s in valid_symbols]
-        print(f"满足条件的股票数量: {len(stock_list_with_industry)}")
+
         dfs, df_all, df_recent, df = None, None, None, None
         gc.collect()
-        return stock_list_with_industry
+        return stock_list
 
     def get_special_us_backtrader_data_feed(self):
         tickers = self.get_special_us_stock_list_180d()
