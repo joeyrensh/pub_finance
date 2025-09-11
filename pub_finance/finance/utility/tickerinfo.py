@@ -358,15 +358,26 @@ class TickerInfo:
         cond = (
             # (df_recent["total_value"] <= 1000000000)
             # & (df_recent["total_value"] > 50000000)
-            (df_recent["total_value"] <= 1000000000)
+            (df_recent["total_value"] < 1000000000)
             & (df_recent["total_value"] > 100000000)
             & (df_recent["close"] > 1)
             & (
-                df_recent["close"] * df_recent["volume"] / df_recent["total_value"]
-                >= 0.05
+                df_recent["close"] * df_recent["volume"]
+                >= 0.05 * df_recent["total_value"]
             )
         )
-        stock_list = df_recent.loc[cond, "symbol"].unique().tolist()
+        # 筛选出满足条件的行
+        filtered_df = df_recent[cond]
+
+        # 计算每个股票满足条件的次数
+        symbol_counts = filtered_df["symbol"].value_counts()
+
+        # 只选择出现10次或以上的股票
+        frequent_symbols = symbol_counts[symbol_counts >= 10].index.tolist()
+
+        # 更新 stock_list
+        stock_list = frequent_symbols
+        # stock_list = df_recent.loc[cond, "symbol"].unique().tolist()
         df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
         valid_symbols = df_o["symbol"].unique()
         stock_list_with_industry = [s for s in stock_list if s in valid_symbols]
