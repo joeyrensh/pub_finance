@@ -358,7 +358,7 @@ class TickerInfo:
         cond = (
             # (df_recent["total_value"] <= 1000000000)
             # & (df_recent["total_value"] > 50000000)
-            (df_recent["total_value"] <= 200000000)
+            (df_recent["total_value"] <= 1000000000)
             & (df_recent["total_value"] > 100000000)
             & (df_recent["close"] > 1)
             & (
