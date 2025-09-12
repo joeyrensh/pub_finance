@@ -90,17 +90,17 @@ def get_menu():
     menu = html.Div(
         [
             dcc.Link(
-                "A Stock",
+                "A.stock",
                 href="/dash-financial-report/cn-stock-performance",
                 className="tab first",
             ),
             dcc.Link(
-                "U Stock",
+                "U.S.stock",
                 href="/dash-financial-report/us-stock-performance",
                 className="tab",
             ),
             dcc.Link(
-                "U Stock Special",
+                "U.S.stock.special",
                 href="/dash-financial-report/us-special-stock-performance",
                 className="tab",
             ),
