@@ -2545,7 +2545,6 @@ class StockProposal:
             week_order = row["week_order"]
             col2_values = row["industry_top3"]
             col3_value = row["s_pnl"]
-            date = row["date"].strftime("%Y-%m-%d")
 
             # 基础字体大小和最大增量
             base_font_size = font_size - 8
@@ -2583,25 +2582,48 @@ class StockProposal:
                 dynamic_font_size = base_font_size
 
             # 创建文本内容，显示日期和行业
-            text = f"<b>{date}</b><br>" + "<br>".join(col2_values[:3])
+            # text = f"<b>{date}</b><br>" + "<br>".join(col2_values[:3])
+            # 创建文本内容 - 日期竖向展示，行业横向展示
+            # 将日期拆分为年、月、日
+            date_str = row["date"].strftime("%Y-%m-%d")
+            year, month, day = date_str.split("-")
+            # 创建竖向日期文本
+            vertical_date = f"{month}<br>{day}"
 
+            # 行业信息
+            industry_text = "<br>".join(col2_values[:3])
+
+            # 添加日期注解（左侧）
             fig.add_annotation(
                 x=day_of_week,
                 y=week_order,
-                text=text,
+                text=vertical_date,
+                showarrow=False,
+                font=dict(
+                    color="rgba(100, 100, 100, 0.3)",
+                    size=font_size + 10,
+                ),
+                align="left",
+                xanchor="center",
+                yanchor="middle",
+                xshift=-100,  # 向左偏移，使日期靠左
+                # yshift=-100,
+            )
+
+            # 添加行业信息注解（右侧）
+            fig.add_annotation(
+                x=day_of_week,
+                y=week_order,
+                text=industry_text,
                 showarrow=False,
                 font=dict(
                     color=text_color,
-                    family="Arial",
                     size=dynamic_font_size,
-                ),  # 根据s_pnl值动态设置字体颜色
+                ),
                 align="center",
                 xanchor="center",
                 yanchor="middle",
-                # 以下选项是可选的，用于提高可读性
-                # bordercolor="white",  # 添加白色边框
-                # borderwidth=1,  # 设置边框宽度
-                # bgcolor="rgba(255, 255, 255, 0.7)",  # 设置背景色为半透明白色
+                xshift=20,  # 向右偏移，使行业信息靠右
             )
 
         # 在每周之间添加横向分隔线
@@ -2755,7 +2777,6 @@ class StockProposal:
             week_order = row["week_order"]
             col2_values = row["industry_top3"]
             col3_value = row["s_pnl"]
-            date = row["date"].strftime("%Y-%m-%d")
 
             # 基础字体大小和最大增量
             base_font_size = font_size - 8
@@ -2789,29 +2810,52 @@ class StockProposal:
                 text_color = "#037b66"
             else:
                 # 零值 - 使用灰色
-                text_color = dark_text_color
+                text_color = light_text_color
                 dynamic_font_size = base_font_size
 
             # 创建文本内容，显示日期和行业
-            text = f"<b>{date}</b><br>" + "<br>".join(col2_values[:3])
+            # text = f"<b>{date}</b><br>" + "<br>".join(col2_values[:3])
+            # 创建文本内容 - 日期竖向展示，行业横向展示
+            # 将日期拆分为年、月、日
+            date_str = row["date"].strftime("%Y-%m-%d")
+            year, month, day = date_str.split("-")
+            # 创建竖向日期文本
+            vertical_date = f"{month}<br>{day}"
 
+            # 行业信息
+            industry_text = "<br>".join(col2_values[:3])
+
+            # 添加日期注解（左侧）
             fig.add_annotation(
                 x=day_of_week,
                 y=week_order,
-                text=text,
+                text=vertical_date,
+                showarrow=False,
+                font=dict(
+                    color="rgba(200, 200, 200, 0.3)",
+                    size=font_size + 10,
+                ),
+                align="left",
+                xanchor="center",
+                yanchor="middle",
+                xshift=-100,  # 向左偏移，使日期靠左
+                # yshift=-100,
+            )
+
+            # 添加行业信息注解（右侧）
+            fig.add_annotation(
+                x=day_of_week,
+                y=week_order,
+                text=industry_text,
                 showarrow=False,
                 font=dict(
                     color=text_color,
-                    family="Arial",
                     size=dynamic_font_size,
-                ),  # 根据s_pnl值动态设置字体颜色
-                align="center",
+                ),
+                align="center",  # 左对齐
                 xanchor="center",
                 yanchor="middle",
-                # 以下选项是可选的，用于提高可读性
-                # bordercolor="white",  # 添加白色边框
-                # borderwidth=1,  # 设置边框宽度
-                # bgcolor="rgba(255, 255, 255, 0.7)",  # 设置背景色为半透明白色
+                xshift=20,  # 向右偏移，使行业信息靠右
             )
 
         # 在每周之间添加横向分隔线
