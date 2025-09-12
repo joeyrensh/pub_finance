@@ -2600,7 +2600,7 @@ class StockProposal:
                 text=vertical_date,
                 showarrow=False,
                 font=dict(
-                    color="rgba(100, 100, 100, 0.3)",
+                    color="rgba(100, 100, 100, 0.7)",
                     size=font_size + 10,
                 ),
                 align="left",
@@ -2832,7 +2832,7 @@ class StockProposal:
                 text=vertical_date,
                 showarrow=False,
                 font=dict(
-                    color="rgba(200, 200, 200, 0.3)",
+                    color="rgba(200, 200, 200, 0.7)",
                     size=font_size + 10,
                 ),
                 align="left",
