@@ -2548,7 +2548,7 @@ class StockProposal:
 
             # 基础字体大小和最大增量
             base_font_size = font_size - 8
-            max_size_increase = 16  # 增加最大增量以增强反差
+            max_size_increase = 20  # 增加最大增量以增强反差
 
             # 计算绝对值的分位点
             abs_values = np.abs(pd_calendar_heatmap["s_pnl"])
@@ -2601,7 +2601,7 @@ class StockProposal:
                 showarrow=False,
                 font=dict(
                     color="rgba(100, 100, 100, 0.7)",
-                    size=font_size + 10,
+                    size=font_size,
                 ),
                 align="left",
                 xanchor="center",
@@ -2623,7 +2623,7 @@ class StockProposal:
                 align="center",
                 xanchor="center",
                 yanchor="middle",
-                xshift=20,  # 向右偏移，使行业信息靠右
+                xshift=10,  # 向右偏移，使行业信息靠右
             )
 
         # 在每周之间添加横向分隔线
@@ -2780,7 +2780,7 @@ class StockProposal:
 
             # 基础字体大小和最大增量
             base_font_size = font_size - 8
-            max_size_increase = 16  # 增加最大增量以增强反差
+            max_size_increase = 20  # 增加最大增量以增强反差
 
             # 计算绝对值的分位点
             abs_values = np.abs(pd_calendar_heatmap["s_pnl"])
@@ -2833,7 +2833,7 @@ class StockProposal:
                 showarrow=False,
                 font=dict(
                     color="rgba(200, 200, 200, 0.7)",
-                    size=font_size + 10,
+                    size=font_size,
                 ),
                 align="left",
                 xanchor="center",
@@ -2855,7 +2855,7 @@ class StockProposal:
                 align="center",  # 左对齐
                 xanchor="center",
                 yanchor="middle",
-                xshift=20,  # 向右偏移，使行业信息靠右
+                xshift=10,  # 向右偏移，使行业信息靠右
             )
 
         # 在每周之间添加横向分隔线
