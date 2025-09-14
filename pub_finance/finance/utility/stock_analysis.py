@@ -2548,7 +2548,7 @@ class StockProposal:
 
             # 基础字体大小和最大增量
             base_font_size = font_size - 8
-            max_size_increase = 20  # 增加最大增量以增强反差
+            max_size_increase = 30  # 增加最大增量以增强反差
 
             # 计算绝对值的分位点
             abs_values = np.abs(pd_calendar_heatmap["s_pnl"])
@@ -2571,24 +2571,23 @@ class StockProposal:
             else:
                 dynamic_font_size = font_steps[4]
             dynamic_font_size = int(dynamic_font_size)
-
-            if col3_value > 0:
-                text_color = "#d60a22"
-            elif col3_value < 0:
-                text_color = "#037b66"
-            else:
-                # 零值 - 使用灰色
-                text_color = dark_text_color
-                dynamic_font_size = base_font_size
-
             # 创建文本内容，显示日期和行业
             # text = f"<b>{date}</b><br>" + "<br>".join(col2_values[:3])
             # 创建文本内容 - 日期竖向展示，行业横向展示
             # 将日期拆分为年、月、日
             date_str = row["date"].strftime("%Y-%m-%d")
             year, month, day = date_str.split("-")
-            # 创建竖向日期文本
-            vertical_date = f"{month}<br>{day}"
+            if col3_value > 0:
+                text_color = "#d60a22"
+                vertical_date = f"{month}<b>↑</b><br>{day}"
+            elif col3_value < 0:
+                text_color = "#037b66"
+                vertical_date = f"{month}<b>↓</b><br>{day}"
+            else:
+                # 零值 - 使用灰色
+                text_color = dark_text_color
+                dynamic_font_size = base_font_size
+                vertical_date = f"{month}<br>{day}"
 
             # 行业信息
             industry_text = "<br>".join(col2_values[:3])
@@ -2600,8 +2599,10 @@ class StockProposal:
                 text=vertical_date,
                 showarrow=False,
                 font=dict(
-                    color="rgba(100, 100, 100, 0.7)",
-                    size=font_size,
+                    # color="rgba(100, 100, 100, 0.7)",
+                    # size=font_size,
+                    color=text_color,
+                    size=dynamic_font_size,
                 ),
                 align="left",
                 xanchor="center",
@@ -2617,8 +2618,10 @@ class StockProposal:
                 text=industry_text,
                 showarrow=False,
                 font=dict(
-                    color=text_color,
-                    size=dynamic_font_size,
+                    color=dark_text_color,
+                    size=font_size,
+                    # color=text_color,
+                    # size=dynamic_font_size,
                 ),
                 align="center",
                 xanchor="center",
@@ -2780,7 +2783,7 @@ class StockProposal:
 
             # 基础字体大小和最大增量
             base_font_size = font_size - 8
-            max_size_increase = 20  # 增加最大增量以增强反差
+            max_size_increase = 30  # 增加最大增量以增强反差
 
             # 计算绝对值的分位点
             abs_values = np.abs(pd_calendar_heatmap["s_pnl"])
@@ -2804,23 +2807,19 @@ class StockProposal:
                 dynamic_font_size = font_steps[4]
             dynamic_font_size = int(dynamic_font_size)
 
+            date_str = row["date"].strftime("%Y-%m-%d")
+            year, month, day = date_str.split("-")
             if col3_value > 0:
                 text_color = "#d60a22"
+                vertical_date = f"{month}<b>↑</b><br>{day}"
             elif col3_value < 0:
                 text_color = "#037b66"
+                vertical_date = f"{month}<b>↓</b><br>{day}"
             else:
                 # 零值 - 使用灰色
                 text_color = light_text_color
                 dynamic_font_size = base_font_size
-
-            # 创建文本内容，显示日期和行业
-            # text = f"<b>{date}</b><br>" + "<br>".join(col2_values[:3])
-            # 创建文本内容 - 日期竖向展示，行业横向展示
-            # 将日期拆分为年、月、日
-            date_str = row["date"].strftime("%Y-%m-%d")
-            year, month, day = date_str.split("-")
-            # 创建竖向日期文本
-            vertical_date = f"{month}<br>{day}"
+                vertical_date = f"{month}<br>{day}"
 
             # 行业信息
             industry_text = "<br>".join(col2_values[:3])
@@ -2832,8 +2831,10 @@ class StockProposal:
                 text=vertical_date,
                 showarrow=False,
                 font=dict(
-                    color="rgba(200, 200, 200, 0.7)",
-                    size=font_size,
+                    # color="rgba(200, 200, 200, 0.7)",
+                    # size=font_size,
+                    color=text_color,
+                    size=dynamic_font_size,
                 ),
                 align="left",
                 xanchor="center",
@@ -2849,8 +2850,8 @@ class StockProposal:
                 text=industry_text,
                 showarrow=False,
                 font=dict(
-                    color=text_color,
-                    size=dynamic_font_size,
+                    color=light_text_color,
+                    size=font_size,
                 ),
                 align="center",  # 左对齐
                 xanchor="center",
