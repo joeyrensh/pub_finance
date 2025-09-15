@@ -2590,7 +2590,7 @@ class StockProposal:
                 vertical_date = f"{month}<br>{day}"
 
             # 行业信息
-            industry_text = "<br>".join(col2_values[:3])
+            industry_text = "<br>".join(col2_values[:2])
 
             # 添加日期注解（左侧）
             fig.add_annotation(
@@ -2822,7 +2822,7 @@ class StockProposal:
                 vertical_date = f"{month}<br>{day}"
 
             # 行业信息
-            industry_text = "<br>".join(col2_values[:3])
+            industry_text = "<br>".join(col2_values[:2])
 
             # 添加日期注解（左侧）
             fig.add_annotation(
