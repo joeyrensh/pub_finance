@@ -226,7 +226,7 @@ def create_layout(app):
                                                 className="text_color",
                                             ),
                                             html.Span(
-                                                f"{int(round(df_overall.at[0, 'final_value'] / 1000 - (df_overall.at[0, 'stock_cnt'] * 10000 / 1000 - df_overall.at[0, 'cash'] / 1000), 0))}, ",
+                                                f"{int(round((df_overall.at[0, 'final_value'] / 1000 - df_overall.at[0, 'cash'] / 1000) - (df_overall.at[0, 'stock_cnt'] * 10000 / 1000 - df_overall.at[0, 'cash'] / 1000), 0))}, ",
                                                 className="number_color",
                                             ),
                                             html.Span(
