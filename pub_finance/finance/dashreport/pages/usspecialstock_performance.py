@@ -65,6 +65,15 @@ def create_layout(app):
         DATA_PATH.joinpath(f"{prefix}_df_result.csv"),
         usecols=[i for i in range(1, 5)],
     )
+    # 检查是否为NaN、None、0或空字符串
+    stock_cnt_value = df_overall.at[0, "stock_cnt"]
+    if (
+        pd.isna(stock_cnt_value)
+        or stock_cnt_value is None
+        or stock_cnt_value == 0
+        or stock_cnt_value == ""
+    ):
+        df_overall.at[0, "stock_cnt"] = 1
     # 板块数据
     df = pd.read_csv(
         DATA_PATH.joinpath(f"{prefix}_category.csv"), usecols=[i for i in range(1, 16)]
@@ -188,7 +197,7 @@ def create_layout(app):
                                                 className="text_color",
                                             ),
                                             html.Span(
-                                                f"{int(round((df_overall.at[0, 'final_value'] / 1000 - df_overall.at[0, 'cash'] / 1000) - (df_overall.at[0, 'stock_cnt'] * 10000 / 1000 - df_overall.at[0, 'cash'] / 1000), 0))}, ",
+                                                f"{int(round(((df_overall.at[0, 'final_value'] - df_overall.at[0, 'cash']) - (df_overall.at[0, 'stock_cnt'] * 10000 - df_overall.at[0, 'cash'])) / df_overall.at[0, 'stock_cnt'], 0))}, ",
                                                 className="number_color",
                                             ),
                                             html.Span(
