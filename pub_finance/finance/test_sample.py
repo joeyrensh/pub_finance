@@ -29,7 +29,7 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="us_special")
+    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="us")
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
@@ -42,7 +42,7 @@ def exec_btstrategy(date):
     cerebro.broker.setcommission(commission=0, stocklike=True)
     cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "us_special").get_special_us_backtrader_data_feed()
+    list = TickerInfo(date, "us").get_backtrader_data_feed()
     """ 初始资金100M """
     start_cash = len(list) * 10000
     cerebro.broker.setcash(start_cash)
@@ -331,7 +331,7 @@ def exec_btstrategy(date):
 
         # 保存图片
         plt.savefig(
-            f"./dashreport/assets/images/us_special_tr_{theme}.svg",
+            f"./dashreport/assets/images/us_tr_{theme}.svg",
             format="svg",
             bbox_inches="tight",  # 保持边界紧凑
             transparent=True,  # 保持背景透明
@@ -349,7 +349,7 @@ def exec_btstrategy(date):
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc-4"""
-    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(1)
+    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
@@ -368,6 +368,11 @@ if __name__ == "__main__":
     ]
     """ 创建进度条并开始运行 """
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
+
+    """ 东方财经爬虫 """
+    """ 爬取每日最新股票数据 """
+    # em = EMWebCrawlerUti()
+    # em.get_daily_stock_info("us", trade_date)
 
     """ 执行bt相关策略 """
 
@@ -406,7 +411,7 @@ if __name__ == "__main__":
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("us_special", trade_date).send_btstrategy_by_email(cash, final_value)
+    StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()

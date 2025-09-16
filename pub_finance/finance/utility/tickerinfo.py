@@ -95,7 +95,7 @@ class TickerInfo:
             # 条件2: 市值小于100亿但超过10个交易日成交额大于5%市值的股票
             small_cap_cond = (
                 (df_recent["total_value"] < 10000000000)
-                & (df_recent["total_value"] > 1000000000)
+                & (df_recent["total_value"] > 2000000000)
                 & (df_recent["close"] > 1)
                 & (df_recent["close"] < 10000)
                 & (df_recent["open"] > 0)
@@ -122,7 +122,7 @@ class TickerInfo:
             # A股筛选条件
             # 条件1: 市值超过100亿的股票直接入选
             large_cap_cond = (
-                (df_recent["total_value"] >= 10000000000)
+                (df_recent["total_value"] >= 20000000000)
                 & (df_recent["close"] > 1)
                 & (df_recent["close"] < 10000)
                 & (df_recent["open"] > 0)
@@ -136,7 +136,7 @@ class TickerInfo:
 
             # 条件2: 市值小于100亿但超过10个交易日成交额大于5%市值的股票
             small_cap_cond = (
-                (df_recent["total_value"] < 10000000000)
+                (df_recent["total_value"] < 20000000000)
                 & (df_recent["total_value"] > 5000000000)
                 & (df_recent["close"] > 1)
                 & (df_recent["close"] < 10000)
@@ -423,7 +423,7 @@ class TickerInfo:
 
         # 3. 条件筛选
         cond = (
-            (df_recent["total_value"] < 1000000000)
+            (df_recent["total_value"] < 2000000000)
             & (df_recent["total_value"] > 100000000)
             & (df_recent["close"] > 1)
             & (
