@@ -88,7 +88,7 @@ class TickerInfo:
                 & ((df_recent["close"] - df_recent["open"]) / df_recent["open"] < 2)
                 & (
                     df_recent["close"] * df_recent["volume"]
-                    >= 0.015 * df_recent["total_value"]
+                    >= 0.01 * df_recent["total_value"]
                 )
             )
             large_cap_symbols = (
@@ -132,7 +132,7 @@ class TickerInfo:
                 & (df_recent["open"] > 0)
                 & (df_recent["high"] > 0)
                 & (df_recent["low"] > 0)
-                & (df_recent["close"] * df_recent["volume"] * 100 >= 1000000000)
+                & (df_recent["close"] * df_recent["volume"] * 100 >= 500000000)
             )
             large_cap_symbols = (
                 df_recent.loc[large_cap_cond, "symbol"].unique().tolist()
