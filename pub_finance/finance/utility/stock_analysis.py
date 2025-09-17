@@ -2560,7 +2560,7 @@ class StockProposal:
             )
 
             # 计算每档的字体粗细
-            font_weights = [400, 500, 600, 700, 800]  # 5个档位的字体粗细
+            font_weights = [300, 350, 400, 450, 500]  # 5个档位的字体粗细
 
             abs_col3 = abs(col3_value)
             if abs_col3 <= quantiles[0]:
@@ -2804,7 +2804,7 @@ class StockProposal:
             )
 
             # 计算每档的字体粗细
-            font_weights = [400, 500, 600, 700, 800]  # 5个档位的字体粗细
+            font_weights = [300, 350, 400, 450, 500]  # 5个档位的字体粗细
 
             abs_col3 = abs(col3_value)
             if abs_col3 <= quantiles[0]:
