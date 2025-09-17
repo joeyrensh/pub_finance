@@ -2559,17 +2559,25 @@ class StockProposal:
                 base_font_size, base_font_size + max_size_increase, 5
             )
 
+            # 计算每档的字体粗细
+            font_weights = [400, 500, 600, 700, 800]  # 5个档位的字体粗细
+
             abs_col3 = abs(col3_value)
             if abs_col3 <= quantiles[0]:
                 dynamic_font_size = font_steps[0]
+                dynamic_font_weight = font_weights[0]
             elif abs_col3 <= quantiles[1]:
                 dynamic_font_size = font_steps[1]
+                dynamic_font_weight = font_weights[1]
             elif abs_col3 <= quantiles[2]:
                 dynamic_font_size = font_steps[2]
+                dynamic_font_weight = font_weights[2]
             elif abs_col3 <= quantiles[3]:
                 dynamic_font_size = font_steps[3]
+                dynamic_font_weight = font_weights[3]
             else:
                 dynamic_font_size = font_steps[4]
+                dynamic_font_weight = font_weights[4]
             dynamic_font_size = int(dynamic_font_size)
             # 创建文本内容，显示日期和行业
             # text = f"<b>{date}</b><br>" + "<br>".join(col2_values[:3])
@@ -2603,6 +2611,7 @@ class StockProposal:
                     # size=font_size,
                     color=text_color,
                     size=dynamic_font_size,
+                    weight=dynamic_font_weight,
                 ),
                 align="left",
                 xanchor="center",
@@ -2794,17 +2803,25 @@ class StockProposal:
                 base_font_size, base_font_size + max_size_increase, 5
             )
 
+            # 计算每档的字体粗细
+            font_weights = [400, 500, 600, 700, 800]  # 5个档位的字体粗细
+
             abs_col3 = abs(col3_value)
             if abs_col3 <= quantiles[0]:
                 dynamic_font_size = font_steps[0]
+                dynamic_font_weight = font_weights[0]
             elif abs_col3 <= quantiles[1]:
                 dynamic_font_size = font_steps[1]
+                dynamic_font_weight = font_weights[1]
             elif abs_col3 <= quantiles[2]:
                 dynamic_font_size = font_steps[2]
+                dynamic_font_weight = font_weights[2]
             elif abs_col3 <= quantiles[3]:
                 dynamic_font_size = font_steps[3]
+                dynamic_font_weight = font_weights[3]
             else:
                 dynamic_font_size = font_steps[4]
+                dynamic_font_weight = font_weights[4]
             dynamic_font_size = int(dynamic_font_size)
 
             date_str = row["date"].strftime("%Y-%m-%d")
@@ -2835,6 +2852,7 @@ class StockProposal:
                     # size=font_size,
                     color=text_color,
                     size=dynamic_font_size,
+                    weight=dynamic_font_weight,
                 ),
                 align="left",
                 xanchor="center",
