@@ -78,88 +78,136 @@ class TickerInfo:
         if self.market == "us":
             # 美股筛选条件
             # 条件1: 市值超过100亿的股票直接入选
+            # 基础条件（适用于所有股票）
+            # 定义市值阈值（单位：人民币元，假设1美元≈7人民币）
+            SMALL_CAP_THRESHOLD = 2000000000  # 20亿美元 ≈ 140亿人民币
+            MID_CAP_THRESHOLD = 10000000000  # 100亿美元 ≈ 700亿人民币
+            LARGE_CAP_THRESHOLD = 100000000000  # 1000亿美元 ≈ 7000亿人民币
+
+            # 定义活跃度阈值（成交额占市值的百分比）
+            MID_CAP_TURNOVER = 0.03  # 1%
+            LARGE_CAP_TURNOVER = 0.005  # 0.5%
+            # 首先找出所有单日涨幅超过200%的股票，这些将被排除
+            high_increase_symbols = (
+                df_recent[
+                    ((df_recent["close"] - df_recent["open"]) / df_recent["open"] >= 2)
+                ]["symbol"]
+                .unique()
+                .tolist()
+            )
+            base_cond = (
+                (df_recent["close"] > 1)
+                & (df_recent["close"] < 10000)
+                & (df_recent["open"] > 0)
+                & (df_recent["high"] > 0)
+                & (df_recent["low"] > 0)
+            )
+
+            mid_cap_cond = (
+                base_cond
+                & (df_recent["total_value"] >= SMALL_CAP_THRESHOLD)
+                & (df_recent["total_value"] < MID_CAP_THRESHOLD)
+                & (
+                    df_recent["close"] * df_recent["volume"]
+                    >= MID_CAP_TURNOVER * df_recent["total_value"]
+                )
+            )
+
             large_cap_cond = (
-                (df_recent["total_value"] >= 10000000000)
-                & (df_recent["close"] > 1)
-                & (df_recent["close"] < 10000)
-                & (df_recent["open"] > 0)
-                & (df_recent["high"] > 0)
-                & (df_recent["low"] > 0)
-                & ((df_recent["close"] - df_recent["open"]) / df_recent["open"] < 2)
+                base_cond
+                & (df_recent["total_value"] >= MID_CAP_THRESHOLD)
+                & (df_recent["total_value"] < LARGE_CAP_THRESHOLD)
                 & (
                     df_recent["close"] * df_recent["volume"]
-                    >= 0.01 * df_recent["total_value"]
-                )
-            )
-            large_cap_symbols = (
-                df_recent.loc[large_cap_cond, "symbol"].unique().tolist()
-            )
-            tickers.extend(large_cap_symbols)
-
-            # 条件2: 市值小于100亿但超过10个交易日成交额大于5%市值的股票
-            small_cap_cond = (
-                (df_recent["total_value"] < 10000000000)
-                & (df_recent["total_value"] > 2000000000)
-                & (df_recent["close"] > 1)
-                & (df_recent["close"] < 10000)
-                & (df_recent["open"] > 0)
-                & (df_recent["high"] > 0)
-                & (df_recent["low"] > 0)
-                & ((df_recent["close"] - df_recent["open"]) / df_recent["open"] < 2)
-                & (
-                    df_recent["close"] * df_recent["volume"]
-                    >= 0.05 * df_recent["total_value"]
+                    >= LARGE_CAP_TURNOVER * df_recent["total_value"]
                 )
             )
 
-            # 筛选出满足条件的行
-            filtered_df = df_recent[small_cap_cond]
+            mega_cap_cond = (
+                base_cond
+                & (df_recent["total_value"] >= LARGE_CAP_THRESHOLD)
+                & (
+                    df_recent["close"] * df_recent["volume"]
+                    >= LARGE_CAP_TURNOVER * df_recent["total_value"]
+                )
+            )
 
+            # 合并所有条件
+            all_cond = mid_cap_cond | large_cap_cond | mega_cap_cond
+            filtered_df = df_recent[all_cond]
             # 计算每个股票满足条件的次数
             symbol_counts = filtered_df["symbol"].value_counts()
 
             # 只选择出现10次或以上的股票
             frequent_symbols = symbol_counts[symbol_counts >= 10].index.tolist()
-            tickers.extend(frequent_symbols)
+
+            # 排除单日涨幅超过200%的股票
+            filtered_symbols = [
+                symbol
+                for symbol in frequent_symbols
+                if symbol not in high_increase_symbols
+            ]
+            tickers.extend(filtered_symbols)
 
         elif self.market == "cn":
             # A股筛选条件
             # 条件1: 市值超过100亿的股票直接入选
-            large_cap_cond = (
-                (df_recent["total_value"] >= 20000000000)
-                & (df_recent["close"] > 1)
-                & (df_recent["close"] < 10000)
-                & (df_recent["open"] > 0)
-                & (df_recent["high"] > 0)
-                & (df_recent["low"] > 0)
-                & (df_recent["close"] * df_recent["volume"] * 100 >= 500000000)
-            )
-            large_cap_symbols = (
-                df_recent.loc[large_cap_cond, "symbol"].unique().tolist()
-            )
-            tickers.extend(large_cap_symbols)
+            # 定义A股市值阈值（单位：人民币元）
+            SMALL_CAP_THRESHOLD = 5000000000  # 50亿人民币
+            MID_CAP_THRESHOLD = 20000000000  # 200亿人民币
+            LARGE_CAP_THRESHOLD = 100000000000  # 1万亿人民币
 
-            # 条件2: 市值小于100亿但超过10个交易日成交额大于5%市值的股票
-            small_cap_cond = (
-                (df_recent["total_value"] < 20000000000)
-                & (df_recent["total_value"] > 5000000000)
-                & (df_recent["close"] > 1)
+            # 定义A股活跃度阈值（成交金额，单位：人民币元）
+            SMALL_CAP_TURNOVER = 300000000  # 3亿人民币
+            MID_CAP_TURNOVER = 500000000  # 5亿人民币
+            LARGE_CAP_TURNOVER = 1000000000  # 10亿人民币
+
+            # 基础条件（不包含涨幅限制）
+            base_cond = (
+                (df_recent["close"] > 1)
                 & (df_recent["close"] < 10000)
                 & (df_recent["open"] > 0)
                 & (df_recent["high"] > 0)
                 & (df_recent["low"] > 0)
-                & (df_recent["close"] * df_recent["volume"] * 100 >= 300000000)
             )
+
+            # 小盘股条件（50-200亿市值）
+            small_cap_cond = (
+                base_cond
+                & (df_recent["total_value"] >= SMALL_CAP_THRESHOLD)  # 50亿人民币
+                & (df_recent["total_value"] < MID_CAP_THRESHOLD)  # 200亿人民币
+                & (df_recent["close"] * df_recent["volume"] * 100 >= SMALL_CAP_TURNOVER)
+            )
+
+            # 中盘股条件（200-1000亿市值）
+            mid_cap_cond = (
+                base_cond
+                & (df_recent["total_value"] >= MID_CAP_THRESHOLD)  # 200亿人民币
+                & (df_recent["total_value"] < LARGE_CAP_TURNOVER)  # 1000亿人民币
+                & (df_recent["close"] * df_recent["volume"] * 100 >= MID_CAP_TURNOVER)
+            )
+
+            # 大盘股条件（≥1000亿市值）
+            large_cap_cond = (
+                base_cond
+                & (df_recent["total_value"] >= LARGE_CAP_THRESHOLD)  # 1000亿人民币
+                & (df_recent["close"] * df_recent["volume"] * 100 >= LARGE_CAP_TURNOVER)
+            )
+
+            # 合并所有条件
+            all_cond = small_cap_cond | mid_cap_cond | large_cap_cond
 
             # 筛选出满足条件的行
-            filtered_df = df_recent[small_cap_cond]
+            filtered_df = df_recent[all_cond]
 
             # 计算每个股票满足条件的次数
             symbol_counts = filtered_df["symbol"].value_counts()
 
             # 只选择出现10次或以上的股票
-            frequent_symbols = symbol_counts[symbol_counts >= 10].index.tolist()
-            tickers.extend(frequent_symbols)
+            filtered_symbols = symbol_counts[symbol_counts >= 10].index.tolist()
+
+            # 合并所有符合条件的股票
+            tickers.extend(filtered_symbols)
 
         elif self.market == "us_special":
             # 特殊美股筛选条件
