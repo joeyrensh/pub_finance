@@ -265,16 +265,21 @@ def make_dash_format_table(df, cols_format, market):
     required_cols = ["IND", "ERP", "OPEN DATE", "PNL RATIO", "AVG TRANS", "WIN RATE"]
     has_all_required_cols = all(col in df.columns for col in required_cols)
     if market in ("us", "us_special"):
-        trade_date_l5 = get_us_latest_trade_date(4)
+        trade_date_l40 = get_us_latest_trade_date(39)
         trade_date_l20 = get_us_latest_trade_date(19)
+        trade_date_l5 = get_us_latest_trade_date(4)
     elif market == "cn":
-        trade_date_l5 = get_cn_latest_trade_date(4)
+        trade_date_l40 = get_cn_latest_trade_date(39)
         trade_date_l20 = get_cn_latest_trade_date(19)
+        trade_date_l5 = get_cn_latest_trade_date(4)
 
-    date_threshold_l5 = datetime.strptime(trade_date_l5, "%Y%m%d").strftime("%Y-%m-%d")
+    date_threshold_l40 = datetime.strptime(trade_date_l40, "%Y%m%d").strftime(
+        "%Y-%m-%d"
+    )
     date_threshold_l20 = datetime.strptime(trade_date_l20, "%Y%m%d").strftime(
         "%Y-%m-%d"
     )
+    date_threshold_l5 = datetime.strptime(trade_date_l5, "%Y%m%d").strftime("%Y-%m-%d")
     # 如果有IND列，先生成辅助列
     if "ERP" in df.columns:
         df["ERP"] = pd.to_numeric(df["ERP"], errors="coerce")
@@ -327,7 +332,7 @@ def make_dash_format_table(df, cols_format, market):
         condition2 = (
             (df["IND_BRACKET_NUM"] <= 20)
             & (df["ERP"] >= df["erp_threshold"])
-            & (df["OPEN DATE"] >= date_threshold_l20)
+            & (df["OPEN DATE"] >= date_threshold_l40)
             & (df["PNL RATIO"] <= df["pnl_ratio_threshold_tail"])
             & (df["PNL RATIO"] > 0)
             & (df["AVG TRANS"] <= avg_trans_threshold)
@@ -451,7 +456,7 @@ def make_dash_format_table(df, cols_format, market):
                             "{WIN RATE_o} >= " + str(win_rate_threshold) + ") || ("
                             "{IND_BRACKET_NUM} <= 20 && "
                             "{ERP_o} >= {erp_threshold_o} && "
-                            "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
+                            "{OPEN DATE_o} >= " + str(date_threshold_l40) + " && "
                             "{PNL RATIO_o} <= {pnl_ratio_threshold_tail_o} && "
                             + "{PNL RATIO_o} > 0 &&"
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
