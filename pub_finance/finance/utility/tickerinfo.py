@@ -63,7 +63,7 @@ class TickerInfo:
 
             # 获取近180天的日期
             trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
-            date_threshold = trade_date_dt - datetime.timedelta(days=120)
+            date_threshold = trade_date_dt - datetime.timedelta(days=60)
 
             # 将 datetime 对象转换回字符串格式 (YYYYMMDD)
             date_threshold_str = date_threshold.strftime("%Y-%m-%d")
@@ -85,8 +85,9 @@ class TickerInfo:
             LARGE_CAP_THRESHOLD = 100000000000  # 1000亿美元 ≈ 7000亿人民币
 
             # 定义活跃度阈值（成交额占市值的百分比）
-            MID_CAP_TURNOVER = 0.03  # 1%
+            MID_CAP_TURNOVER = 0.03  # 3%
             LARGE_CAP_TURNOVER = 0.005  # 0.5%
+            MEGA_CAP_TURNOVER = 0.003  # 0.1%
             # 首先找出所有单日涨幅超过200%的股票，这些将被排除
             high_increase_symbols = (
                 df_recent[
@@ -128,7 +129,7 @@ class TickerInfo:
                 & (df_recent["total_value"] >= LARGE_CAP_THRESHOLD)
                 & (
                     df_recent["close"] * df_recent["volume"]
-                    >= LARGE_CAP_TURNOVER * df_recent["total_value"]
+                    >= MEGA_CAP_TURNOVER * df_recent["total_value"]
                 )
             )
 
@@ -466,7 +467,7 @@ class TickerInfo:
         df_all.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
         # 2. 取近180天的日期
         trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
-        date_threshold = trade_date_dt - datetime.timedelta(days=120)
+        date_threshold = trade_date_dt - datetime.timedelta(days=60)
 
         # 将 datetime 对象转换回字符串格式 (YYYYMMDD)
         date_threshold_str = date_threshold.strftime("%Y-%m-%d")
