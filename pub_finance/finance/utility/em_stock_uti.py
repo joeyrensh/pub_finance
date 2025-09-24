@@ -35,7 +35,7 @@ class EMWebCrawlerUti:
         self.__url_list = "http://92.push2.eastmoney.com/api/qt/clist/get"
         self.__url_history = "http://92.push2his.eastmoney.com/api/qt/stock/kline/get"
         # 不配置proxy，klines有时候返回为空，但response status是正常的
-        self.item = "http://101.132.222.120:80"
+        self.item = "http://58.216.109.14:800"
         self.proxy = {
             "http": self.item,
             "https": self.item,
@@ -110,19 +110,27 @@ class EMWebCrawlerUti:
                     "fs": f"m:{m}",
                     "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
                 }
-                time.sleep(random.uniform(1, 2))
-                res = requests.get(
-                    self.__url_list,
-                    params=params,
-                    proxies=self.proxy,
-                    headers=self.headers,
-                ).json()
-                if (
-                    res.get("rc") != 0
-                    or not res.get("data")
-                    or not res["data"].get("diff")
-                ):
-                    return [res]  # 返回错误信息
+                time.sleep(random.uniform(0.1, 0.5))
+                for _ in range(2):  # 重试2次
+                    try:
+                        res = requests.get(
+                            self.__url_list,
+                            params=params,
+                            proxies=self.proxy,
+                            headers=self.headers,
+                        ).json()
+                        break  # 成功就跳出循环
+                    except Exception:
+                        print("请求失败，正在重试...", _)
+                        continue  # 失败就继续循环
+                else:
+                    if (
+                        res.get("rc") != 0
+                        or not res.get("data")
+                        or not res["data"].get("diff")
+                    ):
+                        print(f"返回值为：{res}")
+                        raise [res]  # 返回错误信息
                 for i in res["data"]["diff"]:
                     if (
                         i["f12"] == "-"
