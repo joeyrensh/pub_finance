@@ -123,8 +123,12 @@ def get_us_stock_symbols(cache_file, output_file):
         all_symbols = stock_df["clean_symbol"].tolist()
         logger.info(f"总代码数量：{len(all_symbols)}")
 
-        # 过滤已处理代码
-        filtered = [s for s in all_symbols if s not in processed]
+        # 过滤已处理代码，并排除非字符串和空值
+        filtered = [
+            s
+            for s in all_symbols
+            if isinstance(s, str) and s.strip() != "" and s not in processed
+        ]
         logger.info(f"待处理代码数量：{len(filtered)}")
         return filtered
 
@@ -240,9 +244,12 @@ def convert_industry(source_file: str, map_file: str, target_file: str) -> None:
 
 if __name__ == "__main__":
     # free proxy website : http://free-proxy.cz/en/proxylist/country/all/https/ping/level1
+    # free proxy website: https://proxydb.net/?protocol=https&country=
     proxy_list = [
-        "http://44.215.100.135:8118",
-        "http://190.26.208.230:999",
+        "http://23.237.210.82:80",
+        "http://34.170.24.59:3128",
+        # "http://57.129.81.201:999",
+        # "http://185.191.236.162:3128",
     ]  # 代理列表
     CACHE_FILE = "./usstockinfo/symbol_list_cache.csv"
     OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
