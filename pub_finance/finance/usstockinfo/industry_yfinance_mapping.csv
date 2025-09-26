@@ -4,26 +4,26 @@ Aerospace & Defense,航空航天与国防
 Airlines,航空公司
 Airports & Air Services,机场与航空服务
 Aluminum,铝业
-Agricultural Inputs,农业投入品
+Agricultural Inputs,农业投入
 Apparel Manufacturing,服装制造
 Apparel Retail,服装零售
 Asset Management,资产管理
 Auto Manufacturers,汽车制造
 Auto Parts,汽车零部件
 Auto & Truck Dealerships,汽车与卡车经销
-Banks - Diversified,银行
-Banks - Regional,银行
+Banks - Diversified,多元化银行
+Banks - Regional,区域性银行
 Beverages - Brewers,啤酒饮料
 Beverages - Non-Alcoholic,非酒精饮料
 Beverages - Wineries & Distilleries,酒庄与酿酒厂
 Biotechnology,生物技术
-Broadcasting,广播
+Broadcasting,广播媒体
 Building Materials,建筑材料
 Building Products & Equipment,建筑产品与设备
 Business Equipment & Supplies,商业设备与用品
 Capital Markets,资本市场
 Chemicals,化学品
-Coking Coal,炼焦煤
+Coking Coal,焦煤
 Communication Equipment,通信设备
 Computer Hardware,计算机硬件
 Confectioners,糖果制造
@@ -31,7 +31,7 @@ Conglomerates,企业集团
 Consulting Services,咨询服务
 Consumer Electronics,消费电子
 Copper,铜业
-Credit Services,信用服务
+Credit Services,信贷服务
 Department Stores,百货商店
 Diagnostics & Research,诊断与研究
 Discount Stores,折扣商店
@@ -50,25 +50,24 @@ Financial Conglomerates,金融集团
 Financial Data & Stock Exchanges,金融数据与证券交易所
 Food Distribution,食品分销
 Footwear & Accessories,鞋类与配饰
-"Furnishings, Fixtures & Appliances",家装
+"Furnishings, Fixtures & Appliances",家用器具与家电
 Gambling,博彩
 Gold,黄金
 Grocery Stores,杂货店
-Healthcare Plans,医疗计划
+Healthcare Plans,医疗保险
 Health Information Services,健康信息服务
 Home Improvement Retail,家居改善零售
 Household & Personal Products,家庭与个人用品
 Independent Oil & Gas,独立石油与天然气
 Industrial Distribution,工业分销
-industry,行业
 Information Technology Services,信息技术服务
 Infrastructure Operations,基础设施运营
-Insurance Brokers,保险
-Insurance - Diversified,保险
-Insurance - Life,保险
-Insurance - Property & Casualty,保险
-Insurance - Reinsurance,保险
-Insurance - Specialty,保险
+Insurance Brokers,保险经纪
+Insurance - Diversified,多元化保险
+Insurance - Life,人寿保险
+Insurance - Property & Casualty,财产与意外保险
+Insurance - Reinsurance,再保险
+Insurance - Specialty,专业保险
 Integrated Freight & Logistics,综合货运与物流
 Internet Content & Information,互联网内容与信息
 Internet Retail,互联网零售
@@ -83,12 +82,12 @@ Medical Distribution,医疗分销
 Medical Instruments & Supplies,医疗仪器与用品
 Metal Fabrication,金属加工
 Mortgage Finance,抵押贷款金融
-Oil & Gas Drilling,石油与天然气
-Oil & Gas E&P,石油与天然气
-Oil & Gas Equipment & Services,石油与天然气
+Oil & Gas Drilling,石油与天然气钻探
+Oil & Gas E&P,石油与天然气勘探生产
+Oil & Gas Equipment & Services,石油与天然气设备服务
 Oil & Gas Integrated,石油与天然气
 Oil & Gas Midstream,石油与天然气
-Oil & Gas Refining & Marketing,石油与天然气
+Oil & Gas Refining & Marketing,石油与天然气炼制销售
 Other Industrial Metals & Mining,工业金属与采矿
 Other Precious Metals & Mining,贵金属与采矿
 Packaged Foods,包装食品
@@ -103,24 +102,24 @@ Real Estate - Development,房地产
 Real Estate - Diversified,房地产
 Real Estate Services,房地产
 Recreational Vehicles,休闲车辆
-REIT - Diversified,房地产投资信托
-REIT - Healthcare Facilities,房地产投资信托
-REIT - Hotel & Motel,房地产投资信托
-REIT - Industrial,房地产投资信托
-REIT - Mortgage,房地产投资信托
-REIT - Office,房地产投资信托
-REIT - Residential,房地产投资信托
-REIT - Retail,房地产投资信托
-REIT - Specialty,房地产投资信托
-Rental & Leasing Services,租赁与租赁服务
+REIT - Diversified,多元化地产REIT
+REIT - Healthcare Facilities,医疗保健地产REIT
+REIT - Hotel & Motel,酒店与汽车旅馆REIT
+REIT - Industrial,工业地产REIT
+REIT - Mortgage,抵押贷款REIT
+REIT - Office,办公地产REIT
+REIT - Residential,住宅地产REIT
+REIT - Retail,零售地产REIT
+REIT - Specialty,特殊品类REIT
+Rental & Leasing Services,租赁服务
 Residential Construction,住宅建筑
 Resorts & Casinos,度假村与赌场
 Restaurants,餐厅
-Scientific & Technical Instruments,科学与技术仪器
-Security & Protection Services,安全与保护服务
+Scientific & Technical Instruments,科学技术仪器
+Security & Protection Services,安保服务
 Semiconductor Equipment & Materials,半导体设备与材料
 Semiconductors,半导体
-Shell Companies,壳公司
+Shell Companies,空壳公司
 Silver,白银
 Software - Application,软件
 Software - Infrastructure,软件
@@ -133,16 +132,16 @@ Staffing & Employment Services,人力资源与就业服务
 Steel,钢铁
 Telecom Services,电信服务
 Textile Manufacturing,纺织制造
-Thermal Coal,热煤
+Thermal Coal,动力煤
 Tobacco,烟草
 Tools & Accessories,工具与配件
 Travel Services,旅行服务
 Trucking,卡车运输
-Uranium,铀
-Utilities - Diversified,公用事业
-Utilities - Independent Power Producers,公用事业
-Utilities - Regulated Electric,公用事业
-Utilities - Regulated Gas,公用事业
-Utilities - Regulated Water,公用事业
-Utilities - Renewable,公用事业
+Uranium,铀业
+Utilities - Diversified,综合公用事业
+Utilities - Independent Power Producers,独立发电商
+Utilities - Regulated Electric,受监管电力公司
+Utilities - Regulated Gas,受监管燃气公司
+Utilities - Regulated Water,受监管水务公司
+Utilities - Renewable,可再生能源公用事业
 Waste Management,废物管理
