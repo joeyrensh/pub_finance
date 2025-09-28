@@ -300,8 +300,8 @@ body {
   position: absolute; 
   top: 0;
   left: 10px; /* 与before的margin-left匹配 */
-  width: 230px; 
-  height: 200px; 
+  width: 50px; 
+  height: 50px; 
   background-repeat: no-repeat; 
   background-size: contain; 
   z-index: -1; 
@@ -769,6 +769,20 @@ a:active {
     z-index: -1; /* 将背景图片置于内容下方 */
     margin-left:10px;
   }
+  .background-header::after {
+    content: ""; 
+    position: absolute; 
+    top: 0;
+    left: 10px; /* 与before的margin-left匹配 */
+    width: 32px;
+    height: 32px;
+    background-repeat: no-repeat; 
+    background-size: contain; 
+    z-index: -1; 
+    animation: seasonal-overlay 10s ease-in-out infinite;
+    mix-blend-mode: color;
+    pointer-events: none;
+  }  
 
 
   .product {
