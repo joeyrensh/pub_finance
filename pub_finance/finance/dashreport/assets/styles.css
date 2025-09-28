@@ -220,33 +220,48 @@ body {
     0% {
         background: linear-gradient(90deg, 
             rgba(28, 231, 28, 0.7) 0%, 
-            rgba(50, 205, 50, 0.8) 100%);
+            rgba(50, 205, 50, 0.8) 100%, transparent 100%);
         mix-blend-mode: color;
+        /* 使用clip-path裁剪叶子形状 */
+        clip-path: polygon(50% 0%,100% 20%,100% 60%,75% 100%,25% 100%,0% 60%,0% 22%);
+        -webkit-clip-path:polygon(50% 0%,100% 20%,100% 60%,75% 100%,25% 100%,0% 60%,0% 22%);
     }
     25% {
         background: linear-gradient(90deg, 
             rgba(218, 121, 2, 0.7) 0%, 
-            rgba(255, 69, 0, 0.8) 100%);
+            rgba(255, 69, 0, 0.8) 100%, transparent 100%);
         mix-blend-mode: color;
+        /* 使用clip-path裁剪叶子形状 */
+        clip-path: polygon(50% 0%,100% 20%,100% 60%,75% 100%,25% 100%,0% 60%,0% 22%);
+        -webkit-clip-path:polygon(50% 0%,100% 20%,100% 60%,75% 100%,25% 100%,0% 60%,0% 22%);   
     }
     50% {
         background: linear-gradient(90deg, 
             rgba(218, 121, 2, 0.7) 0%, 
-            rgba(255, 69, 0, 0.8) 100%);
+            rgba(255, 69, 0, 0.8) 100%, transparent 100%);
         mix-blend-mode: color;
+        /* 使用clip-path裁剪叶子形状 */
+        clip-path: polygon(50% 0%,100% 20%,100% 60%,75% 100%,25% 100%,0% 60%,0% 22%);
+        -webkit-clip-path:polygon(50% 0%,100% 20%,100% 60%,75% 100%,25% 100%,0% 60%,0% 22%);
     }
     75% {
         background: linear-gradient(90deg, 
             rgba(218, 121, 2, 0.7) 0%, 
-            rgba(255, 69, 0, 0.8) 100%);
+            rgba(255, 69, 0, 0.8) 100%, transparent 100%);
         mix-blend-mode: color;
+        /* 使用clip-path裁剪叶子形状 */
+        clip-path: polygon(50% 0%,100% 20%,100% 60%,75% 100%,25% 100%,0% 60%,0% 22%);
+        -webkit-clip-path:polygon(50% 0%,100% 20%,100% 60%,75% 100%,25% 100%,0% 60%,0% 22%); 
     }
     100% {
         /* 循环回绿色 */
         background: linear-gradient(90deg, 
             rgba(28, 231, 28, 0.7) 0%, 
-            rgba(50, 205, 50, 0.8) 100%);
+            rgba(50, 205, 50, 0.8) 100%, transparent 100%);
         mix-blend-mode: color;
+        /* 使用clip-path裁剪叶子形状 */
+        clip-path: polygon(50% 0%,100% 20%,100% 60%,75% 100%,25% 100%,0% 60%,0% 22%);
+        -webkit-clip-path:polygon(50% 0%,100% 20%,100% 60%,75% 100%,25% 100%,0% 60%,0% 22%);    
     }
 }
 
