@@ -249,12 +249,15 @@ def data_bars(df, column):
 
 
 def extract_arrow_num(s):
-    # 提取向上箭头后的数字
-    arrow_num = re.search(r"↑(\d+)", re.sub("<[^<]+?>", "", s))
+    # 去除HTML标签
+    clean_text = re.sub("<[^<]+?>", "", s)
+
+    # 提取向上箭头后的数字（新格式：↑7/4）
+    arrow_num = re.search(r"↑(\d+)", clean_text)
     arrow_num = int(arrow_num.group(1)) if arrow_num else None
 
-    # 提取第一个括号内的数字（无论是否有箭头）
-    bracket_num = re.search(r"\((\d+)\)", s)
+    # 提取斜杠后的当前排名数字（新格式：↑7/4）
+    bracket_num = re.search(r"/(\d+)", clean_text)
     bracket_num = int(bracket_num.group(1)) if bracket_num else None
 
     return arrow_num, bracket_num

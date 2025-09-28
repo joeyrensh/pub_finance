@@ -758,9 +758,8 @@ class StockProposal:
         # 将df2的索引和'ind'列的值拼接起来
         pd_industry_history_tracking["combined"] = (
             pd_industry_history_tracking["IND"].astype(str)
-            + "("
+            + "/"
             + pd_industry_history_tracking.index.astype(str)
-            + ")"
         )
 
         # 使用merge来找到df1和df2中'ind'相等的行，并保留df1的所有行
