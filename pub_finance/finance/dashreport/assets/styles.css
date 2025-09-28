@@ -219,40 +219,40 @@ body {
 @keyframes seasonal-overlay {
     0% {
         /* 春天：更鲜艳的绿色，更高透明度 */
-        background: linear-gradient(45deg, 
+        background: linear-gradient(90deg, 
             rgba(0, 255, 0, 0.4) 0%, 
-            rgba(50, 205, 50, 0.6) 30%,
-            transparent 60%);
+            rgba(50, 205, 50, 0.6) 100%,
+            transparent 100%);
         mix-blend-mode: color;
     }
     25% {
-        background: linear-gradient(45deg, 
+        background: linear-gradient(90deg, 
             rgba(154, 205, 50, 0.5) 0%, 
-            rgba(107, 142, 35, 0.6) 30%,
-            transparent 60%);
+            rgba(107, 142, 35, 0.6) 100%,
+            transparent 100%);
         mix-blend-mode: color;
     }
     50% {
         /* 夏天到秋天过渡：明显的黄色/橙色 */
-        background: linear-gradient(45deg, 
+        background: linear-gradient(90deg, 
             rgba(255, 165, 0, 0.5) 0%, 
-            rgba(210, 105, 30, 0.7) 30%,
-            transparent 60%);
+            rgba(210, 105, 30, 0.7) 100%,
+            transparent 100%);
         mix-blend-mode: color;
     }
     75% {
-        background: linear-gradient(45deg, 
+        background: linear-gradient(90deg, 
             rgba(165, 42, 42, 0.5) 0%, 
-            rgba(139, 69, 19, 0.7) 30%,
-            transparent 60%);
+            rgba(139, 69, 19, 0.7) 100%,
+            transparent 100%);
         mix-blend-mode: color;
     }
     100% {
         /* 深秋：更深的棕色 */
-        background: linear-gradient(45deg, 
+        background: linear-gradient(90deg, 
             rgba(101, 67, 33, 0.6) 0%, 
-            rgba(139, 69, 19, 0.8) 30%,
-            transparent 60%);
+            rgba(139, 69, 19, 0.8) 100%,
+            transparent 100%);
         mix-blend-mode: color;
     }
 }
