@@ -225,13 +225,13 @@ body {
             transparent 100%);
         mix-blend-mode: color;
     }
-    25% {
+    /* 25% {
         background: linear-gradient(90deg, 
             rgba(154, 205, 50, 0.5) 0%, 
             rgba(107, 142, 35, 0.6) 100%,
             transparent 100%);
         mix-blend-mode: color;
-    }
+    } */
     50% {
         /* 夏天到秋天过渡：明显的黄色/橙色 */
         background: linear-gradient(90deg, 
@@ -240,13 +240,13 @@ body {
             transparent 100%);
         mix-blend-mode: color;
     }
-    75% {
+    /* 75% {
         background: linear-gradient(90deg, 
             rgba(165, 42, 42, 0.5) 0%, 
             rgba(139, 69, 19, 0.7) 100%,
             transparent 100%);
         mix-blend-mode: color;
-    }
+    } */
     100% {
         /* 深秋：更深的棕色 */
         background: linear-gradient(90deg, 
