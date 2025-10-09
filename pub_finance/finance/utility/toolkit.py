@@ -51,7 +51,7 @@ class ToolKit:
         f = open("./usstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
-            x.append(re.sub(",.*\n", "", i))
+            x.append(i.split(",")[0].strip())
         """ 周末正常休市 """
         if utc_us.isoweekday() in [1, 2, 3, 4, 5]:
             if str(utc_us)[0:10] in x:
@@ -77,7 +77,7 @@ class ToolKit:
         f = open("./usstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
-            x.append(re.sub(",.*\n", "", i))
+            x.append(i.split(",")[0].strip())
         """ 循环遍历最近一个交易日期 """
         counter = 0
         for h in range(1, 365):
@@ -108,7 +108,7 @@ class ToolKit:
         f = open("./usstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
-            x.append(re.sub(",.*\n", "", i))
+            x.append(i.split(",")[0].strip())
         """ 循环遍历最近一个交易日期 """
         timer = 0
         for h in range(0, 365):
@@ -136,7 +136,7 @@ class ToolKit:
         f = open("./cnstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
-            x.append(re.sub(",.*\n", "", i))
+            x.append(i.split(",")[0].strip())
         """ 周末正常休市 """
         if utc_cn.isoweekday() in [1, 2, 3, 4, 5]:
             if str(utc_cn)[0:10] in x:
@@ -157,7 +157,7 @@ class ToolKit:
         f = open("./cnstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
-            x.append(re.sub(",.*\n", "", i))
+            x.append(i.split(",")[0].strip())
         """ 循环遍历最近一个交易日期 """
         counter = 0
         for h in range(1, 365):
@@ -187,7 +187,7 @@ class ToolKit:
         f = open("./cnstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
-            x.append(re.sub(",.*\n", "", i))
+            x.append(i.split(",")[0].strip())
         """ 循环遍历最近一个交易日期 """
         timer = 0
         for h in range(0, 365):

@@ -588,7 +588,7 @@ def get_us_latest_trade_date(offset) -> str | None:
     f = open("../usstockinfo/marketclosed.config").readlines()
     x = []
     for i in f:
-        x.append(re.sub(",.*\n", "", i))
+        x.append(i.split(",")[0].strip())
     """ 循环遍历最近一个交易日期 """
     counter = 0
     PATH = pathlib.Path(__file__).parent
@@ -620,7 +620,7 @@ def get_cn_latest_trade_date(offset) -> str | None:
     f = open("../cnstockinfo/marketclosed.config").readlines()
     x = []
     for i in f:
-        x.append(re.sub(",.*\n", "", i))
+        x.append(i.split(",")[0].strip())
     """ 循环遍历最近一个交易日期 """
     counter = 0
     PATH = pathlib.Path(__file__).parent

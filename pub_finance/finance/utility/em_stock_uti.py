@@ -35,12 +35,12 @@ class EMWebCrawlerUti:
         self.__url_list = "http://92.push2.eastmoney.com/api/qt/clist/get"
         self.__url_history = "http://92.push2his.eastmoney.com/api/qt/stock/kline/get"
         # 不配置proxy，klines有时候返回为空，但response status是正常的
-        self.item = "http://58.216.109.14:800"
+        self.item = "http://183.6.44.203:1081"
         self.proxy = {
             "http": self.item,
             "https": self.item,
         }
-        self.proxy = None
+        # self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "host": "push2.eastmoney.com",
@@ -110,7 +110,7 @@ class EMWebCrawlerUti:
                     "fs": f"m:{m}",
                     "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
                 }
-                time.sleep(random.uniform(0.1, 0.5))
+                time.sleep(random.uniform(1, 3))
                 for _ in range(2):  # 重试2次
                     try:
                         res = requests.get(
@@ -214,7 +214,7 @@ class EMWebCrawlerUti:
                     "fs": f"m:{m}",
                     "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
                 }
-                time.sleep(random.uniform(1, 2))
+                time.sleep(random.uniform(1, 3))
                 res = requests.get(
                     self.__url_list,
                     params=params,
@@ -438,7 +438,7 @@ class EMWebCrawlerUti:
                     futures = []
                     for t in range(1, batch_size + 1):
                         """休眠, 避免IP Block"""
-                        time.sleep(1 + random.uniform(1, 3))
+                        time.sleep(random.uniform(1, 3))
                         index = h + t - 1
                         if index < len(tickinfo):
                             future = executor.submit(
