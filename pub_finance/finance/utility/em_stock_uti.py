@@ -35,12 +35,15 @@ class EMWebCrawlerUti:
         self.__url_list = "http://92.push2.eastmoney.com/api/qt/clist/get"
         self.__url_history = "http://92.push2his.eastmoney.com/api/qt/stock/kline/get"
         # 不配置proxy，klines有时候返回为空，但response status是正常的
-        self.item = "http://183.6.44.203:1081"
+        # self.item = "http://183.6.44.203:1081"
+        # self.item = "http://27.156.105.51:7788"
+        # self.item = "http://101.66.195.41:8085"
+        self.item = "http://39.101.132.59:8443"
         self.proxy = {
             "http": self.item,
             "https": self.item,
         }
-        # self.proxy = None
+        self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
             "host": "push2.eastmoney.com",
@@ -404,12 +407,9 @@ class EMWebCrawlerUti:
         # 断点续爬：读取已存在的symbol
         done_symbols = set()
         if os.path.exists(file_path):
-            try:
-                df_exist = pd.read_csv(file_path)
-                if "symbol" in df_exist.columns:
-                    done_symbols = set(df_exist["symbol"].astype(str).unique())
-            except Exception:
-                pass
+            df_exist = pd.read_csv(file_path)
+            if "symbol" in df_exist.columns:
+                done_symbols = set(df_exist["symbol"].astype(str).unique())
 
         # 读取 klines 为空的 symbol
         empty_klines_symbols = set()
@@ -424,6 +424,9 @@ class EMWebCrawlerUti:
             if item["symbol"] not in done_symbols
             and item["symbol"] not in empty_klines_symbols
         ]
+        print(
+            f"总共{len(tickinfo)}只股票，已完成{len(done_symbols)}，klines为空{len(empty_klines_symbols)}，待处理{len(tickinfo)}"
+        )
         batch0 = len(done_symbols)
         """ 多线程获取，多个worker * 一个batch为10"""
         batch_size = 10
@@ -459,7 +462,19 @@ class EMWebCrawlerUti:
                     # Write batch data to CSV file
                     if len(batch_list) > 0:  # Check if batch_list is not empty
                         try:
+                            columns = [
+                                "symbol",
+                                "name",
+                                "open",
+                                "close",
+                                "high",
+                                "low",
+                                "volume",
+                                "date",
+                            ]
                             df = pd.DataFrame(batch_list)
+                            df = df[columns]
+                            df = df.dropna(how="all")  # 过滤全为空的行
                             df.to_csv(
                                 csvfile,
                                 mode="a",
