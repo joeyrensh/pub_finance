@@ -283,7 +283,8 @@ class ToolKit:
 
         # 视觉微调
         ax.axis("off")
-        plt.tight_layout(pad=0)
+        # plt.tight_layout(pad=0)
+        plt.subplots_adjust(left=0, right=1, top=1, bottom=0)  # 新增，去除边距
 
         # 输出优化
         img = BytesIO()
@@ -292,7 +293,8 @@ class ToolKit:
             format="png",
             dpi=150,  # 提升DPI
             transparent=True,
-            bbox_inches="tight",
+            # bbox_inches="tight",
+            bbox_inches=None,
             facecolor="none",
         )
         plt.close(fig)
