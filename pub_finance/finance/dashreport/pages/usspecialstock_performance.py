@@ -400,114 +400,6 @@ def create_layout(app):
                             ),
                         ],
                     ),
-                    # Row
-                    html.Div(
-                        [
-                            html.Div(
-                                [
-                                    html.Button(
-                                        html.H6(
-                                            ["Position Weight ▼"],
-                                            className="subtitle padded",
-                                            id=f"{prefix}-position-weight-title",
-                                        ),
-                                        id={
-                                            "type": "collapse-btn",
-                                            "page": f"{prefix}",
-                                            "index": 3,
-                                        },
-                                        style={
-                                            "background": "none",
-                                            "border": "none",
-                                            "padding": "0",
-                                            "cursor": "pointer",
-                                            "width": "100%",
-                                            "text-align": "left",
-                                        },
-                                    ),
-                                    html.Div(
-                                        className="chart-container",
-                                        children=[
-                                            # 浅色主题 SVG（默认显示）
-                                            html.ObjectEl(
-                                                data=encoded_image_by_postion,
-                                                type="image/svg+xml",
-                                                className="responsive-svg svg-light",  # 添加专属类名
-                                                id=f"{prefix}-by-position-light",
-                                            ),
-                                            # 深色主题 SVG（默认隐藏）
-                                            html.ObjectEl(
-                                                data=encoded_image_by_postion_dark,
-                                                type="image/svg+xml",
-                                                className="responsive-svg svg-dark",
-                                                style={"display": "none"},  # 初始隐藏
-                                                id=f"{prefix}-by-position-dark",
-                                            ),
-                                        ],
-                                        id={
-                                            "type": "collapsible",
-                                            "page": f"{prefix}",
-                                            "index": 3,
-                                        },
-                                        style={"display": "block"},  # 初始展开状态
-                                    ),
-                                ],
-                                className="six columns",
-                            ),
-                            html.Div(
-                                [
-                                    html.Button(
-                                        html.H6(
-                                            ["Earnings Weight ▼"],
-                                            className="subtitle padded",
-                                            id=f"{prefix}-earnings-weight-title",
-                                        ),
-                                        id={
-                                            "type": "collapse-btn",
-                                            "page": f"{prefix}",
-                                            "index": 4,
-                                        },
-                                        style={
-                                            "background": "none",
-                                            "border": "none",
-                                            "padding": "0",
-                                            "cursor": "pointer",
-                                            "width": "100%",
-                                            "text-align": "left",
-                                        },
-                                    ),
-                                    html.Div(
-                                        className="chart-container",
-                                        children=[
-                                            # 浅色主题 SVG（默认显示）
-                                            html.ObjectEl(
-                                                data=encoded_image_by_pl,
-                                                type="image/svg+xml",
-                                                className="responsive-svg svg-light",  # 添加专属类名
-                                                id=f"{prefix}-by-pl-light",
-                                            ),
-                                            # 深色主题 SVG（默认隐藏）
-                                            html.ObjectEl(
-                                                data=encoded_image_by_pl_dark,
-                                                type="image/svg+xml",
-                                                className="responsive-svg svg-dark",
-                                                style={"display": "none"},  # 初始隐藏
-                                                id=f"{prefix}-by-pl-dark",
-                                            ),
-                                        ],
-                                        id={
-                                            "type": "collapsible",
-                                            "page": f"{prefix}",
-                                            "index": 4,
-                                        },
-                                        style={"display": "block"},  # 初始展开状态
-                                    ),
-                                ],
-                                className="six columns",
-                            ),
-                        ],
-                        className="row",
-                    ),
                     # Row 2
                     html.Div(
                         [
@@ -607,6 +499,114 @@ def create_layout(app):
                                             "type": "collapsible",
                                             "page": f"{prefix}",
                                             "index": 6,
+                                        },
+                                        style={"display": "block"},  # 初始展开状态
+                                    ),
+                                ],
+                                className="six columns",
+                            ),
+                        ],
+                        className="row",
+                    ),
+                    # Row
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.Button(
+                                        html.H6(
+                                            ["Position Weight ▼"],
+                                            className="subtitle padded",
+                                            id=f"{prefix}-position-weight-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": f"{prefix}",
+                                            "index": 3,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
+                                    ),
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            # 浅色主题 SVG（默认显示）
+                                            html.ObjectEl(
+                                                data=encoded_image_by_postion,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-light",  # 添加专属类名
+                                                id=f"{prefix}-by-position-light",
+                                            ),
+                                            # 深色主题 SVG（默认隐藏）
+                                            html.ObjectEl(
+                                                data=encoded_image_by_postion_dark,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-dark",
+                                                style={"display": "none"},  # 初始隐藏
+                                                id=f"{prefix}-by-position-dark",
+                                            ),
+                                        ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": f"{prefix}",
+                                            "index": 3,
+                                        },
+                                        style={"display": "block"},  # 初始展开状态
+                                    ),
+                                ],
+                                className="six columns",
+                            ),
+                            html.Div(
+                                [
+                                    html.Button(
+                                        html.H6(
+                                            ["Earnings Weight ▼"],
+                                            className="subtitle padded",
+                                            id=f"{prefix}-earnings-weight-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": f"{prefix}",
+                                            "index": 4,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
+                                    ),
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            # 浅色主题 SVG（默认显示）
+                                            html.ObjectEl(
+                                                data=encoded_image_by_pl,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-light",  # 添加专属类名
+                                                id=f"{prefix}-by-pl-light",
+                                            ),
+                                            # 深色主题 SVG（默认隐藏）
+                                            html.ObjectEl(
+                                                data=encoded_image_by_pl_dark,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-dark",
+                                                style={"display": "none"},  # 初始隐藏
+                                                id=f"{prefix}-by-pl-dark",
+                                            ),
+                                        ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": f"{prefix}",
+                                            "index": 4,
                                         },
                                         style={"display": "block"},  # 初始展开状态
                                     ),
