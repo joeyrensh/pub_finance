@@ -343,7 +343,7 @@ class GlobalStrategy(bt.Strategy):
             )
 
             """
-            买入2: 收盘价走高
+            买入2: 收盘价连续上涨
             """
             self.signals[d._name]["close_rising"] = (
                 bt.And(
@@ -434,7 +434,7 @@ class GlobalStrategy(bt.Strategy):
                 ),
             )
             """
-            卖出2: 收盘价走低
+            卖出2: 收盘价连续下跌
             """
             self.signals[d._name]["close_falling"] = bt.And(
                 self.inds[d._name]["sma_mid"] < self.inds[d._name]["sma_mid"](-1),
@@ -464,7 +464,7 @@ class GlobalStrategy(bt.Strategy):
                 self.signals[d._name]["death_cross"] == 1,
             )
             """ 
-            卖出5: 下穿年线
+            卖出5: 跌破年线
             """
             self.signals[d._name]["closs_crossdown_annualline"] = bt.And(
                 bt.indicators.crossover.CrossDown(
@@ -630,17 +630,17 @@ class GlobalStrategy(bt.Strategy):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "均线破线"
+                    self.myorder[d._name]["strategy"] = "均线突破"
                 elif self.signals[d._name]["volume_spike"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "成交放大"
+                    self.myorder[d._name]["strategy"] = "成交量放大"
                 elif self.signals[d._name]["close_crossup_annualline"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "上穿年线"
+                    self.myorder[d._name]["strategy"] = "突破年线"
                 elif (
                     self.signals[d._name]["close_crossup_ema_short"][0] == 1
                     and sum(1 for value in diff_array if value < 2) >= 5
@@ -650,17 +650,17 @@ class GlobalStrategy(bt.Strategy):
                 ):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "均线密集"
+                    self.myorder[d._name]["strategy"] = "均线收敛"
                 elif self.signals[d._name]["long_position"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "均线多头"
+                    self.myorder[d._name]["strategy"] = "多头排列"
                 elif self.signals[d._name]["close_rising"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "收盘价走高"
+                    self.myorder[d._name]["strategy"] = "收盘价连续上涨"
                 elif (
                     self.signals[d._name]["red_three_soldiers"][0] == 1
                     and self.signals[d._name]["deviant"][0] == 1
@@ -685,13 +685,13 @@ class GlobalStrategy(bt.Strategy):
                     self.myorder[d._name]["strategy"] = "均线破位"
                 elif self.signals[d._name]["closs_crossdown_annualline"][0] == 1:
                     self.order[d._name] = self.close(data=d)
-                    self.myorder[d._name]["strategy"] = "下穿年线"
+                    self.myorder[d._name]["strategy"] = "跌破年线"
                 elif self.signals[d._name]["short_position"][0] == 1:
                     self.order[d._name] = self.close(data=d)
-                    self.myorder[d._name]["strategy"] = "均线空头"
+                    self.myorder[d._name]["strategy"] = "空头排列"
                 elif self.signals[d._name]["close_falling"][0] == 1:
                     self.order[d._name] = self.close(data=d)
-                    self.myorder[d._name]["strategy"] = "收盘价走低"
+                    self.myorder[d._name]["strategy"] = "收盘价连续下跌"
 
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
