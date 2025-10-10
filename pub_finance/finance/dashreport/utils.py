@@ -286,9 +286,10 @@ def make_dash_format_table(df, cols_format, market):
     # 如果有IND列，先生成辅助列
     if "ERP" in df.columns:
         df["ERP"] = pd.to_numeric(df["ERP"], errors="coerce")
+        df["ERP"] = df["ERP"].fillna(-99999)
 
     def get_real_quantile(series, q):
-        s = series.dropna().sort_values()
+        s = series[(series.notna()) & (series != -99999)].sort_values()
         if len(s) == 0:
             return np.nan
         idx = int(np.ceil(q * len(s))) - 1
@@ -451,14 +452,14 @@ def make_dash_format_table(df, cols_format, market):
                             "( {IND_ARROW_NUM} >= "
                             + str(ind_arrow_num_threshold)
                             + " && "
-                            "{ERP_o} >= {erp_threshold_o} && "
+                            "{ERP_o} != -99999 && {ERP_o} >= {erp_threshold_o} && "
                             "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
                             "{PNL RATIO_o} >= {pnl_ratio_threshold_head_o} && "
                             + "{PNL RATIO_o} > 0 && "
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
                             "{WIN RATE_o} >= " + str(win_rate_threshold) + ") || ("
                             "{IND_BRACKET_NUM} <= 20 && "
-                            "{ERP_o} >= {erp_threshold_o} && "
+                            "{ERP_o} != -99999 && {ERP_o} >= {erp_threshold_o} && "
                             "{OPEN DATE_o} >= " + str(date_threshold_l40) + " && "
                             "{PNL RATIO_o} <= {pnl_ratio_threshold_tail_o} && "
                             + "{PNL RATIO_o} > 0 &&"

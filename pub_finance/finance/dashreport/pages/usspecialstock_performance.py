@@ -142,6 +142,7 @@ def create_layout(app):
         "TOTAL PNL RATIO": ("ratio", "format"),
         "OPEN DATE": ("date", "format"),
         "TOTAL VALUE": ("float",),
+        "ERP": ("float",),
     }
     # 减仓明细
     df_detail_short = pd.read_csv(
@@ -169,6 +170,7 @@ def create_layout(app):
     ].copy()
     cols_format_detail_short = {
         "TOTAL VALUE": ("float",),
+        "ERP": ("float",),
         "BASE": ("float",),
         "ADJBASE": ("float",),
         "PNL": ("float", "format"),
