@@ -21,7 +21,7 @@ class GlobalStrategy(bt.Strategy):
         ("ma_mid_period", 60),
         # ("ma_long_period", 120),
         ("vol_short_period", 5),
-        ("vol_mid_period", 10),
+        # ("vol_mid_period", 10),
         ("vol_long_period", 20),
         ("annual_period", 240),
         ("availablecash", 4000000),
@@ -163,9 +163,9 @@ class GlobalStrategy(bt.Strategy):
             self.inds[d._name]["emavol_short"] = bt.indicators.EMA(
                 d.volume, period=self.params.vol_short_period
             )
-            self.inds[d._name]["emavol_mid"] = bt.indicators.EMA(
-                d.volume, period=self.params.vol_mid_period
-            )
+            # self.inds[d._name]["emavol_mid"] = bt.indicators.EMA(
+            #     d.volume, period=self.params.vol_mid_period
+            # )
             self.inds[d._name]["emavol_long"] = bt.indicators.EMA(
                 d.volume, period=self.params.vol_long_period
             )
@@ -385,7 +385,7 @@ class GlobalStrategy(bt.Strategy):
             买入4: 成交量突然增加，价格走高
             """
             self.signals[d._name]["volume_spike"] = bt.And(
-                self.inds[d._name]["emavol_short"] > self.inds[d._name]["emavol_mid"],
+                # self.inds[d._name]["emavol_short"] > self.inds[d._name]["emavol_mid"],
                 self.inds[d._name]["emavol_short"] > self.inds[d._name]["emavol_long"],
                 d.volume > self.inds[d._name]["emavol_short"] * 1.5,
                 self.signals[d._name]["price_higher"] == 1,
