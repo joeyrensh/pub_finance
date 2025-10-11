@@ -329,7 +329,7 @@ def exec_btstrategy(date):
         # ax_drawdown.spines["right"].set_position(("axes", 0.98))  # 右侧 y 轴靠近图表
 
         # 保存图片
-        plt.subplots_adjust(left=0.08, right=0.94, top=1, bottom=0.1, wspace=0.1)
+        plt.subplots_adjust(left=0.075, right=0.94, top=1, bottom=0.1, wspace=0.1)
         plt.savefig(
             f"./dashreport/assets/images/cnetf_tr_{theme}.svg",
             format="svg",

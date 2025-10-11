@@ -63,6 +63,16 @@
     height: auto;
 }
 
+#us-annual-return-light,
+#us-annual-return-dark,
+#cn-annual-return-light,
+#cn-annual-return-dark,
+#us_special-annual-return-light,
+#us_special-annual-return-dark {
+  /* margin-left: -7px; */
+  width: 102%;
+}
+
 
 body {
   width: 100%;
