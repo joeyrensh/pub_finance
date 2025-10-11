@@ -745,13 +745,15 @@ a:active {
     margin-left: -7px !important;
     width: 103% !important;
   }
-  /* #us-annual-return-light,
+  #us-annual-return-light,
   #us-annual-return-dark,
   #cn-annual-return-light,
-  #cn-annual-return-dark{
-    margin-left: -7px;
-    width: 103%;
-  } */
+  #cn-annual-return-dark,
+  #us_special-annual-return-light,
+  #us_special-annual-return-dark {
+    /* margin-left: -7px; */
+    width: 100%;
+  }
   .background {
     background-image: url('/assets/buyahouse-background-logo.png');
     background-position: bottom;
