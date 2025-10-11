@@ -314,7 +314,7 @@ class GlobalStrategy(bt.Strategy):
             )
 
             """
-            买入1: 均线上穿
+            买入1: 均线金叉
             """
             self.signals[d._name]["ma_crossover_bullish"] = bt.Or(
                 bt.And(
@@ -409,7 +409,7 @@ class GlobalStrategy(bt.Strategy):
             )
 
             """
-            卖出1: 均线破位
+            卖出1: 均线死叉
             """
             self.signals[d._name]["ma_crossover_bearish"] = bt.Or(
                 bt.And(
@@ -630,7 +630,7 @@ class GlobalStrategy(bt.Strategy):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "均线突破"
+                    self.myorder[d._name]["strategy"] = "均线金叉"
                 elif self.signals[d._name]["volume_spike"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
@@ -682,7 +682,7 @@ class GlobalStrategy(bt.Strategy):
 
                 if self.signals[d._name]["ma_crossover_bearish"][0] == 1:
                     self.order[d._name] = self.close(data=d)
-                    self.myorder[d._name]["strategy"] = "均线破位"
+                    self.myorder[d._name]["strategy"] = "均线死叉"
                 elif self.signals[d._name]["closs_crossdown_annualline"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.myorder[d._name]["strategy"] = "跌破年线"
