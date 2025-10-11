@@ -16,8 +16,8 @@
 
     // 基础配置（无前缀）
     const BASE_FONT_SIZE_CONFIG = {
-        'annual-return-light': { mobile: '1.7rem', desktop: '1.2rem' },
-        'annual-return-dark': { mobile: '1.7rem', desktop: '1.2rem' },
+        'annual-return-light': { mobile: '2.2rem', desktop: '1.5rem' },
+        'annual-return-dark': { mobile: '2.2rem', desktop: '1.5rem' },
         'ind-trend-light': { mobile: 'unset', desktop: 'unset' },
         'ind-trend-dark': { mobile: 'unset', desktop: 'unset' },
         'strategy-light': { mobile: '1.5rem', desktop: '1.5rem' },
@@ -86,7 +86,7 @@
                 // 判断是否为第二列且不是第一行
                 if (idx >= colCount && (idx % colCount === 2)) {
                     fontSize = screenWidth <= 550 ? '3rem' : '2.5rem';
-                    fontWeight = 500;
+                    fontWeight = 700;
                     const textContent = parentDiv.textContent.trim();
                     if (textContent.startsWith('-')) {
                         element.style.setProperty('fill', '#0d876d', 'important');

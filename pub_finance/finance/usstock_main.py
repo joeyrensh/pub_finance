@@ -181,7 +181,7 @@ def exec_btstrategy(date):
         # 全局样式设置
         rcParams.update(
             {
-                "font.size": 26,
+                "font.size": 30,
                 "axes.labelcolor": colors["text"],
                 "axes.edgecolor": colors["text"],
                 "xtick.color": colors["text"],
@@ -214,10 +214,9 @@ def exec_btstrategy(date):
             1,
             2,
             gridspec_kw={"width_ratios": [1, 3]},
-            figsize=(18, 10),
+            figsize=(20, 12.5),
             facecolor=colors["background"],
         )
-        fig.subplots_adjust(wspace=0.1)
 
         # ----------------------------
         # 绘制表格
@@ -319,21 +318,23 @@ def exec_btstrategy(date):
             spine.set_visible(False)
 
         # 调整 y 轴刻度标签和轴位置
-        ax_chart.tick_params(axis="x", rotation=-30)  # 将 x 轴刻度标签旋转 45 度
+        ax_chart.tick_params(axis="x", rotation=-20)  # 将 x 轴刻度标签旋转 45 度
         ax_chart.tick_params(axis="y", labelright=False, labelleft=True, direction="in")
         ax_drawdown.tick_params(
             axis="y", labelright=True, labelleft=False, direction="in"
         )
-        ax_drawdown.yaxis.set_label_coords(0.99, 0.5)  # 标签向左平移
-        # 调整 y 轴 spines 的位置
-        ax_chart.spines["left"].set_position(("axes", 0.02))  # 左侧 y 轴靠近图表
-        ax_drawdown.spines["right"].set_position(("axes", 0.98))  # 右侧 y 轴靠近图表
+        # ax_drawdown.yaxis.set_label_coords(0.99, 0.5)  # 标签向左平移
+        # # 调整 y 轴 spines 的位置
+        # ax_chart.spines["left"].set_position(("axes", 0.02))  # 左侧 y 轴靠近图表
+        # ax_drawdown.spines["right"].set_position(("axes", 0.98))  # 右侧 y 轴靠近图表
 
         # 保存图片
+        plt.subplots_adjust(left=0.08, right=0.94, top=1, bottom=0.1, wspace=0.1)
         plt.savefig(
             f"./dashreport/assets/images/us_tr_{theme}.svg",
             format="svg",
-            bbox_inches="tight",  # 保持边界紧凑
+            # bbox_inches="tight",  # 保持边界紧凑
+            bbox_inches=None,  # 保持边界紧凑
             transparent=True,  # 保持背景透明
             pad_inches=0.2,
         )
