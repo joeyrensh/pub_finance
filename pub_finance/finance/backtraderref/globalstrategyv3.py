@@ -570,6 +570,7 @@ class GlobalStrategy(bt.Strategy):
     def next(self):
         # 策略执行进度
         t = ToolKit("策略执行中")
+        max_buflen = max([d.buflen() for d in self.datas])
         # # 增加cash
         # if (
         #     len(self) < self.data.buflen() - 1
@@ -703,7 +704,7 @@ class GlobalStrategy(bt.Strategy):
         #         "cash is too much %s, add cash %s"
         #         % (self.broker.cash, self.params.restcash - self.broker.cash)
         #     )
-        t.progress_bar(self.data.buflen(), len(self))
+        t.progress_bar(max_buflen, len(self))
 
     def stop(self):
         list = []
