@@ -740,30 +740,30 @@ class GlobalStrategy(bt.Strategy):
                 """
                 if dict["buy_date"] is None:
                     continue
-                t = ToolKit("最新交易日")
-                if self.market == "us":
-                    cur = datetime.strptime(t.get_us_latest_trade_date(0), "%Y%m%d")
-                    bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
-                    interval = t.get_us_trade_off_days(cur, bef)
-                elif self.market == "cn":
-                    cur = datetime.strptime(t.get_cn_latest_trade_date(0), "%Y%m%d")
-                    bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
-                    interval = t.get_cn_trade_off_days(cur, bef)
-                elif self.market == "cnetf":
-                    cur = datetime.strptime(t.get_cn_latest_trade_date(0), "%Y%m%d")
-                    bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
-                    interval = t.get_cn_trade_off_days(cur, bef)
-                print(
-                    "当前股票: %s, 交易天数: %s, 累计涨幅: %s"
-                    % (dict["symbol"], interval, dict["p&l_ratio"])
-                )
+                # t = ToolKit("最新交易日")
+                # if self.market == "us":
+                #     cur = datetime.strptime(t.get_us_latest_trade_date(0), "%Y%m%d")
+                #     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
+                #     interval = t.get_us_trade_off_days(cur, bef)
+                # elif self.market == "cn":
+                #     cur = datetime.strptime(t.get_cn_latest_trade_date(0), "%Y%m%d")
+                #     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
+                #     interval = t.get_cn_trade_off_days(cur, bef)
+                # elif self.market == "cnetf":
+                #     cur = datetime.strptime(t.get_cn_latest_trade_date(0), "%Y%m%d")
+                #     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
+                #     interval = t.get_cn_trade_off_days(cur, bef)
+                # print(
+                #     "当前股票: %s, 交易天数: %s, 累计涨幅: %s"
+                #     % (dict["symbol"], interval, dict["p&l_ratio"])
+                # )
                 list.append(dict)
                 pos_share = pos_share + pos.size * pos.adjbase
                 if pos.adjbase - pos.price >= 0:
                     pos_earn = pos_earn + pos.size * (pos.adjbase - pos.price)
                 else:
                     pos_loss = pos_loss + pos.size * (pos.adjbase - pos.price)
-        print("总持仓：%s, 浮盈：%s, 浮亏：%s" % (pos_share, pos_earn, pos_loss))
+        print("\n总持仓：%s, 浮盈：%s, 浮亏：%s" % (pos_share, pos_earn, pos_loss))
         df = pd.DataFrame(list)
         if df.empty:
             return
