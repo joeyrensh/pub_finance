@@ -323,9 +323,9 @@ def make_dash_format_table(df, cols_format, market):
         # df["CLUSTER"] = ""
 
         # 标记满足条件的行
+        # 近5个交易日涨幅最快的行业中的优秀个股
         condition1 = (
             (df["IND_ARROW_NUM"] >= ind_arrow_num_threshold)
-            & (df["ERP"] >= df["erp_threshold"])
             & (df["OPEN DATE"] >= date_threshold_l20)
             & (df["PNL RATIO"] >= df["pnl_ratio_threshold_head"])
             & (df["PNL RATIO"] > 0)
@@ -333,19 +333,28 @@ def make_dash_format_table(df, cols_format, market):
             & (df["WIN RATE"] >= win_rate_threshold)
         )
 
+        # 近5个交易日TOP 5行业中的优秀个股
         condition2 = (
             (df["IND_BRACKET_NUM"] <= 20)
-            & (df["ERP"] >= df["erp_threshold"])
-            & (df["OPEN DATE"] >= date_threshold_l40)
-            & (df["PNL RATIO"] <= df["pnl_ratio_threshold_tail"])
+            & (df["OPEN DATE"] >= date_threshold_l20)
+            & (df["PNL RATIO"] >= df["pnl_ratio_threshold_head"])
             & (df["PNL RATIO"] > 0)
             & (df["AVG TRANS"] <= avg_trans_threshold)
             & (df["WIN RATE"] >= win_rate_threshold)
         )
 
+        # PE合理的优秀个股
+        condition3 = (
+            (df["OPEN DATE"] >= date_threshold_l20)
+            & (df["PNL RATIO"] > 0)
+            & (df["ERP"] > df["erp_threshold"])
+            & (df["ERP"] != -99999)
+            & (df["WIN RATE"] >= win_rate_threshold)
+        )
+
         # 然后进行赋值操作
-        df.loc[condition1 | condition2, "NAME"] = (
-            "A+" + df.loc[condition1 | condition2, "NAME"]
+        df.loc[condition1 | condition2 | condition3, "NAME"] = (
+            "A+" + df.loc[condition1 | condition2 | condition3, "NAME"]
         )
 
     def create_link(symbol, market):
@@ -449,21 +458,25 @@ def make_dash_format_table(df, cols_format, market):
                 {
                     "if": {
                         "filter_query": (
-                            "( {IND_ARROW_NUM} >= "
+                            "({IND_ARROW_NUM} >= "
                             + str(ind_arrow_num_threshold)
                             + " && "
-                            "{ERP_o} != -99999 && {ERP_o} >= {erp_threshold_o} && "
                             "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
                             "{PNL RATIO_o} >= {pnl_ratio_threshold_head_o} && "
                             + "{PNL RATIO_o} > 0 && "
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
                             "{WIN RATE_o} >= " + str(win_rate_threshold) + ") || ("
                             "{IND_BRACKET_NUM} <= 20 && "
-                            "{ERP_o} != -99999 && {ERP_o} >= {erp_threshold_o} && "
-                            "{OPEN DATE_o} >= " + str(date_threshold_l40) + " && "
-                            "{PNL RATIO_o} <= {pnl_ratio_threshold_tail_o} && "
+                            "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
+                            "{PNL RATIO_o} >= {pnl_ratio_threshold_head_o} && "
                             + "{PNL RATIO_o} > 0 &&"
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
+                            "{WIN RATE_o} >= " + str(win_rate_threshold) + ") || ("
+                            "{OPEN DATE_o} >= "
+                            + str(date_threshold_l20)
+                            + " && "
+                            + "{PNL RATIO_o} > 0 && "
+                            "{ERP_o} != -99999 && {ERP_o} > {erp_threshold_o} && "
                             "{WIN RATE_o} >= " + str(win_rate_threshold) + ")"
                         )
                     },
