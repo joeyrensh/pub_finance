@@ -623,9 +623,9 @@ class GlobalStrategy(bt.Strategy):
                 y2 = self.inds[d._name]["sma_mid"].get(
                     ago=-1, size=self.params.ma_short_period
                 )
-                diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y != 0]
-                diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y != 0]
-                diff_array3 = [abs((x - y) * 100 / y) for x, y in zip(x1, x2) if y != 0]
+                diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y > 1]
+                diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y > 1]
+                diff_array3 = [abs((x - y) * 100 / y) for x, y in zip(x1, x2) if y > 1]
 
                 if self.signals[d._name]["ma_crossover_bullish"][0] == 1:
                     """买入对应仓位"""
