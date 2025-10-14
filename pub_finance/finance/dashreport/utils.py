@@ -349,6 +349,7 @@ def make_dash_format_table(df, cols_format, market):
             & (df["PNL RATIO"] > 0)
             & (df["ERP"] > df["erp_threshold"])
             & (df["ERP"] != -99999)
+            & (df["AVG TRANS"] <= avg_trans_threshold)
             & (df["WIN RATE"] >= win_rate_threshold)
         )
 
@@ -477,6 +478,7 @@ def make_dash_format_table(df, cols_format, market):
                             + " && "
                             + "{PNL RATIO_o} > 0 && "
                             "{ERP_o} != -99999 && {ERP_o} > {erp_threshold_o} && "
+                            "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
                             "{WIN RATE_o} >= " + str(win_rate_threshold) + ")"
                         )
                     },
