@@ -276,8 +276,7 @@ body {
 }
 
 .background {
-  background-image: url('/assets/buyahouse-background-logo.png');
-  /* background-image: url('/assets/background.jpeg'); */
+  background-image: url('/assets/background-logo.png');
   background-position: bottom;
   background-position-x: 50%;
   background-position-y: 87%;
@@ -305,7 +304,7 @@ body {
   left: 0;
   width: 230px; /* 设置背景图片的宽度 */
   height: 200px; /* 设置背景图片的高度 */
-  background-image: url('/assets/buyahouse-background-logo.png'); /* 背景图片 */
+  background-image: url('/assets/background-logo.png'); /* 背景图片 */
   background-repeat: no-repeat; /* 防止背景图片重复 */
   background-size: contain; /* 确保图片按比例缩放 */
   z-index: -1; /* 将背景图片置于内容下方 */
@@ -755,7 +754,7 @@ a:active {
     width: 100%;
   }
   .background {
-    background-image: url('/assets/buyahouse-background-logo.png');
+    background-image: url('/assets/background-logo.png');
     background-position: bottom;
     background-position-x: 50%;
     background-position-y: 95%;
@@ -783,7 +782,7 @@ a:active {
     left: 0;
     width: 150px; /* 设置背景图片的宽度 */
     height: 100px; /* 设置背景图片的高度 */
-    background-image: url('/assets/buyahouse-background-logo.png'); /* 背景图片 */
+    background-image: url('/assets/background-logo.png'); /* 背景图片 */
     background-repeat: no-repeat; /* 防止背景图片重复 */
     background-size: contain; /* 确保图片按比例缩放 */
     z-index: -1; /* 将背景图片置于内容下方 */
@@ -1001,7 +1000,7 @@ a:active {
 @media (max-width: 1200px) and (min-width: 550px),
 (max-device-width: 1200px) and (min-device-width: 550px) {
   .background {
-    background-image: url('/assets/buyahouse-background-logo.png');
+    background-image: url('/assets/background-logo.png');
     background-position: bottom;
     background-position-x: 35%;
     background-position-y: 20%;
@@ -1029,7 +1028,7 @@ a:active {
     left: 0;
     width: 230px; /* 设置背景图片的宽度 */
     height: 200px; /* 设置背景图片的高度 */
-    background-image: url('/assets/buyahouse-background-logo.png'); /* 背景图片 */
+    background-image: url('/assets/background-logo.png'); /* 背景图片 */
     background-repeat: no-repeat; /* 防止背景图片重复 */
     background-size: contain; /* 确保图片按比例缩放 */
     z-index: -1; /* 将背景图片置于内容下方 */

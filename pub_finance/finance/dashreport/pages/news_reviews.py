@@ -5,9 +5,9 @@ import pathlib
 PATH = pathlib.Path(__file__).parent
 IMAGE_PATH = PATH.joinpath("../assets").resolve()
 # encoded_image_bg = base64.b64encode(
-#     IMAGE_PATH.joinpath("background.jpeg").read_bytes()
+#     IMAGE_PATH.joinpath("cartoon.png").read_bytes()
 # ).decode("utf-8")
-encoded_image_bg = "/assets/background.jpeg"
+encoded_image_bg = "/assets/cartoon.png"
 
 
 def create_layout(app):
