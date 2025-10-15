@@ -1,289 +1,427 @@
-import os
-import pandas as pd
-import glob
-import tempfile
+#!/usr/bin/env python3
+# -*- coding: UTF-8 -*-
+import progressbar
+from utility.toolkit import ToolKit
 from datetime import datetime
+import pandas as pd
+import sys
+from backtraderref.globalstrategyv3 import GlobalStrategy
+import backtrader as bt
+from utility.tickerinfo import TickerInfo
+from backtraderref.pandasdata_ext import BTPandasDataExt
+from utility.stock_analysis import StockProposal
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import pyfolio as pf
+import gc
+from backtraderref.cnfixedamount import FixedAmount
+from matplotlib import rcParams
+import matplotlib.colors as mcolors
+from cncrawler.ak_incre_crawler import AKCNWebCrawler
+from utility.em_stock_uti import EMWebCrawlerUti
+
+""" backtrader策略 """
 
 
-def clean_stock_data_pandas_batch(
-    stock_files, delete_before_date="2024-01-01", chunk_size=10000
-):
+def exec_btstrategy(date):
+    """创建cerebro对象"""
+    cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
+    # cerebro.broker.set_coc(True)
+    """ 添加bt相关的策略 """
+    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cnetf")
+
+    # 回测时需要添加 TimeReturn 分析器
+    cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
+    # cerebro.addobserver(bt.observers.BuySell)
+    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
+    """ 每手10股 """
+    # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
+    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=2)
+    cerebro.addsizer(FixedAmount, amount=10000)
+    """ 费率千分之一 """
+    cerebro.broker.setcommission(commission=0, stocklike=True)
+    """ 添加股票当日即历史数据 """
+    list = TickerInfo(date, "cn").get_etf_backtrader_data_feed()
+    """ 初始资金100M """
+    start_cash = len(list) * 20000
+    cerebro.broker.setcash(start_cash)
+    """ 循环初始化数据进入cerebro """
+    for h in list:
+        """历史数据最早不超过2021-01-01"""
+        data = BTPandasDataExt(
+            dataname=h,
+            name=h["symbol"][0],
+            fromdate=datetime(2024, 1, 1),
+            todate=datetime.strptime(date, "%Y%m%d"),
+            datetime=-1,
+            timeframe=bt.TimeFrame.Days,
+        )
+        cerebro.adddata(data)
+        # 周数据
+        # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
+    """ 起始资金池 """
+    print("\nStarting Portfolio Value: %.2f" % cerebro.broker.getvalue())
+
+    # 节约内存
+    list = None
+    data = None
+    gc.collect()
+
+    """ 运行cerebro """
+    result = cerebro.run()
+
+    """ 最终资金池 """
+    print("\n当前现金持有: ", cerebro.broker.get_cash())
+    print("\nFinal Portfolio Value: %.2f" % cerebro.broker.getvalue())
+
+    """ 画图相关 """
+    # cerebro.plot(iplot=True, subplot=True)
+    # 提取收益序列
+    pnl = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
+
+    # 计算累计收益
+    cumulative = (pnl + 1).cumprod()
+
+    # 计算回撤序列
+    max_return = cumulative.cummax()
+
+    drawdown = (cumulative - max_return) / max_return
+
+    # 按年统计收益指标
+    perf_stats_year = (
+        (pnl)
+        .groupby(pnl.index.to_period("Y"))
+        .apply(lambda data: pf.timeseries.perf_stats(data))
+        .unstack()
+    )
+
+    # 统计所有时间段的收益指标
+    # perf_stats_all = pf.timeseries.perf_stats((pnl)).to_frame(name="All")
+
+    # perf_stats = pd.concat([perf_stats_year, perf_stats_all.T], axis=0)
+
+    perf_stats = pd.concat([perf_stats_year], axis=0)
+
+    perf_stats = perf_stats.drop(
+        columns=[
+            "Annual volatility",
+            "Sortino ratio",
+            "Tail ratio",
+            "Sharpe ratio",
+            "Calmar ratio",
+            "Stability",
+            "Omega ratio",
+            "Skew",
+            "Kurtosis",
+        ]
+    )
+
+    perf_stats_ = perf_stats.reset_index()
+    perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
+        lambda x: x.map(lambda y: f"{y * 100:.2f}%")
+    )
+
+    # 绘制图形
+    """ 
+    年度回报率 (Annual return)：衡量投资组合或股票在一年内的收益率。它通常以百分比表示，计算方法是将期末价值减去期初价值，再除以期初价值，并乘以100。
+
+    累积回报率 (Cumulative returns)：衡量投资组合或股票在一段时间内的总收益率。它表示从投资开始到目前为止的总回报，可以用于评估长期投资的表现。
+
+    年度波动率 (Annual volatility)：衡量股票或投资组合价格波动的程度。它是标准差的年化值，标准差衡量价格变动相对于其平均值的离散程度。较高的波动率意味着价格变动幅度较大。
+
+    夏普比率 (Sharpe ratio)：衡量投资组合或股票每承担一单位风险所获得的超额回报。它是超额回报与波动率的比率，用于评估风险调整后的回报。
+
+    卡尔马比率 (Calmar ratio)：衡量投资组合或股票的风险调整回报率。它是年度回报率与最大回撤之比，用于评估投资组合的风险收益特征。
+
+    稳定性 (Stability)：衡量股票或投资组合价格的稳定性。较高的稳定性意味着价格波动较小。
+
+    最大回撤 (Max drawdown)：衡量投资组合或股票价格从峰值到谷底的最大跌幅。它用于评估投资组合的风险承受能力和潜在损失。
+
+    Omega比率 (Omega ratio)：衡量投资组合或股票正收益和负收益之间的比率。它将正收益的比例与负收益的比例进行比较，用于评估投资组合的收益分布特征。
+
+    Sortino比率 (Sortino ratio)：类似于夏普比率，但只考虑下行风险，即价格下跌的风险。它是超额回报与下行波动率的比率，用于评估投资组合的风险调整后的回报。
+
+    偏度 (Skew)：衡量股票或投资组合收益分布的偏斜程度。正偏度表示收益分布偏向较高的收益，负偏度表示偏向较低的收益。
+
+    峰度 (Kurtosis)：衡量股票或投资组合收益分布的尖峰程度。它衡量收益分布相对于正态分布的尖峰或扁平程度。
+
+    尾部比率 (Tail ratio)：衡量股票或投资组合收益分布的尾部风险。它是正尾部与负尾部之比，用于评估收益分布的不对称性和尾部风险。
+
+    日风险价值 (Daily value at risk)：衡量股票或投资组合在一天内可能面临的最大损失。它是在给定置信水平下的损失金额，用于评估投资组合的风险暴露。 
     """
-    使用pandas分批处理大文件的数据清理程序
+    # ----------------------------
+    # 绘图部分优化
+    # ----------------------------
 
-    参数:
-    delete_before_date: 删除早于此日期的数据，格式为'YYYY-MM-DD'
-    chunk_size: 每次处理的数据块大小，默认10000行
-    """
-    try:
-        cutoff_date = datetime.strptime(delete_before_date, "%Y-%m-%d")
-    except ValueError:
-        print("错误: 日期格式不正确，请使用'YYYY-MM-DD'格式")
-        return
+    def configure_theme(theme="light"):
+        """统一配置主题颜色和样式"""
+        theme_config = {
+            "light": {
+                "text": "#333333",
+                "background": "white",
+                "grid": "#333333",
+                "cumret": "#D9534F",  # 深蓝
+                "drawdown": "#3d9970",  # 红色
+                "table_edge": "#333333",
+                "table_header": "#F5F5F5",
+                "legend_text": "#333333",
+            },
+            "dark": {
+                "text": "#ffffffc5",
+                "background": "black",
+                "grid": "#FFFFFF",
+                "cumret": "#FF6B6B",  # 亮蓝
+                "drawdown": "#3d9970",  # 亮红
+                "table_edge": "#FFFFFF",
+                "table_header": "#404040",
+                "legend_text": "#ffffffc5",
+            },
+        }
+        colors = theme_config[theme]
 
-    if not stock_files:
-        print("未找到任何stock_xxx.csv文件")
-        return
+        # 全局样式设置
+        rcParams.update(
+            {
+                "font.size": 30,
+                "axes.labelcolor": colors["text"],
+                "axes.edgecolor": colors["text"],
+                "xtick.color": colors["text"],
+                "ytick.color": colors["text"],
+                "grid.color": colors["grid"],
+                "grid.linestyle": "-",
+                "grid.alpha": 0.2,
+                "grid.linewidth": 1.5,
+                "figure.facecolor": colors["background"],
+                "savefig.transparent": True,
+                "svg.fonttype": "none",
+            }
+        )
+        return colors
 
-    print(f"找到 {len(stock_files)} 个stock文件，分块大小: {chunk_size} 行")
+    def plot_chart(theme="light"):
+        """绘制图表（含表格和曲线）"""
+        cols_names = [
+            "Year",
+            "Ann.R",
+            "Cum.R",
+            "Mx.DD",
+            "D.Rsk",
+        ]
+        plt.rcParams["axes.unicode_minus"] = False  # 用来正常显示负号
+        colors = configure_theme(theme)
 
-    processed_files = 0
-    deleted_files = 0
-    cleaned_files = 0
+        # 创建画布和子图
+        fig, (ax_table, ax_chart) = plt.subplots(
+            1,
+            2,
+            gridspec_kw={"width_ratios": [1, 3]},
+            figsize=(20, 12.5),
+            facecolor=colors["background"],
+        )
 
-    for file_path in stock_files:
-        temp_file = None
-        try:
-            print(f"\n正在处理文件: {file_path}")
+        perf_stats_display = perf_stats_.copy()
+        if len(perf_stats_display) > 2:
+            perf_stats_display = perf_stats_display.iloc[-2:]
 
-            # 首先检查文件是否为空
-            file_size = os.path.getsize(file_path)
-            if file_size == 0:
-                print(f"文件 {file_path} 为空，删除文件")
-                os.remove(file_path)
-                deleted_files += 1
-                continue
-
-            # 创建临时文件
-            temp_file = tempfile.NamedTemporaryFile(
-                mode="w",
-                newline="",
-                encoding="utf-8",
-                delete=False,
-                suffix=".csv",
-                dir=os.path.dirname(file_path),
-            )
-            temp_path = temp_file.name
-            temp_file.close()  # 关闭文件，pandas会重新打开
-
-            # 使用pandas分块读取和处理
-            total_rows = 0
-            kept_rows = 0
-            first_chunk = True
-
-            # 分块读取CSV文件
-            chunk_iterator = pd.read_csv(file_path, chunksize=chunk_size)
-
-            for i, chunk in enumerate(chunk_iterator):
-                total_rows += len(chunk)
-
-                # 确保date列是datetime类型
+        # ----------------------------
+        # 绘制表格
+        # ----------------------------
+        ax_table.axis("off")
+        table = ax_table.table(
+            cellText=perf_stats_display.T.values,
+            rowLabels=cols_names,
+            bbox=[0, 0, 1, 1],
+            cellLoc="center",
+            edges="horizontal",
+            # colColours=[colors["table_header"]] * len(cols_names),
+        )
+        table.auto_set_font_size(False)
+        table.auto_set_column_width(range(len(perf_stats_.T.columns)))
+        # 统一单元格样式
+        for (row, col), cell in table.get_celld().items():
+            # 跳过表头（row==0），只处理第二列（col==1）
+            if col == 1 and row != 0:
                 try:
-                    chunk["date"] = pd.to_datetime(chunk["date"])
-                except Exception as e:
-                    print(f"警告: 在处理块 {i + 1} 时日期转换出错: {str(e)}")
-                    # 如果日期转换失败，保留整个块
-                    chunk_clean = chunk
-                else:
-                    # 筛选出需要保留的数据（日期不早于指定日期）
-                    mask = chunk["date"] >= cutoff_date
-                    chunk_clean = chunk[mask]
-
-                kept_rows += len(chunk_clean)
-
-                # 写入处理后的数据块
-                if first_chunk:
-                    # 第一个块写入表头
-                    chunk_clean.to_csv(temp_path, mode="w", index=False)
-                    first_chunk = False
-                else:
-                    # 后续块追加，不写入表头
-                    chunk_clean.to_csv(temp_path, mode="a", header=False, index=False)
-
-                print(f"  - 已处理 {total_rows} 行，保留 {kept_rows} 行")
-
-            # 判断处理结果
-            if kept_rows == 0:
-                print(f"文件 {file_path}: 所有 {total_rows} 条记录都被删除，删除文件")
-                os.remove(file_path)
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
-                deleted_files += 1
-            elif kept_rows < total_rows:
-                print(
-                    f"文件 {file_path}: 从 {total_rows} 条记录清理到 {kept_rows} 条记录"
-                )
-                # 用临时文件替换原文件
-                os.replace(temp_path, file_path)
-                cleaned_files += 1
+                    # 获取单元格的原始数值（去掉百分号等）
+                    val_str = (
+                        str(cell.get_text().get_text())
+                        .replace("%", "")
+                        .replace(",", "")
+                    )
+                    val = float(val_str)
+                    if val < 0:
+                        cell.set_text_props(color="#0d876d")
+                    elif val >= 0:
+                        cell.set_text_props(color="#e01c3a")
+                except Exception:
+                    pass  # 非数字或转换失败时跳过
             else:
-                print(f"文件 {file_path}: 所有 {total_rows} 条记录均符合要求")
-                # 删除临时文件，保留原文件
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
-                processed_files += 1
+                cell.set_text_props(color=colors["text"])
+            cell.set_edgecolor(mcolors.to_rgba(colors["table_edge"], alpha=0.2))
+            cell.set_linewidth(1)
 
-        except Exception as e:
-            print(f"处理文件 {file_path} 时出错: {str(e)}")
-            # 清理临时文件（如果存在）
-            if temp_file and os.path.exists(temp_file.name):
-                os.remove(temp_file.name)
+        # ----------------------------
+        # 绘制双轴曲线
+        # ----------------------------
+        # 先绘制面积图（关键点1：先创建右轴）
+        ax_drawdown = ax_chart.twinx()
 
-    # 输出总结
-    print("\n处理完成!")
-    print(f"处理文件总数: {len(stock_files)}")
-    print(f"完全删除的文件: {deleted_files}")
-    print(f"部分清理的文件: {cleaned_files}")
-    print(f"无需更改的文件: {processed_files}")
+        # 设置图层优先级（关键点2：强制主轴在上层）
+        ax_chart.set_zorder(ax_drawdown.get_zorder() + 1)  # 主轴提升到上方
+        ax_chart.patch.set_visible(False)  # 隐藏主轴背景避免遮挡
 
+        # 绘制面积图（关键点3：使用 zorder 控制层级）
+        ax_drawdown.plot(
+            drawdown.index,
+            drawdown.values,
+            color=colors["drawdown"],
+            alpha=0.8,  # 适当降低透明度
+            zorder=2,  # 设置较低层级
+            linewidth=2,  # 设置线宽
+            label="Drawdown",
+        )
 
-def preview_clean_effect_pandas(
-    stock_files, delete_before_date="2024-01-01", sample_size=5000
-):
-    """
-    预览清理效果，使用pandas进行高效抽样
+        # 最后绘制折线图（自然覆盖在面积图上）
+        ax_chart.plot(
+            cumulative.index,
+            cumulative.values,
+            color=colors["cumret"],
+            label="Cumulative Return",
+            linewidth=2,
+            zorder=3,  # 设置更高层级
+            marker="o",
+            markersize=4,
+            markerfacecolor=colors["cumret"],
+            markeredgecolor=colors["cumret"],
+        )
+        ax_chart.grid(True, alpha=0.2)
+        ax_drawdown.grid(False)
+        # ----------------------------
+        # 图表美化
+        # ----------------------------
+        # X轴日期格式化
+        ax_chart.xaxis.set_major_locator(ticker.AutoLocator())
 
-    参数:
-    delete_before_date: 删除早于此日期的数据
-    sample_size: 抽样大小，默认5000行
-    """
-    try:
-        cutoff_date = datetime.strptime(delete_before_date, "%Y-%m-%d")
-    except ValueError:
-        print("错误: 日期格式不正确，请使用'YYYY-MM-DD'格式")
-        return
+        # 图例合并
+        lines, labels = ax_chart.get_legend_handles_labels()
+        lines2, labels2 = ax_drawdown.get_legend_handles_labels()
+        legend = ax_chart.legend(
+            lines + lines2,
+            labels + labels2,
+            loc="upper left",
+            frameon=False,
+            # fontsize=16,
+        )
+        for text in legend.get_texts():
+            text.set_color(colors["legend_text"])
 
-    if not stock_files:
-        print("未找到任何stock_xxx.csv文件")
-        return
+        # 隐藏冗余边框
+        for spine in ax_chart.spines.values():
+            spine.set_visible(False)
+        for spine in ax_drawdown.spines.values():
+            spine.set_visible(False)
 
-    print(f"找到 {len(stock_files)} 个stock文件")
-    print(f"预览删除早于 {delete_before_date} 的数据效果:\n")
+        # 调整 y 轴刻度标签和轴位置
+        ax_chart.tick_params(axis="x", rotation=-20)  # 将 x 轴刻度标签旋转 45 度
+        ax_chart.tick_params(axis="y", labelright=False, labelleft=True, direction="in")
+        ax_drawdown.tick_params(
+            axis="y", labelright=True, labelleft=False, direction="in"
+        )
+        # ax_drawdown.yaxis.set_label_coords(0.99, 0.5)  # 标签向左平移
+        # # 调整 y 轴 spines 的位置
+        # ax_chart.spines["left"].set_position(("axes", 0.02))  # 左侧 y 轴靠近图表
+        # ax_drawdown.spines["right"].set_position(("axes", 0.98))  # 右侧 y 轴靠近图表
 
-    for file_path in stock_files:
-        try:
-            # 获取文件大小以估算总行数
-            file_size = os.path.getsize(file_path)
-            if file_size == 0:
-                print(f"🗑️ {file_path}: 空文件 (将被删除)")
-                continue
+        # 保存图片
+        plt.subplots_adjust(left=0.075, right=0.94, top=1, bottom=0.1, wspace=0.1)
+        plt.savefig(
+            f"./dashreport/assets/images/cnetf_tr_{theme}.svg",
+            format="svg",
+            # bbox_inches="tight",  # 保持边界紧凑
+            bbox_inches=None,  # 保持边界紧凑
+            transparent=True,  # 保持背景透明
+            pad_inches=0.2,
+        )
+        plt.close()
 
-            # 使用pandas读取前几行进行预览
-            df_sample = pd.read_csv(file_path, nrows=sample_size)
+    # 生成两种主题图表
+    plot_chart(theme="light")
+    plot_chart(theme="dark")
 
-            if df_sample.empty:
-                print(f"🗑️ {file_path}: 无数据 (将被删除)")
-                continue
-
-            # 确保date列是datetime类型
-            try:
-                df_sample["date"] = pd.to_datetime(df_sample["date"])
-            except Exception as e:
-                print(f"❌ {file_path}: 日期格式错误 - {str(e)}")
-                continue
-
-            # 统计符合条件的数据
-            mask = df_sample["date"] >= cutoff_date
-            kept_count = mask.sum()
-            total_count = len(df_sample)
-
-            # 估算总行数
-            if total_count > 0:
-                estimated_total = int(
-                    file_size / (os.path.getsize(file_path) / total_count)
-                )
-            else:
-                estimated_total = 0
-
-            if kept_count == 0:
-                print(
-                    f"🗑️ {file_path}: 所有约 {estimated_total} 条记录都将被删除 (文件将被删除)"
-                )
-            elif kept_count < total_count:
-                deleted_count = total_count - kept_count
-                # 估算总删除数
-                estimated_deleted = int(deleted_count * (estimated_total / total_count))
-                estimated_kept = estimated_total - estimated_deleted
-                print(
-                    f"🧹 {file_path}: 预计将删除约 {estimated_deleted} 条记录，保留约 {estimated_kept} 条记录"
-                )
-            else:
-                print(f"✅ {file_path}: 所有约 {estimated_total} 条记录均符合要求")
-
-        except Exception as e:
-            print(f"❌ {file_path}: 读取错误 - {str(e)}")
+    return round(cerebro.broker.get_cash(), 2), round(cerebro.broker.getvalue(), 2)
 
 
-def get_file_stats(stock_files):
-    """
-    获取所有stock文件的统计信息
-    """
-    if not stock_files:
-        print("未找到任何stock_xxx.csv文件")
-        return
-
-    print(f"找到 {len(stock_files)} 个stock文件")
-    print("\n文件统计信息:")
-    print("-" * 60)
-
-    total_size = 0
-    total_rows = 0
-
-    for file_path in stock_files:
-        try:
-            file_size = os.path.getsize(file_path)
-            total_size += file_size
-
-            # 使用pandas读取文件获取行数
-            df = pd.read_csv(file_path, nrows=1)  # 只读取一行来检查结构
-            row_count = sum(1 for line in open(file_path)) - 1  # 减去表头
-
-            total_rows += row_count
-
-            print(
-                f"{os.path.basename(file_path):<20} | 大小: {file_size / 1024 / 1024:.2f} MB | 行数: {row_count:>8}"
-            )
-
-        except Exception as e:
-            print(f"{os.path.basename(file_path):<20} | 读取错误: {str(e)}")
-
-    print("-" * 60)
-    print(
-        f"{'总计':<20} | 大小: {total_size / 1024 / 1024:.2f} MB | 行数: {total_rows:>8}"
-    )
-
-
+# 主程序入口
 if __name__ == "__main__":
-    import argparse
+    """美股交易日期 utc+8"""
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(1)
 
-    parser = argparse.ArgumentParser(description="清理股票数据文件")
-    parser.add_argument(
-        "--date",
-        type=str,
-        default="2024-01-01",
-        help="删除早于此日期的数据，格式: YYYY-MM-DD",
-    )
-    parser.add_argument(
-        "--chunk-size", type=int, default=10000, help="分块处理的大小，默认10000行"
-    )
-    parser.add_argument(
-        "--preview", action="store_true", help="仅预览清理效果，不执行实际清理"
-    )
-    parser.add_argument("--stats", action="store_true", help="显示文件统计信息")
-
-    args = parser.parse_args()
-    file_pattern = "stock_*.csv"
-    data_dir = "./usstockinfo"
-    stock_files = glob.glob(os.path.join(data_dir, file_pattern))
-
-    # 显示文件统计信息
-    if args.stats:
-        get_file_stats(stock_files)
-        exit(0)
-
-    # 预览清理效果
-    if args.preview:
-        print("=== 预览清理效果 ===")
-        preview_clean_effect_pandas(stock_files, args.date)
-        exit(0)
-
-    # 执行实际清理
-    print("=== 执行实际清理 ===")
-    print(f"将删除早于 {args.date} 的数据")
-    print(f"分块大小: {args.chunk_size} 行")
-
-    user_input = input("确认执行清理操作? (y/N): ")
-    if user_input.lower() == "y":
-        clean_stock_data_pandas_batch(stock_files, args.date, args.chunk_size)
+    """ 非交易日程序终止运行 """
+    if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
+        pass
     else:
-        print("取消清理操作")
+        sys.exit()
+
+    """ 定义程序显示的进度条 """
+    widgets = [
+        "doing task: ",
+        progressbar.Percentage(),
+        " ",
+        progressbar.Bar(),
+        " ",
+        progressbar.ETA(),
+    ]
+    """ 创建进度条并开始运行 """
+    pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
+
+    print("trade_date is :", trade_date)
+
+    """ 东方财经爬虫 """
+    """ 爬取每日最新股票数据 """
+    # em = EMWebCrawlerUti()
+    # em.get_daily_stock_info("cn", trade_date)
+
+    # em = AKCNWebCrawler()
+    # em.get_cn_daily_stock_info_ak(trade_date)
+
+    """ 执行bt相关策略 """
+
+    def run_backtest_in_process(date):
+        """在独立进程中运行回测，确保内存完全释放"""
+        import multiprocessing
+        from multiprocessing import Queue
+
+        def _worker(q, trade_date):
+            try:
+                cash, final_value = exec_btstrategy(trade_date)
+                q.put((cash, final_value))
+            except Exception as e:
+                q.put(("error", str(e)))
+
+        q = Queue()
+        p = multiprocessing.Process(target=_worker, args=(q, date))
+        p.start()
+        p.join(timeout=3600)  # 1小时超时
+
+        if p.is_alive():
+            p.terminate()
+            raise TimeoutError("Backtest timed out")
+
+        result = q.get()
+        if result[0] == "error":
+            raise RuntimeError(result[1])
+        return result[0], result[1]
+
+    # 主函数中替换原有调用
+    # cash, final_value = exec_btstrategy(trade_date)
+    cash, final_value = run_backtest_in_process(trade_date)
+
+    collected = gc.collect()
+
+    print("Garbage collector: collected %d objects." % (collected))
+
+    """ 发送邮件 """
+    StockProposal("cn", trade_date).send_etf_btstrategy_by_email(cash, final_value)
+
+    """ 结束进度条 """
+    pbar.finish()
