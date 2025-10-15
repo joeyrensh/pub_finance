@@ -73,7 +73,6 @@
   width: 102%;
 }
 
-
 body {
   width: 100%;
   height: 100%;
@@ -544,6 +543,14 @@ li {
   list-style: square;
   padding-left: 0;
   font-size: 1.4rem;
+  list-style: none; /* 移除默认标记 */
+}
+
+li::before {
+  content: "•"; /* 使用圆点作为自定义标记 */
+  display: inline-block; 
+  width: 1em; /* 标记宽度 */
+  margin-left: 0em; /* 负边距将标记移到左侧 */
 }
 
 .product {
@@ -989,10 +996,11 @@ a:active {
 
   li {
     /* color: #0f0101ed; */
-    list-style: square;
+    list-style: none;
     padding-left: 0;
     font-size: 1.2rem;
-  }  
+  }
+
 
 }
 
