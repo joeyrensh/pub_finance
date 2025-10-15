@@ -107,7 +107,7 @@ def clean_stock_data_pandas_batch(
                 os.replace(temp_path, file_path)
                 cleaned_files += 1
             else:
-                print(f"文件 {file_path}: 所有 {total_rows} 条记录均符合要求")
+                print(f"文件 {file_path}: 所有 {total_rows} 条记录均无需清理")
                 # 删除临时文件，保留原文件
                 if os.path.exists(temp_path):
                     os.remove(temp_path)
@@ -198,7 +198,7 @@ def preview_clean_effect_pandas(
                     f"🧹 {file_path}: 预计将删除约 {estimated_deleted} 条记录，保留约 {estimated_kept} 条记录"
                 )
             else:
-                print(f"✅ {file_path}: 所有约 {estimated_total} 条记录均符合要求")
+                print(f"✅ {file_path}: 所有约 {estimated_total} 条记录均需要保留")
 
         except Exception as e:
             print(f"❌ {file_path}: 读取错误 - {str(e)}")

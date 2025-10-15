@@ -219,12 +219,16 @@ def exec_btstrategy(date):
             facecolor=colors["background"],
         )
 
+        perf_stats_display = perf_stats_.copy()
+        if len(perf_stats_display) > 2:
+            perf_stats_display = perf_stats_display.iloc[-2:]
+
         # ----------------------------
         # 绘制表格
         # ----------------------------
         ax_table.axis("off")
         table = ax_table.table(
-            cellText=perf_stats_.T.values,
+            cellText=perf_stats_display.T.values,
             rowLabels=cols_names,
             bbox=[0, 0, 1, 1],
             cellLoc="center",
