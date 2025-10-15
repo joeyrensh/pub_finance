@@ -379,33 +379,63 @@ class TickerInfo:
         return list
 
     def get_etf_list(self):
-        tickers = list()
-        df = pd.read_csv(
-            self.file_day,
-            usecols=[
-                "symbol",
-                "name",
-                "open",
-                "close",
-                "high",
-                "low",
-                "volume",
-                "total_value",
-                "pe",
-                "date",
-            ],
+        # 预定义列的数据类型
+        column_dtypes = {
+            "symbol": str,
+            "name": str,
+            "open": np.float32,
+            "close": np.float32,
+            "high": np.float32,
+            "low": np.float32,
+            "volume": np.float64,
+            "total_value": np.float64,
+            "date": str,
+        }
+
+        dfs = []
+        for file in self.files:
+            # 读取数据
+            df = pd.read_csv(file)
+
+            # 检查并添加 total_value 列（如果不存在）
+            if "total_value" not in df.columns:
+                df["total_value"] = 0.0
+
+            # 选择我们需要的列并转换数据类型
+            df = df[list(column_dtypes.keys())].astype(column_dtypes)
+            dfs.append(df)
+
+        df_all = pd.concat(dfs, ignore_index=True)
+        df_all.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
+        # 2. 取近180天的日期
+        trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
+        date_threshold = trade_date_dt - datetime.timedelta(days=60)
+
+        # 将 datetime 对象转换回字符串格式 (YYYYMMDD)
+        date_threshold_str = date_threshold.strftime("%Y-%m-%d")
+
+        # 使用相同格式的字符串进行筛选
+        df_recent = df_all[df_all["date"] >= date_threshold_str]
+
+        # 3. 条件筛选
+        cond = (df_recent["total_value"] > 5000000000) & (
+            df_recent["name"].str.upper().str.contains("ETF")
         )
-        df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
-        df.sort_values(by=["symbol"], ascending=True, inplace=True)
-        if self.market == "cn":
-            for index, i in df.iterrows():
-                if (
-                    "ETF" in str(i["name"]).upper()
-                    # and float(i["close"]) * float(i["volume"]) * 100 >= 500000000
-                    and float(i["total_value"]) >= 5000000000
-                ):
-                    tickers.append(i["symbol"])
-        return tickers
+        # 筛选出满足条件的行
+        filtered_df = df_recent[cond]
+
+        # 计算每个股票满足条件的次数
+        symbol_counts = filtered_df["symbol"].value_counts()
+
+        # 只选择出现10次或以上的股票
+        frequent_symbols = symbol_counts[symbol_counts >= 10].index.tolist()
+
+        # 更新 stock_list
+        stock_list = frequent_symbols
+
+        dfs, df_all, df_recent, df = None, None, None, None
+        gc.collect()
+        return stock_list
 
     def get_etf_backtrader_data_feed(self):
         tickers = self.get_etf_list()
