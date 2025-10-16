@@ -37,8 +37,8 @@ class EMWebCrawlerUti:
         # 不配置proxy，klines有时候返回为空，但response status是正常的
         # self.item = "http://183.6.44.203:1081"
         # self.item = "http://27.156.105.51:7788"
-        # self.item = "http://101.66.195.41:8085"
-        self.item = "http://39.101.132.59:8443"
+        # self.item = "http://36.110.143.55:8080"
+        # self.item = "http://39.101.132.59:8443"
         self.proxy = {
             "http": self.item,
             "https": self.item,
@@ -59,6 +59,7 @@ class EMWebCrawlerUti:
             "po": "1",
             "np": "1",
             "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            # "ut": "b2884a393a59ad64002292a3e90d46a5",
             "fltt": "2",
             "invt": "2",
             "fid": "f12",

@@ -61,7 +61,7 @@ class TickerInfo:
                 subset=["symbol", "date"], keep="first", inplace=True
             )
 
-            # 获取近180天的日期
+            # 获取近60天的日期
             trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
             date_threshold = trade_date_dt - datetime.timedelta(days=60)
 
@@ -407,7 +407,7 @@ class TickerInfo:
 
         df_all = pd.concat(dfs, ignore_index=True)
         df_all.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
-        # 2. 取近180天的日期
+        # 2. 取近60天的日期
         trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
         date_threshold = trade_date_dt - datetime.timedelta(days=60)
 
@@ -495,7 +495,7 @@ class TickerInfo:
 
         df_all = pd.concat(dfs, ignore_index=True)
         df_all.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
-        # 2. 取近180天的日期
+        # 2. 取近60天的日期
         trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
         date_threshold = trade_date_dt - datetime.timedelta(days=60)
 
