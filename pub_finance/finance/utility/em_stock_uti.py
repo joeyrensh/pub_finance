@@ -27,17 +27,32 @@ class EMWebCrawlerUti:
         0: 深证/创业板/新三板/ SZ
         1: 上证/科创板		SH
 
+        # 美股东方财富
+        daily info: http://72.push2.eastmoney.com/api/qt/clist/get
+        daily info: "ut": "bd1d9ddb04089700cf9c27f6f7426281"
+        history info: https://63.push2his.eastmoney.com/api/qt/stock/kline/get
+
+        # 沪A/深A东方财富
+        daily info : https://82.push2.eastmoney.com/api/qt/clist/get
+        daily info: "ut": "bd1d9ddb04089700cf9c27f6f7426281"
+        # ETF东方财富
+        daily info: https://88.push2.eastmoney.com/api/qt/clist/get
+        daily info: "ut": "bd1d9ddb04089700cf9c27f6f7426281"
+        # A股历史数据
+        history info: https://push2his.eastmoney.com/api/qt/stock/kline/get
+        history info: "ut": "7eea3edcaed734bea9cbfc24409ed989"
+
         # A股/美股最新股票数据获取
-        https://92.push2.eastmoney.com/api/qt/clist/get?pn=i&pz=100&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f5,f9,f12,f14,f15,f16,f17,f20
+        https://72.push2.eastmoney.com/api/qt/clist/get?pn=i&pz=100&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f5,f9,f12,f14,f15,f16,f17,f20
         # A股/美股历史数据获取
         https://92.push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.600066&ut=&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20211101&end=20211115&smplmt=755&lmt=1000000
         """
-        self.__url_list = "http://92.push2.eastmoney.com/api/qt/clist/get"
-        self.__url_history = "http://92.push2his.eastmoney.com/api/qt/stock/kline/get"
+        self.__url_list = "http://push2.eastmoney.com/api/qt/clist/get"
+        self.__url_history = "http://push2his.eastmoney.com/api/qt/stock/kline/get"
         # 不配置proxy，klines有时候返回为空，但response status是正常的
         # self.item = "http://183.6.44.203:1081"
         # self.item = "http://27.156.105.51:7788"
-        # self.item = "http://36.110.143.55:8080"
+        self.item = "http://36.110.143.55:8080"
         # self.item = "http://39.101.132.59:8443"
         self.proxy = {
             "http": self.item,
@@ -58,8 +73,8 @@ class EMWebCrawlerUti:
             "pz": "100",
             "po": "1",
             "np": "1",
-            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
-            # "ut": "b2884a393a59ad64002292a3e90d46a5",
+            # "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            "ut": "bd1d9ddb04089700cf9c27f6f7426281",
             "fltt": "2",
             "invt": "2",
             "fid": "f12",
@@ -211,7 +226,7 @@ class EMWebCrawlerUti:
                     "pz": "100",
                     "po": "1",
                     "np": "1",
-                    "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+                    "ut": "bd1d9ddb04089700cf9c27f6f7426281",
                     "fltt": "2",
                     "invt": "2",
                     "fid": "f12",
@@ -307,7 +322,7 @@ class EMWebCrawlerUti:
 
         params = {
             "secid": f"{mkt_code}.{symbol}",
-            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            "ut": "bd1d9ddb04089700cf9c27f6f7426281",
             "fields1": "f1,f2,f3,f4,f5,f6",
             "fields2": "f51,f52,f53,f54,f55,f56",
             "klt": "101",
