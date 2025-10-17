@@ -12,6 +12,7 @@ import csv
 import math
 from utility.toolkit import ToolKit
 import concurrent.futures
+import re
 
 
 class EMWebCrawlerUti:
@@ -47,13 +48,13 @@ class EMWebCrawlerUti:
         # A股/美股历史数据获取
         https://92.push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.600066&ut=&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20211101&end=20211115&smplmt=755&lmt=1000000
         """
-        self.__url_list = "http://push2.eastmoney.com/api/qt/clist/get"
-        self.__url_history = "http://push2his.eastmoney.com/api/qt/stock/kline/get"
+        self.__url_list = "http://72.push2.eastmoney.com/api/qt/clist/get"
+        self.__url_history = "http://82.push2his.eastmoney.com/api/qt/stock/kline/get"
         # 不配置proxy，klines有时候返回为空，但response status是正常的
-        # self.item = "http://183.6.44.203:1081"
-        # self.item = "http://27.156.105.51:7788"
         self.item = "http://36.110.143.55:8080"
-        # self.item = "http://39.101.132.59:8443"
+        # self.item = "http://61.169.156.182:8118"
+        # self.item = "http://171.38.65.37:8085"
+
         self.proxy = {
             "http": self.item,
             "https": self.item,
@@ -122,7 +123,8 @@ class EMWebCrawlerUti:
                     "pz": "100",
                     "po": "1",
                     "np": "1",
-                    "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+                    # "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+                    "ut": "bd1d9ddb04089700cf9c27f6f7426281",
                     "fltt": "2",
                     "invt": "2",
                     "fid": "f12",
@@ -319,10 +321,14 @@ class EMWebCrawlerUti:
                 前复权 : 1
                 后复权 : 2
         """
+        if str(mkt_code) in ["105", "106", "107"]:
+            symbol_val = symbol
+        elif str(mkt_code) in ["0", "1"]:
+            symbol_val = re.sub(r"^(ETF|SZ|SH)", "", symbol)
 
         params = {
-            "secid": f"{mkt_code}.{symbol}",
-            "ut": "bd1d9ddb04089700cf9c27f6f7426281",
+            "secid": f"{mkt_code}.{symbol_val}",
+            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
             "fields1": "f1,f2,f3,f4,f5,f6",
             "fields2": "f51,f52,f53,f54,f55,f56",
             "klt": "101",
@@ -361,11 +367,6 @@ class EMWebCrawlerUti:
 
         # 处理 klines 数据
         list = []
-        if str(mkt_code) in ["105", "106", "107"]:
-            symbol_val = symbol
-        elif str(mkt_code) in ["0", "1"]:
-            prefix = "ETF" if "ETF" in name else {"0": "SZ", "1": "SH"}[mkt_code]
-            symbol_val = prefix + symbol
         for i in klines:
             """
             历史数据返回字段列表：
@@ -381,7 +382,7 @@ class EMWebCrawlerUti:
                 continue
 
             dict = {
-                "symbol": symbol_val,
+                "symbol": symbol,
                 "name": name,
                 "open": i.split(",")[1],
                 "close": i.split(",")[2],
@@ -423,9 +424,20 @@ class EMWebCrawlerUti:
         # 断点续爬：读取已存在的symbol
         done_symbols = set()
         if os.path.exists(file_path):
-            df_exist = pd.read_csv(file_path)
-            if "symbol" in df_exist.columns:
-                done_symbols = set(df_exist["symbol"].astype(str).unique())
+            try:
+                df_exist = pd.read_csv(
+                    file_path,
+                    on_bad_lines="skip",
+                    engine="python",
+                    encoding="utf-8",
+                )
+                if not df_exist.empty and "symbol" in df_exist.columns:
+                    done_symbols = set(df_exist["symbol"].astype(str).unique())
+                else:
+                    done_symbols = set()
+            except pd.errors.EmptyDataError:
+                print(f"文件 {file_path} 为空，无法解析")
+                done_symbols = set()
 
         # 读取 klines 为空的 symbol
         empty_klines_symbols = set()

@@ -3,12 +3,12 @@ from cncrawler.ak_history_crawler import AKCNHistoryDataCrawler
 
 # 历史数据起始时间，结束时间
 # 文件名称定义
+start_date = "20240101"
+end_date = "20251016"
+file_path = "./cnstockinfo/stock_20251016.csv"
 em = EMWebCrawlerUti()
-start_date = "20250930"
-end_date = "20251007"
-file_path = "./usstockinfo/stock_20251007.csv"
 em.get_his_stock_info_list(
-    "us",
+    "cn",
     start_date,
     end_date,
     file_path,
