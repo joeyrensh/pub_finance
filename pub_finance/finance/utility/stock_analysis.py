@@ -1077,6 +1077,7 @@ class StockProposal:
                 , t3.total_value
                 , CASE WHEN t4.pe_double IS NULL OR t5.new IS NULL OR t4.pe_double = 0 THEN null
                   ELSE ROUND((1.0 / t4.pe_double - t5.new / 100.0) * 100, 1) END AS erp
+                , t1.buy_date
                 , t1.sell_date
                 , t1.base_price AS price
                 , t1.adj_price AS adjbase
