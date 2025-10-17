@@ -45,7 +45,6 @@ class TickerInfo:
 
             dfs = []
             for file in self.files:
-                # 读取数据
                 df = pd.read_csv(file)
 
                 # 检查并添加 total_value 列（如果不存在）
@@ -139,8 +138,17 @@ class TickerInfo:
             # 计算每个股票满足条件的次数
             symbol_counts = filtered_df["symbol"].value_counts()
 
-            # 只选择出现10次或以上的股票
-            frequent_symbols = symbol_counts[symbol_counts >= 10].index.tolist()
+            # 只选择出现1次或以上的股票
+            avail_date_count = (
+                df_recent[
+                    df_recent["total_value"].notnull() & (df_recent["total_value"] > 0)
+                ]["date"]
+                .unique()
+                .size
+            )
+            # 阈值：小于10取实际可用日期数，超过10取10，最少取1
+            threshold = max(1, min(10, int(avail_date_count)))
+            frequent_symbols = symbol_counts[symbol_counts >= threshold].index.tolist()
 
             # 排除单日涨幅超过200%的股票
             filtered_symbols = [
@@ -204,8 +212,17 @@ class TickerInfo:
             # 计算每个股票满足条件的次数
             symbol_counts = filtered_df["symbol"].value_counts()
 
-            # 只选择出现10次或以上的股票
-            filtered_symbols = symbol_counts[symbol_counts >= 10].index.tolist()
+            # 只选择出现1次或以上的股票
+            avail_date_count = (
+                df_recent[
+                    df_recent["total_value"].notnull() & (df_recent["total_value"] > 0)
+                ]["date"]
+                .unique()
+                .size
+            )
+            # 阈值：小于10取实际可用日期数，超过10取10，最少取1
+            threshold = max(1, min(10, int(avail_date_count)))
+            filtered_symbols = symbol_counts[symbol_counts >= threshold].index.tolist()
 
             # 合并所有符合条件的股票
             tickers.extend(filtered_symbols)
@@ -427,8 +444,17 @@ class TickerInfo:
         # 计算每个股票满足条件的次数
         symbol_counts = filtered_df["symbol"].value_counts()
 
-        # 只选择出现10次或以上的股票
-        frequent_symbols = symbol_counts[symbol_counts >= 10].index.tolist()
+        # 只选择出现1次或以上的股票
+        avail_date_count = (
+            df_recent[
+                df_recent["total_value"].notnull() & (df_recent["total_value"] > 0)
+            ]["date"]
+            .unique()
+            .size
+        )
+        # 阈值：小于10取实际可用日期数，超过10取10，最少取1
+        threshold = max(1, min(10, int(avail_date_count)))
+        frequent_symbols = symbol_counts[symbol_counts >= threshold].index.tolist()
 
         # 更新 stock_list
         stock_list = frequent_symbols
@@ -521,8 +547,18 @@ class TickerInfo:
         # 计算每个股票满足条件的次数
         symbol_counts = filtered_df["symbol"].value_counts()
 
-        # 只选择出现10次或以上的股票
-        frequent_symbols = symbol_counts[symbol_counts >= 10].index.tolist()
+        # 只选择出现1次或以上的股票
+        avail_date_count = (
+            df_recent[
+                df_recent["total_value"].notnull() & (df_recent["total_value"] > 0)
+            ]["date"]
+            .unique()
+            .size
+        )
+        # 阈值：小于10取实际可用日期数，超过10取10，最少取1
+        threshold = max(1, min(10, int(avail_date_count)))
+        print(f"可用日期数: {avail_date_count}, 阈值: {threshold}")
+        frequent_symbols = symbol_counts[symbol_counts >= threshold].index.tolist()
 
         # 更新 stock_list
         stock_list = frequent_symbols

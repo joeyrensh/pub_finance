@@ -427,6 +427,7 @@ class EMWebCrawlerUti:
             try:
                 df_exist = pd.read_csv(
                     file_path,
+                    usecols=["symbol"],  # 只读取symbol列
                     on_bad_lines="skip",
                     engine="python",
                     encoding="utf-8",

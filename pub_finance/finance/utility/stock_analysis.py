@@ -165,13 +165,13 @@ class StockProposal:
         行业板块历史数据分析
         """
         spark_industry_history_tracking = spark.sql(
-            """ 
+            """
             WITH tmp AS (
                 SELECT industry
                     ,SUM(IF(`p&l` >= 0, 1, 0)) AS pos_cnt
                     ,SUM(IF(`p&l` < 0, 1, 0)) AS neg_cnt
                     ,COUNT(*) AS p_cnt
-                    ,SUM(IF(buy_date >= (SELECT buy_date FROM ( SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                    ,SUM(IF(buy_date >= (SELECT buy_date FROM ( SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
                                          FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt WHERE row_num = 5), 1, 0)) AS l5_p_cnt
                     ,SUM(`p&l`) AS p_pnl
                     ,SUM(adjbase * size) AS adjbase
@@ -230,7 +230,7 @@ class StockProposal:
                 SELECT t1.industry
                     ,COUNT(t2.symbol) * 1.00 AS his_trade_cnt
                     ,COUNT(DISTINCT t2.symbol) AS his_symbol_cnt
-                    ,COUNT(DISTINCT IF(t2.sell_date >= (SELECT buy_date FROM ( SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                    ,COUNT(DISTINCT IF(t2.sell_date >= (SELECT buy_date FROM ( SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
                                          FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt WHERE row_num = 5), t2.symbol, null)) AS l5_close
                     ,SUM(IF(t2.sell_date IS NOT NULL, DATEDIFF(t2.sell_date, t2.buy_date), DATEDIFF('{}', t2.buy_date))) AS his_days
                     ,SUM(IF(t2.sell_date IS NOT NULL AND t2.adj_price - t2.base_price >=0, 1, 0)) AS pos_cnt
@@ -273,7 +273,9 @@ class StockProposal:
             LEFT JOIN tmp3 t3 ON t1.industry = t3.industry
             LEFT JOIN tmp4 t4 ON t1.industry = t4.industry
             ORDER BY COALESCE(t2.p_pnl,0) DESC
-            """.format(end_date, end_date)
+            """.format(
+                end_date, end_date
+            )
         )
 
         spark_industry_history_tracking_lst5days = spark.sql(
@@ -284,7 +286,7 @@ class StockProposal:
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
                     WHERE row_num = 1 )
                 GROUP BY t2.industry
@@ -294,7 +296,7 @@ class StockProposal:
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
                     WHERE row_num = 5 )
                 GROUP BY t2.industry
@@ -313,7 +315,7 @@ class StockProposal:
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
                     WHERE row_num = 1 )
                 GROUP BY t2.industry
@@ -323,7 +325,7 @@ class StockProposal:
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
                     WHERE row_num = 2)
                 GROUP BY t2.industry
@@ -334,7 +336,7 @@ class StockProposal:
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
                     WHERE row_num = 6)
                 GROUP BY t2.industry
@@ -550,7 +552,9 @@ class StockProposal:
                     "padding": "0",
                 },
                 overwrite=False,
-            ).set_sticky(axis="columns").to_html(
+            ).set_sticky(
+                axis="columns"
+            ).to_html(
                 doctype_html=False,
                 escape=False,
                 table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
@@ -720,9 +724,8 @@ class StockProposal:
                 , t1.industry
                 , t1.name
                 , ROUND(t1.total_value / 100000000, 1) AS total_value
-                , CASE WHEN t3.pe IS NULL OR t3.pe = '' OR t3.pe = '-'
-                    OR NOT t3.pe RLIKE '^-?[0-9]+(\\.[0-9]+)?$' OR t4.new IS NULL THEN '-'
-                  ELSE ROUND((1/CAST(t3.pe AS INT) - t4.new / 100) * 100, 1) END AS erp                    
+                , CASE WHEN t3.pe_double IS NULL OR t4.new IS NULL OR t3.pe_double = 0 THEN null
+                  ELSE ROUND((1.0 / t3.pe_double - t4.new / 100.0) * 100, 1) END AS erp      
                 , t1.buy_date
                 , t1.price
                 , t1.adjbase
@@ -748,9 +751,19 @@ class StockProposal:
                 , IF(adjbase < price, 1, 0) AS neg_cnt
                 FROM tmp3
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol
-                LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
+                LEFT JOIN (
+                    SELECT symbol,
+                        CASE 
+                            WHEN pe IS NULL OR pe IN ('', '-', 'NULL', 'N/A') THEN NULL
+                            WHEN TRY_CAST(pe AS DOUBLE) IS NOT NULL THEN TRY_CAST(pe AS DOUBLE)
+                            ELSE NULL
+                        END AS pe_double
+                    FROM temp_latest_stock_info
+                ) t3 ON t1.symbol = t3.symbol
                 LEFT JOIN temp_gz t4 ON 1=1
-            """.format(end_date, end_date)
+            """.format(
+                end_date, end_date
+            )
         )
 
         pd_position_history = spark_position_history.toPandas()
@@ -848,7 +861,9 @@ class StockProposal:
                     "WIN RATE": "{:.2%}",
                     "TOTAL PNL RATIO": "{:.2%}",
                 }
-            ).apply(highlight_row, axis=1).background_gradient(
+            ).apply(
+                highlight_row, axis=1
+            ).background_gradient(
                 subset=["BASE", "ADJBASE"], cmap=cm
             ).bar(
                 subset=["PNL RATIO", "TOTAL PNL RATIO"],
@@ -903,7 +918,9 @@ class StockProposal:
                     "padding": "0",
                 },
                 overwrite=False,
-            ).set_sticky(axis="columns").to_html(
+            ).set_sticky(
+                axis="columns"
+            ).to_html(
                 doctype_html=False,
                 escape=False,
                 table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
@@ -1058,10 +1075,8 @@ class StockProposal:
                 , t3.industry
                 , t3.name
                 , t3.total_value
-                , CASE WHEN t4.pe IS NULL OR t4.pe = '' OR t4.pe = '-'
-                    OR NOT t4.pe RLIKE '^-?[0-9]+(\\.[0-9]+)?$' OR t5.new IS NULL THEN '-'
-                  ELSE ROUND((1/CAST(t4.pe AS INT) - t5.new / 100) * 100, 1) END AS erp                          
-                , t1.buy_date
+                , CASE WHEN t4.pe_double IS NULL OR t5.new IS NULL OR t4.pe_double = 0 THEN null
+                  ELSE ROUND((1.0 / t4.pe_double - t5.new / 100.0) * 100, 1) END AS erp
                 , t1.sell_date
                 , t1.base_price AS price
                 , t1.adj_price AS adjbase
@@ -1078,14 +1093,24 @@ class StockProposal:
                     , adj_price * (-adj_size) - base_price * base_size AS pnl
                     , (adj_price - base_price) / base_price AS pnl_ratio
                 FROM tmp11 WHERE sell_date >= (SELECT buy_date FROM (
-                                                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                                                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
                                                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t 
                                                 ) tt WHERE row_num = 5)
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol AND t1.sell_date = t2.sell_date
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
-                LEFT JOIN temp_latest_stock_info t4 ON t1.symbol = t4.symbol
+                LEFT JOIN (
+                    SELECT symbol,
+                        CASE 
+                            WHEN pe IS NULL OR pe IN ('', '-', 'NULL', 'N/A') THEN NULL
+                            WHEN TRY_CAST(pe AS DOUBLE) IS NOT NULL THEN TRY_CAST(pe AS DOUBLE)
+                            ELSE NULL
+                        END AS pe_double
+                    FROM temp_latest_stock_info
+                ) t4 ON t1.symbol = t4.symbol
                 LEFT JOIN temp_gz t5 ON 1=1             
-            """.format(end_date)
+            """.format(
+                end_date
+            )
         )
 
         pd_position_reduction = spark_position_reduction.toPandas()
@@ -1151,76 +1176,71 @@ class StockProposal:
                 page_data = pd_position_reduction.iloc[start_row:end_row]
 
                 # 生成表格 HTML
-                table_html = (
-                    "<h2>Close Position List Last 5 Days</h2>"
-                    + page_data.style.hide(axis=1, subset=["PNL", "pnl_growth"])
-                    .format(
-                        {
-                            "TOTAL VALUE": "{:.2f}",
-                            "BASE": "{:.2f}",
-                            "ADJBASE": "{:.2f}",
-                            "HIS DAYS": "{:.0f}",
-                            "PNL RATIO": "{:.2%}",
-                        }
-                    )
-                    .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
-                    .bar(
-                        subset=["PNL RATIO"],
-                        align="mid",
-                        color=["#99CC66", "#FF6666"],
-                        vmin=-0.8,
-                        vmax=0.8,
-                    )
-                    .set_properties(
-                        **{
-                            "text-align": "left",
-                            "border": "1px solid #ccc",
-                            "cellspacing": "0",
-                            "style": "border-collapse: collapse; ",
-                        }
-                    )
-                    .set_table_styles(
-                        [
-                            # 表头样式
-                            dict(
-                                selector="th",
-                                props=[
-                                    ("border", "1px solid #ccc"),
-                                    ("text-align", "left"),
-                                    ("padding", "2px"),
-                                    # ("font-size", "20px"),
-                                ],
-                            ),
-                            # 表格数据单元格样式
-                            dict(
-                                selector="td",
-                                props=[
-                                    ("border", "1px solid #ccc"),
-                                    ("text-align", "left"),
-                                    ("padding", "2px"),
-                                    # (
-                                    #     "font-size",
-                                    #     "20px",
-                                    # ),
-                                ],
-                            ),
-                        ]
-                    )
-                    .set_properties(
-                        subset=["NAME", "IND"],
-                        **{
-                            "min-width": "150px !important",
-                            "max-width": "100%",
-                            "padding": "0",
-                        },
-                        overwrite=False,
-                    )
-                    .set_sticky(axis="columns")
-                    .to_html(
-                        doctype_html=False,
-                        escape=False,
-                        table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
-                    )
+                table_html = "<h2>Close Position List Last 5 Days</h2>" + page_data.style.hide(
+                    axis=1, subset=["PNL", "pnl_growth"]
+                ).format(
+                    {
+                        "TOTAL VALUE": "{:.2f}",
+                        "BASE": "{:.2f}",
+                        "ADJBASE": "{:.2f}",
+                        "HIS DAYS": "{:.0f}",
+                        "PNL RATIO": "{:.2%}",
+                    }
+                ).background_gradient(
+                    subset=["BASE", "ADJBASE"], cmap=cm
+                ).bar(
+                    subset=["PNL RATIO"],
+                    align="mid",
+                    color=["#99CC66", "#FF6666"],
+                    vmin=-0.8,
+                    vmax=0.8,
+                ).set_properties(
+                    **{
+                        "text-align": "left",
+                        "border": "1px solid #ccc",
+                        "cellspacing": "0",
+                        "style": "border-collapse: collapse; ",
+                    }
+                ).set_table_styles(
+                    [
+                        # 表头样式
+                        dict(
+                            selector="th",
+                            props=[
+                                ("border", "1px solid #ccc"),
+                                ("text-align", "left"),
+                                ("padding", "2px"),
+                                # ("font-size", "20px"),
+                            ],
+                        ),
+                        # 表格数据单元格样式
+                        dict(
+                            selector="td",
+                            props=[
+                                ("border", "1px solid #ccc"),
+                                ("text-align", "left"),
+                                ("padding", "2px"),
+                                # (
+                                #     "font-size",
+                                #     "20px",
+                                # ),
+                            ],
+                        ),
+                    ]
+                ).set_properties(
+                    subset=["NAME", "IND"],
+                    **{
+                        "min-width": "150px !important",
+                        "max-width": "100%",
+                        "padding": "0",
+                    },
+                    overwrite=False,
+                ).set_sticky(
+                    axis="columns"
+                ).to_html(
+                    doctype_html=False,
+                    escape=False,
+                    table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
                 )
 
                 # 添加分页导航
@@ -1629,7 +1649,9 @@ class StockProposal:
             WHERE rn = 1
             GROUP BY date, strategy
             ORDER BY date, pnl
-            """.format(end_date)
+            """.format(
+                end_date
+            )
         )
         pd_strategy_tracking_lst180days = spark_strategy_tracking_lst180days.toPandas()
         pd_strategy_tracking_lst180days["date"] = pd.to_datetime(
@@ -1851,7 +1873,7 @@ class StockProposal:
             ), tmp11 AS (
                 SELECT temp_timeseries.buy_date
                     ,IF(tmp1.total_cnt > 0, tmp1.total_cnt
-                        ,LAST_VALUE(tmp1.total_cnt) IGNORE NULLS OVER (PARTITION BY 'AAA' ORDER BY temp_timeseries.buy_date)) AS total_cnt
+                        ,LAST_VALUE(tmp1.total_cnt) IGNORE NULLS OVER (ORDER BY temp_timeseries.buy_date)) AS total_cnt
                 FROM temp_timeseries LEFT JOIN tmp1 ON temp_timeseries.buy_date = tmp1.date
             ), tmp5 AS (
                 SELECT date
@@ -1866,7 +1888,9 @@ class StockProposal:
                 ,t2.buy_cnt AS buy_cnt
                 ,t2.sell_cnt AS sell_cnt
             FROM tmp11 t1 LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
-            """.format(end_date, end_date)
+            """.format(
+                end_date, end_date
+            )
         )
         pd_trade_info_lst180days = spark_trade_info_lst180days.toPandas()
         # df_grouped = pd_trade_info_lst180days.groupby("buy_date")[
@@ -2048,7 +2072,9 @@ class StockProposal:
                 ,SUM(IF(t2.symbol IS NOT NULL, 1, 0)) AS total_cnt
             FROM tmp1 t1 LEFT JOIN tmp2 t2 ON t1.industry = t2.industry AND t1.buy_date = t2.date
             GROUP BY t1.buy_date, t1.industry
-            """.format(end_date)
+            """.format(
+                end_date
+            )
         )
         pd_top5_industry_position_trend = spark_top5_industry_position_trend.toPandas()
         pd_top5_industry_position_trend.sort_values(
@@ -2114,9 +2140,7 @@ class StockProposal:
                 domain=[0, 1],  # 强制x轴占据全部可用宽度
                 automargin=False,  # 关闭自动边距计算
             ),
-            yaxis=dict(
-                automargin=False  # 关闭自动边距计算
-            ),
+            yaxis=dict(automargin=False),  # 关闭自动边距计算
         )
 
         fig.write_image(
@@ -2186,7 +2210,9 @@ class StockProposal:
             FROM (SELECT * FROM temp_industry_history_tracking_lst5days ORDER BY pnl_growth DESC LIMIT 5) t1
             LEFT JOIN tmp3 t2 ON t1.industry = t2.industry
             ORDER BY t2.buy_date ASC, t1.pnl_growth DESC
-            """.format(end_date)
+            """.format(
+                end_date
+            )
         )
         pd_top5_industry_profit_trend = spark_top5_industry_profit_trend.toPandas()
         pd_top5_industry_profit_trend.sort_values(
@@ -2252,9 +2278,7 @@ class StockProposal:
                 domain=[0, 1],  # 强制x轴占据全部可用宽度
                 automargin=False,  # 关闭自动边距计算
             ),
-            yaxis=dict(
-                automargin=False  # 关闭自动边距计算
-            ),
+            yaxis=dict(automargin=False),  # 关闭自动边距计算
         )
 
         fig.write_image(
@@ -2325,9 +2349,7 @@ class StockProposal:
                 domain=[0, 1],  # 强制x轴占据全部可用宽度
                 automargin=False,  # 关闭自动边距计算
             ),
-            yaxis=dict(
-                automargin=False  # 关闭自动边距计算
-            ),
+            yaxis=dict(automargin=False),  # 关闭自动边距计算
         )
 
         fig.write_image(
@@ -2349,7 +2371,7 @@ class StockProposal:
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date >= (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
                     WHERE row_num = 26 )
                 GROUP BY t1.date, t2.industry
@@ -2368,7 +2390,7 @@ class StockProposal:
                 ORDER BY date, industry
             ) t WHERE t.date >= (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
                     WHERE row_num = 25 )
             ), tmp2 AS (
@@ -3460,7 +3482,9 @@ class StockProposal:
                 , IF(adjbase < price, 1, 0) AS neg_cnt
                 FROM tmp3
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol
-            """.format(end_date, end_date)
+            """.format(
+                end_date, end_date
+            )
         )
 
         pd_position_history = spark_position_history.toPandas()
@@ -3527,7 +3551,9 @@ class StockProposal:
                     "WIN RATE": "{:.2%}",
                     "TOTAL PNL RATIO": "{:.2%}",
                 }
-            ).apply(highlight_row, axis=1).background_gradient(
+            ).apply(
+                highlight_row, axis=1
+            ).background_gradient(
                 subset=["BASE", "ADJBASE"], cmap=cm
             ).bar(
                 subset=["PNL RATIO", "TOTAL PNL RATIO"],
@@ -3582,7 +3608,9 @@ class StockProposal:
                     "padding": "0",
                 },
                 overwrite=False,
-            ).set_sticky(axis="columns").to_html(
+            ).set_sticky(
+                axis="columns"
+            ).to_html(
                 doctype_html=True,
                 escape=False,
                 table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
@@ -3756,12 +3784,14 @@ class StockProposal:
                     , adj_price * (-adj_size) - base_price * base_size AS pnl
                     , (adj_price - base_price) / base_price AS pnl_ratio
                 FROM tmp11 WHERE sell_date >= (SELECT buy_date FROM (
-                                                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY 'AAA' ORDER BY buy_date DESC) AS row_num
+                                                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
                                                     FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t 
                                                 ) tt WHERE row_num = 5)
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol AND t1.sell_date = t2.sell_date
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
-            """.format(end_date)
+            """.format(
+                end_date
+            )
         )
 
         pd_position_reduction = spark_position_reduction.toPandas()
@@ -3799,76 +3829,71 @@ class StockProposal:
                 page_data = pd_position_reduction.iloc[start_row:end_row]
 
                 # 生成表格 HTML
-                table_html = (
-                    "<h2>Close Position List Last 5 Days</h2>"
-                    + page_data.style.hide(axis=1, subset=["PNL"])
-                    .format(
-                        {
-                            "TOTAL VALUE": "{:.2f}",
-                            "BASE": "{:.2f}",
-                            "ADJBASE": "{:.2f}",
-                            "PNL RATIO": "{:.2%}",
-                            "HIS DAYS": "{:.0f}",
-                        }
-                    )
-                    .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
-                    .bar(
-                        subset=["PNL RATIO"],
-                        align="mid",
-                        color=["#99CC66", "#FF6666"],
-                        vmin=-0.8,
-                        vmax=0.8,
-                    )
-                    .set_properties(
-                        **{
-                            "text-align": "left",
-                            "border": "1px solid #ccc",
-                            "cellspacing": "0",
-                            "style": "border-collapse: collapse; ",
-                        }
-                    )
-                    .set_table_styles(
-                        [
-                            # 表头样式
-                            dict(
-                                selector="th",
-                                props=[
-                                    ("border", "1px solid #ccc"),
-                                    ("text-align", "left"),
-                                    ("padding", "2px"),
-                                    # ("font-size", "20px"),
-                                ],
-                            ),
-                            # 表格数据单元格样式
-                            dict(
-                                selector="td",
-                                props=[
-                                    ("border", "1px solid #ccc"),
-                                    ("text-align", "left"),
-                                    ("padding", "2px"),
-                                    # (
-                                    #     "font-size",
-                                    #     "20px",
-                                    # ),
-                                ],
-                            ),
-                        ]
-                    )
-                    .set_properties(
-                        subset=["NAME"],
-                        **{
-                            "min-width": "100px !important",
-                            "max-width": "100%",
-                            "padding": "0",
-                        },
-                        overwrite=False,
-                    )
-                    .set_sticky(axis="columns")
-                    .to_html(
-                        doctype_html=True,
-                        escape=False,
-                        table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
-                    )
+                table_html = "<h2>Close Position List Last 5 Days</h2>" + page_data.style.hide(
+                    axis=1, subset=["PNL"]
+                ).format(
+                    {
+                        "TOTAL VALUE": "{:.2f}",
+                        "BASE": "{:.2f}",
+                        "ADJBASE": "{:.2f}",
+                        "PNL RATIO": "{:.2%}",
+                        "HIS DAYS": "{:.0f}",
+                    }
+                ).background_gradient(
+                    subset=["BASE", "ADJBASE"], cmap=cm
+                ).bar(
+                    subset=["PNL RATIO"],
+                    align="mid",
+                    color=["#99CC66", "#FF6666"],
+                    vmin=-0.8,
+                    vmax=0.8,
+                ).set_properties(
+                    **{
+                        "text-align": "left",
+                        "border": "1px solid #ccc",
+                        "cellspacing": "0",
+                        "style": "border-collapse: collapse; ",
+                    }
+                ).set_table_styles(
+                    [
+                        # 表头样式
+                        dict(
+                            selector="th",
+                            props=[
+                                ("border", "1px solid #ccc"),
+                                ("text-align", "left"),
+                                ("padding", "2px"),
+                                # ("font-size", "20px"),
+                            ],
+                        ),
+                        # 表格数据单元格样式
+                        dict(
+                            selector="td",
+                            props=[
+                                ("border", "1px solid #ccc"),
+                                ("text-align", "left"),
+                                ("padding", "2px"),
+                                # (
+                                #     "font-size",
+                                #     "20px",
+                                # ),
+                            ],
+                        ),
+                    ]
+                ).set_properties(
+                    subset=["NAME"],
+                    **{
+                        "min-width": "100px !important",
+                        "max-width": "100%",
+                        "padding": "0",
+                    },
+                    overwrite=False,
+                ).set_sticky(
+                    axis="columns"
+                ).to_html(
+                    doctype_html=True,
+                    escape=False,
+                    table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
                 )
 
                 # 添加分页导航
@@ -3956,7 +3981,7 @@ class StockProposal:
                 SELECT temp_timeseries.buy_date
                     ,IF(tmp1.total_cnt > 0
                     ,tmp1.total_cnt
-                    ,LAST_VALUE(tmp1.total_cnt) IGNORE NULLS OVER (PARTITION BY "AAA" ORDER BY temp_timeseries.buy_date)) AS total_cnt
+                    ,LAST_VALUE(tmp1.total_cnt) IGNORE NULLS OVER (ORDER BY temp_timeseries.buy_date)) AS total_cnt
                 FROM temp_timeseries LEFT JOIN tmp1 ON temp_timeseries.buy_date = tmp1.date
             ), tmp5 AS (
                 SELECT date
@@ -3971,7 +3996,9 @@ class StockProposal:
                 ,t2.buy_cnt AS buy_cnt
                 ,t2.sell_cnt AS sell_cnt
             FROM tmp11 t1 LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
-            """.format(end_date, end_date)
+            """.format(
+                end_date, end_date
+            )
         )
         pd_trade_info_lst180days = spark_trade_info_lst180days.toPandas()
 
@@ -4323,7 +4350,9 @@ class StockProposal:
             </div>
         </body>
         </html>
-        """.format(cash=cash, final_value=final_value)
+        """.format(
+            cash=cash, final_value=final_value
+        )
 
         final_html = f"""
         <!DOCTYPE html>
