@@ -171,8 +171,8 @@ class StockProposal:
                     ,SUM(IF(`p&l` >= 0, 1, 0)) AS pos_cnt
                     ,SUM(IF(`p&l` < 0, 1, 0)) AS neg_cnt
                     ,COUNT(*) AS p_cnt
-                    ,SUM(IF(buy_date >= (SELECT buy_date FROM ( SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
-                                         FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt WHERE row_num = 5), 1, 0)) AS l5_p_cnt
+                    ,SUM(IF(buy_date >= (SELECT buy_date FROM ( SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
+                                         FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt WHERE row_num = 5), 1, 0)) AS l5_p_cnt
                     ,SUM(`p&l`) AS p_pnl
                     ,SUM(adjbase * size) AS adjbase
                     ,SUM(price * size) AS base
@@ -230,8 +230,8 @@ class StockProposal:
                 SELECT t1.industry
                     ,COUNT(t2.symbol) * 1.00 AS his_trade_cnt
                     ,COUNT(DISTINCT t2.symbol) AS his_symbol_cnt
-                    ,COUNT(DISTINCT IF(t2.sell_date >= (SELECT buy_date FROM ( SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
-                                         FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt WHERE row_num = 5), t2.symbol, null)) AS l5_close
+                    ,COUNT(DISTINCT IF(t2.sell_date >= (SELECT buy_date FROM ( SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
+                                         FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt WHERE row_num = 5), t2.symbol, null)) AS l5_close
                     ,SUM(IF(t2.sell_date IS NOT NULL, DATEDIFF(t2.sell_date, t2.buy_date), DATEDIFF('{}', t2.buy_date))) AS his_days
                     ,SUM(IF(t2.sell_date IS NOT NULL AND t2.adj_price - t2.base_price >=0, 1, 0)) AS pos_cnt
                     ,SUM(IF(t2.sell_date IS NOT NULL AND t2.adj_price - t2.base_price < 0, 1, 0)) AS neg_cnt
@@ -286,8 +286,8 @@ class StockProposal:
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
+                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
+                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
                     WHERE row_num = 1 )
                 GROUP BY t2.industry
             ), tmp1 AS (
@@ -296,8 +296,8 @@ class StockProposal:
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
+                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
+                    FROM (SELECT DISTINCT buy_date,1 AS partition_key FROM temp_timeseries) t ) tt
                     WHERE row_num = 5 )
                 GROUP BY t2.industry
             )   
@@ -315,8 +315,8 @@ class StockProposal:
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
+                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
+                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
                     WHERE row_num = 1 )
                 GROUP BY t2.industry
             ), tmp1 AS (
@@ -325,8 +325,8 @@ class StockProposal:
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
+                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
+                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
                     WHERE row_num = 2)
                 GROUP BY t2.industry
             )
@@ -336,8 +336,8 @@ class StockProposal:
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
+                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
+                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
                     WHERE row_num = 6)
                 GROUP BY t2.industry
             )   
@@ -1094,8 +1094,8 @@ class StockProposal:
                     , adj_price * (-adj_size) - base_price * base_size AS pnl
                     , (adj_price - base_price) / base_price AS pnl_ratio
                 FROM tmp11 WHERE sell_date >= (SELECT buy_date FROM (
-                                                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
-                                                    FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t 
+                                                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
+                                                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t 
                                                 ) tt WHERE row_num = 5)
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol AND t1.sell_date = t2.sell_date
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
@@ -1874,8 +1874,8 @@ class StockProposal:
             ), tmp11 AS (
                 SELECT temp_timeseries.buy_date
                     ,IF(tmp1.total_cnt > 0, tmp1.total_cnt
-                        ,LAST_VALUE(tmp1.total_cnt) IGNORE NULLS OVER (ORDER BY temp_timeseries.buy_date)) AS total_cnt
-                FROM temp_timeseries LEFT JOIN tmp1 ON temp_timeseries.buy_date = tmp1.date
+                        ,LAST_VALUE(tmp1.total_cnt) IGNORE NULLS OVER (PARTITION BY temp_timeseries.partition_key ORDER BY temp_timeseries.buy_date)) AS total_cnt
+                FROM (SELECT *, 1 AS partition_key FROM temp_timeseries) AS temp_timeseries LEFT JOIN tmp1 ON temp_timeseries.buy_date = tmp1.date
             ), tmp5 AS (
                 SELECT date
                     ,SUM(IF(trade_type = 'buy', 1, 0)) AS buy_cnt
@@ -2372,8 +2372,8 @@ class StockProposal:
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 WHERE t1.date >= (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
+                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
+                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
                     WHERE row_num = 26 )
                 GROUP BY t1.date, t2.industry
             ), tmp1 AS (
@@ -2391,8 +2391,8 @@ class StockProposal:
                 ORDER BY date, industry
             ) t WHERE t.date >= (
                     SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t ) tt
+                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
+                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
                     WHERE row_num = 25 )
             ), tmp2 AS (
             SELECT 
@@ -3785,8 +3785,8 @@ class StockProposal:
                     , adj_price * (-adj_size) - base_price * base_size AS pnl
                     , (adj_price - base_price) / base_price AS pnl_ratio
                 FROM tmp11 WHERE sell_date >= (SELECT buy_date FROM (
-                                                    SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS row_num
-                                                    FROM (SELECT DISTINCT buy_date FROM temp_timeseries) t 
+                                                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
+                                                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t 
                                                 ) tt WHERE row_num = 5)
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol AND t1.sell_date = t2.sell_date
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
@@ -3982,8 +3982,8 @@ class StockProposal:
                 SELECT temp_timeseries.buy_date
                     ,IF(tmp1.total_cnt > 0
                     ,tmp1.total_cnt
-                    ,LAST_VALUE(tmp1.total_cnt) IGNORE NULLS OVER (ORDER BY temp_timeseries.buy_date)) AS total_cnt
-                FROM temp_timeseries LEFT JOIN tmp1 ON temp_timeseries.buy_date = tmp1.date
+                    ,LAST_VALUE(tmp1.total_cnt) IGNORE NULLS OVER (PARTITION BY temp_timeseries.partition_key ORDER BY temp_timeseries.buy_date)) AS total_cnt
+                FROM (SELECT *, 1 AS partition_key FROM temp_timeseries) AS temp_timeseries LEFT JOIN tmp1 ON temp_timeseries.buy_date = tmp1.date
             ), tmp5 AS (
                 SELECT date
                     ,SUM(IF(trade_type = 'buy', 1, 0)) AS buy_cnt
