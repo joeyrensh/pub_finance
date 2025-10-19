@@ -1657,7 +1657,8 @@ class StockProposal:
         pd_strategy_tracking_lst180days = spark_strategy_tracking_lst180days.toPandas()
         pd_strategy_tracking_lst180days["date"] = pd.to_datetime(
             pd_strategy_tracking_lst180days["date"]
-        )
+        ).dt.date
+        print("date:", pd_strategy_tracking_lst180days["date"])
         pd_strategy_tracking_lst180days["ema_success_rate"] = (
             pd_strategy_tracking_lst180days["success_rate"]
             .ewm(span=5, adjust=False)
