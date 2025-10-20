@@ -8,7 +8,6 @@ import multiprocessing
 import gc
 import datetime
 
-
 """ 组合每日股票数据为一个dataframe """
 
 
@@ -319,7 +318,7 @@ class TickerInfo:
         # 手动清理不再需要的对象
         his_data = None
         gc.collect()
-
+        list_results.sort(key=lambda x: x["datetime"].min())
         return list_results
 
     """ 重构dataframe封装 """
@@ -328,8 +327,31 @@ class TickerInfo:
         """
         过滤历史数据不完整的股票
         小于120天的股票暂时不进入回测列表
+        同时检查股票数据中是否存在交易日期对应的数据
         """
+        # 检查数据长度是否足够
         if len(group_obj) < 241:
+            return pd.DataFrame()
+
+        # 将self.trade_date从"20251016"转换为"2025-10-16"格式
+        try:
+            from datetime import datetime
+
+            trade_date_dt = datetime.strptime(self.trade_date, "%Y%m%d")
+            trade_date_formatted = trade_date_dt.strftime("%Y-%m-%d")
+            print(f"处理交易日期: {self.trade_date} -> {trade_date_formatted}")
+            print(
+                f"股票代码: {i}, 数据日期范围: {group_obj['date'].min()} - {group_obj['date'].max()}"
+            )
+        except ValueError as e:
+            print(f"交易日期格式错误: {self.trade_date}, 期望格式: YYYYMMDD, 错误: {e}")
+            return pd.DataFrame()
+        except Exception as e:
+            print(f"交易日期处理未知错误: {e}")
+            return pd.DataFrame()
+
+        # 检查交易日期是否存在于股票数据中
+        if trade_date_formatted not in group_obj["date"].values:
             return pd.DataFrame()
         """ 适配BackTrader数据结构 """
         if self.market in ("us", "us_special"):
@@ -393,6 +415,7 @@ class TickerInfo:
         his_data = None
         results = None
         gc.collect()
+        list.sort(key=lambda x: x["datetime"].min())
         return list
 
     def get_etf_list(self):
@@ -483,7 +506,7 @@ class TickerInfo:
         # 手动清理不再需要的对象
         his_data = None
         gc.collect()
-
+        list_results.sort(key=lambda x: x["datetime"].min())
         return list_results
 
     def get_special_us_stock_list_180d(self):
@@ -591,5 +614,6 @@ class TickerInfo:
         # 手动清理不再需要的对象
         his_data = None
         gc.collect()
+        list_results.sort(key=lambda x: x["datetime"].min())
 
         return list_results
