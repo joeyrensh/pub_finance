@@ -28,7 +28,7 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cn")
+    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cnetf")
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
@@ -36,14 +36,14 @@ def exec_btstrategy(date):
     cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
     # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
-    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
+    # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=2)
     cerebro.addsizer(FixedAmount, amount=10000)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "cn").get_backtrader_data_feed()
+    list = TickerInfo(date, "cn").get_etf_backtrader_data_feed()
     """ 初始资金100M """
-    start_cash = len(list) * 10000
+    start_cash = len(list) * 20000
     cerebro.broker.setcash(start_cash)
     """ 循环初始化数据进入cerebro """
     for h in list:
@@ -296,7 +296,6 @@ def exec_btstrategy(date):
         )
         ax_chart.grid(True, alpha=0.2)
         ax_drawdown.grid(False)
-
         # ----------------------------
         # 图表美化
         # ----------------------------
@@ -336,7 +335,7 @@ def exec_btstrategy(date):
         # 保存图片
         plt.subplots_adjust(left=0.075, right=0.94, top=1, bottom=0.1, wspace=0.1)
         plt.savefig(
-            f"./dashreport/assets/images/cn_tr_{theme}.svg",
+            f"./dashreport/assets/images/cnetf_tr_{theme}.svg",
             format="svg",
             # bbox_inches="tight",  # 保持边界紧凑
             bbox_inches=None,  # 保持边界紧凑
@@ -422,7 +421,7 @@ if __name__ == "__main__":
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
+    StockProposal("cn", trade_date).send_etf_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()
