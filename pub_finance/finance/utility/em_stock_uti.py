@@ -235,7 +235,7 @@ class EMWebCrawlerUti:
                     "fs": f"m:{m}",
                     "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
                 }
-                time.sleep(random.uniform(1, 3))
+                time.sleep(random.uniform(1, 3) + 1)
                 res = requests.get(
                     self.__url_list,
                     params=params,

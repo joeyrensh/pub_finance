@@ -147,6 +147,7 @@ class TickerInfo:
             )
             # 阈值：小于10取实际可用日期数，超过10取10，最少取1
             threshold = max(1, min(10, int(avail_date_count)))
+            print(f"可用日期数: {avail_date_count}, 阈值: {threshold}")
             frequent_symbols = symbol_counts[symbol_counts >= threshold].index.tolist()
 
             # 排除单日涨幅超过200%的股票
