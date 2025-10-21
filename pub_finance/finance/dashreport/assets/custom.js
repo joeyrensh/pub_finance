@@ -44,7 +44,7 @@
         'xtick': { mobile: '2.2rem', desktop: '2.4rem' },
         'ytick': { mobile: '2.2rem', desktop: '2.2rem' },
         'y2tick': { mobile: '2.2rem', desktop: '2.2rem' },
-        'legendtext': { mobile: '2.1rem', desktop: '2.1rem' },
+        'legendtext': { mobile: '2.2rem', desktop: '2.2rem' },
         'gtitle': { mobile: '2.2rem', desktop: '2.4rem' },
         'xtitle': { mobile: '2.2rem', desktop: '2.4rem' }
     };
@@ -114,8 +114,30 @@
 
             console.log(`Processing SVG: ${obj.id}`);
             const textElements = svgDoc.getElementsByTagName('text');
+            const totalElements = textElements.length;
+            // 动态计算需要处理的元素数量
+            let maxElements = totalElements;
+            if (`${obj.id}` === 'cn-by-position-light' || `${obj.id}` === 'cn-by-position-dark' ||
+                `${obj.id}` === 'us-by-position-light' || `${obj.id}` === 'us-by-position-dark' ||
+                `${obj.id}` === 'us_special-by-position-light' || `${obj.id}` === 'us_special-by-position-dark' ||
+                `${obj.id}` === 'cn-by-pl-light' || `${obj.id}` === 'cn-by-pl-dark' ||
+                `${obj.id}` === 'us-by-pl-light' || `${obj.id}` === 'us-by-pl-dark' ||
+                `${obj.id}` === 'us_special-by-pl-light' || `${obj.id}` === 'us_special-by-pl-dark'
+            ) {
+                maxElements = totalElements * 0.4;
+            } else {
+                maxElements = totalElements;
+            }
+
+            let processedCount = 0;            
             for (let text of textElements) {
                 replaceFontSize(text, obj.id);
+                processedCount++;
+                
+                // 达到10个后停止循环
+                if (processedCount >= maxElements) {
+                    break;
+                }                
             }
         } catch (e) {
             console.error('Error processing SVG:', e);
