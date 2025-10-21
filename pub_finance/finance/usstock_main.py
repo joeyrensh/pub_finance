@@ -19,6 +19,7 @@ from backtraderref.usfixedamount import FixedAmount
 from matplotlib import rcParams
 import matplotlib.colors as mcolors
 from utility.em_stock_uti import EMWebCrawlerUti
+from uscrawler.ak_incre_crawler import AKUSWebCrawler
 
 """ 执行策略 """
 """ backtrader策略 """
@@ -378,6 +379,9 @@ if __name__ == "__main__":
     """ 爬取每日最新股票数据 """
     em = EMWebCrawlerUti()
     em.get_daily_stock_info("us", trade_date)
+
+    # ak_daily_crawler = AKUSWebCrawler()
+    # df_stock_daily = ak_daily_crawler.get_us_daily_stock_info_ak(trade_date)
 
     """ 执行bt相关策略 """
 
