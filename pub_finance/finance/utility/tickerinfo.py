@@ -61,7 +61,7 @@ class TickerInfo:
 
             # 获取近60天的日期
             trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
-            date_threshold = trade_date_dt - datetime.timedelta(days=60)
+            date_threshold = trade_date_dt - datetime.timedelta(days=20)
 
             # 将 datetime 对象转换回字符串格式 (YYYYMMDD)
             date_threshold_str = date_threshold.strftime("%Y-%m-%d")
@@ -451,7 +451,7 @@ class TickerInfo:
         df_all.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
         # 2. 取近60天的日期
         trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
-        date_threshold = trade_date_dt - datetime.timedelta(days=60)
+        date_threshold = trade_date_dt - datetime.timedelta(days=20)
 
         # 将 datetime 对象转换回字符串格式 (YYYYMMDD)
         date_threshold_str = date_threshold.strftime("%Y-%m-%d")
@@ -549,7 +549,7 @@ class TickerInfo:
         df_all.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
         # 2. 取近60天的日期
         trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
-        date_threshold = trade_date_dt - datetime.timedelta(days=60)
+        date_threshold = trade_date_dt - datetime.timedelta(days=20)
 
         # 将 datetime 对象转换回字符串格式 (YYYYMMDD)
         date_threshold_str = date_threshold.strftime("%Y-%m-%d")
