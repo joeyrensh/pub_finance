@@ -20,8 +20,8 @@
         'annual-return-dark': { mobile: '2.2rem', desktop: '1.5rem' },
         'ind-trend-light': { mobile: 'unset', desktop: 'unset' },
         'ind-trend-dark': { mobile: 'unset', desktop: 'unset' },
-        'strategy-light': { mobile: '1.5rem', desktop: '1.5rem' },
-        'strategy-dark': { mobile: '1.5rem', desktop: '1.5rem' },
+        'strategy-light': { mobile: '2rem', desktop: '2rem' },
+        'strategy-dark': { mobile: '2rem', desktop: '2rem' },
         'by-position-light': { mobile: '2.2rem', desktop: '2.2rem' },
         'by-position-dark': { mobile: '2.2rem', desktop: '2.2rem' },
         'by-pl-light': { mobile: '2.2rem', desktop: '2.2rem' },
@@ -42,8 +42,8 @@
 
     const CLASS_FONT_SIZE_CONFIG = {
         'xtick': { mobile: '2.2rem', desktop: '2.4rem' },
-        'ytick': { mobile: '2.2rem', desktop: '2.2rem' },
-        'y2tick': { mobile: '2.2rem', desktop: '2.2rem' },
+        'ytick': { mobile: '2rem', desktop: '2rem' },
+        'y2tick': { mobile: '2rem', desktop: '2rem' },
         'legendtext': { mobile: '2.2rem', desktop: '2.2rem' },
         'gtitle': { mobile: '2.2rem', desktop: '2.4rem' },
         'xtitle': { mobile: '2.2rem', desktop: '2.4rem' }
