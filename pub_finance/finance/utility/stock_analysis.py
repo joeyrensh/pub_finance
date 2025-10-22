@@ -753,11 +753,15 @@ class StockProposal:
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol
                 LEFT JOIN (
                     SELECT symbol,
-                        CASE 
-                            WHEN pe IS NULL OR pe IN ('', '-', 'NULL', 'N/A') THEN NULL
-                            WHEN TRY_CAST(pe AS DOUBLE) IS NOT NULL THEN TRY_CAST(pe AS DOUBLE)
-                            ELSE NULL
-                        END AS pe_double
+                            COALESCE(
+                                TRY_CAST(
+                                    CASE 
+                                        WHEN pe IS NULL OR TRIM(pe) IN ('', '-', 'NULL', 'N/A') THEN NULL
+                                        ELSE TRIM(pe)
+                                    END AS DOUBLE
+                                ),
+                                NULL
+                            ) AS pe_double
                     FROM temp_latest_stock_info
                 ) t3 ON t1.symbol = t3.symbol
                 LEFT JOIN temp_gz t4 ON 1=1
@@ -1101,11 +1105,15 @@ class StockProposal:
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
                 LEFT JOIN (
                     SELECT symbol,
-                        CASE 
-                            WHEN pe IS NULL OR pe IN ('', '-', 'NULL', 'N/A') THEN NULL
-                            WHEN TRY_CAST(pe AS DOUBLE) IS NOT NULL THEN TRY_CAST(pe AS DOUBLE)
-                            ELSE NULL
-                        END AS pe_double
+                            COALESCE(
+                                TRY_CAST(
+                                    CASE 
+                                        WHEN pe IS NULL OR TRIM(pe) IN ('', '-', 'NULL', 'N/A') THEN NULL
+                                        ELSE TRIM(pe)
+                                    END AS DOUBLE
+                                ),
+                                NULL
+                            ) AS pe_double
                     FROM temp_latest_stock_info
                 ) t4 ON t1.symbol = t4.symbol
                 LEFT JOIN temp_gz t5 ON 1=1             
