@@ -41,12 +41,12 @@
     });
 
     const CLASS_FONT_SIZE_CONFIG = {
-        'xtick': { mobile: '2.2rem', desktop: '2.4rem' },
+        'xtick': { mobile: '2rem', desktop: '2rem' },
         'ytick': { mobile: '2rem', desktop: '2rem' },
         'y2tick': { mobile: '2rem', desktop: '2rem' },
         'legendtext': { mobile: '2.2rem', desktop: '2.2rem' },
-        'gtitle': { mobile: '2.2rem', desktop: '2.4rem' },
-        'xtitle': { mobile: '2.2rem', desktop: '2.4rem' }
+        'gtitle': { mobile: '2.2rem', desktop: '2.2rem' },
+        'xtitle': { mobile: '2.2rem', desktop: '2.2rem' }
     };
 
     function replaceFontSize(element, svgId) {
