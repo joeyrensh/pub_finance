@@ -13,6 +13,7 @@ import math
 from utility.toolkit import ToolKit
 import concurrent.futures
 import re
+import hashlib
 
 
 class EMWebCrawlerUti:
@@ -48,12 +49,12 @@ class EMWebCrawlerUti:
         # A股/美股历史数据获取
         https://92.push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.600066&ut=&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20211101&end=20211115&smplmt=755&lmt=1000000
         """
-        self.__url_list = "http://92.push2.eastmoney.com/api/qt/clist/get"
+        self.__url_list = "http://72.push2.eastmoney.com/api/qt/clist/get"
         self.__url_history = "http://82.push2his.eastmoney.com/api/qt/stock/kline/get"
         # 不配置proxy，klines有时候返回为空，但response status是正常的
         # self.item = "http://121.37.195.205:80"
-        self.item = "http://120.55.240.71:8647"
-        # self.item = "http://171.38.65.37:8085"
+        # self.item = "http://120.55.240.71:8647"
+        self.item = "http://101.43.99.61:443"
 
         self.proxy = {
             "http": self.item,
@@ -67,6 +68,24 @@ class EMWebCrawlerUti:
             "accept-encoding": "gzip, deflate, br",
             "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
         }
+        self.cookie_string = """qgqp_b_id=378b9e6080d1d273d0660a6cf2e3f3c4; st_si=28479365265529; st_nvi=QAMQSmQZ0YUE1p7EVJoH_ed87; nid=0221eabb151350357973ff35e46ae976; nid_create_time=1754303780803; gvi=_Nl98B_5M2s27SucHxCWl708a; gvi_create_time=1754303780803; fullscreengg=1; fullscreengg2=1; p_origin=https%3A%2F%2Fpassport2.eastmoney.com; mtp=1; sid=149351922; vtpst=|; ct=lhZmaGAr6KvrCgaw50WiGBJEqqopQPU7QqqAB3--bVsQzHxga89LMNa5tQtCNJb3VSrf-iDzXpMRDH6tOZks7--F0gus3Go9JbRjhi5l7FIWUGeZVmSoROgvUwyJVU5iwSsy21p0DAhcVUe_GY_C5Bqp0_Y1VP9b3j0se2l4C4M; ut=FobyicMgeV76W1BE_OaDv4CQ7dKW9hPWRA1GBTEyWL8EzAsjHcxHxkBWEsxt-zf7Flkxe1IrHV9hncXLjytqc2qenJ0v0xZnvFaF3cq38N3Eg2M3dmoNWcTynDsAJbd_NIAf0CbeyyeXEHL45urm_nJ049vhH0-DK1usBhNf3uyNo8xjOxz2MmVyf5OxMVPGndxMUdre_v4WB9koZ5fWbOBomElQdC-nA7IUtGvoRfnzIiN8GpDvvl_uaaWHSz8ViYh0IGHlGrqKmUEwsIClQ8-e4Hr0WoPwBfFlygEm-biHW1FYOMSR86B5rvvYR7iunwSpBriCT5QcpjAs_R3-CGrBBEIHnjs0Yz8b9RpzUayLt0XAJ7PSsiiH16qxqAU2LqYWcTyy8hXgSt-qVXdv5RMM16rDnnYHGRWucQlBGBsiNP20znTuw3EvjwaPEUfqXp5GP3mRXrhQF0v-03A80d5F9hFTcqEVUrhai4-nYdRkyQwU9yojGZ_gu1Xo0kFMLdecSTPYIZc; pi=3446365945887978%3Bc3446365945887978%3B%E6%B5%B7%E8%BE%B9%E5%A4%A7%E7%BE%8A%E9%A9%BC%3BzM01I0FGnvZS2vHghzWN8v4UREvsH4dh1wIf9K7n2e3shfai9QEzoRBYJrgUkpvsvGJshv01jkdeUB6e6ZR12D5vF2jKmF4%2BaDwg7MtWN9bAdBqwaF3Ak4CDIGcFGY6w60scrCD038qCpxdqM5RYCMkPnQys5ZBJvttc2Xg5TYv8%2FrOxvCFpl0Khw%2FaWgnqQgjKopkTW%3Bj1Pte5aD7cEc4a2SBERaAx7FCwG3XzkPq%2FkX6kNaddyXsH9uPd92qszWuFlQJK8BZtutgUoZ%2BQq3IVnwZ79TWSqPuT1%2BTr0YpGyzAQ0GX%2FLmY%2BSLS8lPkUQXAnoZG0UKvYzwKodliYNPJHn4Nfv7NyGzLup3Tw%3D%3D; uidal=3446365945887978%e6%b5%b7%e8%be%b9%e5%a4%a7%e7%be%8a%e9%a9%bc; emshistory=%5B%22%E8%82%A1%E7%A5%A8%E6%B6%A8%E9%80%9F%22%5D; testtc=0.8321962735708507; EMFUND1=null; EMFUND2=null; EMFUND3=null; EMFUND4=null; EMFUND5=null; EMFUND6=null; EMFUND7=null; EMFUND0=null; EMFUND9=10-16%2012%3A30%3A50@%23%24%u9E4F%u534E%u4E2D%u8BC1%u9152ETF@%23%24512690; EMFUND8=10-16 12:31:57@#$%u534E%u6CF0%u67CF%u745E%u5357%u65B9%u4E1C%u82F1%u6052%u751F%u79D1%u6280%28QDII-ETF%29@%23%24513130; websitepoptg_api_time=1761097896229; st_asi=delete; rskey=KzMFyTDB1SDk5YVhLYnB1UVFtR1l2ejZqdz09e4efl; wsc_checkuser_ok=1; st_pvi=01722915618006; st_sp=2025-06-20%2010%3A17%3A04; st_inirUrl=https%3A%2F%2Femweb.securities.eastmoney.com%2FPC_HSF10%2FOperationsRequired%2FIndex; st_sn=2361; st_psi=20251023102804267-113200301321-4652968433"""
+
+    def parse_cookie_string(self, cookie_str):
+        """一行版本的 cookie 字符串解析函数"""
+        return dict(
+            item.split("=", 1) for item in cookie_str.split("; ") if "=" in item
+        )
+
+    def generate_ut_param(self):
+        """生成32位十六进制格式的ut参数"""
+        # 方法1: 基于时间戳和随机数生成
+        timestamp = int(time.time() * 1000)
+        random_num = random.randint(1000000000, 9999999999)
+        base_str = f"{timestamp}{random_num}"
+
+        # 使用MD5生成32位十六进制字符串
+        ut_hash = hashlib.md5(base_str.encode()).hexdigest()
+        return ut_hash
 
     def get_total_pages(self, mkt_code):
         params = {
@@ -74,7 +93,7 @@ class EMWebCrawlerUti:
             "pz": "100",
             "po": "1",
             "np": "1",
-            # "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
             # "ut": "bd1d9ddb04089700cf9c27f6f7426281",
             "fltt": "2",
             "invt": "2",
@@ -84,7 +103,11 @@ class EMWebCrawlerUti:
         }
 
         res = requests.get(
-            self.__url_list, params=params, proxies=self.proxy, headers=self.headers
+            self.__url_list,
+            params=params,
+            proxies=self.proxy,
+            headers=self.headers,
+            cookies=self.parse_cookie_string(self.cookie_string),
         ).json()
 
         total_page_no = math.ceil(res["data"]["total"] / 100)
@@ -123,7 +146,7 @@ class EMWebCrawlerUti:
                     "pz": "100",
                     "po": "1",
                     "np": "1",
-                    # "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+                    "ut": "fa5fd1943c7b386f172d6893dbfba10b",
                     # "ut": "bd1d9ddb04089700cf9c27f6f7426281",
                     "fltt": "2",
                     "invt": "2",
@@ -139,6 +162,7 @@ class EMWebCrawlerUti:
                             params=params,
                             proxies=self.proxy,
                             headers=self.headers,
+                            cookies=self.parse_cookie_string(self.cookie_string),
                         ).json()
                         break  # 成功就跳出循环
                     except Exception:
@@ -228,19 +252,20 @@ class EMWebCrawlerUti:
                     "pz": "100",
                     "po": "1",
                     "np": "1",
-                    # "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+                    "ut": "fa5fd1943c7b386f172d6893dbfba10b",
                     "fltt": "2",
                     "invt": "2",
                     "fid": "f12",
                     "fs": f"m:{m}",
                     "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
                 }
-                time.sleep(random.uniform(1, 3) + 1)
+                # time.sleep(random.uniform(3, 5))
                 res = requests.get(
                     self.__url_list,
                     params=params,
                     proxies=self.proxy,
                     headers=self.headers,
+                    cookies=self.parse_cookie_string(self.cookie_string),
                 ).json()
                 if (
                     res.get("rc") != 0
@@ -328,7 +353,7 @@ class EMWebCrawlerUti:
 
         params = {
             "secid": f"{mkt_code}.{symbol_val}",
-            # "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
             "fields1": "f1,f2,f3,f4,f5,f6",
             "fields2": "f51,f52,f53,f54,f55,f56",
             "klt": "101",
@@ -346,6 +371,7 @@ class EMWebCrawlerUti:
                 params=params,
                 proxies=self.proxy,
                 headers=self.headers,
+                cookies=self.parse_cookie_string(self.cookie_string),
             ).json()
         except requests.RequestException as e:
             return [res]
