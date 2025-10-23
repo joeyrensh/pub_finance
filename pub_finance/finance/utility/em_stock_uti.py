@@ -29,6 +29,7 @@ class EMWebCrawlerUti:
         0: 深证/创业板/新三板/ SZ
         1: 上证/科创板		SH
 
+        # akshare github使用的url和ut参数
         # 美股东方财富
         daily info: http://72.push2.eastmoney.com/api/qt/clist/get
         daily info: "ut": "bd1d9ddb04089700cf9c27f6f7426281"
@@ -36,13 +37,10 @@ class EMWebCrawlerUti:
 
         # 沪A/深A东方财富
         daily info : https://82.push2.eastmoney.com/api/qt/clist/get
-        daily info: "ut": "bd1d9ddb04089700cf9c27f6f7426281"
         # ETF东方财富
         daily info: https://88.push2.eastmoney.com/api/qt/clist/get
-        daily info: "ut": "bd1d9ddb04089700cf9c27f6f7426281"
         # A股历史数据
         history info: https://push2his.eastmoney.com/api/qt/stock/kline/get
-        history info: "ut": "7eea3edcaed734bea9cbfc24409ed989"
 
         # A股/美股最新股票数据获取
         https://72.push2.eastmoney.com/api/qt/clist/get?pn=i&pz=100&po=1&np=1&ut=fa5fd1943c7b386f172d6893dbfba10b&fltt=2&invt=2&fid=f12&fs=m:mkt_code&fields=f2,f5,f9,f12,f14,f15,f16,f17,f20
@@ -94,7 +92,6 @@ class EMWebCrawlerUti:
             "po": "1",
             "np": "1",
             "ut": "fa5fd1943c7b386f172d6893dbfba10b",
-            # "ut": "bd1d9ddb04089700cf9c27f6f7426281",
             "fltt": "2",
             "invt": "2",
             "fid": "f12",
@@ -147,7 +144,6 @@ class EMWebCrawlerUti:
                     "po": "1",
                     "np": "1",
                     "ut": "fa5fd1943c7b386f172d6893dbfba10b",
-                    # "ut": "bd1d9ddb04089700cf9c27f6f7426281",
                     "fltt": "2",
                     "invt": "2",
                     "fid": "f12",
