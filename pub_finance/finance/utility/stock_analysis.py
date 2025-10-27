@@ -2659,13 +2659,13 @@ class StockProposal:
                 font=dict(
                     color=text_color,
                     size=dynamic_font_size,
-                    weight="bold",  # 箭头加粗
+                    # weight="bold",  # 箭头加粗
                 ),
                 align="left",
                 xanchor="center",
                 yanchor="middle",
                 # xshift=-130,
-                xshift=-100 - dynamic_font_size / 1.5,
+                xshift=-100 - dynamic_font_size / 1.3,
                 yshift=0,  # 居中
             )
 
@@ -2935,12 +2935,12 @@ class StockProposal:
                 font=dict(
                     color=text_color,
                     size=dynamic_font_size,
-                    weight="bold",  # 箭头加粗
+                    # weight="bold",  # 箭头加粗
                 ),
                 align="left",
                 xanchor="center",
                 yanchor="middle",
-                xshift=-100 - dynamic_font_size / 1.5,
+                xshift=-100 - dynamic_font_size / 1.3,
                 yshift=0,  # 居中
             )
 
