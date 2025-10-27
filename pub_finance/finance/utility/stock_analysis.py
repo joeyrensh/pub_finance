@@ -2646,7 +2646,7 @@ class StockProposal:
                 align="left",
                 xanchor="center",
                 yanchor="middle",
-                xshift=-100,
+                xshift=-95,
                 yshift=20,  # 上移10像素
             )
 
@@ -2665,7 +2665,7 @@ class StockProposal:
                 xanchor="center",
                 yanchor="middle",
                 # xshift=-130,
-                xshift=-100 - dynamic_font_size / 1.3,
+                xshift=-95 - dynamic_font_size / 1.25,
                 yshift=0,  # 居中
             )
 
@@ -2682,7 +2682,7 @@ class StockProposal:
                 align="left",
                 xanchor="center",
                 yanchor="middle",
-                xshift=-100,
+                xshift=-95,
                 yshift=-20,  # 下移10像素
             )
             # 添加行业信息注解（右侧）
@@ -2922,7 +2922,7 @@ class StockProposal:
                 align="left",
                 xanchor="center",
                 yanchor="middle",
-                xshift=-100,
+                xshift=-95,
                 yshift=20,  # 上移10像素
             )
 
@@ -2940,7 +2940,7 @@ class StockProposal:
                 align="left",
                 xanchor="center",
                 yanchor="middle",
-                xshift=-100 - dynamic_font_size / 1.3,
+                xshift=-95 - dynamic_font_size / 1.25,
                 yshift=0,  # 居中
             )
 
@@ -2957,7 +2957,7 @@ class StockProposal:
                 align="left",
                 xanchor="center",
                 yanchor="middle",
-                xshift=-100,
+                xshift=-95,
                 yshift=-20,  # 下移10像素
             )
 
