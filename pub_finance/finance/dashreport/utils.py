@@ -223,7 +223,9 @@ def data_bars(df, column):
                     var(--data-bar-color) {max_bound_percentage}%,
                     transparent {max_bound_percentage}%,
                     transparent 100%)
-                    """.format(max_bound_percentage=max_bound_percentage)
+                    """.format(
+                        max_bound_percentage=max_bound_percentage
+                    )
                 ),
                 # "padding": "4px 0",
                 # "paddingBottom": 2,
@@ -234,9 +236,9 @@ def data_bars(df, column):
         styles.append(
             {
                 "if": {
-                    "filter_query": (
-                        "{{{column}}} <= 0"  # 只对负值应用样式
-                    ).format(column=col_n),
+                    "filter_query": ("{{{column}}} <= 0").format(  # 只对负值应用样式
+                        column=col_n
+                    ),
                     "column_id": column,
                 },
                 "background": "none",  # 负值背景色设置为透明
@@ -355,7 +357,7 @@ def make_dash_format_table(df, cols_format, market):
 
         # 然后进行赋值操作
         df.loc[condition1 | condition2 | condition3, "NAME"] = (
-            "A+" + df.loc[condition1 | condition2 | condition3, "NAME"]
+            "3A+" + df.loc[condition1 | condition2 | condition3, "NAME"]
         )
 
     def create_link(symbol, market):
@@ -373,18 +375,24 @@ def make_dash_format_table(df, cols_format, market):
         {
             "name": col,
             "id": col,
-            "type": "numeric"
-            if col in cols_format and cols_format[col][0] in ("ratio", "float")
-            else "text",
-            "format": Format(
-                precision=2,
-                scheme=Scheme.percentage,
-            )
-            if col in cols_format and cols_format[col][0] == "ratio"
-            else None,
-            "presentation": None
-            if col in cols_format and cols_format[col][0] == "ratio"
-            else "markdown",
+            "type": (
+                "numeric"
+                if col in cols_format and cols_format[col][0] in ("ratio", "float")
+                else "text"
+            ),
+            "format": (
+                Format(
+                    precision=2,
+                    scheme=Scheme.percentage,
+                )
+                if col in cols_format and cols_format[col][0] == "ratio"
+                else None
+            ),
+            "presentation": (
+                None
+                if col in cols_format and cols_format[col][0] == "ratio"
+                else "markdown"
+            ),
         }
         for col in df.columns
         if col
