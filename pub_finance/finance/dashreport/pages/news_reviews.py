@@ -8,6 +8,7 @@ IMAGE_PATH = PATH.joinpath("../assets").resolve()
 #     IMAGE_PATH.joinpath("cartoon.png").read_bytes()
 # ).decode("utf-8")
 encoded_image_bg = "/assets/cartoon.png"
+encoded_image_bg1 = "/assets/cartoon1.png"
 
 
 def create_layout(app):
@@ -53,6 +54,14 @@ def create_layout(app):
                                     html.Img(
                                         # src=f"data:image/png;base64,{encoded_image_bg}",
                                         src=encoded_image_bg,
+                                        style={
+                                            "width": "100%",
+                                            "overflow-x": "auto",
+                                            "overflow-y": "auto",
+                                        },
+                                    ),
+                                    html.Img(
+                                        src=encoded_image_bg1,
                                         style={
                                             "width": "100%",
                                             "overflow-x": "auto",
