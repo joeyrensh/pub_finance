@@ -88,9 +88,9 @@ def get_cookies_with_selenium(url, headless=True):
                 print(f"  🍪 {name}: {value}")
 
             # 将Cookie保存为JSON文件（可选）
-            with open("./utility/eastmoney_cookies.json", "w", encoding="utf-8") as f:
+            with open("./utility/eastmoney_cookie.json", "w", encoding="utf-8") as f:
                 json.dump(cookies_dict, f, ensure_ascii=False, indent=2)
-            print("💾 Cookie已保存到 eastmoney_cookies.json")
+            print("💾 Cookie已保存到 eastmoney_cookie.json")
         else:
             print("❌ 未获取到任何Cookie")
 
@@ -134,6 +134,6 @@ if __name__ == "__main__":
     # 新增：将Cookie字符串直接导出到文本文件
     if cookie_header:
         # 直接将Cookie字符串保存到文本文件
-        with open("./utility/eastmoney_cookies.txt", "w", encoding="utf-8") as f:
+        with open("./utility/cookie.txt", "w", encoding="utf-8") as f:
             f.write(cookie_header)
-        print("✅ Cookie字符串已成功导出到 eastmoney_cookies.txt 文件")
+        print("✅ Cookie字符串已成功导出到 cookie.txt 文件")

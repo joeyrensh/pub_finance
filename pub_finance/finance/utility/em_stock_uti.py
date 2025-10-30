@@ -14,6 +14,7 @@ from utility.toolkit import ToolKit
 import concurrent.futures
 import re
 import hashlib
+from fake_useragent import UserAgent
 
 
 class EMWebCrawlerUti:
@@ -47,7 +48,7 @@ class EMWebCrawlerUti:
         # A股/美股历史数据获取
         https://92.push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.600066&ut=&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20211101&end=20211115&smplmt=755&lmt=1000000
         """
-        self.__url_list = "http://72.push2.eastmoney.com/api/qt/clist/get"
+        self.__url_list = "http://push2.eastmoney.com/api/qt/clist/get"
         self.__url_history = "http://82.push2his.eastmoney.com/api/qt/stock/kline/get"
         # 不配置proxy，klines有时候返回为空，但response status是正常的
         # self.item = "http://121.37.195.205:80"
@@ -61,7 +62,8 @@ class EMWebCrawlerUti:
         self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
-            "Referer": "https://www.eastmoney.com",
+            # "user-agent": UserAgent().random,
+            "Referer": "https://quote.eastmoney.com/center/gridlist.html",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
             "accept-encoding": "gzip, deflate, br",
             "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
@@ -70,6 +72,7 @@ class EMWebCrawlerUti:
         with open("./utility/cookie.txt", "r", encoding="utf-8") as f:
             self.cookie_string = f.read().strip()
             print("已加载cookie信息")
+        self.pz = 100
 
     def parse_cookie_string(self, cookie_str):
         """一行版本的 cookie 字符串解析函数"""
@@ -91,10 +94,11 @@ class EMWebCrawlerUti:
     def get_total_pages(self, mkt_code):
         params = {
             "pn": "1",
-            "pz": "100",
+            "pz": self.pz,
             "po": "1",
             "np": "1",
-            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            # "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            "ut:": self.generate_ut_param(),
             "fltt": "2",
             "invt": "2",
             "fid": "f12",
@@ -110,7 +114,7 @@ class EMWebCrawlerUti:
             cookies=self.parse_cookie_string(self.cookie_string),
         ).json()
 
-        total_page_no = math.ceil(res["data"]["total"] / 100)
+        total_page_no = math.ceil(res["data"]["total"] / self.pz)
         print(f"市场代码: {mkt_code}, 总页数: {total_page_no}")
         return total_page_no
 
@@ -143,7 +147,7 @@ class EMWebCrawlerUti:
                 tool.progress_bar(max_page, i)
                 params = {
                     "pn": f"{i}",
-                    "pz": "100",
+                    "pz": self.pz,
                     "po": "1",
                     "np": "1",
                     "ut": "fa5fd1943c7b386f172d6893dbfba10b",
@@ -248,17 +252,19 @@ class EMWebCrawlerUti:
                 tool.progress_bar(max_page, i)
                 params = {
                     "pn": f"{i}",
-                    "pz": "100",
+                    "pz": self.pz,
                     "po": "1",
                     "np": "1",
-                    "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+                    # "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+                    "ut:": self.generate_ut_param(),
                     "fltt": "2",
                     "invt": "2",
                     "fid": "f12",
                     "fs": f"m:{m}",
                     "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
                 }
-                # time.sleep(random.uniform(3, 5))
+                # if i % 10 == 0:
+                #     time.sleep(random.uniform(10, 20))
                 res = requests.get(
                     self.__url_list,
                     params=params,
