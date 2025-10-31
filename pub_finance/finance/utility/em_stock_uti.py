@@ -192,6 +192,7 @@ class EMWebCrawlerUti:
         """
         dict = {}
         list = []
+        cookie_str = ""
         if market == "us":
             mkt_code = ["105", "106", "107"]
         elif market == "cn":
@@ -300,6 +301,7 @@ class EMWebCrawlerUti:
     def get_daily_stock_info(self, market, trade_date):
         dict = {}
         list = []
+        cookie_str = ""
         if market == "us":
             mkt_code = ["105", "106", "107"]
         elif market == "cn":
