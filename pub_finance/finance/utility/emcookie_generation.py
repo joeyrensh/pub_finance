@@ -27,20 +27,32 @@ class CookieGeneration(object):
             pip install fake-useragent
         """
         # 配置Chrome选项
-        # chromedriver_autoinstaller.install()
+        chromedriver_autoinstaller.install()
 
         chrome_options = Options()
         chrome_options.binary_location = "/usr/bin/chromium-browser"
 
-        chrome_options.add_argument("--incognito")  # 启用Chrome无痕模式
+        # chrome_options.add_argument("--incognito")  # 启用Chrome无痕模式
         # 为每次运行创建一个临时的用户数据目录
         user_data_dir = tempfile.mkdtemp()
         chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
-        # if headless:
-        chrome_options.add_argument("--headless")  # 无头模式
+        if headless:
+            chrome_options.add_argument("--headless")  # 无头模式
+        chrome_options.add_argument("--ozone-platform=headless")
         chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument("--remote-debugging-port=9222")
+        # 针对无头环境的特殊设置
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--disable-software-rasterizer")
+        chrome_options.add_argument("--disable-default-apps")
+        chrome_options.add_argument("--disable-features=VizDisplayCompositor")
+        # 添加这些额外的参数
+        chrome_options.add_argument("--disable-x11-devices")
+        chrome_options.add_argument("--use-gl=swiftshader")
+        chrome_options.add_argument("--disable-software-rasterizer")
 
         from fake_useragent import UserAgent
 
@@ -76,7 +88,7 @@ class CookieGeneration(object):
             except Exception:
                 # 如果找不到特定元素，至少等待几秒确保JavaScript执行完成
                 print("⚠️ 未找到特定元素，等待基础页面加载")
-                time.sleep(10)
+                time.sleep(5)
 
             # 获取所有Cookie
             cookies = driver.get_cookies()
@@ -124,13 +136,13 @@ class CookieGeneration(object):
         """
         if cookies_dict:
             cookie_header = "; ".join([f"{k}={v}" for k, v in cookies_dict.items()])
-            print("\n📋 Cookie请求头格式:")
-            print(cookie_header)
+            # print("\n📋 Cookie请求头格式:")
+            # print(cookie_header)
             return cookie_header
         return ""
 
     def generate_em_cookies(self):
-        target_url = "https://quote.eastmoney.com/center/"
+        target_url = "https://quote.eastmoney.com/center/gridlist.html#hs_a_board"
 
         # 获取Cookie（设置为False可以显示浏览器界面）
         cookies = self.get_cookies_with_selenium(target_url, headless=True)
@@ -139,8 +151,8 @@ class CookieGeneration(object):
         cookie_header = self.print_cookie_header(cookies)
 
         # 新增：将Cookie字符串直接导出到文本文件
-        if cookie_header:
-            # 直接将Cookie字符串保存到文本文件
-            with open("./utility/cookie.txt", "w", encoding="utf-8") as f:
-                f.write(cookie_header)
-            print("✅ Cookie字符串已成功导出到 cookie.txt 文件")
+        # if cookie_header:
+        #     # 直接将Cookie字符串保存到文本文件
+        #     with open("./utility/cookie.txt", "w", encoding="utf-8") as f:
+        #         f.write(cookie_header)
+        #     print("✅ Cookie字符串已成功导出到 cookie.txt 文件")

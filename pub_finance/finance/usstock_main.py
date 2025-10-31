@@ -377,11 +377,11 @@ if __name__ == "__main__":
 
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
-    em = EMWebCrawlerUti()
-    em.get_daily_stock_info("us", trade_date)
+    # em = EMWebCrawlerUti()
+    # em.get_daily_stock_info("us", trade_date)
 
-    # ak_daily_crawler = AKUSWebCrawler()
-    # df_stock_daily = ak_daily_crawler.get_us_daily_stock_info_ak(trade_date)
+    ak_daily_crawler = AKUSWebCrawler()
+    df_stock_daily = ak_daily_crawler.get_us_daily_stock_info_ak(trade_date)
 
     """ 执行bt相关策略 """
 

@@ -16,6 +16,7 @@ import re
 import hashlib
 from fake_useragent import UserAgent
 from utility.emcookie_generation import CookieGeneration
+import json
 
 
 class EMWebCrawlerUti:
@@ -52,7 +53,8 @@ class EMWebCrawlerUti:
         self.__url_list = "http://push2.eastmoney.com/api/qt/clist/get"
         self.__url_history = "http://82.push2his.eastmoney.com/api/qt/stock/kline/get"
         # 不配置proxy，klines有时候返回为空，但response status是正常的
-        self.item = "http://36.110.143.55:8080"
+        # self.item = "http://36.110.143.55:8080"
+        self.item = "http://139.159.97.42:9798"
 
         self.proxy = {
             "http": self.item,
@@ -67,18 +69,51 @@ class EMWebCrawlerUti:
             "accept-encoding": "gzip, deflate, br",
             "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
         }
+        # CookieGeneration().generate_em_cookies()
+        self.cookie_str = self.parse_cookie_string()
 
         self.pz = 100
 
     def parse_cookie_string(self):
-        """一行版本的 cookie 字符串解析函数"""
-        # 将cookie保存到单独的文件中，比如 cookie.txt
-        with open("./utility/cookie.txt", "r", encoding="utf-8") as f:
-            cookie_str = f.read().strip()
-            print("已加载cookie信息")
-        return dict(
-            item.split("=", 1) for item in cookie_str.split("; ") if "=" in item
-        )
+        # 读取 JSON 格式的 cookie 文件
+        with open("./utility/eastmoney_cookie.json", "r", encoding="utf-8") as f:
+            cookie_data = json.load(f)
+            print("已加载 JSON cookie 信息")
+        # 直接返回解析后的字典
+        return cookie_data
+
+    def randomize_cookie_string(
+        self, cookie_dict, keys_to_randomize=None, key_lengths=None
+    ):
+        """
+        增强版 cookie 字符串解析函数，支持为特定键生成随机值
+
+        Args:
+            cookie_str (str): cookie 字符串
+            keys_to_randomize (list): 需要随机化的 cookie 键列表，默认为 ['nid', 'qgqp_b_id']
+            key_lengths (dict): 特定键的随机值长度，例如 {'nid': 32, 'qgqp_b_id': 32}
+
+        Returns:
+            dict: 解析后的 cookie 字典，特定键已被随机化
+        """
+
+        def generate_random_hex(length=32):
+            """生成指定长度的随机十六进制字符串"""
+            return "".join(random.choices("0123456789abcdef", k=length))
+
+        # 设置默认需要随机化的键
+        keys_to_randomize = ["nid"]
+
+        # 设置默认键长度
+        key_lengths = {"nid": 32}
+
+        # 对特定键生成随机值
+        for key in keys_to_randomize:
+            if key in cookie_dict:
+                length = key_lengths.get(key, 32)  # 默认长度32
+                cookie_dict[key] = generate_random_hex(length)
+        # print(f"✅ 解析并随机化Cookie: {cookie_dict}")
+        return cookie_dict
 
     def generate_ut_param(self):
         """生成基于中国地区随机IP的32位十六进制格式ut参数"""
@@ -146,8 +181,6 @@ class EMWebCrawlerUti:
         return ut_hash
 
     def get_total_pages(self, mkt_code):
-        CookieGeneration().generate_em_cookies()
-        cookie_str = self.parse_cookie_string()
         params = {
             "pn": "1",
             "pz": self.pz,
@@ -167,7 +200,7 @@ class EMWebCrawlerUti:
             params=params,
             proxies=self.proxy,
             headers=self.headers,
-            cookies=cookie_str,
+            cookies=self.cookie_str,
         ).json()
 
         total_page_no = math.ceil(res["data"]["total"] / self.pz)
@@ -192,7 +225,7 @@ class EMWebCrawlerUti:
         """
         dict = {}
         list = []
-        cookie_str = ""
+        cookie_str = self.cookie_str
         if market == "us":
             mkt_code = ["105", "106", "107"]
         elif market == "cn":
@@ -214,10 +247,6 @@ class EMWebCrawlerUti:
                     "fs": f"m:{m}",
                     "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
                 }
-                if i % 10 == 0:
-                    # time.sleep(random.uniform(10, 20))
-                    CookieGeneration().generate_em_cookies()
-                    cookie_str = self.parse_cookie_string()
                 for _ in range(2):  # 重试2次
                     try:
                         res = requests.get(
@@ -299,18 +328,47 @@ class EMWebCrawlerUti:
             writer.writerows(filtered_rows)
 
     def get_daily_stock_info(self, market, trade_date):
+        cache_file = f"./{market}stockinfo/daily_stock_cache_{trade_date}.json"
+        # 加载已有的缓存
+        cache_data = {}
+        """ 获取美股数据文件地址 """
+        file_name_d = FileInfo(trade_date, market).get_file_path_latest
+        if os.path.exists(cache_file) and os.path.getsize(cache_file) > 0:
+            try:
+                with open(cache_file, "r", encoding="utf-8") as f:
+                    cache_data = json.load(f)
+                    print(f"加载缓存文件: {cache_file}")
+            except:
+                print(f"缓存文件格式错误，将重新创建: {cache_file}")
+                cache_data = {}
+                # 如果是第一次运行，删除可能存在的旧数据文件
+                if os.path.exists(file_name_d):
+                    os.remove(file_name_d)
+        else:
+            print(f"无有效缓存，将创建新缓存: {cache_file}")
+            # 如果是第一次运行，删除可能存在的旧数据文件
+            if os.path.exists(file_name_d):
+                os.remove(file_name_d)
+
         dict = {}
         list = []
-        cookie_str = ""
+        cookie_str = self.cookie_str
         if market == "us":
             mkt_code = ["105", "106", "107"]
         elif market == "cn":
             mkt_code = ["0", "1"]
+
         for m in mkt_code:
+            # 初始化当前市场代码的缓存
+            if m not in cache_data:
+                cache_data[m] = []
             max_page = self.get_total_pages(m)
             tool = ToolKit(f"市场代码{m}，共{max_page}页")
             for i in range(1, max_page + 1):
                 tool.progress_bar(max_page, i)
+                # 检查是否已经请求过该页面
+                if i in cache_data[m]:
+                    continue
                 params = {
                     "pn": f"{i}",
                     "pz": self.pz,
@@ -326,8 +384,7 @@ class EMWebCrawlerUti:
                 }
                 if i % 10 == 0:
                     # time.sleep(random.uniform(10, 20))
-                    CookieGeneration().generate_em_cookies()
-                    cookie_str = self.parse_cookie_string()
+                    cookie_str = self.randomize_cookie_string(self.cookie_str)
 
                 res = requests.get(
                     self.__url_list,
@@ -342,12 +399,21 @@ class EMWebCrawlerUti:
                     or not res["data"].get("diff")
                 ):
                     return [res]  # 返回错误信息
+
+                # 请求成功，记录到缓存
+                cache_data[m].append(i)
+
+                # 保存缓存到文件
+                with open(cache_file, "w", encoding="utf-8") as f:
+                    json.dump(cache_data, f, ensure_ascii=False, indent=2)
                 """         
                 f12: 股票代码, f14: 公司名称, f2: 最新报价, f3: 涨跌幅, f4: 涨跌额, f5: 成交量, f6: 成交额
                 f7: 振幅,f9: 市盈率, f15: 最高, f16: 最低, f17: 今开, f18: 昨收, f20:总市值 f21:流通值
                 f12: symbol, f14: name, f2: close, f3: chg, f4: change, f5: volume, f6: turnover
                 f7: amplitude,f9: pe, f15: high, f16: low, f17: open, f18: preclose, f20: total_value, f21: circulation_value
                 """
+                # 处理当前页面的数据
+                page_data = []
                 for i in res["data"]["diff"]:
                     if (
                         i["f12"] == "-"
@@ -367,7 +433,7 @@ class EMWebCrawlerUti:
                             "ETF" if "ETF" in i["f14"] else {"0": "SZ", "1": "SH"}[m]
                         )
                         symbol_val = prefix + i["f12"]
-                    dict = {
+                    data_dict = {
                         "symbol": symbol_val,
                         "name": i["f14"],
                         "open": i["f17"],
@@ -378,18 +444,31 @@ class EMWebCrawlerUti:
                         "total_value": i["f20"],
                         "pe": i["f9"],
                     }
+                    page_data.append(data_dict)
 
-                    list.append(dict)
-        """ 获取美股数据文件地址 """
-        file_name_d = FileInfo(trade_date, market).get_file_path_latest
-        """ 每日一个文件，根据交易日期创建 """
-        if os.path.exists(file_name_d):
-            os.remove(file_name_d)
-        """ 将list转化为dataframe，并且存储为csv文件，带index和header """
-        df = pd.DataFrame(list)
-        date = datetime.strptime(trade_date, "%Y%m%d")
-        df["date"] = date
-        df.to_csv(file_name_d, mode="w", index=True, header=True)
+                # 将当前页面的数据写入文件
+                if page_data:  # 确保有数据才写入
+                    df = pd.DataFrame(page_data)
+                    date = datetime.strptime(trade_date, "%Y%m%d")
+                    df["date"] = date
+
+                    # 检查数据文件是否已存在，决定写入模式
+                    file_exists = (
+                        os.path.exists(file_name_d) and os.path.getsize(file_name_d) > 0
+                    )
+
+                    # 如果文件已存在，使用追加模式且不包含表头；否则创建新文件并包含表头
+                    df.to_csv(
+                        file_name_d,
+                        mode="a" if file_exists else "w",
+                        index=True,
+                        header=not file_exists,
+                    )
+
+        # 全部完成后删除缓存文件
+        if os.path.exists(cache_file):
+            os.remove(cache_file)
+            print(f"缓存文件 {cache_file} 已删除")
 
         self.get_daily_gz_info(market, trade_date)
 
