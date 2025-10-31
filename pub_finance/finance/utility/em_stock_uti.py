@@ -58,7 +58,7 @@ class EMWebCrawlerUti:
             "http": self.item,
             "https": self.item,
         }
-        # self.proxy = None
+        self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
             # "user-agent": UserAgent().random,
@@ -81,11 +81,65 @@ class EMWebCrawlerUti:
         )
 
     def generate_ut_param(self):
-        """生成32位十六进制格式的ut参数"""
-        # 方法1: 基于时间戳和随机数生成
+        """生成基于中国地区随机IP的32位十六进制格式ut参数"""
+
+        # 生成随机中国IP地址
+        def generate_china_ip():
+            # 中国IP地址的主要A类、B类网络号
+            china_networks = [
+                (58, random.randint(0, 255)),  # 58.x.x.x - 中国电信
+                (59, random.randint(0, 255)),  # 59.x.x.x - 中国电信
+                (60, random.randint(0, 255)),  # 60.x.x.x - 中国联通
+                (61, random.randint(0, 255)),  # 61.x.x.x - 中国电信
+                (106, random.randint(0, 255)),  # 106.x.x.x - 中国教育网
+                (110, random.randint(0, 255)),  # 110.x.x.x - 中国电信
+                (111, random.randint(0, 255)),  # 111.x.x.x - 中国联通
+                (112, random.randint(0, 255)),  # 112.x.x.x - 中国移动
+                (113, random.randint(0, 255)),  # 113.x.x.x - 中国电信
+                (114, random.randint(0, 255)),  # 114.x.x.x - 中国电信
+                (115, random.randint(0, 255)),  # 115.x.x.x - 中国电信
+                (116, random.randint(0, 255)),  # 116.x.x.x - 中国移动
+                (117, random.randint(0, 255)),  # 117.x.x.x - 中国移动
+                (118, random.randint(0, 255)),  # 118.x.x.x - 中国电信
+                (119, random.randint(0, 255)),  # 119.x.x.x - 中国电信
+                (120, random.randint(0, 255)),  # 120.x.x.x - 中国联通
+                (121, random.randint(0, 255)),  # 121.x.x.x - 中国联通
+                (122, random.randint(0, 255)),  # 122.x.x.x - 中国电信
+                (123, random.randint(0, 255)),  # 123.x.x.x - 中国联通
+                (124, random.randint(0, 255)),  # 124.x.x.x - 中国联通
+                (125, random.randint(0, 255)),  # 125.x.x.x - 中国电信
+                (171, random.randint(0, 255)),  # 171.x.x.x - 中国电信
+                (175, random.randint(0, 255)),  # 175.x.x.x - 中国电信
+                (180, random.randint(0, 255)),  # 180.x.x.x - 中国移动
+                (182, random.randint(0, 255)),  # 182.x.x.x - 中国电信
+                (183, random.randint(0, 255)),  # 183.x.x.x - 中国电信
+                (202, random.randint(0, 255)),  # 202.x.x.x - 中国教育和科研网
+                (210, random.randint(0, 255)),  # 210.x.x.x - 中国教育和科研网
+                (211, random.randint(0, 255)),  # 211.x.x.x - 中国教育和科研网
+                (218, random.randint(0, 255)),  # 218.x.x.x - 中国联通
+                (219, random.randint(0, 255)),  # 219.x.x.x - 中国联通
+                (220, random.randint(0, 255)),  # 220.x.x.x - 中国电信
+                (221, random.randint(0, 255)),  # 221.x.x.x - 中国联通
+                (222, random.randint(0, 255)),  # 222.x.x.x - 中国电信
+                (223, random.randint(0, 255)),  # 223.x.x.x - 中国移动
+            ]
+
+            network = random.choice(china_networks)
+            ip_parts = [
+                network[0],
+                network[1],
+                random.randint(1, 254),
+                random.randint(1, 254),
+            ]
+            return ".".join(map(str, ip_parts))
+
+        # 生成随机IP并用于ut参数
+        random_ip = generate_china_ip()
         timestamp = int(time.time() * 1000)
         random_num = random.randint(1000000000, 9999999999)
-        base_str = f"{timestamp}{random_num}"
+
+        # 将IP地址加入基础字符串
+        base_str = f"{timestamp}{random_num}{random_ip}"
 
         # 使用MD5生成32位十六进制字符串
         ut_hash = hashlib.md5(base_str.encode()).hexdigest()
@@ -246,8 +300,6 @@ class EMWebCrawlerUti:
     def get_daily_stock_info(self, market, trade_date):
         dict = {}
         list = []
-        CookieGeneration().generate_em_cookies()
-        cookie_str = self.parse_cookie_string()
         if market == "us":
             mkt_code = ["105", "106", "107"]
         elif market == "cn":
