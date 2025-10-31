@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import json
 import tempfile
+import chromedriver_autoinstaller
 
 
 def get_cookies_with_selenium(url, headless=True):
@@ -25,15 +26,21 @@ def get_cookies_with_selenium(url, headless=True):
         pip install fake-useragent
     """
     # 配置Chrome选项
+    # chromedriver_autoinstaller.install()
+
     chrome_options = Options()
+    chrome_options.binary_location = "/usr/bin/chromium-browser"
+
     chrome_options.add_argument("--incognito")  # 启用Chrome无痕模式
     # 为每次运行创建一个临时的用户数据目录
     user_data_dir = tempfile.mkdtemp()
     chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
     # if headless:
     chrome_options.add_argument("--headless")  # 无头模式
-    # chrome_options.add_argument("--no-sandbox")
-    # chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("--remote-debugging-port=9222")
+
     from fake_useragent import UserAgent
 
     # 创建一个UserAgent对象
