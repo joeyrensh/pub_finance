@@ -15,6 +15,7 @@ import concurrent.futures
 import re
 import hashlib
 from fake_useragent import UserAgent
+from utility.emcookie_generation import CookieGeneration
 
 
 class EMWebCrawlerUti:
@@ -57,7 +58,7 @@ class EMWebCrawlerUti:
             "http": self.item,
             "https": self.item,
         }
-        self.proxy = None
+        # self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
             # "user-agent": UserAgent().random,
@@ -66,14 +67,15 @@ class EMWebCrawlerUti:
             "accept-encoding": "gzip, deflate, br",
             "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
         }
-        # 将cookie保存到单独的文件中，比如 cookie.txt
-        with open("./utility/cookie.txt", "r", encoding="utf-8") as f:
-            self.cookie_string = f.read().strip()
-            print("已加载cookie信息")
+
         self.pz = 100
 
-    def parse_cookie_string(self, cookie_str):
+    def parse_cookie_string(self):
         """一行版本的 cookie 字符串解析函数"""
+        # 将cookie保存到单独的文件中，比如 cookie.txt
+        with open("./utility/cookie.txt", "r", encoding="utf-8") as f:
+            cookie_str = f.read().strip()
+            print("已加载cookie信息")
         return dict(
             item.split("=", 1) for item in cookie_str.split("; ") if "=" in item
         )
@@ -90,6 +92,8 @@ class EMWebCrawlerUti:
         return ut_hash
 
     def get_total_pages(self, mkt_code):
+        CookieGeneration().generate_em_cookies()
+        cookie_str = self.parse_cookie_string()
         params = {
             "pn": "1",
             "pz": self.pz,
@@ -109,7 +113,7 @@ class EMWebCrawlerUti:
             params=params,
             proxies=self.proxy,
             headers=self.headers,
-            cookies=self.parse_cookie_string(self.cookie_string),
+            cookies=cookie_str,
         ).json()
 
         total_page_no = math.ceil(res["data"]["total"] / self.pz)
@@ -155,7 +159,10 @@ class EMWebCrawlerUti:
                     "fs": f"m:{m}",
                     "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
                 }
-                time.sleep(random.uniform(1, 3))
+                if i % 10 == 0:
+                    # time.sleep(random.uniform(10, 20))
+                    CookieGeneration().generate_em_cookies()
+                    cookie_str = self.parse_cookie_string()
                 for _ in range(2):  # 重试2次
                     try:
                         res = requests.get(
@@ -163,7 +170,7 @@ class EMWebCrawlerUti:
                             params=params,
                             proxies=self.proxy,
                             headers=self.headers,
-                            cookies=self.parse_cookie_string(self.cookie_string),
+                            cookies=cookie_str,
                         ).json()
                         break  # 成功就跳出循环
                     except Exception:
@@ -239,6 +246,8 @@ class EMWebCrawlerUti:
     def get_daily_stock_info(self, market, trade_date):
         dict = {}
         list = []
+        CookieGeneration().generate_em_cookies()
+        cookie_str = self.parse_cookie_string()
         if market == "us":
             mkt_code = ["105", "106", "107"]
         elif market == "cn":
@@ -261,14 +270,17 @@ class EMWebCrawlerUti:
                     "fs": f"m:{m}",
                     "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
                 }
-                # if i % 10 == 0:
-                #     time.sleep(random.uniform(10, 20))
+                if i % 10 == 0:
+                    # time.sleep(random.uniform(10, 20))
+                    CookieGeneration().generate_em_cookies()
+                    cookie_str = self.parse_cookie_string()
+
                 res = requests.get(
                     self.__url_list,
                     params=params,
                     proxies=self.proxy,
                     headers=self.headers,
-                    cookies=self.parse_cookie_string(self.cookie_string),
+                    cookies=cookie_str,
                 ).json()
                 if (
                     res.get("rc") != 0
@@ -354,6 +366,9 @@ class EMWebCrawlerUti:
         elif str(mkt_code) in ["0", "1"]:
             symbol_val = re.sub(r"^(ETF|SZ|SH)", "", symbol)
 
+        CookieGeneration().generate_em_cookies()
+        cookie_str = self.parse_cookie_string()
+
         params = {
             "secid": f"{mkt_code}.{symbol_val}",
             "ut": "fa5fd1943c7b386f172d6893dbfba10b",
@@ -374,7 +389,7 @@ class EMWebCrawlerUti:
                 params=params,
                 proxies=self.proxy,
                 headers=self.headers,
-                cookies=self.parse_cookie_string(self.cookie_string),
+                cookies=cookie_str,
             ).json()
         except requests.RequestException as e:
             return [res]
