@@ -53,14 +53,6 @@ class EMWebCrawlerUti:
         """
         self.__url_list = "http://push2.eastmoney.com/api/qt/clist/get"
         self.__url_history = "http://82.push2his.eastmoney.com/api/qt/stock/kline/get"
-        # 不配置proxy，klines有时候返回为空，但response status是正常的
-        # self.item = "http://36.110.143.55:8080"
-        # self.item = "http://139.159.97.42:9798"
-
-        # self.proxy = {
-        #     "http": self.item,
-        #     "https": self.item,
-        # }
         self.proxy = ProxyManager().get_working_proxy()
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
@@ -257,6 +249,7 @@ class EMWebCrawlerUti:
                             proxies=self.proxy,
                             headers=self.headers,
                             cookies=cookie_str,
+                            timeout=10,
                         ).json()
                         break  # 成功就跳出循环
                     except Exception:
@@ -536,6 +529,7 @@ class EMWebCrawlerUti:
                 proxies=self.proxy,
                 headers=self.headers,
                 cookies=cookie_str,
+                timeout=10,
             ).json()
         except requests.RequestException as e:
             return [res]
