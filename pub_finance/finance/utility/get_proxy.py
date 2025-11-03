@@ -99,11 +99,19 @@ class ProxyManager:
         return ut_hash
 
     def load_proxies(self):
-        """从文件加载代理列表"""
+        """从文件加载代理列表，忽略以#开头的行"""
         if os.path.exists(self.proxy_file_path):
             with open(self.proxy_file_path, "r", encoding="utf-8") as f:
-                self.proxies_list = [line.strip() for line in f if line.strip()]
+                # 过滤掉以#开头的行和空行
+                self.proxies_list = [
+                    line.strip()
+                    for line in f
+                    if line.strip() and not line.strip().startswith("#")
+                ]
             print(f"已加载 {len(self.proxies_list)} 个代理")
+            # 可选：打印被忽略的注释行数量
+            if len(self.proxies_list) > 0:
+                print(f"代理列表示例: {self.proxies_list[:3]}...")  # 显示前3个代理
         else:
             print(f"代理文件 {self.proxy_file_path} 不存在")
             self.proxies_list = []
@@ -150,21 +158,21 @@ class ProxyManager:
 
             total_page_no = math.ceil(res["data"]["total"] / 100)
             if total_page_no > 0:
-                return True
+                return True, total_page_no
             else:
-                return False
-        except Exception:
-            return False
+                return False, total_page_no
+        except Exception as e:
+            return False, e
 
     def test_proxy(self, proxy_dict, test_function):
         """测试代理是否可用"""
         try:
             # 使用测试函数检查代理是否可用
-            result = test_function(proxy_dict)
+            result, content = test_function(proxy_dict)
             if result:
                 return True
             else:
-                print(f"代理测试失败")
+                print(f"代理测试失败: {proxy_dict}, {content}")
                 return False
         except Exception as e:
             print(f"代理测试失败: {e}")
@@ -174,8 +182,9 @@ class ProxyManager:
         """获取一个可用的代理"""
         if not self.proxies_list:
             return None
+        target_retries = max(max_retries, len(self.proxies_list))
 
-        for _ in range(max_retries):
+        for _ in range(target_retries):
             proxy = self.get_next_proxy()
             # print(f"测试代理: {proxy}")
 
