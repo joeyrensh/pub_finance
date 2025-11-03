@@ -186,7 +186,11 @@ class ProxyManager:
 
         for _ in range(target_retries):
             proxy = self.get_next_proxy()
-            # print(f"测试代理: {proxy}")
+            # 显示进度
+            progress = _ / target_retries * 100
+            print(
+                f"测试进度: {_+1}/{target_retries} ({progress:.1f}%) - 测试代理: {proxy}"
+            )
 
             success = self.test_proxy(proxy, self.validate_proxy)
             if success:
@@ -195,3 +199,52 @@ class ProxyManager:
 
         print("所有代理测试失败")
         return None
+
+    def save_working_proxies_to_file(self, output_file="./utility/working_proxies.txt"):
+        """
+        测试所有代理并将有效代理保存到指定文件
+        每次调用都会重新生成文件
+        """
+        if not self.proxies_list:
+            print("没有代理可供测试")
+            return []
+
+        # 重置索引，确保测试所有代理
+        self.current_proxy_index = 0
+
+        working_proxies = []
+        total_proxies = len(self.proxies_list)
+
+        print(f"开始测试 {total_proxies} 个代理...")
+
+        for i, proxy_str in enumerate(self.proxies_list):
+            proxy_dict = {"http": f"http://{proxy_str}", "https": f"http://{proxy_str}"}
+
+            # 显示进度
+            progress = (i + 1) / total_proxies * 100
+            print(
+                f"测试进度: {i+1}/{total_proxies} ({progress:.1f}%) - 测试代理: {proxy_str}"
+            )
+
+            # 测试代理
+            success = self.test_proxy(proxy_dict, self.validate_proxy)
+            if success:
+                working_proxies.append(proxy_str)
+                print(f"✅ 代理可用: {proxy_str}")
+            else:
+                print(f"❌ 代理不可用: {proxy_str}")
+
+        # 保存有效代理到文件
+        if working_proxies:
+            # 确保目录存在
+            os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
+            # 写入文件（覆盖模式）
+            with open(output_file, "w", encoding="utf-8") as f:
+                for proxy in working_proxies:
+                    f.write(f"{proxy}\n")
+
+            print(f"✅ 已保存 {len(working_proxies)} 个有效代理到: {output_file}")
+            print(f"有效代理列表: {working_proxies}")
+        else:
+            print("❌ 没有找到任何有效代理")
