@@ -174,9 +174,10 @@ class EMWebCrawlerUti:
         ut_hash = hashlib.md5(base_str.encode()).hexdigest()
         return ut_hash
 
-    def get_total_pages(self, mkt_code):
-        params = {
-            "pn": "1",
+    def build_params(self, market, mkt_code, page_num):
+        """统一的参数构建函数"""
+        base_params = {
+            "pn": f"{page_num}",
             "pz": self.pz,
             "po": "1",
             "np": "1",
@@ -185,31 +186,72 @@ class EMWebCrawlerUti:
             "fltt": "2",
             "invt": "2",
             "fid": "f12",
-            "fs": f"m:{mkt_code}",
             "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
         }
 
-        res = requests.get(
-            self.__url_list,
-            params=params,
-            proxies=self.proxy,
-            headers=self.headers,
-            cookies=self.cookie_str,
-            timeout=10,
-        ).json()
+        if market == "us":
+            base_params["fs"] = f"m:{mkt_code}"
+        elif market == "cn":
+            # 简化的A股参数设置
+            if mkt_code == "0":  # 深交所
+                base_params["fs"] = "m:0 t:6,m:0 t:80"
+            elif mkt_code == "1":  # 上交所
+                base_params["fs"] = "m:1 t:2,m:1 t:23"
+            elif mkt_code == "etf":  # ETF
+                base_params["fs"] = "b:MK0021,b:MK0022,b:MK0023,b:MK0024,b:MK0827"
+                base_params["wbp2u"] = "|0|0|0|web"
+
+        return base_params
+
+    def get_etf_market_code(self, symbol):
+        """根据ETF代码获取市场代码：5开头为深圳市场(0)，1开头为上海市场(1)"""
+        if symbol.startswith("5"):
+            return "0"  # 深圳市场
+        elif symbol.startswith("1"):
+            return "1"  # 上海市场
+        else:
+            return "0"  # 无法识别的ETF
+
+    def format_symbol(self, market, mkt_code, item):
+        """统一的股票代码格式化"""
+        if market == "us":
+            return item["f12"]
+        elif market == "cn":
+            if mkt_code == "etf":
+                return f"ETF{item['f12']}"
+            elif mkt_code == "0":
+                return f"SZ{item['f12']}"  # 深交所
+            elif mkt_code == "1":
+                return f"SH{item['f12']}"  # 上交所
+        return item["f12"]
+
+    def get_total_pages(self, market, mkt_code):
+        """统一的总页数获取函数"""
+        params = self.build_params(market, mkt_code, 1)
+        for _ in range(3):
+            try:
+                res = requests.get(
+                    self.__url_list,
+                    params=params,
+                    proxies=self.proxy,
+                    headers=self.headers,
+                    cookies=self.cookie_str,
+                    timeout=10,
+                ).json()
+                break
+            except Exception:
+                print("请求失败，正在重试...", _)
+                self.proxy = self.pm.get_working_proxy()
+                continue
 
         total_page_no = math.ceil(res["data"]["total"] / self.pz)
-        print(f"市场代码: {mkt_code}, 总页数: {total_page_no}")
+        print(f"市场: {mkt_code}, 总页数: {total_page_no}")
         return total_page_no
 
     def get_stock_list(self, market, trade_date, target_file=None):
-        # 如果缓存文件存在，直接读取
-        # 美股："./usstockinfo/us_stock_list_cache.csv"
-        # A股："./cnstockinfo/cn_stock_list_cache.csv"
         cache_file = f"./{market}stockinfo/daily_stock_cache_{trade_date}.json"
-        # 加载已有的缓存
         cache_data = {}
-        """ 获取美股数据文件地址 """
+
         if os.path.exists(cache_file) and os.path.getsize(cache_file) > 0:
             try:
                 with open(cache_file, "r", encoding="utf-8") as f:
@@ -218,52 +260,36 @@ class EMWebCrawlerUti:
             except:
                 print(f"缓存文件格式错误，将重新创建: {cache_file}")
                 cache_data = {}
-                # 如果是第一次运行，删除可能存在的旧数据文件
                 if os.path.exists(target_file):
                     os.remove(target_file)
         else:
             print(f"无有效缓存，将创建新缓存: {cache_file}")
-            # 如果是第一次运行，删除可能存在的旧数据文件
             if os.path.exists(target_file):
                 os.remove(target_file)
 
-        """
-        市场代码：
-        105:纳斯达克 NASDAQ
-        106:纽交所 NYSE
-        107:美国交易所 AMEX
-        1: 上交所
-        0: 深交所
-        """
         cookie_str = self.cookie_str
+
+        # 简化的市场代码定义
         if market == "us":
-            mkt_code = ["105", "106", "107"]
+            mkt_codes = ["105", "106", "107"]
         elif market == "cn":
-            mkt_code = ["0", "1"]
-        for m in mkt_code:
-            # 初始化当前市场代码的缓存
+            mkt_codes = ["0", "1", "etf"]  # 添加ETF分类
+
+        for m in mkt_codes:
             if m not in cache_data:
                 cache_data[m] = []
-            max_page = self.get_total_pages(m)
+
+            max_page = self.get_total_pages(market, m)
             tool = ToolKit(f"市场代码{m}，下载中...")
+
             for i in range(1, max_page + 1):
                 tool.progress_bar(max_page, i)
-                # 检查是否已经请求过该页面
                 if i in cache_data[m]:
                     continue
-                params = {
-                    "pn": f"{i}",
-                    "pz": self.pz,
-                    "po": "1",
-                    "np": "1",
-                    "ut": "fa5fd1943c7b386f172d6893dbfba10b",
-                    "fltt": "2",
-                    "invt": "2",
-                    "fid": "f12",
-                    "fs": f"m:{m}",
-                    "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
-                }
-                for _ in range(5):  # 重试2次
+
+                params = self.build_params(market, m, i)
+
+                for _ in range(5):
                     try:
                         res = requests.get(
                             self.__url_list,
@@ -273,11 +299,11 @@ class EMWebCrawlerUti:
                             cookies=cookie_str,
                             timeout=10,
                         ).json()
-                        break  # 成功就跳出循环
+                        break
                     except Exception:
                         print("请求失败，正在重试...", _)
                         self.proxy = self.pm.get_working_proxy()
-                        continue  # 失败就继续循环
+                        continue
                 else:
                     if (
                         res.get("rc") != 0
@@ -285,53 +311,57 @@ class EMWebCrawlerUti:
                         or not res["data"].get("diff")
                     ):
                         print(f"返回值为：{res}")
-                        raise [res]  # 返回错误信息
+                        raise [res]
+
                 # 请求成功，记录到缓存
                 cache_data[m].append(i)
-
-                # 保存缓存到文件
                 with open(cache_file, "w", encoding="utf-8") as f:
                     json.dump(cache_data, f, ensure_ascii=False, indent=2)
+
                 page_data = []
-                for i in res["data"]["diff"]:
-                    if (
-                        i["f12"] == "-"
-                        or i["f14"] == "-"
-                        or i["f17"] == "-"
-                        or i["f2"] == "-"
-                        or i["f15"] == "-"
-                        or i["f16"] == "-"
-                        or i["f5"] == "-"
-                        or i["f20"] == "-"
+                for item in res["data"]["diff"]:
+                    if any(
+                        item.get(key) == "-"
+                        for key in [
+                            "f12",
+                            "f14",
+                            "f17",
+                            "f2",
+                            "f15",
+                            "f16",
+                            "f5",
+                            "f20",
+                        ]
                     ):
                         continue
-                    if m in ["105", "106", "107"]:
-                        dict = {"symbol": i["f12"], "mkt_code": m}
-                    elif m in {"0", "1"}:
-                        prefix = (
-                            "ETF" if "ETF" in i["f14"] else {"0": "SZ", "1": "SH"}[m]
-                        )
-                        data_dict = {"symbol": prefix + i["f12"], "mkt_code": m}
+
+                    symbol_val = self.format_symbol(market, m, item)
+
+                    # 对于ETF，根据代码确定实际的市场代码
+                    if m == "etf":
+                        actual_mkt_code = self.get_etf_market_code(item["f12"])
+                    else:
+                        actual_mkt_code = m
+
+                    data_dict = {"symbol": symbol_val, "mkt_code": actual_mkt_code}
                     page_data.append(data_dict)
-                # 将当前页面的数据写入文件
-                if page_data:  # 确保有数据才写入
-                    # 检查数据文件是否已存在，决定写入模式
+
+                if page_data:
                     file_exists = (
                         os.path.exists(target_file) and os.path.getsize(target_file) > 0
                     )
-
-                    # 如果文件已存在，使用追加模式且不包含表头；否则创建新文件并包含表头
                     pd.DataFrame(page_data).to_csv(
                         target_file,
                         mode="a" if file_exists else "w",
                         index=False,
                         header=not file_exists,
                     )
-        # 全部完成后删除缓存文件
+
         if os.path.exists(cache_file):
             os.remove(cache_file)
             print(f"缓存文件 {cache_file} 已删除")
-        return list
+
+        return []
 
     def get_daily_gz_info(self, market, trade_date):
         # 10年期国债收益率
@@ -370,10 +400,9 @@ class EMWebCrawlerUti:
 
     def get_daily_stock_info(self, market, trade_date):
         cache_file = f"./{market}stockinfo/daily_stock_cache_{trade_date}.json"
-        # 加载已有的缓存
         cache_data = {}
-        """ 获取美股数据文件地址 """
         file_name_d = FileInfo(trade_date, market).get_file_path_latest
+
         if os.path.exists(cache_file) and os.path.getsize(cache_file) > 0:
             try:
                 with open(cache_file, "r", encoding="utf-8") as f:
@@ -382,52 +411,36 @@ class EMWebCrawlerUti:
             except:
                 print(f"缓存文件格式错误，将重新创建: {cache_file}")
                 cache_data = {}
-                # 如果是第一次运行，删除可能存在的旧数据文件
                 if os.path.exists(file_name_d):
                     os.remove(file_name_d)
         else:
             print(f"无有效缓存，将创建新缓存: {cache_file}")
-            # 如果是第一次运行，删除可能存在的旧数据文件
             if os.path.exists(file_name_d):
                 os.remove(file_name_d)
 
-        dict = {}
-        list = []
         cookie_str = self.cookie_str
-        if market == "us":
-            mkt_code = ["105", "106", "107"]
-        elif market == "cn":
-            mkt_code = ["0", "1"]
 
-        for m in mkt_code:
-            # 初始化当前市场代码的缓存
+        # 简化的市场代码定义
+        if market == "us":
+            mkt_codes = ["105", "106", "107"]
+        elif market == "cn":
+            mkt_codes = ["0", "1", "etf"]  # 添加ETF分类
+
+        for m in mkt_codes:
             if m not in cache_data:
                 cache_data[m] = []
-            max_page = self.get_total_pages(m)
+
+            max_page = self.get_total_pages(market, m)
             tool = ToolKit(f"市场代码{m}，共{max_page}页")
+
             for i in range(1, max_page + 1):
                 tool.progress_bar(max_page, i)
-                # 检查是否已经请求过该页面
                 if i in cache_data[m]:
                     continue
-                params = {
-                    "pn": f"{i}",
-                    "pz": self.pz,
-                    "po": "1",
-                    "np": "1",
-                    # "ut": "fa5fd1943c7b386f172d6893dbfba10b",
-                    "ut:": self.generate_ut_param(),
-                    "fltt": "2",
-                    "invt": "2",
-                    "fid": "f12",
-                    "fs": f"m:{m}",
-                    "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
-                }
-                # if i % 10 == 0:
-                #     # time.sleep(random.uniform(10, 20))
-                #     cookie_str = self.randomize_cookie_string(self.cookie_str)
 
-                for _ in range(5):
+                params = self.build_params(market, m, i)
+
+                for _ in range(3):
                     try:
                         res = requests.get(
                             self.__url_list,
@@ -437,11 +450,11 @@ class EMWebCrawlerUti:
                             cookies=cookie_str,
                             timeout=10,
                         ).json()
-                        break  # 成功就跳出循环
+                        break
                     except Exception:
                         print("请求失败，正在重试...", _)
                         self.proxy = self.pm.get_working_proxy()
-                        continue  # 失败就继续循环
+                        continue
                 else:
                     if (
                         res.get("rc") != 0
@@ -449,66 +462,51 @@ class EMWebCrawlerUti:
                         or not res["data"].get("diff")
                     ):
                         print(f"返回值为：{res}")
-                        raise [res]  # 返回错误信息
+                        raise [res]
 
-                # 请求成功，记录到缓存
                 cache_data[m].append(i)
-
-                # 保存缓存到文件
                 with open(cache_file, "w", encoding="utf-8") as f:
                     json.dump(cache_data, f, ensure_ascii=False, indent=2)
-                """         
-                f12: 股票代码, f14: 公司名称, f2: 最新报价, f3: 涨跌幅, f4: 涨跌额, f5: 成交量, f6: 成交额
-                f7: 振幅,f9: 市盈率, f15: 最高, f16: 最低, f17: 今开, f18: 昨收, f20:总市值 f21:流通值
-                f12: symbol, f14: name, f2: close, f3: chg, f4: change, f5: volume, f6: turnover
-                f7: amplitude,f9: pe, f15: high, f16: low, f17: open, f18: preclose, f20: total_value, f21: circulation_value
-                """
-                # 处理当前页面的数据
+
                 page_data = []
-                for i in res["data"]["diff"]:
-                    if (
-                        i["f12"] == "-"
-                        or i["f14"] == "-"
-                        or i["f17"] == "-"
-                        or i["f2"] == "-"
-                        or i["f15"] == "-"
-                        or i["f16"] == "-"
-                        or i["f5"] == "-"
-                        or i["f20"] == "-"
+                for item in res["data"]["diff"]:
+                    if any(
+                        item.get(key) == "-"
+                        for key in [
+                            "f12",
+                            "f14",
+                            "f17",
+                            "f2",
+                            "f15",
+                            "f16",
+                            "f5",
+                            "f20",
+                        ]
                     ):
                         continue
-                    if m in ["105", "106", "107"]:
-                        symbol_val = i["f12"]
-                    elif m in {"0", "1"}:
-                        prefix = (
-                            "ETF" if "ETF" in i["f14"] else {"0": "SZ", "1": "SH"}[m]
-                        )
-                        symbol_val = prefix + i["f12"]
+
+                    symbol_val = self.format_symbol(market, m, item)
                     data_dict = {
                         "symbol": symbol_val,
-                        "name": i["f14"],
-                        "open": i["f17"],
-                        "close": i["f2"],
-                        "high": i["f15"],
-                        "low": i["f16"],
-                        "volume": i["f5"],
-                        "total_value": i["f20"],
-                        "pe": i["f9"],
+                        "name": item["f14"],
+                        "open": item["f17"],
+                        "close": item["f2"],
+                        "high": item["f15"],
+                        "low": item["f16"],
+                        "volume": item["f5"],
+                        "total_value": item["f20"],
+                        "pe": item["f9"],
                     }
                     page_data.append(data_dict)
 
-                # 将当前页面的数据写入文件
-                if page_data:  # 确保有数据才写入
+                if page_data:
                     df = pd.DataFrame(page_data)
                     date = datetime.strptime(trade_date, "%Y%m%d")
                     df["date"] = date
 
-                    # 检查数据文件是否已存在，决定写入模式
                     file_exists = (
                         os.path.exists(file_name_d) and os.path.getsize(file_name_d) > 0
                     )
-
-                    # 如果文件已存在，使用追加模式且不包含表头；否则创建新文件并包含表头
                     df.to_csv(
                         file_name_d,
                         mode="a" if file_exists else "w",
@@ -516,7 +514,6 @@ class EMWebCrawlerUti:
                         header=not file_exists,
                     )
 
-        # 全部完成后删除缓存文件
         if os.path.exists(cache_file):
             os.remove(cache_file)
             print(f"缓存文件 {cache_file} 已删除")

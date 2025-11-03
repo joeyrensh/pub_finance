@@ -143,7 +143,7 @@ class ProxyManager:
             "fltt": "2",
             "invt": "2",
             "fid": "f12",
-            "fs": "m:0",
+            "fs": "m:1 t:2,m:1 t:23",
             "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
         }
         try:
@@ -172,7 +172,7 @@ class ProxyManager:
             if result:
                 return True
             else:
-                print(f"代理测试失败: {proxy_dict}, {content}")
+                print(f"代理测试失败: {proxy_dict}")
                 return False
         except Exception as e:
             print(f"代理测试失败: {e}")
