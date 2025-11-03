@@ -53,7 +53,8 @@ class EMWebCrawlerUti:
         """
         self.__url_list = "http://push2.eastmoney.com/api/qt/clist/get"
         self.__url_history = "http://82.push2his.eastmoney.com/api/qt/stock/kline/get"
-        self.proxy = ProxyManager().get_working_proxy()
+        self.pm = ProxyManager()
+        self.proxy = self.pm.get_working_proxy()
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
             # "user-agent": UserAgent().random,
@@ -201,13 +202,30 @@ class EMWebCrawlerUti:
         print(f"市场代码: {mkt_code}, 总页数: {total_page_no}")
         return total_page_no
 
-    def get_stock_list(self, market, cache_path=None):
+    def get_stock_list(self, market, trade_date, target_file=None):
         # 如果缓存文件存在，直接读取
         # 美股："./usstockinfo/us_stock_list_cache.csv"
         # A股："./cnstockinfo/cn_stock_list_cache.csv"
-        if os.path.exists(cache_path):
-            print(f"读取股票列表缓存: {cache_path}")
-            return pd.read_csv(cache_path).to_dict(orient="records")
+        cache_file = f"./{market}stockinfo/daily_stock_cache_{trade_date}.json"
+        # 加载已有的缓存
+        cache_data = {}
+        """ 获取美股数据文件地址 """
+        if os.path.exists(cache_file) and os.path.getsize(cache_file) > 0:
+            try:
+                with open(cache_file, "r", encoding="utf-8") as f:
+                    cache_data = json.load(f)
+                    print(f"加载缓存文件: {cache_file}")
+            except:
+                print(f"缓存文件格式错误，将重新创建: {cache_file}")
+                cache_data = {}
+                # 如果是第一次运行，删除可能存在的旧数据文件
+                if os.path.exists(target_file):
+                    os.remove(target_file)
+        else:
+            print(f"无有效缓存，将创建新缓存: {cache_file}")
+            # 如果是第一次运行，删除可能存在的旧数据文件
+            if os.path.exists(target_file):
+                os.remove(target_file)
 
         """
         市场代码：
@@ -217,18 +235,22 @@ class EMWebCrawlerUti:
         1: 上交所
         0: 深交所
         """
-        dict = {}
-        list = []
         cookie_str = self.cookie_str
         if market == "us":
             mkt_code = ["105", "106", "107"]
         elif market == "cn":
             mkt_code = ["0", "1"]
         for m in mkt_code:
+            # 初始化当前市场代码的缓存
+            if m not in cache_data:
+                cache_data[m] = []
             max_page = self.get_total_pages(m)
             tool = ToolKit(f"市场代码{m}，下载中...")
             for i in range(1, max_page + 1):
                 tool.progress_bar(max_page, i)
+                # 检查是否已经请求过该页面
+                if i in cache_data[m]:
+                    continue
                 params = {
                     "pn": f"{i}",
                     "pz": self.pz,
@@ -241,7 +263,7 @@ class EMWebCrawlerUti:
                     "fs": f"m:{m}",
                     "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
                 }
-                for _ in range(2):  # 重试2次
+                for _ in range(5):  # 重试2次
                     try:
                         res = requests.get(
                             self.__url_list,
@@ -254,6 +276,7 @@ class EMWebCrawlerUti:
                         break  # 成功就跳出循环
                     except Exception:
                         print("请求失败，正在重试...", _)
+                        self.proxy = self.pm.get_working_proxy()
                         continue  # 失败就继续循环
                 else:
                     if (
@@ -263,6 +286,13 @@ class EMWebCrawlerUti:
                     ):
                         print(f"返回值为：{res}")
                         raise [res]  # 返回错误信息
+                # 请求成功，记录到缓存
+                cache_data[m].append(i)
+
+                # 保存缓存到文件
+                with open(cache_file, "w", encoding="utf-8") as f:
+                    json.dump(cache_data, f, ensure_ascii=False, indent=2)
+                page_data = []
                 for i in res["data"]["diff"]:
                     if (
                         i["f12"] == "-"
@@ -281,10 +311,26 @@ class EMWebCrawlerUti:
                         prefix = (
                             "ETF" if "ETF" in i["f14"] else {"0": "SZ", "1": "SH"}[m]
                         )
-                        dict = {"symbol": prefix + i["f12"], "mkt_code": m}
-                    list.append(dict)
-        # 保存到本地缓存
-        pd.DataFrame(list).to_csv(cache_path, index=False)
+                        data_dict = {"symbol": prefix + i["f12"], "mkt_code": m}
+                    page_data.append(data_dict)
+                # 将当前页面的数据写入文件
+                if page_data:  # 确保有数据才写入
+                    # 检查数据文件是否已存在，决定写入模式
+                    file_exists = (
+                        os.path.exists(target_file) and os.path.getsize(target_file) > 0
+                    )
+
+                    # 如果文件已存在，使用追加模式且不包含表头；否则创建新文件并包含表头
+                    pd.DataFrame(page_data).to_csv(
+                        target_file,
+                        mode="a" if file_exists else "w",
+                        index=False,
+                        header=not file_exists,
+                    )
+        # 全部完成后删除缓存文件
+        if os.path.exists(cache_file):
+            os.remove(cache_file)
+            print(f"缓存文件 {cache_file} 已删除")
         return list
 
     def get_daily_gz_info(self, market, trade_date):
@@ -348,7 +394,6 @@ class EMWebCrawlerUti:
         dict = {}
         list = []
         cookie_str = self.cookie_str
-        pm = ProxyManager()
         if market == "us":
             mkt_code = ["105", "106", "107"]
         elif market == "cn":
@@ -395,7 +440,7 @@ class EMWebCrawlerUti:
                         break  # 成功就跳出循环
                     except Exception:
                         print("请求失败，正在重试...", _)
-                        self.proxy = pm.get_working_proxy()
+                        self.proxy = self.pm.get_working_proxy()
                         continue  # 失败就继续循环
                 else:
                     if (
@@ -504,8 +549,6 @@ class EMWebCrawlerUti:
             symbol_val = symbol
         elif str(mkt_code) in ["0", "1"]:
             symbol_val = re.sub(r"^(ETF|SZ|SH)", "", symbol)
-
-        CookieGeneration().generate_em_cookies()
         cookie_str = self.parse_cookie_string()
 
         params = {
@@ -522,19 +565,23 @@ class EMWebCrawlerUti:
         }
 
         """ 请求url, 获取数据response """
-        try:
-            res = requests.get(
-                self.__url_history,
-                params=params,
-                proxies=self.proxy,
-                headers=self.headers,
-                cookies=cookie_str,
-                timeout=10,
-            ).json()
-        except requests.RequestException as e:
-            return [res]
-        if res.get("rc") != 0 or not res.get("data"):
-            return [res]  # 返回错误信息
+        for _ in range(5):
+            try:
+                res = requests.get(
+                    self.__url_history,
+                    params=params,
+                    proxies=self.proxy,
+                    headers=self.headers,
+                    cookies=cookie_str,
+                    timeout=10,
+                ).json()
+            except requests.RequestException as e:
+                print("请求失败，正在重试...", _)
+                self.proxy = self.pm.get_working_proxy()
+                continue  # 失败就继续循环
+        else:
+            if res.get("rc") != 0 or not res.get("data"):
+                raise [res]  # 返回错误信息
 
         # 获取klines数据
         klines = res.get("data", {}).get("klines", [])
@@ -603,7 +650,7 @@ class EMWebCrawlerUti:
         )
         stock_list_cache_path = stock_list_cache_path or paths[market]["stock_list"]
         """获取股票列表"""
-        tickinfo = self.get_stock_list(market, cache_path=stock_list_cache_path)
+        tickinfo = self.get_stock_list(market, end_date, stock_list_cache_path)
         # tickinfo = [{"symbol": "BABA", "mkt_code": "106"}]
         # 断点续爬：读取已存在的symbol
         done_symbols = set()
