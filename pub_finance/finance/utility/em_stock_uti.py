@@ -355,6 +355,7 @@ class EMWebCrawlerUti:
         dict = {}
         list = []
         cookie_str = self.cookie_str
+        pm = ProxyManager()
         if market == "us":
             mkt_code = ["105", "106", "107"]
         elif market == "cn":
@@ -401,7 +402,7 @@ class EMWebCrawlerUti:
                         break  # 成功就跳出循环
                     except Exception:
                         print("请求失败，正在重试...", _)
-                        self.proxy = ProxyManager().get_working_proxy()
+                        self.proxy = pm.get_working_proxy()
                         continue  # 失败就继续循环
                 else:
                     if (
