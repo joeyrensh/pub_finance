@@ -170,14 +170,14 @@ class ProxyManager:
             print(f"代理测试失败: {e}")
             return False
 
-    def get_working_proxy(self, max_retries=10):
+    def get_working_proxy(self, max_retries=5):
         """获取一个可用的代理"""
         if not self.proxies_list:
             return None
 
         for _ in range(max_retries):
             proxy = self.get_next_proxy()
-            print(f"测试代理: {proxy}")
+            # print(f"测试代理: {proxy}")
 
             success = self.test_proxy(proxy, self.validate_proxy)
             if success:

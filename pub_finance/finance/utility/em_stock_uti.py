@@ -202,6 +202,7 @@ class EMWebCrawlerUti:
             proxies=self.proxy,
             headers=self.headers,
             cookies=self.cookie_str,
+            timeout=10,
         ).json()
 
         total_page_no = math.ceil(res["data"]["total"] / self.pz)
@@ -383,23 +384,33 @@ class EMWebCrawlerUti:
                     "fs": f"m:{m}",
                     "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
                 }
-                if i % 10 == 0:
-                    # time.sleep(random.uniform(10, 20))
-                    cookie_str = self.randomize_cookie_string(self.cookie_str)
+                # if i % 10 == 0:
+                #     # time.sleep(random.uniform(10, 20))
+                #     cookie_str = self.randomize_cookie_string(self.cookie_str)
 
-                res = requests.get(
-                    self.__url_list,
-                    params=params,
-                    proxies=self.proxy,
-                    headers=self.headers,
-                    cookies=cookie_str,
-                ).json()
-                if (
-                    res.get("rc") != 0
-                    or not res.get("data")
-                    or not res["data"].get("diff")
-                ):
-                    return [res]  # 返回错误信息
+                for _ in range(5):
+                    try:
+                        res = requests.get(
+                            self.__url_list,
+                            params=params,
+                            proxies=self.proxy,
+                            headers=self.headers,
+                            cookies=cookie_str,
+                            timeout=10,
+                        ).json()
+                        break  # 成功就跳出循环
+                    except Exception:
+                        print("请求失败，正在重试...", _)
+                        self.proxy = ProxyManager().get_working_proxy()
+                        continue  # 失败就继续循环
+                else:
+                    if (
+                        res.get("rc") != 0
+                        or not res.get("data")
+                        or not res["data"].get("diff")
+                    ):
+                        print(f"返回值为：{res}")
+                        raise [res]  # 返回错误信息
 
                 # 请求成功，记录到缓存
                 cache_data[m].append(i)
