@@ -7,6 +7,7 @@ import time
 import json
 import tempfile
 import chromedriver_autoinstaller
+from selenium.webdriver.chrome.service import Service
 
 
 class CookieGeneration(object):
@@ -27,47 +28,34 @@ class CookieGeneration(object):
             pip install fake-useragent
         """
         # 配置Chrome选项
-        chromedriver_autoinstaller.install()
+        # chromedriver_autoinstaller.install()
+        print("🔍 检查并安装chromedriver...")
 
         chrome_options = Options()
         chrome_options.binary_location = "/usr/bin/chromium-browser"
 
-        # chrome_options.add_argument("--incognito")  # 启用Chrome无痕模式
         # 为每次运行创建一个临时的用户数据目录
         user_data_dir = tempfile.mkdtemp()
         chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
-        if headless:
-            chrome_options.add_argument("--headless")  # 无头模式
-        # chrome_options.add_argument("--ozone-platform=headless")
+        chrome_options.add_argument("--headless")  # 无头模式
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--window-size=1920,1080")
-        chrome_options.add_argument("--remote-debugging-port=9222")
-        # 针对无头环境的特殊设置
-        chrome_options.add_argument("--disable-extensions")
-        chrome_options.add_argument("--disable-software-rasterizer")
-        chrome_options.add_argument("--disable-default-apps")
-        chrome_options.add_argument("--disable-features=VizDisplayCompositor")
-        # 添加这些额外的参数
-        chrome_options.add_argument("--disable-x11-devices")
-        chrome_options.add_argument("--use-gl=swiftshader")
-        chrome_options.add_argument("--disable-software-rasterizer")
+        print("🔧 配置Chrome选项完成")
 
-        from fake_useragent import UserAgent
-
+        # from fake_useragent import UserAgent
         # 创建一个UserAgent对象
-        ua = UserAgent()
-
+        # ua = UserAgent()
         # 生成一个随机User-Agent字符串
-        random_user_agent = ua.random
+        # random_user_agent = ua.random
         chrome_options.add_argument(
             "--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
         )
         # chrome_options.add_argument(f"--user-agent={random_user_agent}")
 
         # 启动浏览器
-        driver = webdriver.Chrome(options=chrome_options)
+        service = Service(executable_path="/usr/bin/chromedriver")
+        driver = webdriver.Chrome(service=service, options=chrome_options)
 
         try:
             print("🚀 启动浏览器访问页面...")
