@@ -54,7 +54,7 @@ class EMWebCrawlerUti:
         self.__url_list = "http://push2.eastmoney.com/api/qt/clist/get"
         self.__url_history = "http://82.push2his.eastmoney.com/api/qt/stock/kline/get"
         self.pm = ProxyManager()
-        self.proxy = self.pm.get_working_proxy()
+        self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
             # "user-agent": UserAgent().random,
@@ -228,6 +228,8 @@ class EMWebCrawlerUti:
     def get_total_pages(self, market, mkt_code):
         """统一的总页数获取函数"""
         params = self.build_params(market, mkt_code, 1)
+        if self.proxy is None:
+            self.proxy = self.pm.get_working_proxy()
         for _ in range(3):
             try:
                 res = requests.get(
@@ -249,6 +251,8 @@ class EMWebCrawlerUti:
         return total_page_no
 
     def get_stock_list(self, market, trade_date, target_file=None):
+        if self.proxy is None:
+            self.proxy = self.pm.get_working_proxy()
         cache_file = f"./{market}stockinfo/daily_stock_cache_{trade_date}.json"
         cache_data = {}
 
@@ -399,6 +403,8 @@ class EMWebCrawlerUti:
             writer.writerows(filtered_rows)
 
     def get_daily_stock_info(self, market, trade_date):
+        if self.proxy is None:
+            self.proxy = self.pm.get_working_proxy()
         cache_file = f"./{market}stockinfo/daily_stock_cache_{trade_date}.json"
         cache_data = {}
         file_name_d = FileInfo(trade_date, market).get_file_path_latest
@@ -542,6 +548,8 @@ class EMWebCrawlerUti:
                 前复权 : 1
                 后复权 : 2
         """
+        if self.proxy is None:
+            self.proxy = self.pm.get_working_proxy()
         if str(mkt_code) in ["105", "106", "107"]:
             symbol_val = symbol
         elif str(mkt_code) in ["0", "1"]:
