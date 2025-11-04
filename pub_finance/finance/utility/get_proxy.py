@@ -189,7 +189,7 @@ class ProxyManager:
             # 显示进度
             progress = _ / target_retries * 100
             print(
-                f"测试进度: {_+1}/{target_retries} ({progress:.1f}%) - 测试代理: {proxy}"
+                f"测试进度: {_+1}/{target_retries} ({progress:.0f}%) - 测试代理: {proxy}"
             )
 
             success = self.test_proxy(proxy, self.validate_proxy)
@@ -223,7 +223,7 @@ class ProxyManager:
             # 显示进度
             progress = (i + 1) / total_proxies * 100
             print(
-                f"测试进度: {i+1}/{total_proxies} ({progress:.1f}%) - 测试代理: {proxy_str}"
+                f"测试进度: {i+1}/{total_proxies} ({progress:.0f}%) - 测试代理: {proxy_str}"
             )
 
             # 测试代理
