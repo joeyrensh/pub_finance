@@ -678,6 +678,7 @@ class GlobalStrategy(bt.Strategy):
                     "price": pos.price,
                     "adjbase": pos.adjbase,
                     "pnl": pos.size * (pos.adjbase - pos.price),
+                    "volume": d.volume[0],
                 }
                 list.append(dict)
 
@@ -768,7 +769,7 @@ class GlobalStrategy(bt.Strategy):
         if df.empty:
             return
         if self.market in ("cn", "us"):
-            """ 
+            """
             匹配行业信息
             """
             df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])

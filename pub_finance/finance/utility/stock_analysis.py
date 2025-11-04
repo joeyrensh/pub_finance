@@ -99,7 +99,7 @@ class StockProposal:
         spark_industry_info.createOrReplaceTempView("temp_industry_info")
         # 仓位日志明细
         file_path_position_detail = file.get_file_path_position_detail
-        cols = ["idx", "symbol", "date", "price", "adjbase", "pnl"]
+        cols = ["idx", "symbol", "date", "price", "adjbase", "pnl", "volume"]
         spark_position_detail = spark.read.csv(
             file_path_position_detail, header=None, inferSchema=True
         )
@@ -243,11 +243,13 @@ class StockProposal:
             ), tmp3 AS (
                 SELECT industry
                     , COLLECT_LIST(pnl) AS pnl_array
+                    , COLLECT_LIST(volume) AS volume_array
                 FROM (
                     SELECT t2.industry, t1.buy_date AS date
                         , SUM(IF(t1.buy_date = t2.date, COALESCE(t2.pnl, 0), 0)) AS pnl
+                        , SUM(IF(t1.buy_date = t2.date, COALESCE(t2.volume, 0), 0)) AS volume
                     FROM temp_timeseries t1 
-                    LEFT JOIN  (SELECT t3.industry, t2.date, SUM(t2.pnl) AS pnl FROM temp_position_detail t2 JOIN temp_industry_info t3 ON t2.symbol = t3.symbol 
+                    LEFT JOIN  (SELECT t3.industry, t2.date, SUM(t2.pnl) AS pnl, SUM(t2.volume) AS volume FROM temp_position_detail t2 JOIN temp_industry_info t3 ON t2.symbol = t3.symbol 
                                 GROUP BY t3.industry, t2.date) t2 ON 1 = 1
                     GROUP BY t2.industry, t1.buy_date
                     ORDER BY t2.industry, t1.buy_date ASC
@@ -266,6 +268,7 @@ class StockProposal:
                 ,COALESCE(t2.p_pnl,0) AS pnl
                 ,IF(COALESCE(t2.base,0) + COALESCE(t1.his_base,0) = 0, 0, (COALESCE(t2.adjbase,0) + COALESCE(t1.his_adjbase,0) - COALESCE(t2.base,0) - COALESCE(t1.his_base,0)) / (COALESCE(t2.base,0) + COALESCE(t1.his_base,0))) AS pnl_ratio
                 ,COALESCE(t3.pnl_array,ARRAY(0)) AS pnl_array
+                ,COALESCE(t3.volume_array,ARRAY(0)) AS volume_array
                 ,IF(COALESCE(t1.his_symbol_cnt,0) = 0, 0, COALESCE(t1.his_trade_cnt,0) / COALESCE(t1.his_symbol_cnt,0) ) AS avg_his_trade_cnt
                 ,IF(COALESCE(t1.his_trade_cnt,0) = 0, 0, COALESCE(t1.his_days,0) / COALESCE(t1.his_trade_cnt,0) ) AS avg_days
                 ,IF((COALESCE(t1.pos_cnt,0) + COALESCE(t2.pos_cnt,0) + COALESCE(t1.neg_cnt,0) + COALESCE(t2.neg_cnt,0)) > 0, (COALESCE(t1.pos_cnt,0) + COALESCE(t2.pos_cnt,0)) / (COALESCE(t1.pos_cnt,0) + COALESCE(t2.pos_cnt,0) + COALESCE(t1.neg_cnt,0) + COALESCE(t2.neg_cnt,0)), 0) AS win_rate
@@ -377,6 +380,7 @@ class StockProposal:
                 "avg_days",
                 "win_rate",
                 "pnl_array",
+                "volume_array",
                 "pnl_growth",
             ]
         ].copy()
@@ -421,6 +425,9 @@ class StockProposal:
         pd_industry_history_tracking["pnl_trend"] = pd_industry_history_tracking[
             "pnl_array"
         ].apply(ToolKit("draw line").create_line)
+        pd_industry_history_tracking["volume_trend"] = pd_industry_history_tracking[
+            "volume_array"
+        ].apply(ToolKit("draw line").create_line)
         pd_industry_history_tracking.rename(
             columns={
                 "industry": "IND",
@@ -434,11 +441,30 @@ class StockProposal:
                 "avg_days": "AVG DAYS",
                 "win_rate": "WIN RATE",
                 "pnl_trend": "PROFIT TREND",
+                "volume_trend": "VOLUME TREND",
             },
             inplace=True,
         )
         pd_industry_history_tracking.to_csv(
-            f"./data/{self.market}_category.csv", header=True
+            f"./data/{self.market}_category.csv",
+            columns=[
+                "IND",
+                "OPEN",
+                "L5 OPEN",
+                "L5 CLOSE",
+                "PROFIT",
+                "PNL RATIO",
+                "LRATIO",
+                "AVG TRANS",
+                "AVG DAYS",
+                "WIN RATE",
+                "pnl_growth",
+                "index_diff",
+                "industry_new",
+                "PROFIT TREND",
+                "VOLUME TREND",
+            ],
+            header=True,
         )
         cm = sns.light_palette("seagreen", as_cmap=True)
 
@@ -458,6 +484,7 @@ class StockProposal:
                 axis=1,
                 subset=[
                     "pnl_array",
+                    "volume_array",
                     "index_diff",
                     "industry_new",
                     "pnl_growth",
@@ -523,9 +550,9 @@ class StockProposal:
                     ),
                 ],
             ).set_properties(
-                subset=["PROFIT TREND", "IND"],
+                subset=["PROFIT TREND", "VOLUME TREND", "IND"],
                 **{
-                    "min-width": "150px !important",
+                    "min-width": "120px !important",
                     # "max-width": "100%",
                     # "width": "150px",
                     "padding": "0",
@@ -3381,7 +3408,7 @@ class StockProposal:
         ].toPandas()
         # 仓位日志明细
         file_path_position_detail = file.get_file_path_etf_position_detail
-        cols = ["idx", "symbol", "date", "price", "adjbase", "pnl"]
+        cols = ["idx", "symbol", "date", "price", "adjbase", "pnl", "volume"]
         spark_position_detail = spark.read.csv(
             file_path_position_detail, header=None, inferSchema=True
         )

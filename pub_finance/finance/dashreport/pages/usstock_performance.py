@@ -95,6 +95,7 @@ def create_layout(app):
             "AVG DAYS",
             "WIN RATE",
             "PROFIT TREND",
+            "VOLUME TREND",
         ]
     ].copy()
 

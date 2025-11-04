@@ -63,7 +63,7 @@ class EMWebCrawlerUti:
             "accept-encoding": "gzip, deflate, br",
             "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
         }
-        # CookieGeneration().generate_em_cookies()
+        self.cg = CookieGeneration()
         self.cookie_str = self.parse_cookie_string()
 
         self.pz = 100
@@ -227,6 +227,7 @@ class EMWebCrawlerUti:
 
     def get_total_pages(self, market, mkt_code):
         """统一的总页数获取函数"""
+        self.cg.generate_em_cookies()
         params = self.build_params(market, mkt_code, 1)
         if self.proxy is None:
             self.proxy = self.pm.get_working_proxy()
