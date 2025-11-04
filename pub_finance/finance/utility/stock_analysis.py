@@ -343,7 +343,7 @@ class StockProposal:
                     FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
                     WHERE row_num = 6)
                 GROUP BY t2.industry
-            )   
+            )
             SELECT tmp.industry
                 ,COALESCE(tmp1.pnl, 0) - COALESCE(tmp2.pnl, 0) AS pnl_growth
             FROM tmp 
