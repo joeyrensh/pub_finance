@@ -292,6 +292,7 @@ class StockProposal:
                     LEFT JOIN temp_gz t2 ON 1=1 
                     ) t3
                 ON temp_industry_info.symbol = t3.symbol
+                WHERE t3.erp > -50 and t3.erp < 50
                 GROUP BY temp_industry_info.industry
             )                
             SELECT t1.industry
