@@ -310,19 +310,6 @@ class ToolKit:
         1. 单列数据: 保持原有功能和视觉效果
         2. 双列数据: 使用双Y轴，第一组在左侧，第二组在右侧，确保0点对齐
         第二组填充色模仿原始单图版本的渐变填充
-
-        使用示例:
-        # 单列用法 (保持原有)
-        df["trend"] = df["pnl_array"].apply(ToolKit("draw line").create_line)
-
-        # 双列用法 (新增)
-        df["combined_trend"] = df.apply(
-            lambda row: ToolKit("draw line").create_line(
-                row["pnl_array"],
-                row["volume_array"]
-            ),
-            axis=1
-        )
         """
         set_matplotlib_formats("svg")
 
@@ -337,8 +324,7 @@ class ToolKit:
             "secondary_line_alpha": 0.8,  # 第二组线条透明度
             # 渐变填充配置 (与原始单图版本相同)
             "gradient_steps": 100,  # 渐变精度
-            # "fill_alpha_range": (0.08, 0.3),  # 透明度动态范围
-            "fill_alpha_range": (0.3, 0.5),  # 透明度动态范围
+            "fill_alpha_range": (0.08, 0.3),  # 透明度动态范围
             # 通用配置
             "marker_size": 3.5,
             "zero_line_alpha": 0.2,
@@ -417,68 +403,54 @@ class ToolKit:
             datasets[0] = datasets[0][:min_length]
             datasets[1] = datasets[1][:min_length]
 
-        # 计算Y轴范围，确保0点对齐
-        if not is_single_mode and len(datasets) >= 2:
-            # 计算两组数据的范围
-            data1 = datasets[0]
-            data2 = datasets[1]
-
-            # 清理数据，确保都是数值
-            clean_data1 = [
-                float(x) for x in data1 if isinstance(x, (int, float, np.number))
-            ]
-            clean_data2 = [
-                float(x) for x in data2 if isinstance(x, (int, float, np.number))
-            ]
-
-            if clean_data1 and clean_data2:
-                # 计算数据范围
-                min1, max1 = min(clean_data1), max(clean_data1)
-                min2, max2 = min(clean_data2), max(clean_data2)
-
-                # 计算范围比例，确保0点对齐
-                range1 = max1 - min1
-                range2 = max2 - min2
-
-                # 如果范围太小，设置一个最小范围
-                if range1 == 0:
-                    range1 = 1
-                    min1, max1 = -0.5, 0.5
-                if range2 == 0:
-                    range2 = 1
-                    min2, max2 = -0.5, 0.5
-
-                # 计算0点在各自范围内的位置
-                zero_pos1 = (0 - min1) / range1 if range1 > 0 else 0.5
-                zero_pos2 = (0 - min2) / range2 if range2 > 0 else 0.5
-
-                # 如果0点位置差异较大，调整范围使0点对齐
-                if abs(zero_pos1 - zero_pos2) > 0.1:  # 如果0点位置差异超过10%
-                    # 计算新的范围，使0点位置相同
-                    if zero_pos1 > zero_pos2:
-                        # 需要增加第二组数据的范围
-                        new_range2 = (
-                            range2 * (zero_pos1 / zero_pos2)
-                            if zero_pos2 > 0
-                            else range2
-                        )
-                        new_min2 = 0 - zero_pos1 * new_range2
-                        new_max2 = new_min2 + new_range2
-                        min2, max2 = new_min2, new_max2
+        # 计算各组数据的范围 - 简化版本
+        data_ranges = []
+        for dataset in datasets:
+            if dataset:
+                # 清理数据，确保都是数值
+                clean_data = []
+                for x in dataset:
+                    if isinstance(x, (int, float, np.number)):
+                        clean_data.append(float(x))
                     else:
-                        # 需要增加第一组数据的范围
-                        new_range1 = (
-                            range1 * (zero_pos2 / zero_pos1)
-                            if zero_pos1 > 0
-                            else range1
-                        )
-                        new_min1 = 0 - zero_pos2 * new_range1
-                        new_max1 = new_min1 + new_range1
-                        min1, max1 = new_min1, new_max1
+                        try:
+                            clean_data.append(float(x))
+                        except (ValueError, TypeError):
+                            clean_data.append(0.0)
 
-                # 设置Y轴范围
-                ax1.set_ylim(min1, max1)
-                ax2.set_ylim(min2, max2)
+                if clean_data:
+                    data_min, data_max = min(clean_data), max(clean_data)
+                    # 确保数据范围不为零
+                    if data_min == data_max:
+                        data_min -= 0.5
+                        data_max += 0.5
+                    data_ranges.append((data_min, data_max))
+                else:
+                    data_ranges.append((-1, 1))
+            else:
+                data_ranges.append((-1, 1))
+
+        # 简化的Y轴范围设置 - 不再尝试复杂的0点对齐
+        if not is_single_mode and len(datasets) >= 2:
+            # 分别设置两个Y轴的范围
+            min1, max1 = data_ranges[0]
+            min2, max2 = data_ranges[1]
+
+            # 为第一组数据添加更多边距
+            range1 = max1 - min1
+            margin1 = range1 * 0.15  # 增加边距到15%
+            ax1.set_ylim(min1 - margin1, max1 + margin1)
+
+            # 为第二组数据添加更多边距
+            range2 = max2 - min2
+            margin2 = range2 * 0.15  # 增加边距到15%
+            ax2.set_ylim(min2 - margin2, max2 + margin2)
+        elif is_single_mode and datasets[0]:
+            # 单列模式，使用计算出的范围
+            min_val, max_val = data_ranges[0]
+            range_val = max_val - min_val
+            margin = range_val * 0.15  # 增加边距到15%
+            ax1.set_ylim(min_val - margin, max_val + margin)
 
         # 设置边距
         for ax in axes:
@@ -589,6 +561,8 @@ class ToolKit:
             ax1.set_xlim(0, len(datasets[0]) - 1)
             ax2.set_xlim(0, len(datasets[1]) - 1)
 
+        # 强制重新计算布局
+        plt.tight_layout(pad=0)
         plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
         # 输出优化
@@ -598,7 +572,8 @@ class ToolKit:
             format="png",
             dpi=150,
             transparent=True,
-            bbox_inches=None,
+            bbox_inches="tight",  # 使用tight而不是None
+            pad_inches=0,  # 确保没有内边距
             facecolor="none",
         )
         plt.close(fig)
