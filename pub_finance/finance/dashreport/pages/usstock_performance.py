@@ -78,7 +78,7 @@ def create_layout(app):
         df_overall.at[0, "stock_cnt"] = 1
     # 板块数据
     df = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_category.csv"), usecols=[i for i in range(1, 16)]
+        DATA_PATH.joinpath(f"{prefix}_category.csv"), usecols=[i for i in range(1, 17)]
     )
     df["IDX"] = df.index
     df = df[
@@ -89,6 +89,7 @@ def create_layout(app):
             "LRATIO",
             "L5 OPEN",
             "L5 CLOSE",
+            "ERP",
             "PROFIT",
             "PNL RATIO",
             "AVG TRANS",
@@ -106,6 +107,7 @@ def create_layout(app):
         "AVG TRANS": ("float",),
         "AVG DAYS": ("float",),
         "WIN RATE": ("ratio", "format"),
+        "ERP": ("float",),
     }
 
     # 持仓明细

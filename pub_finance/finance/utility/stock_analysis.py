@@ -259,6 +259,40 @@ class StockProposal:
                 SELECT temp_industry_info.industry, COUNT(temp_industry_info.symbol) AS ticker_cnt
                 FROM temp_industry_info JOIN temp_stock_list ON temp_industry_info.symbol = temp_stock_list.symbol
                 GROUP BY temp_industry_info.industry
+            ), tmp5 AS (
+                SELECT
+                    temp_industry_info.industry AS industry,
+                    CASE 
+                        WHEN SUM(COALESCE(t3.total_value,0)) > 0 
+                        THEN ROUND(SUM(t3.erp * COALESCE(t3.total_value,0)) / SUM(COALESCE(t3.total_value,0)), 1)
+                        ELSE 0 
+                    END AS industry_erp
+                FROM temp_industry_info 
+                LEFT JOIN 
+                    (
+                    SELECT t1.symbol
+                        , t1.total_value                
+                        , CASE WHEN t1.pe_double IS NULL OR t2.new IS NULL OR t1.pe_double = 0 THEN 0
+                            ELSE ROUND((1.0 / t1.pe_double - t2.new / 100.0) * 100, 1) END AS erp
+                    FROM
+                        (
+                        SELECT symbol,
+                                total_value,
+                                COALESCE(
+                                    TRY_CAST(
+                                        CASE 
+                                            WHEN pe IS NULL OR TRIM(pe) IN ('', '-', 'NULL', 'N/A') THEN NULL
+                                            ELSE TRIM(pe)
+                                        END AS DOUBLE
+                                    ),
+                                    NULL
+                                ) AS pe_double
+                        FROM temp_latest_stock_info
+                        ) t1
+                    LEFT JOIN temp_gz t2 ON 1=1 
+                    ) t3
+                ON temp_industry_info.symbol = t3.symbol
+                GROUP BY temp_industry_info.industry
             )                
             SELECT t1.industry
                 ,COALESCE(t2.p_cnt,0) AS p_cnt
@@ -272,9 +306,11 @@ class StockProposal:
                 ,IF(COALESCE(t1.his_symbol_cnt,0) = 0, 0, COALESCE(t1.his_trade_cnt,0) / COALESCE(t1.his_symbol_cnt,0) ) AS avg_his_trade_cnt
                 ,IF(COALESCE(t1.his_trade_cnt,0) = 0, 0, COALESCE(t1.his_days,0) / COALESCE(t1.his_trade_cnt,0) ) AS avg_days
                 ,IF((COALESCE(t1.pos_cnt,0) + COALESCE(t2.pos_cnt,0) + COALESCE(t1.neg_cnt,0) + COALESCE(t2.neg_cnt,0)) > 0, (COALESCE(t1.pos_cnt,0) + COALESCE(t2.pos_cnt,0)) / (COALESCE(t1.pos_cnt,0) + COALESCE(t2.pos_cnt,0) + COALESCE(t1.neg_cnt,0) + COALESCE(t2.neg_cnt,0)), 0) AS win_rate
+                ,COALESCE(t5.industry_erp, 0) AS industry_erp
             FROM tmp2 t1 LEFT JOIN tmp t2 ON t1.industry = t2.industry
             LEFT JOIN tmp3 t3 ON t1.industry = t3.industry
             LEFT JOIN tmp4 t4 ON t1.industry = t4.industry
+            LEFT JOIN tmp5 t5 ON t1.industry = t5.industry
             ORDER BY COALESCE(t2.p_pnl,0) DESC
             """.format(
                 end_date, end_date
@@ -373,6 +409,7 @@ class StockProposal:
                 "p_cnt",
                 "l5_p_cnt",
                 "l5_close",
+                "industry_erp",
                 "pnl",
                 "pnl_ratio",
                 "long_ratio",
@@ -442,6 +479,7 @@ class StockProposal:
                 "win_rate": "WIN RATE",
                 "pnl_trend": "PROFIT TREND",
                 "volume_trend": "VOLUME TREND",
+                "industry_erp": "ERP",
             },
             inplace=True,
         )
@@ -452,6 +490,7 @@ class StockProposal:
                 "OPEN",
                 "L5 OPEN",
                 "L5 CLOSE",
+                "ERP",
                 "PROFIT",
                 "PNL RATIO",
                 "LRATIO",
@@ -500,6 +539,7 @@ class StockProposal:
                     "AVG TRANS": "{:.0f}",
                     "AVG DAYS": "{:.0f}",
                     "WIN RATE": "{:.2%}",
+                    "ERP": "{:.1f}",
                 }
             ).background_gradient(
                 subset=["PROFIT", "OPEN", "L5 OPEN", "L5 CLOSE"], cmap="Greens"
@@ -891,6 +931,7 @@ class StockProposal:
                     "AVG DAYS": "{:.0f}",
                     "WIN RATE": "{:.2%}",
                     "TOTAL PNL RATIO": "{:.2%}",
+                    "ERP": "{:.1f}",
                 }
             ).apply(
                 highlight_row, axis=1
