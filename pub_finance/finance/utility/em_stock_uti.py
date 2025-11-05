@@ -370,6 +370,7 @@ class EMWebCrawlerUti:
 
     def get_daily_gz_info(self, market, trade_date):
         # 10年期国债收益率
+        self.proxy = None
         url = "https://quote.eastmoney.com/center/api/qqzq.js?"
         res = requests.get(url, proxies=self.proxy).text
 

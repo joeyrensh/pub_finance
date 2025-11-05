@@ -460,12 +460,20 @@ class StockProposal:
             lambda row: f"{row['industry']}{create_arrow(row['index_diff'])}",
             axis=1,
         )
-        pd_industry_history_tracking["pnl_trend"] = pd_industry_history_tracking[
-            "pnl_array"
-        ].apply(ToolKit("draw line").create_line)
-        pd_industry_history_tracking["volume_trend"] = pd_industry_history_tracking[
-            "volume_array"
-        ].apply(ToolKit("draw line").create_line)
+        # pd_industry_history_tracking["pnl_trend"] = pd_industry_history_tracking[
+        #     "pnl_array"
+        # ].apply(ToolKit("draw line").create_line)
+        # pd_industry_history_tracking["volume_trend"] = pd_industry_history_tracking[
+        #     "volume_array"
+        # ].apply(ToolKit("draw line").create_line)
+        # 双列叠加绘图 - 正确的调用方式
+        pd_industry_history_tracking["pnl_trend"] = pd_industry_history_tracking.apply(
+            lambda row: ToolKit("draw line").create_line(
+                row["pnl_array"],  # 作为第一个参数
+                row["volume_array"],  # 作为第二个参数
+            ),
+            axis=1,
+        )
         pd_industry_history_tracking.rename(
             columns={
                 "industry": "IND",
@@ -479,7 +487,6 @@ class StockProposal:
                 "avg_days": "AVG DAYS",
                 "win_rate": "WIN RATE",
                 "pnl_trend": "PROFIT TREND",
-                "volume_trend": "VOLUME TREND",
                 "industry_erp": "ERP",
             },
             inplace=True,
@@ -502,7 +509,6 @@ class StockProposal:
                 "index_diff",
                 "industry_new",
                 "PROFIT TREND",
-                "VOLUME TREND",
             ],
             header=True,
         )
@@ -591,7 +597,7 @@ class StockProposal:
                     ),
                 ],
             ).set_properties(
-                subset=["PROFIT TREND", "VOLUME TREND", "IND"],
+                subset=["PROFIT TREND", "IND"],
                 **{
                     "min-width": "120px !important",
                     # "max-width": "100%",

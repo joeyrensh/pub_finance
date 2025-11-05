@@ -81,7 +81,7 @@ def create_layout(app):
         df_overall.at[0, "stock_cnt"] = 1
     # 板块数据
     df = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_category.csv"), usecols=[i for i in range(1, 17)]
+        DATA_PATH.joinpath(f"{prefix}_category.csv"), usecols=[i for i in range(1, 16)]
     )
     df["IDX"] = df.index
     df = df[
@@ -99,7 +99,6 @@ def create_layout(app):
             "AVG DAYS",
             "WIN RATE",
             "PROFIT TREND",
-            "VOLUME TREND",
         ]
     ].copy()
     cols_format_category = {
