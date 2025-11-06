@@ -25,6 +25,8 @@ class TickerInfo:
         self.files = file.get_file_list
         """ 获取行业板块文件路径 """
         self.file_industry = file.get_file_path_industry
+        """ 获取截止交易日当天历史国债数据文件列表 """
+        self.files_gz = file.get_gz_file_list
 
     """ 获取股票代码列表 """
 
@@ -620,3 +622,112 @@ class TickerInfo:
         list_results.sort(key=lambda x: x["datetime"].min())
 
         return list_results
+
+    def get_recent_pe_data(self):
+        """读取历史数据，过滤最近180天内存在pe和total_value的数据，并排除大于trade_date的数据"""
+
+        # 计算日期范围
+        trade_date = pd.to_datetime(self.trade_date, format="%Y%m%d")
+        cutoff_date = trade_date - datetime.timedelta(days=180)
+
+        # 读取并处理所有文件
+        data = []
+        for file_path in self.files:
+            try:
+                # 检查文件是否包含所需的列
+                columns = pd.read_csv(file_path, nrows=0).columns.tolist()
+                required_columns = ["symbol", "date", "pe", "total_value"]
+
+                if not all(col in columns for col in required_columns):
+                    continue
+
+                # 读取文件
+                df = pd.read_csv(
+                    file_path,
+                    usecols=required_columns,
+                    dtype={
+                        "symbol": str,
+                        "date": str,
+                        "pe": str,
+                        "total_value": np.float64,
+                    },
+                )
+
+                # 转换日期格式并过滤
+                df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
+                df = df[(df["date"] >= cutoff_date)]
+
+                # 添加到数据列表
+                data.append(df)
+
+            except Exception as e:
+                print(f"跳过文件 {file_path}: {e}")
+
+        # 合并所有数据
+        if data:
+            result_df = pd.concat(data, ignore_index=True)
+
+            # 去重和排序
+            result_df.drop_duplicates(
+                subset=["symbol", "date"], keep="first", inplace=True
+            )
+            result_df.sort_values(
+                by=["symbol", "date"], ascending=[True, True], inplace=True
+            )
+            result_df.reset_index(drop=True, inplace=True)
+
+            return result_df
+        else:
+            return pd.DataFrame(columns=["symbol", "date", "pe", "total_value"])
+
+    def get_recent_gz_data(self):
+        """读取gz文件，提取最近180天内的date和new字段"""
+
+        # 计算日期范围
+        trade_date = pd.to_datetime(self.trade_date, format="%Y%m%d")
+        cutoff_date = trade_date - datetime.timedelta(days=180)
+
+        # 读取并处理所有文件
+        data = []
+        for file_path in self.files_gz:
+            try:
+                # 检查文件是否包含所需的列
+                columns = pd.read_csv(file_path, nrows=0).columns.tolist()
+                required_columns = ["date", "new"]
+
+                if not all(col in columns for col in required_columns):
+                    continue
+
+                # 读取文件
+                df = pd.read_csv(
+                    file_path,
+                    usecols=required_columns,
+                    dtype={
+                        "date": str,
+                        "new": np.float64,
+                    },
+                )
+
+                if len(df) == 0:
+                    continue
+
+                # 获取第一行
+                row = df.iloc[0]
+
+                formatted_date = (
+                    f"{row["date"][:4]}-{row["date"][4:6]}-{row["date"][6:8]}"
+                )
+                date_dt = pd.to_datetime(formatted_date)
+
+                # 检查是否在180天内
+                if date_dt >= cutoff_date:
+                    data.append({"date": formatted_date, "new": row["new"]})
+
+            except Exception as e:
+                print(f"跳过文件 {file_path}: {e}")
+                # 打印更详细的异常信息
+                import traceback
+
+                print(traceback.format_exc())
+
+        return pd.DataFrame(data) if data else pd.DataFrame(columns=["date", "new"])

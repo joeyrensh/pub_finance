@@ -98,6 +98,22 @@ class FileInfo:
         file_list.sort()
         return file_list
 
+    """ 返回日数据文件列表，返回List """
+
+    @property
+    def get_gz_file_list(self):
+        path_list = os.listdir(self._file_path_dir)
+        file_list = []
+        for file in path_list:
+            """返回小于等于当前交易日期的文件列表"""
+            if (
+                re.search("gz_", file)
+                and str(file).replace("gz_", "").replace(".csv", "") <= self.trade_date
+            ):
+                file_list.append(self._file_path_dir + file)
+        file_list.sort()
+        return file_list
+
     """ 返回策略数据文件路径 """
 
     @property

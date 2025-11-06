@@ -128,6 +128,30 @@ class StockProposal:
             ["name", "symbol", "total_value"]
         ].toPandas()
 
+        # 获取pe历史数据
+        pe_df = TickerInfo(self.trade_date, self.market).get_recent_pe_data()
+
+        # 如果pdf为空，创建一个空的Spark DataFrame，确保列名和类型一致
+        if pe_df.empty:
+            # 创建一个空的Spark DataFrame，具有相同的结构
+            schema = "symbol string, date date, pe string, total_value double"
+            spark_pe_df = spark.createDataFrame([], schema)
+        else:
+            spark_pe_df = spark.createDataFrame(pe_df)
+
+        spark_pe_df.createOrReplaceTempView("temp_pe_trend")
+
+        # 获取gz历史数据
+        gz_df = TickerInfo(self.trade_date, self.market).get_recent_gz_data()
+        # 如果pdf为空，创建一个空的Spark DataFrame，确保列名和类型一致
+        if gz_df.empty:
+            # 创建一个空的Spark DataFrame，具有相同的结构
+            schema = "date date, new double"
+            spark_gz_df = spark.createDataFrame([], schema)
+        else:
+            spark_gz_df = spark.createDataFrame(gz_df)
+        spark_gz_df.createOrReplaceTempView("temp_gz_trend")
+
         # 获取回测股票列表
         stock_list = TickerInfo(self.trade_date, self.market).get_stock_list()
         stock_list_tuples = [(symbol,) for symbol in stock_list]
@@ -294,7 +318,56 @@ class StockProposal:
                 ON temp_industry_info.symbol = t3.symbol
                 WHERE t3.erp > -50 and t3.erp < 50
                 GROUP BY temp_industry_info.industry
-            )                
+            ), tmp6 AS (
+                SELECT
+                    t3.date AS date,
+                    temp_industry_info.industry AS industry,
+                    CASE 
+                        WHEN SUM(COALESCE(t3.total_value,0)) > 0 
+                        THEN ROUND(SUM(t3.erp * COALESCE(t3.total_value,0)) / SUM(COALESCE(t3.total_value,0)), 1)
+                        ELSE 0 
+                    END AS industry_erp
+                FROM temp_industry_info 
+                LEFT JOIN 
+                    (
+                    SELECT t1.symbol
+                        , t1.total_value                
+                        , CASE WHEN t1.pe_double IS NULL OR t2.new IS NULL OR t1.pe_double = 0 THEN 0
+                            ELSE ROUND((1.0 / t1.pe_double - t2.new / 100.0) * 100, 1) END AS erp
+                        , t1.date
+                    FROM
+                        (
+                        SELECT symbol,
+                                total_value,
+                                COALESCE(
+                                    TRY_CAST(
+                                        CASE 
+                                            WHEN pe IS NULL OR TRIM(pe) IN ('', '-', 'NULL', 'N/A') THEN NULL
+                                            ELSE TRIM(pe)
+                                        END AS DOUBLE
+                                    ),
+                                    NULL
+                                ) AS pe_double,
+                                date
+                        FROM temp_pe_trend
+                        ) t1
+                    LEFT JOIN temp_gz_trend t2 ON t1.date = t2.date 
+                    ) t3
+                ON temp_industry_info.symbol = t3.symbol
+                WHERE t3.erp > -50 and t3.erp < 50
+                GROUP BY temp_industry_info.industry, t3.date
+                ORDER BY temp_industry_info.industry, t3.date ASC
+            ), tmp7 AS (
+                SELECT industry,
+                    COLLECT_LIST(industry_erp) AS industry_erp_array
+                FROM (
+                    SELECT
+                        t2.industry,
+                        t2.industry_erp
+                    FROM temp_timeseries t1 LEFT JOIN tmp6 t2 ON t1.buy_date = t2.date
+                    ORDER BY t2.industry, t1.buy_date ASC
+                )   GROUP BY industry
+            )
             SELECT t1.industry
                 ,COALESCE(t2.p_cnt,0) AS p_cnt
                 ,COALESCE(t2.p_cnt,0) / t4.ticker_cnt AS long_ratio
