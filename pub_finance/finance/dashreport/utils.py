@@ -252,122 +252,87 @@ def make_dash_table(df):
 
 def data_bars(df, column):
     col_n = column + "_o"
-    n_bins = 100
-    bounds = [i * (1.0 / n_bins) for i in range(n_bins + 1)]
-    ranges = [
-        ((df[col_n].max() - df[col_n].min()) * i) + df[col_n].min() for i in bounds
-    ]
-    styles = []
 
     # 获取值的范围
     min_val = df[col_n].min()
     max_val = df[col_n].max()
 
-    # 计算负值的范围（从最小值到0）
-    negative_range = 0 - min_val if min_val < 0 else 0
+    styles = []
+    style_cache = {}  # 缓存样式，避免重复计算
 
-    for i in range(1, len(bounds)):
-        min_bound = ranges[i - 1]
-        max_bound = ranges[i]
-        max_bound_percentage = bounds[i] * 100
+    for value in df[col_n]:
+        if pd.isna(value) or value in style_cache:
+            continue
 
-        # 正值样式 - 简约数据条
-        if min_bound >= 0:
-            styles.append(
-                {
-                    "if": {
-                        "filter_query": (
-                            "{{{column}}} >= {min_bound}"
-                            + (
-                                " && {{{column}}} < {max_bound}"
-                                if (i < len(bounds) - 1)
-                                else ""
-                            )
-                        ).format(
-                            column=col_n, min_bound=min_bound, max_bound=max_bound
-                        ),
-                        "column_id": column,
-                    },
-                    "background": (
-                        """
-                        linear-gradient(90deg,
-                        var(--positive-databar-color) 0%,
-                        var(--positive-databar-color) {max_bound_percentage}%,
-                        transparent {max_bound_percentage}%,
-                        transparent 100%)
-                        """.format(
-                            max_bound_percentage=max_bound_percentage
-                        )
+        if value > 0:
+            # 正值百分比 - 相对于最大值
+            percentage = (value / max_val) * 100 if max_val > 0 else 0
+            style = {
+                "if": {
+                    "filter_query": "{{{column}}} = {value}".format(
+                        column=col_n, value=value
                     ),
-                    "borderRadius": "4px",
-                    "backgroundSize": "100% 70%",
-                    "backgroundRepeat": "no-repeat",
-                    "backgroundPosition": "center",
-                    "paddingBottom": "4px",
-                    "paddingTop": "4px",
-                }
-            )
+                    "column_id": column,
+                },
+                "background": """
+                    linear-gradient(90deg,
+                    var(--positive-databar-color) 0%,
+                    var(--positive-databar-color) {percentage}%,
+                    transparent {percentage}%,
+                    transparent 100%)
+                """.format(
+                    percentage=percentage
+                ),
+                "borderRadius": "4px",
+                "backgroundSize": "100% 70%",
+                "backgroundRepeat": "no-repeat",
+                "backgroundPosition": "center",
+                "paddingBottom": "4px",
+                "paddingTop": "4px",
+            }
+        elif value < 0:
+            # 负值百分比 - 相对于最小值的绝对值
+            percentage = (abs(value) / abs(min_val)) * 100 if min_val < 0 else 0
+            style = {
+                "if": {
+                    "filter_query": "{{{column}}} = {value}".format(
+                        column=col_n, value=value
+                    ),
+                    "column_id": column,
+                },
+                "background": """
+                    linear-gradient(90deg,
+                    transparent 0%,
+                    transparent {transparent_percentage}%,
+                    var(--negative-databar-color) {transparent_percentage}%,
+                    var(--negative-databar-color) 100%)
+                """.format(
+                    transparent_percentage=100 - percentage
+                ),
+                "borderRadius": "4px",
+                "backgroundSize": "100% 70%",
+                "backgroundRepeat": "no-repeat",
+                "backgroundPosition": "center",
+                "paddingBottom": "4px",
+                "paddingTop": "4px",
+            }
+        else:  # 零值
+            style = {
+                "if": {
+                    "filter_query": "{{{column}}} = 0".format(column=col_n),
+                    "column_id": column,
+                },
+                "background": "none",
+                "borderRadius": "4px",
+                "backgroundSize": "100% 70%",
+                "backgroundRepeat": "no-repeat",
+                "backgroundPosition": "center",
+                "paddingBottom": "4px",
+                "paddingTop": "4px",
+            }
 
-        # 负值样式 - 重新设计的逻辑
-        elif max_bound <= 0:
-            # 计算负值在负值范围内的百分比
-            if negative_range > 0:
-                # 计算当前边界在负值范围内的位置
-                current_negative_position = (0 - min_bound) / negative_range
-                negative_percentage = current_negative_position * 100
-
-                styles.append(
-                    {
-                        "if": {
-                            "filter_query": (
-                                "{{{column}}} >= {min_bound}"
-                                + (
-                                    " && {{{column}}} < {max_bound}"
-                                    if (i < len(bounds) - 1)
-                                    else ""
-                                )
-                                + " && {{{column}}} < 0"
-                            ).format(
-                                column=col_n, min_bound=min_bound, max_bound=max_bound
-                            ),
-                            "column_id": column,
-                        },
-                        "background": (
-                            """
-                            linear-gradient(90deg,
-                            transparent 0%,
-                            transparent {transparent_percentage}%,
-                            var(--negative-databar-color) {transparent_percentage}%,
-                            var(--negative-databar-color) 100%)
-                            """.format(
-                                transparent_percentage=100 - negative_percentage
-                            )
-                        ),
-                        "borderRadius": "4px",
-                        "backgroundSize": "100% 70%",
-                        "backgroundRepeat": "no-repeat",
-                        "backgroundPosition": "center",
-                        "paddingBottom": "4px",
-                        "paddingTop": "4px",
-                    }
-                )
-
-    # 零值样式
-    styles.append(
-        {
-            "if": {
-                "filter_query": "{{{column}}} = 0".format(column=col_n),
-                "column_id": column,
-            },
-            "background": "none",
-            "borderRadius": "4px",
-            "backgroundSize": "100% 70%",
-            "backgroundRepeat": "no-repeat",
-            "backgroundPosition": "center",
-            "paddingBottom": "4px",
-            "paddingTop": "4px",
-        }
-    )
+        styles.append(style)
+        style_cache[value] = True
 
     return styles
 
