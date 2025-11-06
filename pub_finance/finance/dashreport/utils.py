@@ -190,6 +190,66 @@ def make_dash_table(df):
     )
 
 
+# def data_bars(df, column):
+#     col_n = column + "_o"
+#     n_bins = 100
+#     bounds = [i * (1.0 / n_bins) for i in range(n_bins + 1)]
+#     ranges = [
+#         ((df[col_n].max() - df[col_n].min()) * i) + df[col_n].min() for i in bounds
+#     ]
+#     styles = []
+#     for i in range(1, len(bounds)):
+#         min_bound = ranges[i - 1]
+#         max_bound = ranges[i]
+#         max_bound_percentage = bounds[i] * 100
+#         styles.append(
+#             {
+#                 "if": {
+#                     "filter_query": (
+#                         "{{{column}}} >= {min_bound}"
+#                         + (
+#                             " && {{{column}}} < {max_bound}"
+#                             if (i < len(bounds) - 1)
+#                             else ""
+#                         )
+#                         + " && {{{column}}} > 0"  # 只对非负值应用样式
+#                     ).format(column=col_n, min_bound=min_bound, max_bound=max_bound),
+#                     "column_id": column,
+#                 },
+#                 "background": (
+#                     """
+#                     linear-gradient(90deg,
+#                     var(--data-bar-color) 0%,
+#                     var(--data-bar-color) {max_bound_percentage}%,
+#                     transparent {max_bound_percentage}%,
+#                     transparent 100%)
+#                     """.format(
+#                         max_bound_percentage=max_bound_percentage
+#                     )
+#                 ),
+#                 # "padding": "4px 0",
+#                 # "paddingBottom": 2,
+#                 # "paddingTop": 2,
+#             }
+#         )
+#         # 添加对负值的样式
+#         styles.append(
+#             {
+#                 "if": {
+#                     "filter_query": ("{{{column}}} <= 0").format(  # 只对负值应用样式
+#                         column=col_n
+#                     ),
+#                     "column_id": column,
+#                 },
+#                 "background": "none",  # 负值背景色设置为透明
+#                 "paddingBottom": 2,
+#                 "paddingTop": 2,
+#             }
+#         )
+
+#     return styles
+
+
 def data_bars(df, column):
     col_n = column + "_o"
     n_bins = 100
@@ -198,10 +258,16 @@ def data_bars(df, column):
         ((df[col_n].max() - df[col_n].min()) * i) + df[col_n].min() for i in bounds
     ]
     styles = []
+
+    # 获取负值的最小值，用于计算负值的百分比
+    min_negative = df[df[col_n] < 0][col_n].min() if len(df[df[col_n] < 0]) > 0 else 0
+
     for i in range(1, len(bounds)):
         min_bound = ranges[i - 1]
         max_bound = ranges[i]
         max_bound_percentage = bounds[i] * 100
+
+        # 正值样式 - 简约数据条
         styles.append(
             {
                 "if": {
@@ -212,40 +278,92 @@ def data_bars(df, column):
                             if (i < len(bounds) - 1)
                             else ""
                         )
-                        + " && {{{column}}} > 0"  # 只对非负值应用样式
+                        + " && {{{column}}} > 0"
                     ).format(column=col_n, min_bound=min_bound, max_bound=max_bound),
                     "column_id": column,
                 },
                 "background": (
                     """
                     linear-gradient(90deg,
-                    var(--data-bar-color) 0%,
-                    var(--data-bar-color) {max_bound_percentage}%,
+                    var(--positive-databar-color) 0%,
+                    var(--positive-databar-color) {max_bound_percentage}%,
                     transparent {max_bound_percentage}%,
                     transparent 100%)
                     """.format(
                         max_bound_percentage=max_bound_percentage
                     )
                 ),
-                # "padding": "4px 0",
-                # "paddingBottom": 2,
-                # "paddingTop": 2,
+                "borderRadius": "4px",
+                "backgroundSize": "100% 70%",
+                "backgroundRepeat": "no-repeat",
+                "backgroundPosition": "center",
+                "paddingBottom": "4px",
+                "paddingTop": "4px",
             }
         )
-        # 添加对负值的样式
-        styles.append(
-            {
-                "if": {
-                    "filter_query": ("{{{column}}} <= 0").format(  # 只对负值应用样式
-                        column=col_n
-                    ),
-                    "column_id": column,
-                },
-                "background": "none",  # 负值背景色设置为透明
-                "paddingBottom": 2,
-                "paddingTop": 2,
-            }
-        )
+
+        # 负值样式 - 修复后的简约数据条
+        if min_bound < 0 and max_bound <= 0:
+            # 对于负值，我们需要计算它在负值范围内的百分比
+            # 负值范围是从最小值到0
+            negative_range = 0 - min_negative
+            if negative_range > 0:
+                # 计算当前边界在负值范围内的位置
+                current_negative_position = (max_bound - min_negative) / negative_range
+                negative_percentage = current_negative_position * 100
+
+                styles.append(
+                    {
+                        "if": {
+                            "filter_query": (
+                                "{{{column}}} >= {min_bound}"
+                                + (
+                                    " && {{{column}}} < {max_bound}"
+                                    if (i < len(bounds) - 1)
+                                    else ""
+                                )
+                                + " && {{{column}}} < 0"
+                            ).format(
+                                column=col_n, min_bound=min_bound, max_bound=max_bound
+                            ),
+                            "column_id": column,
+                        },
+                        "background": (
+                            """
+                            linear-gradient(90deg,
+                            transparent 0%,
+                            transparent {negative_percentage}%,
+                            var(--negative-databar-color) {negative_percentage}%,
+                            var(--negative-databar-color) 100%)
+                            """.format(
+                                negative_percentage=negative_percentage
+                            )
+                        ),
+                        "borderRadius": "4px",
+                        "backgroundSize": "100% 70%",
+                        "backgroundRepeat": "no-repeat",
+                        "backgroundPosition": "center",
+                        "paddingBottom": "4px",
+                        "paddingTop": "4px",
+                    }
+                )
+
+    # 零值样式
+    styles.append(
+        {
+            "if": {
+                "filter_query": "{{{column}}} = 0".format(column=col_n),
+                "column_id": column,
+            },
+            "background": "none",
+            "borderRadius": "4px",
+            "backgroundSize": "100% 70%",
+            "backgroundRepeat": "no-repeat",
+            "backgroundPosition": "center",
+            "paddingBottom": "4px",
+            "paddingTop": "4px",
+        }
+    )
 
     return styles
 

@@ -8,6 +8,7 @@ from matplotlib_inline.backend_inline import set_matplotlib_formats
 import matplotlib.pyplot as plt
 import sys
 import numpy as np
+from matplotlib.patches import Wedge, Circle, Rectangle
 
 
 class ToolKit:

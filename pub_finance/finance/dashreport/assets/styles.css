@@ -5,6 +5,9 @@
   --row-bg-color: #ffeb3b;
   --negative-value-bg-color: #0d876cd9;
   --positive-value-bg-color: #f44336c7;
+  --track-color: #ecf0f1;
+  --positive-databar-color: #3498db;
+  --negative-databar-color: #0d876cd9;
 
   /* 浅色通用样式 */
   --background-color: #f6f8f9;
@@ -17,6 +20,9 @@
   --main-title-color: #D9534F;
   --full-view-link-bg-color: #D9534F;
   --border-left-color: #D9534F;
+  --track-color: #ecf0f1;
+  --positive-databar-color: #3498db;
+  --negative-databar-color: #0d876cd9;
 }
 
 @media (prefers-color-scheme: dark) {
