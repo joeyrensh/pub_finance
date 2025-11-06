@@ -259,8 +259,12 @@ def data_bars(df, column):
     ]
     styles = []
 
-    # 获取负值的最小值，用于计算负值的百分比
-    min_negative = df[df[col_n] < 0][col_n].min() if len(df[df[col_n] < 0]) > 0 else 0
+    # 获取值的范围
+    min_val = df[col_n].min()
+    max_val = df[col_n].max()
+
+    # 计算负值的范围（从最小值到0）
+    negative_range = 0 - min_val if min_val < 0 else 0
 
     for i in range(1, len(bounds)):
         min_bound = ranges[i - 1]
@@ -268,48 +272,48 @@ def data_bars(df, column):
         max_bound_percentage = bounds[i] * 100
 
         # 正值样式 - 简约数据条
-        styles.append(
-            {
-                "if": {
-                    "filter_query": (
-                        "{{{column}}} >= {min_bound}"
-                        + (
-                            " && {{{column}}} < {max_bound}"
-                            if (i < len(bounds) - 1)
-                            else ""
+        if min_bound >= 0:
+            styles.append(
+                {
+                    "if": {
+                        "filter_query": (
+                            "{{{column}}} >= {min_bound}"
+                            + (
+                                " && {{{column}}} < {max_bound}"
+                                if (i < len(bounds) - 1)
+                                else ""
+                            )
+                        ).format(
+                            column=col_n, min_bound=min_bound, max_bound=max_bound
+                        ),
+                        "column_id": column,
+                    },
+                    "background": (
+                        """
+                        linear-gradient(90deg,
+                        var(--positive-databar-color) 0%,
+                        var(--positive-databar-color) {max_bound_percentage}%,
+                        transparent {max_bound_percentage}%,
+                        transparent 100%)
+                        """.format(
+                            max_bound_percentage=max_bound_percentage
                         )
-                        + " && {{{column}}} > 0"
-                    ).format(column=col_n, min_bound=min_bound, max_bound=max_bound),
-                    "column_id": column,
-                },
-                "background": (
-                    """
-                    linear-gradient(90deg,
-                    var(--positive-databar-color) 0%,
-                    var(--positive-databar-color) {max_bound_percentage}%,
-                    transparent {max_bound_percentage}%,
-                    transparent 100%)
-                    """.format(
-                        max_bound_percentage=max_bound_percentage
-                    )
-                ),
-                "borderRadius": "4px",
-                "backgroundSize": "100% 70%",
-                "backgroundRepeat": "no-repeat",
-                "backgroundPosition": "center",
-                "paddingBottom": "4px",
-                "paddingTop": "4px",
-            }
-        )
+                    ),
+                    "borderRadius": "4px",
+                    "backgroundSize": "100% 70%",
+                    "backgroundRepeat": "no-repeat",
+                    "backgroundPosition": "center",
+                    "paddingBottom": "4px",
+                    "paddingTop": "4px",
+                }
+            )
 
-        # 负值样式 - 修复后的简约数据条
-        if min_bound < 0 and max_bound <= 0:
-            # 对于负值，我们需要计算它在负值范围内的百分比
-            # 负值范围是从最小值到0
-            negative_range = 0 - min_negative
+        # 负值样式 - 重新设计的逻辑
+        elif max_bound <= 0:
+            # 计算负值在负值范围内的百分比
             if negative_range > 0:
                 # 计算当前边界在负值范围内的位置
-                current_negative_position = (max_bound - min_negative) / negative_range
+                current_negative_position = (0 - min_bound) / negative_range
                 negative_percentage = current_negative_position * 100
 
                 styles.append(
@@ -332,11 +336,11 @@ def data_bars(df, column):
                             """
                             linear-gradient(90deg,
                             transparent 0%,
-                            transparent {negative_percentage}%,
-                            var(--negative-databar-color) {negative_percentage}%,
+                            transparent {transparent_percentage}%,
+                            var(--negative-databar-color) {transparent_percentage}%,
                             var(--negative-databar-color) 100%)
                             """.format(
-                                negative_percentage=negative_percentage
+                                transparent_percentage=100 - negative_percentage
                             )
                         ),
                         "borderRadius": "4px",
