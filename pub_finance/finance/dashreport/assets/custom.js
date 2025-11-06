@@ -52,12 +52,12 @@
     function replaceFontSize(element, svgId) {
         const screenWidth = window.innerWidth;
 
-        const config = FONT_SIZE_CONFIG[svgId];
+        const config = FONT_SIZE_CONFIG[svgId] || { mobile: 'unset', desktop: 'unset' };
         let fontSize = screenWidth <= 550 ? config.mobile : config.desktop;
         let fontWeight = 400;
-        let parent = element.closest('[class]');
-        if (parent) {
-            parent.classList.forEach(className => {
+        const clsParent = element.closest('[class]');
+        if (clsParent) {
+            clsParent.classList.forEach(className => {
                 if (CLASS_FONT_SIZE_CONFIG[className]) {
                     const classConfig = CLASS_FONT_SIZE_CONFIG[className];
                     fontSize = screenWidth <= 550 ? classConfig.mobile : classConfig.desktop;
@@ -65,25 +65,19 @@
             });
         }
 
-        // 如果是特定的 SVG，设置字体加粗
+        // 特殊 SVG 的额外逻辑
         if (svgId === 'cn-annual-return-light' || svgId === 'cn-annual-return-dark' 
             || svgId === 'us-annual-return-light' || svgId === 'us-annual-return-dark'
             || svgId === 'us_special-annual-return-light' || svgId === 'us_special-annual-return-dark'
-        ) { 
-            // 查找 element 的父级是否以 "table" 为前缀
-            const parent = element.closest('[id^="table"]');
-            if (parent) {
-                // 获取所有 id 以 "text_" 开头的子节点
-                const textElements = Array.from(parent.children).filter(child =>
+        ) {
+            const tableParent = element.closest('[id^="table"]');
+            if (tableParent) {
+                const textElements = Array.from(tableParent.children).filter(child =>
                     child.id && child.id.startsWith("text_")
                 );
-                const colCount = 3; // 或 4，根据你的表格实际列数设置
-
-                // 找到当前 element 所在 <g> 的索引
+                const colCount = 3;
                 const parentDiv = element.closest('g');
                 const idx = textElements.findIndex(child => child === parentDiv);
-
-                // 判断是否为第二列且不是第一行
                 if (idx >= colCount && (idx % colCount === 2)) {
                     fontSize = screenWidth <= 550 ? '3rem' : '2.5rem';
                     fontWeight = 700;
@@ -96,12 +90,19 @@
                 }
             }
         }
-        if (fontSize != 'unset') {
+
+        // 仅在 fontSize 有效且不为 'unset' 时设置
+        if (typeof fontSize === 'string' && fontSize !== 'unset' && fontSize.trim() !== '') {
             element.style.setProperty('font-size', fontSize);
-            element.style.setProperty('font-weight', fontWeight, 'important');
+            element.style.setProperty('font-weight', String(fontWeight), 'important');
         }
-        element.style.setProperty('font-family', '"Helvetica Neue", -apple-system, BlinkMacSystemFont,  "Segoe UI"', 'important');
-    
+
+        // 推荐添加通用后备字体
+        element.style.setProperty(
+            'font-family',
+            '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica", Arial, sans-serif',
+            'important'
+        );
     }
 
     function processSvg(obj) {
