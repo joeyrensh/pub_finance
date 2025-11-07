@@ -337,18 +337,15 @@ def data_bars(df, column):
     return styles
 
 
-# ---- 新增函数：按值分段着色（正绿负红，分段深度可配置） ----
 def discrete_background_color_bins(df, column, n_bins=10):
     """
-    返回 style_data_conditional 列表：对 column+'_o' 值分段着色。
-    规则：负值使用从浅到深的红色；正值使用从浅到深的绿色；0 保持透明。
-    n_bins: 每侧分段数量（负/正各 n_bins）。
+    使用CSS变量和透明度的版本，更好地适应暗黑模式
+    修正：正负值区间分开计算，正值用0到正值最大值，负值用负值最小值到0
     """
     col_o = column + "_o"
     if col_o not in df.columns:
         return []
 
-    # 转为数值，去掉 NaN
     vals = pd.to_numeric(df[col_o], errors="coerce").dropna()
     if vals.empty:
         return []
@@ -358,7 +355,7 @@ def discrete_background_color_bins(df, column, n_bins=10):
 
     styles = []
 
-    # 零单独处理（透明）
+    # 零值透明
     styles.append(
         {
             "if": {"filter_query": "{{{}}} = 0".format(col_o), "column_id": column},
@@ -366,74 +363,44 @@ def discrete_background_color_bins(df, column, n_bins=10):
         }
     )
 
-    # 生成颜色插值函数（线性插值 RGB）
-    def lerp_color(c1, c2, t):
-        return tuple(int(round(c1[i] + (c2[i] - c1[i]) * t)) for i in range(3))
+    # 使用CSS变量定义颜色，让CSS处理暗黑模式适配
+    def get_color_style(value_range, is_positive=True):
+        low, high = value_range
+        mid = (low + high) / 2.0
 
-    def rgb_to_css(rgb):
-        return "rgb({},{},{})".format(rgb[0], rgb[1], rgb[2])
+        # 分别计算正负值的强度
+        if is_positive:
+            # 正值：基于0到vmax的范围
+            intensity = min(max(abs(mid) / max(abs(vmax), 1e-10), 0.1), 1.0)
+            base_color = "var(--positive-value-bg-color, green)"
+        else:
+            # 负值：基于vmin到0的范围
+            intensity = min(max(abs(mid) / max(abs(vmin), 1e-10), 0.1), 1.0)
+            base_color = "var(--negative-value-bg-color, red)"
 
-    # 红色（浅 -> 深）和绿色（浅 -> 深）端点（fallback RGB）
-    light_red = (255, 230, 230)
-    deep_red = (220, 10, 34)
-    light_green = (230, 255, 230)
-    deep_green = (0, 128, 0)
+        return {
+            "if": {
+                "filter_query": "{{{col}}} >= {low} && {{{col}}} < {high}".format(
+                    col=col_o, low=repr(low), high=repr(high)
+                ),
+                "column_id": column,
+            },
+            "background": f"color-mix(in srgb, {base_color} {intensity*100}%, transparent)",
+            # "color": "var(--text-color, black)",
+            # "fontWeight": "bold" if intensity > 0.6 else "normal",
+        }
 
-    # 处理负值区间（从 vmin 到 0）
+    # 负值区间：从vmin到0
     if vmin < 0:
         neg_edges = [vmin + (0 - vmin) * (i / n_bins) for i in range(n_bins + 1)]
-        neg_max_abs = abs(vmin)
-        # 每个分段从 neg_edges[i] 到 neg_edges[i+1]
         for i in range(n_bins):
-            low = neg_edges[i]
-            high = neg_edges[i + 1]
-            # 使用分段中点的绝对值比例来决定颜色深浅：
-            # mid 的绝对值 / |vmin| 越大 => t 越接近 1 => 颜色越深（更靠近 deep_red）
-            mid = (low + high) / 2.0
-            if neg_max_abs > 0:
-                frac = min(max(abs(mid) / neg_max_abs, 0.0), 1.0)
-            else:
-                frac = 0.0
-            t = frac
-            color_rgb = lerp_color(light_red, deep_red, t)
-            color_css = rgb_to_css(color_rgb)
-            styles.append(
-                {
-                    "if": {
-                        "filter_query": (
-                            "{{{col}}} >= {low} && {{{col}}} < {high}"
-                        ).format(col=col_o, low=repr(low), high=repr(high)),
-                        "column_id": column,
-                    },
-                    "background": color_css,
-                    "color": "white" if t > 0.5 else "inherit",
-                }
-            )
+            styles.append(get_color_style((neg_edges[i], neg_edges[i + 1]), False))
 
-    # 处理正值区间（从 0 到 vmax）
+    # 正值区间：从0到vmax
     if vmax > 0:
         pos_edges = [0 + (vmax - 0) * (i / n_bins) for i in range(n_bins + 1)]
         for i in range(n_bins):
-            low = pos_edges[i]
-            high = pos_edges[i + 1]
-            mid = (low + high) / 2.0
-            pos_max = vmax if vmax > 0 else 1.0
-            frac = min(max(mid / pos_max, 0.0), 1.0)
-            t = frac
-            color_rgb = lerp_color(light_green, deep_green, t)
-            color_css = rgb_to_css(color_rgb)
-            styles.append(
-                {
-                    "if": {
-                        "filter_query": (
-                            "{{{col}}} >= {low} && {{{col}}} < {high}"
-                        ).format(col=col_o, low=repr(low), high=repr(high)),
-                        "column_id": column,
-                    },
-                    "background": color_css,
-                    "color": "white" if t > 0.6 else "inherit",
-                }
-            )
+            styles.append(get_color_style((pos_edges[i], pos_edges[i + 1]), True))
 
     return styles
 
