@@ -337,6 +337,107 @@ def data_bars(df, column):
     return styles
 
 
+# ---- 新增函数：按值分段着色（正绿负红，分段深度可配置） ----
+def discrete_background_color_bins(df, column, n_bins=10):
+    """
+    返回 style_data_conditional 列表：对 column+'_o' 值分段着色。
+    规则：负值使用从浅到深的红色；正值使用从浅到深的绿色；0 保持透明。
+    n_bins: 每侧分段数量（负/正各 n_bins）。
+    """
+    col_o = column + "_o"
+    if col_o not in df.columns:
+        return []
+
+    # 转为数值，去掉 NaN
+    vals = pd.to_numeric(df[col_o], errors="coerce").dropna()
+    if vals.empty:
+        return []
+
+    vmin = float(vals.min())
+    vmax = float(vals.max())
+
+    styles = []
+
+    # 零单独处理（透明）
+    styles.append(
+        {
+            "if": {"filter_query": "{{{}}} = 0".format(col_o), "column_id": column},
+            "background": "transparent",
+        }
+    )
+
+    # 生成颜色插值函数（线性插值 RGB）
+    def lerp_color(c1, c2, t):
+        return tuple(int(round(c1[i] + (c2[i] - c1[i]) * t)) for i in range(3))
+
+    def rgb_to_css(rgb):
+        return "rgb({},{},{})".format(rgb[0], rgb[1], rgb[2])
+
+    # 红色（浅 -> 深）和绿色（浅 -> 深）端点（fallback RGB）
+    light_red = (255, 230, 230)
+    deep_red = (220, 10, 34)
+    light_green = (230, 255, 230)
+    deep_green = (0, 128, 0)
+
+    # 处理负值区间（从 vmin 到 0）
+    if vmin < 0:
+        neg_edges = [vmin + (0 - vmin) * (i / n_bins) for i in range(n_bins + 1)]
+        neg_max_abs = abs(vmin)
+        # 每个分段从 neg_edges[i] 到 neg_edges[i+1]
+        for i in range(n_bins):
+            low = neg_edges[i]
+            high = neg_edges[i + 1]
+            # 使用分段中点的绝对值比例来决定颜色深浅：
+            # mid 的绝对值 / |vmin| 越大 => t 越接近 1 => 颜色越深（更靠近 deep_red）
+            mid = (low + high) / 2.0
+            if neg_max_abs > 0:
+                frac = min(max(abs(mid) / neg_max_abs, 0.0), 1.0)
+            else:
+                frac = 0.0
+            t = frac
+            color_rgb = lerp_color(light_red, deep_red, t)
+            color_css = rgb_to_css(color_rgb)
+            styles.append(
+                {
+                    "if": {
+                        "filter_query": (
+                            "{{{col}}} >= {low} && {{{col}}} < {high}"
+                        ).format(col=col_o, low=repr(low), high=repr(high)),
+                        "column_id": column,
+                    },
+                    "background": color_css,
+                    "color": "white" if t > 0.5 else "inherit",
+                }
+            )
+
+    # 处理正值区间（从 0 到 vmax）
+    if vmax > 0:
+        pos_edges = [0 + (vmax - 0) * (i / n_bins) for i in range(n_bins + 1)]
+        for i in range(n_bins):
+            low = pos_edges[i]
+            high = pos_edges[i + 1]
+            mid = (low + high) / 2.0
+            pos_max = vmax if vmax > 0 else 1.0
+            frac = min(max(mid / pos_max, 0.0), 1.0)
+            t = frac
+            color_rgb = lerp_color(light_green, deep_green, t)
+            color_css = rgb_to_css(color_rgb)
+            styles.append(
+                {
+                    "if": {
+                        "filter_query": (
+                            "{{{col}}} >= {low} && {{{col}}} < {high}"
+                        ).format(col=col_o, low=repr(low), high=repr(high)),
+                        "column_id": column,
+                    },
+                    "background": color_css,
+                    "color": "white" if t > 0.6 else "inherit",
+                }
+            )
+
+    return styles
+
+
 def extract_arrow_num(s):
     # 去除HTML标签
     clean_text = re.sub("<[^<]+?>", "", s)
@@ -609,7 +710,8 @@ def make_dash_format_table(df, cols_format, market):
                     "column_id": col,
                 },
                 # "backgroundColor": "#3D9970",
-                "background": ("""var(--negative-value-bg-color)"""),
+                # "background": ("""var(--negative-value-bg-color)"""),
+                "color": ("""var(--negative-value-bg-color)"""),
                 # "color": "white",
             }
             for col in df.columns
@@ -625,7 +727,8 @@ def make_dash_format_table(df, cols_format, market):
                     "column_id": col,
                 },
                 # "backgroundColor": "#FF4136",
-                "background": ("""var(--positive-value-bg-color)"""),
+                # "background": ("""var(--positive-value-bg-color)"""),
+                "color": ("""var(--positive-value-bg-color)"""),
                 # "color": "white",
             }
             for col in df.columns
@@ -644,6 +747,14 @@ def make_dash_format_table(df, cols_format, market):
             and cols_format[col][1] == "format"
         ):
             style_data_conditional.extend(data_bars(df, col))
+
+    # 在这里把按值分段着色应用到需要的列
+    gradient_target_cols = ["ERP"]
+
+    for col in gradient_target_cols:
+        style_data_conditional.extend(
+            discrete_background_color_bins(df, col, n_bins=10)
+        )
 
     return dash_table.DataTable(
         id="defult-table",

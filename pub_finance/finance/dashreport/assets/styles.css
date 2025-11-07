@@ -3,8 +3,8 @@
   --data-bar-color: #7dcfff;
   --date-bg-color: #ffeb3b;
   --row-bg-color: #ffeb3b;
-  --negative-value-bg-color: #0d876cd9;
-  --positive-value-bg-color: #f44336c7;
+  --negative-value-bg-color: #00a859;
+  --positive-value-bg-color: #ff4444;
   --track-color: #ecf0f1;
   --positive-databar-color: #3498dbc4;
   --negative-databar-color: #0d876cd9;
@@ -28,8 +28,11 @@
     --data-bar-color: #0074d973;
     --date-bg-color: #ae9d07bd;
     --row-bg-color: #ae9d07bd;
-    --negative-value-bg-color: #3d997096;
-    --positive-value-bg-color: #ff413696;
+    --negative-value-bg-color: #00a859;
+    --positive-value-bg-color: #ff4444;
+    --track-color: #ecf0f1;
+    --positive-databar-color: #0d5f9589;
+    --negative-databar-color: #0d876cd9;       
 
     /* 深色通用样式 */
     --background-color: #171b26;
@@ -41,10 +44,7 @@
     --dash-table-border-color: rgba(255, 255, 255, 0.2);
     --main-title-color: #ffffffc5;
     --full-view-link-bg-color: #D9534F;
-    --border-left-color: #D9534F;
-    --track-color: #ecf0f1;
-    --positive-databar-color: #0d5f9589;
-    --negative-databar-color: #0d876cd9;    
+    --border-left-color: #D9534F; 
   }
 
 }
