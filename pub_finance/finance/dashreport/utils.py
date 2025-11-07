@@ -372,11 +372,11 @@ def discrete_background_color_bins(df, column, n_bins=10):
         if is_positive:
             # 正值：基于0到vmax的范围
             intensity = min(max(abs(mid) / max(abs(vmax), 1e-10), 0.1), 1.0)
-            base_color = "var(--positive-value-bg-color, green)"
+            base_color = "var(--negative-value-bg-color, green)"
         else:
             # 负值：基于vmin到0的范围
             intensity = min(max(abs(mid) / max(abs(vmin), 1e-10), 0.1), 1.0)
-            base_color = "var(--negative-value-bg-color, red)"
+            base_color = "var(--positive-value-bg-color, red)"
 
         return {
             "if": {
