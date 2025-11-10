@@ -100,9 +100,11 @@
         // 推荐添加通用后备字体
         element.style.setProperty(
             'font-family',
-            '"PingFang SC", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica", Arial, sans-serif',
-            'important'
+            '"PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif','important'
         );
+        element.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
+        element.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
+        element.style.setProperty('letter-spacing', '-.03rem', 'important');
     }
 
     function processSvg(obj) {
