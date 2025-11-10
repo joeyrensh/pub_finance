@@ -380,7 +380,7 @@ def discrete_background_color_bins(df, column, n_bins=10):
 
         return {
             "if": {
-                "filter_query": "{{{col}}} >= {low} && {{{col}}} < {high}".format(
+                "filter_query": "{{{col}}} >= {low} && {{{col}}} <= {high}".format(
                     col=col_o, low=repr(low), high=repr(high)
                 ),
                 "column_id": column,
