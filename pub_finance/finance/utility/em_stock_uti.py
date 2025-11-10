@@ -294,7 +294,7 @@ class EMWebCrawlerUti:
 
                 params = self.build_params(market, m, i)
 
-                for _ in range(5):
+                for _ in range(3):
                     try:
                         res = requests.get(
                             self.__url_list,
@@ -304,19 +304,23 @@ class EMWebCrawlerUti:
                             cookies=cookie_str,
                             timeout=10,
                         ).json()
+                        # 校验返回内容，若不符合预期则切换代理并重试
+                        if (
+                            res.get("rc") != 0
+                            or not res.get("data")
+                            or not res["data"].get("diff")
+                        ):
+                            self.proxy = self.pm.get_working_proxy()
+                            continue
                         break
                     except Exception:
                         print("请求失败，正在重试...", _)
                         self.proxy = self.pm.get_working_proxy()
                         continue
                 else:
-                    if (
-                        res.get("rc") != 0
-                        or not res.get("data")
-                        or not res["data"].get("diff")
-                    ):
-                        print(f"返回值为：{res}")
-                        raise [res]
+                    raise RuntimeError(
+                        f"获取接口数据失败，最后返回: {locals().get('res', None)}"
+                    )
 
                 # 请求成功，记录到缓存
                 cache_data[m].append(i)
@@ -458,19 +462,23 @@ class EMWebCrawlerUti:
                             cookies=cookie_str,
                             timeout=10,
                         ).json()
+                        # 校验返回内容，若不符合预期则切换代理并重试
+                        if (
+                            res.get("rc") != 0
+                            or not res.get("data")
+                            or not res["data"].get("diff")
+                        ):
+                            self.proxy = self.pm.get_working_proxy()
+                            continue
                         break
                     except Exception:
                         print("请求失败，正在重试...", _)
                         self.proxy = self.pm.get_working_proxy()
                         continue
                 else:
-                    if (
-                        res.get("rc") != 0
-                        or not res.get("data")
-                        or not res["data"].get("diff")
-                    ):
-                        print(f"返回值为：{res}")
-                        raise [res]
+                    raise RuntimeError(
+                        f"获取接口数据失败，最后返回: {locals().get('res', None)}"
+                    )
 
                 cache_data[m].append(i)
                 with open(cache_file, "w", encoding="utf-8") as f:
@@ -572,7 +580,7 @@ class EMWebCrawlerUti:
         }
 
         """ 请求url, 获取数据response """
-        for _ in range(5):
+        for _ in range(3):
             try:
                 res = requests.get(
                     self.__url_history,
@@ -582,13 +590,18 @@ class EMWebCrawlerUti:
                     cookies=cookie_str,
                     timeout=10,
                 ).json()
+                if res.get("rc") != 0 or not res.get("data"):
+                    self.proxy = self.pm.get_working_proxy()
+                    continue  # 失败就继续循环
+                break
             except requests.RequestException as e:
                 print("请求失败，正在重试...", _)
                 self.proxy = self.pm.get_working_proxy()
                 continue  # 失败就继续循环
         else:
-            if res.get("rc") != 0 or not res.get("data"):
-                raise [res]  # 返回错误信息
+            raise RuntimeError(
+                f"获取接口数据失败，最后返回: {locals().get('res', None)}"
+            )
 
         # 获取klines数据
         klines = res.get("data", {}).get("klines", [])
