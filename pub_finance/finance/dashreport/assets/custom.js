@@ -89,6 +89,17 @@
                     }
                 }
             }
+            const axisParent = element.closest('[id*="axis_"]');
+            if (axisParent) {
+                const textElements = Array.from(axisParent.children).filter(child =>
+                    child => child.id && child.id.startsWith("text_")
+                );
+                const parentDiv = element.closest('g');
+                const idx = textElements.findIndex(child => child => child === parentDiv);
+                if (idx >= 0) {
+                    fontSize = screenWidth <= 550 ? '2rem' : '1.5rem';
+                }                
+            }            
         }
 
         // 仅在 fontSize 有效且不为 'unset' 时设置
