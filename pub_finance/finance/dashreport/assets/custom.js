@@ -100,7 +100,7 @@
         // 推荐添加通用后备字体
         element.style.setProperty(
             'font-family',
-            '"Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica", Arial, sans-serif',
+            '"PingFang SC", "Helvetica Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica", Arial, sans-serif',
             'important'
         );
     }
