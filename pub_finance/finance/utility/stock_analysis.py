@@ -2795,7 +2795,7 @@ class StockProposal:
                 xanchor="center",
                 yanchor="middle",
                 xshift=-90,
-                yshift=20,  # 上移10像素
+                yshift=max(10, int(dynamic_font_size * 0.6)),  # 上移10像素
             )
 
             # 箭头注解
@@ -2831,7 +2831,7 @@ class StockProposal:
                 xanchor="center",
                 yanchor="middle",
                 xshift=-90,
-                yshift=-20,  # 下移10像素
+                yshift=-max(10, int(dynamic_font_size * 0.6)),  # 下移10像素
             )
             # 添加行业信息注解（右侧）
             fig.add_annotation(
@@ -3071,7 +3071,7 @@ class StockProposal:
                 xanchor="center",
                 yanchor="middle",
                 xshift=-90,
-                yshift=20,  # 上移10像素
+                yshift=max(10, int(dynamic_font_size * 0.6)),  # 上移10像素
             )
 
             # 箭头注解
@@ -3106,7 +3106,7 @@ class StockProposal:
                 xanchor="center",
                 yanchor="middle",
                 xshift=-90,
-                yshift=-20,  # 下移10像素
+                yshift=-max(10, int(dynamic_font_size * 0.6)),  # 上移10像素
             )
 
             # 添加行业信息注解（右侧）
