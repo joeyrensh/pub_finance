@@ -535,14 +535,6 @@ def make_dash_format_table(df, cols_format, market):
                 if col in cols_format and cols_format[col][0] in ("ratio", "float")
                 else "text"
             ),
-            # "format": (
-            #     Format(
-            #         precision=2,
-            #         scheme=Scheme.percentage,
-            #     )
-            #     if col in cols_format and cols_format[col][0] == "ratio"
-            #     else None
-            # ),
             "format": (
                 Format(
                     precision=2,
@@ -591,24 +583,38 @@ def make_dash_format_table(df, cols_format, market):
             return f"{value}"
         elif value_type == "float":
             return f"{value:.2f}"
-        # elif value_type == "ratio":
-        # return value * 100
-        # return f"{value * 100:.2f}%"
         else:
             return value
 
-    # Convert data to support markdown for images and rich text
     for row in data:
-        for key in row:
+        for key in list(row.keys()):
             if key.endswith("_o"):
                 continue  # 跳过副本列
-            if key in cols_format:
-                new_value, value_type = row[key], cols_format[key][0]
-            else:
-                value = str(row[key])
-                new_value, value_type = check_value_type(value)
 
-            row[key] = format_value(new_value, value_type)
+            if key in cols_format and cols_format[key][0] in ("ratio", "float"):
+                try:
+                    # 若原始是字符串数字，尝试转换为 float；保留 None/空值
+                    val = row[key]
+                    if val is None or (isinstance(val, str) and val.strip() == ""):
+                        row[key] = None
+                    else:
+                        row[key] = float(val)
+                except Exception:
+                    # 若不能转换，保留原值（不会破坏 markdown/html 列）
+                    row[key] = row[key]
+                continue
+
+            # 非数值列：检查是否包含 img/span 等并按 markdown/html 处理
+            value = str(row[key])
+            new_value, value_type = check_value_type(value)
+
+            if value_type == "img":
+                img_style = "max-width: 150px; max-height: 40px;"
+                row[key] = f'<img src="{new_value}" style="{img_style}" />'
+            elif value_type == "richtext":
+                row[key] = f"{new_value}"
+            else:
+                row[key] = new_value
 
     # date_threshold = str(datetime.now() - timedelta(days=5))[0:10]
     style_data_conditional = (
