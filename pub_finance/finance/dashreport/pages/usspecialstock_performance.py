@@ -98,6 +98,7 @@ def create_layout(app):
     ].copy()
 
     cols_format_category = {
+        "IDX": ("float",),
         "OPEN": ("float",),
         "L5 OPEN": ("float",),
         "L5 CLOSE": ("float",),
@@ -137,6 +138,7 @@ def create_layout(app):
         ]
     ].copy()
     cols_format_detail = {
+        "IDX": ("float",),
         "BASE": ("float",),
         "ADJBASE": ("float",),
         "PNL": ("float", "format"),
@@ -174,6 +176,7 @@ def create_layout(app):
         ]
     ].copy()
     cols_format_detail_short = {
+        "IDX": ("float",),
         "TOTAL VALUE": ("float",),
         "ERP": ("float",),
         "BASE": ("float",),
