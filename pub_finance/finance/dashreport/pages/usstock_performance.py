@@ -100,6 +100,9 @@ def create_layout(app):
     ].copy()
 
     cols_format_category = {
+        "OPEN": ("float",),
+        "L5 OPEN": ("float",),
+        "L5 CLOSE": ("float",),
         "LRATIO": ("ratio", "format"),
         "PROFIT": ("float", "format"),
         "PNL RATIO": ("ratio", "format"),
