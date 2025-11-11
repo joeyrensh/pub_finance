@@ -535,17 +535,32 @@ def make_dash_format_table(df, cols_format, market):
                 if col in cols_format and cols_format[col][0] in ("ratio", "float")
                 else "text"
             ),
+            # "format": (
+            #     Format(
+            #         precision=2,
+            #         scheme=Scheme.percentage,
+            #     )
+            #     if col in cols_format and cols_format[col][0] == "ratio"
+            #     else None
+            # ),
             "format": (
                 Format(
                     precision=2,
                     scheme=Scheme.percentage,
                 )
                 if col in cols_format and cols_format[col][0] == "ratio"
-                else None
+                else (
+                    Format(
+                        precision=2,
+                        scheme=Scheme.fixed,
+                    )
+                    if col in cols_format and cols_format[col][0] == "float"
+                    else None
+                )
             ),
             "presentation": (
                 None
-                if col in cols_format and cols_format[col][0] == "ratio"
+                if col in cols_format and cols_format[col][0] in ("ratio", "float")
                 else "markdown"
             ),
         }
