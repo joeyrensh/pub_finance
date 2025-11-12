@@ -29,7 +29,7 @@ VALID_PASSWORD = config["credentials"]["password"]
 
 # 设置flask session的密钥和过期时间
 server.secret_key = os.urandom(24)
-server.permanent_session_lifetime = timedelta(minutes=30)
+server.permanent_session_lifetime = timedelta(minutes=60)
 
 app = dash.Dash(
     __name__,
