@@ -337,7 +337,7 @@ def data_bars(df, column):
     return styles
 
 
-def discrete_background_color_bins(df, column, n_bins=10):
+def discrete_background_color_bins(df, column, n_bins=10, positive_is_red=False):
     """
     使用CSS变量和透明度的版本，更好地适应暗黑模式
     修正：正负值区间分开计算，正值用0到正值最大值，负值用负值最小值到0
@@ -362,21 +362,25 @@ def discrete_background_color_bins(df, column, n_bins=10):
             "background": "transparent",
         }
     )
+    # 根据参数决定正/负的基础颜色（使用 CSS 变量，保留可覆盖性）
+    if positive_is_red:
+        pos_base = "var(--positive-value-bg-color, red)"
+        neg_base = "var(--negative-value-bg-color, green)"
+    else:
+        pos_base = "var(--negative-value-bg-color, green)"
+        neg_base = "var(--positive-value-bg-color, red)"
 
     # 使用CSS变量定义颜色，让CSS处理暗黑模式适配
     def get_color_style(value_range, is_positive=True):
         low, high = value_range
         mid = (low + high) / 2.0
 
-        # 分别计算正负值的强度
         if is_positive:
-            # 正值：基于0到vmax的范围
             intensity = min(max(abs(mid) / max(abs(vmax), 1e-10), 0.1), 1.0)
-            base_color = "var(--negative-value-bg-color, green)"
+            base_color = pos_base
         else:
-            # 负值：基于vmin到0的范围
             intensity = min(max(abs(mid) / max(abs(vmin), 1e-10), 0.1), 1.0)
-            base_color = "var(--positive-value-bg-color, red)"
+            base_color = neg_base
 
         return {
             "if": {
@@ -751,6 +755,13 @@ def make_dash_format_table(df, cols_format, market):
     for col in gradient_target_cols:
         style_data_conditional.extend(
             discrete_background_color_bins(df, col, n_bins=10)
+        )
+
+    gradient_target_cols = ["L5 OPEN"]
+
+    for col in gradient_target_cols:
+        style_data_conditional.extend(
+            discrete_background_color_bins(df, col, n_bins=10, positive_is_red=True)
         )
 
     return dash_table.DataTable(
