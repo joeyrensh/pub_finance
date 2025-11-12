@@ -532,7 +532,8 @@ def make_dash_format_table(df, cols_format, market):
             "id": col,
             "type": (
                 "numeric"
-                if col in cols_format and cols_format[col][0] in ("ratio", "float")
+                if col in cols_format
+                and cols_format[col][0] in ("ratio", "float", "int")
                 else "text"
             ),
             "format": (
@@ -547,12 +548,20 @@ def make_dash_format_table(df, cols_format, market):
                         scheme=Scheme.fixed,
                     )
                     if col in cols_format and cols_format[col][0] == "float"
-                    else None
+                    else (
+                        Format(
+                            precision=0,
+                            scheme=Scheme.fixed,
+                        )
+                        if col in cols_format and cols_format[col][0] == "int"
+                        else None
+                    )
                 )
             ),
             "presentation": (
                 None
-                if col in cols_format and cols_format[col][0] in ("ratio", "float")
+                if col in cols_format
+                and cols_format[col][0] in ("ratio", "float", "int")
                 else "markdown"
             ),
         }
@@ -591,7 +600,7 @@ def make_dash_format_table(df, cols_format, market):
             if key.endswith("_o"):
                 continue  # 跳过副本列
 
-            if key in cols_format and cols_format[key][0] in ("ratio", "float"):
+            if key in cols_format and cols_format[key][0] in ("ratio", "float", "int"):
                 try:
                     # 若原始是字符串数字，尝试转换为 float；保留 None/空值
                     val = row[key]
@@ -705,7 +714,7 @@ def make_dash_format_table(df, cols_format, market):
             for col in df.columns
             if col in cols_format
             and len(cols_format[col]) > 1
-            and cols_format[col][0] == "float"
+            and cols_format[col][0] in ("float", "int")
             and cols_format[col][1] == "format"
         ]
         + [
@@ -722,7 +731,7 @@ def make_dash_format_table(df, cols_format, market):
             for col in df.columns
             if col in cols_format
             and len(cols_format[col]) > 1
-            and cols_format[col][0] == "float"
+            and cols_format[col][0] in ("float", "int")
             and cols_format[col][1] == "format"
         ]
     )

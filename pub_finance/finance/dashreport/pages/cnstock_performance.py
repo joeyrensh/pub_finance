@@ -102,11 +102,11 @@ def create_layout(app):
         ]
     ].copy()
     cols_format_category = {
-        "OPEN": ("float",),
-        "L5 OPEN": ("float",),
-        "L5 CLOSE": ("float",),
+        "OPEN": ("int",),
+        "L5 OPEN": ("int",),
+        "L5 CLOSE": ("int",),
         "LRATIO": ("ratio", "format"),
-        "PROFIT": ("float", "format"),
+        "PROFIT": ("int", "format"),
         "PNL RATIO": ("ratio", "format"),
         "AVG TRANS": ("float",),
         "AVG DAYS": ("float",),
@@ -143,8 +143,8 @@ def create_layout(app):
     cols_format_detail = {
         "BASE": ("float",),
         "ADJBASE": ("float",),
-        "PNL": ("float", "format"),
-        "AVG TRANS": ("float",),
+        "PNL": ("int", "format"),
+        "AVG TRANS": ("int",),
         "AVG DAYS": ("float",),
         "PNL RATIO": ("ratio", "format"),
         "WIN RATE": ("ratio", "format"),
@@ -182,9 +182,9 @@ def create_layout(app):
         "ERP": ("float",),
         "BASE": ("float",),
         "ADJBASE": ("float",),
-        "PNL": ("float", "format"),
+        "PNL": ("int", "format"),
         "PNL RATIO": ("ratio", "format"),
-        "HIS DAYS": ("float",),
+        "HIS DAYS": ("int",),
     }
     # ETF持仓明细
     df_etf = pd.read_csv(
@@ -212,8 +212,8 @@ def create_layout(app):
     cols_format_etf = {
         "BASE": ("float",),
         "ADJBASE": ("float",),
-        "PNL": ("float", "format"),
-        "AVG TRANS": ("float",),
+        "PNL": ("int", "format"),
+        "AVG TRANS": ("int",),
         "AVG DAYS": ("float",),
         "PNL RATIO": ("ratio", "format"),
         "WIN RATE": ("ratio", "format"),
