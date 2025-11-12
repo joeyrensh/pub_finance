@@ -271,7 +271,7 @@ idx,symbol,industry
 335,MNTS,航空航天与国防
 337,ODV,黄金
 338,OLMA,生物技术
-339,BOOM,企业集团
+339,BOOM,综合企业
 340,INTT,半导体设备与材料
 341,IPODW,空壳公司
 342,SNYR,医疗分销
@@ -308,7 +308,7 @@ idx,symbol,industry
 376,RGR,航空航天与国防
 377,CURV,服装零售
 378,BNRG,可再生能源公用事业
-379,MAMK,企业集团
+379,MAMK,综合企业
 380,FNGR,电信服务
 381,EFOI,家用器具与家电
 382,NRT,石油与天然气勘探生产
@@ -360,7 +360,7 @@ idx,symbol,industry
 437,IONQ,计算机硬件
 438,RIG,石油与天然气钻探
 439,KELYB,人力资源与就业服务
-440,TUSK,企业集团
+440,TUSK,综合企业
 441,BRRWW,空壳公司
 442,ITRM,生物技术
 443,VRAX,生物技术
@@ -597,7 +597,7 @@ idx,symbol,industry
 728,INVX,石油与天然气设备服务
 732,EBR,可再生能源公用事业
 733,NUVL,生物技术
-734,TTI,企业集团
+734,TTI,综合企业
 735,SATL,航空航天与国防
 736,EYE,专业零售
 737,UONE,广播媒体
@@ -655,7 +655,7 @@ idx,symbol,industry
 795,DKI,电子游戏与多媒体
 796,DENN,餐厅
 797,NUTR,旅行服务
-799,AIRT,企业集团
+799,AIRT,综合企业
 800,ALX,零售地产REIT
 801,UHAL,租赁服务
 802,STHO,房地产
@@ -870,7 +870,7 @@ idx,symbol,industry
 1063,CHWY,互联网零售
 1064,CCM,医疗设施
 1065,TIMB,电信服务
-1067,NNBR,企业集团
+1067,NNBR,综合企业
 1068,KURA,生物技术
 1069,FAST,工业分销
 1070,SDST,电气设备与零件
@@ -982,7 +982,7 @@ idx,symbol,industry
 1213,IINN,医疗设备
 1216,MRP,住宅地产REIT
 1217,AWK,受监管水务公司
-1218,MMM,企业集团
+1218,MMM,综合企业
 1219,WKC,石油与天然气炼制销售
 1220,UTSI,通信设备
 1221,LANV,奢侈品
@@ -1365,7 +1365,7 @@ idx,symbol,industry
 1745,SKY,住宅建筑
 1749,IMTE,电子元件
 1750,EP,石油与天然气勘探生产
-1751,STRR,企业集团
+1751,STRR,综合企业
 1752,BUD,啤酒饮料
 1753,MHF,资产管理
 1755,ALGT,航空公司
@@ -1652,7 +1652,7 @@ idx,symbol,industry
 2244,NGG,受监管电力公司
 2246,OGI,药品制造商
 2247,ANGO,医疗仪器与用品
-2248,TRC,企业集团
+2248,TRC,综合企业
 2249,GNLN,烟草
 2250,PRAX,生物技术
 2251,CVR,工具与配件
@@ -2015,7 +2015,7 @@ idx,symbol,industry
 2992,SBI,资产管理
 2995,CMT,专业化学品
 2997,HOG,休闲车辆
-3000,CODI,企业集团
+3000,CODI,综合企业
 3002,POLE,空壳公司
 3005,CSR,住宅地产REIT
 3006,BLUWW,空壳公司
@@ -2033,7 +2033,7 @@ idx,symbol,industry
 3039,WNW,互联网零售
 3041,CHY,资产管理
 3043,BHP,工业金属与采矿
-3047,VMI,企业集团
+3047,VMI,综合企业
 3048,SSB,区域性银行
 3051,FINV,信贷服务
 3053,TSLX,资产管理
@@ -2203,7 +2203,7 @@ idx,symbol,industry
 3488,CIM,抵押贷款REIT
 3489,UL,家庭与个人用品
 3492,STWD,抵押贷款REIT
-3497,HON,企业集团
+3497,HON,综合企业
 3500,LBRDK,电信服务
 3502,NTCT,软件
 3506,PACH,空壳公司
@@ -2389,7 +2389,7 @@ idx,symbol,industry
 4466,BACC,空壳公司
 4467,TSQ,广告代理
 4468,PHLT,健康信息服务
-4470,LGPS,企业集团
+4470,LGPS,综合企业
 4471,BOE,资产管理
 4474,TSE,专业化学品
 4475,AXIN,空壳公司
@@ -2476,7 +2476,7 @@ idx,symbol,industry
 4678,GCMGW,资产管理
 4681,SCOR,互联网内容与信息
 4683,XTIA,航空航天与国防
-4685,AIRTP,企业集团
+4685,AIRTP,综合企业
 4687,EFSCP,区域性银行
 4690,GNTA,生物技术
 4691,SAFX,可再生能源公用事业
@@ -2782,7 +2782,7 @@ idx,symbol,industry
 6100,EICA,资产管理
 6105,COOT,包装食品
 6109,QTRX,医疗设备
-6112,STRRP,企业集团
+6112,STRRP,综合企业
 6121,PEW,航空航天与国防
 6127,AYI,电气设备与零件
 6130,SFM,杂货店
@@ -2836,7 +2836,7 @@ idx,symbol,industry
 6310,FAX,资产管理
 6311,STRA,教育与培训服务
 6319,HXL,航空航天与国防
-6322,FIP,企业集团
+6322,FIP,综合企业
 6324,TREX,建筑产品与设备
 6326,ACP,资产管理
 6327,VBTX,区域性银行
@@ -2925,7 +2925,7 @@ idx,symbol,industry
 6621,NUWE,医疗设备
 6622,WWW,鞋类与配饰
 6626,NMCO,资产管理
-6635,HHS,企业集团
+6635,HHS,综合企业
 6636,CXE,资产管理
 6643,KTF,资产管理
 6644,SNDX,生物技术
@@ -2950,7 +2950,7 @@ idx,symbol,industry
 6705,TEX,农用与重型建筑机械
 6706,FR,工业地产REIT
 6707,MVF,资产管理
-6712,OTTR,企业集团
+6712,OTTR,综合企业
 6713,OBDC,资产管理
 6715,BVS,医疗设备
 6719,ROL,个人服务
@@ -3328,7 +3328,7 @@ idx,symbol,industry
 7848,GIGM,电子游戏与多媒体
 7851,AFRI,农产品
 7852,BCYC,生物技术
-7855,BBU,企业集团
+7855,BBU,综合企业
 7856,EHI,资产管理
 7857,DGICA,财产与意外保险
 7867,MH,教育与培训服务
@@ -3591,7 +3591,7 @@ idx,symbol,industry
 8397,CGC,药品制造商
 8400,VIRC,家用器具与家电
 8403,OSK,农用与重型建筑机械
-8405,BOC,企业集团
+8405,BOC,综合企业
 8407,FFBC,区域性银行
 8408,HLF,包装食品
 8413,MPX,休闲车辆
@@ -3655,7 +3655,7 @@ idx,symbol,industry
 8517,VEEV,健康信息服务
 8518,GLDG,黄金
 8519,RS,钢铁
-8520,DLX,企业集团
+8520,DLX,综合企业
 8523,IMMR,软件
 8526,MET,人寿保险
 8531,CNL,黄金
@@ -3868,7 +3868,7 @@ idx,symbol,industry
 8897,WNC,农用与重型建筑机械
 8899,ZYME,生物技术
 8900,CINGW,生物技术
-8901,MATW,企业集团
+8901,MATW,综合企业
 8902,SEIC,资产管理
 8903,DVAX,药品制造商
 8910,PHH,家庭与个人用品
@@ -4017,7 +4017,7 @@ idx,symbol,industry
 9157,KEQU,家用器具与家电
 9158,BIOX,农业投入
 9159,TCI,房地产
-9161,FBYDW,企业集团
+9161,FBYDW,综合企业
 9162,LEU,铀业
 9163,GOVX,生物技术
 9164,ICE,金融数据与证券交易所
@@ -4230,7 +4230,7 @@ idx,symbol,industry
 9479,SORA,奢侈品
 9480,HUYA,娱乐
 9481,TSEM,半导体
-9484,CRESY,企业集团
+9484,CRESY,综合企业
 9486,IFN,资产管理
 9489,CRTO,广告代理
 9490,GDYN,信息技术服务
@@ -4343,7 +4343,7 @@ idx,symbol,industry
 9644,NCPL,资本市场
 9646,AB,资产管理
 9647,PKX,钢铁
-9648,RCMT,企业集团
+9648,RCMT,综合企业
 9649,IBEX,信息技术服务
 9650,CFLT,软件
 9652,IBIO,生物技术
@@ -5598,7 +5598,7 @@ idx,symbol,industry
 11142,DFSCW,航空航天与国防
 11143,GETY,互联网内容与信息
 11144,CISS,海运
-11145,PLAG,企业集团
+11145,PLAG,综合企业
 11147,HBB,家用器具与家电
 11148,VRT,电气设备与零件
 11149,KUKE,娱乐
@@ -5714,7 +5714,7 @@ idx,symbol,industry
 11268,IMDX,诊断与研究
 11270,SVIIW,空壳公司
 11271,CURIW,广播媒体
-11272,CRESW,企业集团
+11272,CRESW,综合企业
 11273,KRUS,餐厅
 11274,TGHL,软件
 11275,PEPG,生物技术
@@ -5772,7 +5772,7 @@ idx,symbol,industry
 11335,SNTG,信贷服务
 11336,TE,电气设备与零件
 11337,STAK,石油与天然气设备服务
-11338,FBYD,企业集团
+11338,FBYD,综合企业
 11339,ACON,健康信息服务
 11342,LMB,建筑产品与设备
 11343,WLDSW,消费电子
@@ -6349,7 +6349,7 @@ idx,symbol,industry
 12086,BDJ,资产管理
 12094,OUT,特殊品类REIT
 12099,ETW,资产管理
-12100,SEB,企业集团
+12100,SEB,综合企业
 12101,BME,资产管理
 12103,EXG,资产管理
 12105,AON,保险经纪
