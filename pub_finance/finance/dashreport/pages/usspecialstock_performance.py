@@ -113,7 +113,7 @@ def create_layout(app):
     # 持仓明细
     df_detail = pd.read_csv(
         DATA_PATH.joinpath(f"{prefix}_stockdetail.csv"),
-        usecols=[i for i in range(1, 17)],
+        usecols=[i for i in range(1, 19)],
     )
     df_detail["IDX"] = df_detail.index
     df_detail = df_detail[
@@ -125,6 +125,7 @@ def create_layout(app):
             "TOTAL VALUE",
             "ERP",
             "SHARPE RATIO",
+            "SORTINO RATIO",
             "OPEN DATE",
             "BASE",
             "ADJBASE",
@@ -150,6 +151,7 @@ def create_layout(app):
         "TOTAL VALUE": ("float",),
         "ERP": ("float",),
         "SHARPE RATIO": ("float",),
+        "SORTINO RATIO": ("float",),
     }
     # 减仓明细
     df_detail_short = pd.read_csv(

@@ -92,6 +92,7 @@ class GlobalStrategy(bt.Strategy):
         self.myorder = dict()
         self.daily_returns = {}  # 每只股票每日收益率序列
         self.sharpe_ratios = {}  # 每只股票当前夏普比率
+        self.sortino_ratios = {}
         # 读取国债收益率
         file = FileInfo(trade_date, market)
         file_gz = file.get_file_path_gz
@@ -123,6 +124,7 @@ class GlobalStrategy(bt.Strategy):
             self.myorder[d._name] = dict()
             self.daily_returns[d._name] = []  # 初始化每日收益率
             self.sharpe_ratios[d._name] = None
+            self.sortino_ratios[d._name] = None
 
             """MA20/60/120指标 """
             self.inds[d._name]["sma_short"] = bt.indicators.SMA(
@@ -510,12 +512,13 @@ class GlobalStrategy(bt.Strategy):
             if order.isbuy():
                 """订单购入成功"""
                 print(
-                    "{}, Buy {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {}".format(
+                    "{}, Buy {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {} SortinoRatio: {}".format(
                         bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
                         order.data._name,
                         order.executed.price,
                         order.executed.size,
                         self.sharpe_ratios[order.data._name],
+                        self.sortino_ratios[order.data._name],
                     )
                 )
                 self.last_deal_date[order.data._name] = bt.num2date(
@@ -532,12 +535,13 @@ class GlobalStrategy(bt.Strategy):
             elif order.issell():
                 """订单卖出成功"""
                 print(
-                    "{} Sell {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {}".format(
+                    "{} Sell {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {} SortinoRatio: {}".format(
                         bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
                         order.data._name,
                         order.executed.price,
                         order.executed.size,
                         self.sharpe_ratios[order.data._name],
+                        self.sortino_ratios[order.data._name],
                     )
                 )
                 self.last_deal_date[order.data._name] = None
@@ -603,7 +607,8 @@ class GlobalStrategy(bt.Strategy):
             # 夏普比率计算
             if d._name not in self.daily_returns:
                 self.daily_returns[d._name] = []
-                self.sharpe_ratios[d._name] = 0.0
+                self.sharpe_ratios[d._name] = 0
+                self.sortino_ratios[d._name] = 0
 
             # ---- (1) 计算每日收益率 ----
             prev_close = d.close[-1]
@@ -641,10 +646,34 @@ class GlobalStrategy(bt.Strategy):
                         sharpe = np.sqrt(self.params.annual_period) * mean_ret / std_ret
                         self.sharpe_ratios[d._name] = sharpe
                     else:
-                        self.sharpe_ratios[d._name] = 0.0
+                        self.sharpe_ratios[d._name] = 0
+
+                    # 只计算下行波动（只考虑负值）
+                    downside_returns = excess_ret[excess_ret < 0]
+                    if len(downside_returns) > 0:
+                        downside_std = np.std(downside_returns)
+                        mean_ret = np.mean(excess_ret)
+                        if downside_std > 0:
+                            sortino = (
+                                np.sqrt(self.params.annual_period)
+                                * mean_ret
+                                / downside_std
+                            )
+                            self.sortino_ratios[d._name] = sortino
+                        else:
+                            self.sortino_ratios[d._name] = 0
+                    else:
+                        # 没有下行波动，定义索提诺比率为年化平均收益除以小数值1e-10防止除零
+                        self.sortino_ratios[d._name] = (
+                            np.sqrt(self.params.annual_period)
+                            * np.mean(excess_ret)
+                            / 1e-10
+                        )
                 else:
                     # 数据不足或无风险利率为0 → 夏普比率置0
-                    self.sharpe_ratios[d._name] = 0.0
+                    self.sharpe_ratios[d._name] = None
+                    self.sortino_ratios[d._name] = None
+
             pos = self.getposition(d)
 
             """ 如果没有仓位就判断是否买卖 """
@@ -720,6 +749,7 @@ class GlobalStrategy(bt.Strategy):
                     "pnl": pos.size * (pos.adjbase - pos.price),
                     "volume": d.volume[0],
                     "sharpe_ratio": self.sharpe_ratios[d._name],
+                    "sortino_ratio": self.sortino_ratios[d._name],
                 }
                 list.append(dict)
 
