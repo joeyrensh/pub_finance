@@ -5,6 +5,7 @@ from utility.toolkit import ToolKit
 from datetime import datetime
 import pandas as pd
 from utility.fileinfo import FileInfo
+import numpy as np
 
 
 class GlobalStrategy(bt.Strategy):
@@ -29,6 +30,7 @@ class GlobalStrategy(bt.Strategy):
         ("price_short_period", 5),
         ("price_mid_period", 10),
         ("price_long_period", 20),
+        ("rf_window", 60),  # 夏普比率滚动计算窗口（天）
     )
 
     def log(self, txt, dt=None):
@@ -88,6 +90,20 @@ class GlobalStrategy(bt.Strategy):
         self.signals = dict()
         self.last_deal_date = dict()
         self.myorder = dict()
+        self.daily_returns = {}  # 每只股票每日收益率序列
+        self.sharpe_ratios = {}  # 每只股票当前夏普比率
+        # 读取国债收益率
+        file = FileInfo(trade_date, market)
+        file_gz = file.get_file_path_gz
+        cols = ["code", "name", "date", "new"]
+        self.rf_rate = 0
+        try:
+            df_gz = pd.read_csv(file_gz, usecols=cols)
+            df_gz = df_gz.dropna(subset=["new"])
+            if not df_gz.empty:
+                self.rf_rate = df_gz["new"].astype(float).iloc[-1] / 100.0
+        except Exception as e:
+            print(f"⚠️ 无法读取国债收益率，使用默认值 3%: {e}")
         """ 策略进度方法初始化 """
         t = ToolKit("策略初始化")
         """
@@ -105,6 +121,8 @@ class GlobalStrategy(bt.Strategy):
 
             # 跟踪订单交易策略
             self.myorder[d._name] = dict()
+            self.daily_returns[d._name] = []  # 初始化每日收益率
+            self.sharpe_ratios[d._name] = None
 
             """MA20/60/120指标 """
             self.inds[d._name]["sma_short"] = bt.indicators.SMA(
@@ -492,11 +510,12 @@ class GlobalStrategy(bt.Strategy):
             if order.isbuy():
                 """订单购入成功"""
                 print(
-                    "{}, Buy {} Executed, Price: {:.2f} Size: {:.2f}".format(
+                    "{}, Buy {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {}".format(
                         bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
                         order.data._name,
                         order.executed.price,
                         order.executed.size,
+                        self.sharpe_ratios[order.data._name],
                     )
                 )
                 self.last_deal_date[order.data._name] = bt.num2date(
@@ -513,11 +532,12 @@ class GlobalStrategy(bt.Strategy):
             elif order.issell():
                 """订单卖出成功"""
                 print(
-                    "{} Sell {} Executed, Price: {:.2f} Size: {:.2f}".format(
+                    "{} Sell {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {}".format(
                         bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
                         order.data._name,
                         order.executed.price,
                         order.executed.size,
+                        self.sharpe_ratios[order.data._name],
                     )
                 )
                 self.last_deal_date[order.data._name] = None
@@ -570,45 +590,65 @@ class GlobalStrategy(bt.Strategy):
     def next(self):
         # 策略执行进度
         t = ToolKit("策略执行中")
-        # max_buflen = max([d.buflen() for d in self.datas])
-        # # 增加cash
-        # if (
-        #     len(self) < self.data.buflen() - 1
-        #     and self.broker.cash < self.params.availablecash
-        # ):
-        #     self.broker.add_cash(self.params.availablecash - self.broker.cash)
-        #     self.log(
-        #         "cash is not enough %s, add cash %s"
-        #         % (self.broker.cash, self.params.availablecash - self.broker.cash)
-        #     )
         list = []
         for i, d in enumerate(self.datas):
             if self.order[d._name]:
                 continue
             """ 头部index不计算，有bug """
-            if len(d) == 0:
+            # if len(d) == 0:
+            #     continue
+            if len(d) < 2:
                 continue
+
+            # 夏普比率计算
+            if d._name not in self.daily_returns:
+                self.daily_returns[d._name] = []
+                self.sharpe_ratios[d._name] = 0.0
+
+            # ---- (1) 计算每日收益率 ----
+            prev_close = d.close[-1]
+            curr_close = d.close[0]
+
+            if prev_close > 0:
+                ret = curr_close / prev_close - 1
+                self.daily_returns[d._name].append(ret)
+
+                # 只保留最近 rf_window 天数据
+                if len(self.daily_returns[d._name]) > self.params.rf_window:
+                    self.daily_returns[d._name] = self.daily_returns[d._name][
+                        -self.params.rf_window :
+                    ]
+
+                # ---- (2) 夏普比率计算 ----
+                # 条件1: 有足够天数
+                enough_data = len(self.daily_returns[d._name]) >= min(
+                    60, self.params.annual_period
+                )
+                # 条件2: 无风险利率有效
+                valid_rf = self.rf_rate is not None and self.rf_rate > 0
+
+                if enough_data and valid_rf:
+                    # 日化无风险收益
+                    rf_daily = self.rf_rate / self.params.annual_period
+
+                    # 超额收益
+                    excess_ret = np.array(self.daily_returns[d._name]) - rf_daily
+
+                    mean_ret = np.mean(excess_ret)
+                    std_ret = np.std(excess_ret)
+
+                    if std_ret > 0:
+                        sharpe = np.sqrt(self.params.annual_period) * mean_ret / std_ret
+                        self.sharpe_ratios[d._name] = sharpe
+                    else:
+                        self.sharpe_ratios[d._name] = 0.0
+                else:
+                    # 数据不足或无风险利率为0 → 夏普比率置0
+                    self.sharpe_ratios[d._name] = 0.0
             pos = self.getposition(d)
 
             """ 如果没有仓位就判断是否买卖 """
             if not pos:
-                """噪声处理"""
-                # # 均线密集判断，短期ema与中期ema近20日内密集排列
-                # if (
-                #     self.signals[d._name]["close_crossdown_mashort"]
-                #     .get(ago=-1, size=self.params.ma_short_period)
-                #     .count(1)
-                #     > 2
-                # ):
-                #     continue
-                # # 最近20个交易日，dea下穿0轴2次，不进行交易
-                # if (
-                #     self.signals[d._name]["dif_crossdown_dea"]
-                #     .get(ago=-1, size=self.params.ma_short_period)
-                #     .count(1)
-                #     > 2
-                # ):
-                #     continue
 
                 # 均线密集判断，短期ema与中期ema近20日内密集排列
                 x1 = self.inds[d._name]["ema_short"].get(
@@ -679,6 +719,7 @@ class GlobalStrategy(bt.Strategy):
                     "adjbase": pos.adjbase,
                     "pnl": pos.size * (pos.adjbase - pos.price),
                     "volume": d.volume[0],
+                    "sharpe_ratio": self.sharpe_ratios[d._name],
                 }
                 list.append(dict)
 
@@ -698,13 +739,6 @@ class GlobalStrategy(bt.Strategy):
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
         df.to_csv(self.file_path_position_detail, header=False, mode="a")
-        # # 最后一日剔除多余现金
-        # if len(self) == self.data.buflen() - 1 and self.broker.cash > self.params.restcash:
-        #     self.broker.add_cash(self.params.restcash - self.broker.cash)
-        #     self.log(
-        #         "cash is too much %s, add cash %s"
-        #         % (self.broker.cash, self.params.restcash - self.broker.cash)
-        #     )
         t.progress_bar(self.data.buflen(), len(self))
 
     def stop(self):

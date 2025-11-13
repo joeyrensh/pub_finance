@@ -99,7 +99,16 @@ class StockProposal:
         spark_industry_info.createOrReplaceTempView("temp_industry_info")
         # 仓位日志明细
         file_path_position_detail = file.get_file_path_position_detail
-        cols = ["idx", "symbol", "date", "price", "adjbase", "pnl", "volume"]
+        cols = [
+            "idx",
+            "symbol",
+            "date",
+            "price",
+            "adjbase",
+            "pnl",
+            "volume",
+            "sharpe_ratio",
+        ]
         spark_position_detail = spark.read.csv(
             file_path_position_detail, header=None, inferSchema=True
         )
@@ -872,7 +881,8 @@ class StockProposal:
                 , t1.name
                 , ROUND(t1.total_value / 100000000, 1) AS total_value
                 , CASE WHEN t3.pe_double IS NULL OR t4.new IS NULL OR t3.pe_double = 0 THEN null
-                  ELSE ROUND((1.0 / t3.pe_double - t4.new / 100.0) * 100, 1) END AS erp      
+                  ELSE ROUND((1.0 / t3.pe_double - t4.new / 100.0) * 100, 1) END AS erp
+                , t5.sharpe_ratio      
                 , t1.buy_date
                 , t1.price
                 , t1.adjbase
@@ -912,6 +922,17 @@ class StockProposal:
                     FROM temp_latest_stock_info
                 ) t3 ON t1.symbol = t3.symbol
                 LEFT JOIN temp_gz t4 ON 1=1
+                LEFT JOIN (
+                    SELECT symbol, sharpe_ratio
+                    FROM (
+                        SELECT 
+                            symbol,
+                            sharpe_ratio,
+                            ROW_NUMBER() OVER (PARTITION BY symbol ORDER BY date DESC) AS rn
+                        FROM temp_position_detail
+                    ) t
+                    WHERE rn = 1
+                ) t5 ON t1.symbol = t5.symbol
             """.format(
                 end_date, end_date
             )
@@ -953,6 +974,7 @@ class StockProposal:
                 "name": "NAME",
                 "total_value": "TOTAL VALUE",
                 "erp": "ERP",
+                "sharpe_ratio": "SHARPE RATIO",
                 "buy_date": "OPEN DATE",
                 "price": "BASE",
                 "adjbase": "ADJBASE",
@@ -1012,6 +1034,7 @@ class StockProposal:
                     "WIN RATE": "{:.2%}",
                     "TOTAL PNL RATIO": "{:.2%}",
                     "ERP": "{:.1f}",
+                    "SHARPE RATIO": "{:.2f}",
                 }
             ).apply(
                 highlight_row, axis=1
@@ -3529,7 +3552,16 @@ class StockProposal:
         ].toPandas()
         # 仓位日志明细
         file_path_position_detail = file.get_file_path_etf_position_detail
-        cols = ["idx", "symbol", "date", "price", "adjbase", "pnl", "volume"]
+        cols = [
+            "idx",
+            "symbol",
+            "date",
+            "price",
+            "adjbase",
+            "pnl",
+            "volume",
+            "sharpe_ratio",
+        ]
         spark_position_detail = spark.read.csv(
             file_path_position_detail, header=None, inferSchema=True
         )

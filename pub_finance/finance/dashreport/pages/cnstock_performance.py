@@ -128,6 +128,7 @@ def create_layout(app):
             "NAME",
             "TOTAL VALUE",
             "ERP",
+            "SHARPE RATIO",
             "OPEN DATE",
             "BASE",
             "ADJBASE",
@@ -152,6 +153,7 @@ def create_layout(app):
         "OPEN DATE": ("date", "format"),
         "TOTAL VALUE": ("float",),
         "ERP": ("float",),
+        "SHARPE RATIO": ("float",),
     }
     # 减仓明细
     df_detail_short = pd.read_csv(
