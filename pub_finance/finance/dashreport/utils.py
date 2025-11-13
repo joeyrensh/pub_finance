@@ -750,11 +750,11 @@ def make_dash_format_table(df, cols_format, market):
             style_data_conditional.extend(data_bars(df, col))
 
     # 在这里把按值分段着色应用到需要的列
-    gradient_target_cols = ["ERP"]
+    gradient_target_cols = ["ERP", "SHARPE RATIO"]
 
     for col in gradient_target_cols:
         style_data_conditional.extend(
-            discrete_background_color_bins(df, col, n_bins=10)
+            discrete_background_color_bins(df, col, n_bins=10, positive_is_red=True)
         )
 
     gradient_target_cols = ["L5 OPEN"]
