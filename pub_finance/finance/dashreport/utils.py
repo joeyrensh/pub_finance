@@ -433,7 +433,15 @@ def extract_arrow_num(s):
 
 def make_dash_format_table(df, cols_format, market):
     """Return a dash_table.DataTable for a Pandas dataframe"""
-    required_cols = ["IND", "ERP", "OPEN DATE", "PNL RATIO", "AVG TRANS", "WIN RATE"]
+    required_cols = [
+        "IND",
+        "ERP",
+        "OPEN DATE",
+        "PNL RATIO",
+        "AVG TRANS",
+        "WIN RATE",
+        "SHARPE RATIO",
+    ]
     has_all_required_cols = all(col in df.columns for col in required_cols)
     if market in ("us", "us_special"):
         trade_date_l40 = get_us_latest_trade_date(39)
@@ -499,6 +507,7 @@ def make_dash_format_table(df, cols_format, market):
             & (df["PNL RATIO"] > 0)
             & (df["AVG TRANS"] <= avg_trans_threshold)
             & (df["WIN RATE"] >= win_rate_threshold)
+            & (df["SHARPE RATIO"] > 1)
         )
 
         # 近5个交易日TOP 5行业中的优秀个股
@@ -509,6 +518,7 @@ def make_dash_format_table(df, cols_format, market):
             & (df["PNL RATIO"] > 0)
             & (df["AVG TRANS"] <= avg_trans_threshold)
             & (df["WIN RATE"] >= win_rate_threshold)
+            & (df["SHARPE RATIO"] > 1)
         )
 
         # PE合理的优秀个股
@@ -519,6 +529,7 @@ def make_dash_format_table(df, cols_format, market):
             & (df["ERP"] != -99999)
             & (df["AVG TRANS"] <= avg_trans_threshold)
             & (df["WIN RATE"] >= win_rate_threshold)
+            & (df["SHARPE RATIO"] > 1)
         )
 
         # 然后进行赋值操作
@@ -670,20 +681,23 @@ def make_dash_format_table(df, cols_format, market):
                             "{PNL RATIO_o} >= {pnl_ratio_threshold_head_o} && "
                             + "{PNL RATIO_o} > 0 && "
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
-                            "{WIN RATE_o} >= " + str(win_rate_threshold) + ") || ("
+                            "{WIN RATE_o} >= " + str(win_rate_threshold) + " && "
+                            "{SHARPE RATIO} > 1 " + ") || ("
                             "{IND_BRACKET_NUM} <= 20 && "
                             "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
                             "{PNL RATIO_o} >= {pnl_ratio_threshold_head_o} && "
                             + "{PNL RATIO_o} > 0 &&"
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
-                            "{WIN RATE_o} >= " + str(win_rate_threshold) + ") || ("
+                            "{WIN RATE_o} >= " + str(win_rate_threshold) + " && "
+                            "{SHARPE RATIO} > 1 " + ") || ("
                             "{OPEN DATE_o} >= "
                             + str(date_threshold_l20)
                             + " && "
                             + "{PNL RATIO_o} > 0 && "
                             "{ERP_o} != -99999 && {ERP_o} > {erp_threshold_o} && "
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
-                            "{WIN RATE_o} >= " + str(win_rate_threshold) + ")"
+                            "{WIN RATE_o} >= " + str(win_rate_threshold) + " && "
+                            "{SHARPE RATIO} > 1 " + ")"
                         )
                     },
                     "background": ("""var(--row-bg-color)"""),
