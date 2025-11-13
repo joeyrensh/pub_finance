@@ -337,10 +337,11 @@ def data_bars(df, column):
     return styles
 
 
-def discrete_background_color_bins(df, column, n_bins=10, positive_is_red=False):
+def discrete_background_color_bins(df, column, n_bins=10, positive_is_red=False, mid=0):
     """
     使用CSS变量和透明度的版本，更好地适应暗黑模式
-    修正：正负值区间分开计算，正值用0到正值最大值，负值用负值最小值到0
+    修正：正负值区间分开计算，正值用mid到正值最大值，负值用负值最小值到mid
+    mid: 渐变中心值，默认0，可设置为1或其它
     """
     col_o = column + "_o"
     if col_o not in df.columns:
@@ -355,13 +356,17 @@ def discrete_background_color_bins(df, column, n_bins=10, positive_is_red=False)
 
     styles = []
 
-    # 零值透明
+    # 零值或 mid 值透明
     styles.append(
         {
-            "if": {"filter_query": "{{{}}} = 0".format(col_o), "column_id": column},
+            "if": {
+                "filter_query": "{{{}}} = {}".format(col_o, mid),
+                "column_id": column,
+            },
             "background": "transparent",
         }
     )
+
     # 根据参数决定正/负的基础颜色（使用 CSS 变量，保留可覆盖性）
     if positive_is_red:
         pos_base = "var(--positive-value-bg-color, red)"
@@ -373,36 +378,38 @@ def discrete_background_color_bins(df, column, n_bins=10, positive_is_red=False)
     # 使用CSS变量定义颜色，让CSS处理暗黑模式适配
     def get_color_style(value_range, is_positive=True):
         low, high = value_range
-        mid = (low + high) / 2.0
+        mid_val = (low + high) / 2.0
 
         if is_positive:
-            intensity = min(max(abs(mid) / max(abs(vmax), 1e-10), 0.1), 1.0)
+            intensity = min(
+                max(abs(mid_val - mid) / max(abs(vmax - mid), 1e-10), 0.1), 1.0
+            )
             base_color = pos_base
         else:
-            intensity = min(max(abs(mid) / max(abs(vmin), 1e-10), 0.1), 1.0)
+            intensity = min(
+                max(abs(mid_val - mid) / max(abs(vmin - mid), 1e-10), 0.1), 1.0
+            )
             base_color = neg_base
 
         return {
             "if": {
-                "filter_query": "{{{col}}} >= {low} && {{{col}}} <= {high} && {{{col}}} != 0".format(
-                    col=col_o, low=repr(low), high=repr(high)
+                "filter_query": "{{{col}}} >= {low} && {{{col}}} <= {high} && {{{col}}} != {mid}".format(
+                    col=col_o, low=repr(low), high=repr(high), mid=repr(mid)
                 ),
                 "column_id": column,
             },
             "background": f"color-mix(in srgb, {base_color} {intensity*100}%, transparent)",
-            # "color": "var(--text-color, black)",
-            # "fontWeight": "bold" if intensity > 0.6 else "normal",
         }
 
-    # 负值区间：从vmin到0
-    if vmin < 0:
-        neg_edges = [vmin + (0 - vmin) * (i / n_bins) for i in range(n_bins + 1)]
+    # 负值区间：从vmin到mid
+    if vmin < mid:
+        neg_edges = [vmin + (mid - vmin) * (i / n_bins) for i in range(n_bins + 1)]
         for i in range(n_bins):
             styles.append(get_color_style((neg_edges[i], neg_edges[i + 1]), False))
 
-    # 正值区间：从0到vmax
-    if vmax > 0:
-        pos_edges = [0 + (vmax - 0) * (i / n_bins) for i in range(n_bins + 1)]
+    # 正值区间：从mid到vmax
+    if vmax > mid:
+        pos_edges = [mid + (vmax - mid) * (i / n_bins) for i in range(n_bins + 1)]
         for i in range(n_bins):
             styles.append(get_color_style((pos_edges[i], pos_edges[i + 1]), True))
 
@@ -750,11 +757,21 @@ def make_dash_format_table(df, cols_format, market):
             style_data_conditional.extend(data_bars(df, col))
 
     # 在这里把按值分段着色应用到需要的列
-    gradient_target_cols = ["ERP", "SHARPE RATIO"]
+    gradient_target_cols = ["ERP"]
 
     for col in gradient_target_cols:
         style_data_conditional.extend(
             discrete_background_color_bins(df, col, n_bins=10, positive_is_red=True)
+        )
+
+    # 在这里把按值分段着色应用到需要的列
+    gradient_target_cols = ["SHARPE RATIO"]
+
+    for col in gradient_target_cols:
+        style_data_conditional.extend(
+            discrete_background_color_bins(
+                df, col, n_bins=10, positive_is_red=True, mid=1
+            )
         )
 
     gradient_target_cols = ["L5 OPEN"]
