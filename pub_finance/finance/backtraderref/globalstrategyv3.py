@@ -641,7 +641,7 @@ class GlobalStrategy(bt.Strategy):
                     excess_ret = np.array(self.daily_returns[d._name]) - rf_daily
 
                     mean_ret = np.mean(excess_ret)
-                    std_ret = np.std(excess_ret)
+                    std_ret = np.std(excess_ret, ddof=1)
 
                     if std_ret > 0:
                         sharpe = np.sqrt(self.params.annual_period) * mean_ret / std_ret
@@ -651,8 +651,8 @@ class GlobalStrategy(bt.Strategy):
 
                     # 只计算下行波动（只考虑负值）
                     downside_returns = excess_ret[excess_ret < 0]
-                    if len(downside_returns) > 0:
-                        downside_std = np.std(downside_returns)
+                    if len(downside_returns) > 5:
+                        downside_std = np.std(downside_returns, ddof=1)
                         mean_ret = np.mean(excess_ret)
                         if downside_std > 0:
                             sortino = (
@@ -665,11 +665,7 @@ class GlobalStrategy(bt.Strategy):
                             self.sortino_ratios[d._name] = 0
                     else:
                         # 没有下行波动，定义索提诺比率为年化平均收益除以小数值1e-10防止除零
-                        self.sortino_ratios[d._name] = (
-                            np.sqrt(self.params.annual_period)
-                            * np.mean(excess_ret)
-                            / 1e-10
-                        )
+                        self.sortino_ratios[d._name] = self.sharpe_ratios[d._name]
                 else:
                     # 数据不足或无风险利率为0 → 夏普比率置0
                     self.sharpe_ratios[d._name] = None
