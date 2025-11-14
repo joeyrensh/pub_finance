@@ -740,11 +740,12 @@ a:active {
   padding-left: 15px;
   padding-right: 15px;
   text-transform: none;
-  margin: 5px 10px 10px 5px;
+  margin: 5px 8px 5px 5px;
   border: 0.5px;
   border-color: lightgrey;
   border-style: solid;
   color: var(--learn-more-button-color);
+  width: 15%;
 }
 
 @media only screen and (max-device-width: 1200px) {
@@ -931,14 +932,15 @@ a:active {
     height: 15px;
     /* margin: auto; */
     color: var(--learn-more-button-color);
-    padding: 2px;
+    padding: 8px;
     margin-left: 0px;
-    margin-top: 5px;
+    margin-top: 8px;
     margin-right: 10px;
     margin-bottom: 2px;
     border: 0.5px;
     border-color: lightgrey;
     border-style: solid;
+    width:20%;
 
     /* padding: auto; */
     /* border: 0; */
@@ -1134,7 +1136,7 @@ a:active {
     border: 0.5px;
     border-color: lightgrey;
     border-style: solid;
-
+    width: 15%;
     /* padding: auto; */
     /* border: 0; */
     /* margin: 0px 0px 0px 0px; */

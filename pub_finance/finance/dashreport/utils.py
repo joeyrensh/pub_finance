@@ -36,14 +36,14 @@ def get_header(app):
                             #     ),
                             #     href="#",
                             # ),
-                            html.A(
-                                html.Button(
-                                    "Enterprise Demo",
-                                    id="learn-more-button",
-                                    style={"margin-left": "-8px"},
-                                ),
-                                href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
-                            ),
+                            # html.A(
+                            #     html.Button(
+                            #         "Enterprise Demo",
+                            #         id="learn-more-button",
+                            #         style={"margin-left": "-8px"},
+                            #     ),
+                            #     href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
+                            # ),
                             html.A(
                                 html.Button(
                                     "Source Code",
