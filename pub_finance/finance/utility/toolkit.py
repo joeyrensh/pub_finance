@@ -305,11 +305,15 @@ class ToolKit:
     #     )
 
     @staticmethod
-    def create_line(*args):
+    def create_line(*args, second_plot_type="area"):
         """
         增强版绘图函数，支持单列与双列输入。
         双轴时左右 Y 轴独立缩放（不再强制统一刻度），但仍保证主轴线不会被右轴覆盖。
         对常数序列或极小幅度序列做最小跨度扩展以保证可见性。
+
+        Args:
+            *args: 数据序列，1个参数时绘制单线，2个参数时双轴
+            second_plot_type: 第二组数据的绘制类型，"area"=面积图，"line"=折线图
         """
         set_matplotlib_formats("svg")
 
@@ -318,8 +322,12 @@ class ToolKit:
             "up_color": "#ff4444",
             "down_color": "#00a859",
             "line_width": 2,
-            "secondary_line_width": 0.5,
-            "secondary_line_alpha": 0.8,
+            "secondary_line_width": (
+                0.5 if second_plot_type == "area" else 1.5
+            ),  # 根据类型调整线宽
+            "secondary_line_alpha": (
+                0.8 if second_plot_type == "area" else 1.0
+            ),  # 根据类型调整透明度
             "gradient_steps": 100,
             "fill_alpha_range": (0.08, 0.3),
             "marker_size": 3.5,
@@ -434,7 +442,7 @@ class ToolKit:
             margin1 = max(span1 * 0.15, (abs(max1) + abs(min1)) * 0.02, 1e-3)
             ax1.set_ylim(min1 - margin1, max1 + margin1)
 
-            # 右轴（成交量）范围
+            # 右轴（第二组数据）范围
             min2, max2 = data_ranges[1]
             span2 = max2 - min2 if (max2 - min2) > 0 else 1.0
             margin2 = max(span2 * 0.12, (abs(max2) + abs(min2)) * 0.02, 1e-3)
@@ -472,29 +480,44 @@ class ToolKit:
             # 绘制折线（主轴 zorder 已确保在上层）
             ax.plot(x, y, color=color, lw=line_width, alpha=line_alpha, zorder=3)
 
-            # 第二组使用填充到0（成交量填充），基于右轴的 0
+            # 第二组数据的特殊处理
             if not is_single_mode and i == 1 and len(dataset) > 0:
-                alphas = np.linspace(
-                    config["fill_alpha_range"][0],
-                    config["fill_alpha_range"][1],
-                    len(dataset),
-                )
-                for j in range(len(dataset) - 1):
-                    x_segment = x[j : j + 2]
-                    y_segment = y[j : j + 2]
-                    local_alpha = float(np.mean(alphas[j : j + 2]))
-                    ax.fill_between(
-                        x_segment,
-                        y_segment,
-                        0,
-                        color=fill_color,
-                        alpha=local_alpha,
-                        edgecolor="none",
-                        zorder=2,
+                if second_plot_type == "area":
+                    # 面积图模式：填充到0
+                    alphas = np.linspace(
+                        config["fill_alpha_range"][0],
+                        config["fill_alpha_range"][1],
+                        len(dataset),
+                    )
+                    for j in range(len(dataset) - 1):
+                        x_segment = x[j : j + 2]
+                        y_segment = y[j : j + 2]
+                        local_alpha = float(np.mean(alphas[j : j + 2]))
+                        ax.fill_between(
+                            x_segment,
+                            y_segment,
+                            0,
+                            color=fill_color,
+                            alpha=local_alpha,
+                            edgecolor="none",
+                            zorder=2,
+                        )
+                elif second_plot_type == "line":
+                    # 折线图模式：不填充，但可以添加端点标记
+                    ax.scatter(
+                        len(dataset) - 1,
+                        dataset[-1],
+                        color=color,
+                        s=config["marker_size"] ** 2,
+                        edgecolor="white",
+                        linewidth=0.4,
+                        zorder=4,
                     )
 
-            # 端点强化（仅第一组或单列显示）
-            if i == 0 or is_single_mode:
+            # 端点强化（第一组或单列显示，如果是第二组且为line模式已在上面处理）
+            if (i == 0 or is_single_mode) and not (
+                i == 1 and second_plot_type == "line"
+            ):
                 ax.scatter(
                     len(dataset) - 1,
                     dataset[-1],

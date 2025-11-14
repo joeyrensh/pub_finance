@@ -884,7 +884,7 @@ class StockProposal:
                 , CASE WHEN t3.pe_double IS NULL OR t4.new IS NULL OR t3.pe_double = 0 THEN null
                   ELSE ROUND((1.0 / t3.pe_double - t4.new / 100.0) * 100, 1) END AS erp
                 , t5.sharpe_ratio    
-                , t5.sortino_ratio  
+                , t5.sortino_ratio
                 , t1.buy_date
                 , t1.price
                 , t1.adjbase
@@ -936,6 +936,31 @@ class StockProposal:
                     ) t
                     WHERE rn = 1
                 ) t5 ON t1.symbol = t5.symbol
+                LEFT JOIN (
+                    SELECT symbol,
+                        COLLECT_LIST(sortino_ratio) AS sortino_ratio_array,
+                        COLLECT_LIST(adjbase) AS adjbase_array,
+                        COLLECT_LIST(volume) AS volume_array
+                    FROM (
+                        SELECT
+                            t2.symbol,
+                            t2.sortino_ratio,
+                            t2.adjbase,
+                            t2.volume
+                        FROM temp_timeseries t1 LEFT JOIN 
+                        (
+                            SELECT 
+                                symbol,
+                                date,
+                                sharpe_ratio,
+                                sortino_ratio,
+                                adjbase,
+                                volume
+                            FROM temp_position_detail
+                        ) t2 ON t1.buy_date = t2.date
+                        ORDER BY t2.symbol, t1.buy_date ASC
+                    )   GROUP BY symbol
+                ) t6 ON t1.symbol = t6.symbol                  
             """.format(
                 end_date, end_date
             )
@@ -969,6 +994,17 @@ class StockProposal:
 
         # 删除添加的'combined_df2'列
         pd_position_history.drop(columns=["combined", "industry_new"], inplace=True)
+        # pd_position_history["sortino_trend"] = pd_position_history[
+        #     "sortino_ratio_array"
+        # ].apply(ToolKit("draw line").create_line)
+        # pd_position_history["price_trend"] = pd_position_history.apply(
+        #     lambda row: ToolKit("draw line").create_line(
+        #         row["adjbase_array"],  # 作为第一个参数
+        #         row["volume_array"],  # 作为第二个参数
+        #         second_plot_type="area",
+        #     ),
+        #     axis=1,
+        # )
 
         pd_position_history.rename(
             columns={
@@ -1093,7 +1129,7 @@ class StockProposal:
             ).set_properties(
                 subset=["NAME", "IND"],
                 **{
-                    "min-width": "100px !important",
+                    "min-width": "60px !important",
                     "max-width": "100%",
                     "padding": "0",
                 },
