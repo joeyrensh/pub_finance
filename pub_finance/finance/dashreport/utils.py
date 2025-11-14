@@ -508,8 +508,6 @@ def make_dash_format_table(df, cols_format, market):
             & (df["PNL RATIO"] > 0)
             & (df["AVG TRANS"] <= avg_trans_threshold)
             & (df["WIN RATE"] >= win_rate_threshold)
-            & (df["SHARPE RATIO"] > 1)
-            & (df["SORTINO RATIO"] > 1)
         )
 
         # 近5个交易日TOP 5行业中的优秀个股
@@ -520,8 +518,6 @@ def make_dash_format_table(df, cols_format, market):
             & (df["PNL RATIO"] > 0)
             & (df["AVG TRANS"] <= avg_trans_threshold)
             & (df["WIN RATE"] >= win_rate_threshold)
-            & (df["SHARPE RATIO"] > 1)
-            & (df["SORTINO RATIO"] > 1)
         )
 
         # PE合理的优秀个股
@@ -532,8 +528,6 @@ def make_dash_format_table(df, cols_format, market):
             & (df["ERP"] != -99999)
             & (df["AVG TRANS"] <= avg_trans_threshold)
             & (df["WIN RATE"] >= win_rate_threshold)
-            & (df["SHARPE RATIO"] > 1)
-            & (df["SORTINO RATIO"] > 1)
         )
 
         # 然后进行赋值操作
@@ -685,26 +679,20 @@ def make_dash_format_table(df, cols_format, market):
                             "{PNL RATIO_o} >= {pnl_ratio_threshold_head_o} && "
                             + "{PNL RATIO_o} > 0 && "
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
-                            "{WIN RATE_o} >= " + str(win_rate_threshold) + " && "
-                            "{SORTINO RATIO} > 1 " + " && "
-                            "{SHARPE RATIO} > 1 " + ") || ("
+                            "{WIN RATE_o} >= " + str(win_rate_threshold) + ") || ("
                             "{IND_BRACKET_NUM} <= 20 && "
                             "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
                             "{PNL RATIO_o} >= {pnl_ratio_threshold_head_o} && "
                             + "{PNL RATIO_o} > 0 &&"
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
-                            "{WIN RATE_o} >= " + str(win_rate_threshold) + " && "
-                            "{SORTINO RATIO} > 1 " + " && "
-                            "{SHARPE RATIO} > 1 " + ") || ("
+                            "{WIN RATE_o} >= " + str(win_rate_threshold) + ") || ("
                             "{OPEN DATE_o} >= "
                             + str(date_threshold_l20)
                             + " && "
                             + "{PNL RATIO_o} > 0 && "
                             "{ERP_o} != -99999 && {ERP_o} > {erp_threshold_o} && "
                             "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
-                            "{WIN RATE_o} >= " + str(win_rate_threshold) + " && "
-                            "{SORTINO RATIO} > 1 " + " && "
-                            "{SHARPE RATIO} > 1 " + ")"
+                            "{WIN RATE_o} >= " + str(win_rate_threshold) + ")"
                         )
                     },
                     "background": ("""var(--row-bg-color)"""),

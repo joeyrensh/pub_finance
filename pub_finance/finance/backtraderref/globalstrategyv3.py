@@ -73,8 +73,8 @@ class GlobalStrategy(bt.Strategy):
 
         """ backtrader一些常用属性的初始化 """
         # 针对us market会有特殊标志"us_special"，但整体策略和文件共享us
-        if market == "us_special":
-            market = "us"
+        market = {"us_special": "us"}.get(market, market)
+
         self.trade_date = trade_date
         self.market = market
         self.trade = None
@@ -94,7 +94,7 @@ class GlobalStrategy(bt.Strategy):
         self.sharpe_ratios = {}  # 每只股票当前夏普比率
         self.sortino_ratios = {}
         # 读取国债收益率
-        file = FileInfo(trade_date, market)
+        file = FileInfo(trade_date, {"cnetf": "cn"}.get(market, market))
         file_gz = file.get_file_path_gz
         cols = ["code", "name", "date", "new"]
         self.rf_rate = 0
@@ -103,8 +103,9 @@ class GlobalStrategy(bt.Strategy):
             df_gz = df_gz.dropna(subset=["new"])
             if not df_gz.empty:
                 self.rf_rate = df_gz["new"].astype(float).iloc[-1] / 100.0
+                print(f"✅ 读取国债收益率: {self.rf_rate:.2f}")
         except Exception as e:
-            print(f"⚠️ 无法读取国债收益率，使用默认值 3%: {e}")
+            print(f"⚠️ 无法读取国债收益率{e}")
         """ 策略进度方法初始化 """
         t = ToolKit("策略初始化")
         """
@@ -627,7 +628,7 @@ class GlobalStrategy(bt.Strategy):
                 # ---- (2) 夏普比率计算 ----
                 # 条件1: 有足够天数
                 enough_data = len(self.daily_returns[d._name]) >= min(
-                    60, self.params.annual_period
+                    self.params.rf_window, self.params.annual_period
                 )
                 # 条件2: 无风险利率有效
                 valid_rf = self.rf_rate is not None and self.rf_rate > 0
@@ -695,6 +696,15 @@ class GlobalStrategy(bt.Strategy):
                 diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y > 1]
                 diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y > 1]
                 diff_array3 = [abs((x - y) * 100 / y) for x, y in zip(x1, x2) if y > 1]
+
+                # 夏普比率和索提诺比率过滤
+                is_valid_sharpe_or_sortino = (
+                    self.sharpe_ratios[d._name] is None
+                    or self.sharpe_ratios[d._name] < 2
+                ) and (
+                    self.sortino_ratios[d._name] is None
+                    or self.sortino_ratios[d._name] < 3
+                )
 
                 if self.signals[d._name]["ma_crossover_bullish"][0] == 1:
                     """买入对应仓位"""
