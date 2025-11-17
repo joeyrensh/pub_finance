@@ -326,6 +326,12 @@ class TickerInfo:
         his_data = None
         gc.collect()
         list_results.sort(key=lambda x: x["datetime"].min())
+        print(
+            f"第一组股票symbol为: {list_results[0]['symbol'].iloc[0]}, 数据起始日期: {list_results[0]['datetime'].min()}, 结束日期: {list_results[0]['datetime'].max()}"
+        )
+        print(
+            f"最后一组股票symbol为: {list_results[-1]['symbol'].iloc[0]}, 数据起始日期: {list_results[-1]['datetime'].min()}, 结束日期: {list_results[-1]['datetime'].max()}"
+        )
         return list_results
 
     """ 重构dataframe封装 """
@@ -337,7 +343,7 @@ class TickerInfo:
         同时检查股票数据中是否存在交易日期对应的数据
         """
         # 检查数据长度是否足够
-        if len(group_obj) < 241:
+        if len(group_obj) < 61:
             return pd.DataFrame()
 
         # 将self.trade_date从"20251016"转换为"2025-10-16"格式
@@ -346,10 +352,6 @@ class TickerInfo:
 
             trade_date_dt = datetime.strptime(self.trade_date, "%Y%m%d")
             trade_date_formatted = trade_date_dt.strftime("%Y-%m-%d")
-            print(f"处理交易日期: {self.trade_date} -> {trade_date_formatted}")
-            print(
-                f"股票代码: {i}, 数据日期范围: {group_obj['date'].min()} - {group_obj['date'].max()}"
-            )
         except ValueError as e:
             print(f"交易日期格式错误: {self.trade_date}, 期望格式: YYYYMMDD, 错误: {e}")
             return pd.DataFrame()
@@ -515,6 +517,12 @@ class TickerInfo:
         his_data = None
         gc.collect()
         list_results.sort(key=lambda x: x["datetime"].min())
+        print(
+            f"第一组股票symbol为: {list_results[0]['symbol'].iloc[0]}, 数据起始日期: {list_results[0]['datetime'].min()}, 结束日期: {list_results[0]['datetime'].max()}"
+        )
+        print(
+            f"最后一组股票symbol为: {list_results[-1]['symbol'].iloc[0]}, 数据起始日期: {list_results[-1]['datetime'].min()}, 结束日期: {list_results[-1]['datetime'].max()}"
+        )
         return list_results
 
     def get_special_us_stock_list_180d(self):
@@ -623,6 +631,12 @@ class TickerInfo:
         his_data = None
         gc.collect()
         list_results.sort(key=lambda x: x["datetime"].min())
+        print(
+            f"第一组股票symbol为: {list_results[0]['symbol'].iloc[0]}, 数据起始日期: {list_results[0]['datetime'].min()}, 结束日期: {list_results[0]['datetime'].max()}"
+        )
+        print(
+            f"最后一组股票symbol为: {list_results[-1]['symbol'].iloc[0]}, 数据起始日期: {list_results[-1]['datetime'].min()}, 结束日期: {list_results[-1]['datetime'].max()}"
+        )
 
         return list_results
 

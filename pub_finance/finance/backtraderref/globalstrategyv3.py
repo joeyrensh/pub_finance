@@ -134,9 +134,22 @@ class GlobalStrategy(bt.Strategy):
             self.inds[d._name]["sma_mid"] = bt.indicators.SMA(
                 d.close, period=self.params.ma_mid_period
             )
-            self.inds[d._name]["sma_annual"] = bt.indicators.SMA(
-                d.close, period=self.params.annual_period
-            )
+            # 检查数据长度是否足够计算SMA
+            if d.buflen() >= self.params.annual_period:
+                self.inds[d._name]["sma_annual"] = bt.indicators.SMA(
+                    d.close, period=self.params.annual_period
+                )
+            else:
+                # 数据不足时，创建一个始终为NaN的虚拟指标
+                self.inds[d._name]["sma_annual"] = bt.LineNum(float("nan"))
+                print(
+                    f"警告: {d._name} 数据长度({len(d)})小于SMA周期({self.params.annual_period})"
+                )
+
+            # self.inds[d._name]["sma_annual"] = bt.indicators.SMA(
+            #     d.close, period=self.params.annual_period
+            # )
+
             # self.inds[d._name]["sma_long"] = bt.indicators.SMA(
             #     d.close, period=self.params.ma_long_period
             # )
