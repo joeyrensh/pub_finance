@@ -18,7 +18,7 @@
   --learn-more-button-color: #000000;
   --dash-table-border-color: rgba(211, 211, 211, 0.6);
   --main-title-color: #D9534F;
-  --full-view-link-bg-color: #D9534F;
+  --full-view-link-bg-color: #3498dbc4;
   --border-left-color: #D9534F;
 }
 
@@ -43,7 +43,7 @@
     --learn-more-button-color: #9fa6b7;
     --dash-table-border-color: rgba(255, 255, 255, 0.2);
     --main-title-color: #ffffffc5;
-    --full-view-link-bg-color: #D9534F;
+    --full-view-link-bg-color: #00a85aa2;
     --border-left-color: #D9534F; 
   }
 
@@ -590,9 +590,14 @@ li::before {
 }
 
 .full-view-link {
-  background-color: var(--full-view-link-bg-color);
-  color: white !important;
+  /* background-color: var(--full-view-link-bg-color); */
+  border: 0.5px;
+  border-color: lightgrey;
+  border-style: solid;
+  color: var(--learn-more-button-color);  
+  color: var(--text-color) !important;
   font-size: 1.4rem;
+  font-weight: 500;
   padding: 10px 5px;
   float: right;
   /* margin-left: 72%; */
@@ -739,7 +744,7 @@ a:active {
   float: right;
   padding-left: 15px;
   padding-right: 15px;
-  text-transform: none;
+  /* text-transform: none; */
   margin: 5px 8px 8px 5px;
   line-height: 30px;
   border: 0.5px;
@@ -747,6 +752,8 @@ a:active {
   border-style: solid;
   color: var(--learn-more-button-color);
   width: 15%;
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
+    "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif !important;  
 }
 
 @media only screen and (max-device-width: 1200px) {
