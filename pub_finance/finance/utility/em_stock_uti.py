@@ -322,11 +322,6 @@ class EMWebCrawlerUti:
                         f"获取接口数据失败，最后返回: {locals().get('res', None)}"
                     )
 
-                # 请求成功，记录到缓存
-                cache_data[m].append(i)
-                with open(cache_file, "w", encoding="utf-8") as f:
-                    json.dump(cache_data, f, ensure_ascii=False, indent=2)
-
                 page_data = []
                 for item in res["data"]["diff"]:
                     if any(
@@ -365,6 +360,11 @@ class EMWebCrawlerUti:
                         index=False,
                         header=not file_exists,
                     )
+
+                # 请求成功，记录到缓存
+                cache_data[m].append(i)
+                with open(cache_file, "w", encoding="utf-8") as f:
+                    json.dump(cache_data, f, ensure_ascii=False, indent=2)
 
         if os.path.exists(cache_file):
             os.remove(cache_file)
@@ -480,10 +480,6 @@ class EMWebCrawlerUti:
                         f"获取接口数据失败，最后返回: {locals().get('res', None)}"
                     )
 
-                cache_data[m].append(i)
-                with open(cache_file, "w", encoding="utf-8") as f:
-                    json.dump(cache_data, f, ensure_ascii=False, indent=2)
-
                 page_data = []
                 for item in res["data"]["diff"]:
                     if any(
@@ -529,6 +525,10 @@ class EMWebCrawlerUti:
                         index=True,
                         header=not file_exists,
                     )
+                # 请求成功，记录到缓存
+                cache_data[m].append(i)
+                with open(cache_file, "w", encoding="utf-8") as f:
+                    json.dump(cache_data, f, ensure_ascii=False, indent=2)
 
         if os.path.exists(cache_file):
             os.remove(cache_file)
