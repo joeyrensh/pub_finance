@@ -550,8 +550,9 @@ class StockProposal:
         #     "volume_array"
         # ].apply(ToolKit("draw line").create_line)
         # 双列叠加绘图 - 正确的调用方式
+        toolkit = ToolKit("draw line")
         pd_industry_history_tracking["pnl_trend"] = pd_industry_history_tracking.apply(
-            lambda row: ToolKit("draw line").create_line(
+            lambda row: toolkit.create_line(
                 row["pnl_array"],  # 作为第一个参数
                 row["volume_array"],  # 作为第二个参数
             ),
