@@ -44,13 +44,40 @@ def get_header(app):
                             #     ),
                             #     href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
                             # ),
+                            # html.A(
+                            #     html.Button(
+                            #         "Source Code",
+                            #         id="learn-more-button",
+                            #     ),
+                            #     href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
+                            # ),
                             html.A(
                                 html.Button(
-                                    "Source Code",
+                                    [
+                                        html.I(
+                                            className="fa-brands fa-github",
+                                            style={"marginRight": "6px"},
+                                        ),
+                                        "Source Code",
+                                    ],
                                     id="learn-more-button",
+                                    style={
+                                        "display": "flex",
+                                        "alignItems": "center",
+                                        "padding": "8px 14px",
+                                        # "backgroundColor": "#24292e",
+                                        # "color": "white",
+                                        "border": "none",
+                                        "borderRadius": "6px",
+                                        "cursor": "pointer",
+                                        # "fontSize": "15px",
+                                        "fontWeight": "500",
+                                    },
                                 ),
                                 href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
-                            ),
+                                target="_blank",
+                                style={"textDecoration": "none"},
+                            )
                         ],
                         className="row",
                     ),
@@ -65,12 +92,30 @@ def get_header(app):
                             html.Div(
                                 [
                                     dcc.Link(
-                                        "Full View",
+                                        [
+                                            html.I(
+                                                className="fa-solid fa-up-right-from-square",
+                                                style={"marginRight": "6px"},
+                                            ),
+                                            "Full View",
+                                        ],
                                         href="/dash-financial-report/full-view",
-                                        className="full-view-link",
+                                        id="full-view-link",
+                                        style={
+                                            "display": "flex",
+                                            "alignItems": "center",
+                                            "padding": "8px 14px",
+                                            # "backgroundColor": "#f3f4f6",
+                                            # "color": "#111827",
+                                            "border": "1px solid #d1d5db",
+                                            "borderRadius": "6px",
+                                            "cursor": "pointer",
+                                            # "fontSize": "15px",
+                                            "fontWeight": "500",
+                                            "textDecoration": "none",
+                                        },
                                     )
                                 ],
-                                # className="five columns",
                             ),
                         ],
                         # className="twelve columns",
@@ -89,31 +134,43 @@ def get_header(app):
 def get_menu():
     menu = html.Div(
         [
-            dcc.Link(
-                "A.stock",
-                href="/dash-financial-report/cn-stock-performance",
-                className="tab first",
-            ),
-            dcc.Link(
-                "U.S.stock",
-                href="/dash-financial-report/us-stock-performance",
-                className="tab",
-            ),
-            dcc.Link(
-                "U.S.stock.special",
-                href="/dash-financial-report/us-special-stock-performance",
-                className="tab",
-            ),
-            # dcc.Link(
-            #     "上海房产数据分析",
-            #     href="/dash-financial-report/overview",
-            #     className="tab",
-            # ),
-            dcc.Link(
-                "News & Reviews",
-                href="/dash-financial-report/news-and-reviews",
-                className="tab",
-            ),
+            html.Div(
+                [
+                    dcc.Link(
+                        [
+                            html.I(className="fa-solid fa-chart-line icon"),
+                            html.Span("A.stock"),
+                        ],
+                        href="/dash-financial-report/cn-stock-performance",
+                        className="tab first",
+                    ),
+                    dcc.Link(
+                        [
+                            html.I(className="fa-solid fa-flag-usa icon"),
+                            html.Span("U.S.stock"),
+                        ],
+                        href="/dash-financial-report/us-stock-performance",
+                        className="tab",
+                    ),
+                    dcc.Link(
+                        [
+                            html.I(className="fa-solid fa-rocket icon"),
+                            html.Span("U.S.stock.special"),
+                        ],
+                        href="/dash-financial-report/us-special-stock-performance",
+                        className="tab",
+                    ),
+                    dcc.Link(
+                        [
+                            html.I(className="fa-regular fa-newspaper icon"),
+                            html.Span("Slogans"),
+                        ],
+                        href="/dash-financial-report/slogans",
+                        className="tab",
+                    ),
+                ],
+                className="navbar",
+            )
         ],
         className="row all-tabs",
     )

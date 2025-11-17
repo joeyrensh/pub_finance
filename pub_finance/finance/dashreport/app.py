@@ -5,7 +5,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State, MATCH
 from pages import (
     cnstock_performance,
-    news_reviews,
+    slogans,
     usstock_performance,
     usspecialstock_performance,
 )
@@ -195,14 +195,14 @@ def update_page_content(pathname):
         return usstock_performance.create_layout(app)
     elif pathname == "/dash-financial-report/us-special-stock-performance":
         return usspecialstock_performance.create_layout(app)
-    elif pathname == "/dash-financial-report/news-and-reviews":
-        return news_reviews.create_layout(app)
+    elif pathname == "/dash-financial-report/slogans":
+        return slogans.create_layout(app)
     elif pathname == "/dash-financial-report/full-view":
         return [
             cnstock_performance.create_layout(app),
             usstock_performance.create_layout(app),
             # overview.create_layout(app),
-            news_reviews.create_layout(app),
+            slogans.create_layout(app),
         ]
     else:
         return (cnstock_performance.create_layout(app),)
