@@ -18,6 +18,7 @@
   --learn-more-button-color: #000000;
   --dash-table-border-color: rgba(211, 211, 211, 0.6);
   --main-title-color: #D9534F;
+  --flag-color: #D9534F;
   --full-view-link-bg-color: #3498dbc4;
   --border-left-color: #D9534F;
 }
@@ -43,6 +44,7 @@
     --learn-more-button-color: #9fa6b7;
     --dash-table-border-color: rgba(255, 255, 255, 0.2);
     --main-title-color: #ffffffc5;
+    --flag-color: #D9534F;
     --full-view-link-bg-color: #00a85aa2;
     --border-left-color: #D9534F; 
   }
@@ -784,7 +786,7 @@ a:active {
     /* padding: 8px 10px; */
     /* border-radius: 6px; */
     text-decoration: none;
-    font-size: 15px;
+    font-size: 1.4rem;
     font-weight: 500;
     color: #333;
     white-space: nowrap; /* 防止 text 换行影响布局 */
@@ -793,7 +795,7 @@ a:active {
 
 /* 图标 */
 .tab .icon {
-    font-size: 16px;
+    font-size: 1.4rem;
 }
 
 /* hover 效果 */
@@ -828,22 +830,21 @@ a:active {
     width: 100%;
 }
 
-/* Dark mode */
-/* @media (prefers-color-scheme: dark) {
-    .navbar {
-        background: #1c1c1c;
-        border-color: #333;
-    }
-    .tab {
-        color: #ddd;
-    }
-    .tab:hover {
-        background: #333;
-    }
-    .tab-active {
-        background: #3b82f6;
-    }
-} */
+.fa-chart-line {
+    color: var(--flag-color);
+}
+
+.fa-flag-usa {
+    color: var(--flag-color);
+}
+
+.fa-rocket {
+    color: var(--flag-color);
+}
+
+.fa-newspaper {
+    color: var(--flag-color);
+}
 
 
 
@@ -1015,7 +1016,8 @@ a:active {
 
   .all-tabs {
     text-align: center;
-    margin-top: -10px;
+    margin-top: -5px;
+    margin-bottom: 5px;
     font-size: 1.1rem;
   }
 
