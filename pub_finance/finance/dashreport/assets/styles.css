@@ -623,7 +623,7 @@ li::before {
   border-left: 0px solid var(--border-left-color);
   /*#8b0202*/
   /* background: #ffffff; */
-  padding-left: 170px;
+  padding-left: 165px;
   margin-top: 0px;
 }
 
@@ -1054,11 +1054,11 @@ a:active {
   .main-title {
     width: 70%;
     /* margin-top: 10px; */
-    padding-left: 100px;
+    padding-left: 98px;
     border-left: 0px solid var(--border-left-color);
     font-size: 1.2rem;
     font-weight: bold;
-    margin-top: 8px;
+    margin-top: 3px;
   }
 
   .five.columns {
@@ -1235,8 +1235,8 @@ a:active {
 
   .main-title {
     /* width: 55%; */
-    margin-top: 8px;
-    padding-left: 170px;
+    margin-top: 2px;
+    padding-left: 127px;
     border-left: 0px solid var(--border-left-color);
     font-size: 1.4rem;
     font-weight: bold;
