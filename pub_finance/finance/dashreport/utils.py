@@ -55,7 +55,7 @@ def get_header(app):
                             html.Div(
                                 [
                                     html.I(
-                                        className="fa-solid fa-magnifying-glass",
+                                        className="fa-regular fa-lightbulb",
                                         style={
                                             "marginRight": "5px",
                                             "font-size": "2rem",
