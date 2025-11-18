@@ -830,6 +830,10 @@ a:active {
     width: 100%;
 }
 
+.fa-chart-column {
+    color: var(--flag-color);
+}
+
 .fa-chart-line {
     color: var(--flag-color);
 }

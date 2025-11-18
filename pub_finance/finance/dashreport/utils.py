@@ -84,10 +84,27 @@ def get_header(app):
                     html.Div(
                         [
                             html.Div(
-                                # [html.H5("Data-Driven Empowering Investments")],
-                                # [html.H5("你是一个小呀小呀小苹果！！！")],
-                                [html.H5("HaiFeng Capital Investment")],
+                                [
+                                    html.I(
+                                        className="fa-solid fa-chart-column",
+                                        style={
+                                            "marginRight": "5px",
+                                            "font-size": "2rem",
+                                        },
+                                    ),
+                                    html.H5(
+                                        "HaiFeng Capital Investment",
+                                        style={
+                                            "display": "inline-block",
+                                            "margin": "0",
+                                        },
+                                    ),
+                                ],
                                 className="seven columns main-title",
+                                style={
+                                    "display": "flex",
+                                    "alignItems": "center",
+                                },
                             ),
                             html.Div(
                                 [
