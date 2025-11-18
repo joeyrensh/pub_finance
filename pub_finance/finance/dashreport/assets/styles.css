@@ -290,41 +290,40 @@ body {
   background-position-y: 87%;
   background-size: 15%;
   background-repeat: no-repeat;
-  /* 防止图片重复 */
   height: 70vb;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* filter: drop-shadow(10px 10px 5px rgba(0, 0, 0, 0.3)) brightness(110%) contrast(105%) saturate(105%); */
 }
 
 .background-header {
-  position: relative; /* 确保子元素相对于父容器定位 */
+  position: relative;
   height: auto; /* 让容器高度由内容决定 */
   overflow: hidden; /* 防止背景图片溢出 */
   margin-top:20px;
 }
 
-.background-header::before {
-  content: ""; /* 创建伪元素用于背景图片 */
-  position: absolute; /* 绝对定位 */
+
+ .background-header::before {
+  content: "";
+  position: absolute;
   top: 0;
   left: 0;
-  width: 230px; /* 设置背景图片的宽度 */
-  height: 200px; /* 设置背景图片的高度 */
-  background-image: url('/assets/background-logo.png'); /* 背景图片 */
-  background-repeat: no-repeat; /* 防止背景图片重复 */
-  background-size: contain; /* 确保图片按比例缩放 */
-  z-index: -1; /* 将背景图片置于内容下方 */
+  width: 170px;
+  height: 200px;
+  background-image: url('/assets/background-logo.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+  z-index: -1;
   margin-left:10px;
-  /* animation: leaves-color-cycle 10s linear infinite; */
-
 }
+
+/*
 .background-header::after {
   content: ""; 
   position: absolute; 
   top: 0;
-  left: 10px; /* 与before的margin-left匹配 */
+  left: 10px;
   width: 50px; 
   height: 50px; 
   background-repeat: no-repeat; 
@@ -333,7 +332,7 @@ body {
   animation: seasonal-overlay 10s ease-in-out infinite;
   mix-blend-mode: color;
   pointer-events: none;
-}
+} */
 
 
 @page {
@@ -624,7 +623,7 @@ li::before {
   border-left: 0px solid var(--border-left-color);
   /*#8b0202*/
   /* background: #ffffff; */
-  padding-left: 10px;
+  padding-left: 170px;
   margin-top: 0px;
 }
 
@@ -850,7 +849,6 @@ a:active {
 }
 
 
-
 @media only screen and (max-device-width: 1200px) {
   body {
     -webkit-text-size-adjust: 100%;
@@ -891,39 +889,13 @@ a:active {
   }
 
   .background-header {
-    position: relative; /* 确保子元素相对于父容器定位 */
     height: auto; /* 让容器高度由内容决定 */
     overflow: hidden; /* 防止背景图片溢出 */
     margin-top:20px;
   }
-  
-  .background-header::before {
-    content: ""; /* 创建伪元素用于背景图片 */
-    position: absolute; /* 绝对定位 */
-    top: 0;
-    left: 0;
-    width: 150px; /* 设置背景图片的宽度 */
-    height: 100px; /* 设置背景图片的高度 */
-    background-image: url('/assets/background-logo.png'); /* 背景图片 */
-    background-repeat: no-repeat; /* 防止背景图片重复 */
-    background-size: contain; /* 确保图片按比例缩放 */
-    z-index: -1; /* 将背景图片置于内容下方 */
-    margin-left:10px;
+   .background-header::before {
+    width: 100px;
   }
-  .background-header::after {
-    content: ""; 
-    position: absolute;
-    top: 0;
-    left: 10px; /* 与before的margin-left匹配 */
-    width: 32px;
-    height: 32px;
-    background-repeat: no-repeat;
-    background-size: contain;
-    z-index: -1; 
-    animation: seasonal-overlay 10s ease-in-out infinite;
-    mix-blend-mode: color;
-    pointer-events: none;
-  }  
 
 
   .product {
@@ -1082,7 +1054,7 @@ a:active {
   .main-title {
     width: 70%;
     /* margin-top: 10px; */
-    padding-left: 10px;
+    padding-left: 100px;
     border-left: 0px solid var(--border-left-color);
     font-size: 1.2rem;
     font-weight: bold;
@@ -1160,40 +1132,13 @@ a:active {
   }
 
   .background-header {
-    position: relative; /* 确保子元素相对于父容器定位 */
     height: auto; /* 让容器高度由内容决定 */
     overflow: hidden; /* 防止背景图片溢出 */
     margin-top:20px;
   }
-  
-  .background-header::before {
-    content: ""; /* 创建伪元素用于背景图片 */
-    position: absolute; /* 绝对定位 */
-    top: 0;
-    left: 0;
-    width: 230px; /* 设置背景图片的宽度 */
-    height: 200px; /* 设置背景图片的高度 */
-    background-image: url('/assets/background-logo.png'); /* 背景图片 */
-    background-repeat: no-repeat; /* 防止背景图片重复 */
-    background-size: contain; /* 确保图片按比例缩放 */
-    z-index: -1; /* 将背景图片置于内容下方 */
-    margin-left:10px;
-  }
-  .background-header::after {
-  content: ""; 
-  position: absolute; 
-  top: 0;
-  left: 10px; /* 与before的margin-left匹配 */
-  width: 50px; 
-  height: 50px; 
-  background-repeat: no-repeat; 
-  background-size: contain; 
-  z-index: -1; 
-  animation: seasonal-overlay 10s ease-in-out infinite;
-  mix-blend-mode: color;
-  pointer-events: none;
- }
-  
+   .background-header::before {
+    width: 170px;
+  }  
 
   .product {
     position: relative;
@@ -1290,8 +1235,8 @@ a:active {
 
   .main-title {
     /* width: 55%; */
-    margin-top: 10px;
-    padding-left: 10px;
+    margin-top: 8px;
+    padding-left: 170px;
     border-left: 0px solid var(--border-left-color);
     font-size: 1.4rem;
     font-weight: bold;

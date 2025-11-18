@@ -20,37 +20,6 @@ def get_header(app):
                 [
                     html.Div(
                         [
-                            # html.A(
-                            #     html.Img(
-                            #         src=app.get_asset_url(
-                            #             "buyahouse-background-transparent.png"
-                            #         ),
-                            #         # style={
-                            #         #     "width": "40%",
-                            #         #     "height": "50%",
-                            #         #     "margin-left": "2px",
-                            #         #     "margin-top": "5px",
-                            #         # },
-                            #         className="company-logo",
-                            #         # className="pulse",
-                            #     ),
-                            #     href="#",
-                            # ),
-                            # html.A(
-                            #     html.Button(
-                            #         "Enterprise Demo",
-                            #         id="learn-more-button",
-                            #         style={"margin-left": "-8px"},
-                            #     ),
-                            #     href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
-                            # ),
-                            # html.A(
-                            #     html.Button(
-                            #         "Source Code",
-                            #         id="learn-more-button",
-                            #     ),
-                            #     href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
-                            # ),
                             html.A(
                                 html.Button(
                                     [
@@ -86,14 +55,14 @@ def get_header(app):
                             html.Div(
                                 [
                                     html.I(
-                                        className="fa-solid fa-chart-column",
+                                        className="fa-solid fa-magnifying-glass",
                                         style={
                                             "marginRight": "5px",
                                             "font-size": "2rem",
                                         },
                                     ),
                                     html.H5(
-                                        "HaiFeng Capital Investment",
+                                        "Find Your Truth",
                                         style={
                                             "display": "inline-block",
                                             "margin": "0",
