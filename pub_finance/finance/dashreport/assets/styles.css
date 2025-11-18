@@ -638,7 +638,7 @@ li::before {
   left: 0;
   height: 20%;
   margin: 0mm;
-  border-left: 5px solid var(--border-left-color);
+  border-left: 2px solid var(--border-left-color);
   /*#8b0202*/
   /* background: #ffffff; */
   padding-top: 1px;
@@ -786,7 +786,7 @@ a:active {
     /* border-radius: 6px; */
     text-decoration: none;
     font-size: 1.4rem;
-    font-weight: 500;
+    /* font-weight: 500; */
     color: #333;
     white-space: nowrap; /* 防止 text 换行影响布局 */
     transition: all 0.25s ease;
@@ -997,10 +997,11 @@ a:active {
       font-size: 1.1rem;
       padding: 2px 2px;
       gap: 6px;
+      border-left: 2px solid #D9534F;
   }
 
   .tab .icon {
-      font-size: 1rem;
+      font-size: 1.1rem;
   }
 
   /* .tab.first {
