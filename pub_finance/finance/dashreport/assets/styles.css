@@ -1021,11 +1021,7 @@ a:active {
 
   .bubble-text {
       line-height: 1;
-      margin-left: -10px;
-      font-weight: 600;
-      text-shadow:
-        0 0 6px rgba(255,255,255,0.6),
-        0 0 12px rgba(180,200,255,0.5);      
+      margin-left: -10px;    
   }
 
   /* .tab.first {
@@ -1108,7 +1104,7 @@ a:active {
     /* margin-top: 10px; */
     padding-left: 58px;
     border-left: 0px solid var(--border-left-color);
-    font-size: 1rem;
+    font-size: 1.4rem;
     /* font-weight: bold; */
     margin-top: -15px;
   }
