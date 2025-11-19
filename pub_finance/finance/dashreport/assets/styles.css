@@ -1022,6 +1022,10 @@ a:active {
   .bubble-text {
       line-height: 1;
       margin-left: -10px;
+      font-weight: 600;
+      text-shadow:
+        0 0 6px rgba(255,255,255,0.6),
+        0 0 12px rgba(180,200,255,0.5);      
   }
 
   /* .tab.first {
