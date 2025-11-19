@@ -618,13 +618,13 @@ li::before {
 .main-title {
   position: relative;
   /* color: var(--main-title-color); */
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   width: 80%;
   border-left: 0px solid var(--border-left-color);
   /*#8b0202*/
   /* background: #ffffff; */
-  padding-left: 165px;
-  margin-top: 0px;
+  padding-left: 95px;
+  margin-top: -30px;
 }
 
 .subtitle {
@@ -1102,11 +1102,11 @@ a:active {
   .main-title {
     width: 70%;
     /* margin-top: 10px; */
-    padding-left: 98px;
+    padding-left: 58px;
     border-left: 0px solid var(--border-left-color);
-    font-size: 1.2rem;
+    font-size: 1rem;
     /* font-weight: bold; */
-    margin-top: 3px;
+    margin-top: -15px;
   }
 
   .five.columns {
