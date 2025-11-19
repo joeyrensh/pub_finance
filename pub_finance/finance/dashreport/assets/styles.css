@@ -617,7 +617,7 @@ li::before {
 
 .main-title {
   position: relative;
-  color: var(--main-title-color);
+  /* color: var(--main-title-color); */
   font-size: 1.5rem;
   width: 80%;
   border-left: 0px solid var(--border-left-color);
@@ -849,6 +849,46 @@ a:active {
 }
 
 
+.bubble-logo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 165px;
+}
+
+/* 气泡通用效果（半透明肥皂泡） */
+.bubble-logo i {
+  text-shadow:
+    0 0 6px rgba(255,255,255,0.6),
+    0 0 12px rgba(180,200,255,0.5);
+  line-height: 1;
+}
+
+/* 三个泡泡不同大小 + 偏移 */
+.bubble-1 {
+  font-size: 1.6rem;
+  transform: translateY(1px);
+}
+
+.bubble-2 {
+  font-size: 1rem;
+  transform: translateY(-6px) translateX(-4px);
+}
+
+.bubble-3 {
+  font-size: 0.7rem;
+  transform: translateY(4px) translateX(-8px);
+}
+
+/* slogan */
+.bubble-text {
+  line-height: 1;
+  margin-left: -10px;
+}
+
+
+
 @media only screen and (max-device-width: 1200px) {
   body {
     -webkit-text-size-adjust: 100%;
@@ -975,6 +1015,14 @@ a:active {
   .tab .icon {
       font-size: 1.1rem;
   }
+  .bubble-logo {
+      gap:5px;
+  }
+
+  .bubble-text {
+      line-height: 1;
+      margin-left: -10px;
+  }
 
   /* .tab.first {
     display: inline-block;
@@ -1057,7 +1105,7 @@ a:active {
     padding-left: 98px;
     border-left: 0px solid var(--border-left-color);
     font-size: 1.2rem;
-    font-weight: bold;
+    /* font-weight: bold; */
     margin-top: 3px;
   }
 
@@ -1239,7 +1287,7 @@ a:active {
     padding-left: 127px;
     border-left: 0px solid var(--border-left-color);
     font-size: 1.4rem;
-    font-weight: bold;
+    /* font-weight: bold; */
   }
 
   .five.columns {

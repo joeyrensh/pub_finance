@@ -52,28 +52,39 @@ def get_header(app):
                     ),
                     html.Div(
                         [
+                            # html.Div(
+                            #     [
+                            #         html.I(
+                            #             className="fa-regular fa-lightbulb",
+                            #             style={
+                            #                 "marginRight": "5px",
+                            #                 "font-size": "2rem",
+                            #             },
+                            #         ),
+                            #         html.H5(
+                            #             "Find Your Truth",
+                            #             style={
+                            #                 "display": "inline-block",
+                            #                 "margin": "0",
+                            #             },
+                            #         ),
+                            #     ],
+                            #     className="seven columns main-title",
+                            #     style={
+                            #         "display": "flex",
+                            #         "alignItems": "center",
+                            #     },
+                            # ),
                             html.Div(
                                 [
-                                    html.I(
-                                        className="fa-regular fa-lightbulb",
-                                        style={
-                                            "marginRight": "5px",
-                                            "font-size": "2rem",
-                                        },
-                                    ),
-                                    html.H5(
-                                        "Find Your Truth",
-                                        style={
-                                            "display": "inline-block",
-                                            "margin": "0",
-                                        },
+                                    html.I(className="fa-regular fa-circle bubble-1"),
+                                    html.I(className="fa-regular fa-circle bubble-2"),
+                                    html.I(className="fa-regular fa-circle bubble-3"),
+                                    html.Span(
+                                        "Find Your Truth", className="bubble-text"
                                     ),
                                 ],
-                                className="seven columns main-title",
-                                style={
-                                    "display": "flex",
-                                    "alignItems": "center",
-                                },
+                                className="seven columns main-title bubble-logo",
                             ),
                             html.Div(
                                 [
