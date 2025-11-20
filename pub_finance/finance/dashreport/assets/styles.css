@@ -299,8 +299,8 @@ body {
 .background-header {
   position: relative;
   height: auto; /* 让容器高度由内容决定 */
-  overflow: visible; /* 防止背景图片溢出 */
-  margin-top:30px;
+  overflow: hidden; /* 防止背景图片溢出 */
+  margin-top:20px;
 }
 
 
@@ -884,8 +884,7 @@ a:active {
 /* slogan */
 .bubble-text {
   line-height: 1;
-  margin-left: -80px;
-  margin-top: -40px;
+  margin-left: -10px;
 }
 
 
@@ -930,7 +929,7 @@ a:active {
 
   .background-header {
     height: auto; /* 让容器高度由内容决定 */
-    overflow: visible; /* 防止背景图片溢出 */
+    overflow: hidden; /* 防止背景图片溢出 */
     margin-top:10px;
   }
    .background-header::before {
@@ -1021,9 +1020,7 @@ a:active {
 
   .bubble-text {
       line-height: 1;
-      /* margin-left: -10px; */
-      margin-left: -55px;
-      margin-top: -35px;
+      margin-left: -10px;
   }
 
   /* .tab.first {
@@ -1183,9 +1180,8 @@ a:active {
 
   .background-header {
     height: auto; /* 让容器高度由内容决定 */
-    overflow: visible; /* 防止背景图片溢出 */
-    /* margin-top:20px; */
-    margin-top:30px;
+    overflow: hidden; /* 防止背景图片溢出 */
+    margin-top:20px;
   }
    .background-header::before {
     width: 130px;
