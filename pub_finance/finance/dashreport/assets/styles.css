@@ -21,6 +21,8 @@
   --flag-color: #D9534F;
   --full-view-link-bg-color: #3498dbc4;
   --border-left-color: #D9534F;
+
+  --bubble-background-color: rgba(0,0,0,0.05);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,6 +49,8 @@
     --flag-color: #D9534F;
     --full-view-link-bg-color: #00a85aa2;
     --border-left-color: #D9534F; 
+
+    --bubble-background-color: rgba(0, 0, 0, 0.055);
   }
 
 }
@@ -849,7 +853,7 @@ a:active {
 }
 
 
-.bubble-logo {
+/* .bubble-logo {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -857,7 +861,6 @@ a:active {
   margin-left: 165px;
 }
 
-/* 气泡通用效果（半透明肥皂泡） */
 .bubble-logo i {
   text-shadow:
     0 0 6px rgba(255,255,255,0.6),
@@ -865,7 +868,6 @@ a:active {
   line-height: 1;
 }
 
-/* 三个泡泡不同大小 + 偏移 */
 .bubble-1 {
   font-size: 1.6rem;
   transform: translateY(1px);
@@ -881,11 +883,41 @@ a:active {
   transform: translateY(4px) translateX(-8px);
 }
 
-/* slogan */
 .bubble-text {
   line-height: 1;
   margin-left: -10px;
   text-transform: uppercase;
+} */
+
+.bubble-logo {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 165px;
+}
+
+/* 泡泡光效 */
+.bubble-logo i {
+  text-shadow:
+    0 0 6px rgba(255,255,255,0.6),
+    0 0 12px rgba(180,200,255,0.4);
+  line-height: 1;
+}
+
+/* 泡泡大小 */
+.bubble-1 { font-size: 1.4rem; transform: translateY(0px); }
+.bubble-2 { font-size: 0.9rem; transform: translateY(-5px) translateX(-3px); }
+.bubble-3 { font-size: 0.7rem; transform: translateY(3px) translateX(-6px); }
+
+/* slogan 视觉统一贴合 */
+.bubble-text {
+  background: var(--bubble-background-color);
+  padding: 4px 12px;
+  border-radius: 14px;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 
@@ -1020,8 +1052,9 @@ a:active {
   }
 
   .bubble-text {
-      line-height: 1;
       margin-left: -10px;
+      font-size: 1rem;
+      letter-spacing: 0.6px;
   }
 
   /* .tab.first {
