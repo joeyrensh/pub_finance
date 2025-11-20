@@ -89,7 +89,7 @@ class TickerInfo:
 
             # 定义活跃度阈值（成交额占市值的百分比）
             MID_CAP_TURNOVER = 0.03  # 3%
-            LARGE_CAP_TURNOVER = 0.005  # 0.5%
+            LARGE_CAP_TURNOVER = 0.005  # 0.5% 或者 50亿以上
             MEGA_CAP_TURNOVER = 0.003  # 0.1%
             # 首先找出所有单日涨幅超过200%的股票，这些将被排除
             high_increase_symbols = (
@@ -131,8 +131,11 @@ class TickerInfo:
                 base_cond
                 & (df_recent["total_value"] >= LARGE_CAP_THRESHOLD)
                 & (
-                    df_recent["close"] * df_recent["volume"]
-                    >= MEGA_CAP_TURNOVER * df_recent["total_value"]
+                    (
+                        df_recent["close"] * df_recent["volume"]
+                        >= MEGA_CAP_TURNOVER * df_recent["total_value"]
+                    )
+                    | (df_recent["close"] * df_recent["volume"] > 5000000000)
                 )
             )
 
@@ -169,7 +172,7 @@ class TickerInfo:
             # 定义A股市值阈值（单位：人民币元）
             SMALL_CAP_THRESHOLD = 5000000000  # 50亿人民币
             MID_CAP_THRESHOLD = 20000000000  # 200亿人民币
-            LARGE_CAP_THRESHOLD = 100000000000  # 1万亿人民币
+            LARGE_CAP_THRESHOLD = 100000000000  # 1千亿人民币
 
             # 定义A股活跃度阈值（成交金额，单位：人民币元）
             SMALL_CAP_TURNOVER = 300000000  # 3亿人民币
