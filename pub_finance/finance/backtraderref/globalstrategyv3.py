@@ -707,12 +707,9 @@ class GlobalStrategy(bt.Strategy):
                 diff_array3 = [abs((x - y) * 100 / y) for x, y in zip(x1, x2) if y > 1]
 
                 # 夏普比率和索提诺比率过滤
-                is_valid_sharpe_or_sortino = (
-                    self.sharpe_ratios[d._name] is None
-                    or self.sharpe_ratios[d._name] < 2
-                ) and (
-                    self.sortino_ratios[d._name] is None
-                    or self.sortino_ratios[d._name] < 3
+                is_valid_sortino = self.sortino_ratios[d._name] is None or (
+                    self.sortino_ratios[d._name] > -10
+                    and self.sharpe_ratios[d._name] > -10
                 )
 
                 if self.signals[d._name]["ma_crossover_bullish"][0] == 1:
