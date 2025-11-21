@@ -747,9 +747,12 @@ class GlobalStrategy(bt.Strategy):
 
                 # 夏普比率和索提诺比率过滤
                 is_valid_sortino = self.sortino_ratios[d._name] is None or (
-                    self.sortino_ratios[d._name] > -1
-                    and self.sortino_ratios[d._name] < 3
+                    self.sortino_ratios[d._name] > 0
+                    and self.sortino_ratios[d._name] < 10
                 )
+
+                # if not is_valid_sortino:
+                #     continue
 
                 if self.signals[d._name]["ma_crossover_bullish"][0] == 1:
                     """买入对应仓位"""
