@@ -30,7 +30,7 @@ class GlobalStrategy(bt.Strategy):
         ("price_short_period", 5),
         ("price_mid_period", 10),
         ("price_long_period", 20),
-        ("rf_window", 60),  # 夏普比率滚动计算窗口（天）
+        ("rf_window", 20),  # 夏普比率滚动计算窗口（天）
     )
 
     def log(self, txt, dt=None):
@@ -815,6 +815,13 @@ class GlobalStrategy(bt.Strategy):
                     "sortino_ratio": self.sortino_ratios[d._name],
                 }
                 list.append(dict)
+                # 夏普比率和索提诺比率过滤
+                is_invalid_sortino = (
+                    self.sortino_ratios[d._name] is not None
+                    and self.sortino_ratios[d._name] < -1
+                    and self.sharpe_ratios[d._name] is not None
+                    and self.sharpe_ratios[d._name] < -1
+                )
 
                 if self.signals[d._name]["ma_crossover_bearish"][0] == 1:
                     self.order[d._name] = self.close(data=d)
@@ -831,6 +838,9 @@ class GlobalStrategy(bt.Strategy):
                 elif self.signals[d._name]["close_falling"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.myorder[d._name]["strategy"] = "收盘价连续下跌"
+                elif is_invalid_sortino:
+                    self.order[d._name] = self.close(data=d)
+                    self.myorder[d._name]["strategy"] = "索提诺风控"
 
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
