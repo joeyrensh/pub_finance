@@ -20,7 +20,7 @@ class GlobalStrategy(bt.Strategy):
         ("macd_signal_period", 8),
         ("ma_short_period", 20),
         ("ma_mid_period", 60),
-        # ("ma_long_period", 120),
+        ("ma_long_period", 120),
         ("vol_short_period", 5),
         # ("vol_mid_period", 10),
         ("vol_long_period", 20),
@@ -134,7 +134,18 @@ class GlobalStrategy(bt.Strategy):
             self.inds[d._name]["sma_mid"] = bt.indicators.SMA(
                 d.close, period=self.params.ma_mid_period
             )
-            # 检查数据长度是否足够计算SMA
+            # 半年线
+            if d.buflen() >= self.params.ma_long_period:
+                self.inds[d._name]["sma_long"] = bt.indicators.SMA(
+                    d.close, period=self.params.ma_long_period
+                )
+            else:
+                # 数据不足时，创建一个始终为NaN的虚拟指标
+                self.inds[d._name]["sma_long"] = bt.LineNum(float("nan"))
+                print(
+                    f"警告: {d._name} 数据长度({len(d)})小于SMA周期({self.params.ma_long_period})"
+                )
+            # 年线
             if d.buflen() >= self.params.annual_period:
                 self.inds[d._name]["sma_annual"] = bt.indicators.SMA(
                     d.close, period=self.params.annual_period
@@ -443,6 +454,20 @@ class GlobalStrategy(bt.Strategy):
             )
 
             """
+            买入6: 穿越半年线
+            """
+            self.signals[d._name]["close_crossup_halfannualline"] = bt.And(
+                bt.indicators.crossover.CrossUp(d.close, self.inds[d._name]["sma_long"])
+                == 1,
+                bt.Or(
+                    self.signals[d._name]["price_higher"] == 1,
+                    self.signals[d._name]["golden_cross"] == 1,
+                ),
+                self.inds[d._name]["sma_long"] > self.inds[d._name]["sma_long"](-1),
+                self.signals[d._name]["deviant"] == 1,
+            )
+
+            """
             卖出1: 均线死叉
             """
             self.signals[d._name]["ma_crossover_bearish"] = bt.Or(
@@ -498,7 +523,7 @@ class GlobalStrategy(bt.Strategy):
                 self.signals[d._name]["death_cross"] == 1,
             )
             """ 
-            卖出5: 跌破年线
+            卖出4: 跌破年线
             """
             self.signals[d._name]["closs_crossdown_annualline"] = bt.And(
                 bt.indicators.crossover.CrossDown(
@@ -510,6 +535,20 @@ class GlobalStrategy(bt.Strategy):
                     self.signals[d._name]["death_cross"] == 1,
                 ),
                 self.inds[d._name]["sma_annual"] < self.inds[d._name]["sma_annual"](-1),
+            )
+            """
+            卖出5: 跌破半年线
+            """
+            self.signals[d._name]["closs_crossdown_halfannualline"] = bt.And(
+                bt.indicators.crossover.CrossDown(
+                    d.close, self.inds[d._name]["sma_long"]
+                )
+                == 1,
+                bt.Or(
+                    self.signals[d._name]["price_lower"] == 1,
+                    self.signals[d._name]["death_cross"] == 1,
+                ),
+                self.inds[d._name]["sma_long"] < self.inds[d._name]["sma_long"](-1),
             )
             """ indicators以及signals初始化进度打印 """
             t.progress_bar(len(self.datas), i)
@@ -708,8 +747,8 @@ class GlobalStrategy(bt.Strategy):
 
                 # 夏普比率和索提诺比率过滤
                 is_valid_sortino = self.sortino_ratios[d._name] is None or (
-                    self.sortino_ratios[d._name] > -10
-                    and self.sharpe_ratios[d._name] > -10
+                    self.sortino_ratios[d._name] > -1
+                    and self.sortino_ratios[d._name] < 3
                 )
 
                 if self.signals[d._name]["ma_crossover_bullish"][0] == 1:
@@ -722,6 +761,11 @@ class GlobalStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "成交量放大"
+                elif self.signals[d._name]["close_crossup_halfannualline"][0] == 1:
+                    """买入对应仓位"""
+                    self.broker.cancel(self.order[d._name])
+                    self.order[d._name] = self.buy(data=d)
+                    self.myorder[d._name]["strategy"] = "突破半年线"
                 elif self.signals[d._name]["close_crossup_annualline"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
@@ -775,6 +819,9 @@ class GlobalStrategy(bt.Strategy):
                 elif self.signals[d._name]["closs_crossdown_annualline"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.myorder[d._name]["strategy"] = "跌破年线"
+                elif self.signals[d._name]["closs_crossdown_halfannualline"][0] == 1:
+                    self.order[d._name] = self.close(data=d)
+                    self.myorder[d._name]["strategy"] = "跌破半年线"
                 elif self.signals[d._name]["short_position"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.myorder[d._name]["strategy"] = "空头排列"
