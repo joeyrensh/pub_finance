@@ -204,55 +204,23 @@ class StockDataUpdater:
     def get_latest_updated_data(
         self, symbol_list, start_date, end_date, NEW_DATA_PATH, market
     ):
-        """获取最新更新的数据"""
-        if market == "us":
-            stock_list = []
-            symbol_dict = {}
-            stock_us_spot_em_df = ak.stock_us_spot_em()
-            for symbol in symbol_list:
-                # 查找包含该 symbol 的行
-                matched_rows = stock_us_spot_em_df[
-                    stock_us_spot_em_df["代码"].str.endswith(symbol)
-                ]
-                for code in matched_rows["代码"]:
-                    prefix = code.split(".")[0]
-                    symbol_dict = {"symbol": symbol, "mkt_code": prefix}
-                    stock_list.append(symbol_dict)
-            list = []
-            list_s = []
-            em = EMWebCrawlerUti()
-            for h in range(0, len(stock_list)):
-                mkt_code = stock_list[h]["mkt_code"]
-                symbol = stock_list[h]["symbol"]
-                list_s = em.get_his_stock_info(
-                    mkt_code, symbol, start_date, end_date, cache_path=None
-                )
-                list.extend(list_s)
-            df = pd.DataFrame(list)
-            df.to_csv(
-                NEW_DATA_PATH,
-                mode="w",
-                index=True,
-                header=True,
+        em = EMWebCrawlerUti()
+        list_s = []
+        list = []
+        for h in range(0, len(symbol_list)):
+            mkt_code = symbol_list[h]["mkt_code"]
+            symbol = symbol_list[h]["symbol"]
+            list_s = em.get_his_stock_info(
+                mkt_code, symbol, start_date, end_date, cache_path=None
             )
-        elif market == "cn":
-            em = EMWebCrawlerUti()
-            list_s = []
-            list = []
-            for h in range(0, len(symbol_list)):
-                mkt_code = symbol_list[h]["mkt_code"]
-                symbol = symbol_list[h]["symbol"]
-                list_s = em.get_his_stock_info(
-                    mkt_code, symbol, start_date, end_date, cache_path=None
-                )
-                list.extend(list_s)
-            df = pd.DataFrame(list)
-            df.to_csv(
-                NEW_DATA_PATH,
-                mode="w",
-                index=True,
-                header=True,
-            )
+            list.extend(list_s)
+        df = pd.DataFrame(list)
+        df.to_csv(
+            NEW_DATA_PATH,
+            mode="w",
+            index=True,
+            header=True,
+        )
 
 
 # 使用示例
@@ -264,14 +232,15 @@ if __name__ == "__main__":
     BATCH_SIZE = 10000  # 每批处理的行数
     """每股列表，需要重新匹配market code"""
     # 美股如下
-    symbol_list = ["SBET"]  # 示例股票代码列表
+    # https://92.push2his.eastmoney.com/api/qt/stock/kline/get?secid=106.BABA&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20210101&end=20500101&smplmt=755&lmt=1000000
+    symbol_list = [{"symbol": "NFLX", "mkt_code": 105}]  # 示例股票代码列表
     # A股如下 - SZ:0 / SH:1
     # 例如：symbol_list = [{"symbol": "000001", "mkt_code": 0}, {"symbol": "600000", "mkt_code": 1}]
 
     # # 创建更新器
     updater = StockDataUpdater(DATA_DIR, UPDATE_COLS, batch_size=BATCH_SIZE)
     updater.get_latest_updated_data(
-        symbol_list, "20240101", "20250604", NEW_DATA_PATH, market="us"
+        symbol_list, "20240101", "20251120", NEW_DATA_PATH, market="us"
     )
 
     # 加载新数据到字典
