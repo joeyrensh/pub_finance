@@ -263,28 +263,38 @@ class GlobalStrategy(bt.Strategy):
             辅助指标：高低点上移/下移
             """
 
-            self.signals[d._name]["price_higher"] = bt.Or(
-                bt.And(
-                    self.inds[d._name]["lowest_short"]
-                    > self.inds[d._name]["lowest_short"](-5),
-                    self.inds[d._name]["lowest_short"]
-                    >= self.inds[d._name]["lowest_mid"],
-                    self.signals[d._name]["upper_shadow"] == 1,
-                ),
-                bt.And(
-                    self.inds[d._name]["highest_short"]
-                    > self.inds[d._name]["highest_short"](-5),
-                    self.inds[d._name]["highest_short"]
-                    >= self.inds[d._name]["highest_mid"],
-                    self.signals[d._name]["upper_shadow"] == 1,
-                ),
+            # self.signals[d._name]["price_higher"] = bt.Or(
+            #     bt.And(
+            #         self.inds[d._name]["lowest_short"]
+            #         > self.inds[d._name]["lowest_short"](-5),
+            #         self.inds[d._name]["lowest_short"]
+            #         >= self.inds[d._name]["lowest_mid"],
+            #         self.signals[d._name]["upper_shadow"] == 1,
+            #     ),
+            #     bt.And(
+            #         self.inds[d._name]["highest_short"]
+            #         > self.inds[d._name]["highest_short"](-5),
+            #         self.inds[d._name]["highest_short"]
+            #         >= self.inds[d._name]["highest_mid"],
+            #         self.signals[d._name]["upper_shadow"] == 1,
+            #     ),
+            # )
+
+            self.signals[d._name]["price_higher"] = bt.And(
+                d.close > self.inds[d._name]["highest_short"](-1),
+                d.close > d.close(-5),
+                self.signals[d._name]["upper_shadow"] == 1,
             )
 
+            # self.signals[d._name]["price_lower"] = bt.And(
+            #     self.inds[d._name]["lowest_short"]
+            #     < self.inds[d._name]["lowest_short"](-5),
+            #     self.inds[d._name]["highest_short"]
+            #     < self.inds[d._name]["highest_short"](-5),
+            # )
+
             self.signals[d._name]["price_lower"] = bt.And(
-                self.inds[d._name]["lowest_short"]
-                < self.inds[d._name]["lowest_short"](-5),
-                self.inds[d._name]["highest_short"]
-                < self.inds[d._name]["highest_short"](-5),
+                d.close < self.inds[d._name]["lowest_short"](-1), d.close < d.close(-10)
             )
 
             """ 
@@ -496,7 +506,8 @@ class GlobalStrategy(bt.Strategy):
             卖出2: 收盘价连续下跌
             """
             self.signals[d._name]["close_falling"] = bt.And(
-                self.inds[d._name]["sma_mid"] < self.inds[d._name]["sma_mid"](-1),
+                # self.inds[d._name]["sma_mid"] < self.inds[d._name]["sma_mid"](-1),
+                self.inds[d._name]["ema_short"] < self.inds[d._name]["ema_short"](-1),
                 d.close < d.open,
                 self.signals[d._name]["price_lower"] == 1,
                 bt.Or(
