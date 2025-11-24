@@ -262,24 +262,6 @@ class GlobalStrategy(bt.Strategy):
             """
             辅助指标：高低点上移/下移
             """
-
-            # self.signals[d._name]["price_higher"] = bt.Or(
-            #     bt.And(
-            #         self.inds[d._name]["lowest_short"]
-            #         > self.inds[d._name]["lowest_short"](-5),
-            #         self.inds[d._name]["lowest_short"]
-            #         >= self.inds[d._name]["lowest_mid"],
-            #         self.signals[d._name]["upper_shadow"] == 1,
-            #     ),
-            #     bt.And(
-            #         self.inds[d._name]["highest_short"]
-            #         > self.inds[d._name]["highest_short"](-5),
-            #         self.inds[d._name]["highest_short"]
-            #         >= self.inds[d._name]["highest_mid"],
-            #         self.signals[d._name]["upper_shadow"] == 1,
-            #     ),
-            # )
-
             self.signals[d._name]["price_higher"] = bt.Or(
                 # 情况1：创新高模式
                 bt.And(
@@ -311,13 +293,6 @@ class GlobalStrategy(bt.Strategy):
                     >= self.inds[d._name]["lowest_short"](-5),
                 ),
             )
-
-            # self.signals[d._name]["price_lower"] = bt.And(
-            #     self.inds[d._name]["lowest_short"]
-            #     < self.inds[d._name]["lowest_short"](-5),
-            #     self.inds[d._name]["highest_short"]
-            #     < self.inds[d._name]["highest_short"](-5),
-            # )
 
             self.signals[d._name]["price_lower"] = bt.Or(
                 # 情况1：创新低模式
