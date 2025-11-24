@@ -778,12 +778,6 @@ class GlobalStrategy(bt.Strategy):
                 diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y > 1]
                 diff_array3 = [abs((x - y) * 100 / y) for x, y in zip(x1, x2) if y > 1]
 
-                # 夏普比率和索提诺比率过滤
-                is_valid_sortino = self.sortino_ratios[d._name] is None or (
-                    self.sortino_ratios[d._name] > 0
-                    and self.sortino_ratios[d._name] < 10
-                )
-
                 # if not is_valid_sortino:
                 #     continue
 
@@ -848,13 +842,6 @@ class GlobalStrategy(bt.Strategy):
                     "sortino_ratio": self.sortino_ratios[d._name],
                 }
                 list.append(dict)
-                # 夏普比率和索提诺比率过滤
-                is_invalid_sortino = (
-                    self.sortino_ratios[d._name] is not None
-                    and self.sortino_ratios[d._name] < 1
-                    and self.sharpe_ratios[d._name] is not None
-                    and self.sharpe_ratios[d._name] < 1
-                )
 
                 if self.signals[d._name]["ma_crossover_bearish"][0] == 1:
                     self.order[d._name] = self.close(data=d)
