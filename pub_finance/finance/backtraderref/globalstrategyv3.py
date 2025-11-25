@@ -44,26 +44,16 @@ class GlobalStrategy(bt.Strategy):
     def start(self):
         trade_date = self.trade_date
         market = self.market
-        if self.market in ("cn", "us"):
-            file = FileInfo(trade_date, market)
-            """ 仓位文件地址 """
-            file_path_position = file.get_file_path_position
-            self.file_path_position = open(file_path_position, "w")
-            file_path_position_detail = file.get_file_path_position_detail
-            self.file_path_position_detail = open(file_path_position_detail, "w")
-            file_path_trade = file.get_file_path_trade
-            self.file_path_trade = open(file_path_trade, "w")
-            """ 板块文件地址 """
-            self.file_industry = file.get_file_path_industry
-        elif self.market == "cnetf":
-            file = FileInfo(trade_date, "cn")
-            """ 仓位文件地址 """
-            file_path_position = file.get_file_path_etf_position
-            self.file_path_position = open(file_path_position, "w")
-            file_path_position_detail = file.get_file_path_etf_position_detail
-            self.file_path_position_detail = open(file_path_position_detail, "w")
-            file_path_trade = file.get_file_path_etf_trade
-            self.file_path_trade = open(file_path_trade, "w")
+        file = FileInfo(trade_date, market)
+        """ 仓位文件地址 """
+        file_path_position = file.get_file_path_position
+        self.file_path_position = open(file_path_position, "w")
+        file_path_position_detail = file.get_file_path_position_detail
+        self.file_path_position_detail = open(file_path_position_detail, "w")
+        file_path_trade = file.get_file_path_trade
+        self.file_path_trade = open(file_path_trade, "w")
+        """ 板块文件地址 """
+        self.file_industry = file.get_file_path_industry
 
     def __init__(self, trade_date, market):
         """
@@ -71,9 +61,6 @@ class GlobalStrategy(bt.Strategy):
         方便后面打印输出
         """
         """ backtrader一些常用属性的初始化 """
-        # 针对us market会有特殊标志"us_special"，但整体策略和文件共享us
-        market = {"us_special": "us"}.get(market, market)
-
         self.trade_date = trade_date
         self.market = market
         self.trade = None
@@ -93,7 +80,7 @@ class GlobalStrategy(bt.Strategy):
         self.sharpe_ratios = {}  # 每只股票当前夏普比率
         self.sortino_ratios = {}
         # 读取国债收益率
-        file = FileInfo(trade_date, {"cnetf": "cn"}.get(market, market))
+        file = FileInfo(trade_date, market)
         file_gz = file.get_file_path_gz
         cols = ["code", "name", "date", "new"]
         self.rf_rate = 0
@@ -994,7 +981,7 @@ class GlobalStrategy(bt.Strategy):
         df = pd.DataFrame(list)
         if df.empty:
             return
-        if self.market in ("cn", "us"):
+        if self.market in ("cn", "us", "us_special"):
             """
             匹配行业信息
             """

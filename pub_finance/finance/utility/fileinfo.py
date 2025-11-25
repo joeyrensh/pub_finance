@@ -16,53 +16,60 @@ class FileInfo:
 
     def __init__(self, trade_date=None, market=None):
         # 市场编码
-        if market == "us_special":
-            market = "us"
+        decode_market = {"us_special": "us", "cnetf": "cn"}.get(market, market)
         self.market = market
         # 交易日期
         self.trade_date = trade_date
         base_path = "."
         # stock每日数据存储文件
         self._file_path_latest = (
-            base_path + "/" + f"{market}stockinfo" + "/" + f"stock_{trade_date}.csv"
+            base_path
+            + "/"
+            + f"{decode_market}stockinfo"
+            + "/"
+            + f"stock_{trade_date}.csv"
         )
         # 10年期国债每日数据存储文件
         self._file_path_gz = (
-            base_path + "/" + f"{market}stockinfo" + "/" + f"gz_{trade_date}.csv"
+            base_path + "/" + f"{decode_market}stockinfo" + "/" + f"gz_{trade_date}.csv"
         )
         # stock目录
-        self._file_path_dir = base_path + "/" + f"{market}stockinfo/"
+        self._file_path_dir = base_path + "/" + f"{decode_market}stockinfo/"
         # talib策略文件
         self._file_path_sta = (
-            base_path + "/" + f"{market}strategy" + "/" + f"strategy_{trade_date}.csv"
+            base_path
+            + "/"
+            + f"{decode_market}strategy"
+            + "/"
+            + f"strategy_{trade_date}.csv"
         )
         # stock行业文件
         self._file_path_industry = (
-            base_path + "/" + f"{market}stockinfo" + "/" + "industry.csv"
+            base_path + "/" + f"{decode_market}stockinfo" + "/" + "industry.csv"
         )
         # 仓位日志文件
         self._file_path_position = (
-            base_path + "/" + f"{market}stockinfo" + "/" + "position_logs.csv"
+            base_path
+            + "/"
+            + f"{decode_market}stockinfo"
+            + "/"
+            + f"{market}_position_logs.csv"
         )
         # 仓位明细文件
         self._file_path_position_detail = (
-            base_path + "/" + f"{market}stockinfo" + "/" + "position_detail.csv"
+            base_path
+            + "/"
+            + f"{decode_market}stockinfo"
+            + "/"
+            + f"{market}_position_detail.csv"
         )
         # 交易日志文件
         self._file_path_trade = (
-            base_path + "/" + f"{market}stockinfo" + "/" + "trade_logs.csv"
-        )
-        # ETF仓位文件
-        self._file_path_etf_position = (
-            base_path + "/" + f"{market}stockinfo" + "/" + "etf_position_logs.csv"
-        )
-        # ETF仓位明细文件
-        self._file_path_etf_position_detail = (
-            base_path + "/" + f"{market}stockinfo" + "/" + "etf_position_detail.csv"
-        )
-        # ETF交易日志
-        self._file_path_etf_trade = (
-            base_path + "/" + f"{market}stockinfo" + "/" + "etf_trade_logs.csv"
+            base_path
+            + "/"
+            + f"{decode_market}stockinfo"
+            + "/"
+            + f"{market}_trade_logs.csv"
         )
 
     """ 返回某日数据文件路径 """
@@ -139,15 +146,3 @@ class FileInfo:
     @property
     def get_file_path_trade(self):
         return self._file_path_trade
-
-    @property
-    def get_file_path_etf_position(self):
-        return self._file_path_etf_position
-
-    @property
-    def get_file_path_etf_position_detail(self):
-        return self._file_path_etf_position_detail
-
-    @property
-    def get_file_path_etf_trade(self):
-        return self._file_path_etf_trade

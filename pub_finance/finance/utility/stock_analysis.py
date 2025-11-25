@@ -3561,7 +3561,7 @@ class StockProposal:
         """
         file = FileInfo(self.trade_date, self.market)
         # 交易明细
-        file_path_trade = file.get_file_path_etf_trade
+        file_path_trade = file.get_file_path_trade
         cols = ["idx", "symbol", "date", "trade_type", "price", "size", "strategy"]
         spark_transaction_detail = spark.read.csv(
             file_path_trade, header=None, inferSchema=True
@@ -3569,7 +3569,7 @@ class StockProposal:
         spark_transaction_detail = spark_transaction_detail.toDF(*cols)
         spark_transaction_detail.createOrReplaceTempView("temp_transaction_detail")
         # 持仓明细, spark读取
-        file_cur_p = file.get_file_path_etf_position
+        file_cur_p = file.get_file_path_position
         cols = [
             "idx",
             "symbol",
@@ -3595,7 +3595,7 @@ class StockProposal:
             ]
         ].toPandas()
         # 仓位日志明细
-        file_path_position_detail = file.get_file_path_etf_position_detail
+        file_path_position_detail = file.get_file_path_position_detail
         cols = [
             "idx",
             "symbol",
@@ -4495,16 +4495,11 @@ class StockProposal:
 
         spark.stop()
 
-        if self.market == "us":
-            subject = "US Stock Market ETF Trends"
-            image_path_return_light = "./dashreport/assets/images/etf_tr_light.svg"
-            image_path_return_dark = "./dashreport/assets/images/etf_tr_dark.svg"
-        elif self.market == "cn":
-            subject = f"""CN Stock Market ETF Trends - {end_date}""".format(
-                end_date=end_date
-            )
-            image_path_return_light = "./dashreport/assets/images/cnetf_tr_light.svg"
-            image_path_return_dark = "./dashreport/assets/images/cnetf_tr_dark.svg"
+        subject = f"""CN Stock Market ETF Trends - {end_date}""".format(
+            end_date=end_date
+        )
+        image_path_return_light = "./dashreport/assets/images/cnetf_tr_light.svg"
+        image_path_return_dark = "./dashreport/assets/images/cnetf_tr_dark.svg"
         image_path = [
             "./dashreport/assets/images/cnetf_trade_trend_light.svg",
             "./dashreport/assets/images/cnetf_trade_trend_dark.svg",
