@@ -834,9 +834,6 @@ class GlobalStrategy(bt.Strategy):
                 diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y > 1]
                 diff_array3 = [abs((x - y) * 100 / y) for x, y in zip(x1, x2) if y > 1]
 
-                # if not is_valid_sortino:
-                #     continue
-
                 if self.signals[d._name]["ma_crossover_bullish"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
@@ -954,23 +951,6 @@ class GlobalStrategy(bt.Strategy):
                 """
                 if dict["buy_date"] is None:
                     continue
-                # t = ToolKit("最新交易日")
-                # if self.market == "us":
-                #     cur = datetime.strptime(t.get_us_latest_trade_date(0), "%Y%m%d")
-                #     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
-                #     interval = t.get_us_trade_off_days(cur, bef)
-                # elif self.market == "cn":
-                #     cur = datetime.strptime(t.get_cn_latest_trade_date(0), "%Y%m%d")
-                #     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
-                #     interval = t.get_cn_trade_off_days(cur, bef)
-                # elif self.market == "cnetf":
-                #     cur = datetime.strptime(t.get_cn_latest_trade_date(0), "%Y%m%d")
-                #     bef = datetime.strptime(str(dict["buy_date"]), "%Y-%m-%d")
-                #     interval = t.get_cn_trade_off_days(cur, bef)
-                # print(
-                #     "当前股票: %s, 交易天数: %s, 累计涨幅: %s"
-                #     % (dict["symbol"], interval, dict["p&l_ratio"])
-                # )
                 list.append(dict)
                 pos_share = pos_share + pos.size * pos.adjbase
                 if pos.adjbase - pos.price >= 0:
