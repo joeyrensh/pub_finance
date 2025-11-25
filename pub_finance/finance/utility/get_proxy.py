@@ -209,6 +209,8 @@ class ProxyManager:
         :%s/^\([0-9.]\+\)\s\+\(\d\+\).*$/\1:\2/
         # 去除非IP和端口行
         :v/\v^\d+\.\d+\.\d+\.\d+:\d+$/d
+        # 追加到proxy.txt尾部，添加一行空行，用于区分新增IP，运行如下命令
+        grep -vxFf proxy.txt new_proxy.txt >> proxy.txt
         """
         if not self.proxies_list:
             print("没有代理可供测试")
