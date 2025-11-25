@@ -818,8 +818,18 @@ class GlobalStrategy(bt.Strategy):
             if not pos:
                 # is_invalid_sortino = (
                 #     self.sortino_ratios[d._name] is not None
-                #     and self.sortino_ratios[d._name] < -5
+                #     and (
+                #         self.sortino_ratios[d._name] < 0.3
+                #         or self.sortino_ratios[d._name] > 4
+                #     )
+                # ) or (
+                #     self.sharpe_ratios[d._name] is not None
+                #     and (
+                #         self.sharpe_ratios[d._name] < 0.5
+                #         or self.sharpe_ratios[d._name] > 3
+                #     )
                 # )
+
                 # if is_invalid_sortino:
                 #     continue
 
