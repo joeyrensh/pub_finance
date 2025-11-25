@@ -812,10 +812,16 @@ class GlobalStrategy(bt.Strategy):
                     # 数据不足或无风险利率为0 → 夏普比率置0
                     self.sharpe_ratios[d._name] = None
                     self.sortino_ratios[d._name] = None
-            pos = self.getposition(d)
 
+            pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
             if not pos:
+                # is_invalid_sortino = (
+                #     self.sortino_ratios[d._name] is not None
+                #     and self.sortino_ratios[d._name] < -5
+                # )
+                # if is_invalid_sortino:
+                #     continue
 
                 # 均线密集判断，短期ema与中期ema近20日内密集排列
                 x1 = self.inds[d._name]["ema_short"].get(
