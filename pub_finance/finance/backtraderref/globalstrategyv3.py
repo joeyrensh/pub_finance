@@ -22,7 +22,7 @@ class GlobalStrategy(bt.Strategy):
         ("ma_mid_period", 60),
         ("ma_long_period", 120),
         ("vol_short_period", 5),
-        # ("vol_mid_period", 10),
+        ("vol_mid_period", 10),
         ("vol_long_period", 20),
         ("annual_period", 240),
         ("availablecash", 4000000),
@@ -70,7 +70,6 @@ class GlobalStrategy(bt.Strategy):
         将每日回测完的持仓数据存储文件
         方便后面打印输出
         """
-
         """ backtrader一些常用属性的初始化 """
         # 针对us market会有特殊标志"us_special"，但整体策略和文件共享us
         market = {"us_special": "us"}.get(market, market)
@@ -128,461 +127,533 @@ class GlobalStrategy(bt.Strategy):
             self.sortino_ratios[d._name] = None
 
             """MA20/60/120指标 """
-            self.inds[d._name]["sma_short"] = bt.indicators.SMA(
-                d.close, period=self.params.ma_short_period
-            )
-            self.inds[d._name]["sma_mid"] = bt.indicators.SMA(
-                d.close, period=self.params.ma_mid_period
-            )
+            try:
+                self.inds[d._name]["sma_short"] = bt.indicators.SMA(
+                    d.close, period=self.params.ma_short_period
+                )
+                self.inds[d._name]["sma_mid"] = bt.indicators.SMA(
+                    d.close, period=self.params.ma_mid_period
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-SMA指标: {d._name}, {e}")
             # 半年线
-            if d.buflen() >= self.params.ma_long_period:
-                self.inds[d._name]["sma_long"] = bt.indicators.SMA(
-                    d.close, period=self.params.ma_long_period
-                )
-            else:
-                # 数据不足时，创建一个始终为NaN的虚拟指标
-                self.inds[d._name]["sma_long"] = bt.LineNum(float("nan"))
-                print(
-                    f"警告: {d._name} 数据长度({len(d)})小于SMA周期({self.params.ma_long_period})"
-                )
+            try:
+                if d.buflen() > self.params.ma_long_period:
+                    self.inds[d._name]["sma_long"] = bt.indicators.SMA(
+                        d.close, period=self.params.ma_long_period
+                    )
+                else:
+                    # 数据不足时，创建一个始终为NaN的虚拟指标
+                    self.inds[d._name]["sma_long"] = bt.LineNum(float("nan"))
+                    print(
+                        f"警告: {d._name} 数据长度({d.buflen()})小于SMA周期({self.params.ma_long_period})"
+                    )
+            except Exception as e:
+                print(f"❌ 初始化失败-半年线指标: {d._name}, {e}")
             # 年线
-            if d.buflen() >= self.params.annual_period:
-                self.inds[d._name]["sma_annual"] = bt.indicators.SMA(
-                    d.close, period=self.params.annual_period
-                )
-            else:
-                # 数据不足时，创建一个始终为NaN的虚拟指标
-                self.inds[d._name]["sma_annual"] = bt.LineNum(float("nan"))
-                print(
-                    f"警告: {d._name} 数据长度({len(d)})小于SMA周期({self.params.annual_period})"
-                )
-
-            # self.inds[d._name]["sma_annual"] = bt.indicators.SMA(
-            #     d.close, period=self.params.annual_period
-            # )
-
-            # self.inds[d._name]["sma_long"] = bt.indicators.SMA(
-            #     d.close, period=self.params.ma_long_period
-            # )
+            try:
+                if d.buflen() > self.params.annual_period:
+                    self.inds[d._name]["sma_annual"] = bt.indicators.SMA(
+                        d.close, period=self.params.annual_period
+                    )
+                else:
+                    # 数据不足时，创建一个始终为NaN的虚拟指标
+                    self.inds[d._name]["sma_annual"] = bt.LineNum(float("nan"))
+                    print(
+                        f"警告: {d._name} 数据长度({d.buflen()})小于SMA周期({self.params.annual_period})"
+                    )
+            except Exception as e:
+                print(f"❌ 初始化失败-年线指标: {d._name}, {e}")
 
             """EMA20/60/120"""
-            self.inds[d._name]["ema_short"] = bt.indicators.EMA(
-                d.close, period=self.params.ma_short_period
-            )
-            self.inds[d._name]["ema_mid"] = bt.indicators.EMA(
-                d.close, period=self.params.ma_mid_period
-            )
-            # self.inds[d._name]["ema_long"] = bt.indicators.EMA(
-            #     d.close, period=self.params.ma_long_period
-            # )
+            try:
+                self.inds[d._name]["ema_short"] = bt.indicators.EMA(
+                    d.close, period=self.params.ma_short_period
+                )
+                self.inds[d._name]["ema_mid"] = bt.indicators.EMA(
+                    d.close, period=self.params.ma_mid_period
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-ema指标: {d._name}, {e}")
+
             """
             日线DIF值
             日线DEA值
             日线MACD值
             """
-            self.inds[d._name]["dif"] = bt.indicators.MACDHisto(
-                d.close,
-                period_me1=self.params.macd_fast_period,
-                period_me2=self.params.macd_slow_period,
-                period_signal=self.params.macd_signal_period,
-            ).macd
-            self.inds[d._name]["dea"] = bt.indicators.MACDHisto(
-                d.close,
-                period_me1=self.params.macd_fast_period,
-                period_me2=self.params.macd_slow_period,
-                period_signal=self.params.macd_signal_period,
-            ).signal
-            self.inds[d._name]["macd"] = (
-                bt.indicators.MACDHisto(
+            try:
+                self.inds[d._name]["dif"] = bt.indicators.MACDHisto(
                     d.close,
                     period_me1=self.params.macd_fast_period,
                     period_me2=self.params.macd_slow_period,
                     period_signal=self.params.macd_signal_period,
-                ).histo
-                * 2
-            )
+                ).macd
+                self.inds[d._name]["dea"] = bt.indicators.MACDHisto(
+                    d.close,
+                    period_me1=self.params.macd_fast_period,
+                    period_me2=self.params.macd_slow_period,
+                    period_signal=self.params.macd_signal_period,
+                ).signal
+                self.inds[d._name]["macd"] = (
+                    bt.indicators.MACDHisto(
+                        d.close,
+                        period_me1=self.params.macd_fast_period,
+                        period_me2=self.params.macd_slow_period,
+                        period_signal=self.params.macd_signal_period,
+                    ).histo
+                    * 2
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-MACD指标: {d._name}, {e}")
 
             """
             MAVOL5、10、20成交量均线
             """
-            self.inds[d._name]["emavol_short"] = bt.indicators.EMA(
-                d.volume, period=self.params.vol_short_period
-            )
-            # self.inds[d._name]["emavol_mid"] = bt.indicators.EMA(
-            #     d.volume, period=self.params.vol_mid_period
-            # )
-            self.inds[d._name]["emavol_long"] = bt.indicators.EMA(
-                d.volume, period=self.params.vol_long_period
-            )
+            try:
+                self.inds[d._name]["emavol_short"] = bt.indicators.EMA(
+                    d.volume, period=self.params.vol_short_period
+                )
+                self.inds[d._name]["emavol_long"] = bt.indicators.EMA(
+                    d.volume, period=self.params.vol_long_period
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-Vol指标: {d._name}, {e}")
 
             """ 收盘价高点/低点 """
-            self.inds[d._name]["highest_short"] = bt.indicators.Highest(
-                d.close, period=self.params.price_short_period
-            )
-            self.inds[d._name]["highest_mid"] = bt.indicators.Highest(
-                d.close, period=self.params.price_mid_period
-            )
-            self.inds[d._name]["highest_long"] = bt.indicators.Highest(
-                d.close, period=self.params.price_long_period
-            )
-            self.inds[d._name]["lowest_short"] = bt.indicators.Lowest(
-                d.close, period=self.params.price_short_period
-            )
-            self.inds[d._name]["lowest_mid"] = bt.indicators.Lowest(
-                d.close, period=self.params.price_mid_period
-            )
-            self.inds[d._name]["lowest_long"] = bt.indicators.Lowest(
-                d.close, period=self.params.price_long_period
-            )
+            try:
+                self.inds[d._name]["highest_short"] = bt.indicators.Highest(
+                    d.close, period=self.params.price_short_period
+                )
+                self.inds[d._name]["highest_mid"] = bt.indicators.Highest(
+                    d.close, period=self.params.price_mid_period
+                )
+                self.inds[d._name]["highest_long"] = bt.indicators.Highest(
+                    d.close, period=self.params.price_long_period
+                )
+                self.inds[d._name]["lowest_short"] = bt.indicators.Lowest(
+                    d.close, period=self.params.price_short_period
+                )
+                self.inds[d._name]["lowest_mid"] = bt.indicators.Lowest(
+                    d.close, period=self.params.price_mid_period
+                )
+                self.inds[d._name]["lowest_long"] = bt.indicators.Lowest(
+                    d.close, period=self.params.price_long_period
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-高低点指标: {d._name}, {e}")
 
             """
-            辅助指标：红三兵
+            红三兵
             """
-            self.signals[d._name]["red_three_soldiers"] = bt.And(
-                d.close > d.close(-1),
-                d.close(-1) > d.close(-2),
-                d.close > d.open,
-                d.close(-1) > d.open(-1),
-                d.close(-2) > d.open(-2),
-                d.close > ((d.high - d.low) * 0.618 + d.low),
-                d.close(-1) > ((d.high(-1) - d.low(-1)) * 0.618 + d.low(-1)),
-                d.close(-2) > ((d.high(-2) - d.low(-2)) * 0.618 + d.low(-2)),
-                d.volume > d.volume(-1),
-                d.volume(-1) > d.volume(-2),
-                d.volume > self.inds[d._name]["emavol_short"],
-            )
+            try:
+                self.signals[d._name]["red_three_soldiers"] = bt.And(
+                    d.close > d.close(-1),
+                    d.close(-1) > d.close(-2),
+                    d.close > d.open,
+                    d.close(-1) > d.open(-1),
+                    d.close(-2) > d.open(-2),
+                    d.close > ((d.high - d.low) * 0.618 + d.low),
+                    d.close(-1) > ((d.high(-1) - d.low(-1)) * 0.618 + d.low(-1)),
+                    d.close(-2) > ((d.high(-2) - d.low(-2)) * 0.618 + d.low(-2)),
+                    d.volume > d.volume(-1),
+                    d.volume(-1) > d.volume(-2),
+                    d.volume > self.inds[d._name]["emavol_short"],
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-红三兵指标: {d._name}, {e}")
 
             """
-            辅助指标：上影线判定
+            辅助指标1：上影线判定
             """
-            self.signals[d._name]["upper_shadow"] = bt.And(
-                d.close > ((d.high - d.low) * 0.618 + d.low), d.close > d.open
-            )
+            try:
+                self.signals[d._name]["upper_shadow"] = bt.And(
+                    d.close > ((d.high - d.low) * 0.618 + d.low), d.close > d.open
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-上影线指标: {d._name}, {e}")
 
             """
-            辅助指标：高低点上移/下移
+            高低点上移/下移
             """
-            self.signals[d._name]["price_higher"] = bt.Or(
-                # 情况1：创新高模式
-                bt.And(
-                    d.close > self.inds[d._name]["highest_short"](-1),
-                    d.close > d.close(-5),
-                    self.signals[d._name]["upper_shadow"] == 1,
-                ),
-                # 情况2：收敛上涨模式 - 低点上移
-                bt.And(
-                    self.inds[d._name]["lowest_short"]
-                    > self.inds[d._name]["lowest_short"](-5),
-                    d.close > d.close(-5),
-                    # 可选：添加波动率收敛条件
-                    (
-                        self.inds[d._name]["highest_short"]
-                        - self.inds[d._name]["lowest_short"]
-                    )
-                    < (
-                        self.inds[d._name]["highest_short"](-5)
-                        - self.inds[d._name]["lowest_short"](-5)
+            try:
+                self.signals[d._name]["price_higher"] = bt.Or(
+                    # 情况1：创新高模式
+                    bt.And(
+                        d.close > self.inds[d._name]["highest_short"](-1),
+                        d.close > d.close(-5),
+                        self.signals[d._name]["upper_shadow"] == 1,
                     ),
-                ),
-                # 情况3：高点上移但未创新高
-                bt.And(
-                    self.inds[d._name]["highest_short"]
-                    > self.inds[d._name]["highest_short"](-5),
-                    d.close > d.close(-5),
-                    self.inds[d._name]["lowest_short"]
-                    >= self.inds[d._name]["lowest_short"](-5),
-                ),
-            )
+                    # 情况2：收敛上涨模式 - 低点上移
+                    bt.And(
+                        self.inds[d._name]["lowest_short"]
+                        > self.inds[d._name]["lowest_short"](-5),
+                        d.close > d.close(-5),
+                        # 可选：添加波动率收敛条件
+                        (
+                            self.inds[d._name]["highest_short"]
+                            - self.inds[d._name]["lowest_short"]
+                        )
+                        < (
+                            self.inds[d._name]["highest_short"](-5)
+                            - self.inds[d._name]["lowest_short"](-5)
+                        ),
+                    ),
+                    # 情况3：高点上移但未创新高
+                    bt.And(
+                        self.inds[d._name]["highest_short"]
+                        > self.inds[d._name]["highest_short"](-5),
+                        d.close > d.close(-5),
+                        self.inds[d._name]["lowest_short"]
+                        >= self.inds[d._name]["lowest_short"](-5),
+                    ),
+                )
 
-            self.signals[d._name]["price_lower"] = bt.Or(
-                # 情况1：创新低模式
-                bt.And(
-                    d.close < self.inds[d._name]["lowest_short"](-1),
-                    d.close < d.close(-5),
-                ),
-                # 情况2：高点下移模式
-                bt.And(
-                    self.inds[d._name]["highest_short"]
-                    < self.inds[d._name]["highest_short"](-5),
-                    d.close < d.close(-5),
-                    # 确认卖压增强
-                    self.inds[d._name]["lowest_short"]
-                    <= self.inds[d._name]["lowest_short"](-5),
-                ),
-                # 情况3：收敛下跌模式 - 高低点同步下移但幅度小
-                bt.And(
-                    self.inds[d._name]["highest_short"]
-                    < self.inds[d._name]["highest_short"](-5),
-                    self.inds[d._name]["lowest_short"]
-                    < self.inds[d._name]["lowest_short"](-5),
-                    d.close < d.close(-5),
-                ),
-            )
+                self.signals[d._name]["price_lower"] = bt.Or(
+                    # 情况1：创新低模式
+                    bt.And(
+                        d.close < self.inds[d._name]["lowest_short"](-1),
+                        d.close < d.close(-5),
+                    ),
+                    # 情况2：高点下移模式
+                    bt.And(
+                        self.inds[d._name]["highest_short"]
+                        < self.inds[d._name]["highest_short"](-5),
+                        d.close < d.close(-5),
+                        # 确认卖压增强
+                        self.inds[d._name]["lowest_short"]
+                        <= self.inds[d._name]["lowest_short"](-5),
+                    ),
+                    # 情况3：收敛下跌模式 - 高低点同步下移但幅度小
+                    bt.And(
+                        self.inds[d._name]["highest_short"]
+                        < self.inds[d._name]["highest_short"](-5),
+                        self.inds[d._name]["lowest_short"]
+                        < self.inds[d._name]["lowest_short"](-5),
+                        d.close < d.close(-5),
+                    ),
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-价格上涨和下跌指标: {d._name}, {e}")
 
             """ 
-            辅助指标：波动过大，避免频繁交易
+            辅助指标2：波动过大，避免频繁交易
             """
-            self.signals[d._name]["close_crossdown_sma_short"] = (
-                bt.indicators.crossover.CrossDown(
-                    d.close, self.inds[d._name]["sma_short"]
-                )
-            )
-
-            self.signals[d._name]["dif_crossdown_dea"] = (
-                bt.indicators.crossover.CrossDown(
-                    self.inds[d._name]["dif"], self.inds[d._name]["dea"]
-                )
-            )
-
-            """
-            辅助指标：收盘价上穿短期均线
-            """
-            self.signals[d._name]["close_crossup_ema_short"] = (
-                bt.indicators.crossover.CrossUp(
-                    d.close, self.inds[d._name]["ema_short"]
-                )
-            )
-
-            """ 
-            辅助指标：乖离率判断
-            """
-            self.signals[d._name]["deviant"] = (
-                d.close - self.inds[d._name]["sma_short"]
-            ) / self.inds[d._name]["sma_short"] <= 0.12
-
-            """
-            辅助指标：Dif和Dea的关系
-            """
-            self.signals[d._name]["golden_cross"] = bt.Or(
-                bt.And(
-                    bt.indicators.crossover.CrossUp(
-                        self.inds[d._name]["dif"], self.inds[d._name]["dea"]
+            try:
+                self.signals[d._name]["close_crossdown_sma_short"] = (
+                    bt.indicators.crossover.CrossDown(
+                        d.close, self.inds[d._name]["sma_short"]
                     )
-                    == 1,
-                    self.inds[d._name]["dea"] > self.inds[d._name]["dea"](-1),
-                ),
-                bt.And(
-                    self.inds[d._name]["dif"] > self.inds[d._name]["dea"](-1),
-                    bt.indicators.crossover.CrossUp(self.inds[d._name]["dif"], 0) == 1,
-                ),
-                bt.And(
-                    self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
-                    self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
-                ),
-                d.volume > self.inds[d._name]["emavol_short"] * 1.25,
-            )
-            self.signals[d._name]["death_cross"] = bt.Or(
-                bt.And(
+                )
+
+                self.signals[d._name]["dif_crossdown_dea"] = (
                     bt.indicators.crossover.CrossDown(
                         self.inds[d._name]["dif"], self.inds[d._name]["dea"]
                     )
-                    == 1,
-                    self.inds[d._name]["dea"] < self.inds[d._name]["dea"](-1),
-                ),
-                bt.And(
-                    self.inds[d._name]["dif"] < self.inds[d._name]["dea"](-1),
-                    bt.indicators.crossover.CrossDown(self.inds[d._name]["dif"], 0)
-                    == 1,
-                ),
-                bt.And(
-                    self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
-                    self.inds[d._name]["dif"] < self.inds[d._name]["dif"](-1),
-                ),
-            )
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-辅助指标2: {d._name}, {e}")
+
+            """
+            辅助指标3：收盘价上穿短期均线
+            """
+            try:
+                self.signals[d._name]["close_crossup_ema_short"] = (
+                    bt.indicators.crossover.CrossUp(
+                        d.close, self.inds[d._name]["ema_short"]
+                    )
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-辅助指标3: {d._name}, {e}")
+
+            """ 
+            辅助指标4：乖离率判断
+            """
+            try:
+                self.signals[d._name]["deviant"] = (
+                    d.close - self.inds[d._name]["sma_short"]
+                ) / self.inds[d._name]["sma_short"] <= 0.12
+            except Exception as e:
+                print(f"❌ 初始化失败-辅助指标4: {d._name}, {e}")
+
+            """
+            辅助指标5：Dif和Dea的关系
+            """
+            try:
+                self.signals[d._name]["golden_cross"] = bt.Or(
+                    bt.And(
+                        bt.indicators.crossover.CrossUp(
+                            self.inds[d._name]["dif"], self.inds[d._name]["dea"]
+                        )
+                        == 1,
+                        self.inds[d._name]["dea"] > self.inds[d._name]["dea"](-1),
+                    ),
+                    bt.And(
+                        self.inds[d._name]["dea"] > self.inds[d._name]["dea"](-1),
+                        bt.indicators.crossover.CrossUp(self.inds[d._name]["dif"], 0)
+                        == 1,
+                    ),
+                    bt.And(
+                        self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
+                        self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
+                    ),
+                    d.volume > self.inds[d._name]["emavol_short"] * 1.25,
+                )
+                self.signals[d._name]["death_cross"] = bt.Or(
+                    bt.And(
+                        bt.indicators.crossover.CrossDown(
+                            self.inds[d._name]["dif"], self.inds[d._name]["dea"]
+                        )
+                        == 1,
+                        self.inds[d._name]["dea"] < self.inds[d._name]["dea"](-1),
+                    ),
+                    bt.And(
+                        self.inds[d._name]["dea"] < self.inds[d._name]["dea"](-1),
+                        bt.indicators.crossover.CrossDown(self.inds[d._name]["dif"], 0)
+                        == 1,
+                    ),
+                    bt.And(
+                        self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
+                        self.inds[d._name]["dif"] < self.inds[d._name]["dif"](-1),
+                    ),
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-辅助指标5: {d._name}, {e}")
 
             """
             买入1: 均线金叉
             """
-            self.signals[d._name]["ma_crossover_bullish"] = bt.Or(
-                bt.And(
-                    self.inds[d._name]["sma_mid"] > self.inds[d._name]["sma_mid"](-1),
-                    self.inds[d._name]["ema_short"] > self.inds[d._name]["ema_mid"],
-                    bt.indicators.crossover.CrossUp(
-                        self.inds[d._name]["sma_short"],
-                        self.inds[d._name]["sma_mid"],
-                    )
-                    == 1,
-                    self.signals[d._name]["golden_cross"] == 1,
-                    d.close > d.open,
-                    self.signals[d._name]["deviant"] == 1,
-                ),
-                bt.And(
-                    self.inds[d._name]["ema_mid"] > self.inds[d._name]["ema_mid"](-1),
-                    bt.indicators.crossover.CrossUp(
-                        self.inds[d._name]["ema_short"],
-                        self.inds[d._name]["ema_mid"],
-                    )
-                    == 1,
-                    self.signals[d._name]["golden_cross"] == 1,
-                    d.close > d.open,
-                    self.signals[d._name]["deviant"] == 1,
-                ),
-            )
+            try:
+                self.signals[d._name]["ma_crossover_bullish"] = bt.Or(
+                    bt.And(
+                        self.inds[d._name]["sma_mid"]
+                        > self.inds[d._name]["sma_mid"](-1),
+                        self.inds[d._name]["ema_short"] > self.inds[d._name]["ema_mid"],
+                        bt.indicators.crossover.CrossUp(
+                            self.inds[d._name]["sma_short"],
+                            self.inds[d._name]["sma_mid"],
+                        )
+                        == 1,
+                        self.signals[d._name]["golden_cross"] == 1,
+                        d.close > d.open,
+                        self.signals[d._name]["deviant"] == 1,
+                    ),
+                    bt.And(
+                        self.inds[d._name]["ema_mid"]
+                        > self.inds[d._name]["ema_mid"](-1),
+                        bt.indicators.crossover.CrossUp(
+                            self.inds[d._name]["ema_short"],
+                            self.inds[d._name]["ema_mid"],
+                        )
+                        == 1,
+                        self.signals[d._name]["golden_cross"] == 1,
+                        d.close > d.open,
+                        self.signals[d._name]["deviant"] == 1,
+                    ),
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-买入1: {d._name}, {e}")
 
             """
             买入2: 收盘价连续上涨
             """
-            self.signals[d._name]["close_rising"] = (
-                bt.And(
-                    self.signals[d._name]["price_higher"] == 1,
-                    d.close > d.open,
-                    self.signals[d._name]["deviant"] == 1,
-                    self.inds[d._name]["ema_short"]
-                    > self.inds[d._name]["ema_short"](-1),
-                    self.inds[d._name]["emavol_short"]
-                    > self.inds[d._name]["emavol_long"],
-                    bt.Or(
-                        bt.indicators.crossover.CrossUp(
-                            d.close, self.inds[d._name]["ema_short"]
-                        )
-                        == 1,
-                        bt.indicators.crossover.CrossUp(
-                            d.close, self.inds[d._name]["sma_short"]
-                        )
-                        == 1,
-                        self.signals[d._name]["golden_cross"] == 1,
+            try:
+                self.signals[d._name]["close_rising"] = (
+                    bt.And(
+                        self.signals[d._name]["price_higher"] == 1,
+                        d.close > d.open,
+                        self.signals[d._name]["deviant"] == 1,
+                        self.inds[d._name]["ema_short"]
+                        > self.inds[d._name]["ema_short"](-1),
+                        self.inds[d._name]["emavol_short"]
+                        > self.inds[d._name]["emavol_long"],
+                        bt.Or(
+                            bt.indicators.crossover.CrossUp(
+                                d.close, self.inds[d._name]["ema_short"]
+                            )
+                            == 1,
+                            bt.indicators.crossover.CrossUp(
+                                d.close, self.inds[d._name]["sma_short"]
+                            )
+                            == 1,
+                            self.signals[d._name]["golden_cross"] == 1,
+                        ),
                     ),
-                ),
-            )
-
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-买入2: {d._name}, {e}")
             """ 
             买入3: 均线多头排列
             """
-            self.signals[d._name]["long_position"] = bt.And(
-                d.close > self.inds[d._name]["ema_short"],
-                self.inds[d._name]["ema_short"] > self.inds[d._name]["ema_mid"],
-                self.inds[d._name]["sma_short"] > self.inds[d._name]["sma_mid"],
-                self.inds[d._name]["ema_short"] > self.inds[d._name]["ema_short"](-1),
-                self.inds[d._name]["ema_mid"] > self.inds[d._name]["ema_mid"](-1),
-                self.signals[d._name]["golden_cross"] == 1,
-                self.signals[d._name]["deviant"] == 1,
-            )
+            try:
+                self.signals[d._name]["long_position"] = bt.And(
+                    d.close > self.inds[d._name]["ema_short"],
+                    self.inds[d._name]["ema_short"] > self.inds[d._name]["ema_mid"],
+                    self.inds[d._name]["sma_short"] > self.inds[d._name]["sma_mid"],
+                    self.inds[d._name]["ema_short"]
+                    > self.inds[d._name]["ema_short"](-1),
+                    self.inds[d._name]["ema_mid"] > self.inds[d._name]["ema_mid"](-1),
+                    self.signals[d._name]["golden_cross"] == 1,
+                    self.signals[d._name]["deviant"] == 1,
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-买入3: {d._name}, {e}")
 
             """ 
             买入4: 成交量突然增加，价格走高
             """
-            self.signals[d._name]["volume_spike"] = bt.And(
-                # self.inds[d._name]["emavol_short"] > self.inds[d._name]["emavol_mid"],
-                self.inds[d._name]["emavol_short"] > self.inds[d._name]["emavol_long"],
-                d.volume > self.inds[d._name]["emavol_short"] * 1.5,
-                self.signals[d._name]["price_higher"] == 1,
-                self.signals[d._name]["deviant"] == 1,
-            )
+            try:
+                self.signals[d._name]["volume_spike"] = bt.And(
+                    self.inds[d._name]["emavol_short"]
+                    > self.inds[d._name]["emavol_long"],
+                    d.volume > self.inds[d._name]["emavol_short"] * 1.5,
+                    self.signals[d._name]["price_higher"] == 1,
+                    self.signals[d._name]["deviant"] == 1,
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-买入4: {d._name}, {e}")
 
             """
             买入5: 穿越年线
             """
-            self.signals[d._name]["close_crossup_annualline"] = bt.And(
-                bt.indicators.crossover.CrossUp(
-                    d.close, self.inds[d._name]["sma_annual"]
+            try:
+                self.signals[d._name]["close_crossup_annualline"] = bt.And(
+                    bt.indicators.crossover.CrossUp(
+                        d.close, self.inds[d._name]["sma_annual"]
+                    )
+                    == 1,
+                    bt.Or(
+                        self.signals[d._name]["price_higher"] == 1,
+                        self.signals[d._name]["golden_cross"] == 1,
+                    ),
+                    self.inds[d._name]["sma_annual"]
+                    > self.inds[d._name]["sma_annual"](-1),
+                    self.signals[d._name]["deviant"] == 1,
                 )
-                == 1,
-                bt.Or(
-                    self.signals[d._name]["price_higher"] == 1,
-                    self.signals[d._name]["golden_cross"] == 1,
-                ),
-                self.inds[d._name]["sma_annual"] > self.inds[d._name]["sma_annual"](-1),
-                self.signals[d._name]["deviant"] == 1,
-            )
+            except Exception as e:
+                print(f"❌ 初始化失败-买入5: {d._name}, {e}")
 
             """
             买入6: 穿越半年线
             """
-            self.signals[d._name]["close_crossup_halfannualline"] = bt.And(
-                bt.indicators.crossover.CrossUp(d.close, self.inds[d._name]["sma_long"])
-                == 1,
-                bt.Or(
-                    self.signals[d._name]["price_higher"] == 1,
-                    self.signals[d._name]["golden_cross"] == 1,
-                ),
-                self.inds[d._name]["sma_long"] > self.inds[d._name]["sma_long"](-1),
-                self.signals[d._name]["deviant"] == 1,
-            )
+            try:
+                self.signals[d._name]["close_crossup_halfannualline"] = bt.And(
+                    bt.indicators.crossover.CrossUp(
+                        d.close, self.inds[d._name]["sma_long"]
+                    )
+                    == 1,
+                    bt.Or(
+                        self.signals[d._name]["price_higher"] == 1,
+                        self.signals[d._name]["golden_cross"] == 1,
+                    ),
+                    self.inds[d._name]["sma_long"] > self.inds[d._name]["sma_long"](-1),
+                    self.signals[d._name]["deviant"] == 1,
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-买入6: {d._name}, {e}")
 
             """
             卖出1: 均线死叉
             """
-            self.signals[d._name]["ma_crossover_bearish"] = bt.Or(
-                bt.And(
-                    self.inds[d._name]["sma_mid"] < self.inds[d._name]["sma_mid"](-1),
-                    bt.indicators.crossover.CrossDown(
-                        self.inds[d._name]["sma_short"],
-                        self.inds[d._name]["sma_mid"],
-                    )
-                    == 1,
-                    d.close < d.open,
-                    self.signals[d._name]["death_cross"] == 1,
-                ),
-                bt.And(
-                    self.inds[d._name]["ema_mid"] < self.inds[d._name]["ema_mid"](-1),
-                    bt.indicators.crossover.CrossDown(
-                        self.inds[d._name]["ema_short"],
-                        self.inds[d._name]["ema_mid"],
-                    )
-                    == 1,
-                    d.close < d.open,
-                    self.signals[d._name]["death_cross"] == 1,
-                ),
-            )
+            try:
+                self.signals[d._name]["ma_crossover_bearish"] = bt.Or(
+                    bt.And(
+                        self.inds[d._name]["sma_mid"]
+                        < self.inds[d._name]["sma_mid"](-1),
+                        bt.indicators.crossover.CrossDown(
+                            self.inds[d._name]["sma_short"],
+                            self.inds[d._name]["sma_mid"],
+                        )
+                        == 1,
+                        d.close < d.open,
+                        self.signals[d._name]["death_cross"] == 1,
+                    ),
+                    bt.And(
+                        self.inds[d._name]["ema_mid"]
+                        < self.inds[d._name]["ema_mid"](-1),
+                        bt.indicators.crossover.CrossDown(
+                            self.inds[d._name]["ema_short"],
+                            self.inds[d._name]["ema_mid"],
+                        )
+                        == 1,
+                        d.close < d.open,
+                        self.signals[d._name]["death_cross"] == 1,
+                    ),
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-卖出1: {d._name}, {e}")
             """
             卖出2: 收盘价连续下跌
             """
-            self.signals[d._name]["close_falling"] = bt.And(
-                # self.inds[d._name]["sma_mid"] < self.inds[d._name]["sma_mid"](-1),
-                self.inds[d._name]["sma_short"] < self.inds[d._name]["sma_short"](-1),
-                d.close < d.open,
-                self.signals[d._name]["price_lower"] == 1,
-                bt.Or(
-                    bt.indicators.crossover.CrossDown(
-                        d.close, self.inds[d._name]["ema_short"]
-                    )
-                    == 1,
-                    bt.indicators.crossover.CrossDown(
-                        d.close, self.inds[d._name]["sma_short"]
-                    )
-                    == 1,
-                    self.signals[d._name]["death_cross"] == 1,
-                ),
-            )
+            try:
+                self.signals[d._name]["close_falling"] = bt.And(
+                    self.inds[d._name]["sma_short"]
+                    < self.inds[d._name]["sma_short"](-1),
+                    d.close < d.open,
+                    self.signals[d._name]["price_lower"] == 1,
+                    bt.Or(
+                        bt.indicators.crossover.CrossDown(
+                            d.close, self.inds[d._name]["ema_short"]
+                        )
+                        == 1,
+                        bt.indicators.crossover.CrossDown(
+                            d.close, self.inds[d._name]["sma_short"]
+                        )
+                        == 1,
+                        self.signals[d._name]["death_cross"] == 1,
+                    ),
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-卖出2: {d._name}, {e}")
             """ 
             卖出3: 均线空头排列
             """
-            self.signals[d._name]["short_position"] = bt.And(
-                d.close < self.inds[d._name]["ema_short"],
-                self.inds[d._name]["ema_short"] < self.inds[d._name]["ema_mid"],
-                self.inds[d._name]["sma_short"] < self.inds[d._name]["sma_mid"],
-                self.inds[d._name]["ema_mid"] < self.inds[d._name]["ema_mid"](-1),
-                self.inds[d._name]["ema_short"] < self.inds[d._name]["ema_short"](-1),
-                self.signals[d._name]["death_cross"] == 1,
-            )
+            try:
+                self.signals[d._name]["short_position"] = bt.And(
+                    d.close < self.inds[d._name]["ema_short"],
+                    self.inds[d._name]["ema_short"] < self.inds[d._name]["ema_mid"],
+                    self.inds[d._name]["sma_short"] < self.inds[d._name]["sma_mid"],
+                    self.inds[d._name]["ema_mid"] < self.inds[d._name]["ema_mid"](-1),
+                    self.inds[d._name]["ema_short"]
+                    < self.inds[d._name]["ema_short"](-1),
+                    self.signals[d._name]["death_cross"] == 1,
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-卖出3: {d._name}, {e}")
             """ 
             卖出4: 跌破年线
             """
-            self.signals[d._name]["closs_crossdown_annualline"] = bt.And(
-                bt.indicators.crossover.CrossDown(
-                    d.close, self.inds[d._name]["sma_annual"]
+            try:
+                self.signals[d._name]["closs_crossdown_annualline"] = bt.And(
+                    bt.indicators.crossover.CrossDown(
+                        d.close, self.inds[d._name]["sma_annual"]
+                    )
+                    == 1,
+                    bt.Or(
+                        self.signals[d._name]["price_lower"] == 1,
+                        self.signals[d._name]["death_cross"] == 1,
+                    ),
+                    self.inds[d._name]["sma_annual"]
+                    < self.inds[d._name]["sma_annual"](-1),
                 )
-                == 1,
-                bt.Or(
-                    self.signals[d._name]["price_lower"] == 1,
-                    self.signals[d._name]["death_cross"] == 1,
-                ),
-                self.inds[d._name]["sma_annual"] < self.inds[d._name]["sma_annual"](-1),
-            )
+            except Exception as e:
+                print(f"❌ 初始化失败-卖出4: {d._name}, {e}")
             """
             卖出5: 跌破半年线
             """
-            self.signals[d._name]["closs_crossdown_halfannualline"] = bt.And(
-                bt.indicators.crossover.CrossDown(
-                    d.close, self.inds[d._name]["sma_long"]
+            try:
+                self.signals[d._name]["closs_crossdown_halfannualline"] = bt.And(
+                    bt.indicators.crossover.CrossDown(
+                        d.close, self.inds[d._name]["sma_long"]
+                    )
+                    == 1,
+                    bt.Or(
+                        self.signals[d._name]["price_lower"] == 1,
+                        self.signals[d._name]["death_cross"] == 1,
+                    ),
+                    self.inds[d._name]["sma_long"] < self.inds[d._name]["sma_long"](-1),
                 )
-                == 1,
-                bt.Or(
-                    self.signals[d._name]["price_lower"] == 1,
-                    self.signals[d._name]["death_cross"] == 1,
-                ),
-                self.inds[d._name]["sma_long"] < self.inds[d._name]["sma_long"](-1),
-            )
+            except Exception as e:
+                print(f"❌ 初始化失败-卖出5: {d._name}, {e}")
             """ indicators以及signals初始化进度打印 """
             t.progress_bar(len(self.datas), i)
 
@@ -699,7 +770,6 @@ class GlobalStrategy(bt.Strategy):
             # ---- (1) 计算每日收益率 ----
             prev_close = d.close[-1]
             curr_close = d.close[0]
-
             if prev_close > 0:
                 ret = curr_close / prev_close - 1
                 self.daily_returns[d._name].append(ret)
@@ -755,7 +825,6 @@ class GlobalStrategy(bt.Strategy):
                     # 数据不足或无风险利率为0 → 夏普比率置0
                     self.sharpe_ratios[d._name] = None
                     self.sortino_ratios[d._name] = None
-
             pos = self.getposition(d)
 
             """ 如果没有仓位就判断是否买卖 """
