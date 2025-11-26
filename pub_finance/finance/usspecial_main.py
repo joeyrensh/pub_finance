@@ -269,31 +269,71 @@ def exec_btstrategy(date):
         ax_chart.set_zorder(ax_drawdown.get_zorder() + 1)  # 主轴提升到上方
         ax_chart.patch.set_visible(False)  # 隐藏主轴背景避免遮挡
 
-        # 绘制面积图（关键点3：使用 zorder 控制层级）
-        ax_drawdown.plot(
-            drawdown.index,
-            drawdown.values,
-            color=colors["drawdown"],
-            alpha=0.8,  # 适当降低透明度
-            zorder=2,  # 设置较低层级
-            linewidth=2,  # 设置线宽
-            label="Drawdown",
-        )
-
-        # 最后绘制折线图（自然覆盖在面积图上）
+        # ========== CUMULATIVE RETURN 图 ========== #
         ax_chart.plot(
             cumulative.index,
             cumulative.values,
             color=colors["cumret"],
             label="Cumulative Return",
             linewidth=2,
-            zorder=3,  # 设置更高层级
+            zorder=3,
             marker="o",
             markersize=4,
             markerfacecolor=colors["cumret"],
             markeredgecolor=colors["cumret"],
         )
-        ax_chart.grid(True, alpha=0.2)
+        ax_chart.grid(True, alpha=0.25)
+        # 最大收益点标注（非必须但非常专业）
+        cum_max_idx = cumulative.idxmax()
+        cum_max_val = cumulative.max()
+        x_offset = pd.Timedelta(days=-30)
+        ax_chart.scatter(
+            cum_max_idx, cum_max_val, color=colors["cumret"], s=60, zorder=4
+        )
+        ax_chart.text(
+            cum_max_idx + x_offset,
+            cum_max_val,
+            f" Max: {cum_max_val:.2f}",
+            fontsize=9,
+            color=colors["cumret"],
+            ha="left",
+            va="bottom",
+        )
+        # ========== DRAWDOWN 图（最小改动，但增强可读性） ========== # 区域图：更专业的 fill_between
+        ax_drawdown.fill_between(
+            drawdown.index,
+            drawdown.values,
+            0,
+            color=colors["drawdown"],
+            alpha=0.35,
+            zorder=1,
+            label="Drawdown",
+        )
+        # 使用 step plot 强化 Drawdown 的阶段感（最小新增）
+        ax_drawdown.step(
+            drawdown.index,
+            drawdown.values,
+            where="post",
+            color=colors["drawdown"],
+            linewidth=1.5,
+            alpha=0.9,
+            zorder=2,
+        )
+        # 最大回撤水平线
+        max_dd = drawdown.min()
+        ax_drawdown.axhline(
+            max_dd, linestyle="--", color=colors["drawdown"], linewidth=2, zorder=3
+        )
+        # 最大回撤点标注
+        ax_drawdown.text(
+            drawdown.idxmin() + x_offset,
+            max_dd,
+            f"Max Drawdown: {max_dd:.2%}",
+            fontsize=9,
+            color=colors["drawdown"],
+            ha="left",
+            va="bottom",
+        )
         ax_drawdown.grid(False)
 
         # ----------------------------
