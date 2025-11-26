@@ -449,10 +449,6 @@ class GlobalStrategy(bt.Strategy):
                         self.signals[d._name]["price_higher"] == 1,
                         d.close > d.open,
                         self.signals[d._name]["deviant"] == 1,
-                        self.inds[d._name]["ema_short"]
-                        > self.inds[d._name]["ema_short"](-1),
-                        self.inds[d._name]["emavol_short"]
-                        > self.inds[d._name]["emavol_long"],
                         bt.Or(
                             bt.indicators.crossover.CrossUp(
                                 d.close, self.inds[d._name]["ema_short"]
@@ -820,13 +816,13 @@ class GlobalStrategy(bt.Strategy):
                 #     self.sortino_ratios[d._name] is not None
                 #     and (
                 #         self.sortino_ratios[d._name] < 0.3
-                #         or self.sortino_ratios[d._name] > 4
+                #         or self.sortino_ratios[d._name] > 5
                 #     )
                 # ) or (
                 #     self.sharpe_ratios[d._name] is not None
                 #     and (
                 #         self.sharpe_ratios[d._name] < 0.5
-                #         or self.sharpe_ratios[d._name] > 3
+                #         or self.sharpe_ratios[d._name] > 5
                 #     )
                 # )
 

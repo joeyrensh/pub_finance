@@ -27,7 +27,7 @@ from uscrawler.ak_incre_crawler import AKUSWebCrawler
 
 def exec_btstrategy(date):
     """创建cerebro对象"""
-    cerebro = bt.Cerebro(stdstats=False)
+    cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
     cerebro.addstrategy(GlobalStrategy, trade_date=date, market="us")
@@ -355,7 +355,7 @@ def exec_btstrategy(date):
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc-4"""
-    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(1)
+    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
