@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-
 import progressbar
 from utility.toolkit import ToolKit
 from datetime import datetime
@@ -15,13 +14,12 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import pyfolio as pf
 import gc
-from backtraderref.usfixedamount import FixedAmount
+from backtraderref.cnfixedamount import FixedAmount
 from matplotlib import rcParams
 import matplotlib.colors as mcolors
+from cncrawler.ak_incre_crawler import AKCNWebCrawler
 from utility.em_stock_uti import EMWebCrawlerUti
-from uscrawler.ak_incre_crawler import AKUSWebCrawler
 
-""" 执行策略 """
 """ backtrader策略 """
 
 
@@ -30,20 +28,20 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="us")
+    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cn")
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
     # cerebro.addobserver(bt.observers.BuySell)
+    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 每手10股 """
-    # cerebro.addsizer(bt.sizers.FixedSize, stake=10)
+    # cerebro.addsizer(bt.sizers.FixedSize, stake=100)
     # cerebro.addsizer(bt.sizers.PercentSizerInt, percents=0.5)
     cerebro.addsizer(FixedAmount, amount=10000)
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
-    cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "us").get_backtrader_data_feed()
+    list = TickerInfo(date, "cn").get_backtrader_data_feed()
     """ 初始资金100M """
     start_cash = len(list) * 10000
     cerebro.broker.setcash(start_cash)
@@ -58,7 +56,7 @@ def exec_btstrategy(date):
             datetime=-1,
             timeframe=bt.TimeFrame.Days,
         )
-        cerebro.adddata(data, name=h["symbol"][0])
+        cerebro.adddata(data)
         # 周数据
         # cerebro.resampledata(data, timeframe=bt.TimeFrame.Weeks, compression=1)
     """ 起始资金池 """
@@ -71,6 +69,7 @@ def exec_btstrategy(date):
 
     """ 运行cerebro """
     result = cerebro.run()
+
     """ 最终资金池 """
     print("\n当前现金持有: ", cerebro.broker.get_cash())
     print("\nFinal Portfolio Value: %.2f" % cerebro.broker.getvalue())
@@ -121,6 +120,7 @@ def exec_btstrategy(date):
     perf_stats_[perf_stats_.columns[1:]] = perf_stats_[perf_stats_.columns[1:]].apply(
         lambda x: x.map(lambda y: f"{y * 100:.2f}%")
     )
+
     # 绘制图形
     """ 
     年度回报率 (Annual return)：衡量投资组合或股票在一年内的收益率。它通常以百分比表示，计算方法是将期末价值减去期初价值，再除以期初价值，并乘以100。
@@ -336,49 +336,53 @@ def exec_btstrategy(date):
 
         # --- 设置排除窗口（天数） ---
         exclusion_days = 120  # <= 改为你希望的窗口长度（天）
+        end_date = drawdown.index.max()
 
-        # --- 只取 max_dd_idx 之后的 drawdown ---
-        drawdown_after = drawdown[drawdown.index > max_dd_idx]
+        if (end_date - max_dd_idx) <= pd.Timedelta(days=exclusion_days):
+            second_dd_idx = None  # 直接不展示
+        else:
+            # --- 情况2：正常处理第二大回撤 ---
+            # 仅取 max_dd 之后
+            drawdown_after = drawdown[drawdown.index > max_dd_idx]
 
-        # 如果之后没有数据则跳过
-        if len(drawdown_after) > 0:
+            # 必须离 max_dd 超过 exclusion_days
+            cutoff_left = end_date - pd.Timedelta(days=exclusion_days)
 
-            # --- 排除最大回撤点后 exclusion_days 时间窗口 ---
-            if isinstance(drawdown.index, pd.DatetimeIndex):
-                cutoff = max_dd_idx + pd.Timedelta(days=exclusion_days)
-                drawdown_after = drawdown_after[drawdown_after.index > cutoff]
+            cutoff_right = end_date
+
+            # 过滤满足两个条件的区间
+            dd_valid = drawdown_after[
+                (drawdown_after.index > cutoff_left)
+                & (drawdown_after.index < cutoff_right)
+            ]
+
+            if len(dd_valid) > 0:
+                second_dd_idx = dd_valid.idxmin()
+                second_dd = dd_valid.loc[second_dd_idx]
             else:
-                # 非时间序列则按位置排除
-                pos_max = drawdown.index.get_loc(max_dd_idx)
-                drawdown_after = drawdown_after.iloc[exclusion_days:]
+                second_dd_idx = None
 
-            # --- 查找 max_dd 后的次大回撤点 ---
-            if len(drawdown_after) > 0:
-                second_dd_idx = drawdown_after.idxmin()
-                second_dd = drawdown_after.min()
+        # --- 标注第二大回撤点（如果找到的话） ---
+        if second_dd_idx is not None:
+            ax_drawdown.scatter(
+                second_dd_idx, second_dd, color=colors["drawdown"], s=55, zorder=4
+            )
+            ax_drawdown.text(
+                second_dd_idx,
+                second_dd,
+                f"2nd Max DD: {second_dd:.2%}",
+                color=colors["drawdown"],
+                ha="right",
+                va="bottom",
+            )
+            ax_drawdown.axhline(
+                second_dd,
+                linestyle="--",
+                color=colors["drawdown"],
+                linewidth=2,
+                zorder=3,
+            )
 
-                # --- 标注次大回撤点 ---
-                ax_drawdown.scatter(
-                    second_dd_idx, second_dd, color=colors["drawdown"], s=55, zorder=4
-                )
-
-                ax_drawdown.text(
-                    second_dd_idx,
-                    second_dd,
-                    f"2nd Max DD: {second_dd:.2%}",
-                    color=colors["drawdown"],
-                    ha="right",
-                    va="bottom",
-                )
-
-                ax_drawdown.axhline(
-                    second_dd,
-                    linestyle="--",
-                    color=colors["drawdown"],
-                    linewidth=2,
-                    zorder=3,
-                )
-        # else: 没找到合格的次大回撤（可能整个序列都在排除窗口内或样本太短），不做标注
         ax_drawdown.grid(False)
 
         # ----------------------------
@@ -420,7 +424,7 @@ def exec_btstrategy(date):
         # 保存图片
         plt.subplots_adjust(left=0.075, right=0.94, top=1, bottom=0.1, wspace=0.1)
         plt.savefig(
-            f"./dashreport/assets/images/us_tr_{theme}.svg",
+            f"./dashreport/assets/images/cn_tr_{theme}.svg",
             format="svg",
             # bbox_inches="tight",  # 保持边界紧凑
             bbox_inches=None,  # 保持边界紧凑
@@ -438,11 +442,11 @@ def exec_btstrategy(date):
 
 # 主程序入口
 if __name__ == "__main__":
-    """美股交易日期 utc-4"""
-    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(0)
+    """美股交易日期 utc+8"""
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
-    if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
+    if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
         pass
     else:
         sys.exit()
@@ -459,13 +463,18 @@ if __name__ == "__main__":
     """ 创建进度条并开始运行 """
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
+    print("trade_date is :", trade_date)
+
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
     # em = EMWebCrawlerUti()
-    # em.get_daily_stock_info("us", trade_date)
+    # em.get_daily_stock_info("cn", trade_date)
 
-    # ak_daily_crawler = AKUSWebCrawler()
-    # df_stock_daily = ak_daily_crawler.get_us_daily_stock_info_ak(trade_date)
+    # em = AKCNWebCrawler()
+    # em.get_cn_daily_stock_info_ak(trade_date)
+
+    # em = EMWebCrawlerUti()
+    # em.get_daily_gz_info("cn", trade_date)
 
     """ 执行bt相关策略 """
 
@@ -504,7 +513,7 @@ if __name__ == "__main__":
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
+    StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()
