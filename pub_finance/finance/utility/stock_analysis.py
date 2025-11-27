@@ -1959,14 +1959,16 @@ class StockProposal:
                 range=[0, max_pnl * 2],
             ),
             legend=dict(
-                orientation="v",
+                orientation="h",
+                x=0.5,
+                xanchor="center",
+                y=0.9,
                 yanchor="bottom",
-                xanchor="left",
-                y=0.05,  # 将 y 设置为 1，表示顶部
-                x=0,  # 将 x 设置为 1，表示右侧
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
-                bgcolor="rgba(255,255,255,0.5)",
-                itemwidth=30,  # 控制图例项宽度
+                bgcolor="rgba(0,0,0,0)",  # 完全透明背景
+                bordercolor="rgba(0,0,0,0)",  # 边框透明
+                borderwidth=0,  # 彻底移除边框
+                itemwidth=140,  # 控制图例项宽度
                 itemsizing="constant",  # 保持图例符号大小一致
             ),
             barmode="stack",
@@ -2054,14 +2056,17 @@ class StockProposal:
                 range=[0, max_pnl * 2],
             ),
             legend=dict(
-                orientation="v",
+                orientation="h",
+                x=0.5,
+                xanchor="center",
+                y=0.9,
                 yanchor="bottom",
-                xanchor="left",
-                y=0.05,  # 将 y 设置为 1，表示顶部
-                x=0,  # 将 x 设置为 1，表示右侧
                 font=dict(size=font_size, color=light_text_color, family="Arial"),
-                bgcolor="rgba(0,0,0,0.5)",
-                itemwidth=30,  # 控制图例项宽度
+                # ---- Legend 全透明关键设置 ----
+                bgcolor="rgba(0,0,0,0)",  # 完全透明背景
+                bordercolor="rgba(0,0,0,0)",  # 边框透明
+                borderwidth=0,  # 彻底移除边框
+                itemwidth=140,  # 控制图例项宽度
                 itemsizing="constant",  # 保持图例符号大小一致
             ),
             barmode="stack",
