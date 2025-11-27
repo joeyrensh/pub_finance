@@ -286,16 +286,15 @@ def exec_btstrategy(date):
         # 最大收益点标注（非必须但非常专业）
         cum_max_idx = cumulative.idxmax()
         cum_max_val = cumulative.max()
-        x_offset = pd.Timedelta(days=-30)
         ax_chart.scatter(
-            cum_max_idx, cum_max_val, color=colors["cumret"], s=60, zorder=4
+            cum_max_idx, cum_max_val, color=colors["cumret"], s=55, zorder=4
         )
         ax_chart.text(
-            cum_max_idx + x_offset,
+            cum_max_idx,
             cum_max_val,
             f" Max: {cum_max_val:.2f}",
             color=colors["cumret"],
-            ha="left",
+            ha="right",
             va="bottom",
         )
         # ========== DRAWDOWN 图（最小改动，但增强可读性） ========== # 区域图：更专业的 fill_between
@@ -320,18 +319,65 @@ def exec_btstrategy(date):
         )
         # 最大回撤水平线
         max_dd = drawdown.min()
+        max_dd_idx = drawdown.idxmin()
         ax_drawdown.axhline(
             max_dd, linestyle="--", color=colors["drawdown"], linewidth=2, zorder=3
         )
         # 最大回撤点标注
         ax_drawdown.text(
-            drawdown.idxmin() + x_offset,
+            max_dd_idx,
             max_dd,
-            f"Max Drawdown: {max_dd:.2%}",
+            f"Max DD: {max_dd:.2%}",
             color=colors["drawdown"],
-            ha="left",
+            ha="right",
             va="bottom",
         )
+
+        # --- 设置排除窗口（天数） ---
+        exclusion_days = 120  # <= 改为你希望的窗口长度（天）
+
+        # --- 只取 max_dd_idx 之后的 drawdown ---
+        drawdown_after = drawdown[drawdown.index > max_dd_idx]
+
+        # 如果之后没有数据则跳过
+        if len(drawdown_after) > 0:
+
+            # --- 排除最大回撤点后 exclusion_days 时间窗口 ---
+            if isinstance(drawdown.index, pd.DatetimeIndex):
+                cutoff = max_dd_idx + pd.Timedelta(days=exclusion_days)
+                drawdown_after = drawdown_after[drawdown_after.index > cutoff]
+            else:
+                # 非时间序列则按位置排除
+                pos_max = drawdown.index.get_loc(max_dd_idx)
+                drawdown_after = drawdown_after.iloc[exclusion_days:]
+
+            # --- 查找 max_dd 后的次大回撤点 ---
+            if len(drawdown_after) > 0:
+                second_dd_idx = drawdown_after.idxmin()
+                second_dd = drawdown_after.min()
+
+                # --- 标注次大回撤点 ---
+                ax_drawdown.scatter(
+                    second_dd_idx, second_dd, color=colors["drawdown"], s=55, zorder=4
+                )
+
+                ax_drawdown.text(
+                    second_dd_idx,
+                    second_dd,
+                    f"2nd Max DD: {second_dd:.2%}",
+                    color=colors["drawdown"],
+                    ha="right",
+                    va="bottom",
+                )
+
+                ax_drawdown.axhline(
+                    second_dd,
+                    linestyle="--",
+                    color=colors["drawdown"],
+                    linewidth=2,
+                    zorder=3,
+                )
+        # else: 没找到合格的次大回撤（可能整个序列都在排除窗口内或样本太短），不做标注
         ax_drawdown.grid(False)
 
         # ----------------------------
