@@ -91,15 +91,41 @@
             }
             const axisParent = element.closest('[id*="axis_"]');
             if (axisParent) {
-                const textElements = Array.from(axisParent.children).filter(child =>
-                    child => child.id && child.id.startsWith("text_")
-                );
+                // 修正：使用正确的选择器查找文本元素
+                const textElements = Array.from(axisParent.querySelectorAll('[id*="text_"]'));
+                
                 const parentDiv = element.closest('g');
-                const idx = textElements.findIndex(child => child => child === parentDiv);
+                
+                // 修正：检查当前元素的父级是否在文本元素列表中
+                const idx = textElements.findIndex(child => child === parentDiv);
+                
                 if (idx >= 0) {
-                    fontSize = screenWidth <= 550 ? '2rem' : '1.5rem';
-                }                
-            }            
+                    fontSize = screenWidth <= 550 ? '2rem' : '1.5rem'; 
+                }
+                
+            }   
+            const axesParent = element.closest('[id*="axes_"]');
+            if (axesParent) {
+                // 修正：使用正确的选择器查找文本元素
+                const textElements = Array.from(axesParent.querySelectorAll('[id*="text_"]'));
+                
+                const parentDiv = element.closest('g');
+                
+                // 修正：检查当前元素的父级是否在文本元素列表中
+                const idx = textElements.findIndex(child => child === parentDiv);
+                
+                if (idx >= 0) {
+                    const textNode = parentDiv.querySelector('text');
+                    if (textNode) {
+                        const content = (textNode.textContent || '').trim().toLowerCase();
+
+                        if (content.includes('max')) {
+                            fontWeight = 700;                        
+                        }  
+                    }                    
+                }
+                
+            }                   
         }
 
         // 仅在 fontSize 有效且不为 'unset' 时设置
