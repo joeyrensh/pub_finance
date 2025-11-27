@@ -334,48 +334,63 @@ def exec_btstrategy(date):
         )
 
         # --- 设置排除窗口（天数） ---
-        exclusion_days = 120  # <= 改为你希望的窗口长度（天）
         end_date = drawdown.index.max()
 
-        if (end_date - max_dd_idx) <= pd.Timedelta(days=exclusion_days):
-            second_dd_idx = None  # 直接不展示
-        else:
-            # --- 情况2：正常处理第二大回撤 ---
-            # 仅取 max_dd 之后
-            drawdown_after = drawdown[drawdown.index > max_dd_idx]
+        # ===============================
+        #   参数化定义：两个回撤窗口
+        # ===============================
+        window_A_days = 120  # 例如：120天窗口
+        window_B_days = 30  # 例如：90天窗口
 
-            # 必须离 max_dd 超过 exclusion_days
-            cutoff_left = end_date - pd.Timedelta(days=exclusion_days)
+        # ===============================
+        #   计算两个窗口的最大回撤点
+        # ===============================
 
-            cutoff_right = end_date
+        def get_window_dd(drawdown, days, end_date):
+            """返回给定窗口大小的最大回撤点 idx 与 val"""
+            window_start = end_date - pd.Timedelta(days=days)
+            dd_window = drawdown[drawdown.index >= window_start]
 
-            # 过滤满足两个条件的区间
-            dd_valid = drawdown_after[
-                (drawdown_after.index > cutoff_left)
-                & (drawdown_after.index < cutoff_right)
-            ]
+            if len(dd_window) > 0:
+                idx = dd_window.idxmin()
+                val = dd_window.loc[idx]
+                return idx, val
+            return None, None
 
-            if len(dd_valid) > 0:
-                second_dd_idx = dd_valid.idxmin()
-                second_dd = dd_valid.loc[second_dd_idx]
-            else:
-                second_dd_idx = None
+        # 获取两个窗口的最大回撤
+        dd_A_idx, dd_A_val = get_window_dd(drawdown, window_A_days, end_date)
+        dd_B_idx, dd_B_val = get_window_dd(drawdown, window_B_days, end_date)
 
-        # --- 标注第二大回撤点（如果找到的话） ---
-        if second_dd_idx is not None:
-            ax_drawdown.scatter(
-                second_dd_idx, second_dd, color=colors["drawdown"], s=55, zorder=4
-            )
+        # ===============================
+        #   参数化窗口名称（用于文字标签）
+        # ===============================
+        label_A = f"{window_A_days}D"
+        label_B = f"{window_B_days}D"
+
+        dd_candidates = []
+
+        # --- 全局最大和窗口内检测是否会重叠 ---
+        if dd_A_idx is not None and dd_A_idx != max_dd_idx:
+            dd_candidates.append((label_A, dd_A_idx, dd_A_val))
+        if dd_B_idx is not None and dd_B_idx != max_dd_idx and dd_B_idx != dd_A_idx:
+            dd_candidates.append((label_B, dd_B_idx, dd_B_val))
+
+        # ===============================
+        #   绘图：输出窗口 A / B 的回撤点
+        # ===============================
+
+        for label, idx, val in dd_candidates:
+            ax_drawdown.scatter(idx, val, color=colors["drawdown"], s=55, zorder=4)
             ax_drawdown.text(
-                second_dd_idx,
-                second_dd,
-                f"2nd Max DD: {second_dd:.2%}",
+                idx,
+                val,
+                f"{label} Max DD: {val:.2%}",
                 color=colors["drawdown"],
                 ha="right",
                 va="bottom",
             )
             ax_drawdown.axhline(
-                second_dd,
+                val,
                 linestyle="--",
                 color=colors["drawdown"],
                 linewidth=2,
