@@ -1861,15 +1861,26 @@ class StockProposal:
                     ,t1.symbol
                     ,t1.pnl
                     ,t2.strategy
-                    ,ROW_NUMBER() OVER(PARTITION BY t1.date, t1.symbol ORDER BY ABS(t1.date - t2.date) ASC, t2.date DESC) AS rn
+                    ,ROW_NUMBER() OVER(PARTITION BY t1.date, t1.symbol ORDER BY ABS(t1.date - t2.date) ASC) AS rn
                 FROM temp_position_detail t1 LEFT JOIN temp_transaction_detail t2 ON t1.symbol = t2.symbol AND t1.date >= t2.date AND t2.trade_type = 'buy'
                 WHERE t1.date >= DATE_ADD('{}', -180) 
-            )
+            ),  tmp2 AS (
+                SELECT
+                    date
+                    ,symbol
+                    ,pnl
+                    ,strategy
+                    ,rn
+                    ,LAG(pnl) OVER (PARTITION BY symbol ORDER BY date) AS l_pnl
+                FROM tmp1
+                ORDER BY date, symbol
+            ) 
             SELECT date
                     ,strategy
                     ,SUM(pnl) AS pnl
+                    ,IF(COUNT(symbol) > 0, SUM(CASE WHEN pnl - l_pnl > 0 THEN 1 ELSE 0 END) / COUNT(symbol), 0) AS success_rate_daily
                     ,IF(COUNT(symbol) > 0, SUM(CASE WHEN pnl > 0 THEN 1 ELSE 0 END) / COUNT(symbol), 0) AS success_rate
-            FROM tmp1
+            FROM tmp2
             WHERE rn = 1
             GROUP BY date, strategy
             ORDER BY date, pnl
@@ -1911,7 +1922,7 @@ class StockProposal:
                 go.Bar(
                     x=data["date"],
                     y=data["pnl"],
-                    name="long",
+                    name=strategy,
                     marker=dict(color=strategy_colors_light[i]),
                     marker_line_color=strategy_colors_light[i],
                     yaxis="y2",
@@ -1959,17 +1970,21 @@ class StockProposal:
                 range=[0, max_pnl * 2],
             ),
             legend=dict(
-                orientation="h",
-                x=0.5,
-                xanchor="center",
-                y=0.9,
-                yanchor="bottom",
+                orientation="v",
+                x=0.02,
+                xanchor="left",
+                y=0.6,
+                yanchor="top",
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
                 bgcolor="rgba(0,0,0,0)",  # 完全透明背景
                 bordercolor="rgba(0,0,0,0)",  # 边框透明
                 borderwidth=0,  # 彻底移除边框
-                itemwidth=140,  # 控制图例项宽度
-                itemsizing="constant",  # 保持图例符号大小一致
+                entrywidth=0,  # 让宽度根据内容自动决定
+                entrywidthmode="pixels",
+                indentation=0,
+                tracegroupgap=0,
+                xref="paper",
+                yref="paper",
             ),
             barmode="stack",
             bargap=0.2,
@@ -2008,7 +2023,7 @@ class StockProposal:
                 go.Bar(
                     x=data["date"],
                     y=data["pnl"],
-                    name="long",
+                    name=strategy,
                     marker=dict(color=strategy_colors_dark[i]),
                     marker_line_color=strategy_colors_dark[i],
                     yaxis="y2",
@@ -2056,18 +2071,22 @@ class StockProposal:
                 range=[0, max_pnl * 2],
             ),
             legend=dict(
-                orientation="h",
-                x=0.5,
-                xanchor="center",
-                y=0.9,
-                yanchor="bottom",
+                orientation="v",
+                x=0.02,
+                xanchor="left",
+                y=0.6,
+                yanchor="top",
                 font=dict(size=font_size, color=light_text_color, family="Arial"),
                 # ---- Legend 全透明关键设置 ----
                 bgcolor="rgba(0,0,0,0)",  # 完全透明背景
                 bordercolor="rgba(0,0,0,0)",  # 边框透明
                 borderwidth=0,  # 彻底移除边框
-                itemwidth=140,  # 控制图例项宽度
-                itemsizing="constant",  # 保持图例符号大小一致
+                entrywidth=0,  # 让宽度根据内容自动决定
+                entrywidthmode="pixels",
+                indentation=0,
+                tracegroupgap=0,
+                xref="paper",
+                yref="paper",
             ),
             barmode="stack",
             bargap=0.2,
@@ -2218,7 +2237,7 @@ class StockProposal:
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
-                y=-0.3,
+                y=-0.2,
                 xanchor="center",
                 x=0.5,
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
@@ -2352,7 +2371,7 @@ class StockProposal:
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
-                y=-0.3,
+                y=-0.2,
                 xanchor="center",
                 x=0.5,
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
@@ -2490,7 +2509,7 @@ class StockProposal:
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
-                y=-0.3,
+                y=-0.2,
                 xanchor="center",
                 x=0.5,
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
@@ -2561,7 +2580,7 @@ class StockProposal:
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
-                y=-0.3,
+                y=-0.2,
                 xanchor="center",
                 x=0.5,
                 font=dict(size=font_size, color=light_text_color, family="Arial"),
@@ -4398,7 +4417,7 @@ class StockProposal:
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
-                y=-0.3,
+                y=-0.2,
                 xanchor="center",
                 x=0.5,
                 font=dict(size=font_size, color="black", family="Arial"),
@@ -4472,7 +4491,7 @@ class StockProposal:
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
-                y=-0.3,
+                y=-0.2,
                 xanchor="center",
                 x=0.5,
                 font=dict(size=font_size, color=text_color, family="Arial"),
