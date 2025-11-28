@@ -1973,10 +1973,10 @@ class StockProposal:
                 orientation="v",
                 x=0.02,
                 xanchor="left",
-                y=0.6,
+                y=1,
                 yanchor="top",
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
-                bgcolor="rgba(255,255,255,0.8)",  # 完全透明背景
+                bgcolor="rgba(246, 248, 249, 0.6)",  # 完全透明背景
                 bordercolor="rgba(0,0,0,0)",  # 边框透明
                 borderwidth=0,  # 彻底移除边框
                 entrywidth=0,  # 让宽度根据内容自动决定
@@ -2074,11 +2074,11 @@ class StockProposal:
                 orientation="v",
                 x=0.02,
                 xanchor="left",
-                y=0.6,
+                y=1,
                 yanchor="top",
                 font=dict(size=font_size, color=light_text_color, family="Arial"),
                 # ---- Legend 全透明关键设置 ----
-                bgcolor="rgba(0,0,0,0.8)",  # 完全透明背景
+                bgcolor="rgba(23, 27, 38, 0.6)",  # 完全透明背景
                 bordercolor="rgba(0,0,0,0)",  # 边框透明
                 borderwidth=0,  # 彻底移除边框
                 entrywidth=0,  # 让宽度根据内容自动决定
