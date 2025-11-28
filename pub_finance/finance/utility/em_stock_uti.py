@@ -52,12 +52,11 @@ class EMWebCrawlerUti:
         https://92.push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.600066&ut=&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20211101&end=20211115&smplmt=755&lmt=1000000
         """
         self.__url_list = "http://push2.eastmoney.com/api/qt/clist/get"
-        self.__url_history = "http://82.push2his.eastmoney.com/api/qt/stock/kline/get"
+        self.__url_history = "http://push2his.eastmoney.com/api/qt/stock/kline/get"
         self.pm = ProxyManager()
         self.proxy = None
         self.headers = {
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
-            # "user-agent": UserAgent().random,
             "Referer": "https://quote.eastmoney.com/center/gridlist.html",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
             "accept-encoding": "gzip, deflate, br",
@@ -206,9 +205,9 @@ class EMWebCrawlerUti:
     def get_etf_market_code(self, symbol):
         """根据ETF代码获取市场代码：5开头为深圳市场(0)，1开头为上海市场(1)"""
         if symbol.startswith("5"):
-            return "0"  # 深圳市场
-        elif symbol.startswith("1"):
             return "1"  # 上海市场
+        elif symbol.startswith("1"):
+            return "0"  # 深圳市场
         else:
             return "0"  # 无法识别的ETF
 
@@ -252,11 +251,21 @@ class EMWebCrawlerUti:
         return total_page_no
 
     def get_stock_list(self, market, trade_date, target_file=None):
-        if self.proxy is None:
-            self.proxy = self.pm.get_working_proxy()
         cache_file = f"./{market}stockinfo/daily_stock_cache_{trade_date}.json"
         cache_data = {}
 
+        if os.path.exists(target_file) and not os.path.exists(cache_file):
+            df_stock_list = pd.read_csv(
+                target_file,
+                usecols=["symbol", "mkt_code"],
+                on_bad_lines="skip",
+                engine="python",
+                encoding="utf-8",
+            )
+            return df_stock_list.to_dict(orient="records")
+
+        if self.proxy is None:
+            self.proxy = self.pm.get_working_proxy()
         if os.path.exists(cache_file) and os.path.getsize(cache_file) > 0:
             try:
                 with open(cache_file, "r", encoding="utf-8") as f:
@@ -293,7 +302,7 @@ class EMWebCrawlerUti:
                     continue
 
                 params = self.build_params(market, m, i)
-
+                res = {}
                 for _ in range(3):
                     try:
                         res = requests.get(
@@ -370,7 +379,14 @@ class EMWebCrawlerUti:
             os.remove(cache_file)
             print(f"缓存文件 {cache_file} 已删除")
 
-        return []
+        df_stock_list = pd.read_csv(
+            target_file,
+            usecols=["symbol", "mkt_code"],
+            on_bad_lines="skip",
+            engine="python",
+            encoding="utf-8",
+        )
+        return df_stock_list.to_dict(orient="records")
 
     def get_daily_gz_info(self, market, trade_date):
         # 10年期国债收益率
@@ -451,7 +467,7 @@ class EMWebCrawlerUti:
                     continue
 
                 params = self.build_params(market, m, i)
-
+                res = {}
                 for _ in range(3):
                     try:
                         res = requests.get(
@@ -564,11 +580,12 @@ class EMWebCrawlerUti:
             symbol_val = symbol
         elif str(mkt_code) in ["0", "1"]:
             symbol_val = re.sub(r"^(ETF|SZ|SH)", "", symbol)
-        cookie_str = self.parse_cookie_string()
+        cookie_str = self.cookie_str
 
         params = {
             "secid": f"{mkt_code}.{symbol_val}",
-            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            # "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+            "ut:": self.generate_ut_param(),
             "fields1": "f1,f2,f3,f4,f5,f6",
             "fields2": "f51,f52,f53,f54,f55,f56",
             "klt": "101",
@@ -578,7 +595,7 @@ class EMWebCrawlerUti:
             "smplmt": "755",
             "lmt": "1000000",
         }
-
+        res = {}
         """ 请求url, 获取数据response """
         for _ in range(3):
             try:
@@ -721,7 +738,7 @@ class EMWebCrawlerUti:
                     futures = []
                     for t in range(1, batch_size + 1):
                         """休眠, 避免IP Block"""
-                        time.sleep(random.uniform(1, 3))
+                        # time.sleep(random.uniform(1, 3))
                         index = h + t - 1
                         if index < len(tickinfo):
                             future = executor.submit(

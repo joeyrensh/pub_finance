@@ -42,7 +42,7 @@ class EMCNTickerCategoryCrawler:
         """ 遍历股票列表获取对应行业板块信息 """
         em = EMWebCrawlerUti()
         tick_list = em.get_stock_list(
-            "cn", cache_path="./cnstockinfo/cn_stock_list_cache.csv"
+            "cn", trade_date, target_file="./cnstockinfo/cn_stock_list_cache.csv"
         )
         tool = ToolKit("行业下载进度")
         for i in tick_list:

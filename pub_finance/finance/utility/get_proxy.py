@@ -33,6 +33,39 @@ class ProxyManager:
         # 直接返回解析后的字典
         return cookie_data
 
+    def randomize_cookie_string(
+        self, cookie_dict, keys_to_randomize=None, key_lengths=None
+    ):
+        """
+        增强版 cookie 字符串解析函数，支持为特定键生成随机值
+
+        Args:
+            cookie_str (str): cookie 字符串
+            keys_to_randomize (list): 需要随机化的 cookie 键列表，默认为 ['nid', 'qgqp_b_id']
+            key_lengths (dict): 特定键的随机值长度，例如 {'nid': 32, 'qgqp_b_id': 32}
+
+        Returns:
+            dict: 解析后的 cookie 字典，特定键已被随机化
+        """
+
+        def generate_random_hex(length=32):
+            """生成指定长度的随机十六进制字符串"""
+            return "".join(random.choices("0123456789abcdef", k=length))
+
+        # 设置默认需要随机化的键
+        keys_to_randomize = ["nid"]
+
+        # 设置默认键长度
+        key_lengths = {"nid": 32}
+
+        # 对特定键生成随机值
+        for key in keys_to_randomize:
+            if key in cookie_dict:
+                length = key_lengths.get(key, 32)  # 默认长度32
+                cookie_dict[key] = generate_random_hex(length)
+        # print(f"✅ 解析并随机化Cookie: {cookie_dict}")
+        return cookie_dict
+
     def generate_ut_param(self):
         """生成基于中国地区随机IP的32位十六进制格式ut参数"""
 
@@ -143,9 +176,32 @@ class ProxyManager:
             "fltt": "2",
             "invt": "2",
             "fid": "f12",
-            "fs": "m:1 t:2,m:1 t:23",
+            "fs": "m:0 t:6,m:0 t:80",
             "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
         }
+        """
+        his info test
+        """
+        # his_url = "http://push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.600649&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20251101&end=20251130&smplmt=755&lmt=1000000"
+        # try:
+        #     res = requests.get(
+        #         his_url,
+        #         proxies=proxy_dict,
+        #         headers=self.headers,
+        #         cookies=self.cookie_str,
+        #         timeout=5,  # 添加超时设置
+        #     ).json()
+        #     klines = res.get("data", {}).get("klines", [])
+        #     if klines:
+        #         print(f"代理测试成功，获取到 {len(klines)} 条K线数据")
+        #         return True, len(klines)
+        #     else:
+        #         return False, 0
+        # except Exception as e:
+        #     return False, e
+        """
+        daily info test
+        """
         try:
             res = requests.get(
                 self.__url_list,
@@ -153,9 +209,8 @@ class ProxyManager:
                 proxies=proxy_dict,
                 headers=self.headers,
                 cookies=self.cookie_str,
-                timeout=10,  # 添加超时设置
+                timeout=5,  # 添加超时设置
             ).json()
-
             total_page_no = math.ceil(res["data"]["total"] / 100)
             if total_page_no > 0:
                 return True, total_page_no
@@ -172,10 +227,10 @@ class ProxyManager:
             if result:
                 return True
             else:
-                print(f"代理测试失败: {proxy_dict}")
+                print(f"❌ 代理测试失败: {proxy_dict}")
                 return False
         except Exception as e:
-            print(f"代理测试失败: {e}")
+            print(f"❌ 代理测试失败: {e}")
             return False
 
     def get_working_proxy(self, max_retries=3):
@@ -194,23 +249,23 @@ class ProxyManager:
 
             success = self.test_proxy(proxy, self.validate_proxy)
             if success:
-                print(f"代理可用: {proxy}")
+                print(f"✅ 代理可用: {proxy}")
                 return proxy
 
         print("所有代理测试失败")
         return None
 
     def save_working_proxies_to_file(self, output_file="./utility/working_proxies.txt"):
-        """
+        r"""
         测试所有代理并将有效代理保存到指定文件
         每次调用都会重新生成文件
         # 站大爷IP格式化命令：
         # IP和端口行格式化
-        :%s/^\([0-9.]\+\)\s\+\(\d\+\).*$/\1:\2/
+        # %s/^\([0-9.]\+\)\s\+\(\d\+\).*$/\1:\2/
         # 去除非IP和端口行
-        :v/\v^\d+\.\d+\.\d+\.\d+:\d+$/d
+        # v/\v^\d+\.\d+\.\d+\.\d+:\d+$/d
         # 追加到proxy.txt尾部，添加一行空行，用于区分新增IP，运行如下命令
-        grep -vxFf proxy.txt new_proxy.txt >> proxy.txt
+        # grep -vxFf proxy.txt new_proxy.txt >> proxy.txt
         """
         if not self.proxies_list:
             print("没有代理可供测试")
