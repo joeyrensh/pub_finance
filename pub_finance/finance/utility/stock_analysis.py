@@ -1906,7 +1906,7 @@ class StockProposal:
             pd_strategy_tracking_lst180days["success_rate"] >= threshold, "success_rate"
         ].min()
         safe_rate = max(min_success_rate, 0.2)  # 至少 5%
-        max_range = min(3 * max_pnl, max_pnl * 3 / safe_rate)
+        max_range = min(2 * max_pnl, max_pnl * 2 / safe_rate)
         from plotly.subplots import make_subplots
 
         # 创建带有两个 y 轴的子图布局
