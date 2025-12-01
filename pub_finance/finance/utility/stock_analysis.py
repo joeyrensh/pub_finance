@@ -1901,6 +1901,12 @@ class StockProposal:
             pd_strategy_tracking_lst180days.groupby("date")["pnl"].sum().reset_index()
         )  # 按日期分组并求和
         max_pnl = pd_strategy_tracking_lst180days_group["pnl"].max()
+        min_success_rate = pd_strategy_tracking_lst180days["success_rate"].min() or 0
+        max_range = (
+            max(3 * max_pnl, max_pnl / min_success_rate)
+            if min_success_rate != 0
+            else 3 * max_pnl
+        )
 
         # 创建带有两个 y 轴的子图布局
         fig = go.Figure()
@@ -1967,7 +1973,7 @@ class StockProposal:
                 showgrid=False,
                 ticks="inside",
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
-                range=[0, max_pnl * 2],
+                range=[0, max_range],
             ),
             legend=dict(
                 orientation="v",
@@ -2068,7 +2074,7 @@ class StockProposal:
                 showgrid=False,
                 ticks="inside",
                 tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
-                range=[0, max_pnl * 2],
+                range=[0, max_range],
             ),
             legend=dict(
                 orientation="v",
