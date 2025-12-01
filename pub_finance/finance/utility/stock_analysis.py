@@ -1901,15 +1901,17 @@ class StockProposal:
             pd_strategy_tracking_lst180days.groupby("date")["pnl"].sum().reset_index()
         )  # 按日期分组并求和
         max_pnl = pd_strategy_tracking_lst180days_group["pnl"].max()
-        min_success_rate = pd_strategy_tracking_lst180days["success_rate"].min() or 0
-        max_range = (
-            max(3 * max_pnl, max_pnl / min_success_rate)
-            if min_success_rate != 0
-            else 3 * max_pnl
-        )
+        threshold = pd_strategy_tracking_lst180days["success_rate"].quantile(0.1)
+        min_success_rate = pd_strategy_tracking_lst180days.loc[
+            pd_strategy_tracking_lst180days["success_rate"] >= threshold, "success_rate"
+        ].min()
+        safe_rate = max(min_success_rate, 0.2)  # 至少 5%
+        max_range = min(3 * max_pnl, max_pnl * 3 / safe_rate)
+        from plotly.subplots import make_subplots
 
         # 创建带有两个 y 轴的子图布局
         fig = go.Figure()
+
         # 遍历每个策略并添加数据
         for i, (strategy, data) in enumerate(
             pd_strategy_tracking_lst180days.groupby("strategy")
@@ -1960,6 +1962,9 @@ class StockProposal:
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.2)",
+                dtick=0.1,  # 强制每 0.1 显示刻度
+                fixedrange=True,  # 避免交互缩放破坏范围（可选）
+                range=[0, 1],
             ),
             yaxis2=dict(
                 title=dict(
@@ -2061,6 +2066,9 @@ class StockProposal:
                 tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.2)",
+                dtick=0.1,  # 强制每 0.1 显示刻度
+                fixedrange=True,  # 避免交互缩放破坏范围（可选）
+                range=[0, 1],
             ),
             yaxis2=dict(
                 title=dict(
