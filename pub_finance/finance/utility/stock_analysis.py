@@ -1894,7 +1894,7 @@ class StockProposal:
         ).dt.date
         pd_strategy_tracking_lst180days["ema_success_rate"] = (
             pd_strategy_tracking_lst180days["success_rate"]
-            .ewm(span=5, adjust=False)
+            .ewm(span=20, adjust=False)
             .mean()
         )
         pd_strategy_tracking_lst180days_group = (
@@ -1923,6 +1923,16 @@ class StockProposal:
 
         # 创建带有两个 y 轴的子图布局
         fig = go.Figure()
+        line_styles = [
+            {"dash": "solid", "width": 3.5},  # 8 最实、最粗
+            {"dash": "solid", "width": 3.5},  # 7
+            {"dash": "dashdot", "width": 3.2},  # 6
+            {"dash": "dash", "width": 3},  # 5
+            {"dash": "6,3", "width": 2.8},  # 4
+            {"dash": "5,5", "width": 2.5},  # 3
+            {"dash": "4,6", "width": 2.2},  # 2
+            {"dash": "2,8", "width": 2},  # 1 最虚、最细
+        ]
 
         # 遍历每个策略并添加数据
         for i, strategy in enumerate(strategy_order):
@@ -1935,7 +1945,13 @@ class StockProposal:
                     y=data["ema_success_rate"],
                     mode="lines",
                     name=strategy,
-                    line=dict(width=3, color=strategy_colors_light[i], shape="hv"),
+                    # legendgroup=strategy,
+                    line=dict(
+                        width=line_styles[i]["width"],
+                        color=strategy_colors_light[i],
+                        shape="spline",
+                        dash=line_styles[i]["dash"],
+                    ),
                     yaxis="y",
                 )
             )
@@ -2040,7 +2056,12 @@ class StockProposal:
                     y=data["ema_success_rate"],
                     mode="lines",
                     name=strategy,
-                    line=dict(width=3, color=strategy_colors_dark[i], shape="hv"),
+                    line=dict(
+                        width=line_styles[i]["width"],
+                        color=strategy_colors_dark[i],
+                        shape="spline",
+                        dash=line_styles[i]["dash"],
+                    ),
                     yaxis="y",
                 )
             )
