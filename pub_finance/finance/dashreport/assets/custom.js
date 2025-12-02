@@ -121,7 +121,7 @@
 
                         if (content.includes('max')) {
                             fontSize = screenWidth <= 550 ? '2.5rem' : '2rem';
-                            fontWeight = 700;                        
+                            // fontWeight = 400;                        
                         }  
                     }                    
                 }

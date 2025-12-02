@@ -294,7 +294,7 @@ def exec_btstrategy(date):
             cum_max_idx,
             cum_max_val,
             f" Max: {cum_max_val:.2f}",
-            color=colors["cumret"],
+            color=colors["text"],
             ha="right",
             va="bottom",
         )
@@ -329,7 +329,7 @@ def exec_btstrategy(date):
             max_dd_idx,
             max_dd,
             f"Max DD: {max_dd:.2%}",
-            color=colors["drawdown"],
+            color=colors["text"],
             ha="right",
             va="bottom",
         )
@@ -386,7 +386,7 @@ def exec_btstrategy(date):
                 idx,
                 val,
                 f"{label} Max DD: {val:.2%}",
-                color=colors["drawdown"],
+                color=colors["text"],
                 ha="right",
                 va="bottom",
             )
