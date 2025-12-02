@@ -845,27 +845,16 @@ class GlobalStrategy(bt.Strategy):
                 diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y > 1]
                 diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y > 1]
                 diff_array3 = [abs((x - y) * 100 / y) for x, y in zip(x1, x2) if y > 1]
-
-                if self.signals[d._name]["ma_crossover_bullish"][0] == 1:
+                if self.signals[d._name]["long_position"][0] == 1:
+                    """买入对应仓位"""
+                    self.broker.cancel(self.order[d._name])
+                    self.order[d._name] = self.buy(data=d)
+                    self.myorder[d._name]["strategy"] = "多头排列"
+                elif self.signals[d._name]["ma_crossover_bullish"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "均线金叉"
-                elif self.signals[d._name]["volume_spike"][0] == 1:
-                    """买入对应仓位"""
-                    self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "成交量放大"
-                elif self.signals[d._name]["close_crossup_halfannualline"][0] == 1:
-                    """买入对应仓位"""
-                    self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "突破半年线"
-                elif self.signals[d._name]["close_crossup_annualline"][0] == 1:
-                    """买入对应仓位"""
-                    self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "突破年线"
                 elif (
                     self.signals[d._name]["close_crossup_ema_short"][0] == 1
                     and sum(1 for value in diff_array if value < 2) >= 5
@@ -876,16 +865,26 @@ class GlobalStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "均线收敛"
-                elif self.signals[d._name]["long_position"][0] == 1:
+                elif self.signals[d._name]["close_crossup_annualline"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "多头排列"
+                    self.myorder[d._name]["strategy"] = "突破年线"
+                elif self.signals[d._name]["close_crossup_halfannualline"][0] == 1:
+                    """买入对应仓位"""
+                    self.broker.cancel(self.order[d._name])
+                    self.order[d._name] = self.buy(data=d)
+                    self.myorder[d._name]["strategy"] = "突破半年线"
                 elif self.signals[d._name]["close_rising"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "收盘价连续上涨"
+                elif self.signals[d._name]["volume_spike"][0] == 1:
+                    """买入对应仓位"""
+                    self.broker.cancel(self.order[d._name])
+                    self.order[d._name] = self.buy(data=d)
+                    self.myorder[d._name]["strategy"] = "成交量放大"
                 elif (
                     self.signals[d._name]["red_three_soldiers"][0] == 1
                     and self.signals[d._name]["deviant"][0] == 1
@@ -908,7 +907,10 @@ class GlobalStrategy(bt.Strategy):
                 }
                 list.append(dict)
 
-                if self.signals[d._name]["ma_crossover_bearish"][0] == 1:
+                if self.signals[d._name]["short_position"][0] == 1:
+                    self.order[d._name] = self.close(data=d)
+                    self.myorder[d._name]["strategy"] = "空头排列"
+                elif self.signals[d._name]["ma_crossover_bearish"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.myorder[d._name]["strategy"] = "均线死叉"
                 elif self.signals[d._name]["closs_crossdown_annualline"][0] == 1:
@@ -917,9 +919,6 @@ class GlobalStrategy(bt.Strategy):
                 elif self.signals[d._name]["closs_crossdown_halfannualline"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.myorder[d._name]["strategy"] = "跌破半年线"
-                elif self.signals[d._name]["short_position"][0] == 1:
-                    self.order[d._name] = self.close(data=d)
-                    self.myorder[d._name]["strategy"] = "空头排列"
                 elif self.signals[d._name]["close_falling"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.myorder[d._name]["strategy"] = "收盘价连续下跌"

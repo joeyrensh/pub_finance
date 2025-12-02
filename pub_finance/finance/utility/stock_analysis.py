@@ -1909,13 +1909,26 @@ class StockProposal:
         max_range = min(2 * max_pnl, max_pnl * 2 / safe_rate)
         from plotly.subplots import make_subplots
 
+        strategy_order = [
+            "多头排列",
+            "均线金叉",
+            "均线收敛",
+            "突破年线",
+            "突破半年线",
+            "收盘价连续上涨",
+            "成交量放大",
+            "红三兵",
+        ]
+        groups = dict(list(pd_strategy_tracking_lst180days.groupby("strategy")))
+
         # 创建带有两个 y 轴的子图布局
         fig = go.Figure()
 
         # 遍历每个策略并添加数据
-        for i, (strategy, data) in enumerate(
-            pd_strategy_tracking_lst180days.groupby("strategy")
-        ):
+        for i, strategy in enumerate(strategy_order):
+            if strategy not in groups:
+                continue
+            data = groups[strategy]
             fig.add_trace(
                 go.Scatter(
                     x=data["date"],
@@ -2017,9 +2030,10 @@ class StockProposal:
         # dark mode
         fig = go.Figure()
         # 遍历每个策略并添加数据
-        for i, (strategy, data) in enumerate(
-            pd_strategy_tracking_lst180days.groupby("strategy")
-        ):
+        for i, strategy in enumerate(strategy_order):
+            if strategy not in groups:
+                continue
+            data = groups[strategy]
             fig.add_trace(
                 go.Scatter(
                     x=data["date"],
