@@ -2192,7 +2192,7 @@ class StockProposal:
                 name="Long",
                 marker_color="#e01c3a",
                 marker_line_color="#e01c3a",
-                yaxis="y2",
+                yaxis="y",
             )
         )
         fig.add_trace(
@@ -2202,7 +2202,7 @@ class StockProposal:
                 name="Short",
                 marker_color="#0d876d",
                 marker_line_color="#0d876d",
-                yaxis="y2",
+                yaxis="y",
             )
         )
         # light mode
@@ -2239,28 +2239,13 @@ class StockProposal:
                 ),
                 side="left",
                 mirror=True,
-                ticks="inside",
+                ticks="outside",
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.2)",
-                ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
+                ticklabelposition="outside",  # 将刻度标签移到坐标轴内部
                 tickangle=0,  # 确保刻度标签水平显示
                 # automargin=False,  # 关闭自动边距计算
-            ),
-            yaxis2=dict(
-                title=dict(
-                    text=None,
-                    font=dict(
-                        size=title_font_size, color=dark_text_color, family="Arial"
-                    ),
-                ),
-                side="right",
-                overlaying="y",
-                showgrid=False,
-                ticks="inside",
-                tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
-                ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
-                tickangle=0,  # 确保刻度标签水平显示
             ),
             legend=dict(
                 orientation="h",
@@ -2281,6 +2266,12 @@ class StockProposal:
             autosize=False,  # 自动调整大小
             width=fig_width,
             height=fig_height,
+        )
+        fig.update_xaxes(
+            range=[
+                pd_trade_info_lst180days["buy_date"].min(),
+                pd_trade_info_lst180days["buy_date"].max(),
+            ]
         )
 
         fig.write_image(
@@ -2304,10 +2295,10 @@ class StockProposal:
                 tickfont=dict(color=light_text_color),
                 gridcolor="rgba(255, 255, 255, 0.2)",
             ),
-            yaxis2=dict(
-                title=dict(font=dict(color=light_text_color)),
-                tickfont=dict(color=light_text_color),
-            ),
+            # yaxis2=dict(
+            #     title=dict(font=dict(color=light_text_color)),
+            #     tickfont=dict(color=light_text_color),
+            # ),
             legend=dict(font=dict(color=light_text_color)),
         )
 
@@ -4381,7 +4372,7 @@ class StockProposal:
                 name="long",
                 marker_color="#e01c3a",
                 marker_line_color="#e01c3a",
-                yaxis="y2",
+                yaxis="y",
             )
         )
         fig.add_trace(
@@ -4391,7 +4382,7 @@ class StockProposal:
                 name="short",
                 marker_color="#0d876d",
                 marker_line_color="#0d876d",
-                yaxis="y2",
+                yaxis="y",
             )
         )
         # light mode
@@ -4422,24 +4413,11 @@ class StockProposal:
                 ),
                 side="left",
                 mirror=True,
-                ticks="inside",
+                ticks="outside",
                 tickfont=dict(color="black", family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.2)",
-                ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
-                tickangle=0,  # 确保刻度标签水平显示
-            ),
-            yaxis2=dict(
-                title=dict(
-                    text=None,
-                    font=dict(size=title_font_size, color="black", family="Arial"),
-                ),
-                side="right",
-                overlaying="y",
-                showgrid=False,
-                ticks="inside",
-                tickfont=dict(color="black", family="Arial", size=font_size),
-                ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
+                ticklabelposition="outside",  # 将刻度标签移到坐标轴内部
                 tickangle=0,  # 确保刻度标签水平显示
             ),
             legend=dict(
@@ -4459,6 +4437,12 @@ class StockProposal:
             autosize=False,  # 自动调整大小
             width=fig_width,
             height=fig_height,
+        )
+        fig.update_xaxes(
+            range=[
+                pd_trade_info_lst180days["buy_date"].min(),
+                pd_trade_info_lst180days["buy_date"].max(),
+            ]
         )
 
         fig.write_image(
@@ -4500,20 +4484,7 @@ class StockProposal:
                 tickfont=dict(color=text_color, family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.2)",
-                ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
-                tickangle=0,  # 确保刻度标签水平显示
-            ),
-            yaxis2=dict(
-                title=dict(
-                    text=None,
-                    font=dict(size=title_font_size, color=text_color, family="Arial"),
-                ),
-                side="right",
-                overlaying="y",
-                showgrid=False,
-                ticks="outside",
-                tickfont=dict(color=text_color, family="Arial", size=font_size),
-                ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
+                ticklabelposition="outside",  # 将刻度标签移到坐标轴内部
                 tickangle=0,  # 确保刻度标签水平显示
             ),
             legend=dict(
@@ -4533,6 +4504,12 @@ class StockProposal:
             autosize=False,  # 自动调整大小
             width=fig_width,
             height=fig_height,
+        )
+        fig.update_xaxes(
+            range=[
+                pd_trade_info_lst180days["buy_date"].min(),
+                pd_trade_info_lst180days["buy_date"].max(),
+            ]
         )
 
         fig.write_image(
