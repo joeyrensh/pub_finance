@@ -528,30 +528,60 @@ def make_dash_format_table(df, cols_format, market):
         df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = (
             df["IND"].apply(lambda x: pd.Series(extract_arrow_num(x))).fillna(0)
         )
+        # 行业上涨速度
         df["industry_arrow_score"] = rank_pct(df["IND_ARROW_NUM"])
+        # 商业当前排名
         df["industry_bracket_score"] = 1 - rank_pct(df["IND_BRACKET_NUM"])
+        # 综合行业评分
         df["industry_score"] = (
             0.6 * df["industry_arrow_score"] + 0.4 * df["industry_bracket_score"]
         )
+        # 行业内样本小于3，需要特殊处理，按照全局来评定pnl_score和erp_score
+        ind_counts = df.groupby("IND")["ERP"].transform("count")
+        invalid_inds = ind_counts < 3
 
-        df["pnl_score"] = rank_pct(df["PNL RATIO"]).clip(upper=0.98)
+        # ERP评分，处理缺失值
         df["erp_clean"] = df["ERP"].replace(-99999, np.nan)
+        # 根据行业样本数条件赋值
+        df["erp_score"] = np.where(
+            invalid_inds,
+            rank_pct(df["erp_clean"]),  # 全局排名
+            df.groupby("IND")["erp_clean"].transform(rank_pct),  # 行业内排名
+        )
+        # PNL评分
+        pnl_pct = np.where(
+            invalid_inds,
+            rank_pct(df["PNL RATIO"]),  # 全局排名
+            df.groupby("IND")["PNL RATIO"].transform(rank_pct),  # 行业内排名
+        )
 
-        df["erp_score"] = df.groupby("IND")["erp_clean"].rank(pct=True)
+        k = 1.0
+
+        df["pnl_score"] = np.where(
+            df["PNL RATIO"] < 0,
+            -1,
+            np.where(
+                df["PNL RATIO"] <= 1,
+                pnl_pct,
+                np.maximum(0.0, 1 - pnl_pct * np.minimum((df["PNL RATIO"] - 1) * k, 1)),
+            ),
+        )
+
+        # 胜率和平均交易评分
         df["win_rate_score"] = rank_pct(df["WIN RATE"])
         df["avg_trans_score"] = 1 - rank_pct(df["AVG TRANS"])
-
+        # 稳定性评分
         df["stability_score"] = 0.6 * df["win_rate_score"] + 0.4 * df["avg_trans_score"]
-
+        # 总评分
         df["total_score"] = (
-            0.30 * df["industry_score"]
-            + 0.20 * df["pnl_score"]
+            0.35 * df["industry_score"]
+            + 0.15 * df["pnl_score"]
             + 0.45 * df["stability_score"]
             + 0.05 * df["erp_score"]
         )
 
         # top 20% 为高亮阈值
-        highlight_threshold = df["total_score"].quantile(0.90)
+        highlight_threshold = df["total_score"].quantile(0.85)
 
         condition = df["total_score"] > highlight_threshold
         df.loc[condition, "NAME"] = "3A+" + df.loc[condition, "NAME"]
@@ -618,21 +648,21 @@ def make_dash_format_table(df, cols_format, market):
             ),
         }
         for col in df.columns
-        if col
-        not in [
-            "IND_ARROW_NUM",
-            "IND_BRACKET_NUM",
-            "industry_arrow_score",
-            "industry_bracket_score",
-            "industry_score",
-            "pnl_score",
-            "erp_clean",
-            "erp_score",
-            "win_rate_score",
-            "avg_trans_score",
-            "stability_score",
-            "total_score",
-        ]
+        # if col
+        # not in [
+        #     "IND_ARROW_NUM",
+        #     "IND_BRACKET_NUM",
+        #     "industry_arrow_score",
+        #     "industry_bracket_score",
+        #     "industry_score",
+        #     "pnl_score",
+        #     "erp_clean",
+        #     "erp_score",
+        #     "win_rate_score",
+        #     "avg_trans_score",
+        #     "stability_score",
+        #     "total_score",
+        # ]
     ]
 
     # 创建一个新的 DataFrame 来存储原始列的副本
