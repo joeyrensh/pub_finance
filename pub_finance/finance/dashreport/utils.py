@@ -519,75 +519,53 @@ def make_dash_format_table(df, cols_format, market):
         df["ERP"] = pd.to_numeric(df["ERP"], errors="coerce")
         df["ERP"] = df["ERP"].fillna(-99999)
 
-    def get_real_quantile(series, q):
-        s = series[(series.notna()) & (series != -99999)].sort_values()
-        if len(s) == 0:
-            return np.nan
-        idx = int(np.ceil(q * len(s))) - 1
-        idx = min(max(idx, 0), len(s) - 1)
-        return s.iloc[idx]
+    # ========== 新增统一评分体系 ==========
+    # 分位函数
+    def rank_pct(s):
+        return s.rank(pct=True)
 
     if has_all_required_cols:
-        head_quantile = 0.8
-        mid_quantile = 0.5
-        tail_quantile = 0.2
-        df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = df["IND"].apply(
-            lambda x: pd.Series(extract_arrow_num(x))
+        df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = (
+            df["IND"].apply(lambda x: pd.Series(extract_arrow_num(x))).fillna(0)
         )
-        ind_arrow_num_threshold = get_real_quantile(df["IND_ARROW_NUM"], head_quantile)
-        win_rate_threshold = get_real_quantile(df["WIN RATE"], head_quantile)
-        avg_trans_threshold = get_real_quantile(df["AVG TRANS"], tail_quantile)
-
-        # 分组后取真实分位值
-        df["pnl_ratio_threshold_tail"] = df.groupby("IND")["PNL RATIO"].transform(
-            lambda x: get_real_quantile(x, tail_quantile)
-        )
-        df["pnl_ratio_threshold_head"] = df.groupby("IND")["PNL RATIO"].transform(
-            lambda x: get_real_quantile(x, head_quantile)
+        df["industry_arrow_score"] = rank_pct(df["IND_ARROW_NUM"])
+        df["industry_bracket_score"] = 1 - rank_pct(df["IND_BRACKET_NUM"])
+        df["industry_score"] = (
+            0.6 * df["industry_arrow_score"] + 0.4 * df["industry_bracket_score"]
         )
 
-        # 确保 ERP 列为数值类型，无法转换的变为 NaN
-        df["erp_threshold"] = df.groupby("IND")["ERP"].transform(
-            lambda x: get_real_quantile(x, mid_quantile)
+        df["pnl_score"] = rank_pct(df["PNL RATIO"]).clip(upper=0.99)
+        df["erp_clean"] = df["ERP"].replace(-99999, np.nan)
+
+        df["erp_score"] = df.groupby("IND")["erp_clean"].rank(pct=True)
+        df["win_rate_score"] = rank_pct(df["WIN RATE"])
+        df["avg_trans_score"] = 1 - rank_pct(df["AVG TRANS"])
+
+        df["stability_score"] = 0.6 * df["win_rate_score"] + 0.4 * df["avg_trans_score"]
+
+        df["total_score"] = (
+            0.40 * df["industry_score"]
+            + 0.30 * df["pnl_score"]
+            + 0.15 * df["stability_score"]
+            + 0.15 * df["erp_score"]
         )
 
-        # df["CLUSTER"] = ""
+        # top 20% 为高亮阈值
+        highlight_threshold = df["total_score"].quantile(0.90)
 
-        # 标记满足条件的行
-        # 近5个交易日涨幅最快的行业中的优秀个股
-        condition1 = (
-            (df["IND_ARROW_NUM"] >= ind_arrow_num_threshold)
-            & (df["OPEN DATE"] >= date_threshold_l20)
-            & (df["PNL RATIO"] >= df["pnl_ratio_threshold_head"])
-            & (df["PNL RATIO"] > 0)
-            & (df["AVG TRANS"] <= avg_trans_threshold)
-            & (df["WIN RATE"] >= win_rate_threshold)
-        )
+        condition = df["total_score"] > highlight_threshold
+        df.loc[condition, "NAME"] = "3A+" + df.loc[condition, "NAME"]
 
-        # 近5个交易日TOP 5行业中的优秀个股
-        condition2 = (
-            (df["IND_BRACKET_NUM"] <= 20)
-            & (df["OPEN DATE"] >= date_threshold_l20)
-            & (df["PNL RATIO"] >= df["pnl_ratio_threshold_head"])
-            & (df["PNL RATIO"] > 0)
-            & (df["AVG TRANS"] <= avg_trans_threshold)
-            & (df["WIN RATE"] >= win_rate_threshold)
+    highlight_conditional = [
+        (
+            {
+                "if": {"filter_query": "{total_score_o} > " + str(highlight_threshold)},
+                "background": "var(--row-bg-color)",
+            }
+            if has_all_required_cols and "IND_ARROW_NUM" in df.columns
+            else []
         )
-
-        # PE合理的优秀个股
-        condition3 = (
-            (df["OPEN DATE"] >= date_threshold_l20)
-            & (df["PNL RATIO"] > 0)
-            & (df["ERP"] > df["erp_threshold"])
-            & (df["ERP"] != -99999)
-            & (df["AVG TRANS"] <= avg_trans_threshold)
-            & (df["WIN RATE"] >= win_rate_threshold)
-        )
-
-        # 然后进行赋值操作
-        df.loc[condition1 | condition2 | condition3, "NAME"] = (
-            "3A+" + df.loc[condition1 | condition2 | condition3, "NAME"]
-        )
+    ]
 
     def create_link(symbol, market):
         if market == "cn" and symbol.startswith(("SH", "SZ")):
@@ -644,9 +622,16 @@ def make_dash_format_table(df, cols_format, market):
         not in [
             "IND_ARROW_NUM",
             "IND_BRACKET_NUM",
-            "erp_threshold",
-            "pnl_ratio_threshold_tail",
-            "pnl_ratio_threshold_head",
+            "industry_arrow_score",
+            "industry_bracket_score",
+            "industry_score",
+            "pnl_score",
+            "erp_clean",
+            "erp_score",
+            "win_rate_score",
+            "avg_trans_score",
+            "stability_score",
+            # "total_score",
         ]
     ]
 
@@ -699,7 +684,6 @@ def make_dash_format_table(df, cols_format, market):
             else:
                 row[key] = new_value
 
-    # date_threshold = str(datetime.now() - timedelta(days=5))[0:10]
     style_data_conditional = (
         [
             {
@@ -721,40 +705,7 @@ def make_dash_format_table(df, cols_format, market):
             for col in df.columns
             if col not in cols_format
         ]
-        + (
-            [
-                {
-                    "if": {
-                        "filter_query": (
-                            "({IND_ARROW_NUM} >= "
-                            + str(ind_arrow_num_threshold)
-                            + " && "
-                            "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
-                            "{PNL RATIO_o} >= {pnl_ratio_threshold_head_o} && "
-                            + "{PNL RATIO_o} > 0 && "
-                            "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
-                            "{WIN RATE_o} >= " + str(win_rate_threshold) + ") || ("
-                            "{IND_BRACKET_NUM} <= 20 && "
-                            "{OPEN DATE_o} >= " + str(date_threshold_l20) + " && "
-                            "{PNL RATIO_o} >= {pnl_ratio_threshold_head_o} && "
-                            + "{PNL RATIO_o} > 0 &&"
-                            "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
-                            "{WIN RATE_o} >= " + str(win_rate_threshold) + ") || ("
-                            "{OPEN DATE_o} >= "
-                            + str(date_threshold_l20)
-                            + " && "
-                            + "{PNL RATIO_o} > 0 && "
-                            "{ERP_o} != -99999 && {ERP_o} > {erp_threshold_o} && "
-                            "{AVG TRANS_o} <= " + str(avg_trans_threshold) + " && "
-                            "{WIN RATE_o} >= " + str(win_rate_threshold) + ")"
-                        )
-                    },
-                    "background": ("""var(--row-bg-color)"""),
-                }
-            ]
-            if has_all_required_cols and "IND_ARROW_NUM" in df.columns
-            else []
-        )
+        + highlight_conditional
         + [
             {
                 "if": {
