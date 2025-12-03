@@ -544,10 +544,10 @@ def make_dash_format_table(df, cols_format, market):
         df["stability_score"] = 0.6 * df["win_rate_score"] + 0.4 * df["avg_trans_score"]
 
         df["total_score"] = (
-            0.40 * df["industry_score"]
-            + 0.30 * df["pnl_score"]
-            + 0.15 * df["stability_score"]
-            + 0.15 * df["erp_score"]
+            0.30 * df["industry_score"]
+            + 0.20 * df["pnl_score"]
+            + 0.45 * df["stability_score"]
+            + 0.05 * df["erp_score"]
         )
 
         # top 20% 为高亮阈值
@@ -631,7 +631,7 @@ def make_dash_format_table(df, cols_format, market):
             "win_rate_score",
             "avg_trans_score",
             "stability_score",
-            # "total_score",
+            "total_score",
         ]
     ]
 
