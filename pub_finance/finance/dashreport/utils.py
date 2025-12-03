@@ -534,7 +534,7 @@ def make_dash_format_table(df, cols_format, market):
             0.6 * df["industry_arrow_score"] + 0.4 * df["industry_bracket_score"]
         )
 
-        df["pnl_score"] = rank_pct(df["PNL RATIO"]).clip(upper=0.99)
+        df["pnl_score"] = rank_pct(df["PNL RATIO"]).clip(upper=0.98)
         df["erp_clean"] = df["ERP"].replace(-99999, np.nan)
 
         df["erp_score"] = df.groupby("IND")["erp_clean"].rank(pct=True)
