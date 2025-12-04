@@ -581,7 +581,7 @@ def make_dash_format_table(df, cols_format, market):
         )
 
         # top 20% 为高亮阈值
-        highlight_threshold = df["total_score"].quantile(0.85)
+        highlight_threshold = df["total_score"].quantile(0.9)
 
         condition = df["total_score"] > highlight_threshold
         df.loc[condition, "NAME"] = "3A+" + df.loc[condition, "NAME"]
@@ -648,21 +648,21 @@ def make_dash_format_table(df, cols_format, market):
             ),
         }
         for col in df.columns
-        # if col
-        # not in [
-        #     "IND_ARROW_NUM",
-        #     "IND_BRACKET_NUM",
-        #     "industry_arrow_score",
-        #     "industry_bracket_score",
-        #     "industry_score",
-        #     "pnl_score",
-        #     "erp_clean",
-        #     "erp_score",
-        #     "win_rate_score",
-        #     "avg_trans_score",
-        #     "stability_score",
-        #     "total_score",
-        # ]
+        if col
+        not in [
+            "IND_ARROW_NUM",
+            "IND_BRACKET_NUM",
+            "industry_arrow_score",
+            "industry_bracket_score",
+            "industry_score",
+            "pnl_score",
+            "erp_clean",
+            "erp_score",
+            "win_rate_score",
+            "avg_trans_score",
+            "stability_score",
+            "total_score",
+        ]
     ]
 
     # 创建一个新的 DataFrame 来存储原始列的副本
