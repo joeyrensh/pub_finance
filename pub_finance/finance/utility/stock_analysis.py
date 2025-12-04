@@ -2786,21 +2786,6 @@ class StockProposal:
                 zmin=min_val,
                 zmax=max_val,
                 showscale=False,
-                # colorbar=dict(
-                #     title=dict(
-                #         text="PnL",
-                #         font=dict(
-                #             color=dark_text_color, size=font_size, family="Arial"
-                #         ),  # 设置颜色条标题的颜色和字体大小
-                #     ),
-                #     tickfont=dict(
-                #         size=font_size, color=dark_text_color, family="Arial"
-                #     ),
-                #     thickness=10,  # 增加颜色条厚度
-                #     len=0.5,  # 调整颜色条长度以适应布局
-                #     xpad=0,
-                #     x=1,  # 靠近热图
-                # ),
                 text=pd_calendar_heatmap["industry_top3"].apply(
                     lambda x: "<br>".join(x)
                 ),
@@ -2896,17 +2881,14 @@ class StockProposal:
             year, month, day = date_str.split("-")
             if col3_value > 0:
                 text_color = "#d60a22"
-                arrow_symbol = "↑"
-                vertical_date = f"{month}<b>↑</b><br>{day}"
+                arrow_symbol = "<b>↑</b>"
             elif col3_value < 0:
                 text_color = "#037b66"
-                arrow_symbol = "↓"
-                vertical_date = f"{month}<b>↓</b><br>{day}"
+                arrow_symbol = "<b>↓</b>"
             else:
                 # 零值 - 使用灰色
                 text_color = dark_text_color
                 dynamic_font_size = base_font_size
-                vertical_date = f"{month}<br>{day}"
 
             # 行业信息
             industry_text = "<br>".join(col2_values[:2])
@@ -2926,7 +2908,7 @@ class StockProposal:
                 xanchor="center",
                 yanchor="middle",
                 xshift=-90,
-                yshift=max(10, int(dynamic_font_size * 0.5)),  # 上移10像素
+                yshift=max(10, int(dynamic_font_size * 0.45)),  # 上移10像素
             )
 
             # 箭头注解
@@ -2962,7 +2944,7 @@ class StockProposal:
                 xanchor="center",
                 yanchor="middle",
                 xshift=-90,
-                yshift=-max(10, int(dynamic_font_size * 0.5)),  # 下移10像素
+                yshift=-max(10, int(dynamic_font_size * 0.45)),  # 下移10像素
             )
             # 添加行业信息注解（右侧）
             fig.add_annotation(
@@ -3068,21 +3050,6 @@ class StockProposal:
                 zmin=min_val,
                 zmax=max_val,
                 showscale=False,
-                # colorbar=dict(
-                #     title=dict(
-                #         text="PnL",
-                #         font=dict(
-                #             color=light_text_color, size=font_size, family="Arial"
-                #         ),  # 设置颜色条标题的颜色和字体大小
-                #     ),
-                #     tickfont=dict(
-                #         size=font_size, color=light_text_color, family="Arial"
-                #     ),
-                #     thickness=10,  # 增加颜色条厚度
-                #     len=0.5,  # 调整颜色条长度以适应布局
-                #     xpad=0,
-                #     x=1,  # 靠近热图
-                # ),
                 text=pd_calendar_heatmap["industry_top3"].apply(
                     lambda x: "<br>".join(x)
                 ),
@@ -3173,16 +3140,13 @@ class StockProposal:
             if col3_value > 0:
                 text_color = "#d60a22"
                 arrow_symbol = "↑"
-                vertical_date = f"{month}<b>↑</b><br>{day}"
             elif col3_value < 0:
                 text_color = "#037b66"
                 arrow_symbol = "↓"
-                vertical_date = f"{month}<b>↓</b><br>{day}"
             else:
                 # 零值 - 使用灰色
                 text_color = light_text_color
                 dynamic_font_size = base_font_size
-                vertical_date = f"{month}<br>{day}"
 
             # 行业信息
             industry_text = "<br>".join(col2_values[:2])
@@ -3202,7 +3166,7 @@ class StockProposal:
                 xanchor="center",
                 yanchor="middle",
                 xshift=-90,
-                yshift=max(10, int(dynamic_font_size * 0.5)),  # 上移10像素
+                yshift=max(10, int(dynamic_font_size * 0.45)),  # 上移10像素
             )
 
             # 箭头注解
@@ -3237,7 +3201,7 @@ class StockProposal:
                 xanchor="center",
                 yanchor="middle",
                 xshift=-90,
-                yshift=-max(10, int(dynamic_font_size * 0.5)),  # 上移10像素
+                yshift=-max(10, int(dynamic_font_size * 0.45)),  # 上移10像素
             )
 
             # 添加行业信息注解（右侧）
