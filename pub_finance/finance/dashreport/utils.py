@@ -570,8 +570,18 @@ def make_dash_format_table(df, cols_format, market):
         # 胜率和平均交易评分
         df["win_rate_score"] = rank_pct(df["WIN RATE"])
         df["avg_trans_score"] = 1 - rank_pct(df["AVG TRANS"])
+        sortino_pct = rank_pct(df["SORTINO RATIO"])
+        df["sortino_score"] = np.where(
+            df["SORTINO RATIO"] >= 0,
+            sortino_pct,  # 正向评分（≥0）
+            -(1 - sortino_pct),  # 惩罚（<0）
+        )
         # 稳定性评分
-        df["stability_score"] = 0.6 * df["win_rate_score"] + 0.4 * df["avg_trans_score"]
+        df["stability_score"] = (
+            0.5 * df["win_rate_score"]
+            + 0.2 * df["avg_trans_score"]
+            + 0.3 * df["sortino_score"]
+        )
         # 总评分
         df["total_score"] = (
             0.35 * df["industry_score"]
@@ -660,6 +670,7 @@ def make_dash_format_table(df, cols_format, market):
             "erp_score",
             "win_rate_score",
             "avg_trans_score",
+            "sortino_score",
             "stability_score",
             "total_score",
         ]
