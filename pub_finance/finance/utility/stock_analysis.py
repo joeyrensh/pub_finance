@@ -2881,10 +2881,10 @@ class StockProposal:
             year, month, day = date_str.split("-")
             if col3_value > 0:
                 text_color = "#d60a22"
-                arrow_symbol = "<b>↑</b>"
+                arrow_symbol = "↑"
             elif col3_value < 0:
                 text_color = "#037b66"
-                arrow_symbol = "<b>↓</b>"
+                arrow_symbol = "↓"
             else:
                 # 零值 - 使用灰色
                 text_color = dark_text_color
@@ -2894,58 +2894,6 @@ class StockProposal:
             industry_text = "<br>".join(col2_values[:2])
 
             # 添加三个注解：月份、箭头、日期
-            # 月份注解
-            fig.add_annotation(
-                x=day_of_week,
-                y=week_order,
-                text=month,
-                showarrow=False,
-                font=dict(
-                    color=text_color,
-                    size=dynamic_font_size,
-                ),
-                align="left",
-                xanchor="center",
-                yanchor="middle",
-                xshift=-90,
-                yshift=max(10, int(dynamic_font_size * 0.45)),  # 上移10像素
-            )
-
-            # 箭头注解
-            fig.add_annotation(
-                x=day_of_week,
-                y=week_order,
-                text=arrow_symbol,
-                showarrow=False,
-                font=dict(
-                    color=text_color,
-                    size=dynamic_font_size,
-                    weight=1000,  # 箭头加粗
-                ),
-                align="left",
-                xanchor="center",
-                yanchor="middle",
-                # xshift=-130,
-                xshift=-95 - dynamic_font_size / 1.15,
-                yshift=0,  # 居中
-            )
-
-            # 日期注解
-            fig.add_annotation(
-                x=day_of_week,
-                y=week_order,
-                text=day,
-                showarrow=False,
-                font=dict(
-                    color=text_color,
-                    size=dynamic_font_size,
-                ),
-                align="left",
-                xanchor="center",
-                yanchor="middle",
-                xshift=-90,
-                yshift=-max(10, int(dynamic_font_size * 0.45)),  # 下移10像素
-            )
             # 添加行业信息注解（右侧）
             fig.add_annotation(
                 x=day_of_week,
@@ -2962,6 +2910,58 @@ class StockProposal:
                 xanchor="center",
                 yanchor="middle",
                 xshift=30,  # 向右偏移，使行业信息靠右
+            )
+            # 月份注解
+            fig.add_annotation(
+                x=day_of_week,
+                y=week_order,
+                text=month,
+                showarrow=False,
+                font=dict(
+                    color=text_color,
+                    size=dynamic_font_size,
+                ),
+                align="left",
+                xanchor="center",
+                yanchor="middle",
+                xshift=-110,
+                yshift=max(10, int(dynamic_font_size * 0.45)),  # 上移10像素
+            )
+
+            # # 箭头注解
+            # fig.add_annotation(
+            #     x=day_of_week,
+            #     y=week_order,
+            #     text=arrow_symbol,
+            #     showarrow=False,
+            #     font=dict(
+            #         color=text_color,
+            #         size=dynamic_font_size,
+            #         weight=1000,  # 箭头加粗
+            #     ),
+            #     align="left",
+            #     xanchor="center",
+            #     yanchor="middle",
+            #     # xshift=-130,
+            #     xshift=-95 - dynamic_font_size / 1.15,
+            #     yshift=0,  # 居中
+            # )
+
+            # 日期注解
+            fig.add_annotation(
+                x=day_of_week,
+                y=week_order,
+                text=day,
+                showarrow=False,
+                font=dict(
+                    color=text_color,
+                    size=dynamic_font_size,
+                ),
+                align="left",
+                xanchor="center",
+                yanchor="middle",
+                xshift=-110,
+                yshift=-max(10, int(dynamic_font_size * 0.45)),  # 下移10像素
             )
 
         # 在每周之间添加横向分隔线
@@ -3152,58 +3152,6 @@ class StockProposal:
             industry_text = "<br>".join(col2_values[:2])
 
             # 添加三个注解：月份、箭头、日期
-            # 月份注解
-            fig.add_annotation(
-                x=day_of_week,
-                y=week_order,
-                text=month,
-                showarrow=False,
-                font=dict(
-                    color=text_color,
-                    size=dynamic_font_size,
-                ),
-                align="left",
-                xanchor="center",
-                yanchor="middle",
-                xshift=-90,
-                yshift=max(10, int(dynamic_font_size * 0.45)),  # 上移10像素
-            )
-
-            # 箭头注解
-            fig.add_annotation(
-                x=day_of_week,
-                y=week_order,
-                text=arrow_symbol,
-                showarrow=False,
-                font=dict(
-                    color=text_color,
-                    size=dynamic_font_size,
-                    weight=1000,  # 箭头加粗
-                ),
-                align="left",
-                xanchor="center",
-                yanchor="middle",
-                xshift=-95 - dynamic_font_size / 1.15,
-                yshift=0,  # 居中
-            )
-
-            # 日期注解
-            fig.add_annotation(
-                x=day_of_week,
-                y=week_order,
-                text=day,
-                showarrow=False,
-                font=dict(
-                    color=text_color,
-                    size=dynamic_font_size,
-                ),
-                align="left",
-                xanchor="center",
-                yanchor="middle",
-                xshift=-90,
-                yshift=-max(10, int(dynamic_font_size * 0.45)),  # 上移10像素
-            )
-
             # 添加行业信息注解（右侧）
             fig.add_annotation(
                 x=day_of_week,
@@ -3218,6 +3166,57 @@ class StockProposal:
                 xanchor="center",
                 yanchor="middle",
                 xshift=30,  # 向右偏移，使行业信息靠右
+            )
+            # 月份注解
+            fig.add_annotation(
+                x=day_of_week,
+                y=week_order,
+                text=month,
+                showarrow=False,
+                font=dict(
+                    color=text_color,
+                    size=dynamic_font_size,
+                ),
+                align="left",
+                xanchor="center",
+                yanchor="middle",
+                xshift=-110,
+                yshift=max(10, int(dynamic_font_size * 0.45)),  # 上移10像素
+            )
+
+            # # 箭头注解
+            # fig.add_annotation(
+            #     x=day_of_week,
+            #     y=week_order,
+            #     text=arrow_symbol,
+            #     showarrow=False,
+            #     font=dict(
+            #         color=text_color,
+            #         size=dynamic_font_size,
+            #         weight=1000,  # 箭头加粗
+            #     ),
+            #     align="left",
+            #     xanchor="center",
+            #     yanchor="middle",
+            #     xshift=-95 - dynamic_font_size / 1.15,
+            #     yshift=0,  # 居中
+            # )
+
+            # 日期注解
+            fig.add_annotation(
+                x=day_of_week,
+                y=week_order,
+                text=day,
+                showarrow=False,
+                font=dict(
+                    color=text_color,
+                    size=dynamic_font_size,
+                ),
+                align="left",
+                xanchor="center",
+                yanchor="middle",
+                xshift=-110,
+                yshift=-max(10, int(dynamic_font_size * 0.45)),  # 上移10像素
             )
 
         # 在每周之间添加横向分隔线
