@@ -323,6 +323,12 @@ def exec_btstrategy(date):
         ax_drawdown.axhline(
             max_dd, linestyle="--", color=colors["drawdown"], linewidth=2, zorder=3
         )
+        # 定义不同标注点的垂直偏移策略
+        vertical_offsets = {
+            "global": 0,  # 全局最大回撤：默认位置
+            "window_A": 15,  # 窗口A：向上偏移15点
+            "window_B": -15,  # 窗口B：向下偏移15点
+        }
         # 最大回撤点标注
         ax_drawdown.text(
             max_dd_idx,
@@ -381,19 +387,29 @@ def exec_btstrategy(date):
 
         for label, idx, val in dd_candidates:
             ax_drawdown.scatter(idx, val, color=colors["drawdown"], s=55, zorder=4)
+            # 确定偏移方向和量
+            if label == label_A:
+                offset = vertical_offsets["window_A"]
+                va_pos = "bottom" if offset >= 0 else "top"
+            else:  # label_B
+                offset = vertical_offsets["window_B"]
+                va_pos = "top" if offset < 0 else "bottom"
+            # 应用偏移
             ax_drawdown.text(
                 idx,
-                val,
+                val + offset * 0.0005,  # 根据你的Y轴范围调整系数
                 f"{label} Max DD: {val:.2%}",
                 color=colors["text"],
                 ha="right",
-                va="bottom",
+                va=va_pos,  # 根据偏移方向调整文本锚点
             )
+
             ax_drawdown.axhline(
                 val,
                 linestyle="--",
                 color=colors["drawdown"],
-                linewidth=2,
+                linewidth=1.5,  # 稍细一些
+                alpha=0.7,  # 降低透明度
                 zorder=3,
             )
 
