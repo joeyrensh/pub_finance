@@ -1,4 +1,5 @@
 (function () {
+    // ========== 1. 完整配置 ==========
     const SVG_IDS = [
         'cn-annual-return-light', 'cn-annual-return-dark', 'cn-ind-trend-light', 'cn-ind-trend-dark',
         'cn-strategy-light', 'cn-strategy-dark', 'cn-by-position-light', 'cn-by-position-dark',
@@ -14,12 +15,11 @@
         'us_special-bypl-date-light', 'us_special-bypl-date-dark',        
     ];
 
-    // 基础配置（无前缀）
     const BASE_FONT_SIZE_CONFIG = {
         'annual-return-light': { mobile: '2.2rem', desktop: '1.5rem' },
         'annual-return-dark': { mobile: '2.2rem', desktop: '1.5rem' },
-        'ind-trend-light': { mobile: 'unset', desktop: 'unset' },
-        'ind-trend-dark': { mobile: 'unset', desktop: 'unset' },
+        'ind-trend-light': { mobile: '2rem', desktop: '2rem' },
+        'ind-trend-dark': { mobile: '2rem', desktop: '2rem' },
         'strategy-light': { mobile: '2rem', desktop: '2rem' },
         'strategy-dark': { mobile: '2rem', desktop: '2rem' },
         'by-position-light': { mobile: '2.2rem', desktop: '2.2rem' },
@@ -32,7 +32,6 @@
         'bypl-date-dark': { mobile: '2rem', desktop: '2rem' },
     };
 
-    // 动态生成带前缀的配置
     const FONT_SIZE_CONFIG = {};
     ['cn', 'us', 'us_special'].forEach(prefix => {
         Object.keys(BASE_FONT_SIZE_CONFIG).forEach(key => {
@@ -49,9 +48,22 @@
         'xtitle': { mobile: '2.2rem', desktop: '2.2rem' }
     };
 
+    // ========== 2. 工具函数 ==========
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // ========== 3. 核心业务函数 ==========
     function replaceFontSize(element, svgId) {
         const screenWidth = window.innerWidth;
-
         const config = FONT_SIZE_CONFIG[svgId] || { mobile: 'unset', desktop: 'unset' };
         let fontSize = screenWidth <= 550 ? config.mobile : config.desktop;
         let fontWeight = 400;
@@ -65,11 +77,7 @@
             });
         }
 
-        // 特殊 SVG 的额外逻辑
-        if (svgId === 'cn-annual-return-light' || svgId === 'cn-annual-return-dark' 
-            || svgId === 'us-annual-return-light' || svgId === 'us-annual-return-dark'
-            || svgId === 'us_special-annual-return-light' || svgId === 'us_special-annual-return-dark'
-        ) {
+        if (svgId.includes('annual-return')) {
             const tableParent = element.closest('[id^="table"]');
             if (tableParent) {
                 const textElements = Array.from(tableParent.children).filter(child =>
@@ -91,51 +99,56 @@
             }
             const axisParent = element.closest('[id*="axis_"]');
             if (axisParent) {
-                // 修正：使用正确的选择器查找文本元素
                 const textElements = Array.from(axisParent.querySelectorAll('[id*="text_"]'));
-                
                 const parentDiv = element.closest('g');
-                
-                // 修正：检查当前元素的父级是否在文本元素列表中
                 const idx = textElements.findIndex(child => child === parentDiv);
-                
                 if (idx >= 0) {
                     fontSize = screenWidth <= 550 ? '2rem' : '1.5rem'; 
                 }
-                
             }   
             const axesParent = element.closest('[id*="axes_"]');
             if (axesParent) {
-                // 修正：使用正确的选择器查找文本元素
                 const textElements = Array.from(axesParent.querySelectorAll('[id*="text_"]'));
-                
                 const parentDiv = element.closest('g');
-                
-                // 修正：检查当前元素的父级是否在文本元素列表中
                 const idx = textElements.findIndex(child => child === parentDiv);
-                
                 if (idx >= 0) {
                     const textNode = parentDiv.querySelector('text');
                     if (textNode) {
                         const content = (textNode.textContent || '').trim().toLowerCase();
-
                         if (content.includes('max')) {
                             fontSize = screenWidth <= 550 ? '2.5rem' : '2rem';
-                            // fontWeight = 400;                        
                         }  
                     }                    
                 }
-                
             }                   
         }
 
-        // 仅在 fontSize 有效且不为 'unset' 时设置
+        try {
+            const isIndTrend = svgId.includes('ind-trend');
+            if (isIndTrend) {
+                const ann = element.classList.contains('annotation-text')
+                    ? element
+                    : element.closest('.annotation-text');
+                if (ann) {
+                    const txt = (ann.textContent || '').trim();
+                    const isNumeric = /^[+-]?(\d+(\.\d+)?|\.\d+)%?$/.test(txt);
+                    if (isNumeric) {
+                        const computedStyle = window.getComputedStyle(element);
+                        const originalSize = parseFloat(computedStyle.fontSize);
+                        const newSize = originalSize * 1.1;
+                        fontSize = `${newSize}px`;
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('ind-trend annotation-text处理失败', e);
+        }
+
         if (typeof fontSize === 'string' && fontSize !== 'unset' && fontSize.trim() !== '') {
             element.style.setProperty('font-size', fontSize);
             element.style.setProperty('font-weight', String(fontWeight), 'important');
         }
 
-        // 推荐添加通用后备字体
         element.style.setProperty(
             'font-family',
             '"PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif','important'
@@ -152,13 +165,12 @@
                 console.warn(`SVG content not loaded for ${obj.id}`);
                 return;
             }
-
-            console.log(`Processing SVG: ${obj.id}`);
+            console.log(`[Success] Processing SVG: ${obj.id}`);
             const textElements = svgDoc.getElementsByTagName('text');   
             for (let text of textElements) {
                 const transform = text.getAttribute('transform');
                 if (transform && transform.includes('scale')) {
-                    continue; // 跳过包含scale变换的元素
+                    continue;
                 }
                 replaceFontSize(text, obj.id);          
             }
@@ -167,37 +179,104 @@
         }
     }
 
+    // ========== 4. 核心处理与监听逻辑 ==========
+    const processedElements = new Map();
+
+    function processSingleSvg(obj) {
+        const id = obj.id;
+        if (!SVG_IDS.includes(id)) return;
+
+        if (processedElements.has(id)) {
+            clearTimeout(processedElements.get(id).timer);
+        }
+
+        const doProcess = () => {
+            if (obj.contentDocument && obj.contentDocument.documentElement) {
+                console.log(`[Success] Processing SVG: ${id} (direct check)`);
+                processSvg(obj);
+                processedElements.set(id, { status: 'processed', timer: null });
+            } else {
+                const retryData = processedElements.get(id) || { retryCount: 0 };
+                if (retryData.retryCount < 10) {
+                    retryData.retryCount++;
+                    retryData.timer = setTimeout(doProcess, 300);
+                    processedElements.set(id, retryData);
+                    console.log(`[Retry] Waiting for SVG ${id}... (attempt ${retryData.retryCount})`);
+                } else {
+                    console.warn(`[Failed] SVG ${id} failed to load after 10 retries.`);
+                    processedElements.set(id, { status: 'failed', timer: null });
+                }
+            }
+        };
+
+        obj.onload = () => {
+            console.log(`[OnLoad] SVG ${id} onload event fired.`);
+            if (processedElements.has(id)) {
+                clearTimeout(processedElements.get(id).timer);
+            }
+            setTimeout(() => processSvg(obj), 50);
+        };
+
+        doProcess();
+    }
+
     function handleSvgProcessing() {
+        console.log('[Info] handleSvgProcessing called.');
         SVG_IDS.forEach(id => {
             const obj = document.getElementById(id);
             if (obj) {
-                obj.onload = () => {
-                    processSvg(obj);
-                };
-
-                if (obj.contentDocument) {
-                    processSvg(obj);
-                }
+                processSingleSvg(obj);
             }
         });
     }
 
+    const debouncedHandleSvgProcessing = debounce(handleSvgProcessing, 100);
+
+    // ========== 5. 初始化 ==========
     function init() {
-        console.log('Initializing SVG font size replacement');
+        console.log('Initializing SVG font size replacement (Direct Approach)');
 
-        // 监听 DOM 变化
-        const observer = new MutationObserver(() => {
-            handleSvgProcessing();
+        setTimeout(() => debouncedHandleSvgProcessing(), 100);
+        document.addEventListener('plotly_afterplot', debouncedHandleSvgProcessing);
+
+        const observer = new MutationObserver((mutations) => {
+            let svgAdded = false;
+            for (const mutation of mutations) {
+                for (const node of mutation.addedNodes) {
+                    if (node.nodeType === 1 && node.tagName === 'OBJECT' && node.id && SVG_IDS.includes(node.id)) {
+                        svgAdded = true;
+                        break;
+                    }
+                    if (node.nodeType === 1 && node.querySelector) {
+                        for (const id of SVG_IDS) {
+                            if (node.querySelector(`object#${id}`)) {
+                                svgAdded = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (svgAdded) break;
+                }
+                if (svgAdded) break;
+            }
+            if (svgAdded) {
+                console.log('[Observer] Detected new SVG object.');
+                setTimeout(() => debouncedHandleSvgProcessing(), 150);
+            }
         });
-
         observer.observe(document.body, { childList: true, subtree: true });
-
-        // 初始处理
-        handleSvgProcessing();
     }
 
-    // 监听页面加载和切换
-    window.addEventListener('load', init);
-    window.addEventListener('hashchange', handleSvgProcessing); // 监听页面切换
-    window.addEventListener('popstate', handleSvgProcessing); // 监听浏览器导航
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    window.forceReprocessSVGs = () => {
+        console.log('[Manual] Force reprocessing all SVGs.');
+        processedElements.clear();
+        handleSvgProcessing();
+    };
+
 })();
