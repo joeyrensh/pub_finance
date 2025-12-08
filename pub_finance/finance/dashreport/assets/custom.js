@@ -196,7 +196,7 @@
                     if (textNode) {
                         const content = (textNode.textContent || '').trim().toLowerCase();
                         if (content.includes('max')) {
-                            fontSize = screenWidth <= 550 ? '2.5rem' : '2rem';
+                            fontSize = screenWidth <= 550 ? '2rem' : '1.5rem';
                         }  
                     }                    
                 }
