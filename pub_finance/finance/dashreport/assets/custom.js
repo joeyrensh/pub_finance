@@ -135,7 +135,7 @@
                     if (isNumeric) {
                         const computedStyle = window.getComputedStyle(element);
                         const originalSize = parseFloat(computedStyle.fontSize);
-                        const newSize = originalSize * 1.1;
+                        const newSize = originalSize * 1.2;
                         fontSize = `${newSize}px`;
                     }
                 }
