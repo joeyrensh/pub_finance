@@ -2238,7 +2238,7 @@ class StockProposal:
             },
             xaxis=dict(
                 title=dict(
-                    text="Trade Date",
+                    text=None,
                     font=dict(
                         size=title_font_size, color=dark_text_color, family="Arial"
                     ),
@@ -2249,7 +2249,7 @@ class StockProposal:
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.2)",
                 domain=[0, 1],  # 强制x轴占据全部可用宽度
-                automargin=False,  # 关闭自动边距计算
+                automargin=True,  # 关闭自动边距计算
             ),
             yaxis=dict(
                 title=dict(
@@ -2269,14 +2269,21 @@ class StockProposal:
                 # automargin=False,  # 关闭自动边距计算
             ),
             legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.2,
-                xanchor="center",
-                x=0.5,
+                orientation="v",
+                x=0.02,
+                xanchor="left",
+                y=1,
+                yanchor="top",
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
-                itemwidth=30,  # 控制图例项宽度
-                itemsizing="constant",  # 保持图例符号大小一致
+                bgcolor="rgba(246, 248, 249, 0.8)",  # 完全透明背景
+                bordercolor="rgba(0,0,0,0)",  # 边框透明
+                borderwidth=0,  # 彻底移除边框
+                entrywidth=0,  # 让宽度根据内容自动决定
+                entrywidthmode="pixels",
+                indentation=0,
+                tracegroupgap=0,
+                xref="paper",
+                yref="paper",
             ),
             barmode="stack",
             bargap=0.2,
@@ -2292,7 +2299,7 @@ class StockProposal:
             range=[
                 pd_trade_info_lst180days["buy_date"].min(),
                 pd_trade_info_lst180days["buy_date"].max(),
-            ]
+            ],
         )
 
         fig.write_image(
@@ -2320,7 +2327,9 @@ class StockProposal:
             #     title=dict(font=dict(color=light_text_color)),
             #     tickfont=dict(color=light_text_color),
             # ),
-            legend=dict(font=dict(color=light_text_color)),
+            legend=dict(
+                font=dict(color=light_text_color), bgcolor="rgba(23, 27, 38, 0.8)"
+            ),
         )
 
         fig.write_image(
@@ -2381,12 +2390,13 @@ class StockProposal:
         fig.update_traces(line=dict(width=3))
         fig.update_xaxes(
             mirror=True,
-            ticks="outside",
+            ticks="inside",
+            ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
             tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(0, 0, 0, 0.2)",
             title=dict(
-                text="Open Date",
+                text=None,
                 font=dict(size=title_font_size, color=dark_text_color, family="Arial"),
             ),
         )
@@ -2409,26 +2419,33 @@ class StockProposal:
             title_y=0.9,
             legend_title_text=None,
             legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.2,
-                xanchor="center",
-                x=0.5,
+                orientation="v",
+                x=0.05,
+                xanchor="left",
+                y=1,
+                yanchor="top",
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
-                itemwidth=30,  # 控制图例项宽度
-                itemsizing="constant",  # 保持图例符号大小一致
+                bgcolor="rgba(246, 248, 249, 0.8)",  # 完全透明背景
+                bordercolor="rgba(0,0,0,0)",  # 边框透明
+                borderwidth=0,  # 彻底移除边框
+                entrywidth=0,  # 让宽度根据内容自动决定
+                entrywidthmode="pixels",
+                indentation=0,
+                tracegroupgap=0,
+                xref="paper",
+                yref="paper",
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0, 0, 0, 0)",
             margin=dict(t=0, b=0, l=0, r=0),
-            autosize=False,  # 自动调整大小
+            # autosize=False,  # 自动调整大小
             width=fig_width,
             height=fig_height,
             xaxis=dict(
                 domain=[0, 1],  # 强制x轴占据全部可用宽度
-                automargin=False,  # 关闭自动边距计算
+                automargin=True,  # 关闭自动边距计算
             ),
-            yaxis=dict(automargin=False),  # 关闭自动边距计算
+            # yaxis=dict(automargin=False),  # 关闭自动边距计算
         )
 
         fig.write_image(
@@ -2451,7 +2468,10 @@ class StockProposal:
         fig.update_layout(
             title_font=dict(color=light_text_color),
             legend_title_text="",
-            legend=dict(font=dict(color=light_text_color)),
+            legend=dict(
+                font=dict(color=light_text_color),
+                bgcolor="rgba(23, 27, 38, 0.8)",
+            ),
         )
         fig.write_image(
             f"./dashreport/assets/images/{self.market}_top_industry_position_trend_dark.svg",
@@ -2519,12 +2539,13 @@ class StockProposal:
         fig.update_traces(line=dict(width=3))
         fig.update_xaxes(
             mirror=True,
-            ticks="outside",
+            ticks="inside",
+            ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
             tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(0, 0, 0, 0.2)",
             title=dict(
-                text="Open Date",
+                text=None,
                 font=dict(size=title_font_size, color=dark_text_color, family="Arial"),
             ),
         )
@@ -2537,6 +2558,7 @@ class StockProposal:
             title=None,  # 设置为空字符串以隐藏y轴标题
             ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
             tickangle=0,  # 确保刻度标签水平显示
+            autorange=True,
         )
         fig.update_layout(
             title="Last 180 days top5 pnl",
@@ -2547,26 +2569,33 @@ class StockProposal:
             title_y=0.9,
             legend_title_text=None,
             legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.2,
-                xanchor="center",
-                x=0.5,
+                orientation="v",
+                x=0.05,
+                xanchor="left",
+                y=1,
+                yanchor="top",
                 font=dict(size=font_size, color=dark_text_color, family="Arial"),
-                itemwidth=30,  # 控制图例项宽度
-                itemsizing="constant",  # 保持图例符号大小一致
+                bgcolor="rgba(246, 248, 249, 0.8)",  # 完全透明背景
+                bordercolor="rgba(0,0,0,0)",  # 边框透明
+                borderwidth=0,  # 彻底移除边框
+                entrywidth=0,  # 让宽度根据内容自动决定
+                entrywidthmode="pixels",
+                indentation=0,
+                tracegroupgap=0,
+                xref="paper",
+                yref="paper",
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0, 0, 0, 0)",
             margin=dict(t=0, b=0, l=0, r=0),
-            autosize=False,  # 自动调整大小
+            # autosize=False,  # 自动调整大小
             width=fig_width,
             height=fig_height,
             xaxis=dict(
                 domain=[0, 1],  # 强制x轴占据全部可用宽度
-                automargin=False,  # 关闭自动边距计算
+                automargin=True,  # 关闭自动边距计算
             ),
-            yaxis=dict(automargin=False),  # 关闭自动边距计算
+            # yaxis=dict(automargin=True, domain=[0, 1]),  # 关闭自动边距计算
         )
 
         fig.write_image(
@@ -2587,12 +2616,13 @@ class StockProposal:
         fig.update_traces(line=dict(width=3))
         fig.update_xaxes(
             mirror=True,
-            ticks="outside",
+            ticks="inside",
+            ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
             tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(255, 255, 255, 0.2)",
             title=dict(
-                text="Open Date",
+                text=None,
                 font=dict(size=title_font_size, color=light_text_color, family="Arial"),
             ),
         )
@@ -2618,26 +2648,34 @@ class StockProposal:
             title_y=0.9,
             legend_title_text=None,
             legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.2,
-                xanchor="center",
-                x=0.5,
+                orientation="v",
+                x=0.05,
+                xanchor="left",
+                y=1,
+                yanchor="top",
                 font=dict(size=font_size, color=light_text_color, family="Arial"),
-                itemwidth=30,  # 控制图例项宽度
-                itemsizing="constant",  # 保持图例符号大小一致
+                # ---- Legend 全透明关键设置 ----
+                bgcolor="rgba(23, 27, 38, 0.8)",  # 完全透明背景
+                bordercolor="rgba(0,0,0,0)",  # 边框透明
+                borderwidth=0,  # 彻底移除边框
+                entrywidth=0,  # 让宽度根据内容自动决定
+                entrywidthmode="pixels",
+                indentation=0,
+                tracegroupgap=0,
+                xref="paper",
+                yref="paper",
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0, 0, 0, 0)",
             margin=dict(t=0, b=0, l=0, r=0),
-            autosize=False,  # 自动调整大小
+            # autosize=False,  # 自动调整大小
             width=fig_width,
             height=fig_height,
             xaxis=dict(
                 domain=[0, 1],  # 强制x轴占据全部可用宽度
-                automargin=False,  # 关闭自动边距计算
+                automargin=True,  # 关闭自动边距计算
             ),
-            yaxis=dict(automargin=False),  # 关闭自动边距计算
+            # yaxis=dict(automargin=False),  # 关闭自动边距计算
         )
 
         fig.write_image(
@@ -4379,7 +4417,7 @@ class StockProposal:
             },
             xaxis=dict(
                 title=dict(
-                    text="Trade Date",
+                    text=None,
                     font=dict(size=title_font_size, color="black", family="Arial"),
                 ),
                 mirror=True,
@@ -4388,7 +4426,7 @@ class StockProposal:
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.2)",
                 domain=[0, 1],  # 强制x轴占据全部可用宽度
-                automargin=False,  # 关闭自动边距计算
+                automargin=True,  # 关闭自动边距计算
             ),
             yaxis=dict(
                 title=dict(
@@ -4405,12 +4443,21 @@ class StockProposal:
                 tickangle=0,  # 确保刻度标签水平显示
             ),
             legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.2,
-                xanchor="center",
-                x=0.5,
+                orientation="v",
+                x=0.02,
+                xanchor="left",
+                y=1,
+                yanchor="top",
                 font=dict(size=font_size, color="black", family="Arial"),
+                bgcolor="rgba(246, 248, 249, 0.8)",  # 完全透明背景
+                bordercolor="rgba(0,0,0,0)",  # 边框透明
+                borderwidth=0,  # 彻底移除边框
+                entrywidth=0,  # 让宽度根据内容自动决定
+                entrywidthmode="pixels",
+                indentation=0,
+                tracegroupgap=0,
+                xref="paper",
+                yref="paper",
             ),
             barmode="stack",
             bargap=0.2,
@@ -4442,42 +4489,52 @@ class StockProposal:
                 "text": "Last 180 days trade info",
                 "y": 0.9,
                 "x": 0.5,
-                "font": dict(size=title_font_size, color=text_color, family="Arial"),
+                "font": dict(size=title_font_size, color="white", family="Arial"),
             },
             xaxis=dict(
                 title=dict(
-                    text="Trade Date",
-                    font=dict(size=title_font_size, color=text_color, family="Arial"),
+                    text=None,
+                    font=dict(size=title_font_size, color="white", family="Arial"),
                 ),
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color=text_color, family="Arial", size=font_size),
+                tickfont=dict(color="white", family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.2)",
                 domain=[0, 1],  # 强制x轴占据全部可用宽度
-                automargin=False,  # 关闭自动边距计算
+                automargin=True,  # 关闭自动边距计算
             ),
             yaxis=dict(
                 title=dict(
                     text=None,
-                    font=dict(size=title_font_size, color=text_color, family="Arial"),
+                    font=dict(size=title_font_size, color="white", family="Arial"),
                 ),
                 side="left",
                 mirror=True,
                 ticks="outside",
-                tickfont=dict(color=text_color, family="Arial", size=font_size),
+                tickfont=dict(color="white", family="Arial", size=font_size),
                 showline=False,
                 gridcolor="rgba(255, 255, 255, 0.2)",
                 ticklabelposition="outside",  # 将刻度标签移到坐标轴内部
                 tickangle=0,  # 确保刻度标签水平显示
             ),
             legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.2,
-                xanchor="center",
-                x=0.5,
-                font=dict(size=font_size, color=text_color, family="Arial"),
+                orientation="v",
+                x=0.02,
+                xanchor="left",
+                y=1,
+                yanchor="top",
+                font=dict(size=font_size, color="white", family="Arial"),
+                # ---- Legend 全透明关键设置 ----
+                bgcolor="rgba(23, 27, 38, 0.8)",  # 完全透明背景
+                bordercolor="rgba(0,0,0,0)",  # 边框透明
+                borderwidth=0,  # 彻底移除边框
+                entrywidth=0,  # 让宽度根据内容自动决定
+                entrywidthmode="pixels",
+                indentation=0,
+                tracegroupgap=0,
+                xref="paper",
+                yref="paper",
             ),
             barmode="stack",
             bargap=0.2,
