@@ -2402,12 +2402,12 @@ class StockProposal:
         )
         fig.update_yaxes(
             mirror=True,
-            ticks="inside",
+            ticks="outside",
             tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
             showline=False,
             gridcolor="rgba(0, 0, 0, 0.2)",
             title=None,  # 设置为空字符串以隐藏y轴标题
-            ticklabelposition="inside",  # 将刻度标签移到坐标轴内部
+            ticklabelposition="outside",  # 将刻度标签移到坐标轴内部
             tickangle=0,  # 确保刻度标签水平显示
         )
         fig.update_layout(
@@ -2420,7 +2420,7 @@ class StockProposal:
             legend_title_text=None,
             legend=dict(
                 orientation="v",
-                x=0.05,
+                x=0,
                 xanchor="left",
                 y=1,
                 yanchor="top",
