@@ -877,6 +877,9 @@ def make_dash_format_table(df, cols_format, market):
         style_data={
             "backgroundColor": "transparent",
         },
+        style_table={
+            "paddingBottom": "10px",
+        },
         style_data_conditional=style_data_conditional,
     )
 
