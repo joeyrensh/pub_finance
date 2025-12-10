@@ -50,7 +50,7 @@
     --full-view-link-bg-color: #00a85aa2;
     --border-left-color: #D9534F; 
 
-    --bubble-background-color: rgba(0, 0, 0, 0.055);
+    --bubble-background-color: #ff57226b;
   }
 
 }
@@ -914,13 +914,18 @@ a:active {
 
 /* slogan 视觉统一贴合 */
 .bubble-text {
-  background: var(--bubble-background-color);
-  padding: 4px 12px;
-  border-radius: 14px;
-  font-size: 1.1rem;
-  text-transform: uppercase;
+  /* display: inline-block; */
+  padding: 20px; /* 四周内边距相等 */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: radial-gradient(circle at 30% 30%, var(--bubble-background-color), transparent 70%);
+  clip-path: circle(50% at 50% 50%);
+  border-radius: 50%; /* 加个保险，增强兼容性 */
+  text-align: center;
+  margin-left: -10px;
+  margin-top: -20px;
   letter-spacing: 1px;
 }
+
 
 
 @media only screen and (max-device-width: 1200px) {
@@ -1054,7 +1059,7 @@ a:active {
   }
 
   .bubble-text {
-      margin-left: -10px;
+      margin-left: -20px;
       font-size: 1rem;
       letter-spacing: 0.6px;
   }
