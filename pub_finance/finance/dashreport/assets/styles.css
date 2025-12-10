@@ -649,6 +649,8 @@ li::before {
   padding-left: 30px;
   padding-right: 60px;
   text-transform: uppercase;
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
+    "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif !important;  
 }
 
 
