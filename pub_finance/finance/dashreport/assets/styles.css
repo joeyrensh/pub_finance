@@ -914,16 +914,12 @@ a:active {
 
 /* slogan 视觉统一贴合 */
 .bubble-text {
-  /* display: inline-block; */
-  padding: 20px; /* 四周内边距相等 */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  background: radial-gradient(circle at 30% 30%, var(--bubble-background-color), transparent 70%);
-  clip-path: circle(50% at 50% 50%);
-  border-radius: 50%; /* 加个保险，增强兼容性 */
-  text-align: center;
-  margin-left: -10px;
-  margin-top: -20px;
-  letter-spacing: 1px;
+  padding: 6px 15px;
+  /* border: 1px solid var(--dash-table-border-color); */
+  border-radius: 6px;
+  /* background: var(--dash-table-border-color); */
+  font-size: 1.4rem;
+  letter-spacing: 0.3px;
 }
 
 
@@ -1059,11 +1055,11 @@ a:active {
   }
 
   .bubble-text {
-      margin-left: -20px;
-      font-size: 1rem;
+      margin-left: -15px;
+      font-size: 1.1rem;
       letter-spacing: 0.6px;
-      padding: 15px;
-      margin-top: -12px;
+      /* padding: 15px; */
+      /* margin-top: -12px; */
   }
 
   /* .tab.first {
