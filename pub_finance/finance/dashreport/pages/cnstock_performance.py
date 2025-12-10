@@ -296,7 +296,7 @@ def create_layout(app):
                                     # 修改后的可点击标题
                                     html.Button(
                                         html.H6(
-                                            ["Annual Return ▼"],  # 添加箭头指示符
+                                            ["Annual Return ‹"],  # 添加箭头指示符
                                             className="subtitle padded",
                                             id=f"{prefix}-annual-return-title",
                                         ),
@@ -353,7 +353,7 @@ def create_layout(app):
                                 [
                                     html.Button(
                                         html.H6(
-                                            ["Industries Tracking ▼"],
+                                            ["Industries Tracking ‹"],
                                             className="subtitle padded",
                                             id=f"{prefix}-industries-tracking-title",
                                         ),
@@ -405,7 +405,7 @@ def create_layout(app):
                                 [
                                     html.Button(
                                         html.H6(
-                                            ["Strategy Tracking ▼"],
+                                            ["Strategy Tracking ‹"],
                                             className="subtitle padded",
                                             id=f"{prefix}-strategy-tracking-title",
                                         ),
@@ -461,7 +461,7 @@ def create_layout(app):
                                 [
                                     html.Button(
                                         html.H6(
-                                            ["Position Trend ▼"],
+                                            ["Position Trend ‹"],
                                             className="subtitle padded",
                                             id=f"{prefix}-position-trend-title",
                                         ),
@@ -512,7 +512,7 @@ def create_layout(app):
                                 [
                                     html.Button(
                                         html.H6(
-                                            ["Earnings Trend ▼"],
+                                            ["Earnings Trend ‹"],
                                             className="subtitle padded",
                                             id=f"{prefix}-earnings-trend-title",
                                         ),
@@ -567,7 +567,7 @@ def create_layout(app):
                                 [
                                     html.Button(
                                         html.H6(
-                                            ["Position Weight ▼"],
+                                            ["Position Weight ‹"],
                                             className="subtitle padded",
                                             id=f"{prefix}-position-weight-title",
                                         ),
@@ -618,7 +618,7 @@ def create_layout(app):
                                 [
                                     html.Button(
                                         html.H6(
-                                            ["Earnings Weight ▼"],
+                                            ["Earnings Weight ‹"],
                                             className="subtitle padded",
                                             id=f"{prefix}-earnings-weight-title",
                                         ),

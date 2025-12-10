@@ -224,8 +224,8 @@ def toggle_collapse(n_clicks, current_style, btn_content):
     new_display = "none" if current_display == "block" else "block"
 
     # 解析原始标题文本（去掉箭头）
-    original_text = btn_content["props"]["children"][0].rstrip(" ▼▶")
-    new_arrow = "▼" if new_display == "block" else "▶"
+    original_text = btn_content["props"]["children"][0].rstrip(" ‹›")
+    new_arrow = "‹" if new_display == "block" else "›"
 
     # 构建新的标题元素
     new_title = html.H6([f"{original_text} {new_arrow}"], className="subtitle padded")
