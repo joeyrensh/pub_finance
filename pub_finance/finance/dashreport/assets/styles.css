@@ -916,7 +916,7 @@ a:active {
 .bubble-text {
   /* display: inline-block; */
   padding: 20px; /* 四周内边距相等 */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   background: radial-gradient(circle at 30% 30%, var(--bubble-background-color), transparent 70%);
   clip-path: circle(50% at 50% 50%);
   border-radius: 50%; /* 加个保险，增强兼容性 */
