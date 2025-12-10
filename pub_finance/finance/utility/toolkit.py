@@ -329,7 +329,10 @@ class ToolKit:
                 0.8 if second_plot_type == "area" else 1.0
             ),  # 根据类型调整透明度
             "gradient_steps": 100,
-            "fill_alpha_range": (0.08, 0.3),
+            "fill_alpha_range": (0.06, 0.25),
+            # alpha_power >1 强调最近端（非线性映射）， =1 为线性
+            "alpha_power": 1.5,
+            # "fill_alpha_range": (0.06, 0.25),
             "marker_size": 3.5,
             "zero_line_alpha": 0,
         }
@@ -502,6 +505,31 @@ class ToolKit:
                             edgecolor="none",
                             zorder=2,
                         )
+                    # 非线性 alpha 映射：对时间序列末端（最近）给予更高透明度（更显眼）
+                    a_min, a_max = config.get("fill_alpha_range", (0.06, 0.25))
+                    power = float(config.get("alpha_power", 1.0))
+                    steps = len(dataset)
+                    # 生成 0..1 基准并做幂映射（power>1 强调末端）
+                    base = np.linspace(0.0, 1.0, steps)
+                    mapped = np.power(base, power)
+                    alphas = a_min + (a_max - a_min) * mapped
+                    # 填充分段渲染
+                    for j in range(len(dataset) - 1):
+                        x_segment = x[j : j + 2]
+                        y_segment = y[j : j + 2]
+                        local_alpha = float(np.mean(alphas[j : j + 2]))
+                        # cap alpha 防止过于不透明
+                        local_alpha = min(max(local_alpha, 0.0), 0.6)
+                        ax.fill_between(
+                            x_segment,
+                            y_segment,
+                            0,
+                            color=fill_color,
+                            alpha=local_alpha,
+                            edgecolor="none",
+                            zorder=2,
+                        )
+
                 elif second_plot_type == "line":
                     # 折线图模式：不填充，但可以添加端点标记
                     ax.scatter(
