@@ -80,7 +80,9 @@ def get_header(app):
                                     # html.I(className="fa-regular fa-circle bubble-1"),
                                     # html.I(className="fa-regular fa-circle bubble-2"),
                                     # html.I(className="fa-regular fa-circle bubble-3"),
-                                    html.Span("", className="bubble-text"),
+                                    html.Span(
+                                        "Find Your Truth!", className="bubble-text"
+                                    ),
                                 ],
                                 className="seven columns main-title bubble-logo",
                             ),

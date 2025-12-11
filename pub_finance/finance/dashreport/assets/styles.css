@@ -927,6 +927,7 @@ a:active {
   background: linear-gradient(135deg, #ffb347, #ff7043, #d84315);
   -webkit-background-clip: text;
   color: transparent;
+  margin-top:-10px;
 }
 
 
