@@ -610,6 +610,7 @@ li::before {
   /* margin-left: 72%; */
   /* width: 15%; */
   margin-right: 15px;
+  margin-top:-10px;
   text-align: center;
   transition-duration: 1s;
 }
@@ -753,7 +754,7 @@ a:active {
   padding-left: 15px;
   padding-right: 15px;
   /* text-transform: none; */
-  margin: 5px 0px 8px 5px;
+  margin: 25px 0px 8px 5px;
   line-height: 30px;
   border: 0.5px;
   border-color: lightgrey;
@@ -928,7 +929,7 @@ a:active {
   background: var(--bubble-background-color);
   -webkit-background-clip: text;
   color: transparent;
-  margin-top:60px;
+  margin-top:40px;
 }
 
 
@@ -1068,7 +1069,7 @@ a:active {
       font-size: 1.2rem;
       letter-spacing: 0.6px;
       /* padding: 15px; */
-      margin-top: 20px;
+      margin-top: 15px;
   }
 
   /* .tab.first {
@@ -1125,7 +1126,7 @@ a:active {
     color: var(--learn-more-button-color);
     padding: 8px;
     margin-left: 0px;
-    margin-top: 8px;
+    margin-top: 15px;
     margin-right: 0px;
     margin-bottom: 2px;
     border: 0.5px;
@@ -1173,6 +1174,7 @@ a:active {
     /* margin-top: 8px; */
     margin-left: 0px;
     margin-right: 10px;
+    margin-top:5px;
   }
 
   .row>.columns:not(:first-child) {
