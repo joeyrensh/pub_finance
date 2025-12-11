@@ -22,7 +22,7 @@
   --full-view-link-bg-color: #3498dbc4;
   --border-left-color: #D9534F;
 
-  --bubble-background-color: linear-gradient(135deg, #ffb347, #ff7043, #d84315);
+  --bubble-background-color: linear-gradient(135deg, #fb0, #fb0, #fb0);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -51,7 +51,7 @@
     --full-view-link-bg-color: #00a85aa2;
     --border-left-color: #D9534F; 
 
-    --bubble-background-color: linear-gradient(135deg, #ffb247b3, #ff6f4398, #d84215d7);
+    --bubble-background-color: linear-gradient(135deg, #fb0, #fb0, #fb0);
   }
 
 }
