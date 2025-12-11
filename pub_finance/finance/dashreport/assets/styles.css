@@ -305,7 +305,7 @@ body {
   position: relative;
   height: auto; /* 让容器高度由内容决定 */
   overflow: hidden; /* 防止背景图片溢出 */
-  margin-top:20px;
+  margin-top:0px;
 }
 
 
