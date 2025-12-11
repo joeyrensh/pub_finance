@@ -913,13 +913,20 @@ a:active {
 .bubble-3 { font-size: 0.7rem; transform: translateY(3px) translateX(-6px); }
 
 /* slogan 视觉统一贴合 */
-.bubble-text {
+/* .bubble-text {
   padding: 6px 15px;
-  /* border: 1px solid var(--dash-table-border-color); */
   border-radius: 6px;
-  /* background: var(--dash-table-border-color); */
   font-size: 1.4rem;
   letter-spacing: 0.3px;
+} */
+.bubble-text {
+  padding: 6px 15px;
+  font-size: 2rem;
+  letter-spacing: 0.3px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffb347, #ff7043, #d84315);
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
 
@@ -1055,8 +1062,8 @@ a:active {
   }
 
   .bubble-text {
-      margin-left: -15px;
-      font-size: 1.1rem;
+      margin-left: -12px;
+      font-size: 1.5rem;
       letter-spacing: 0.6px;
       /* padding: 15px; */
       /* margin-top: -12px; */
