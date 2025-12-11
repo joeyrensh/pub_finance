@@ -39,7 +39,8 @@
 
     /* 深色通用样式 */
     --background-color: #171b26;
-    --text-color: #ffffffc5;
+    /* --text-color: #ffffffc5; */
+    --text-color: rgba(255, 255, 255, 0.8);
     --login-box-shadow-color: #607D8B;
     --subtitle-color: #ffffffc5;
     --a-visited-color: #ffffffc5;
