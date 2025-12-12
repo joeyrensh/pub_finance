@@ -925,7 +925,7 @@ a:active {
   padding: 6px 15px;
   font-size: 2rem;
   letter-spacing: 0.3px;
-  font-weight: 700;
+  /* font-weight: 700; */
   background: var(--bubble-background-color);
   -webkit-background-clip: text;
   color: transparent;
