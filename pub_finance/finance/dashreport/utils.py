@@ -546,10 +546,16 @@ def make_dash_format_table(df, cols_format, market):
         df["win_rate_score"] = rank_pct(df["WIN RATE"])
         df["avg_trans_score"] = 1 - rank_pct(df["AVG TRANS"])
         sortino_pct = rank_pct(df["SORTINO RATIO"])
+        threshold = 0.8  # 超过此排名开始惩罚（可改成固定值）
+
         df["sortino_score"] = np.where(
-            df["SORTINO RATIO"] >= 0,
-            sortino_pct,  # 正向评分（≥0）
-            -(1 - sortino_pct),  # 惩罚（<0）
+            df["SORTINO RATIO"] < 0,
+            -(1 - sortino_pct),  # 负值 → 惩罚
+            np.where(
+                sortino_pct <= threshold,
+                sortino_pct,  # 正常情况 → 正评分
+                threshold - (sortino_pct - threshold),  # 超阈值 → 反向扣分
+            ),
         )
         # 稳定性评分
         df["stability_score"] = (
