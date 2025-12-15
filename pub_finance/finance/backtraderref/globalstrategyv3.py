@@ -326,16 +326,19 @@ class GlobalStrategy(bt.Strategy):
             辅助指标2：波动过大，避免频繁交易
             """
             try:
-                self.signals[d._name]["close_crossdown_sma_short"] = (
+                self.signals[d._name]["close_crossdown_sma_short"] = bt.And(
                     bt.indicators.crossover.CrossDown(
                         d.close, self.inds[d._name]["sma_short"]
-                    )
+                    ),
+                    self.inds[d._name]["sma_short"]
+                    < self.inds[d._name]["sma_short"](-1),
                 )
 
-                self.signals[d._name]["dif_crossdown_dea"] = (
+                self.signals[d._name]["dif_crossdown_dea"] = bt.And(
                     bt.indicators.crossover.CrossDown(
                         self.inds[d._name]["dif"], self.inds[d._name]["dea"]
-                    )
+                    ),
+                    self.inds[d._name]["dea"] < self.inds[d._name]["dea"](-1),
                 )
             except Exception as e:
                 print(f"❌ 初始化失败-辅助指标2: {d._name}, {e}")
@@ -828,6 +831,18 @@ class GlobalStrategy(bt.Strategy):
 
                 # if is_invalid_sortino:
                 #     continue
+                # 诱多风险判定
+                r1 = self.signals[d._name]["close_crossdown_sma_short"].get(
+                    ago=-1, size=self.params.ma_short_period
+                )
+                r2 = self.signals[d._name]["dif_crossdown_dea"].get(
+                    ago=-1, size=self.params.ma_short_period
+                )
+                if (
+                    sum(1 for value in r1 if value == 1) >= 2
+                    and sum(1 for value in r2 if value == 1) >= 2
+                ):
+                    continue
 
                 # 均线密集判断，短期ema与中期ema近20日内密集排列
                 x1 = self.inds[d._name]["ema_short"].get(
