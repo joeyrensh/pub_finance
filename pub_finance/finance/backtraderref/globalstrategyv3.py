@@ -322,54 +322,8 @@ class GlobalStrategy(bt.Strategy):
             except Exception as e:
                 print(f"❌ 初始化失败-价格上涨和下跌指标: {d._name}, {e}")
 
-            """ 
-            辅助指标2：波动过大，避免频繁交易
             """
-            try:
-                self.signals[d._name]["close_crossdown_sma"] = bt.And(
-                    bt.indicators.crossover.CrossDown(
-                        d.close, self.inds[d._name]["sma_short"]
-                    ),
-                    self.inds[d._name]["sma_short"]
-                    < self.inds[d._name]["sma_short"](-1),
-                )
-
-                self.signals[d._name]["dif_crossdown"] = bt.Or(
-                    bt.And(
-                        bt.indicators.crossover.CrossDown(
-                            self.inds[d._name]["dif"], self.inds[d._name]["dea"]
-                        ),
-                        self.inds[d._name]["dea"] < self.inds[d._name]["dea"](-1),
-                    ),
-                    bt.indicators.crossover.CrossDown(self.inds[d._name]["dif"], 0),
-                )
-            except Exception as e:
-                print(f"❌ 初始化失败-辅助指标2: {d._name}, {e}")
-
-            """
-            辅助指标3：收盘价上穿短期均线
-            """
-            try:
-                self.signals[d._name]["close_crossup_ema_short"] = (
-                    bt.indicators.crossover.CrossUp(
-                        d.close, self.inds[d._name]["ema_short"]
-                    )
-                )
-            except Exception as e:
-                print(f"❌ 初始化失败-辅助指标3: {d._name}, {e}")
-
-            """ 
-            辅助指标4：乖离率判断
-            """
-            try:
-                self.signals[d._name]["deviant"] = (
-                    d.close - self.inds[d._name]["sma_short"]
-                ) / self.inds[d._name]["sma_short"] <= 0.12
-            except Exception as e:
-                print(f"❌ 初始化失败-辅助指标4: {d._name}, {e}")
-
-            """
-            辅助指标5：Dif和Dea的关系
+            辅助指标2：Dif和Dea的关系
             """
             try:
                 self.signals[d._name]["golden_cross"] = bt.Or(
@@ -408,6 +362,43 @@ class GlobalStrategy(bt.Strategy):
                         self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
                         self.inds[d._name]["dif"] < self.inds[d._name]["dif"](-1),
                     ),
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-辅助指标2: {d._name}, {e}")
+
+            """
+            辅助指标3：收盘价上穿短期均线
+            """
+            try:
+                self.signals[d._name]["close_crossup_ema_short"] = (
+                    bt.indicators.crossover.CrossUp(
+                        d.close, self.inds[d._name]["ema_short"]
+                    )
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-辅助指标3: {d._name}, {e}")
+
+            """ 
+            辅助指标4：乖离率判断
+            """
+            try:
+                self.signals[d._name]["deviant"] = (
+                    d.close - self.inds[d._name]["sma_short"]
+                ) / self.inds[d._name]["sma_short"] <= 0.12
+            except Exception as e:
+                print(f"❌ 初始化失败-辅助指标4: {d._name}, {e}")
+
+            """ 
+            辅助指标5：波动过大，避免频繁交易
+            """
+            try:
+                self.signals[d._name]["close_crossdown_sma"] = bt.And(
+                    bt.indicators.crossover.CrossDown(
+                        d.close, self.inds[d._name]["sma_short"]
+                    ),
+                    self.inds[d._name]["sma_short"]
+                    < self.inds[d._name]["sma_short"](-1),
+                    self.signals[d._name]["death_cross"] == 1,
                 )
             except Exception as e:
                 print(f"❌ 初始化失败-辅助指标5: {d._name}, {e}")
@@ -838,13 +829,7 @@ class GlobalStrategy(bt.Strategy):
                 r1 = self.signals[d._name]["close_crossdown_sma"].get(
                     ago=-1, size=self.params.ma_short_period
                 )
-                r2 = self.signals[d._name]["dif_crossdown"].get(
-                    ago=-1, size=self.params.ma_short_period
-                )
-                if (
-                    sum(1 for value in r1 if value == 1) >= 2
-                    and sum(1 for value in r2 if value == 1) >= 2
-                ):
+                if sum(1 for value in r1 if value == 1) >= 2:
                     continue
 
                 # 均线密集判断，短期ema与中期ema近20日内密集排列
