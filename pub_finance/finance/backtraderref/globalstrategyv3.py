@@ -326,7 +326,7 @@ class GlobalStrategy(bt.Strategy):
             辅助指标2：波动过大，避免频繁交易
             """
             try:
-                self.signals[d._name]["close_crossdown_sma_short"] = bt.And(
+                self.signals[d._name]["close_crossdown_sma"] = bt.And(
                     bt.indicators.crossover.CrossDown(
                         d.close, self.inds[d._name]["sma_short"]
                     ),
@@ -334,11 +334,14 @@ class GlobalStrategy(bt.Strategy):
                     < self.inds[d._name]["sma_short"](-1),
                 )
 
-                self.signals[d._name]["dif_crossdown_dea"] = bt.And(
-                    bt.indicators.crossover.CrossDown(
-                        self.inds[d._name]["dif"], self.inds[d._name]["dea"]
+                self.signals[d._name]["dif_crossdown"] = bt.Or(
+                    bt.And(
+                        bt.indicators.crossover.CrossDown(
+                            self.inds[d._name]["dif"], self.inds[d._name]["dea"]
+                        ),
+                        self.inds[d._name]["dea"] < self.inds[d._name]["dea"](-1),
                     ),
-                    self.inds[d._name]["dea"] < self.inds[d._name]["dea"](-1),
+                    bt.indicators.crossover.CrossDown(self.inds[d._name]["dif"], 0),
                 )
             except Exception as e:
                 print(f"❌ 初始化失败-辅助指标2: {d._name}, {e}")
@@ -832,10 +835,10 @@ class GlobalStrategy(bt.Strategy):
                 # if is_invalid_sortino:
                 #     continue
                 # 诱多风险判定
-                r1 = self.signals[d._name]["close_crossdown_sma_short"].get(
+                r1 = self.signals[d._name]["close_crossdown_sma"].get(
                     ago=-1, size=self.params.ma_short_period
                 )
-                r2 = self.signals[d._name]["dif_crossdown_dea"].get(
+                r2 = self.signals[d._name]["dif_crossdown"].get(
                     ago=-1, size=self.params.ma_short_period
                 )
                 if (
