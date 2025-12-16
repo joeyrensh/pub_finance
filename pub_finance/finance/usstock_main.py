@@ -478,6 +478,10 @@ def exec_btstrategy(date):
         ax_drawdown.tick_params(
             axis="y", labelright=True, labelleft=False, direction="in"
         )
+        # 保证 y 轴刻度最多显示到小数点后两位
+        fmt = ticker.FormatStrFormatter("%.2f")
+        ax_chart.yaxis.set_major_formatter(fmt)
+        ax_drawdown.yaxis.set_major_formatter(fmt)
         # ax_drawdown.yaxis.set_label_coords(0.99, 0.5)  # 标签向左平移
         # # 调整 y 轴 spines 的位置
         # ax_chart.spines["left"].set_position(("axes", 0.02))  # 左侧 y 轴靠近图表
