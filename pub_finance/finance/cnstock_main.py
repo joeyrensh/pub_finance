@@ -378,14 +378,6 @@ def exec_btstrategy(date):
             dd_candidates.append((label_B, dd_B_idx, dd_B_val))
 
         # ===============================
-        #   绘图：输出窗口 A / B 的回撤点
-        # ===============================
-        vertical_offsets = {
-            label_A: 1,
-            label_B: 1,
-        }
-
-        # ===============================
         # 汇总回撤点
         # ===============================
         dd_points = {"max": max_dd}
@@ -397,17 +389,42 @@ def exec_btstrategy(date):
         dd_vals = [v for _, v in dd_points.items()]
         dd_range = max(dd_vals) - min(dd_vals)
         dd_range = max(dd_range, 1e-6)
+        # ===============================
+        # 默认：120D / 30D 都向上
+        # ===============================
+        offset_sign = {
+            label_A: 1,
+            label_B: 1,
+        }
+
+        # ===============================
+        # 是否需要特殊处理（非常接近）
+        # ===============================
+        if dd_A_val is not None and dd_B_val is not None:
+            gap_AB = abs(dd_A_val - dd_B_val)
+
+            # 判定“非常接近”
+            if gap_AB < dd_range * 0.08:
+                # 找出更深的那个
+                deeper_label, deeper_val = (
+                    (label_A, dd_A_val) if dd_A_val < dd_B_val else (label_B, dd_B_val)
+                )
+
+                # 假设更深的向下
+                test_offset = min(gap_AB * 0.6, dd_range * 0.15)
+                test_val = deeper_val - test_offset
+
+                # 检查是否会贴近 max DD
+                if abs(test_val - max_dd) > dd_range * 0.08:
+                    # 可以下移
+                    offset_sign[deeper_label] = -1
 
         for label, idx, val in dd_candidates:
             ax_drawdown.scatter(idx, val, color=colors["drawdown"], s=55, zorder=4)
-            # 与其它点的最小距离（包含 max DD）
             min_dist = min(abs(val - v) for k, v in dd_points.items() if k != label)
+            offset_mag = min(min_dist * 0.6, dd_range * 0.15)
 
-            # ===== 改良偏移公式 =====
-            base_offset = min_dist * 0.6
-            max_offset = dd_range * 0.15
-
-            y_offset = vertical_offsets[label] * min(base_offset, max_offset)
+            y_offset = offset_sign[label] * offset_mag
             va_pos = "bottom" if y_offset >= 0 else "top"
             # 应用偏移
             ax_drawdown.text(
