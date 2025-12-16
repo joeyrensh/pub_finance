@@ -19,6 +19,7 @@ from matplotlib import rcParams
 import matplotlib.colors as mcolors
 from cncrawler.ak_incre_crawler import AKCNWebCrawler
 from utility.em_stock_uti import EMWebCrawlerUti
+import numpy as np
 
 """ backtrader策略 """
 
@@ -324,12 +325,6 @@ def exec_btstrategy(date):
         ax_drawdown.axhline(
             max_dd, linestyle="--", color=colors["drawdown"], linewidth=2, zorder=3
         )
-        # 定义不同标注点的垂直偏移策略
-        vertical_offsets = {
-            "global": 0,  # 全局最大回撤：默认位置
-            "window_A": 15,  # 窗口A：向上偏移15点
-            "window_B": -15,  # 窗口B：向下偏移15点
-        }
         # 最大回撤点标注
         ax_drawdown.text(
             max_dd_idx,
@@ -385,20 +380,39 @@ def exec_btstrategy(date):
         # ===============================
         #   绘图：输出窗口 A / B 的回撤点
         # ===============================
+        vertical_offsets = {
+            label_A: 1,
+            label_B: 1,
+        }
+
+        # ===============================
+        # 汇总回撤点
+        # ===============================
+        dd_points = {"max": max_dd}
+        if dd_A_val is not None:
+            dd_points[label_A] = dd_A_val
+        if dd_B_val is not None:
+            dd_points[label_B] = dd_B_val
+
+        dd_vals = [v for _, v in dd_points.items()]
+        dd_range = max(dd_vals) - min(dd_vals)
+        dd_range = max(dd_range, 1e-6)
 
         for label, idx, val in dd_candidates:
             ax_drawdown.scatter(idx, val, color=colors["drawdown"], s=55, zorder=4)
-            # 确定偏移方向和量
-            if label == label_A:
-                offset = vertical_offsets["window_A"]
-                va_pos = "bottom" if offset >= 0 else "top"
-            else:  # label_B
-                offset = vertical_offsets["window_B"]
-                va_pos = "top" if offset < 0 else "bottom"
+            # 与其它点的最小距离（包含 max DD）
+            min_dist = min(abs(val - v) for k, v in dd_points.items() if k != label)
+
+            # ===== 改良偏移公式 =====
+            base_offset = min_dist * 0.6
+            max_offset = dd_range * 0.15
+
+            y_offset = vertical_offsets[label] * min(base_offset, max_offset)
+            va_pos = "bottom" if y_offset >= 0 else "top"
             # 应用偏移
             ax_drawdown.text(
                 idx,
-                val + offset * 0.0005,  # 根据你的Y轴范围调整系数
+                val + y_offset,  # 根据你的Y轴范围调整系数
                 f"{label} Max DD: {val:.2%}",
                 color=colors["text"],
                 ha="right",
