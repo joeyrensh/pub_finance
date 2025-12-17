@@ -541,7 +541,7 @@ class ToolKit:
 
         is_up = datasets[0][-1] >= datasets[0][-2] if len(datasets[0]) > 1 else True
         main_color = config["up_color"] if is_up else config["down_color"]
-        sec_color = "#ff6666" if is_up else "#66b266"
+        sec_color = "#ff4444" if is_up else "#00a859"
 
         # ===============================
         # 画布
