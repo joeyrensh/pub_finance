@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import sys
 import numpy as np
 from matplotlib.patches import Wedge, Circle, Rectangle
+from matplotlib.collections import PolyCollection
+from matplotlib import colors as mcolors
 
 
 class ToolKit:
@@ -202,100 +204,291 @@ class ToolKit:
             if utc_cn == before:
                 return timer
 
+    # area chart按照时间渐变透明度填充
     # @staticmethod
-    # def create_line(data):
-    #     data = list(data)
+    # def create_line(*args, second_plot_type="area"):
+    #     """
+    #     增强版绘图函数，支持单列与双列输入。
+    #     双轴时左右 Y 轴独立缩放（不再强制统一刻度），但仍保证主轴线不会被右轴覆盖。
+    #     对常数序列或极小幅度序列做最小跨度扩展以保证可见性。
+
+    #     Args:
+    #         *args: 数据序列，1个参数时绘制单线，2个参数时双轴
+    #         second_plot_type: 第二组数据的绘制类型，"area"=面积图，"line"=折线图
+    #     """
     #     set_matplotlib_formats("svg")
 
-    #     # 配置参数 (Yahoo Finance 视觉规范)
+    #     # 配置参数
     #     config = {
-    #         "up_color": "#ff4444",  # Yahoo 上涨绿色
-    #         "down_color": "#00a859",  # Yahoo 下跌红色
+    #         "up_color": "#ff4444",
+    #         "down_color": "#00a859",
     #         "line_width": 2,
+    #         "secondary_line_width": (
+    #             0.5 if second_plot_type == "area" else 1.5
+    #         ),  # 根据类型调整线宽
+    #         "secondary_line_alpha": (
+    #             0.8 if second_plot_type == "area" else 1.0
+    #         ),  # 根据类型调整透明度
+    #         "gradient_steps": 100,
+    #         "fill_alpha_range": (0.06, 0.25),
+    #         # alpha_power >1 强调最近端（非线性映射）， =1 为线性
+    #         "alpha_power": 1.5,
+    #         # "fill_alpha_range": (0.06, 0.25),
     #         "marker_size": 3.5,
-    #         "gradient_steps": 100,  # 渐变精度
-    #         "zero_line_alpha": 0.2,
-    #         "fill_alpha_range": (0.08, 0.3),  # 透明度动态范围
+    #         "zero_line_alpha": 0,
     #     }
 
-    #     # 计算全局特征
-    #     # 涨跌判断逻辑
-    #     if len(data) >= 2:
-    #         is_uptrend = data[-1] >= data[-2]  # 用最后两个点判断趋势
+    #     # 解析输入
+    #     if len(args) == 1:
+    #         # 单列模式
+    #         if isinstance(args[0], (list, tuple, np.ndarray)):
+    #             data = list(args[0])
+    #         else:
+    #             data = [args[0]] if args[0] is not None else []
+    #         datasets = [data]
+    #         is_single_mode = True
+    #         if len(data) >= 2:
+    #             is_uptrend = data[-1] >= data[-2]
+    #         else:
+    #             is_uptrend = True
+    #         colors = [config["up_color"] if is_uptrend else config["down_color"]]
+    #         fill_colors = [colors[0]]
+    #     elif len(args) >= 2:
+    #         # 双列模式，只取前两列
+    #         datasets = []
+    #         for arg in args[:2]:
+    #             if isinstance(arg, (list, tuple, np.ndarray)):
+    #                 datasets.append(list(arg))
+    #             else:
+    #                 datasets.append([arg])
+    #         is_single_mode = False
+    #         if len(datasets[0]) >= 2:
+    #             is_uptrend = datasets[0][-1] >= datasets[0][-2]
+    #         else:
+    #             is_uptrend = True
+    #         first_color = config["up_color"] if is_uptrend else config["down_color"]
+    #         if is_uptrend:
+    #             secondary_line_color = "#ff6666"
+    #             secondary_fill_color = "#ff4444"
+    #         else:
+    #             secondary_line_color = "#66b266"
+    #             secondary_fill_color = "#00a859"
+    #         colors = [first_color, secondary_line_color]
+    #         fill_colors = [first_color, secondary_fill_color]
     #     else:
-    #         is_uptrend = True  # 默认值
-    #     max_val, min_val = max(data), min(data)
-    #     range_val = max_val - min_val if (max_val != min_val) else 1
+    #         datasets = [[]]
+    #         is_single_mode = True
+    #         colors = [config["up_color"]]
+    #         fill_colors = [config["up_color"]]
 
     #     # 初始化画布
-    #     fig, ax = plt.subplots(1, 1, figsize=(2.5, 1), facecolor="none")  # 调整长宽比
+    #     fig, ax1 = plt.subplots(1, 1, figsize=(2.5, 1), facecolor="none")
     #     fig.patch.set_alpha(0.0)
-    #     ax.margins(x=0.02, y=0.15)  # 边距优化
 
-    #     # 主线条绘制
-    #     line_color = config["up_color"] if is_uptrend else config["down_color"]
-    #     ax.plot(data, color=line_color, lw=config["line_width"], zorder=3)
+    #     if not is_single_mode and len(datasets) >= 2:
+    #         ax2 = ax1.twinx()
 
-    #     # 渐变填充算法
-    #     if data:
-    #         x = np.arange(len(data))
-    #         y = np.array(data)
+    #         # 主轴置顶并隐藏背景，防止右轴遮挡左轴线
+    #         ax1.set_zorder(ax2.get_zorder() + 1)
+    #         ax1.patch.set_visible(False)
+    #         try:
+    #             ax2.patch.set_alpha(0.0)
+    #         except Exception:
+    #             ax2.patch.set_visible(False)
+    #         # 让右轴绘图位于更低层
+    #         ax2.set_zorder(ax1.get_zorder() - 1)
+    #         axes = [ax1, ax2]
+    #     else:
+    #         axes = [ax1]
 
-    #         # 生成渐变蒙版
-    #         y_norm = (y - min_val) / range_val  # 归一化到 [0,1]
-    #         alphas = np.linspace(
-    #             config["fill_alpha_range"][0], config["fill_alpha_range"][1], len(data)
-    #         )
+    #     # 截断到相等长度（双列）
+    #     if not is_single_mode and len(datasets) >= 2:
+    #         min_length = min(len(datasets[0]), len(datasets[1]))
+    #         datasets[0] = datasets[0][:min_length]
+    #         datasets[1] = datasets[1][:min_length]
 
-    #         # 分块渲染优化性能
-    #         for i in range(len(data) - 1):
-    #             x_segment = x[i : i + 2]
-    #             y_segment = y[i : i + 2]
+    #     # 清理并计算范围
+    #     def clean_and_convert(arr):
+    #         clean = []
+    #         for x in arr:
+    #             if isinstance(x, (int, float, np.number)):
+    #                 clean.append(float(x))
+    #             else:
+    #                 try:
+    #                     clean.append(float(x))
+    #                 except (ValueError, TypeError):
+    #                     clean.append(0.0)
+    #         return clean
 
-    #             # 计算局部透明度
-    #             local_alpha = np.mean(alphas[i : i + 2])
+    #     clean_datasets = [clean_and_convert(ds) for ds in datasets]
 
-    #             # 填充到零轴
-    #             ax.fill_between(
-    #                 x_segment,
-    #                 y_segment,
-    #                 0,
-    #                 color=line_color,
-    #                 alpha=local_alpha,
-    #                 edgecolor="none",
-    #                 zorder=2,
+    #     # 计算每组数据的 dmin/dmax，并为常数或极小跨度序列扩展最小跨度
+    #     data_ranges = []
+    #     for cd in clean_datasets:
+    #         if cd:
+    #             dmin, dmax = min(cd), max(cd)
+    #             span = dmax - dmin
+    #             # 最小视觉跨度：相对值(2%)或绝对最小值 1e-3
+    #             rel_min_span = max((abs(dmax) + abs(dmin)) * 0.02, 1e-3)
+    #             if span < rel_min_span:
+    #                 mid = (dmax + dmin) / 2.0
+    #                 dmin = mid - rel_min_span / 2.0
+    #                 dmax = mid + rel_min_span / 2.0
+    #             data_ranges.append((dmin, dmax))
+    #         else:
+    #             data_ranges.append((-1, 1))
+
+    #     # 为左右轴分别设置独立 ylim（不再尝试强制对齐）
+    #     if not is_single_mode and len(clean_datasets) >= 2:
+    #         # 左轴（主轴）范围
+    #         min1, max1 = data_ranges[0]
+    #         span1 = max1 - min1 if (max1 - min1) > 0 else 1.0
+    #         margin1 = max(span1 * 0.15, (abs(max1) + abs(min1)) * 0.02, 1e-3)
+    #         ax1.set_ylim(min1 - margin1, max1 + margin1)
+
+    #         # 右轴（第二组数据）范围
+    #         min2, max2 = data_ranges[1]
+    #         span2 = max2 - min2 if (max2 - min2) > 0 else 1.0
+    #         margin2 = max(span2 * 0.12, (abs(max2) + abs(min2)) * 0.02, 1e-3)
+    #         ax2.set_ylim(min2 - margin2, max2 + margin2)
+    #     elif is_single_mode and clean_datasets[0]:
+    #         min_val, max_val = data_ranges[0]
+    #         range_val = max_val - min_val if (max_val - min_val) > 0 else 1.0
+    #         margin = max(range_val * 0.15, (abs(max_val) + abs(min_val)) * 0.02, 1e-3)
+    #         ax1.set_ylim(min_val - margin, max_val + margin)
+
+    #     # 设置边距
+    #     for ax in axes:
+    #         ax.margins(x=0.02, y=0.0)
+
+    #     # 绘制数据
+    #     for i, (dataset, color) in enumerate(zip(clean_datasets, colors)):
+    #         if not dataset:
+    #             continue
+
+    #         # 选择轴与样式
+    #         if is_single_mode or i == 0:
+    #             ax = ax1
+    #             line_width = config["line_width"]
+    #             line_alpha = 1.0
+    #             fill_color = color
+    #         else:
+    #             ax = ax2
+    #             line_width = config["secondary_line_width"]
+    #             line_alpha = config["secondary_line_alpha"]
+    #             fill_color = fill_colors[i] if i < len(fill_colors) else fill_colors[-1]
+
+    #         x = np.arange(len(dataset))
+    #         y = np.array(dataset)
+
+    #         # 绘制折线（主轴 zorder 已确保在上层）
+    #         ax.plot(x, y, color=color, lw=line_width, alpha=line_alpha, zorder=3)
+
+    #         # 第二组数据的特殊处理
+    #         if not is_single_mode and i == 1 and len(dataset) > 0:
+    #             if second_plot_type == "area":
+    #                 # 面积图模式：填充到0
+    #                 alphas = np.linspace(
+    #                     config["fill_alpha_range"][0],
+    #                     config["fill_alpha_range"][1],
+    #                     len(dataset),
+    #                 )
+    #                 for j in range(len(dataset) - 1):
+    #                     x_segment = x[j : j + 2]
+    #                     y_segment = y[j : j + 2]
+    #                     local_alpha = float(np.mean(alphas[j : j + 2]))
+    #                     ax.fill_between(
+    #                         x_segment,
+    #                         y_segment,
+    #                         0,
+    #                         color=fill_color,
+    #                         alpha=local_alpha,
+    #                         edgecolor="none",
+    #                         zorder=2,
+    #                     )
+    #                 # 非线性 alpha 映射：对时间序列末端（最近）给予更高透明度（更显眼）
+    #                 a_min, a_max = config.get("fill_alpha_range", (0.06, 0.25))
+    #                 power = float(config.get("alpha_power", 1.0))
+    #                 steps = len(dataset)
+    #                 # 生成 0..1 基准并做幂映射（power>1 强调末端）
+    #                 base = np.linspace(0.0, 1.0, steps)
+    #                 mapped = np.power(base, power)
+    #                 alphas = a_min + (a_max - a_min) * mapped
+    #                 # 填充分段渲染
+    #                 for j in range(len(dataset) - 1):
+    #                     x_segment = x[j : j + 2]
+    #                     y_segment = y[j : j + 2]
+    #                     local_alpha = float(np.mean(alphas[j : j + 2]))
+    #                     # cap alpha 防止过于不透明
+    #                     local_alpha = min(max(local_alpha, 0.0), 0.6)
+    #                     ax.fill_between(
+    #                         x_segment,
+    #                         y_segment,
+    #                         0,
+    #                         color=fill_color,
+    #                         alpha=local_alpha,
+    #                         edgecolor="none",
+    #                         zorder=2,
+    #                     )
+
+    #             elif second_plot_type == "line":
+    #                 # 折线图模式：不填充，但可以添加端点标记
+    #                 ax.scatter(
+    #                     len(dataset) - 1,
+    #                     dataset[-1],
+    #                     color=color,
+    #                     s=config["marker_size"] ** 2,
+    #                     edgecolor="white",
+    #                     linewidth=0.4,
+    #                     zorder=4,
+    #                 )
+
+    #         # 端点强化（第一组或单列显示，如果是第二组且为line模式已在上面处理）
+    #         if (i == 0 or is_single_mode) and not (
+    #             i == 1 and second_plot_type == "line"
+    #         ):
+    #             ax.scatter(
+    #                 len(dataset) - 1,
+    #                 dataset[-1],
+    #                 color=color,
+    #                 s=config["marker_size"] ** 2,
+    #                 edgecolor="white" if (is_single_mode or i == 0) else "#2a2e39",
+    #                 linewidth=0.4,
+    #                 zorder=4,
     #             )
 
-    #         # 端点强化
-    #         ax.scatter(
-    #             len(data) - 1,
-    #             data[-1],
-    #             color=line_color,
-    #             s=config["marker_size"] ** 2,
-    #             edgecolor="white" if is_uptrend else "#2a2e39",
-    #             linewidth=0.4,
-    #             zorder=4,
-    #         )
-
-    #     # 零轴样式
-    #     ax.axhline(
-    #         0, color=line_color, alpha=config["zero_line_alpha"], lw=0.8, zorder=1
+    #     # 左轴零线（仅装饰，左右轴独立刻度）
+    #     zero_color = colors[0] if colors else config["up_color"]
+    #     ax1.axhline(
+    #         0, color=zero_color, alpha=config["zero_line_alpha"], lw=0.8, zorder=1
     #     )
 
-    #     # 视觉微调
-    #     ax.axis("off")
-    #     # plt.tight_layout(pad=0)
-    #     plt.subplots_adjust(left=0, right=1, top=1, bottom=0)  # 新增，去除边距
+    #     # 隐藏坐标轴（仅保留图形）
+    #     ax1.axis("off")
+    #     if not is_single_mode and len(datasets) >= 2:
+    #         ax2.axis("off")
 
-    #     # 输出优化
+    #     # 统一X轴范围（x 轴共享）
+    #     if not is_single_mode and len(clean_datasets) >= 2:
+    #         xlen = max(1, len(clean_datasets[0]) - 1)
+    #         ax1.set_xlim(0, xlen)
+    #         ax2.set_xlim(0, xlen)
+    #     else:
+    #         xlen = max(1, len(clean_datasets[0]) - 1)
+    #         ax1.set_xlim(0, xlen)
+
+    #     # 布局与导出
+    #     plt.tight_layout(pad=0)
+    #     plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+
     #     img = BytesIO()
     #     fig.savefig(
     #         img,
     #         format="png",
-    #         dpi=150,  # 提升DPI
+    #         dpi=150,
     #         transparent=True,
-    #         # bbox_inches="tight",
-    #         bbox_inches=None,
+    #         bbox_inches="tight",
+    #         pad_inches=0,
     #         facecolor="none",
     #     )
     #     plt.close(fig)
@@ -304,76 +497,56 @@ class ToolKit:
     #         f'<img src="data:image/png;base64,{b64encode(img.getvalue()).decode()}" />'
     #     )
 
+    # area chart按照y轴渐变透明度填充
     @staticmethod
     def create_line(*args, second_plot_type="area"):
         """
-        增强版绘图函数，支持单列与双列输入。
-        双轴时左右 Y 轴独立缩放（不再强制统一刻度），但仍保证主轴线不会被右轴覆盖。
-        对常数序列或极小幅度序列做最小跨度扩展以保证可见性。
-
-        Args:
-            *args: 数据序列，1个参数时绘制单线，2个参数时双轴
-            second_plot_type: 第二组数据的绘制类型，"area"=面积图，"line"=折线图
+        高效绘图函数，支持单列和双列数据。
+        双轴独立缩放，area chart 渐变沿 Y 轴透明度变化。
         """
-        set_matplotlib_formats("svg")
-
-        # 配置参数
+        # 配置
         config = {
             "up_color": "#ff4444",
             "down_color": "#00a859",
             "line_width": 2,
-            "secondary_line_width": (
-                0.5 if second_plot_type == "area" else 1.5
-            ),  # 根据类型调整线宽
-            "secondary_line_alpha": (
-                0.8 if second_plot_type == "area" else 1.0
-            ),  # 根据类型调整透明度
-            "gradient_steps": 100,
+            "secondary_line_width": 0.5 if second_plot_type == "area" else 1.5,
+            "secondary_line_alpha": 0.8 if second_plot_type == "area" else 1.0,
             "fill_alpha_range": (0.06, 0.25),
-            # alpha_power >1 强调最近端（非线性映射）， =1 为线性
             "alpha_power": 1.5,
-            # "fill_alpha_range": (0.06, 0.25),
             "marker_size": 3.5,
             "zero_line_alpha": 0,
         }
 
-        # 解析输入
+        # 数据解析
         if len(args) == 1:
-            # 单列模式
-            if isinstance(args[0], (list, tuple, np.ndarray)):
-                data = list(args[0])
-            else:
-                data = [args[0]] if args[0] is not None else []
-            datasets = [data]
+            datasets = [
+                (
+                    list(args[0])
+                    if isinstance(args[0], (list, tuple, np.ndarray))
+                    else [args[0]]
+                )
+            ]
             is_single_mode = True
-            if len(data) >= 2:
-                is_uptrend = data[-1] >= data[-2]
-            else:
-                is_uptrend = True
+            is_uptrend = (
+                datasets[0][-1] >= datasets[0][-2] if len(datasets[0]) >= 2 else True
+            )
             colors = [config["up_color"] if is_uptrend else config["down_color"]]
             fill_colors = [colors[0]]
         elif len(args) >= 2:
-            # 双列模式，只取前两列
             datasets = []
             for arg in args[:2]:
-                if isinstance(arg, (list, tuple, np.ndarray)):
-                    datasets.append(list(arg))
-                else:
-                    datasets.append([arg])
+                datasets.append(
+                    list(arg) if isinstance(arg, (list, tuple, np.ndarray)) else [arg]
+                )
             is_single_mode = False
-            if len(datasets[0]) >= 2:
-                is_uptrend = datasets[0][-1] >= datasets[0][-2]
-            else:
-                is_uptrend = True
-            first_color = config["up_color"] if is_uptrend else config["down_color"]
-            if is_uptrend:
-                secondary_line_color = "#ff6666"
-                secondary_fill_color = "#ff4444"
-            else:
-                secondary_line_color = "#66b266"
-                secondary_fill_color = "#00a859"
-            colors = [first_color, secondary_line_color]
-            fill_colors = [first_color, secondary_fill_color]
+            is_uptrend = (
+                datasets[0][-1] >= datasets[0][-2] if len(datasets[0]) >= 2 else True
+            )
+            colors = [config["up_color"] if is_uptrend else config["down_color"]]
+            fill_colors = [
+                "#ff4444" if is_uptrend else "#00a859",
+                "#ff6666" if is_uptrend else "#66b266",
+            ]
         else:
             datasets = [[]]
             is_single_mode = True
@@ -384,202 +557,143 @@ class ToolKit:
         fig, ax1 = plt.subplots(1, 1, figsize=(2.5, 1), facecolor="none")
         fig.patch.set_alpha(0.0)
 
+        axes = [ax1]
         if not is_single_mode and len(datasets) >= 2:
             ax2 = ax1.twinx()
-
-            # 主轴置顶并隐藏背景，防止右轴遮挡左轴线
             ax1.set_zorder(ax2.get_zorder() + 1)
             ax1.patch.set_visible(False)
             try:
                 ax2.patch.set_alpha(0.0)
-            except Exception:
+            except:
                 ax2.patch.set_visible(False)
-            # 让右轴绘图位于更低层
             ax2.set_zorder(ax1.get_zorder() - 1)
-            axes = [ax1, ax2]
-        else:
-            axes = [ax1]
+            axes.append(ax2)
 
-        # 截断到相等长度（双列）
+        # 截断到相同长度
         if not is_single_mode and len(datasets) >= 2:
-            min_length = min(len(datasets[0]), len(datasets[1]))
-            datasets[0] = datasets[0][:min_length]
-            datasets[1] = datasets[1][:min_length]
+            min_len = min(len(datasets[0]), len(datasets[1]))
+            datasets[0] = datasets[0][:min_len]
+            datasets[1] = datasets[1][:min_len]
 
-        # 清理并计算范围
+        # 清理数据
         def clean_and_convert(arr):
             clean = []
             for x in arr:
-                if isinstance(x, (int, float, np.number)):
+                try:
                     clean.append(float(x))
-                else:
-                    try:
-                        clean.append(float(x))
-                    except (ValueError, TypeError):
-                        clean.append(0.0)
+                except:
+                    clean.append(0.0)
             return clean
 
-        clean_datasets = [clean_and_convert(ds) for ds in datasets]
+        datasets = [clean_and_convert(ds) for ds in datasets]
 
-        # 计算每组数据的 dmin/dmax，并为常数或极小跨度序列扩展最小跨度
+        # 计算范围并最小跨度扩展
         data_ranges = []
-        for cd in clean_datasets:
-            if cd:
-                dmin, dmax = min(cd), max(cd)
+        for ds in datasets:
+            if ds:
+                dmin, dmax = min(ds), max(ds)
                 span = dmax - dmin
-                # 最小视觉跨度：相对值(2%)或绝对最小值 1e-3
                 rel_min_span = max((abs(dmax) + abs(dmin)) * 0.02, 1e-3)
                 if span < rel_min_span:
                     mid = (dmax + dmin) / 2.0
-                    dmin = mid - rel_min_span / 2.0
-                    dmax = mid + rel_min_span / 2.0
+                    dmin = mid - rel_min_span / 2
+                    dmax = mid + rel_min_span / 2
                 data_ranges.append((dmin, dmax))
             else:
                 data_ranges.append((-1, 1))
 
-        # 为左右轴分别设置独立 ylim（不再尝试强制对齐）
-        if not is_single_mode and len(clean_datasets) >= 2:
-            # 左轴（主轴）范围
-            min1, max1 = data_ranges[0]
-            span1 = max1 - min1 if (max1 - min1) > 0 else 1.0
-            margin1 = max(span1 * 0.15, (abs(max1) + abs(min1)) * 0.02, 1e-3)
-            ax1.set_ylim(min1 - margin1, max1 + margin1)
-
-            # 右轴（第二组数据）范围
-            min2, max2 = data_ranges[1]
-            span2 = max2 - min2 if (max2 - min2) > 0 else 1.0
-            margin2 = max(span2 * 0.12, (abs(max2) + abs(min2)) * 0.02, 1e-3)
-            ax2.set_ylim(min2 - margin2, max2 + margin2)
-        elif is_single_mode and clean_datasets[0]:
-            min_val, max_val = data_ranges[0]
-            range_val = max_val - min_val if (max_val - min_val) > 0 else 1.0
-            margin = max(range_val * 0.15, (abs(max_val) + abs(min_val)) * 0.02, 1e-3)
-            ax1.set_ylim(min_val - margin, max_val + margin)
-
-        # 设置边距
-        for ax in axes:
-            ax.margins(x=0.02, y=0.0)
+        # 设置独立Y轴
+        if not is_single_mode and len(datasets) >= 2:
+            for ax, (dmin, dmax), i in zip([ax1, ax2], data_ranges, [0, 1]):
+                span = max(dmax - dmin, 1.0)
+                margin = max(span * 0.12, (abs(dmin) + abs(dmax)) * 0.02, 1e-3)
+                ax.set_ylim(dmin - margin, dmax + margin)
+        else:
+            dmin, dmax = data_ranges[0]
+            span = max(dmax - dmin, 1.0)
+            margin = max(span * 0.15, (abs(dmin) + abs(dmax)) * 0.02, 1e-3)
+            ax1.set_ylim(dmin - margin, dmax + margin)
 
         # 绘制数据
-        for i, (dataset, color) in enumerate(zip(clean_datasets, colors)):
-            if not dataset:
+        for i, ds in enumerate(datasets):
+            if not ds:
                 continue
+            ax = ax1 if i == 0 or is_single_mode else ax2
+            color = colors[i] if i < len(colors) else colors[0]
+            fill_color = fill_colors[i] if i < len(fill_colors) else fill_colors[-1]
+            x = np.arange(len(ds))
+            y = np.array(ds)
 
-            # 选择轴与样式
-            if is_single_mode or i == 0:
-                ax = ax1
-                line_width = config["line_width"]
-                line_alpha = 1.0
-                fill_color = color
-            else:
-                ax = ax2
-                line_width = config["secondary_line_width"]
-                line_alpha = config["secondary_line_alpha"]
-                fill_color = fill_colors[i] if i < len(fill_colors) else fill_colors[-1]
+            # 绘制折线
+            lw = (
+                config["line_width"]
+                if (i == 0 or is_single_mode)
+                else config["secondary_line_width"]
+            )
+            alpha = (
+                1.0 if (i == 0 or is_single_mode) else config["secondary_line_alpha"]
+            )
+            ax.plot(x, y, color=color, lw=lw, alpha=alpha, zorder=3)
 
-            x = np.arange(len(dataset))
-            y = np.array(dataset)
+            # 第二组 area chart（高效渐变沿 Y 轴）
+            if i == 1 and not is_single_mode and second_plot_type == "area":
+                n_steps = 20  # 分段数，性能和视觉平衡
+                y_base = 0
+                a_min, a_max = config["fill_alpha_range"]
+                power = config["alpha_power"]
 
-            # 绘制折线（主轴 zorder 已确保在上层）
-            ax.plot(x, y, color=color, lw=line_width, alpha=line_alpha, zorder=3)
-
-            # 第二组数据的特殊处理
-            if not is_single_mode and i == 1 and len(dataset) > 0:
-                if second_plot_type == "area":
-                    # 面积图模式：填充到0
-                    alphas = np.linspace(
-                        config["fill_alpha_range"][0],
-                        config["fill_alpha_range"][1],
-                        len(dataset),
-                    )
-                    for j in range(len(dataset) - 1):
-                        x_segment = x[j : j + 2]
-                        y_segment = y[j : j + 2]
-                        local_alpha = float(np.mean(alphas[j : j + 2]))
-                        ax.fill_between(
-                            x_segment,
-                            y_segment,
-                            0,
-                            color=fill_color,
-                            alpha=local_alpha,
-                            edgecolor="none",
-                            zorder=2,
+                verts = []
+                colors_poly = []
+                for j in range(len(y) - 1):
+                    x_seg = x[j : j + 2]
+                    y_seg = y[j : j + 2]
+                    for k in range(1, n_steps + 1):
+                        y_bottom = y_seg * (k - 1) / n_steps
+                        y_top = y_seg * k / n_steps
+                        verts.append(
+                            [
+                                (x_seg[0], y_bottom[0]),
+                                (x_seg[1], y_bottom[1]),
+                                (x_seg[1], y_top[1]),
+                                (x_seg[0], y_top[0]),
+                            ]
                         )
-                    # 非线性 alpha 映射：对时间序列末端（最近）给予更高透明度（更显眼）
-                    a_min, a_max = config.get("fill_alpha_range", (0.06, 0.25))
-                    power = float(config.get("alpha_power", 1.0))
-                    steps = len(dataset)
-                    # 生成 0..1 基准并做幂映射（power>1 强调末端）
-                    base = np.linspace(0.0, 1.0, steps)
-                    mapped = np.power(base, power)
-                    alphas = a_min + (a_max - a_min) * mapped
-                    # 填充分段渲染
-                    for j in range(len(dataset) - 1):
-                        x_segment = x[j : j + 2]
-                        y_segment = y[j : j + 2]
-                        local_alpha = float(np.mean(alphas[j : j + 2]))
-                        # cap alpha 防止过于不透明
-                        local_alpha = min(max(local_alpha, 0.0), 0.6)
-                        ax.fill_between(
-                            x_segment,
-                            y_segment,
-                            0,
-                            color=fill_color,
-                            alpha=local_alpha,
-                            edgecolor="none",
-                            zorder=2,
-                        )
+                        alpha_poly = a_min + (a_max - a_min) * ((k / n_steps) ** power)
+                        alpha_poly = np.clip(alpha_poly, 0.0, 0.6)
+                        colors_poly.append((*mcolors.to_rgb(fill_color), alpha_poly))
 
-                elif second_plot_type == "line":
-                    # 折线图模式：不填充，但可以添加端点标记
-                    ax.scatter(
-                        len(dataset) - 1,
-                        dataset[-1],
-                        color=color,
-                        s=config["marker_size"] ** 2,
-                        edgecolor="white",
-                        linewidth=0.4,
-                        zorder=4,
-                    )
+                from matplotlib.collections import PolyCollection
 
-            # 端点强化（第一组或单列显示，如果是第二组且为line模式已在上面处理）
-            if (i == 0 or is_single_mode) and not (
-                i == 1 and second_plot_type == "line"
-            ):
-                ax.scatter(
-                    len(dataset) - 1,
-                    dataset[-1],
-                    color=color,
-                    s=config["marker_size"] ** 2,
-                    edgecolor="white" if (is_single_mode or i == 0) else "#2a2e39",
-                    linewidth=0.4,
-                    zorder=4,
+                poly = PolyCollection(
+                    verts, facecolors=colors_poly, edgecolors="none", zorder=2
                 )
+                ax.add_collection(poly)
 
-        # 左轴零线（仅装饰，左右轴独立刻度）
-        zero_color = colors[0] if colors else config["up_color"]
+            # 端点强化
+            ax.scatter(
+                len(y) - 1,
+                y[-1],
+                color=color,
+                s=config["marker_size"] ** 2,
+                edgecolor="white" if (i == 0 or is_single_mode) else "#2a2e39",
+                linewidth=0.4,
+                zorder=4,
+            )
+
+        # 零线
         ax1.axhline(
-            0, color=zero_color, alpha=config["zero_line_alpha"], lw=0.8, zorder=1
+            0,
+            color=colors[0] if colors else config["up_color"],
+            alpha=config["zero_line_alpha"],
+            lw=0.8,
+            zorder=1,
         )
-
-        # 隐藏坐标轴（仅保留图形）
-        ax1.axis("off")
-        if not is_single_mode and len(datasets) >= 2:
-            ax2.axis("off")
-
-        # 统一X轴范围（x 轴共享）
-        if not is_single_mode and len(clean_datasets) >= 2:
-            xlen = max(1, len(clean_datasets[0]) - 1)
-            ax1.set_xlim(0, xlen)
-            ax2.set_xlim(0, xlen)
-        else:
-            xlen = max(1, len(clean_datasets[0]) - 1)
-            ax1.set_xlim(0, xlen)
-
-        # 布局与导出
+        for ax in axes:
+            ax.axis("off")
         plt.tight_layout(pad=0)
         plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
+        # 导出为 base64 图片
         img = BytesIO()
         fig.savefig(
             img,
@@ -588,10 +702,8 @@ class ToolKit:
             transparent=True,
             bbox_inches="tight",
             pad_inches=0,
-            facecolor="none",
         )
         plt.close(fig)
-
         return (
             f'<img src="data:image/png;base64,{b64encode(img.getvalue()).decode()}" />'
         )
