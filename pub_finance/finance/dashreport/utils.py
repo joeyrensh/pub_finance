@@ -572,7 +572,7 @@ def make_dash_format_table(df, cols_format, market):
             np.where(
                 sortino_pct <= threshold,
                 sortino_pct,  # 正常情况 → 正评分
-                threshold - (sortino_pct - threshold),  # 超阈值 → 反向扣分
+                np.maximum(0.0, 1 - (sortino_pct - threshold) / (1 - threshold)),
             ),
         )
         # 稳定性评分
