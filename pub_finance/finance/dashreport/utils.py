@@ -497,7 +497,25 @@ def make_dash_format_table(df, cols_format, market):
     # ========== 新增统一评分体系 ==========
     # 分位函数
     def rank_pct(s):
-        return s.rank(pct=True)
+        """
+        安全版百分比排名函数
+
+        1. 将非数值强制转换为 NaN
+        2. NaN 会被忽略排名
+        3. 返回值归一化到 0~1
+        """
+        # 尝试转换为 float，非数值转 NaN
+        s_numeric = pd.to_numeric(s, errors="coerce")
+
+        # 如果全是 NaN，直接返回全 0
+        if s_numeric.isna().all():
+            return pd.Series(0.0, index=s.index)
+
+        # 排名，百分比
+        rank = s_numeric.rank(pct=True, method="average", na_option="keep")
+
+        # NaN 用 0 填充
+        return rank.fillna(0.0)
 
     if has_all_required_cols:
         df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = (
