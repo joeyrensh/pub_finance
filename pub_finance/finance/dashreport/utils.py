@@ -505,14 +505,14 @@ def make_dash_format_table(df, cols_format, market):
         )
         # 行业上涨速度
         df["industry_arrow_score"] = rank_pct(df["IND_ARROW_NUM"])
-        # 商业当前排名
+        # 行业当前排名
         df["industry_bracket_score"] = 1 - rank_pct(df["IND_BRACKET_NUM"])
         # 综合行业评分
         df["industry_score"] = (
             0.6 * df["industry_arrow_score"] + 0.4 * df["industry_bracket_score"]
         )
         # 行业内样本小于3，需要特殊处理，按照全局来评定pnl_score和erp_score
-        ind_counts = df.groupby("IND")["ERP"].transform("count")
+        ind_counts = df.groupby("IND")["SYMBOL"].transform("count")
         invalid_inds = ind_counts < 3
 
         # ERP评分，处理缺失值
@@ -530,15 +530,15 @@ def make_dash_format_table(df, cols_format, market):
             df.groupby("IND")["PNL RATIO"].transform(rank_pct),  # 行业内排名
         )
 
-        k = 1.0
+        overheat_q = 0.8  # 前 20% 认为过热
 
         df["pnl_score"] = np.where(
             df["PNL RATIO"] < 0,
             -1,
             np.where(
-                df["PNL RATIO"] <= 1,
+                pnl_pct <= overheat_q,
                 pnl_pct,
-                np.maximum(0.0, 1 - pnl_pct * np.minimum((df["PNL RATIO"] - 1) * k, 1)),
+                np.maximum(0.0, 1 - (pnl_pct - overheat_q) / (1 - overheat_q)),
             ),
         )
 
@@ -566,9 +566,9 @@ def make_dash_format_table(df, cols_format, market):
         # 总评分
         df["total_score"] = (
             0.35 * df["industry_score"]
-            + 0.15 * df["pnl_score"]
+            + 0.1 * df["pnl_score"]
             + 0.45 * df["stability_score"]
-            + 0.05 * df["erp_score"]
+            + 0.1 * df["erp_score"]
         )
 
         # top 20% 为高亮阈值
