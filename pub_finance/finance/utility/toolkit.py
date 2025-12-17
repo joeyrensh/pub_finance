@@ -500,9 +500,6 @@ class ToolKit:
     # area chart按照y轴渐变透明度填充
     @staticmethod
     def create_line(*args, second_plot_type="area"):
-
-        set_matplotlib_formats("svg")
-
         # ===============================
         # 配置
         # ===============================
@@ -510,55 +507,24 @@ class ToolKit:
             "up_color": "#ff4444",
             "down_color": "#00a859",
             "line_width": 2,
-            "secondary_line_width": 1.2,
-            "secondary_line_alpha": 1.0,
-            "marker_size": 3.5,
-            "zero_line_alpha": 0.0,
-            # Area 渐变参数（已调优）
+            "secondary_line_width": 0.6,
+            "secondary_line_alpha": 0.9,
             "fill_alpha_range": (0.12, 0.55),
-            "alpha_power": 1.4,
-            "area_layers": 7,  # ⭐ 纵向分层数，6~8 最佳
+            "alpha_power": 2,  # 控制顶部更深
+            "marker_size": 3.5,
+            "zero_line_alpha": 0,
         }
 
         # ===============================
-        # 解析输入
+        # 数据解析
         # ===============================
-        datasets = []
-        for arg in args[:2]:
-            if isinstance(arg, (list, tuple, np.ndarray)):
-                datasets.append(list(arg))
-            else:
-                datasets.append([arg])
-
-        is_single_mode = len(datasets) == 1
-
-        # 颜色判断基于第一组趋势
-        if len(datasets[0]) >= 2:
-            is_uptrend = datasets[0][-1] >= datasets[0][-2]
+        if len(args) == 1:
+            datasets = [list(args[0])]
+            is_single = True
         else:
-            is_uptrend = True
+            datasets = [list(args[0]), list(args[1])]
+            is_single = False
 
-        main_color = config["up_color"] if is_uptrend else config["down_color"]
-        second_color = "#ff6666" if is_uptrend else "#66b266"
-
-        # ===============================
-        # 画布
-        # ===============================
-        fig, ax1 = plt.subplots(1, 1, figsize=(2.5, 1), facecolor="none")
-        fig.patch.set_alpha(0)
-
-        if not is_single_mode:
-            ax2 = ax1.twinx()
-            ax1.set_zorder(2)
-            ax2.set_zorder(1)
-            ax1.patch.set_visible(False)
-            ax2.patch.set_visible(False)
-        else:
-            ax2 = None
-
-        # ===============================
-        # 数据清洗
-        # ===============================
         def clean(arr):
             out = []
             for v in arr:
@@ -566,113 +532,126 @@ class ToolKit:
                     out.append(float(v))
                 except Exception:
                     out.append(0.0)
-            return np.array(out)
+            return out
 
-        data1 = clean(datasets[0])
-        data2 = clean(datasets[1]) if not is_single_mode else None
+        datasets = [clean(d) for d in datasets]
+        if not is_single:
+            min_len = min(len(datasets[0]), len(datasets[1]))
+            datasets = [d[:min_len] for d in datasets]
 
-        x = np.arange(len(data1))
+        is_up = datasets[0][-1] >= datasets[0][-2] if len(datasets[0]) > 1 else True
+        main_color = config["up_color"] if is_up else config["down_color"]
+        sec_color = "#ff6666" if is_up else "#66b266"
+
+        # ===============================
+        # 画布
+        # ===============================
+        fig, ax1 = plt.subplots(figsize=(2.5, 1), facecolor="none")
+        fig.patch.set_alpha(0)
+
+        if not is_single:
+            ax2 = ax1.twinx()
+            ax1.set_zorder(ax2.get_zorder() + 1)
+            ax1.patch.set_visible(False)
+            ax2.patch.set_alpha(0)
+            ax2.set_zorder(ax1.get_zorder() - 1)
 
         # ===============================
         # Y 轴范围
         # ===============================
         def set_ylim(ax, y):
+            y = np.asarray(y)
             ymin, ymax = np.min(y), np.max(y)
-            span = max(ymax - ymin, 1e-6)
-            margin = span * 0.15
-            ax.set_ylim(ymin - margin, ymax + margin)
+            span = max(ymax - ymin, 1e-3)
+            pad = span * 0.15
+            ax.set_ylim(ymin - pad, ymax + pad)
 
-        set_ylim(ax1, data1)
-        if ax2 is not None:
-            set_ylim(ax2, data2)
+        set_ylim(ax1, datasets[0])
+        if not is_single:
+            set_ylim(ax2, datasets[1])
 
         # ===============================
         # 主线
         # ===============================
-        ax1.plot(x, data1, color=main_color, lw=config["line_width"], zorder=3)
+        x = np.arange(len(datasets[0]))
+        ax1.plot(x, datasets[0], color=main_color, lw=config["line_width"], zorder=4)
         ax1.scatter(
             x[-1],
-            data1[-1],
-            color=main_color,
+            datasets[0][-1],
             s=config["marker_size"] ** 2,
-            edgecolor="white",
+            color=main_color,
+            edgecolor=main_color,
             linewidth=0.4,
-            zorder=4,
+            zorder=5,
         )
 
         # ===============================
-        # 第二组：Area / Line
+        # 第二组：area（纵向渐变）
         # ===============================
-        if ax2 is not None and data2 is not None:
+        if not is_single and second_plot_type == "area":
+            ax = ax2
+            y = np.asarray(datasets[1])
+            ymin, ymax = ax.get_ylim()
 
-            if second_plot_type == "area":
-                y_base = 0.0
-                a_min, a_max = config["fill_alpha_range"]
-                power = config["alpha_power"]
-                layers = config["area_layers"]
+            # ---- RGBA 渐变纵向 ----
+            grad_steps = 256
+            a_min, a_max = config["fill_alpha_range"]
+            power = config["alpha_power"]
 
-                for j in range(len(data2) - 1):
-                    x_seg = x[j : j + 2]
-                    y_seg = np.maximum(data2[j : j + 2], y_base)
+            t = np.linspace(0, 1, grad_steps)  # 0=底部, 1=顶部
+            alpha = a_min + (a_max - a_min) * (t**power)
 
-                    for k in range(layers):
-                        r0 = k / layers
-                        r1 = (k + 1) / layers
+            r, g, b = mcolors.to_rgb(sec_color)
+            grad = np.zeros((grad_steps, 1, 4))
+            grad[..., 0] = r
+            grad[..., 1] = g
+            grad[..., 2] = b
+            grad[..., 3] = alpha[:, None]
 
-                        y_low = y_base + r0 * (y_seg - y_base)
-                        y_high = y_base + r1 * (y_seg - y_base)
+            img = ax.imshow(
+                grad,
+                extent=[x[0], x[-1], 0, ymax],
+                origin="lower",
+                aspect="auto",
+                zorder=2,
+            )
 
-                        alpha = a_min + (a_max - a_min) * (r1**power)
+            # ---- 用 area 路径裁剪 ----
+            area = ax.fill_between(
+                x, y, 0, facecolor="none", edgecolor="none", zorder=2
+            )
+            img.set_clip_path(area.get_paths()[0], transform=ax.transData)
 
-                        ax2.fill_between(
-                            x_seg,
-                            y_low,
-                            y_high,
-                            color=second_color,
-                            alpha=alpha,
-                            edgecolor="none",
-                            zorder=2,
-                        )
-
-            else:
-                ax2.plot(
-                    x,
-                    data2,
-                    color=second_color,
-                    lw=config["secondary_line_width"],
-                    alpha=config["secondary_line_alpha"],
-                    zorder=2,
-                )
-
-                ax2.scatter(
-                    x[-1],
-                    data2[-1],
-                    color=second_color,
-                    s=config["marker_size"] ** 2,
-                    edgecolor="white",
-                    linewidth=0.4,
-                    zorder=3,
-                )
+            # 轮廓线
+            ax.plot(
+                x,
+                y,
+                color=sec_color,
+                lw=config["secondary_line_width"],
+                alpha=config["secondary_line_alpha"],
+                zorder=3,
+            )
 
         # ===============================
-        # 零线 & 清理
+        # 修饰
         # ===============================
-        ax1.axhline(0, color=main_color, alpha=config["zero_line_alpha"], lw=0.8)
-
         ax1.axis("off")
-        if ax2 is not None:
+        if not is_single:
             ax2.axis("off")
 
-        ax1.set_xlim(0, max(1, len(x) - 1))
-        if ax2 is not None:
-            ax2.set_xlim(0, max(1, len(x) - 1))
+        ax1.set_xlim(x[0], x[-1])
+        if not is_single:
+            ax2.set_xlim(x[0], x[-1])
 
         plt.tight_layout(pad=0)
         plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
-        img = BytesIO()
+        # ===============================
+        # 导出
+        # ===============================
+        buf = BytesIO()
         fig.savefig(
-            img,
+            buf,
             format="png",
             dpi=150,
             transparent=True,
@@ -682,5 +661,5 @@ class ToolKit:
         plt.close(fig)
 
         return (
-            f'<img src="data:image/png;base64,{b64encode(img.getvalue()).decode()}" />'
+            f'<img src="data:image/png;base64,{b64encode(buf.getvalue()).decode()}" />'
         )
