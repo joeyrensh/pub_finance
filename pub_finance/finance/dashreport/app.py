@@ -65,7 +65,7 @@ app.layout = html.Div(
             id="login-page",
             style={"display": "none"},
             children=[
-                html.Div(
+                html.Form(
                     className="login-box",
                     children=[
                         html.H2("Login"),
@@ -89,7 +89,7 @@ app.layout = html.Div(
                             "Login",
                             id="login-button",
                             className="login-button",
-                            type="submit",
+                            type="button",
                         ),
                         html.Div(id="output-state"),
                         html.Div(
