@@ -511,8 +511,8 @@ class ToolKit:
             "line_width": 2,
             "secondary_line_width": 0.5 if second_plot_type == "area" else 1.5,
             "secondary_line_alpha": 0.8 if second_plot_type == "area" else 1.0,
-            "fill_alpha_range": (0.06, 0.25),
-            "alpha_power": 1.5,
+            "fill_alpha_range": (0.07, 0.34),
+            "alpha_power": 1.2,
             "marker_size": 3.5,
             "zero_line_alpha": 0,
         }
@@ -637,7 +637,7 @@ class ToolKit:
 
             # 第二组 area chart（高效渐变沿 Y 轴）
             if i == 1 and not is_single_mode and second_plot_type == "area":
-                n_steps = 20  # 分段数，性能和视觉平衡
+                n_steps = 28  # 分段数，性能和视觉平衡
                 y_base = 0
                 a_min, a_max = config["fill_alpha_range"]
                 power = config["alpha_power"]
