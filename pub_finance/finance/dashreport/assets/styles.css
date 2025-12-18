@@ -29,8 +29,8 @@
   :root {
     /* table深色样式 */
     --data-bar-color: #0074d973;
-    --date-bg-color: #ae9d07bd;
-    --row-bg-color: #ae9d07bd;
+    --date-bg-color: #97880652;
+    --row-bg-color: #97880652;
     --negative-value-bg-color: #00a859;
     --positive-value-bg-color: #ff4444;
     --track-color: #ecf0f1;
