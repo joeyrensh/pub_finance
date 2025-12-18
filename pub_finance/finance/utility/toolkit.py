@@ -509,8 +509,10 @@ class ToolKit:
             "line_width": 2,
             "secondary_line_width": 0.6,
             "secondary_line_alpha": 0.9,
-            "fill_alpha_range": (0.12, 0.55),
-            "alpha_power": 2,  # 控制顶部更深
+            # "fill_alpha_range": (0.12, 0.55),
+            # "alpha_power": 2,  # 控制顶部更深
+            "fill_alpha_range": (0.02, 0.65),
+            "alpha_power": 2.0,
             "marker_size": 3.5,
             "zero_line_alpha": 0,
         }
@@ -610,7 +612,8 @@ class ToolKit:
 
             img = ax.imshow(
                 grad,
-                extent=[x[0], x[-1], 0, ymax],
+                # extent=[x[0], x[-1], 0, ymax],
+                extent=[x[0], x[-1], 0, np.max(y)],
                 origin="lower",
                 aspect="auto",
                 zorder=2,
