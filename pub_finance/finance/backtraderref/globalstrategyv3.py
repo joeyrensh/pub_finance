@@ -897,18 +897,19 @@ class GlobalStrategy(bt.Strategy):
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "红三兵"
             else:
-                dt = self.datas[0].datetime.date(0)
-                dict = {
-                    "symbol": d._name,
-                    "date": dt.isoformat(),
-                    "price": pos.price,
-                    "adjbase": pos.adjbase,
-                    "pnl": pos.size * (pos.adjbase - pos.price),
-                    "volume": d.volume[0],
-                    "sharpe_ratio": self.sharpe_ratios[d._name],
-                    "sortino_ratio": self.sortino_ratios[d._name],
-                }
-                list.append(dict)
+                if len(d) <= d.buflen() - 1:
+                    dt = self.datas[0].datetime.date(0)
+                    dict = {
+                        "symbol": d._name,
+                        "date": dt.isoformat(),
+                        "price": pos.price,
+                        "adjbase": pos.adjbase,
+                        "pnl": pos.size * (pos.adjbase - pos.price),
+                        "volume": d.volume[0],
+                        "sharpe_ratio": self.sharpe_ratios[d._name],
+                        "sortino_ratio": self.sortino_ratios[d._name],
+                    }
+                    list.append(dict)
 
                 if self.signals[d._name]["short_position"][0] == 1:
                     self.order[d._name] = self.close(data=d)

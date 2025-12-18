@@ -351,9 +351,7 @@ class TickerInfo:
 
         # 将self.trade_date从"20251016"转换为"2025-10-16"格式
         try:
-            from datetime import datetime
-
-            trade_date_dt = datetime.strptime(self.trade_date, "%Y%m%d")
+            trade_date_dt = datetime.datetime.strptime(self.trade_date, "%Y%m%d")
             trade_date_formatted = trade_date_dt.strftime("%Y-%m-%d")
         except ValueError as e:
             print(f"交易日期格式错误: {self.trade_date}, 期望格式: YYYYMMDD, 错误: {e}")
@@ -394,6 +392,24 @@ class TickerInfo:
                 "datetime": pd.to_datetime(group_obj["date"].values, format="%Y-%m-%d"),
             },
         ).sort_values(by=["datetime"])
+
+        # ----------------------------
+        # 4. 构造 mock bar（关键新增部分）
+        # ----------------------------
+        last_row = df_copy.iloc[-1].copy()
+
+        # 日期 +1 天
+        last_row["datetime"] = last_row["datetime"] + datetime.timedelta(days=1)
+
+        # volume 可设为 0（推荐）
+        # last_row["volume"] = 0
+
+        # 拼接 mock bar
+        df_copy = pd.concat(
+            [df_copy, pd.DataFrame([last_row])],
+            ignore_index=True,
+        )
+
         return df_copy
 
     def get_backtrader_data_feed_testonly(self, stocklist):
