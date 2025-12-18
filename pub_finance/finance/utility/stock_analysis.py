@@ -15,7 +15,7 @@ import numpy as np
 from matplotlib.colors import to_rgb
 import re
 from plotly.colors import sample_colorscale
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
 
@@ -2295,11 +2295,13 @@ class StockProposal:
             width=fig_width,
             height=fig_height,
         )
+        xmin = pd.to_datetime(pd_trade_info_lst180days["buy_date"].min())
+        xmax = pd.to_datetime(pd_trade_info_lst180days["buy_date"].max())
         fig.update_xaxes(
             range=[
-                pd_trade_info_lst180days["buy_date"].min(),
-                pd_trade_info_lst180days["buy_date"].max(),
-            ],
+                xmin - timedelta(days=0.5),
+                xmax + timedelta(days=0.5),
+            ]
         )
 
         fig.write_image(
@@ -4426,7 +4428,7 @@ class StockProposal:
                 showline=False,
                 gridcolor="rgba(0, 0, 0, 0.2)",
                 domain=[0, 1],  # 强制x轴占据全部可用宽度
-                automargin=True,  # 关闭自动边距计算
+                automargin=False,  # 关闭自动边距计算
             ),
             yaxis=dict(
                 title=dict(
@@ -4469,10 +4471,12 @@ class StockProposal:
             width=fig_width,
             height=fig_height,
         )
+        xmin = pd.to_datetime(pd_trade_info_lst180days["buy_date"].min())
+        xmax = pd.to_datetime(pd_trade_info_lst180days["buy_date"].max())
         fig.update_xaxes(
             range=[
-                pd_trade_info_lst180days["buy_date"].min(),
-                pd_trade_info_lst180days["buy_date"].max(),
+                xmin - timedelta(days=0.5),
+                xmax + timedelta(days=0.5),
             ]
         )
 
@@ -4548,8 +4552,8 @@ class StockProposal:
         )
         fig.update_xaxes(
             range=[
-                pd_trade_info_lst180days["buy_date"].min(),
-                pd_trade_info_lst180days["buy_date"].max(),
+                xmin - timedelta(days=0.5),
+                xmax + timedelta(days=0.5),
             ]
         )
 
