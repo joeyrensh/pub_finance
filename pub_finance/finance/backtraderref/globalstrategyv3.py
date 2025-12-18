@@ -79,6 +79,7 @@ class GlobalStrategy(bt.Strategy):
         self.daily_returns = {}  # 每只股票每日收益率序列
         self.sharpe_ratios = {}  # 每只股票当前夏普比率
         self.sortino_ratios = {}
+        self.max_drawdowns = {}  # 每只股票最大回撤率
         # 读取国债收益率
         file = FileInfo(trade_date, market)
         file_gz = file.get_file_path_gz
@@ -112,6 +113,7 @@ class GlobalStrategy(bt.Strategy):
             self.daily_returns[d._name] = []  # 初始化每日收益率
             self.sharpe_ratios[d._name] = None
             self.sortino_ratios[d._name] = None
+            self.max_drawdowns[d._name] = 0
 
             """MA20/60/120指标 """
             try:
@@ -649,13 +651,14 @@ class GlobalStrategy(bt.Strategy):
             if order.isbuy():
                 """订单购入成功"""
                 print(
-                    "{}, Buy {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {} SortinoRatio: {}".format(
+                    "{}, Buy {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {} SortinoRatio: {} MaxDrawDown: {}".format(
                         bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
                         order.data._name,
                         order.executed.price,
                         order.executed.size,
                         self.sharpe_ratios[order.data._name],
                         self.sortino_ratios[order.data._name],
+                        self.max_drawdowns[order.data._name],
                     )
                 )
                 self.last_deal_date[order.data._name] = bt.num2date(
@@ -672,13 +675,14 @@ class GlobalStrategy(bt.Strategy):
             elif order.issell():
                 """订单卖出成功"""
                 print(
-                    "{} Sell {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {} SortinoRatio: {}".format(
+                    "{} Sell {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {} SortinoRatio: {} MaxDrawDown: {}".format(
                         bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
                         order.data._name,
                         order.executed.price,
                         order.executed.size,
                         self.sharpe_ratios[order.data._name],
                         self.sortino_ratios[order.data._name],
+                        self.max_drawdowns[order.data._name],
                     )
                 )
                 self.last_deal_date[order.data._name] = None
@@ -801,10 +805,32 @@ class GlobalStrategy(bt.Strategy):
                     else:
                         # 没有下行波动，定义索提诺比率为年化平均收益除以小数值1e-10防止除零
                         self.sortino_ratios[d._name] = self.sharpe_ratios[d._name]
+
+                    # ---- (3) 近 rf_window 日 Max Drawdown 计算 ----
+                    if d._name not in self.max_drawdowns:
+                        self.max_drawdowns[d._name] = 0.0
+
+                    rets = np.array(self.daily_returns[d._name])
+
+                    # 构造累计收益曲线（从 1 开始）
+                    equity = np.cumprod(1.0 + rets)
+
+                    # 历史最高点
+                    peak = np.maximum.accumulate(equity)
+
+                    # 回撤序列
+                    drawdowns = equity / peak - 1.0
+
+                    # 最大回撤（负值）
+                    max_dd = np.min(drawdowns)
+
+                    self.max_drawdowns[d._name] = max_dd
+
                 else:
                     # 数据不足或无风险利率为0 → 夏普比率置0
                     self.sharpe_ratios[d._name] = None
                     self.sortino_ratios[d._name] = None
+                    self.max_drawdowns[d._name] = None
 
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
@@ -908,6 +934,7 @@ class GlobalStrategy(bt.Strategy):
                         "volume": d.volume[0],
                         "sharpe_ratio": self.sharpe_ratios[d._name],
                         "sortino_ratio": self.sortino_ratios[d._name],
+                        "max_drawdown": self.max_drawdowns[d._name],
                     }
                     list.append(dict)
 

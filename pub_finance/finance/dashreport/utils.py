@@ -575,11 +575,14 @@ def make_dash_format_table(df, cols_format, market):
                 np.maximum(0.0, 1 - (sortino_pct - threshold) / (1 - threshold)),
             ),
         )
+        df["maxdd_score"] = rank_pct(df["MAX DD"])
+
         # 稳定性评分
         df["stability_score"] = (
-            0.5 * df["win_rate_score"]
+            0.4 * df["win_rate_score"]
             + 0.2 * df["avg_trans_score"]
-            + 0.3 * df["sortino_score"]
+            + 0.2 * df["sortino_score"]
+            + 0.2 * df["maxdd_score"]
         )
         # 总评分
         df["total_score"] = (
@@ -670,6 +673,7 @@ def make_dash_format_table(df, cols_format, market):
             "win_rate_score",
             "avg_trans_score",
             "sortino_score",
+            "maxdd_score",
             "stability_score",
             "total_score",
         ]
@@ -825,6 +829,15 @@ def make_dash_format_table(df, cols_format, market):
         style_data_conditional.extend(
             discrete_background_color_bins(
                 df, col, n_bins=10, positive_is_red=True, mid=1
+            )
+        )
+
+    gradient_target_cols = ["MAX DD"]
+
+    for col in gradient_target_cols:
+        style_data_conditional.extend(
+            discrete_background_color_bins(
+                df, col, n_bins=10, positive_is_red=True, mid=0
             )
         )
 

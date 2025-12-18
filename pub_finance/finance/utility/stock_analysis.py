@@ -109,6 +109,7 @@ class StockProposal:
             "volume",
             "sharpe_ratio",
             "sortino_ratio",
+            "max_drawdown",
         ]
         spark_position_detail = spark.read.csv(
             file_path_position_detail, header=None, inferSchema=True
@@ -886,6 +887,7 @@ class StockProposal:
                   ELSE ROUND((1.0 / t3.pe_double - t4.new / 100.0) * 100, 1) END AS erp
                 , t5.sharpe_ratio    
                 , t5.sortino_ratio
+                , t5.max_drawdown
                 , t1.buy_date
                 , t1.price
                 , t1.adjbase
@@ -926,12 +928,13 @@ class StockProposal:
                 ) t3 ON t1.symbol = t3.symbol
                 LEFT JOIN temp_gz t4 ON 1=1
                 LEFT JOIN (
-                    SELECT symbol, sharpe_ratio, sortino_ratio
+                    SELECT symbol, sharpe_ratio, sortino_ratio, max_drawdown
                     FROM (
                         SELECT 
                             symbol,
                             sharpe_ratio,
                             sortino_ratio,
+                            max_drawdown,
                             ROW_NUMBER() OVER (PARTITION BY symbol ORDER BY date DESC) AS rn
                         FROM temp_position_detail
                     ) t
@@ -940,12 +943,14 @@ class StockProposal:
                 LEFT JOIN (
                     SELECT symbol,
                         COLLECT_LIST(sortino_ratio) AS sortino_ratio_array,
+                        COLLECT_LIST(max_drawdown) AS max_drawdown_array,
                         COLLECT_LIST(adjbase) AS adjbase_array,
                         COLLECT_LIST(volume) AS volume_array
                     FROM (
                         SELECT
                             t2.symbol,
                             t2.sortino_ratio,
+                            t2.max_drawdown,
                             t2.adjbase,
                             t2.volume
                         FROM temp_timeseries t1 LEFT JOIN 
@@ -955,6 +960,7 @@ class StockProposal:
                                 date,
                                 sharpe_ratio,
                                 sortino_ratio,
+                                max_drawdown,
                                 adjbase,
                                 volume
                             FROM temp_position_detail
@@ -1016,6 +1022,7 @@ class StockProposal:
                 "erp": "ERP",
                 "sharpe_ratio": "SHARPE RATIO",
                 "sortino_ratio": "SORTINO RATIO",
+                "max_drawdown": "MAX DD",
                 "buy_date": "OPEN DATE",
                 "price": "BASE",
                 "adjbase": "ADJBASE",
@@ -1077,6 +1084,7 @@ class StockProposal:
                     "ERP": "{:.1f}",
                     "SHARPE RATIO": "{:.2f}",
                     "SORTINO RATIO": "{:.2f}",
+                    "MAX DD": "{:.2%}",
                 }
             ).apply(
                 highlight_row, axis=1
@@ -1407,6 +1415,7 @@ class StockProposal:
                         "ADJBASE": "{:.2f}",
                         "HIS DAYS": "{:.0f}",
                         "PNL RATIO": "{:.2%}",
+                        "ERP": "{:.1f}",
                     }
                 ).background_gradient(
                     subset=["BASE", "ADJBASE"], cmap=cm
@@ -3673,6 +3682,7 @@ class StockProposal:
             "volume",
             "sharpe_ratio",
             "sortino_ratio",
+            "max_drawdown",
         ]
         spark_position_detail = spark.read.csv(
             file_path_position_detail, header=None, inferSchema=True
