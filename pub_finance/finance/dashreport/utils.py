@@ -471,6 +471,7 @@ def make_dash_format_table(df, cols_format, market):
         "WIN RATE",
         "SHARPE RATIO",
         "SORTINO RATIO",
+        "MAX DD",
     ]
     has_all_required_cols = all(col in df.columns for col in required_cols)
     if market in ("us", "us_special"):
@@ -597,17 +598,27 @@ def make_dash_format_table(df, cols_format, market):
 
         condition = df["total_score"] > highlight_threshold
         df.loc[condition, "NAME"] = "3A+" + df.loc[condition, "NAME"]
-
-    highlight_conditional = [
-        (
-            {
-                "if": {"filter_query": "{total_score_o} > " + str(highlight_threshold)},
-                "background": "var(--row-bg-color)",
-            }
-            if has_all_required_cols and "IND_ARROW_NUM" in df.columns
-            else []
-        )
+    highlight_cols = [
+        "IDX",
+        "SYMBOL",
+        "NAME",
     ]
+    highlight_conditional = (
+        [
+            {
+                "if": {
+                    "filter_query": "{total_score_o} > " + str(highlight_threshold),
+                    "column_id": col,
+                },
+                # "background": "var(--row-bg-color)",
+                "color": "var(--row-bg-color)",
+                "fontWeight": "bold",
+            }
+            for col in highlight_cols
+        ]
+        if has_all_required_cols and "IND_ARROW_NUM" in df.columns
+        else []
+    )
 
     def create_link(symbol, market):
         if market == "cn" and symbol.startswith(("SH", "SZ")):
@@ -735,6 +746,7 @@ def make_dash_format_table(df, cols_format, market):
                     "column_id": col,
                 },
                 "background": "none",
+                # "color": "var(--text-color)",
             }
             for col in df.columns
             if col in cols_format and len(cols_format[col]) == 1
@@ -745,11 +757,11 @@ def make_dash_format_table(df, cols_format, market):
                     "column_id": col,
                 },
                 "background": "none",
+                # "color": "var(--text-color)",
             }
             for col in df.columns
             if col not in cols_format
         ]
-        + highlight_conditional
         + [
             {
                 "if": {
@@ -761,7 +773,7 @@ def make_dash_format_table(df, cols_format, market):
                 # "backgroundColor": "RebeccaPurple",
                 # "backgroundColor": "coral",
                 "background": ("""var(--date-bg-color)"""),
-                # "color": "white",
+                # "color": "var(--text-color)",
             }
             for col in df.columns
             if col in cols_format
@@ -775,10 +787,8 @@ def make_dash_format_table(df, cols_format, market):
                     "filter_query": "{{{}}} < 0".format(col + "_o"),
                     "column_id": col,
                 },
-                # "backgroundColor": "#3D9970",
-                # "background": ("""var(--negative-value-bg-color)"""),
-                "color": ("""var(--negative-value-bg-color)"""),
-                # "color": "white",
+                # "color": ("""var(--negative-value-bg-color)"""),
+                "color": "var(--negative-value-bg-color)",
             }
             for col in df.columns
             if col in cols_format
@@ -792,10 +802,8 @@ def make_dash_format_table(df, cols_format, market):
                     "filter_query": "{{{}}} > 0".format(col + "_o"),
                     "column_id": col,
                 },
-                # "backgroundColor": "#FF4136",
-                # "background": ("""var(--positive-value-bg-color)"""),
-                "color": ("""var(--positive-value-bg-color)"""),
-                # "color": "white",
+                # "color": ("""var(--positive-value-bg-color)"""),
+                "color": "var(--positive-value-bg-color)",
             }
             for col in df.columns
             if col in cols_format
@@ -803,6 +811,7 @@ def make_dash_format_table(df, cols_format, market):
             and cols_format[col][0] in ("float", "int")
             and cols_format[col][1] == "format"
         ]
+        + highlight_conditional
     )
 
     for col in df.columns:

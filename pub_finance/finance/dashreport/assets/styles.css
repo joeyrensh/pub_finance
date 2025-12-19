@@ -2,7 +2,8 @@
   /* table浅色样式 */
   --data-bar-color: #7dcfff;
   --date-bg-color: #ffeb3b;
-  --row-bg-color: #ffeb3b;
+  /* --row-bg-color: #ffeb3b; */
+  --row-bg-color: #ff4444;
   --negative-value-bg-color: #00a859;
   --positive-value-bg-color: #ff4444;
   --track-color: #ecf0f1;
@@ -30,7 +31,8 @@
     /* table深色样式 */
     --data-bar-color: #0074d973;
     --date-bg-color: #97880652;
-    --row-bg-color: #2a2416;
+    /* --row-bg-color: #2a2416; */
+    --row-bg-color: #ff4444;
     --negative-value-bg-color: #00a859;
     --positive-value-bg-color: #ff4444;
     --track-color: #ecf0f1;
