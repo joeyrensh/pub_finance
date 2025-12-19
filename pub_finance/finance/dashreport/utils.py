@@ -625,7 +625,7 @@ def make_dash_format_table(df, cols_format, market):
                     "column_id": col,
                 },
                 # "background": "var(--row-bg-color)",
-                "color": "var(--row-bg-color) !important",
+                "color": "var(--row-bg-color)",
                 "fontWeight": "bold",
             }
             for col in highlight_cols
