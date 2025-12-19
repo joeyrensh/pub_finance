@@ -601,11 +601,13 @@ def make_dash_format_table(df, cols_format, market):
 
     def create_link(symbol, market):
         if market == "cn" and symbol.startswith(("SH", "SZ")):
-            return f"[{symbol}](https://quote.eastmoney.com/{symbol}.html)"
+            url = f"https://quote.eastmoney.com/{symbol}.html"
         elif market == "cn" and symbol.startswith("ETF"):
-            return f"[{symbol}](https://quote.eastmoney.com/{symbol[3:]}.html)"
+            url = f"https://quote.eastmoney.com/{symbol[3:]}.html"
         else:
-            return f"[{symbol}](https://quote.eastmoney.com/us/{symbol}.html)"
+            url = f"https://quote.eastmoney.com/us/{symbol}.html"
+        # 使用 inline style 让链接继承单元格颜色，并去掉下划线
+        return f'<a href="{url}" target="_blank" style="color:inherit;text-decoration:none;">{symbol}</a>'
 
     if "SYMBOL" in df.columns:
         df["SYMBOL"] = df["SYMBOL"].apply(lambda symbol: create_link(symbol, market))
@@ -623,7 +625,7 @@ def make_dash_format_table(df, cols_format, market):
                     "column_id": col,
                 },
                 # "background": "var(--row-bg-color)",
-                "color": "var(--row-bg-color)",
+                "color": "var(--row-bg-color) !important",
                 "fontWeight": "bold",
             }
             for col in highlight_cols
