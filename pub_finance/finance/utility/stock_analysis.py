@@ -1354,7 +1354,7 @@ class StockProposal:
                     ],
                     left_on="industry",
                     right_on="industry_new",
-                    how="inner",
+                    how="left",
                 )
                 .sort_values(
                     by=["pnl_growth", "sell_date", "pnl"],
@@ -1362,7 +1362,9 @@ class StockProposal:
                 )
                 .reset_index(drop=True)
             )
-            pd_position_reduction["industry"] = pd_position_reduction["combined"]
+            pd_position_reduction["industry"] = pd_position_reduction[
+                "combined"
+            ].combine_first(pd_position_reduction["industry"])
 
             # 删除添加的'combined_df2'列
             pd_position_reduction.drop(
