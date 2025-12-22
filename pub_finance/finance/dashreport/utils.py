@@ -505,39 +505,51 @@ def make_dash_format_table(df, cols_format, market):
 
     # ========== 新增统一评分体系 ==========
     # 分位函数
-    def rank_score(s, higher_is_better=True, mid=None):
+    def rank_score(
+        s: pd.Series,
+        *,
+        higher_is_better: bool = True,
+        mid: float | None = None,
+    ) -> pd.Series:
+        """
+        统一评分函数（最终版）
+        - mid=None → 单边归一化 [0,1]，最大值=1，最小值=0
+        - mid=float → 双边归一 [-1,1]，value==mid → score=0
+        - higher_is_better=True → 值越大越好
+        - NaN → 返回0
+        """
         s_num = pd.to_numeric(s, errors="coerce")
         score = pd.Series(0.0, index=s.index)
-
         valid = s_num.dropna()
         if valid.empty:
             return score
 
-        # mid None → 单边归一
+        # ---------- 单边归一化 ----------
         if mid is None:
-            if higher_is_better:
-                vmin, vmax = valid.min(), valid.max()
-            else:
-                vmin, vmax = valid.max(), valid.min()
+            vals = valid.copy()
+            if not higher_is_better:
+                vals = -vals  # 负指标统一方向
+            vmin, vmax = vals.min(), vals.max()
             if vmin == vmax:
                 score.loc[valid.index] = 1.0
             else:
-                score.loc[valid.index] = (valid - vmin) / (vmax - vmin)
+                score.loc[valid.index] = (vals - vmin) / (vmax - vmin)
             return score
 
-        # mid 存在 → 双边归一 [-1,1]
+        # ---------- 双边归一化 ----------
         aligned = valid - mid
         pos = aligned[aligned > 0]
         neg = aligned[aligned < 0]
 
         if not pos.empty:
             max_pos = pos.max()
-            score.loc[pos.index] = pos / max_pos
-
+            if max_pos != 0:
+                score.loc[pos.index] = pos / max_pos
         if not neg.empty:
             min_neg = neg.min()
-            score.loc[neg.index] = neg / abs(min_neg)
-
+            if min_neg != 0:
+                score.loc[neg.index] = neg / abs(min_neg)
+        # aligned==0 → score保持0
         return score
 
     if has_all_required_cols:
