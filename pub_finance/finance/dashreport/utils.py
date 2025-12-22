@@ -446,16 +446,24 @@ def discrete_background_color_bins(df, column, n_bins=10, positive_is_red=False,
 
 
 def extract_arrow_num(s):
-    # 去除HTML标签
-    clean_text = re.sub("<[^<]+?>", "", s)
+    # 去除 HTML 标签
+    clean_text = re.sub(r"<[^<]+?>", "", s)
 
-    # 提取向上箭头后的数字（新格式：↑7/4）
-    arrow_num = re.search(r"↑(\d+)", clean_text)
-    arrow_num = int(arrow_num.group(1)) if arrow_num else None
+    arrow_num = 0  # 默认：没有箭头 → 0
 
-    # 提取斜杠后的当前排名数字（新格式：↑7/4）
-    bracket_num = re.search(r"/(\d+)", clean_text)
-    bracket_num = int(bracket_num.group(1)) if bracket_num else None
+    # 向上箭头 ↑
+    up_match = re.search(r"↑(\d+)", clean_text)
+    if up_match:
+        arrow_num = int(up_match.group(1))
+    else:
+        # 向下箭头 ↓
+        down_match = re.search(r"↓(\d+)", clean_text)
+        if down_match:
+            arrow_num = -int(down_match.group(1))
+
+    # 斜杠后的数字（如 ↑7/4）
+    bracket_match = re.search(r"/(\d+)", clean_text)
+    bracket_num = int(bracket_match.group(1)) if bracket_match else None
 
     return arrow_num, bracket_num
 
@@ -497,38 +505,57 @@ def make_dash_format_table(df, cols_format, market):
 
     # ========== 新增统一评分体系 ==========
     # 分位函数
-    def rank_pct(s):
-        """
-        安全版百分比排名函数
+    def rank_score(s, higher_is_better=True, mid=None):
+        s_num = pd.to_numeric(s, errors="coerce")
+        score = pd.Series(0.0, index=s.index)
 
-        1. 将非数值强制转换为 NaN
-        2. NaN 会被忽略排名
-        3. 返回值归一化到 0~1
-        """
-        # 尝试转换为 float，非数值转 NaN
-        s_numeric = pd.to_numeric(s, errors="coerce")
+        valid = s_num.dropna()
+        if valid.empty:
+            return score
 
-        # 如果全是 NaN，直接返回全 0
-        if s_numeric.isna().all():
-            return pd.Series(0.0, index=s.index)
+        # mid None → 单边归一
+        if mid is None:
+            if higher_is_better:
+                vmin, vmax = valid.min(), valid.max()
+            else:
+                vmin, vmax = valid.max(), valid.min()
+            if vmin == vmax:
+                score.loc[valid.index] = 1.0
+            else:
+                score.loc[valid.index] = (valid - vmin) / (vmax - vmin)
+            return score
 
-        # 排名，百分比
-        rank = s_numeric.rank(pct=True, method="average", na_option="keep")
+        # mid 存在 → 双边归一 [-1,1]
+        aligned = valid - mid
+        pos = aligned[aligned > 0]
+        neg = aligned[aligned < 0]
 
-        # NaN 用 0 填充
-        return rank.fillna(0.0)
+        if not pos.empty:
+            max_pos = pos.max()
+            score.loc[pos.index] = pos / max_pos
+
+        if not neg.empty:
+            min_neg = neg.min()
+            score.loc[neg.index] = neg / abs(min_neg)
+
+        return score
 
     if has_all_required_cols:
-        df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = (
-            df["IND"].apply(lambda x: pd.Series(extract_arrow_num(x))).fillna(0)
+        # 行业动量
+        df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = df["IND"].apply(
+            lambda x: pd.Series(extract_arrow_num(x))
         )
-        # 行业上涨速度
-        df["industry_arrow_score"] = rank_pct(df["IND_ARROW_NUM"])
-        # 行业当前排名
-        df["industry_bracket_score"] = 1 - rank_pct(df["IND_BRACKET_NUM"])
-        # 综合行业评分
-        df["industry_score"] = (
-            0.6 * df["industry_arrow_score"] + 0.4 * df["industry_bracket_score"]
+
+        df["industry_arrow_score"] = rank_score(
+            df["IND_ARROW_NUM"],
+            higher_is_better=True,
+            mid=0,
+        )
+
+        df["industry_bracket_score"] = rank_score(
+            df["IND_BRACKET_NUM"],
+            higher_is_better=False,  # 排名越小越好
+            mid=None,
         )
         # 行业内样本小于3，需要特殊处理，按照全局来评定pnl_score和erp_score
         ind_counts = df.groupby("IND")["SYMBOL"].transform("count")
@@ -536,61 +563,58 @@ def make_dash_format_table(df, cols_format, market):
 
         # ERP评分，处理缺失值
         df["erp_clean"] = df["ERP"].replace(-99999, np.nan)
-        # 根据行业样本数条件赋值
         df["erp_score"] = np.where(
             invalid_inds,
-            rank_pct(df["erp_clean"]),  # 全局排名
-            df.groupby("IND")["erp_clean"].transform(rank_pct),  # 行业内排名
+            rank_score(df["erp_clean"], higher_is_better=True, mid=None),
+            df.groupby("IND")["erp_clean"].transform(
+                lambda x: rank_score(x, higher_is_better=True, mid=None)
+            ),
         )
         # PNL评分
-        pnl_pct = np.where(
-            invalid_inds,
-            rank_pct(df["PNL RATIO"]),  # 全局排名
-            df.groupby("IND")["PNL RATIO"].transform(rank_pct),  # 行业内排名
-        )
-
-        overheat_q = 0.8  # 前 20% 认为过热
-
-        df["pnl_score"] = np.where(
-            df["PNL RATIO"] < 0,
-            -1,
-            np.where(
-                pnl_pct <= overheat_q,
-                pnl_pct,
-                np.maximum(0.0, 1 - (pnl_pct - overheat_q) / (1 - overheat_q)),
-            ),
+        df["pnl_score"] = rank_score(
+            df["PNL RATIO"],
+            higher_is_better=True,
+            mid=0,
         )
 
         # 胜率和平均交易评分
-        df["win_rate_score"] = rank_pct(df["WIN RATE"])
-        df["avg_trans_score"] = 1 - rank_pct(df["AVG TRANS"])
-        sortino_pct = rank_pct(df["SORTINO RATIO"])
-        threshold = 0.8  # 超过此排名开始惩罚（可改成固定值）
-
-        df["sortino_score"] = np.where(
-            df["SORTINO RATIO"] < 0,
-            -(1 - sortino_pct),  # 负值 → 惩罚
-            np.where(
-                sortino_pct <= threshold,
-                sortino_pct,  # 正常情况 → 正评分
-                np.maximum(0.0, 1 - (sortino_pct - threshold) / (1 - threshold)),
-            ),
+        df["win_rate_score"] = rank_score(
+            df["WIN RATE"],
+            higher_is_better=True,
+            mid=None,
         )
-        df["maxdd_score"] = rank_pct(df["MAX DD"])
 
-        # 稳定性评分
-        df["stability_score"] = (
-            0.4 * df["win_rate_score"]
-            + 0.2 * df["avg_trans_score"]
-            + 0.2 * df["sortino_score"]
-            + 0.2 * df["maxdd_score"]
+        df["avg_trans_score"] = rank_score(
+            df["AVG TRANS"],
+            higher_is_better=False,
+            mid=None,
         )
-        # 总评分
+
+        df["sortino_score"] = rank_score(
+            df["SORTINO RATIO"],
+            higher_is_better=True,
+            mid=0,
+        )
+
+        df["maxdd_score"] = rank_score(
+            df["MAX DD"],
+            higher_is_better=True,
+            mid=None,
+        )
+
+        stability_factor = 0.4 + 0.2 + 0.2 + 0.2  # 子因子权重和 = 1
         df["total_score"] = (
-            0.35 * df["industry_score"]
-            + 0.1 * df["pnl_score"]
-            + 0.45 * df["stability_score"]
-            + 0.1 * df["erp_score"]
+            0.25
+            * (0.6 * df["industry_arrow_score"] + 0.4 * df["industry_bracket_score"])
+            + 0.125 * df["pnl_score"]
+            + 0.5
+            * (
+                0.4 * df["win_rate_score"]
+                + 0.2 * df["avg_trans_score"]
+                + 0.2 * df["sortino_score"]
+                + 0.2 * df["maxdd_score"]
+            )
+            + 0.125 * df["erp_score"]
         )
 
         # top 20% 为高亮阈值
@@ -680,7 +704,6 @@ def make_dash_format_table(df, cols_format, market):
             "IND_BRACKET_NUM",
             "industry_arrow_score",
             "industry_bracket_score",
-            "industry_score",
             "pnl_score",
             "erp_clean",
             "erp_score",
