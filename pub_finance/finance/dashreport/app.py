@@ -245,8 +245,8 @@ def toggle_collapse(n_clicks, current_style, btn_content):
 )
 def update_row_count(indices):
     if indices is None:
-        return "共 0 行"
-    return f"检索到 {len(indices)} 行"
+        return "Total 0 Rows"
+    return f"Total {len(indices)} Rows"
 
 
 if __name__ == "__main__":
