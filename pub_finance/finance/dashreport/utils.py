@@ -633,7 +633,7 @@ def make_dash_format_table(df, cols_format, market):
         highlight_threshold = df["total_score"].quantile(0.9)
 
         condition = df["total_score"] > highlight_threshold
-        df.loc[condition, "NAME"] = "3A+" + df.loc[condition, "NAME"]
+        df.loc[condition, "NAME"] = "88+" + df.loc[condition, "NAME"]
 
     def create_link(symbol, market):
         if market == "cn" and symbol.startswith(("SH", "SZ")):
