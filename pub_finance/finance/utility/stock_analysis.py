@@ -1646,7 +1646,7 @@ class StockProposal:
             """ 
             SELECT industry, cnt 
             FROM (
-                SELECT industry, count(*) AS cnt FROM temp_cur_position GROUP BY industry)
+                SELECT industry, count(symbol) AS cnt FROM temp_cur_position GROUP BY industry)
             ORDER BY cnt DESC LIMIT 20
             """
         )
@@ -1720,7 +1720,7 @@ class StockProposal:
         fig = go.Figure(
             go.Treemap(
                 labels=pd_top20_industry["industry"],
-                parents=[None] * len(pd_top20_industry),  # 顶层节点为空
+                parents=[""] * len(pd_top20_industry),  # 顶层节点为空
                 values=pd_top20_industry["cnt"],
                 texttemplate="%{label}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
                 insidetextfont=dict(
@@ -2362,7 +2362,7 @@ class StockProposal:
                 SELECT industry
                     ,cnt 
                 FROM ( 
-                    SELECT industry, count(*) AS cnt FROM temp_cur_position GROUP BY industry) t
+                    SELECT industry, count(symbol) AS cnt FROM temp_cur_position GROUP BY industry) t
                 ORDER BY cnt DESC LIMIT 5
             ), tmp1 AS (
                 SELECT temp_timeseries.buy_date
