@@ -235,11 +235,11 @@ def toggle_collapse(n_clicks, current_style, btn_content):
 
 @app.callback(
     Output(
-        {"type": "auto-table-count", "market": MATCH, "table": MATCH},
+        {"type": "auto-table-count", "table": MATCH},
         "children",
     ),
     Input(
-        {"type": "auto-table", "market": MATCH, "table": MATCH},
+        {"type": "auto-table", "table": MATCH},
         "derived_virtual_indices",
     ),
 )

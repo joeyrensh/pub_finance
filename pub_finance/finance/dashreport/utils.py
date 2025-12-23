@@ -810,7 +810,7 @@ def make_dash_format_table(df, cols_format, market):
                 },
                 # "backgroundColor": "RebeccaPurple",
                 # "backgroundColor": "coral",
-                "background": ("""var(--date-bg-color)"""),
+                "backgroundColor": ("""var(--date-bg-color)"""),
                 # "color": "var(--text-color)",
             }
             for col in df.columns
@@ -900,25 +900,26 @@ def make_dash_format_table(df, cols_format, market):
 
     table_id = {
         "type": "auto-table",
-        "market": market,
         "table": table_key,
     }
 
     count_id = {
         "type": "auto-table-count",
-        "market": market,
         "table": table_key,
     }
 
     return html.Div(
-        [
+        children=[
+            # 行数 overlay
             html.Div(
                 id=count_id,
                 style={
-                    "textAlign": "right",
+                    "position": "sticky",  # 使用 sticky 定位
+                    "zIndex": 1000,
+                    "pointerEvents": "none",
+                    "whiteSpace": "nowrap",
+                    "float": "right",
                     "marginBottom": "2px",
-                    "position": "relative",
-                    "font-size": "1rem",
                 },
             ),
             dash_table.DataTable(
@@ -963,11 +964,18 @@ def make_dash_format_table(df, cols_format, market):
                 },
                 style_table={
                     "paddingBottom": "10px",
+                    "position": "relative",
+                    "display": "flex",
+                    "flexDirection": "column",
+                    "width": "100%",
+                    "maxWidth": "100%",
+                    "overflow": "auto",  # 让整个容器可以滚动
                 },
                 style_data_conditional=style_data_conditional,
             ),
         ],
         className="default-table",
+        style={"position": "relative", "display": "inline-block", "width": "100%"},
     )
 
 

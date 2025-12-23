@@ -383,8 +383,8 @@ p {
 h6.padded,
 p.padded {
   padding: 2px 5px;
-  margin-top: -5px;
-  margin-bottom: -5px;
+  margin-top: 0px;
+  margin-bottom: 0px;
 }
 
 .blue-text {
@@ -950,6 +950,9 @@ a:active {
 /* @media only screen and (max-width: 900px) { */
 @media (max-width: 550px),
 (max-device-width: 550px) {
+  body {
+    font-size: 1rem;
+  }
   .page {
     margin-left: -7px !important;
     width: 103% !important;
