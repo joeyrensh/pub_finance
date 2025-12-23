@@ -894,52 +894,80 @@ def make_dash_format_table(df, cols_format, market):
         style_data_conditional.extend(
             discrete_background_color_bins(df, col, n_bins=10, positive_is_red=True)
         )
+    import uuid
 
-    return dash_table.DataTable(
-        id="defult-table",
-        data=data,
-        columns=columns,
-        filter_action="native",
-        sort_action="native",
-        filter_options={
-            "placeholder_text": "Search",
-            # "case": "insensitive",
-        },
-        style_filter={
-            # "top": "-3px",  # 根据需要调整这个值
-            # "z-index": "10",
-            # "color": "black",
-            # "overflow": "hidden",
-        },
-        markdown_options={"html": True, "link_target": "_blank"},
-        fill_width=True,
-        editable=True,
-        style_header={
-            "position": "sticky",
-            "top": "0",
-            "backgroundColor": "transparent",
-            "z-index": 1000,
-            "fontWeight": "bold",
-            "white-space": "normal",
-            # "z-index": "10",
-        },
-        style_cell={
-            "textAlign": "left",
-            "overflow": "hidden",
-            "textOverflow": "ellipsis",
-            "backgroundColor": "transparent",
-            # "font-size": "1rem",
-            "margin": "0px",
-            "margin-bottom": "-20px",
-            "padding": "0px",
-        },
-        style_data={
-            "backgroundColor": "transparent",
-        },
-        style_table={
-            "paddingBottom": "10px",
-        },
-        style_data_conditional=style_data_conditional,
+    table_key = str(uuid.uuid4())
+
+    table_id = {
+        "type": "auto-table",
+        "market": market,
+        "table": table_key,
+    }
+
+    count_id = {
+        "type": "auto-table-count",
+        "market": market,
+        "table": table_key,
+    }
+
+    return html.Div(
+        [
+            html.Div(
+                id=count_id,
+                style={
+                    "textAlign": "right",
+                    "marginBottom": "2px",
+                    "position": "relative",
+                    "font-size": "1rem",
+                },
+            ),
+            dash_table.DataTable(
+                # id="defult-table",
+                id=table_id,
+                data=data,
+                columns=columns,
+                filter_action="native",
+                sort_action="native",
+                filter_options={
+                    "placeholder_text": "Search",
+                    # "case": "insensitive",
+                },
+                style_filter={
+                    # "top": "-3px",  # 根据需要调整这个值
+                    # "z-index": "10",
+                    # "color": "black",
+                    # "overflow": "hidden",
+                },
+                markdown_options={"html": True, "link_target": "_blank"},
+                fill_width=True,
+                editable=True,
+                style_header={
+                    "position": "sticky",
+                    "top": "0",
+                    "backgroundColor": "transparent",
+                    "z-index": 10,
+                    "fontWeight": "bold",
+                    "white-space": "normal",
+                },
+                style_cell={
+                    "textAlign": "left",
+                    "overflow": "hidden",
+                    "textOverflow": "ellipsis",
+                    "backgroundColor": "transparent",
+                    "margin": "0px",
+                    "margin-bottom": "-20px",
+                    "padding": "0px",
+                },
+                style_data={
+                    "backgroundColor": "transparent",
+                },
+                style_table={
+                    "paddingBottom": "10px",
+                },
+                style_data_conditional=style_data_conditional,
+            ),
+        ],
+        className="default-table",
     )
 
 

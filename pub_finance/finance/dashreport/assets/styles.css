@@ -384,7 +384,7 @@ h6.padded,
 p.padded {
   padding: 2px 5px;
   margin-top: -5px;
-  margin-bottom: 5px;
+  margin-bottom: -5px;
 }
 
 .blue-text {
@@ -421,19 +421,22 @@ img {
   line-height: 1.0 !important;
 
 }
+.default-table {
+  /* margin-top: -15px !important; */
+}
 
-#defult-table table {
+.default-table table {
 border-collapse: separate !important;
 border-spacing: 0 !important;
 }
 
-#defult-table table td, #defult-table table th {
+.default-table table td, .default-table table th {
 border-width: 0.01px !important;
 border-color: var(--dash-table-border-color) !important;
-background-color: transparent ;
+background-color: transparent;
 }
 
-#defult-table .dash-table-container {
+.default-table .dash-table-container {
   border-collapse: separate !important;
   border-spacing: 0 !important;
   border-width: 0.1px !important;
@@ -449,11 +452,11 @@ background-color: transparent ;
     "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif !important;
 }
 
-#defult-table .dash-filter input:not([type=radio]):not([type=checkbox]) {
-  color: #007eff;
-  text-align: left;
-  padding: 0;
-  font-size: 0.9rem;
+.default-table .dash-filter input:not([type=radio]):not([type=checkbox]) {
+  color: #007eff !important;
+  text-align: left !important;
+  padding: 0 !important;
+  font-size: 0.9rem !important;
 }
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th.dash-filter input.dash-filter--case--sensitive {
   border-radius: 0px !important;
@@ -461,8 +464,8 @@ background-color: transparent ;
   font-size: 0px !important;
 }
 
-#defult-table .dash-spreadsheet-container .dash-spreadsheet-inner .column-header-name {
-  font-weight: 400;
+.default-table .dash-spreadsheet-container .dash-spreadsheet-inner .column-header-name {
+  font-weight: 400 !important;
   /* color: #2d4fdc; */
   /* color: #0e0e0e; */
   font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",

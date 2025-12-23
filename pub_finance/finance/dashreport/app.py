@@ -233,6 +233,22 @@ def toggle_collapse(n_clicks, current_style, btn_content):
     return {"display": new_display}, new_title
 
 
+@app.callback(
+    Output(
+        {"type": "auto-table-count", "market": MATCH, "table": MATCH},
+        "children",
+    ),
+    Input(
+        {"type": "auto-table", "market": MATCH, "table": MATCH},
+        "derived_virtual_indices",
+    ),
+)
+def update_row_count(indices):
+    if indices is None:
+        return "共 0 行"
+    return f"检索到 {len(indices)} 行"
+
+
 if __name__ == "__main__":
     app.run_server(host="0.0.0.0", port=80, debug=True)
     # app.run_server()
