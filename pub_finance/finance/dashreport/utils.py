@@ -941,7 +941,7 @@ def make_dash_format_table(df, cols_format, market):
                 },
                 markdown_options={"html": True, "link_target": "_blank"},
                 fill_width=True,
-                editable=True,
+                editable=False,
                 style_header={
                     "position": "sticky",
                     "top": "0",
