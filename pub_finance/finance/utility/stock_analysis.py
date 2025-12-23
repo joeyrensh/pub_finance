@@ -396,6 +396,7 @@ class StockProposal:
             LEFT JOIN tmp3 t3 ON t1.industry = t3.industry
             LEFT JOIN tmp4 t4 ON t1.industry = t4.industry
             LEFT JOIN tmp5 t5 ON t1.industry = t5.industry
+            WHERE t2.p_cnt > 0
             ORDER BY COALESCE(t2.p_pnl,0) DESC
             """.format(
                 end_date, end_date
@@ -483,7 +484,7 @@ class StockProposal:
 
         result_df = (
             pd_industry_history_tracking.merge(
-                pd_industry_history_tracking_lst5days, on="industry", how="inner"
+                pd_industry_history_tracking_lst5days, on="industry", how="left"
             )
             .sort_values(by="pnl_growth", ascending=False)
             .reset_index(drop=True)
