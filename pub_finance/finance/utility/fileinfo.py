@@ -71,6 +71,10 @@ class FileInfo:
             + "/"
             + f"{market}_trade_logs.csv"
         )
+        # 固定追踪股票列表
+        self._file_path_fixed_list = (
+            base_path + "/" + f"{decode_market}stockinfo" + "/" + "fixed_list.csv"
+        )
 
     """ 返回某日数据文件路径 """
 
@@ -146,3 +150,7 @@ class FileInfo:
     @property
     def get_file_path_trade(self):
         return self._file_path_trade
+
+    @property
+    def get_file_path_fixed_list(self):
+        return self._file_path_fixed_list

@@ -7,6 +7,7 @@ from utility.toolkit import ToolKit
 import multiprocessing
 import gc
 import datetime
+import os
 
 """ 组合每日股票数据为一个dataframe """
 
@@ -27,6 +28,8 @@ class TickerInfo:
         self.file_industry = file.get_file_path_industry
         """ 获取截止交易日当天历史国债数据文件列表 """
         self.files_gz = file.get_gz_file_list
+        """ 获取固定追踪股票列表文件路径 """
+        self.file_fixed_list = file.get_file_path_fixed_list
 
     """ 获取股票代码列表 """
 
@@ -620,6 +623,24 @@ class TickerInfo:
 
         # 更新 stock_list
         stock_list = frequent_symbols
+
+        # ===== 新增：读取 fixed_list.csv 并合并 =====
+        if os.path.exists(self.file_fixed_list):
+            try:
+                fixed_df = pd.read_csv(self.file_fixed_list)
+                if not fixed_df.empty:
+                    if "symbol" in fixed_df.columns:
+                        fixed_symbols = fixed_df["symbol"]
+                        print(f"固定追踪列表: {len(fixed_symbols)}")
+                    else:
+                        # 没有 symbol 表头时，默认取第一列
+                        fixed_symbols = fixed_df.iloc[:, 0]
+
+                    fixed_symbols = fixed_symbols.astype(str).unique().tolist()
+                    stock_list = list(set(stock_list) | set(fixed_symbols))
+
+            except Exception as e:
+                print(f"读取 fixed_list.csv 失败: {e}")
 
         dfs, df_all, df_recent, df = None, None, None, None
         gc.collect()

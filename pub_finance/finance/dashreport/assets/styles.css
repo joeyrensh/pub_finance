@@ -399,6 +399,7 @@ table {
   margin: 0;
   padding: 0;
   border: 0.1px solid var(--dash-table-border-color) !important;
+  margin-top: -10px;
   /* filter: brightness(110%); */
   /* filter:
     contrast(105%) saturate(110%); */
@@ -423,6 +424,9 @@ img {
 }
 .default-table {
   /* margin-top: -15px !important; */
+}
+.table {
+  margin-top: -10px;
 }
 
 .default-table table {
@@ -1096,8 +1100,8 @@ a:active {
 
   .all-tabs {
     text-align: center;
-    margin-top: -10px;
-    margin-bottom: 5px;
+    margin-top: 0px;
+    margin-bottom: 0px;
     font-size: 1.1rem;
   }
 

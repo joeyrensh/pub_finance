@@ -15,6 +15,7 @@ spark-warehouse/
 !usstockinfo/industry_yfinance.csv
 !usstockinfo/industry_yfinance_mapping.csv
 !usstockinfo/industry.csv
+!usstockinfo/fixed_list.csv
 !cnstockinfo/industry.csv
 !dashreport/assets/cartoon.png
 !dashreport/assets/cartoon1.png

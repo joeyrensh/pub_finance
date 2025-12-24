@@ -969,13 +969,18 @@ def make_dash_format_table(df, cols_format, market):
                     "flexDirection": "column",
                     "width": "100%",
                     "maxWidth": "100%",
+                    "max-height": 400,
                     "overflow": "auto",  # 让整个容器可以滚动
                 },
                 style_data_conditional=style_data_conditional,
             ),
         ],
         className="default-table",
-        style={"position": "relative", "display": "inline-block", "width": "100%"},
+        style={
+            "position": "relative",
+            "display": "inline-block",
+            "width": "100%",
+        },
     )
 
 
