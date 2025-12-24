@@ -177,6 +177,7 @@ body {
   color: #333;
   white-space: nowrap;
   transition: all 0.25s ease;
+  border-color: var(--border-left-color);
 }
 
 .tab .icon {
