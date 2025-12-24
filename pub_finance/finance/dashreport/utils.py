@@ -933,12 +933,6 @@ def make_dash_format_table(df, cols_format, market):
                     "placeholder_text": "Search",
                     # "case": "insensitive",
                 },
-                style_filter={
-                    # "top": "-3px",  # 根据需要调整这个值
-                    # "z-index": "10",
-                    # "color": "black",
-                    # "overflow": "hidden",
-                },
                 markdown_options={"html": True, "link_target": "_blank"},
                 fill_width=True,
                 editable=False,

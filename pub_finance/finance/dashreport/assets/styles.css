@@ -430,14 +430,14 @@ img {
 }
 
 .default-table table {
-border-collapse: separate !important;
-border-spacing: 0 !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
 }
 
 .default-table table td, .default-table table th {
-border-width: 0.01px !important;
-border-color: var(--dash-table-border-color) !important;
-background-color: transparent;
+  border-width: 0.01px !important;
+  border-color: var(--dash-table-border-color) !important;
+  background-color: transparent;
 }
 
 .default-table .dash-table-container {
@@ -456,11 +456,25 @@ background-color: transparent;
     "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif !important;
 }
 
-.default-table .dash-filter input:not([type=radio]):not([type=checkbox]) {
+.default-table .dash-filter{
+  vertical-align: bottom !important;
+  border-top-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.default-table
+.dash-spreadsheet-inner
+tr:has(th.dash-filter) {
+  height: 30px !important;
+  min-height: 30px !important;
+}
+
+.default-table .dash-filter input:not([type=radio]):not([type=checkbox]){
+  padding: 0 !important;
+  font-size: 0.9rem !important;  
   color: #007eff !important;
   text-align: left !important;
-  padding: 0 !important;
-  font-size: 0.9rem !important;
 }
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th.dash-filter input.dash-filter--case--sensitive {
   border-radius: 0px !important;
@@ -994,6 +1008,12 @@ a:active {
     width: 38%;
   }
 
+  .default-table
+  .dash-spreadsheet-inner
+  tr:has(th.dash-filter) {
+    height: 20px !important;
+    min-height: 20px !important;
+  }
 
   .product {
     position: relative;
@@ -1049,7 +1069,6 @@ a:active {
 
   .cn_table .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='NAME'],
   .cn_table .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='IND'] {
-
     min-width: 15vw;
   }
 
@@ -1218,7 +1237,6 @@ a:active {
     padding-left: 0;
     font-size: 1.2rem;
   }
-
 
 }
 
