@@ -685,6 +685,7 @@ def create_layout(app):
                                                     df,
                                                     cols_format_category,
                                                     f"{prefix}",
+                                                    f"{df_overall.at[0, 'end_date']}",
                                                 ),
                                                 className="cn_table",
                                             )
@@ -718,6 +719,7 @@ def create_layout(app):
                                                     df_detail,
                                                     cols_format_detail,
                                                     f"{prefix}",
+                                                    f"{df_overall.at[0, 'end_date']}",
                                                 ),
                                                 className="cn_table",
                                             )
@@ -747,7 +749,10 @@ def create_layout(app):
                                         [
                                             html.Div(
                                                 children=make_dash_format_table(
-                                                    df_etf, cols_format_etf, f"{prefix}"
+                                                    df_etf,
+                                                    cols_format_etf,
+                                                    f"{prefix}",
+                                                    f"{df_overall.at[0, 'end_date']}",
                                                 ),
                                                 className="cn_table",
                                             )
@@ -780,6 +785,7 @@ def create_layout(app):
                                                     df_detail_short,
                                                     cols_format_detail_short,
                                                     f"{prefix}",
+                                                    f"{df_overall.at[0, 'end_date']}",
                                                 ),
                                                 className="cn_table",
                                             )

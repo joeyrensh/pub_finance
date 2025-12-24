@@ -468,7 +468,7 @@ def extract_arrow_num(s):
     return arrow_num, bracket_num
 
 
-def make_dash_format_table(df, cols_format, market):
+def make_dash_format_table(df, cols_format, market, trade_date):
     """Return a dash_table.DataTable for a Pandas dataframe"""
     required_cols = [
         "IND",
@@ -583,8 +583,13 @@ def make_dash_format_table(df, cols_format, market):
             ),
         )
         # PNL评分
+        trade_dt = pd.to_datetime(trade_date, errors="coerce")
+        open_dt = pd.to_datetime(df["OPEN DATE"], errors="coerce")
+
+        df["DAYS_FROM_OPEN"] = (trade_dt - open_dt).dt.days
+        df["DAYS_FROM_OPEN"] = df["DAYS_FROM_OPEN"].clip(lower=0)
         df["pnl_score"] = rank_score(
-            df["PNL RATIO"],
+            df["PNL RATIO"] / df["DAYS_FROM_OPEN"],
             higher_is_better=True,
             mid=0,
         )
@@ -617,16 +622,16 @@ def make_dash_format_table(df, cols_format, market):
         stability_factor = 0.4 + 0.2 + 0.2 + 0.2  # 子因子权重和 = 1
         df["total_score"] = (
             0.25
-            * (0.6 * df["industry_arrow_score"] + 0.4 * df["industry_bracket_score"])
-            + 0.125 * df["pnl_score"]
-            + 0.5
+            * (0.5 * df["industry_arrow_score"] + 0.5 * df["industry_bracket_score"])
+            + 0.25 * df["pnl_score"]
+            + 0.4
             * (
-                0.4 * df["win_rate_score"]
+                0.3 * df["win_rate_score"]
                 + 0.2 * df["avg_trans_score"]
                 + 0.2 * df["sortino_score"]
-                + 0.2 * df["maxdd_score"]
+                + 0.3 * df["maxdd_score"]
             )
-            + 0.125 * df["erp_score"]
+            + 0.10 * df["erp_score"]
         )
 
         # top 20% 为高亮阈值
@@ -716,6 +721,7 @@ def make_dash_format_table(df, cols_format, market):
             "IND_BRACKET_NUM",
             "industry_arrow_score",
             "industry_bracket_score",
+            "DAYS_FROM_OPEN",
             "pnl_score",
             "erp_clean",
             "erp_score",
@@ -957,7 +963,7 @@ def make_dash_format_table(df, cols_format, market):
                     "backgroundColor": "transparent",
                 },
                 style_table={
-                    "paddingBottom": "10px",
+                    "paddingBottom": "20px",
                     "position": "relative",
                     "display": "flex",
                     "flexDirection": "column",
