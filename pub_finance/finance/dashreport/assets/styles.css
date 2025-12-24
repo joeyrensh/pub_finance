@@ -420,6 +420,7 @@ img {
 
 .dash-spreadsheet-container {
   line-height: 1.0 !important;
+  padding-bottom: 10px !important;
 
 }
 .default-table {

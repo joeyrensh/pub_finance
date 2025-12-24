@@ -923,7 +923,7 @@ def make_dash_format_table(df, cols_format, market):
                 },
             ),
             dash_table.DataTable(
-                # id="defult-table",
+                # id="default-table",
                 id=table_id,
                 data=data,
                 columns=columns,
