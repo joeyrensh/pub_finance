@@ -965,11 +965,11 @@ def make_dash_format_table(df, cols_format, market, trade_date):
                 style_table={
                     "paddingBottom": "20px",
                     "position": "relative",
-                    "display": "flex",
-                    "flexDirection": "column",
+                    # "display": "flex",
+                    # "flexDirection": "column",
                     "width": "100%",
                     "maxWidth": "100%",
-                    "max-height": 400,
+                    "maxHeight": "400px",
                     "overflow": "auto",  # 让整个容器可以滚动
                 },
                 style_data_conditional=style_data_conditional,
