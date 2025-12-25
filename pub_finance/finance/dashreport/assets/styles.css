@@ -64,6 +64,8 @@ body {
   letter-spacing: -.03rem;
   -webkit-font-smoothing: antialiased !important;
   text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;  
 }
 
 * {
@@ -126,7 +128,7 @@ body {
 .background-header {
   position: relative;
   height: auto;
-  overflow: hidden;
+  overflow: visible;
   margin-top: 0px;
 }
 
@@ -665,9 +667,9 @@ a:active {
 @media (max-width: 1200px) and (min-width: 550px),
        (max-device-width: 1200px) and (min-device-width: 550px) {
   .background {
-    background-position-x: 35%;
+    background-position-x: 25%;
     background-position-y: 20%;
-    background-size: 20%;
+    background-size: 15%;
   }
   
   .background-header {
@@ -675,7 +677,7 @@ a:active {
   }
   
   .background-header::before {
-    width: 130px;
+    width: 20%;
   }
   
   .company-logo {
