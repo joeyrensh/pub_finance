@@ -1913,12 +1913,53 @@ class StockProposal:
             pd_strategy_tracking_lst180days.groupby("date")["pnl"].sum().reset_index()
         )  # 按日期分组并求和
         max_pnl = pd_strategy_tracking_lst180days_group["pnl"].max()
+        min_pnl = pd_strategy_tracking_lst180days_group["pnl"].min()
         threshold = pd_strategy_tracking_lst180days["success_rate"].quantile(0.1)
         min_success_rate = pd_strategy_tracking_lst180days.loc[
             pd_strategy_tracking_lst180days["success_rate"] >= threshold, "success_rate"
         ].min()
         safe_rate = max(min_success_rate, 0.2)  # 至少 5%
         max_range = min(2 * max_pnl, max_pnl * 2 / safe_rate)
+
+        def calc_tick_offset(min_pnl, max_pnl, num_ticks=6, char_width=10):
+            """
+            根据最小值和最大值生成tick文本（K/M/B/T），计算最长长度并返回偏移量
+
+            参数:
+                min_pnl, max_pnl : 数值范围
+                num_ticks : 生成的tick数量
+                char_width : 每个字符假设占多少像素
+
+            返回:
+                offset : 偏移量（负值表示向图内偏移）
+            """
+
+            def to_si(n):
+                """将数值转换为 K/M/B/T 格式"""
+                abs_n = abs(n)
+                if abs_n >= 1e12:
+                    return f"{n/1e12:.1f}T".rstrip("0").rstrip(".")
+                elif abs_n >= 1e9:
+                    return f"{n/1e9:.1f}B".rstrip("0").rstrip(".")
+                elif abs_n >= 1e6:
+                    return f"{n/1e6:.1f}M".rstrip("0").rstrip(".")
+                elif abs_n >= 1e3:
+                    return f"{n/1e3:.1f}K".rstrip("0").rstrip(".")
+                else:
+                    return str(int(n))
+
+            # 生成等间隔刻度
+            ticks = np.linspace(min_pnl, max_pnl, num_ticks)
+            # 转换成 SI 格式
+            tick_texts = [to_si(tick) for tick in ticks]
+            # 取最长长度（去掉空格，理论上没有空格）
+            max_len = max(len(t) for t in tick_texts)
+            # 计算偏移量
+            offset = -char_width * max_len
+            return offset
+
+        offset = calc_tick_offset(min_pnl, max_range)
+
         from plotly.subplots import make_subplots
 
         strategy_order = [
@@ -2020,6 +2061,8 @@ class StockProposal:
                 ticks="inside",
                 tickfont=dict(color=dark_text_color, size=font_size, family="Arial"),
                 range=[0, max_range],
+                ticklabelstandoff=offset,
+                tickformat="~s",
             ),
             legend=dict(
                 orientation="v",
@@ -2130,6 +2173,8 @@ class StockProposal:
                 ticks="inside",
                 tickfont=dict(color=light_text_color, size=font_size, family="Arial"),
                 range=[0, max_range],
+                ticklabelstandoff=offset,
+                tickformat="~s",
             ),
             legend=dict(
                 orientation="v",

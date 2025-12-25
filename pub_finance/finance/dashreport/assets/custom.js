@@ -167,7 +167,7 @@
                 const parentDiv = element.closest('g');
                 const idx = textElements.findIndex(child => child === parentDiv);
                 if (idx >= colCount && (idx % colCount === 2)) {
-                    fontSize = screenWidth <= 550 ? '3rem' : '2.5rem';
+                    fontSize = screenWidth <= 550 ? '2.5rem' : '2.5rem';
                     fontWeight = 700;
                     const textContent = parentDiv.textContent.trim();
                     if (textContent.startsWith('-')) {
