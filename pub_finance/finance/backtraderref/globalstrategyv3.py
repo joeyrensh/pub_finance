@@ -908,7 +908,7 @@ class GlobalStrategy(bt.Strategy):
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "收盘价连续上涨"
+                    self.myorder[d._name]["strategy"] = "连续上涨"
                 elif self.signals[d._name]["volume_spike"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
@@ -952,7 +952,7 @@ class GlobalStrategy(bt.Strategy):
                     self.myorder[d._name]["strategy"] = "跌破半年线"
                 elif self.signals[d._name]["close_falling"][0] == 1:
                     self.order[d._name] = self.close(data=d)
-                    self.myorder[d._name]["strategy"] = "收盘价连续下跌"
+                    self.myorder[d._name]["strategy"] = "连续下跌"
 
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
