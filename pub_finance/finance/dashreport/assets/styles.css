@@ -667,9 +667,8 @@ a:active {
 @media (max-width: 1200px) and (min-width: 550px),
        (max-device-width: 1200px) and (min-device-width: 550px) {
   .background {
-    background-position-x: 25%;
-    background-position-y: 20%;
-    background-size: 15%;
+    background-position-y: 95%;
+    background-size: 30%;
   }
   
   .background-header {
@@ -722,7 +721,7 @@ a:active {
 
 /* 小屏幕设备 */
 @media (max-width: 550px),
-       (max-device-width: 550px) {
+       (max-device-width: 550px) and (orientation: portrait) {
   body {
     font-size: 1rem;
   }
