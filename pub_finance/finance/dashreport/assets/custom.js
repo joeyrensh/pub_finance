@@ -183,7 +183,7 @@
                 const parentDiv = element.closest('g');
                 const idx = textElements.findIndex(child => child === parentDiv);
                 if (idx >= 0) {
-                    fontSize = screenWidth <= 550 ? '2rem' : '1.5rem'; 
+                    fontSize = screenWidth <= 550 ? '2.05rem' : '1.5rem'; 
                 }
             }   
             const axesParent = element.closest('[id*="axes_"]');

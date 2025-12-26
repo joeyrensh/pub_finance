@@ -782,7 +782,7 @@ a:active {
   }
   
   .tab {
-    font-size: 1rem;
+    font-size: 1.05rem;
     padding: 2px 2px;
     gap: 6px;
     border-left: 2px solid #D9534F;
