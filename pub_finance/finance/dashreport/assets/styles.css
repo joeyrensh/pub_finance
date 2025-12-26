@@ -754,7 +754,7 @@ a:active {
   }
   
   .product {
-    font-size: 1.1rem;
+    font-size: 1rem;
     padding: 2px;
   }
   
@@ -782,7 +782,7 @@ a:active {
   }
   
   .tab {
-    font-size: 1.1rem;
+    font-size: 1rem;
     padding: 2px 2px;
     gap: 6px;
     border-left: 2px solid #D9534F;
@@ -806,7 +806,7 @@ a:active {
     text-align: center;
     margin-top: 0px;
     margin-bottom: 0px;
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
   
   .tablast {
@@ -832,7 +832,7 @@ a:active {
   }
   
   h5 { font-size: 1.5rem; }
-  h6 { font-size: 1.1rem; }
+  h6 { font-size: 1rem; }
   
   .main-title {
     width: 70%;
