@@ -61,7 +61,7 @@ body {
   font-weight: 400;
   font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
     "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif !important;
-  letter-spacing: -.03rem;
+  letter-spacing: -.03rem !important;
   -webkit-font-smoothing: antialiased !important;
   text-rendering: optimizeLegibility;
   -webkit-text-size-adjust: 100%;
