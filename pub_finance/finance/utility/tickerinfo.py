@@ -627,7 +627,7 @@ class TickerInfo:
         # ===== 新增：读取 fixed_list.csv 并合并 =====
         if os.path.exists(self.file_fixed_list):
             try:
-                fixed_df = pd.read_csv(self.file_fixed_list)
+                fixed_df = pd.read_csv(self.file_fixed_list, comment="#")
                 if not fixed_df.empty:
                     if "symbol" in fixed_df.columns:
                         fixed_symbols = fixed_df["symbol"]
