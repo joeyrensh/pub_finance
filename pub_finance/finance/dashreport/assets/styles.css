@@ -838,7 +838,7 @@ a:active {
     width: 70%;
     padding-left: 58px;
     font-size: 1rem;
-    margin-top: 10px;
+    margin-top: 15px !important;
   }
   
   .five.columns {
