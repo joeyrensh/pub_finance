@@ -7,6 +7,8 @@ from dash.dash_table.Format import Format, Scheme, Trim
 import pathlib
 import pandas as pd
 import numpy as np
+import hashlib
+import os
 
 
 def Header(app):
@@ -552,6 +554,46 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         # aligned==0 → score保持0
         return score
 
+    def export_if_changed(df, condition, trade_date, market):
+        """
+        当命中的 symbol 列表发生变化时才写出 CSV
+        CSV 格式：
+            symbol
+            AAPL
+            MSFT
+            ...
+        """
+        # 1️⃣ 当前命中的 symbol（排序保证稳定性）
+        symbols = sorted(
+            df.loc[condition, "SYMBOL"].astype(str).str.strip().unique().tolist()
+        )
+        out_file = (
+            pathlib.Path(__file__).resolve().parent.parent
+            / f"{market}stockinfo"
+            / "dynamic_list.csv"
+        )
+        # 当前内容 hash
+        content = "\n".join(symbols).encode("utf-8")
+        new_md5 = hashlib.md5(content).hexdigest()
+
+        # 2️⃣ 如果文件已存在，计算旧文件的 hash
+        if os.path.exists(out_file):
+            old_df = pd.read_csv(out_file)
+
+            if "symbol" in old_df.columns:
+                old_symbols = sorted(
+                    old_df["symbol"].astype(str).str.strip().unique().tolist()
+                )
+
+                old_content = "\n".join(old_symbols).encode("utf-8")
+                old_md5 = hashlib.md5(old_content).hexdigest()
+
+                if old_md5 == new_md5:
+                    return  # 内容一致，不写文件
+
+        # 3️⃣ 内容不同，写文件
+        pd.DataFrame({"symbol": symbols}).to_csv(out_file, index=False)
+
     if has_all_required_cols:
         # 行业动量
         df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = df["IND"].apply(
@@ -639,6 +681,8 @@ def make_dash_format_table(df, cols_format, market, trade_date):
 
         condition = df["total_score"] > highlight_threshold
         df.loc[condition, "NAME"] = "88+" + df.loc[condition, "NAME"]
+        if market in ("us", "cn"):
+            export_if_changed(df, condition, trade_date, market)
 
     def create_link(symbol, market):
         if market == "cn" and symbol.startswith(("SH", "SZ")):

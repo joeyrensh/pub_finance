@@ -75,6 +75,10 @@ class FileInfo:
         self._file_path_fixed_list = (
             base_path + "/" + f"{decode_market}stockinfo" + "/" + "fixed_list.csv"
         )
+        # 动态追踪股票列表
+        self._file_path_dynamic_list = (
+            base_path + "/" + f"{decode_market}stockinfo" + "/" + "dynamic_list.csv"
+        )
 
     """ 返回某日数据文件路径 """
 
@@ -154,3 +158,7 @@ class FileInfo:
     @property
     def get_file_path_fixed_list(self):
         return self._file_path_fixed_list
+
+    @property
+    def get_file_path_dynamic_list(self):
+        return self._file_path_dynamic_list
