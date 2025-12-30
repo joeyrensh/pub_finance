@@ -237,7 +237,7 @@ body {
   background: var(--bubble-background-color);
   -webkit-background-clip: text;
   color: transparent;
-  margin-top: 40px;
+  /* margin-top: 40px; */
 }
 
 /* ==================== 表格与数据展示样式 ==================== */
@@ -386,7 +386,7 @@ h6 { font-size: 1.4rem; }
   width: 80%;
   border-left: 0px solid var(--border-left-color);
   padding-left: 95px;
-  margin-top: -30px;
+  /* margin-top: -30px; */
 }
 
 .subtitle {
@@ -482,7 +482,7 @@ li::before {
   float: right;
   padding-left: 15px;
   padding-right: 15px;
-  margin: 25px 0px 8px 5px;
+  margin: 10px 0px 8px 5px;
   line-height: 30px;
   border: 0.5px;
   border-color: lightgrey;
@@ -741,7 +741,7 @@ a:active {
   }
   
   .background-header::before {
-    width: 30%;
+    width: 25%;
   }
   
   .company-logo {
@@ -798,13 +798,13 @@ a:active {
   
   .bubble-text {
     margin-left: -7px;
-    font-size: 1.4rem;
-    margin-top: 21px;
+    font-size: 1.2rem;
+    /* margin-top: 21px; */
   }
   
   .all-tabs {
     text-align: center;
-    margin-top: -10px;
+    margin-top: 0px;
     margin-bottom: 0px;
     font-size: 1rem;
   }
@@ -827,7 +827,7 @@ a:active {
     font-weight: 800;
     height: 15px;
     padding: 8px;
-    margin-top: 15px;
+    margin-top: 5px;
     margin-bottom: 2px;
   }
   
@@ -838,7 +838,7 @@ a:active {
     width: 70%;
     padding-left: 58px;
     font-size: 1rem;
-    margin-top: -15px;
+    margin-top: 10px;
   }
   
   .five.columns {
