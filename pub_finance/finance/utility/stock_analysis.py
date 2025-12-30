@@ -250,7 +250,7 @@ class StockProposal:
                     ,price AS adj_price
                     ,size AS adj_size
                 FROM 
-                tmp1 WHERE trade_type = 'sell' AND l_date >= DATE_ADD('{}', -180)
+                tmp1 WHERE trade_type = 'sell' AND l_date >= '{}'
                 UNION ALL
                 SELECT symbol
                     ,date AS buy_date
@@ -399,7 +399,7 @@ class StockProposal:
             WHERE t2.p_cnt > 0
             ORDER BY COALESCE(t2.p_pnl,0) DESC
             """.format(
-                end_date, end_date
+                start_date, end_date
             )
         )
 
@@ -844,7 +844,7 @@ class StockProposal:
                     ,price AS adj_price
                     ,size AS adj_size
                     ,strategy AS sell_strategy
-                FROM tmp1 WHERE trade_type = 'sell' AND l_date >= DATE_ADD('{}', -180)
+                FROM tmp1 WHERE trade_type = 'sell' AND l_date >= '{}'
                 UNION ALL
                 SELECT symbol
                     ,date AS buy_date
@@ -970,7 +970,7 @@ class StockProposal:
                     )   GROUP BY symbol
                 ) t6 ON t1.symbol = t6.symbol                  
             """.format(
-                end_date, end_date
+                start_date, end_date
             )
         )
 
@@ -1276,7 +1276,7 @@ class StockProposal:
                     ,size AS adj_size
                     ,strategy AS sell_strategy
                     ,ROW_NUMBER() OVER(PARTITION BY symbol ORDER BY l_date DESC) AS row_num
-                FROM tmp1 WHERE trade_type = 'sell' AND l_date >= DATE_ADD('{}', -180)
+                FROM tmp1 WHERE trade_type = 'sell' AND l_date >= '{}'
                 AND  symbol NOT IN (SELECT symbol FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL)
             ), tmp2 AS (
                 SELECT symbol
@@ -1340,7 +1340,7 @@ class StockProposal:
                 ) t4 ON t1.symbol = t4.symbol
                 LEFT JOIN temp_gz t5 ON 1=1             
             """.format(
-                end_date
+                start_date
             )
         )
 
@@ -1875,7 +1875,7 @@ class StockProposal:
                     ,t2.strategy
                     ,ROW_NUMBER() OVER(PARTITION BY t1.date, t1.symbol ORDER BY ABS(t1.date - t2.date) ASC) AS rn
                 FROM temp_position_detail t1 LEFT JOIN temp_transaction_detail t2 ON t1.symbol = t2.symbol AND t1.date >= t2.date AND t2.trade_type = 'buy'
-                WHERE t1.date >= DATE_ADD('{}', -180) 
+                WHERE t1.date >= '{}'
             ),  tmp2 AS (
                 SELECT
                     date
@@ -1897,7 +1897,7 @@ class StockProposal:
             GROUP BY date, strategy
             ORDER BY date, pnl
             """.format(
-                end_date
+                start_date
             )
         )
         pd_strategy_tracking_lst180days = spark_strategy_tracking_lst180days.toPandas()
@@ -2222,7 +2222,7 @@ class StockProposal:
                 SELECT date
                     ,COUNT(symbol) AS total_cnt
                 FROM temp_position_detail
-                WHERE date >= DATE_ADD('{}', -180)
+                WHERE date >='{}'
                 GROUP BY date
             ), tmp11 AS (
                 SELECT temp_timeseries.buy_date
@@ -2234,7 +2234,7 @@ class StockProposal:
                     ,SUM(IF(trade_type = 'buy', 1, 0)) AS buy_cnt
                     ,SUM(IF(trade_type = 'sell', 1, 0)) AS sell_cnt
                 FROM temp_transaction_detail
-                WHERE date >= DATE_ADD('{}', -180)
+                WHERE date >= '{}'
                 GROUP BY date
             )
             SELECT t1.buy_date AS buy_date
@@ -2243,7 +2243,7 @@ class StockProposal:
                 ,t2.sell_cnt AS sell_cnt
             FROM tmp11 t1 LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
             """.format(
-                end_date, end_date
+                start_date, start_date
             )
         )
         pd_trade_info_lst180days = spark_trade_info_lst180days.toPandas()
@@ -2421,7 +2421,7 @@ class StockProposal:
                     ,t1.date
                     ,t1.pnl
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
-                WHERE t1.date >= DATE_ADD('{}', -180)
+                WHERE t1.date >= '{}'
             ) 
             SELECT t1.buy_date
                 ,t1.industry
@@ -2429,7 +2429,7 @@ class StockProposal:
             FROM tmp1 t1 LEFT JOIN tmp2 t2 ON t1.industry = t2.industry AND t1.buy_date = t2.date
             GROUP BY t1.buy_date, t1.industry
             """.format(
-                end_date
+                start_date
             )
         )
         pd_top5_industry_position_trend = spark_top5_industry_position_trend.toPandas()
@@ -2564,7 +2564,7 @@ class StockProposal:
                     ,t1.date
                     ,t1.pnl
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
-                WHERE t1.date >= DATE_ADD('{}', -180)
+                WHERE t1.date >= '{}'
             ), tmp3 AS (
             SELECT t1.buy_date
                 ,t1.industry
@@ -2578,7 +2578,7 @@ class StockProposal:
             LEFT JOIN tmp3 t2 ON t1.industry = t2.industry
             ORDER BY t2.buy_date ASC, t1.pnl_growth DESC
             """.format(
-                end_date
+                start_date
             )
         )
         pd_top5_industry_profit_trend = spark_top5_industry_profit_trend.toPandas()
@@ -3849,7 +3849,7 @@ class StockProposal:
                     ,price AS adj_price
                     ,size AS adj_size
                     ,strategy AS sell_strategy
-                FROM tmp1 WHERE trade_type = 'sell' AND l_date >= DATE_ADD('{}', -180)
+                FROM tmp1 WHERE trade_type = 'sell' AND l_date >= '{}'
                 UNION ALL
                 SELECT symbol
                     ,date AS buy_date
@@ -3912,7 +3912,7 @@ class StockProposal:
                 FROM tmp3
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol
             """.format(
-                end_date, end_date
+                start_date, end_date
             )
         )
 
@@ -4174,7 +4174,7 @@ class StockProposal:
                     ,size AS adj_size
                     ,strategy AS sell_strategy
                     ,ROW_NUMBER() OVER(PARTITION BY symbol ORDER BY l_date DESC) AS row_num
-                FROM tmp1 WHERE trade_type = 'sell' AND l_date >= DATE_ADD('{}', -180)
+                FROM tmp1 WHERE trade_type = 'sell' AND l_date >= '{}'
                 AND  symbol NOT IN (SELECT symbol FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL)
             ), tmp2 AS (
                 SELECT symbol
@@ -4219,7 +4219,7 @@ class StockProposal:
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol AND t1.sell_date = t2.sell_date
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
             """.format(
-                end_date
+                start_date
             )
         )
 
@@ -4404,7 +4404,7 @@ class StockProposal:
                 SELECT date
                     ,COUNT(symbol) AS total_cnt
                 FROM temp_position_detail
-                WHERE date >= DATE_ADD('{}', -180)
+                WHERE date >= '{}'
                 GROUP BY date
             ), tmp11 AS (
                 SELECT temp_timeseries.buy_date
@@ -4417,7 +4417,7 @@ class StockProposal:
                     ,SUM(IF(trade_type = 'buy', 1, 0)) AS buy_cnt
                     ,SUM(IF(trade_type = 'sell', 1, 0)) AS sell_cnt
                 FROM temp_transaction_detail
-                WHERE date >= DATE_ADD('{}', -180)
+                WHERE date >= '{}'
                 GROUP BY date
             )
             SELECT t1.buy_date AS buy_date
@@ -4426,7 +4426,7 @@ class StockProposal:
                 ,t2.sell_cnt AS sell_cnt
             FROM tmp11 t1 LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
             """.format(
-                end_date, end_date
+                start_date, start_date
             )
         )
         pd_trade_info_lst180days = spark_trade_info_lst180days.toPandas()
