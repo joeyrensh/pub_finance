@@ -577,9 +577,9 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         df["erp_clean"] = df["ERP"].replace(-99999, np.nan)
         df["erp_score"] = np.where(
             invalid_inds,
-            rank_score(df["erp_clean"], higher_is_better=True, mid=None),
+            rank_score(df["erp_clean"], higher_is_better=True, mid=0),
             df.groupby("IND")["erp_clean"].transform(
-                lambda x: rank_score(x, higher_is_better=True, mid=None)
+                lambda x: rank_score(x, higher_is_better=True, mid=0)
             ),
         )
         # PNL评分
@@ -598,7 +598,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         df["win_rate_score"] = rank_score(
             df["WIN RATE"],
             higher_is_better=True,
-            mid=None,
+            mid=0.5,
         )
 
         df["avg_trans_score"] = rank_score(
@@ -610,7 +610,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         df["sortino_score"] = rank_score(
             df["SORTINO RATIO"],
             higher_is_better=True,
-            mid=0,
+            mid=1,
         )
 
         df["maxdd_score"] = rank_score(
