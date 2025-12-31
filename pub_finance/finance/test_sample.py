@@ -80,6 +80,9 @@ def exec_btstrategy(date):
     # 提取收益序列
     pnl = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
 
+    # 去掉最后一个虚拟 bar
+    pnl = pnl.iloc[:-1]
+
     # 计算累计收益
     cumulative = (pnl + 1).cumprod()
 
@@ -516,7 +519,7 @@ def exec_btstrategy(date):
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc+8"""
-    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(1)
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):

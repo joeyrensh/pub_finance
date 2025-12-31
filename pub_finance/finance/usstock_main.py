@@ -81,6 +81,9 @@ def exec_btstrategy(date):
     # 提取收益序列
     pnl = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
 
+    # 去掉最后一个虚拟 bar
+    pnl = pnl.iloc[:-1]
+
     # 计算累计收益
     cumulative = (pnl + 1).cumprod()
 
