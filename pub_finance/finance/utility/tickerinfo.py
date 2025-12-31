@@ -30,6 +30,8 @@ class TickerInfo:
         self.files_gz = file.get_gz_file_list
         """ 获取固定追踪股票列表文件路径 """
         self.file_fixed_list = file.get_file_path_fixed_list
+        """ 获取动态追踪股票列表文件路径 """
+        self.file_dynamic_list = file.get_file_path_dynamic_list
 
     """ 获取股票代码列表 """
 
@@ -242,6 +244,9 @@ class TickerInfo:
         elif self.market == "us_special":
             # 特殊美股筛选条件
             tickers = self.get_special_us_stock_list_180d()
+        elif self.market in ("us_dynamic", "cn_dynamic"):
+            # 动态追踪股票列表
+            tickers = self.get_dynamic_stock_list()
 
         # 去重并返回
         df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
@@ -367,9 +372,9 @@ class TickerInfo:
         if trade_date_formatted not in group_obj["date"].values:
             return pd.DataFrame()
         """ 适配BackTrader数据结构 """
-        if self.market in ("us", "us_special"):
+        if self.market in ("us", "us_special", "us_dynamic"):
             market = 1
-        elif self.market == "cn":
+        elif self.market in ("cn", "cn_dynamic"):
             market = 2
         df_copy = pd.DataFrame(
             {
@@ -648,6 +653,63 @@ class TickerInfo:
 
     def get_special_us_backtrader_data_feed(self):
         tickers = self.get_special_us_stock_list_180d()
+        tickers_clean = [
+            t for t in tickers if isinstance(t, str) and t != "nan" and t != ""
+        ]
+
+        his_data = self.get_history_data().groupby(by="symbol")
+        t = ToolKit("读取历史数据文件")
+        list_results = []
+
+        with multiprocessing.Pool(processes=4) as pool:
+            results = [
+                pool.apply_async(self.reconstruct_dataframe, (his_data.get_group(i), i))
+                for i in tickers_clean
+            ]
+            for idx, result in enumerate(results):
+                df = result.get()
+                if not df.empty:
+                    list_results.append(df)
+                t.progress_bar(len(results), idx)
+
+        # 手动清理不再需要的对象
+        his_data = None
+        gc.collect()
+        list_results.sort(key=lambda x: x["datetime"].min())
+        print(
+            f"第一组股票symbol为: {list_results[0]['symbol'].iloc[0]}, 数据起始日期: {list_results[0]['datetime'].min()}, 结束日期: {list_results[0]['datetime'].max()}"
+        )
+        print(
+            f"最后一组股票symbol为: {list_results[-1]['symbol'].iloc[0]}, 数据起始日期: {list_results[-1]['datetime'].min()}, 结束日期: {list_results[-1]['datetime'].max()}"
+        )
+
+        return list_results
+
+    def get_dynamic_stock_list(self):
+        # ===== 新增：读取 dynamic_list.csv 并合并 =====
+        if os.path.exists(self.file_dynamic_list):
+            try:
+                dynamic_df = pd.read_csv(self.file_dynamic_list, comment="#")
+                if not dynamic_df.empty:
+                    if "symbol" in dynamic_df.columns:
+                        dynamic_symbols = dynamic_df["symbol"]
+                        print(f"动态追踪列表: {len(dynamic_symbols)}")
+                    else:
+                        # 没有 symbol 表头时，默认取第一列
+                        dynamic_symbols = dynamic_df.iloc[:, 0]
+
+                    dynamic_symbols = dynamic_symbols.astype(str).unique().tolist()
+                    stock_list = list(set(dynamic_symbols))
+
+            except Exception as e:
+                print(f"读取 dynamic_list.csv 失败: {e}")
+
+        dfs, df_all, df_recent, df = None, None, None, None
+        gc.collect()
+        return stock_list
+
+    def get_dynamic_backtrader_data_feed(self):
+        tickers = self.get_dynamic_stock_list()
         tickers_clean = [
             t for t in tickers if isinstance(t, str) and t != "nan" and t != ""
         ]

@@ -8,6 +8,8 @@ from pages import (
     slogans,
     usstock_performance,
     usspecialstock_performance,
+    cndynamicstock_performance,
+    usdynamicstock_performance,
 )
 
 from flask import Flask
@@ -16,13 +18,16 @@ import configparser
 from flask import session
 import os
 from datetime import timedelta
+from pathlib import Path
+
 
 server = Flask(__name__)
 Compress(server)
 
 # 读取配置文件
 config = configparser.ConfigParser()
-config.read("login.ini")
+BASE_DIR = Path(__file__).resolve().parent
+config.read(BASE_DIR / "login.ini")
 
 VALID_USERNAME = config["credentials"]["username"]
 VALID_PASSWORD = config["credentials"]["password"]
@@ -195,6 +200,10 @@ def update_page_content(pathname):
         return usstock_performance.create_layout(app)
     elif pathname == "/dash-financial-report/us-special-stock-performance":
         return usspecialstock_performance.create_layout(app)
+    elif pathname == "/dash-financial-report/cn-dynamic-stock-performance":
+        return cndynamicstock_performance.create_layout(app)
+    elif pathname == "/dash-financial-report/us-dynamic-stock-performance":
+        return usdynamicstock_performance.create_layout(app)
     elif pathname == "/dash-financial-report/slogans":
         return slogans.create_layout(app)
     elif pathname == "/dash-financial-report/full-view":

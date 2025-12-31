@@ -181,11 +181,11 @@ class StockProposal:
 
         # 根据市场类型过滤非交易日
         toolkit = ToolKit("identify trade date")
-        if self.market in ("us", "us_special"):
+        if self.market in ("us", "us_special", "us_dynamic"):
             pd_timeseries = pd_timeseries[
                 pd_timeseries["trade_date"].apply(toolkit.is_us_trade_date)
             ]
-        elif self.market == "cn":
+        elif self.market in ("cn", "cn_dynamic"):
             pd_timeseries = pd_timeseries[
                 pd_timeseries["trade_date"].apply(toolkit.is_cn_trade_date)
             ]

@@ -121,7 +121,7 @@ def get_menu():
                     dcc.Link(
                         [
                             html.I(className="fa-solid fa-flag-usa icon"),
-                            html.Span("U.S.stock"),
+                            html.Span("U.stock"),
                         ],
                         href="/dash-financial-report/us-stock-performance",
                         className="tab",
@@ -129,15 +129,31 @@ def get_menu():
                     dcc.Link(
                         [
                             html.I(className="fa-solid fa-rocket icon"),
-                            html.Span("U.S.stock.special"),
+                            html.Span("U.fsl"),
                         ],
                         href="/dash-financial-report/us-special-stock-performance",
                         className="tab",
                     ),
                     dcc.Link(
                         [
+                            html.I(className="fa-solid fa-rocket icon"),
+                            html.Span("A.dsl"),
+                        ],
+                        href="/dash-financial-report/cn-dynamic-stock-performance",
+                        className="tab",
+                    ),
+                    dcc.Link(
+                        [
+                            html.I(className="fa-solid fa-rocket icon"),
+                            html.Span("U.dsl"),
+                        ],
+                        href="/dash-financial-report/us-dynamic-stock-performance",
+                        className="tab",
+                    ),
+                    dcc.Link(
+                        [
                             html.I(className="fa-regular fa-newspaper icon"),
-                            html.Span("Slogans"),
+                            html.Span("Slog"),
                         ],
                         href="/dash-financial-report/slogans",
                         className="tab",
@@ -484,11 +500,11 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         "MAX DD",
     ]
     has_all_required_cols = all(col in df.columns for col in required_cols)
-    if market in ("us", "us_special"):
+    if market in ("us", "us_special", "us_dynamic"):
         trade_date_l40 = get_us_latest_trade_date(39)
         trade_date_l20 = get_us_latest_trade_date(19)
         trade_date_l5 = get_us_latest_trade_date(4)
-    elif market == "cn":
+    elif market in ("cn", "cn_dynamic"):
         trade_date_l40 = get_cn_latest_trade_date(39)
         trade_date_l20 = get_cn_latest_trade_date(19)
         trade_date_l5 = get_cn_latest_trade_date(4)
@@ -715,7 +731,9 @@ def make_dash_format_table(df, cols_format, market, trade_date):
             }
             for col in highlight_cols
         ]
-        if has_all_required_cols and "IND_ARROW_NUM" in df.columns
+        if has_all_required_cols
+        and "IND_ARROW_NUM" in df.columns
+        and market in ("us", "cn", "us_special")
         else []
     )
 
@@ -1034,17 +1052,17 @@ def get_us_latest_trade_date(offset) -> str | None:
     美股休市日，https://www.nyse.com/markets/hours-calendars
     marketclosed.config 是2021和2022两年的美股法定休市配置文件
     """
-    f = open("../usstockinfo/marketclosed.config").readlines()
+    BASE_DIR = pathlib.Path(__file__).resolve().parents[1]  # finance
+    f = open(BASE_DIR / "usstockinfo" / "marketclosed.config").readlines()
     x = []
     for i in f:
         x.append(i.split(",")[0].strip())
     """ 循环遍历最近一个交易日期 """
     counter = 0
-    PATH = pathlib.Path(__file__).parent
     # 收益率曲线
-    DATA_PATH = PATH.joinpath("../data").resolve()
+    DATA_PATH = BASE_DIR / "data"
     df_overall = pd.read_csv(
-        DATA_PATH.joinpath("us_df_result.csv"),
+        DATA_PATH / "us_df_result.csv",
         usecols=[i for i in range(1, 5)],
     )
     utc_us = datetime.strptime(df_overall["end_date"].iloc[0], "%Y-%m-%d")
@@ -1066,17 +1084,17 @@ def get_us_latest_trade_date(offset) -> str | None:
 
 
 def get_cn_latest_trade_date(offset) -> str | None:
-    f = open("../cnstockinfo/marketclosed.config").readlines()
+    BASE_DIR = pathlib.Path(__file__).resolve().parents[1]  # finance
+    f = open(BASE_DIR / "cnstockinfo" / "marketclosed.config").readlines()
     x = []
     for i in f:
         x.append(i.split(",")[0].strip())
     """ 循环遍历最近一个交易日期 """
     counter = 0
-    PATH = pathlib.Path(__file__).parent
     # 收益率曲线
-    DATA_PATH = PATH.joinpath("../data").resolve()
+    DATA_PATH = BASE_DIR / "data"
     df_overall = pd.read_csv(
-        DATA_PATH.joinpath("cn_df_result.csv"),
+        DATA_PATH / "cn_df_result.csv",
         usecols=[i for i in range(1, 5)],
     )
     utc_cn = datetime.strptime(df_overall["end_date"].iloc[0], "%Y-%m-%d")

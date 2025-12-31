@@ -29,7 +29,7 @@ def exec_btstrategy(date):
     cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
     # cerebro.broker.set_coc(True)
     """ 添加bt相关的策略 """
-    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cn")
+    cerebro.addstrategy(GlobalStrategy, trade_date=date, market="cn_dynamic")
 
     # 回测时需要添加 TimeReturn 分析器
     cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
@@ -42,7 +42,7 @@ def exec_btstrategy(date):
     """ 费率千分之一 """
     cerebro.broker.setcommission(commission=0, stocklike=True)
     """ 添加股票当日即历史数据 """
-    list = TickerInfo(date, "cn").get_backtrader_data_feed()
+    list = TickerInfo(date, "cn_dynamic").get_dynamic_backtrader_data_feed()
     """ 初始资金100M """
     start_cash = len(list) * 10000
     cerebro.broker.setcash(start_cash)
@@ -497,7 +497,7 @@ def exec_btstrategy(date):
         # 保存图片
         plt.subplots_adjust(left=0.075, right=0.94, top=1, bottom=0.1, wspace=0.1)
         plt.savefig(
-            f"./dashreport/assets/images/cn_tr_{theme}.svg",
+            f"./dashreport/assets/images/cn_dynamic_tr_{theme}.svg",
             format="svg",
             # bbox_inches="tight",  # 保持边界紧凑
             bbox_inches=None,  # 保持边界紧凑
@@ -538,17 +538,6 @@ if __name__ == "__main__":
 
     print("trade_date is :", trade_date)
 
-    """ 东方财经爬虫 """
-    """ 爬取每日最新股票数据 """
-    em = EMWebCrawlerUti()
-    em.get_daily_stock_info("cn", trade_date)
-
-    # em = AKCNWebCrawler()
-    # em.get_cn_daily_stock_info_ak(trade_date)
-
-    # em = EMWebCrawlerUti()
-    # em.get_daily_gz_info("cn", trade_date)
-
     """ 执行bt相关策略 """
 
     def run_backtest_in_process(date):
@@ -586,7 +575,7 @@ if __name__ == "__main__":
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
+    StockProposal("cn_dynamic", trade_date).send_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()

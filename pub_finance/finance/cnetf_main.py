@@ -419,13 +419,20 @@ def exec_btstrategy(date):
                     # 可以下移
                     offset_sign[deeper_label] = -1
 
+        ylim = ax_drawdown.get_ylim()
+        y_top_threshold = ylim[1] - (ylim[1] - ylim[0]) * 0.05  # 顶部5%区域
         for label, idx, val in dd_candidates:
             ax_drawdown.scatter(idx, val, color=colors["drawdown"], s=55, zorder=4)
             min_dist = min(abs(val - v) for k, v in dd_points.items() if k != label)
             offset_mag = min(min_dist * 0.6, dd_range * 0.15)
 
             y_offset = offset_sign[label] * offset_mag
-            va_pos = "bottom" if y_offset >= 0 else "top"
+            # ====== 新增补丁: 避免接近右上角 ======
+            if (val + y_offset) > y_top_threshold:
+                y_offset = y_top_threshold - val - 0.01 * dd_range  # 微调向下
+                va_pos = "top"
+            else:
+                va_pos = "bottom" if y_offset >= 0 else "top"
             # 应用偏移
             ax_drawdown.text(
                 idx,

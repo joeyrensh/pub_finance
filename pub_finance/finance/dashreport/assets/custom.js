@@ -12,7 +12,15 @@
         'us_special-annual-return-light', 'us_special-annual-return-dark', 'us_special-ind-trend-light', 'us_special-ind-trend-dark',
         'us_special-strategy-light', 'us_special-strategy-dark', 'us_special-by-position-light', 'us_special-by-position-dark',
         'us_special-by-pl-light', 'us_special-by-pl-dark', 'us_special-by-positiondate-light', 'us_special-by-positiondate-dark',
-        'us_special-bypl-date-light', 'us_special-bypl-date-dark',        
+        'us_special-bypl-date-light', 'us_special-bypl-date-dark',
+        'cn_dynamic-annual-return-light', 'cn_dynamic-annual-return-dark', 'cn_dynamic-ind-trend-light', 'cn_dynamic-ind-trend-dark',
+        'cn_dynamic-strategy-light', 'cn_dynamic-strategy-dark', 'cn_dynamic-by-position-light', 'cn_dynamic-by-position-dark',
+        'cn_dynamic-by-pl-light', 'cn_dynamic-by-pl-dark', 'cn_dynamic-by-positiondate-light', 'cn_dynamic-by-positiondate-dark',
+        'cn_dynamic-bypl-date-light', 'cn_dynamic-bypl-date-dark',
+        'us_dynamic-annual-return-light', 'us_dynamic-annual-return-dark', 'us_dynamic-ind-trend-light', 'us_dynamic-ind-trend-dark',
+        'us_dynamic-strategy-light', 'us_dynamic-strategy-dark', 'us_dynamic-by-position-light', 'us_dynamic-by-position-dark',
+        'us_dynamic-by-pl-light', 'us_dynamic-by-pl-dark', 'us_dynamic-by-positiondate-light', 'us_dynamic-by-positiondate-dark',
+        'us_dynamic-bypl-date-light', 'us_dynamic-bypl-date-dark',
     ];
 
     const BASE_FONT_SIZE_CONFIG = {
@@ -33,7 +41,7 @@
     };
 
     const FONT_SIZE_CONFIG = {};
-    ['cn', 'us', 'us_special'].forEach(prefix => {
+    ['cn', 'us', 'us_special', 'cn_dynamic', 'us_dynamic'].forEach(prefix => {
         Object.keys(BASE_FONT_SIZE_CONFIG).forEach(key => {
             FONT_SIZE_CONFIG[`${prefix}-${key}`] = BASE_FONT_SIZE_CONFIG[key];
         });

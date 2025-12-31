@@ -75,27 +75,31 @@ def create_layout(app):
     ):
         df_overall.at[0, "stock_cnt"] = 1
     # 板块数据
-    df = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_category.csv"), usecols=[i for i in range(1, 16)]
+    cols_category = [
+        "IDX",
+        "IND",
+        "OPEN",
+        "LRATIO",
+        "L5 OPEN",
+        "L5 CLOSE",
+        "ERP",
+        "PROFIT",
+        "PNL RATIO",
+        "AVG TRANS",
+        "AVG DAYS",
+        "WIN RATE",
+        "PROFIT TREND",
+    ]
+    df = (
+        pd.read_csv(
+            DATA_PATH.joinpath(f"{prefix}_category.csv"),
+            usecols=[i for i in range(1, 16)],
+        )
+        if DATA_PATH.joinpath(f"{prefix}_category.csv").exists()
+        else pd.DataFrame(columns=cols_category)
     )
     df["IDX"] = df.index
-    df = df[
-        [
-            "IDX",
-            "IND",
-            "OPEN",
-            "LRATIO",
-            "L5 OPEN",
-            "L5 CLOSE",
-            "ERP",
-            "PROFIT",
-            "PNL RATIO",
-            "AVG TRANS",
-            "AVG DAYS",
-            "WIN RATE",
-            "PROFIT TREND",
-        ]
-    ].copy()
+    df = df[cols_category].copy()
 
     cols_format_category = {
         "OPEN": ("int",),
@@ -111,34 +115,37 @@ def create_layout(app):
     }
 
     # 持仓明细
-    df_detail = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_stockdetail.csv"),
-        usecols=[i for i in range(1, 20)],
+    cols_detail = [
+        "IDX",
+        "SYMBOL",
+        "IND",
+        "NAME",
+        "TOTAL VALUE",
+        "ERP",
+        "SHARPE RATIO",
+        "SORTINO RATIO",
+        "MAX DD",
+        "OPEN DATE",
+        "BASE",
+        "ADJBASE",
+        "PNL",
+        "PNL RATIO",
+        "AVG TRANS",
+        "AVG DAYS",
+        "WIN RATE",
+        "TOTAL PNL RATIO",
+        "STRATEGY",
+    ]
+    df_detail = (
+        pd.read_csv(
+            DATA_PATH.joinpath(f"{prefix}_stockdetail.csv"),
+            usecols=[i for i in range(1, 20)],
+        )
+        if DATA_PATH.joinpath(f"{prefix}_stockdetail.csv").exists()
+        else pd.DataFrame(columns=cols_detail)
     )
     df_detail["IDX"] = df_detail.index
-    df_detail = df_detail[
-        [
-            "IDX",
-            "SYMBOL",
-            "IND",
-            "NAME",
-            "TOTAL VALUE",
-            "ERP",
-            "SHARPE RATIO",
-            "SORTINO RATIO",
-            "MAX DD",
-            "OPEN DATE",
-            "BASE",
-            "ADJBASE",
-            "PNL",
-            "PNL RATIO",
-            "AVG TRANS",
-            "AVG DAYS",
-            "WIN RATE",
-            "TOTAL PNL RATIO",
-            "STRATEGY",
-        ]
-    ].copy()
+    df_detail = df_detail[cols_detail].copy()
     cols_format_detail = {
         "BASE": ("float",),
         "ADJBASE": ("float",),
@@ -156,29 +163,32 @@ def create_layout(app):
         "MAX DD": ("ratio", "format"),
     }
     # 减仓明细
-    df_detail_short = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_stockdetail_short.csv"),
-        usecols=[i for i in range(1, 15)],
+    cols_short = [
+        "IDX",
+        "SYMBOL",
+        "IND",
+        "NAME",
+        "TOTAL VALUE",
+        "ERP",
+        "OPEN DATE",
+        "CLOSE DATE",
+        "BASE",
+        "ADJBASE",
+        "PNL",
+        "PNL RATIO",
+        "HIS DAYS",
+        "STRATEGY",
+    ]
+    df_detail_short = (
+        pd.read_csv(
+            DATA_PATH.joinpath(f"{prefix}_stockdetail_short.csv"),
+            usecols=[i for i in range(1, 15)],
+        )
+        if DATA_PATH.joinpath(f"{prefix}_stockdetail_short.csv").exists()
+        else pd.DataFrame(columns=cols_short)
     )
     df_detail_short["IDX"] = df_detail_short.index
-    df_detail_short = df_detail_short[
-        [
-            "IDX",
-            "SYMBOL",
-            "IND",
-            "NAME",
-            "TOTAL VALUE",
-            "ERP",
-            "OPEN DATE",
-            "CLOSE DATE",
-            "BASE",
-            "ADJBASE",
-            "PNL",
-            "PNL RATIO",
-            "HIS DAYS",
-            "STRATEGY",
-        ]
-    ].copy()
+    df_detail_short = df_detail_short[cols_short].copy()
     cols_format_detail_short = {
         "TOTAL VALUE": ("float",),
         "ERP": ("float",),

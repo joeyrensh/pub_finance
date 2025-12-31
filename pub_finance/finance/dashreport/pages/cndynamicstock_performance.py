@@ -10,7 +10,7 @@ def create_layout(app):
 
     # 收益率曲线
     DATA_PATH = PATH.joinpath("../../data").resolve()
-    prefix = "cn"
+    prefix = "cn_dynamic"
 
     """ annual return """
     # dark mode
@@ -185,12 +185,12 @@ def create_layout(app):
     ]
     df_detail_short = (
         pd.read_csv(
-            DATA_PATH.joinpath(f"{prefix}_stockdetail_short.csv"),
-            usecols=[i for i in range(1, 15)],
+            DATA_PATH.joinpath(f"{prefix}_stockdetail_short.csv"), usecols=range(1, 15)
         )
         if DATA_PATH.joinpath(f"{prefix}_stockdetail_short.csv").exists()
         else pd.DataFrame(columns=cols_short)
     )
+
     df_detail_short["IDX"] = df_detail_short.index
     df_detail_short = df_detail_short[cols_short].copy()
     cols_format_detail_short = {
@@ -202,44 +202,7 @@ def create_layout(app):
         "PNL RATIO": ("ratio", "format"),
         "HIS DAYS": ("int",),
     }
-    # ETF持仓明细
-    cols_etf = [
-        "IDX",
-        "SYMBOL",
-        "NAME",
-        "TOTAL VALUE",
-        "OPEN DATE",
-        "BASE",
-        "ADJBASE",
-        "PNL",
-        "PNL RATIO",
-        "AVG TRANS",
-        "AVG DAYS",
-        "WIN RATE",
-        "TOTAL PNL RATIO",
-        "STRATEGY",
-    ]
-    df_etf = (
-        pd.read_csv(
-            DATA_PATH.joinpath(f"{prefix}_etf.csv"), usecols=[i for i in range(1, 14)]
-        )
-        if DATA_PATH.joinpath(f"{prefix}_etf.csv").exists()
-        else pd.DataFrame(columns=cols_etf)
-    )
-    df_etf["IDX"] = df_etf.index
-    df_etf = df_etf[cols_etf]
-    cols_format_etf = {
-        "BASE": ("float",),
-        "ADJBASE": ("float",),
-        "PNL": ("int", "format"),
-        "AVG TRANS": ("int",),
-        "AVG DAYS": ("float",),
-        "PNL RATIO": ("ratio", "format"),
-        "WIN RATE": ("ratio", "format"),
-        "TOTAL PNL RATIO": ("ratio", "format"),
-        "OPEN DATE": ("date", "format"),
-        "TOTAL VALUE": ("float",),
-    }
+
     return html.Div(
         [
             Header(app),
@@ -740,39 +703,6 @@ def create_layout(app):
                                         style={
                                             "overflow-x": "auto",
                                             "max-height": 400,
-                                            "overflow-y": "auto",
-                                        },
-                                        className="table",
-                                    ),
-                                ],
-                                className="twelve columns",
-                            ),
-                        ],
-                        className="row",
-                    ),
-                    html.Div(
-                        [
-                            html.Div(
-                                [
-                                    html.H6(
-                                        "ETF Position Holding",
-                                        className="subtitle padded",
-                                    ),
-                                    html.Div(
-                                        [
-                                            html.Div(
-                                                children=make_dash_format_table(
-                                                    df_etf,
-                                                    cols_format_etf,
-                                                    f"{prefix}",
-                                                    f"{df_overall.at[0, 'end_date']}",
-                                                ),
-                                                className="cn_table",
-                                            )
-                                        ],
-                                        style={
-                                            "overflow-x": "auto",
-                                            "max-height": 300,
                                             "overflow-y": "auto",
                                         },
                                         className="table",
