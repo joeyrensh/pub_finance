@@ -696,7 +696,8 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         highlight_threshold = df["total_score"].quantile(0.9)
 
         condition = df["total_score"] > highlight_threshold
-        df.loc[condition, "NAME"] = "88+" + df.loc[condition, "NAME"]
+        if market in ("us", "cn", "us_special"):
+            df.loc[condition, "NAME"] = "88+" + df.loc[condition, "NAME"]
         if market in ("us", "cn"):
             export_if_changed(df, condition, trade_date, market)
 
