@@ -701,7 +701,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
             export_if_changed(df, condition, trade_date, market)
 
     def create_link(symbol, market):
-        if market == "cn" and symbol.startswith(("SH", "SZ")):
+        if market in ("cn", "cn_dynamic") and symbol.startswith(("SH", "SZ")):
             url = f"https://quote.eastmoney.com/{symbol}.html"
         elif market == "cn" and symbol.startswith("ETF"):
             url = f"https://quote.eastmoney.com/{symbol[3:]}.html"
