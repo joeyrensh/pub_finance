@@ -227,12 +227,34 @@ def exec_btstrategy(date):
         if len(perf_stats_display) > 2:
             perf_stats_display = perf_stats_display.iloc[-2:]
 
+        def shorten_percent(text: str) -> str:
+            """
+            输入：带百分号的字符串 "1565.10%"
+            输出：超过1000%的用 K，超过1_000_000%用 M，否则保留原样
+            """
+            try:
+                # 提取数字部分
+                v = float(text.strip().replace("%", ""))
+            except:
+                # 如果不能转数字，原样返回
+                return text
+
+            a = abs(v)
+            if a >= 1000:
+                return f"{v/1_000:.2f}K%"
+            else:
+                return f"{v:.2f}%"
+
+        cellText = [
+            [shorten_percent(x) for x in row] for row in perf_stats_display.T.values
+        ]
+
         # ----------------------------
         # 绘制表格
         # ----------------------------
         ax_table.axis("off")
         table = ax_table.table(
-            cellText=perf_stats_display.T.values,
+            cellText=cellText,
             rowLabels=cols_names,
             bbox=[0, 0, 1, 1],
             cellLoc="center",

@@ -145,7 +145,7 @@
 
     // ========== 4. 核心业务函数 ==========
     // 存储已放大的元素标识符（使用新的精确标识符）
-    const enlargedElements = new Set();
+    const enlargedElements = new Set();   
     
     function replaceFontSize(element, svgId) {
         // 生成精确的唯一标识符
@@ -177,12 +177,13 @@
                 if (idx >= colCount && (idx % colCount === 2)) {
                     fontSize = screenWidth <= 550 ? '2.6rem' : '2.5rem';
                     fontWeight = 700;
-                    const textContent = parentDiv.textContent.trim();
+                    const textContent = parentDiv.textContent.trim();                           
+                    
                     if (textContent.startsWith('-')) {
                         element.style.setProperty('fill', '#0d876d', 'important');
                     } else {
                         element.style.setProperty('fill', '#D9534F', 'important');
-                    }
+                    }                  
                 }
             }
             const axisParent = element.closest('[id*="axis_"]');
