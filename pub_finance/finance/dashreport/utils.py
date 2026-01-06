@@ -464,29 +464,6 @@ def discrete_background_color_bins(df, column, n_bins=10, positive_is_red=False,
     return styles
 
 
-def extract_arrow_num(s):
-    # 去除 HTML 标签
-    clean_text = re.sub(r"<[^<]+?>", "", s)
-
-    arrow_num = 0  # 默认：没有箭头 → 0
-
-    # 向上箭头 ↑
-    up_match = re.search(r"↑(\d+)", clean_text)
-    if up_match:
-        arrow_num = int(up_match.group(1))
-    else:
-        # 向下箭头 ↓
-        down_match = re.search(r"↓(\d+)", clean_text)
-        if down_match:
-            arrow_num = -int(down_match.group(1))
-
-    # 斜杠后的数字（如 ↑7/4）
-    bracket_match = re.search(r"/(\d+)", clean_text)
-    bracket_num = int(bracket_match.group(1)) if bracket_match else None
-
-    return arrow_num, bracket_num
-
-
 def make_dash_format_table(df, cols_format, market, trade_date):
     """Return a dash_table.DataTable for a Pandas dataframe"""
     # 创建一个新的 DataFrame 来存储原始列的副本
@@ -504,20 +481,10 @@ def make_dash_format_table(df, cols_format, market, trade_date):
     ]
     has_all_required_cols = all(col in df.columns for col in required_cols)
     if market in ("us", "us_special", "us_dynamic"):
-        trade_date_l40 = get_us_latest_trade_date(39)
-        trade_date_l20 = get_us_latest_trade_date(19)
-        trade_date_l5 = get_us_latest_trade_date(4)
+        trade_date_l5 = get_us_specific_trade_date(4)
     elif market in ("cn", "cn_dynamic"):
-        trade_date_l40 = get_cn_latest_trade_date(39)
-        trade_date_l20 = get_cn_latest_trade_date(19)
-        trade_date_l5 = get_cn_latest_trade_date(4)
+        trade_date_l5 = get_cn_specific_trade_date(4)
 
-    date_threshold_l40 = datetime.strptime(trade_date_l40, "%Y%m%d").strftime(
-        "%Y-%m-%d"
-    )
-    date_threshold_l20 = datetime.strptime(trade_date_l20, "%Y%m%d").strftime(
-        "%Y-%m-%d"
-    )
     date_threshold_l5 = datetime.strptime(trade_date_l5, "%Y%m%d").strftime("%Y-%m-%d")
     # 如果有IND列，先生成辅助列
     if "ERP" in df.columns:
@@ -898,7 +865,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
     )
 
 
-def get_us_latest_trade_date(offset) -> str | None:
+def get_us_specific_trade_date(offset) -> str | None:
     """
     utc_us = datetime.fromisoformat('2021-01-18 01:00:00')
     美股休市日，https://www.nyse.com/markets/hours-calendars
@@ -935,7 +902,7 @@ def get_us_latest_trade_date(offset) -> str | None:
             continue
 
 
-def get_cn_latest_trade_date(offset) -> str | None:
+def get_cn_specific_trade_date(offset) -> str | None:
     BASE_DIR = pathlib.Path(__file__).resolve().parents[1]  # finance
     f = open(BASE_DIR / "cnstockinfo" / "marketclosed.config").readlines()
     x = []
