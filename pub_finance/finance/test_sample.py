@@ -11,7 +11,7 @@ from utility.backtrader_exec import BacktraderExec
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc+8"""
-    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(0)
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
@@ -35,8 +35,8 @@ if __name__ == "__main__":
 
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
-    em = EMWebCrawlerUti()
-    em.get_daily_stock_info("cn", trade_date)
+    # em = EMWebCrawlerUti()
+    # em.get_daily_stock_info("cn", trade_date)
 
     # em = AKCNWebCrawler()
     # em.get_cn_daily_stock_info_ak(trade_date)
