@@ -1040,6 +1040,28 @@ class StockProposal:
         pd_position_history.to_csv(f"./data/{self.market}_stockdetail.csv", header=True)
         cm = sns.light_palette("seagreen", as_cmap=True)
 
+        column_map_default = {
+            "symbol": "SYMBOL",
+            "name": "NAME",
+            "industry": "IND",
+            "erp": "ERP",
+            "open_date": "OPEN DATE",
+            "pnl_ratio": "PNL RATIO",
+            "win_rate": "WIN RATE",
+            "avg_trans": "AVG TRANS",
+            "sortino": "SORTINO RATIO",
+            "max_dd": "MAX DD",
+        }
+        if self.market in ("cn", "us"):
+            toolkit = ToolKit("股票排名导出")
+            selected_symbols = toolkit.score_and_select_symbols(
+                pd_position_history,
+                column_map_default,
+                self.market,
+                self.trade_date,
+            )
+            toolkit.export_if_changed(selected_symbols, self.market)
+
         # 将新日期转换为字符串
         pd_timeseries_sorted = pd_timeseries.sort_values(by="buy_date", ascending=False)
         new_date_str = str(

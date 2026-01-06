@@ -1,5 +1,5 @@
 from waitress import serve
-from app import app
+from finance.dashreport.app import app
 
 serve(
     app.server,

@@ -3,7 +3,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State, MATCH
-from pages import (
+from finance.dashreport.pages import (
     cnstock_performance,
     slogans,
     usstock_performance,

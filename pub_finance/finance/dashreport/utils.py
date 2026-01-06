@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import hashlib
 import os
+from finance.utility.toolkit import ToolKit
 
 
 def Header(app):
@@ -488,6 +489,8 @@ def extract_arrow_num(s):
 
 def make_dash_format_table(df, cols_format, market, trade_date):
     """Return a dash_table.DataTable for a Pandas dataframe"""
+    # 创建一个新的 DataFrame 来存储原始列的副本
+    original_df = df.copy()
     required_cols = [
         "IND",
         "ERP",
@@ -521,185 +524,29 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         df["ERP"] = pd.to_numeric(df["ERP"], errors="coerce")
         df["ERP"] = df["ERP"].fillna(-99999)
 
-    # ========== 新增统一评分体系 ==========
-    # 分位函数
-    def rank_score(
-        s: pd.Series,
-        *,
-        higher_is_better: bool = True,
-        mid: float | None = None,
-    ) -> pd.Series:
-        """
-        统一评分函数（最终版）
-        - mid=None → 单边归一化 [0,1]，最大值=1，最小值=0
-        - mid=float → 双边归一 [-1,1]，value==mid → score=0
-        - higher_is_better=True → 值越大越好
-        - NaN → 返回0
-        """
-        s_num = pd.to_numeric(s, errors="coerce")
-        score = pd.Series(0.0, index=s.index)
-        valid = s_num.dropna()
-        if valid.empty:
-            return score
-
-        # ---------- 单边归一化 ----------
-        if mid is None:
-            vals = valid.copy()
-            if not higher_is_better:
-                vals = -vals  # 负指标统一方向
-            vmin, vmax = vals.min(), vals.max()
-            if vmin == vmax:
-                score.loc[valid.index] = 1.0
-            else:
-                score.loc[valid.index] = (vals - vmin) / (vmax - vmin)
-            return score
-
-        # ---------- 双边归一化 ----------
-        aligned = valid - mid
-        pos = aligned[aligned > 0]
-        neg = aligned[aligned < 0]
-
-        if not pos.empty:
-            max_pos = pos.max()
-            if max_pos != 0:
-                score.loc[pos.index] = pos / max_pos
-        if not neg.empty:
-            min_neg = neg.min()
-            if min_neg != 0:
-                score.loc[neg.index] = neg / abs(min_neg)
-        # aligned==0 → score保持0
-        return score
-
-    def export_if_changed(df, condition, trade_date, market):
-        """
-        当命中的 symbol 列表发生变化时才写出 CSV
-        CSV 格式：
-            symbol
-            AAPL
-            MSFT
-            ...
-        """
-        # 1️⃣ 当前命中的 symbol（排序保证稳定性）
-        symbols = sorted(
-            df.loc[condition, "SYMBOL"].astype(str).str.strip().unique().tolist()
-        )
-        out_file = (
-            pathlib.Path(__file__).resolve().parent.parent
-            / f"{market}stockinfo"
-            / "dynamic_list.csv"
-        )
-        # 当前内容 hash
-        content = "\n".join(symbols).encode("utf-8")
-        new_md5 = hashlib.md5(content).hexdigest()
-
-        # 2️⃣ 如果文件已存在，计算旧文件的 hash
-        if os.path.exists(out_file):
-            old_df = pd.read_csv(out_file)
-
-            if "symbol" in old_df.columns:
-                old_symbols = sorted(
-                    old_df["symbol"].astype(str).str.strip().unique().tolist()
-                )
-
-                old_content = "\n".join(old_symbols).encode("utf-8")
-                old_md5 = hashlib.md5(old_content).hexdigest()
-
-                if old_md5 == new_md5:
-                    return  # 内容一致，不写文件
-
-        # 3️⃣ 内容不同，写文件
-        pd.DataFrame({"symbol": symbols}).to_csv(out_file, index=False)
-
     if has_all_required_cols:
-        # 行业动量
-        df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = df["IND"].apply(
-            lambda x: pd.Series(extract_arrow_num(x))
+        column_map_default = {
+            "symbol": "SYMBOL",
+            "name": "NAME",
+            "industry": "IND",
+            "erp": "ERP",
+            "open_date": "OPEN DATE",
+            "pnl_ratio": "PNL RATIO",
+            "win_rate": "WIN RATE",
+            "avg_trans": "AVG TRANS",
+            "sortino": "SORTINO RATIO",
+            "max_dd": "MAX DD",
+        }
+        selected_symbols = ToolKit.score_and_select_symbols(
+            df,
+            column_map_default,
+            market,
+            trade_date,
         )
 
-        df["industry_arrow_score"] = rank_score(
-            df["IND_ARROW_NUM"],
-            higher_is_better=True,
-            mid=0,
-        )
-
-        df["industry_bracket_score"] = rank_score(
-            df["IND_BRACKET_NUM"],
-            higher_is_better=False,  # 排名越小越好
-            mid=None,
-        )
-        # 行业内样本小于3，需要特殊处理，按照全局来评定pnl_score和erp_score
-        ind_counts = df.groupby("IND")["SYMBOL"].transform("count")
-        invalid_inds = ind_counts < 3
-
-        # ERP评分，处理缺失值
-        df["erp_clean"] = df["ERP"].replace(-99999, np.nan)
-        df["erp_score"] = np.where(
-            invalid_inds,
-            rank_score(df["erp_clean"], higher_is_better=True, mid=0),
-            df.groupby("IND")["erp_clean"].transform(
-                lambda x: rank_score(x, higher_is_better=True, mid=0)
-            ),
-        )
-        # PNL评分
-        trade_dt = pd.to_datetime(trade_date, errors="coerce")
-        open_dt = pd.to_datetime(df["OPEN DATE"], errors="coerce")
-
-        df["DAYS_FROM_OPEN"] = (trade_dt - open_dt).dt.days
-        df["DAYS_FROM_OPEN"] = df["DAYS_FROM_OPEN"].clip(lower=0)
-        df["pnl_score"] = rank_score(
-            df["PNL RATIO"] / df["DAYS_FROM_OPEN"],
-            higher_is_better=True,
-            mid=0,
-        )
-
-        # 胜率和平均交易评分
-        df["win_rate_score"] = rank_score(
-            df["WIN RATE"],
-            higher_is_better=True,
-            mid=0.5,
-        )
-
-        df["avg_trans_score"] = rank_score(
-            df["AVG TRANS"],
-            higher_is_better=False,
-            mid=None,
-        )
-
-        df["sortino_score"] = rank_score(
-            df["SORTINO RATIO"],
-            higher_is_better=True,
-            mid=1,
-        )
-
-        df["maxdd_score"] = rank_score(
-            df["MAX DD"],
-            higher_is_better=True,
-            mid=None,
-        )
-
-        stability_factor = 0.4 + 0.2 + 0.2 + 0.2  # 子因子权重和 = 1
-        df["total_score"] = (
-            0.25
-            * (0.5 * df["industry_arrow_score"] + 0.5 * df["industry_bracket_score"])
-            + 0.25 * df["pnl_score"]
-            + 0.4
-            * (
-                0.3 * df["win_rate_score"]
-                + 0.2 * df["avg_trans_score"]
-                + 0.2 * df["sortino_score"]
-                + 0.3 * df["maxdd_score"]
-            )
-            + 0.10 * df["erp_score"]
-        )
-
-        # top 20% 为高亮阈值
-        highlight_threshold = df["total_score"].quantile(0.9)
-
-        condition = df["total_score"] > highlight_threshold
         if market in ("us", "cn", "us_special"):
-            df.loc[condition, "NAME"] = "88+" + df.loc[condition, "NAME"]
-        if market in ("us", "cn"):
-            export_if_changed(df, condition, trade_date, market)
+            mask = df["SYMBOL"].isin(selected_symbols)
+            df.loc[mask, "NAME"] = "88+" + df.loc[mask, "NAME"].astype(str)
 
     def create_link(symbol, market):
         if market in ("cn", "cn_dynamic") and symbol.startswith(("SH", "SZ")):
@@ -719,24 +566,30 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         "SYMBOL",
         "NAME",
     ]
-    highlight_conditional = (
-        [
+    if (
+        has_all_required_cols
+        and selected_symbols
+        and market in ("us", "cn", "us_special")
+    ):
+        # 使用原始值列 SYMBOL_o 做过滤（SYMBOL 列已被替换为 HTML/link）
+        # filter_query 中字符串请用双引号，以符合 Dash 语法
+        filter_query = " || ".join(
+            ['({{{}}} = "{}")'.format("SYMBOL_o", sym) for sym in selected_symbols]
+        )
+
+        highlight_conditional = [
             {
                 "if": {
-                    "filter_query": "{total_score_o} > " + str(highlight_threshold),
-                    "column_id": col,
+                    "filter_query": filter_query,
+                    "column_id": col,  # 高亮的列
                 },
-                # "background": "var(--row-bg-color)",
                 "color": "var(--row-bg-color)",
                 "fontWeight": "bold",
             }
             for col in highlight_cols
         ]
-        if has_all_required_cols
-        and "IND_ARROW_NUM" in df.columns
-        and market in ("us", "cn", "us_special")
-        else []
-    )
+    else:
+        highlight_conditional = []
 
     columns = [
         {
@@ -797,8 +650,6 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         ]
     ]
 
-    # 创建一个新的 DataFrame 来存储原始列的副本
-    original_df = df.copy()
     # 遍历 DataFrame 的所有列
     for col in df.columns:
         # 为每一列创建一个新的列，新的列名为原列名加上后缀 "_o"

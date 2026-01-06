@@ -11,6 +11,10 @@ import numpy as np
 from matplotlib.patches import Wedge, Circle, Rectangle
 from matplotlib.collections import PolyCollection
 from matplotlib import colors as mcolors
+import pandas as pd
+import pathlib
+import hashlib
+import os
 
 
 class ToolKit:
@@ -666,3 +670,201 @@ class ToolKit:
         return (
             f'<img src="data:image/png;base64,{b64encode(buf.getvalue()).decode()}" />'
         )
+
+    @staticmethod
+    def score_and_select_symbols(
+        df: pd.DataFrame,
+        column_map: dict,
+        market: str,
+        trade_date: str,
+        *,
+        quantile: float = 0.9,
+    ) -> set[str]:
+        """
+        执行打分逻辑 + 筛选 symbol
+        返回：被选中的 symbol 集合
+        """
+
+        def extract_arrow_num(s):
+            # 去除 HTML 标签
+            clean_text = re.sub(r"<[^<]+?>", "", s)
+
+            arrow_num = 0  # 默认：没有箭头 → 0
+
+            # 向上箭头 ↑
+            up_match = re.search(r"↑(\d+)", clean_text)
+            if up_match:
+                arrow_num = int(up_match.group(1))
+            else:
+                # 向下箭头 ↓
+                down_match = re.search(r"↓(\d+)", clean_text)
+                if down_match:
+                    arrow_num = -int(down_match.group(1))
+
+            # 斜杠后的数字（如 ↑7/4）
+            bracket_match = re.search(r"/(\d+)", clean_text)
+            bracket_num = int(bracket_match.group(1)) if bracket_match else None
+
+            return arrow_num, bracket_num
+
+        # 分位函数
+        def rank_score(
+            s: pd.Series,
+            *,
+            higher_is_better: bool = True,
+            mid: float | None = None,
+        ) -> pd.Series:
+            """
+            统一评分函数（最终版）
+            - mid=None → 单边归一化 [0,1]，最大值=1，最小值=0
+            - mid=float → 双边归一 [-1,1]，value==mid → score=0
+            - higher_is_better=True → 值越大越好
+            - NaN → 返回0
+            """
+            s_num = pd.to_numeric(s, errors="coerce")
+            score = pd.Series(0.0, index=s.index)
+            valid = s_num.dropna()
+            if valid.empty:
+                return score
+
+            # ---------- 单边归一化 ----------
+            if mid is None:
+                vals = valid.copy()
+                if not higher_is_better:
+                    vals = -vals  # 负指标统一方向
+                vmin, vmax = vals.min(), vals.max()
+                if vmin == vmax:
+                    score.loc[valid.index] = 1.0
+                else:
+                    score.loc[valid.index] = (vals - vmin) / (vmax - vmin)
+                return score
+
+            # ---------- 双边归一化 ----------
+            aligned = valid - mid
+            pos = aligned[aligned > 0]
+            neg = aligned[aligned < 0]
+
+            if not pos.empty:
+                max_pos = pos.max()
+                if max_pos != 0:
+                    score.loc[pos.index] = pos / max_pos
+            if not neg.empty:
+                min_neg = neg.min()
+                if min_neg != 0:
+                    score.loc[neg.index] = neg / abs(min_neg)
+            # aligned==0 → score保持0
+            return score
+
+        df = df.copy()
+
+        # ===== 列映射 =====
+        c = column_map
+        sym_col = c["symbol"]
+
+        # ===== 行业解析 =====
+        df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = df[c["industry"]].apply(
+            lambda x: pd.Series(extract_arrow_num(x))
+        )
+
+        df["industry_arrow_score"] = rank_score(
+            df["IND_ARROW_NUM"], higher_is_better=True, mid=0
+        )
+
+        df["industry_bracket_score"] = rank_score(
+            df["IND_BRACKET_NUM"], higher_is_better=False
+        )
+
+        industry_score = (
+            0.5 * df["industry_arrow_score"] + 0.5 * df["industry_bracket_score"]
+        )
+
+        # ===== ERP =====
+        df[c["erp"]] = pd.to_numeric(df[c["erp"]], errors="coerce")
+
+        ind_cnt = df.groupby(c["industry"])[sym_col].transform("count")
+        invalid_ind = ind_cnt < 3
+
+        df["erp_score"] = np.where(
+            invalid_ind,
+            rank_score(df[c["erp"]], higher_is_better=True, mid=0),
+            df.groupby(c["industry"])[c["erp"]].transform(
+                lambda x: rank_score(x, higher_is_better=True, mid=0)
+            ),
+        )
+
+        # ===== PNL =====
+        trade_dt = pd.to_datetime(trade_date)
+        open_dt = pd.to_datetime(df[c["open_date"]], errors="coerce")
+
+        days = (trade_dt - open_dt).dt.days.clip(lower=1)
+        df["pnl_score"] = rank_score(
+            df[c["pnl_ratio"]] / days, higher_is_better=True, mid=0
+        )
+
+        # ===== 稳定性 =====
+        df["win_rate_score"] = rank_score(df[c["win_rate"]], mid=0.5)
+        df["avg_trans_score"] = rank_score(df[c["avg_trans"]], higher_is_better=False)
+        df["sortino_score"] = rank_score(df[c["sortino"]], mid=1)
+        df["maxdd_score"] = rank_score(df[c["max_dd"]])
+
+        stability_score = (
+            0.3 * df["win_rate_score"]
+            + 0.2 * df["avg_trans_score"]
+            + 0.2 * df["sortino_score"]
+            + 0.3 * df["maxdd_score"]
+        )
+
+        # ===== 总分 =====
+        df["total_score"] = (
+            0.25 * industry_score
+            + 0.25 * df["pnl_score"]
+            + 0.40 * stability_score
+            + 0.10 * df["erp_score"]
+        )
+
+        # ===== 筛选 =====
+        threshold = df["total_score"].quantile(quantile)
+        selected = df.loc[df["total_score"] > threshold, sym_col]
+
+        selected_symbols = set(selected.astype(str).str.strip().unique())
+
+        return selected_symbols
+
+    @staticmethod
+    def export_if_changed(selected_symbols, market):
+        """
+        当命中的 symbol 列表发生变化时才写出 CSV
+        CSV 格式：
+            symbol
+            AAPL
+            MSFT
+            ...
+        """
+        out_file = (
+            pathlib.Path(__file__).resolve().parent.parent
+            / f"{market}stockinfo"
+            / "dynamic_list.csv"
+        )
+        # 将 selected_symbols 转为已排序的字符串列表，保证顺序确定且可用于 pandas
+        symbols_list = sorted([str(s).strip() for s in selected_symbols])
+        # 当前内容 hash（使用排序后的列表以确保可复现的哈希）
+        content = "\n".join(symbols_list).encode("utf-8")
+        new_md5 = hashlib.md5(content).hexdigest()
+
+        # 2️⃣ 如果文件已存在，计算旧文件的 hash
+        if os.path.exists(out_file):
+            old_df = pd.read_csv(out_file)
+
+            if "symbol" in old_df.columns:
+                old_symbols = sorted(
+                    old_df["symbol"].astype(str).str.strip().unique().tolist()
+                )
+
+                old_content = "\n".join(old_symbols).encode("utf-8")
+                old_md5 = hashlib.md5(old_content).hexdigest()
+
+                if old_md5 == new_md5:
+                    return  # 内容一致，不写文件
+
+        # 3️⃣ 内容不同，写文件
+        pd.DataFrame({"symbol": symbols_list}).to_csv(out_file, index=False)
