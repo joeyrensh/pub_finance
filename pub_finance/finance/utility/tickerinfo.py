@@ -374,7 +374,7 @@ class TickerInfo:
         """ 适配BackTrader数据结构 """
         if self.market in ("us", "us_special", "us_dynamic"):
             market = 1
-        elif self.market in ("cn", "cn_dynamic"):
+        elif self.market in ("cn", "cn_dynamic", "cnetf"):
             market = 2
         df_copy = pd.DataFrame(
             {
