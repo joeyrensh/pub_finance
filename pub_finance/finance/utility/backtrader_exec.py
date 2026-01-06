@@ -180,7 +180,7 @@ class BacktraderExec:
                     "background": "white",
                     "grid": "#333333",
                     "cumret": "#D9534F",  # 深蓝
-                    "drawdown": "#3d9970",  # 红色
+                    "drawdown": "#00a380",  # 红色
                     "table_edge": "#333333",
                     "table_header": "#F5F5F5",
                     "legend_text": "#333333",
@@ -190,7 +190,7 @@ class BacktraderExec:
                     "background": "black",
                     "grid": "#FFFFFF",
                     "cumret": "#FF6B6B",  # 亮蓝
-                    "drawdown": "#3d9970",  # 亮红
+                    "drawdown": "#00a380",  # 亮红
                     "table_edge": "#FFFFFF",
                     "table_header": "#404040",
                     "legend_text": "#ffffffc5",
