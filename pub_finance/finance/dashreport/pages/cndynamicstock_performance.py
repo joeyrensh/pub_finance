@@ -166,42 +166,6 @@ def create_layout(app):
         "SORTINO RATIO": ("float",),
         "MAX DD": ("ratio", "format"),
     }
-    # 减仓明细
-    cols_short = [
-        "IDX",
-        "SYMBOL",
-        "IND",
-        "NAME",
-        "TOTAL VALUE",
-        "ERP",
-        "OPEN DATE",
-        "CLOSE DATE",
-        "BASE",
-        "ADJBASE",
-        "PNL",
-        "PNL RATIO",
-        "HIS DAYS",
-        "STRATEGY",
-    ]
-    df_detail_short = (
-        pd.read_csv(
-            DATA_PATH.joinpath(f"{prefix}_stockdetail_short.csv"), usecols=range(1, 15)
-        )
-        if DATA_PATH.joinpath(f"{prefix}_stockdetail_short.csv").exists()
-        else pd.DataFrame(columns=cols_short)
-    )
-
-    df_detail_short["IDX"] = df_detail_short.index
-    df_detail_short = df_detail_short[cols_short].copy()
-    cols_format_detail_short = {
-        "TOTAL VALUE": ("float",),
-        "ERP": ("float",),
-        "BASE": ("float",),
-        "ADJBASE": ("float",),
-        "PNL": ("int", "format"),
-        "PNL RATIO": ("ratio", "format"),
-        "HIS DAYS": ("int",),
-    }
 
     return html.Div(
         [
@@ -703,39 +667,6 @@ def create_layout(app):
                                         style={
                                             "overflow-x": "auto",
                                             "max-height": 400,
-                                            "overflow-y": "auto",
-                                        },
-                                        className="table",
-                                    ),
-                                ],
-                                className="twelve columns",
-                            ),
-                        ],
-                        className="row",
-                    ),
-                    html.Div(
-                        [
-                            html.Div(
-                                [
-                                    html.H6(
-                                        "Position Reduction",
-                                        className="subtitle padded",
-                                    ),
-                                    html.Div(
-                                        [
-                                            html.Div(
-                                                children=make_dash_format_table(
-                                                    df_detail_short,
-                                                    cols_format_detail_short,
-                                                    f"{prefix}",
-                                                    f"{df_overall.at[0, 'end_date']}",
-                                                ),
-                                                className="cn_table",
-                                            )
-                                        ],
-                                        style={
-                                            "overflow-x": "auto",
-                                            "max-height": 300,
                                             "overflow-y": "auto",
                                         },
                                         className="table",
