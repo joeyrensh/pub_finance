@@ -60,83 +60,85 @@
         /* =========================
         * Strategy Colors (Light)
         * ========================= */
-        "#0c6552": "#0f766e",
-        "#0d876d": "#0d9488",
-        "#00a380": "#14b8a6",
-        "#00b89a": "#2dd4bf",
-        "#ffa700": "#f59e0b",
-        "#d50b3e": "#dc2626",
-        "#a90a3f": "#b91c1c",
-        "#7a0925": "#991b1b",
+        "#0c6552": "#16a34a", // strategy 1 → 绿色
+        "#0d876d": "#22c55e", // strategy 2 → 绿色
+        "#00a380": "#4ade80", // strategy 3 → 浅绿
+        "#00b89a": "#6ee7b7", // strategy 4 → 浅绿
+        "#ffa700": "#3b82f6", // strategy 5 → 蓝色辅助
+        "#d50a3e": "#ef4444", // strategy 6 → 红
+        "#a90a3f": "#f87171", // strategy 7 → 浅红
+        "#7a0925": "#dc2626", // strategy 8 → 深红
 
         /* =========================
         * Diverse Colors (Light)
         * ========================= */
-        "#d60a22": "#ef4444",
-        "#ea7034": "#fb7185",
-        "#ffd747": "#facc15",
-        "#81a949": "#84cc16",
-        "#037b66": "#0d9488",
+        "#d60a22": "#ef4444", // 红
+        "#ea7034": "#3b82f6", // 蓝
+        "#ffd747": "#60a5fa", // 浅蓝
+        "#81a949": "#16a34a", // 绿
+        "#037b66": "#22c55e", // 浅绿
 
         /* =========================
         * CumRet / Drawdown
         * ========================= */
-        "#e01c3a": "#dc2626", // cumret line → 风险红
-        "#0d876d": "#14b8a6", // drawdown area → 青绿（回撤面积）
+        "#e01c3a": "#ef4444", // cumret line → 涨红
+        "#0d876d": "#16a34a", // drawdown area → 跌绿
 
         /* =========================
         * Arrow Colors
         * ========================= */
-        "#d60a22": "#ef4444", // up arrow → 红（进攻）
-        "#037b66": "#0d9488", // down arrow → 青绿（回落）
+        "#d60a22": "#ef4444", // up arrow → 红
+        "#037b66": "#16a34a", // down arrow → 绿
 
         /* =========================
         * Position Colors
         * ========================= */
-        "#e01c3a": "#dc2626", // long position line/bar
-        "#0d876d": "#14b8a6"  // short position line/bar
+        "#e01c3a": "#ef4444", // long position line/bar → 红
+        "#0d876d": "#16a34a"  // short position line/bar → 绿
     };
+
 
     const COLOR_MAP_DARK = {
         /* =========================
         * Strategy Colors (Dark)
         * ========================= */
-        "#0d7b67": "#2dd4bf",
-        "#0e987f": "#5eead4",
-        "#01b08f": "#14b8a6",
-        "#00c4a6": "#22d3ee",
-        "#ffa700": "#fbbf24",
-        "#e90c4a": "#f87171",
-        "#cf1745": "#ef4444",
-        "#b6183d": "#dc2626",
+        "#0d7b67": "#22c55e", // strategy 1 → 绿
+        "#0e987f": "#4ade80", // strategy 2 → 浅绿
+        "#01b08f": "#6ee7b7", // strategy 3 → 浅绿
+        "#00c4a6": "#86efac", // strategy 4 → 浅绿
+        "#ffa700": "#3b82f6", // strategy 5 → 蓝色辅助
+        "#e90c4a": "#f87171", // strategy 6 → 浅红
+        "#cf1745": "#ef4444", // strategy 7 → 红
+        "#b6183d": "#dc2626", // strategy 8 → 深红
 
         /* =========================
         * Diverse Colors (Dark)
         * ========================= */
-        "#d60a22": "#fb7185",
-        "#ea7034": "#fdba74",
-        "#ffd747": "#fde047",
-        "#81a949": "#a3e635",
-        "#037b66": "#2dd4bf",
+        "#d60a22": "#ef4444", // 红
+        "#ea7034": "#3b82f6", // 蓝
+        "#ffd747": "#60a5fa", // 浅蓝
+        "#81a949": "#22c55e", // 绿
+        "#037b66": "#4ade80", // 浅绿
 
         /* =========================
         * CumRet / Drawdown
         * ========================= */
-        "#e01c3a": "#f87171", // cumret line
-        "#0d876d": "#2dd4bf", // drawdown area
+        "#e01c3a": "#ef4444", // cumret line → 涨红
+        "#0d876d": "#22c55e", // drawdown area → 跌绿
 
         /* =========================
         * Arrow Colors
         * ========================= */
-        "#d60a22": "#fb7185", // up arrow
-        "#037b66": "#2dd4bf", // down arrow
+        "#d60a22": "#ef4444", // up arrow → 红
+        "#037b66": "#22c55e", // down arrow → 绿
 
         /* =========================
         * Position Colors
         * ========================= */
-        "#e01c3a": "#f87171", // long position
-        "#0d876d": "#2dd4bf"  // short position
+        "#e01c3a": "#ef4444", // long position → 红
+        "#0d876d": "#22c55e"  // short position → 绿
     };
+
 
 
 
