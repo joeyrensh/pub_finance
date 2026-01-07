@@ -7,6 +7,8 @@ This is a demo of the [Dash] financial report app developed in Plotly.
 
 ### Running the app locally
 
+At pub_finance directory, execute the command "nohup python -m finance.dashreport.dash_wsgi > dash.log &"
+
 First create a virtual environment with conda or venv inside a temp folder, then activate it.
 
 ```
