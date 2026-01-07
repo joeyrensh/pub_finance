@@ -38,7 +38,7 @@
         'by-positiondate-dark': { mobile: '2rem', desktop: '2rem' },
         'bypl-date-light': { mobile: '2rem', desktop: '2rem' },
         'bypl-date-dark': { mobile: '2rem', desktop: '2rem' },
-    };
+    };  
 
     const FONT_SIZE_CONFIG = {};
     ['cn', 'us', 'us_special', 'cn_dynamic', 'us_dynamic'].forEach(prefix => {
@@ -55,6 +55,90 @@
         'gtitle': { mobile: '2.2rem', desktop: '2.2rem' },
         'xtitle': { mobile: '2.2rem', desktop: '2.2rem' }
     };
+
+    const COLOR_MAP_LIGHT = {
+        /* =========================
+        * Strategy Colors (Light)
+        * ========================= */
+        "#0c6552": "#0f766e",
+        "#0d876d": "#0d9488",
+        "#00a380": "#14b8a6",
+        "#00b89a": "#2dd4bf",
+        "#ffa700": "#f59e0b",
+        "#d50b3e": "#dc2626",
+        "#a90a3f": "#b91c1c",
+        "#7a0925": "#991b1b",
+
+        /* =========================
+        * Diverse Colors (Light)
+        * ========================= */
+        "#d60a22": "#ef4444",
+        "#ea7034": "#fb7185",
+        "#ffd747": "#facc15",
+        "#81a949": "#84cc16",
+        "#037b66": "#0d9488",
+
+        /* =========================
+        * CumRet / Drawdown
+        * ========================= */
+        "#e01c3a": "#dc2626", // cumret line → 风险红
+        "#0d876d": "#14b8a6", // drawdown area → 青绿（回撤面积）
+
+        /* =========================
+        * Arrow Colors
+        * ========================= */
+        "#d60a22": "#ef4444", // up arrow → 红（进攻）
+        "#037b66": "#0d9488", // down arrow → 青绿（回落）
+
+        /* =========================
+        * Position Colors
+        * ========================= */
+        "#e01c3a": "#dc2626", // long position line/bar
+        "#0d876d": "#14b8a6"  // short position line/bar
+    };
+
+    const COLOR_MAP_DARK = {
+        /* =========================
+        * Strategy Colors (Dark)
+        * ========================= */
+        "#0d7b67": "#2dd4bf",
+        "#0e987f": "#5eead4",
+        "#01b08f": "#14b8a6",
+        "#00c4a6": "#22d3ee",
+        "#ffa700": "#fbbf24",
+        "#e90c4a": "#f87171",
+        "#cf1745": "#ef4444",
+        "#b6183d": "#dc2626",
+
+        /* =========================
+        * Diverse Colors (Dark)
+        * ========================= */
+        "#d60a22": "#fb7185",
+        "#ea7034": "#fdba74",
+        "#ffd747": "#fde047",
+        "#81a949": "#a3e635",
+        "#037b66": "#2dd4bf",
+
+        /* =========================
+        * CumRet / Drawdown
+        * ========================= */
+        "#e01c3a": "#f87171", // cumret line
+        "#0d876d": "#2dd4bf", // drawdown area
+
+        /* =========================
+        * Arrow Colors
+        * ========================= */
+        "#d60a22": "#fb7185", // up arrow
+        "#037b66": "#2dd4bf", // down arrow
+
+        /* =========================
+        * Position Colors
+        * ========================= */
+        "#e01c3a": "#f87171", // long position
+        "#0d876d": "#2dd4bf"  // short position
+    };
+
+
 
     // ========== 2. 主题检测函数 ==========
     let currentTheme = null;
@@ -263,6 +347,53 @@
         element.style.setProperty('letter-spacing', '-.03rem', 'important');
     }
 
+    function recolorSvg(svg, colorMap) {
+        if (!svg) return;
+        colorMap = Object.fromEntries(
+            Object.entries(colorMap).map(([k, v]) => [k.toLowerCase(), v])
+        );     
+
+        svg.querySelectorAll("*").forEach(el => {
+            const style = el.getAttribute("style");
+            if (!style) return;
+
+            let newStyle = style;
+
+            Object.entries(colorMap).forEach(([oldHex, newHex]) => {
+                // --- hex → rgb ---
+                const hex = oldHex.replace("#", "").toLowerCase();
+                if (hex.length !== 6) return;
+
+                const num = parseInt(hex, 16);
+                const r = (num >> 16) & 255;
+                const g = (num >> 8) & 255;
+                const b = num & 255;
+
+                /* ===== rgb(...) ===== */
+                const rgbRegex = new RegExp(
+                    `rgb\\s*\\(\\s*${r}\\s*,\\s*${g}\\s*,\\s*${b}\\s*\\)`,
+                    "ig"
+                );
+                newStyle = newStyle.replace(rgbRegex, newHex);
+
+                /* ===== rgba(...)（关键补充）===== */
+                const rgbaRegex = new RegExp(
+                    `rgba\\s*\\(\\s*${r}\\s*,\\s*${g}\\s*,\\s*${b}\\s*,\\s*[0-9.]+\\s*\\)`,
+                    "ig"
+                );
+                newStyle = newStyle.replace(rgbaRegex, newHex);
+
+                /* ===== hex ===== */
+                const hexRegex = new RegExp(oldHex, "ig");
+                newStyle = newStyle.replace(hexRegex, newHex);
+            });
+
+            if (newStyle !== style) {
+                el.setAttribute("style", newStyle);
+            }
+        });
+    }
+
     function processSvg(obj) {
         try {
             const svgDoc = obj.contentDocument;
@@ -271,6 +402,7 @@
                 return;
             }
             console.log(`[Success] Processing SVG: ${obj.id}`);
+
             const textElements = svgDoc.getElementsByTagName('text');   
             for (let text of textElements) {
                 const transform = text.getAttribute('transform');
@@ -279,6 +411,13 @@
                 }
                 replaceFontSize(text, obj.id);          
             }
+            const theme = detectCurrentTheme();
+            const cmap = theme === "dark"
+                ? COLOR_MAP_DARK
+                : COLOR_MAP_LIGHT;
+
+            recolorSvg(svgDoc, cmap);            
+           
         } catch (e) {
             console.error('Error processing SVG:', e);
         }
