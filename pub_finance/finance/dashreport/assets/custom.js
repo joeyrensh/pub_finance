@@ -278,9 +278,9 @@
                     const textContent = parentDiv.textContent.trim();                           
                     
                     if (textContent.startsWith('-')) {
-                        element.style.setProperty('fill', '#0d876d', 'important');
+                        element.style.setProperty('fill', '#16a34a', 'important');
                     } else {
-                        element.style.setProperty('fill', '#D9534F', 'important');
+                        element.style.setProperty('fill', '#ef4444', 'important');
                     }                  
                 }
             }
