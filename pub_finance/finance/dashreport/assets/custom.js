@@ -234,6 +234,18 @@
     const enlargedElements = new Set();   
     
     function replaceFontSize(element, svgId) {
+        // 如果元素通过 transform scale 缩放：仅跳过 font-size 的修改，
+        // 但仍应应用字体族与渲染相关样式（-webkit-font-smoothing / text-rendering / letter-spacing）
+        let skipFontSize = false;
+        try {
+            const transformAttr = element.getAttribute && element.getAttribute('transform');
+            if (transformAttr && transformAttr.includes('scale')) {
+                skipFontSize = true;
+            }
+        } catch (e) {
+            // ignore and continue
+        }
+
         // 生成精确的唯一标识符
         const elementIdentifier = generateElementIdentifier(element, svgId);
         
@@ -335,7 +347,7 @@
             console.warn('ind-trend annotation-text处理失败', e);
         }
 
-        if (typeof fontSize === 'string' && fontSize !== 'unset' && fontSize.trim() !== '') {
+        if (!skipFontSize && typeof fontSize === 'string' && fontSize !== 'unset' && fontSize.trim() !== '') {
             element.style.setProperty('font-size', fontSize);
             element.style.setProperty('font-weight', String(fontWeight), 'important');
         }
@@ -407,11 +419,7 @@
 
             const textElements = svgDoc.getElementsByTagName('text');   
             for (let text of textElements) {
-                const transform = text.getAttribute('transform');
-                if (transform && transform.includes('scale')) {
-                    continue;
-                }
-                replaceFontSize(text, obj.id);          
+                replaceFontSize(text, obj.id);
             }
             const theme = detectCurrentTheme();
             const cmap = theme === "dark"
