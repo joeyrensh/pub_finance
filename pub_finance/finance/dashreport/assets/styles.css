@@ -657,7 +657,11 @@ a:active {
 #cn-annual-return-light,
 #cn-annual-return-dark,
 #us_special-annual-return-light,
-#us_special-annual-return-dark {
+#us_special-annual-return-dark,
+#cn_dynamic-annual-return-light,
+#cn_dynamic-annual-return-dark,
+#us_dynamic-annual-return-light,
+#us_dynamic-annual-return-dark {
   width: 90%;
   margin: auto;
 }
@@ -877,7 +881,11 @@ a:active {
   #cn-annual-return-light,
   #cn-annual-return-dark,
   #us_special-annual-return-light,
-  #us_special-annual-return-dark {
+  #us_special-annual-return-dark,
+  #cn_dynamic-annual-return-light,
+  #cn_dynamic-annual-return-dark,
+  #us_dynamic-annual-return-light,
+  #us_dynamic-annual-return-dark {
     width: 100%;
   }
   
