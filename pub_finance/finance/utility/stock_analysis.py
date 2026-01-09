@@ -7,6 +7,7 @@ from utility.tickerinfo import TickerInfo
 import pandas as pd
 import seaborn as sns
 from pyspark.sql import SparkSession
+import os
 import plotly.graph_objects as go
 import plotly.express as px
 import gc
@@ -17,6 +18,7 @@ import re
 from plotly.colors import sample_colorscale
 from datetime import datetime, timedelta
 
+
 # mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
 
 
@@ -24,12 +26,24 @@ def initialize_spark(app_name: str, memory: str = "512m", partitions: int = 1):
     """
     初始化 SparkSession
     """
+    # 如果外部环境设置了 JAVA_TOOL_OPTIONS，会在 JVM 启动时打印，尽量在这里移除
+    os.environ.pop("JAVA_TOOL_OPTIONS", None)
+
+    # 指定仓库内的 log4j2 配置文件，避免 Spark 使用默认配置并打印提示
+    log4j_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "conf", "log4j2.properties")
+    )
+    # 不再通过 --add-modules 向 JVM 注入 incubator 模块，以避免启动时警告
+    extra_java_opts = f"-Dlog4j2.configurationFile=file:{log4j_path}"
+
     return (
         SparkSession.builder.master("local")
         .appName(app_name)
         .config("spark.driver.memory", memory)
         .config("spark.executor.memory", memory)
         .config("spark.sql.shuffle.partitions", str(partitions))
+        .config("spark.driver.extraJavaOptions", extra_java_opts)
+        .config("spark.executor.extraJavaOptions", extra_java_opts)
         .getOrCreate()
     )
 
@@ -46,6 +60,7 @@ class StockProposal:
         # 启动Spark Session
         spark = initialize_spark("StockAnalysis", memory="450m", partitions=1)
         spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
+        spark.sparkContext.setLogLevel("ERROR")
 
         """ 
         读取交易相关数据，交易明细，持仓明细，仓位日志明细，行业信息
@@ -1670,7 +1685,7 @@ class StockProposal:
             SELECT industry, cnt 
             FROM (
                 SELECT industry, count(symbol) AS cnt FROM temp_cur_position GROUP BY industry)
-            ORDER BY cnt DESC LIMIT 20
+            ORDER BY cnt DESC LIMIT 10
             """
         )
 
@@ -1809,7 +1824,7 @@ class StockProposal:
             SELECT industry, ROUND(pl,2) AS pl 
             FROM (
                 SELECT industry, sum(`p&l`) as pl FROM temp_cur_position GROUP BY industry)
-            ORDER BY pl DESC LIMIT 20
+            ORDER BY pl DESC LIMIT 10
             """
         )
 
