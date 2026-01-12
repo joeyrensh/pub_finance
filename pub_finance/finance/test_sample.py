@@ -76,35 +76,35 @@ if __name__ == "__main__":
     # 主函数中替换原有调用
     # cash, final_value = exec_btstrategy(trade_date)
     # 美股主要策略执行
-    cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us", d).exec_btstrategy()
-    )
-    collected = gc.collect()
+    # cash, final_value = run_backtest_in_process(
+    #     trade_date, lambda d: BacktraderExec("us", d).exec_btstrategy()
+    # )
+    # collected = gc.collect()
 
-    print("Garbage collector: collected %d objects." % (collected))
+    # print("Garbage collector: collected %d objects." % (collected))
 
-    """ 发送邮件 """
-    StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
+    # """ 发送邮件 """
+    StockProposal("us", trade_date).send_btstrategy_by_email(4322403.57, 10344252.12)
     # 固定列表追踪
-    cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us_special", d).exec_btstrategy()
-    )
-    collected = gc.collect()
+    # cash, final_value = run_backtest_in_process(
+    #     trade_date, lambda d: BacktraderExec("us_special", d).exec_btstrategy()
+    # )
+    # collected = gc.collect()
 
-    print("Garbage collector: collected %d objects." % (collected))
+    # print("Garbage collector: collected %d objects." % (collected))
 
-    """ 发送邮件 """
-    StockProposal("us_special", trade_date).send_btstrategy_by_email(cash, final_value)
+    # """ 发送邮件 """
+    # StockProposal("us_special", trade_date).send_btstrategy_by_email(cash, final_value)
     # 动态列表追踪
-    cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us_dynamic", d).exec_btstrategy()
-    )
-    collected = gc.collect()
+    # cash, final_value = run_backtest_in_process(
+    #     trade_date, lambda d: BacktraderExec("us_dynamic", d).exec_btstrategy()
+    # )
+    # collected = gc.collect()
 
-    print("Garbage collector: collected %d objects." % (collected))
+    # print("Garbage collector: collected %d objects." % (collected))
 
-    """ 发送邮件 """
-    StockProposal("us_dynamic", trade_date).send_btstrategy_by_email(cash, final_value)
+    # """ 发送邮件 """
+    # StockProposal("us_dynamic", trade_date).send_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()

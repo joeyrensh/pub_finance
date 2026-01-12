@@ -1753,11 +1753,63 @@ class StockProposal:
                 rgba_colors.append(f"rgba({r}, {g}, {b}, {alpha})")
         # 文本颜色
         text_colors = [get_text_color(color, "light") for color in rgba_colors]
+        total = pd_top20_industry["cnt"].sum()
+
+        def smart_wrap_html(label: str, max_chinese_first_line: int = 5) -> str:
+            # 匹配箭头+数字+斜杠（可能带 span） 或 纯文本
+            pattern = r"(<span.*?</span>|[^<↑↓↗↘→]+|[↑↓↗↘→]\d+/\d+)"
+            segments = re.findall(pattern, label)
+
+            first_line = ""
+            second_line = ""
+            chinese_count = 0
+            line_switch = False
+
+            for seg in segments:
+                # 统计当前 segment 中的中文字符数量
+                chinese_len = len(re.findall(r"[\u4e00-\u9fff]", seg))
+
+                # 如果已经换行，剩下都放第二行
+                if line_switch:
+                    second_line += seg
+                    continue
+
+                # 如果超过第一行中文限制
+                if chinese_count >= max_chinese_first_line:
+                    second_line += seg
+                    line_switch = True
+                elif chinese_count + chinese_len > max_chinese_first_line:
+                    # 需要拆分中文部分
+                    first_part = ""
+                    second_part = ""
+                    count = 0
+                    for c in seg:
+                        if re.match(r"[\u4e00-\u9fff]", c):
+                            count += 1
+                        if chinese_count + count <= max_chinese_first_line:
+                            first_part += c
+                        else:
+                            second_part += c
+                    first_line += first_part
+                    second_line += second_part
+                    line_switch = True
+                    chinese_count = max_chinese_first_line
+                else:
+                    first_line += seg
+                    chinese_count += chinese_len
+
+            if second_line:
+                return f"{first_line}<br>{second_line}"
+            else:
+                return first_line
+
+        # 应用换行函数
+        labels_wrapped_industry = pd_top20_industry["industry"].apply(smart_wrap_html)
 
         # 创建 Treemap 图
         fig = go.Figure(
             go.Treemap(
-                labels=pd_top20_industry["industry"],
+                labels=labels_wrapped_industry,
                 parents=[""] * len(pd_top20_industry),  # 顶层节点为空
                 values=pd_top20_industry["cnt"],
                 texttemplate="%{label}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
@@ -1836,10 +1888,14 @@ class StockProposal:
         )
         # 文本颜色
         text_colors = [get_text_color(color, "light") for color in rgba_colors]
+        # 应用换行函数
+        labels_wrapped_profit = pd_top20_profit_industry["industry"].apply(
+            smart_wrap_html
+        )
         # 创建 Treemap 图
         fig = go.Figure(
             go.Treemap(
-                labels=pd_top20_profit_industry["industry"],
+                labels=labels_wrapped_profit,
                 parents=[""] * len(pd_top20_profit_industry),  # 顶层节点为空
                 values=pd_top20_profit_industry["pl"],
                 texttemplate="%{label}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
