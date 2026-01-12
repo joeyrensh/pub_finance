@@ -4,6 +4,7 @@
 *.png
 *.svg
 *.gz
+*.pkl
 .vscode
 
 #忽略所有 __pycache__ 目录及其内容
