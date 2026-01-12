@@ -1804,7 +1804,14 @@ class StockProposal:
                 return first_line
 
         # 应用换行函数
-        labels_wrapped_industry = pd_top20_industry["industry"].apply(smart_wrap_html)
+        if self.market in ("us", "us_special", "us_dynamic"):
+            labels_wrapped_industry = pd_top20_industry["industry"].apply(
+                lambda x: smart_wrap_html(x, max_chinese_first_line=5)
+            )
+        elif self.market in ("cn", "cn_dynamic"):
+            labels_wrapped_industry = pd_top20_industry["industry"].apply(
+                lambda x: smart_wrap_html(x, max_chinese_first_line=5)
+            )
 
         # 创建 Treemap 图
         fig = go.Figure(
@@ -1889,9 +1896,14 @@ class StockProposal:
         # 文本颜色
         text_colors = [get_text_color(color, "light") for color in rgba_colors]
         # 应用换行函数
-        labels_wrapped_profit = pd_top20_profit_industry["industry"].apply(
-            smart_wrap_html
-        )
+        if self.market in ("us", "us_special", "us_dynamic"):
+            labels_wrapped_profit = pd_top20_profit_industry["industry"].apply(
+                lambda x: smart_wrap_html(x, max_chinese_first_line=5)
+            )
+        elif self.market in ("cn", "cn_dynamic"):
+            labels_wrapped_profit = pd_top20_profit_industry["industry"].apply(
+                lambda x: smart_wrap_html(x, max_chinese_first_line=5)
+            )
         # 创建 Treemap 图
         fig = go.Figure(
             go.Treemap(
