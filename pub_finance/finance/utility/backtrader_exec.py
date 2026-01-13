@@ -13,6 +13,12 @@ from backtraderref.pandasdata_ext import BTPandasDataExt
 from utility.stock_analysis import StockProposal
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    message='Module "zipline.assets" not found; multipliers will not be applied to position notionals.',
+)
 import pyfolio as pf
 import gc
 from backtraderref.usfixedamount import FixedAmount as usFixedAmount

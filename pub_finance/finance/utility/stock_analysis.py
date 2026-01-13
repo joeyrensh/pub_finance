@@ -1832,7 +1832,7 @@ class StockProposal:
                 ),
                 opacity=1,
                 tiling=dict(
-                    squarifyratio=1.8,
+                    squarifyratio=1.2,
                     pad=10,
                 ),
             )
@@ -1924,7 +1924,7 @@ class StockProposal:
                 ),
                 opacity=1,
                 tiling=dict(
-                    squarifyratio=1.8,
+                    squarifyratio=1.2,
                     pad=10,
                 ),
             )
