@@ -181,6 +181,7 @@ body {
   white-space: nowrap;
   transition: all 0.25s ease;
   border-color: var(--border-left-color);
+  background-color: #2196f312;
 }
 
 .tab .icon {
