@@ -60,8 +60,7 @@ body {
   font-size: 1.3rem;
   line-height: 1.0;
   font-weight: 400;
-  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
-    "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif !important;
   letter-spacing: -.03rem !important;
   -webkit-font-smoothing: antialiased !important;
   text-rendering: optimizeLegibility;
@@ -277,8 +276,7 @@ body {
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
   background: none;
   --hover: #d3d3d382;
-  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
-    "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif !important;
 }
 
 .default-table .dash-filter {
@@ -308,8 +306,7 @@ body {
 
 .default-table .dash-spreadsheet-container .dash-spreadsheet-inner .column-header-name {
   font-weight: 400 !important;
-  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
-    "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif !important;
 }
 
 .dash-table-container .dash-spreadsheet-container th {
@@ -403,8 +400,7 @@ h6 { font-size: 1.4rem; }
   padding-left: 30px;
   padding-right: 60px;
   text-transform: uppercase;
-  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
-    "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif !important;
 }
 
 .text_color { color: var(--text-color); }
@@ -491,8 +487,7 @@ li::before {
   border-color: lightgrey;
   border-style: solid;
   color: var(--learn-more-button-color);
-  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC",
-    "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif !important;
 }
 
 a:link {

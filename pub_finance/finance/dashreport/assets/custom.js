@@ -354,11 +354,11 @@
 
         element.style.setProperty(
             'font-family',
-            '"PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "Helvetica Neue", Helvetica, "Segoe UI", Roboto, Arial, sans-serif','important'
+            '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif','important'
         );
         element.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
         element.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
-        element.style.setProperty('letter-spacing', '-.03rem', 'important');
+        // element.style.setProperty('letter-spacing', '-.03rem', 'important');
     }
 
     function recolorSvg(svg, colorMap) {
