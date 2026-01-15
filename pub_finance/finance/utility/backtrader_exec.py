@@ -465,7 +465,7 @@ class BacktraderExec:
         plot_chart(theme="light")
         plot_chart(theme="dark")
 
-    def exec_btstrategy(self, force_run=True):
+    def exec_btstrategy(self, force_run=False):
         """执行器：优先读取缓存（当 force_run=False 且缓存存在），否则运行策略并生成缓存，最后调用绘图函数。返回 (cash, total_value)"""
         cache_path = os.path.join("./cache", f"pnl_{self.market}_{self.trade_date}.pkl")
         if (not force_run) and os.path.exists(cache_path):
