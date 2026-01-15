@@ -296,7 +296,7 @@ class BacktraderExec:
                 cumulative.values,
                 color=colors["cumret"],
                 label="Cumulative Return",
-                linewidth=2,
+                linewidth=2.5,
                 zorder=3,
                 marker="o",
                 markersize=4,
@@ -332,7 +332,7 @@ class BacktraderExec:
                 drawdown.values,
                 where="post",
                 color=colors["drawdown"],
-                linewidth=1.5,
+                linewidth=1,
                 alpha=0.9,
                 zorder=2,
             )

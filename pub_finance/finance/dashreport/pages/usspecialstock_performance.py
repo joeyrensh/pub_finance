@@ -213,50 +213,74 @@ def create_layout(app):
                             ),
                             html.Div(
                                 [
-                                    html.P(
+                                    html.Div(
                                         [
-                                            html.Span(
-                                                "SWDI指数为",
-                                                className="text_color",
+                                            html.Div(
+                                                [
+                                                    html.Div(
+                                                        "SWDI 指数",
+                                                        className="kpi-label",
+                                                    ),
+                                                    html.Div(
+                                                        f"{int(round(((df_overall.at[0, 'final_value'] - df_overall.at[0, 'cash']) - (df_overall.at[0, 'stock_cnt'] * 10000 - df_overall.at[0, 'cash'])) / df_overall.at[0, 'stock_cnt'], 0))}",
+                                                        className="kpi-value",
+                                                    ),
+                                                ],
+                                                className="kpi-card",
                                             ),
-                                            html.Span(
-                                                f"{int(round(((df_overall.at[0, 'final_value'] - df_overall.at[0, 'cash']) - (df_overall.at[0, 'stock_cnt'] * 10000 - df_overall.at[0, 'cash'])) / df_overall.at[0, 'stock_cnt'], 0))}, ",
-                                                className="number_color",
+                                            html.Div(
+                                                [
+                                                    html.Div(
+                                                        "总资产", className="kpi-label"
+                                                    ),
+                                                    html.Div(
+                                                        f"{df_overall.at[0, 'final_value']}",
+                                                        className="kpi-value",
+                                                    ),
+                                                ],
+                                                className="kpi-card",
                                             ),
-                                            html.Span(
-                                                "最新回测所剩Cash为",
-                                                className="text_color",
+                                            html.Div(
+                                                [
+                                                    html.Div(
+                                                        "Cash", className="kpi-label"
+                                                    ),
+                                                    html.Div(
+                                                        f"{df_overall.at[0, 'cash']}",
+                                                        className="kpi-value",
+                                                    ),
+                                                ],
+                                                className="kpi-card",
                                             ),
-                                            html.Span(
-                                                f"{df_overall.at[0, 'cash']}, ",
-                                                className="number_color",
+                                            html.Div(
+                                                [
+                                                    html.Div(
+                                                        "股票数量",
+                                                        className="kpi-label",
+                                                    ),
+                                                    html.Div(
+                                                        f"{df_overall.at[0, 'stock_cnt']}",
+                                                        className="kpi-value",
+                                                    ),
+                                                ],
+                                                className="kpi-card",
                                             ),
-                                            html.Span(
-                                                "账户总资产为",
-                                                className="text_color",
+                                            html.Div(
+                                                [
+                                                    html.Div(
+                                                        "数据日期",
+                                                        className="kpi-label",
+                                                    ),
+                                                    html.Div(
+                                                        f"{df_overall.at[0, 'end_date']}",
+                                                        className="kpi-value kpi-date",
+                                                    ),
+                                                ],
+                                                className="kpi-card",
                                             ),
-                                            html.Span(
-                                                f"{df_overall.at[0, 'final_value']}, ",
-                                                className="number_color",
-                                            ),
-                                            html.Span(
-                                                "参与本次回测的股票数量为",
-                                                className="text_color",
-                                            ),
-                                            html.Span(
-                                                f"{df_overall.at[0, 'stock_cnt']}, ",
-                                                className="number_color",
-                                            ),
-                                            html.Span(
-                                                "数据更新至",
-                                                className="text_color",
-                                            ),
-                                            html.Span(
-                                                f"{df_overall.at[0, 'end_date']}",
-                                                className="number_color",
-                                            ),
-                                        ]
-                                    ),
+                                        ],
+                                        className="kpi-container",
+                                    )
                                 ],
                                 className="product",
                             ),

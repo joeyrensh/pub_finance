@@ -10,6 +10,7 @@
   --track-color: #ecf0f1;
   --positive-databar-color: #3498dbc4;
   --negative-databar-color: #0d876cd9;
+  --gridcolor: rgba(0, 0, 0, 0.2);
   
   /* 通用样式变量 */
   --background-color: #f6f8f9;
@@ -34,6 +35,7 @@
     --date-bg-color: #97880652;
     --positive-databar-color: #0d5f9589;
     --negative-databar-color: #0d876cd9;
+    --gridcolor: rgba(255, 255, 255, 0.2);
     
     /* 通用样式变量 */
     --background-color: #171b26;
@@ -66,11 +68,36 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;  
+  font-variant-numeric: tabular-nums !important;
 }
 
 * {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
+}
+
+/* test */
+.kpi-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(1rem, 1fr));
+  gap: 6px;
+}
+.kpi-card {
+  padding: 4px 3px;
+  border-radius: 4px;
+  border: 0.2px solid var(--gridcolor);
+}
+.kpi-label {
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.kpi-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-date {
+  font-weight: 500;
 }
 
 /* ==================== 布局与容器样式 ==================== */
@@ -429,13 +456,13 @@ li::before {
   padding: 10px;
   margin-bottom: 5px;
   color: #FF4136;
-  border-radius: 2px;
-  box-shadow: 0 0 2px lightgrey;
+  /* border-radius: 2px;
+  box-shadow: 0 0 2px lightgrey; */
   font-size: 1.5rem;
   filter: contrast(105%) saturate(105%);
   overflow-wrap: break-word;
   word-break: break-all;
-  background-color: #2196f312;
+  /* background-color: #2196f312; */
 }
 
 /* 按钮与链接 */

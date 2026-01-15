@@ -358,6 +358,7 @@
         );
         element.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
         element.style.setProperty('text-rendering', 'optimizeLegibility', 'important');
+        element.style.setProperty('font-variant-numeric', 'tabular-nums', 'important');
         // element.style.setProperty('letter-spacing', '-.03rem', 'important');
     }
 
