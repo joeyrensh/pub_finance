@@ -86,6 +86,7 @@ body {
   padding: 4px 3px;
   border-radius: 4px;
   border: 0.2px solid var(--gridcolor);
+  background-color: #2196f312;
 }
 .kpi-label {
   color: var(--text-color);
