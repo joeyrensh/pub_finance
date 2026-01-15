@@ -86,7 +86,7 @@ body {
   padding: 4px 3px;
   border-radius: 4px;
   border: 0.2px solid var(--gridcolor);
-  background-color: #2196f312;
+  background-color: #91959924;
 }
 .kpi-label {
   color: var(--text-color);
@@ -192,7 +192,7 @@ body {
   width: 100%;
   box-sizing: border-box;
   /* background: transparent; */
-  background-color: #2196f312;
+  /* background-color: #2196f312; */
 }
 
 .github-wrapper {
@@ -210,6 +210,8 @@ body {
   white-space: nowrap;
   transition: all 0.25s ease;
   border-color: var(--border-left-color);
+  background-color: #91959924;
+  border-radius: 4px;
 }
 
 .tab .icon {
@@ -814,7 +816,7 @@ a:active {
   
   .tab {
     font-size: 1.05rem;
-    padding: 2px 2px;
+    padding: 4px 3px;
     gap: 6px;
     border-left: 2px solid #D9534F;
   }
