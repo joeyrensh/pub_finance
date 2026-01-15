@@ -198,7 +198,7 @@ def create_layout(app):
                                                         "总资产", className="kpi-label"
                                                     ),
                                                     html.Div(
-                                                        f"{df_overall.at[0, 'final_value']}",
+                                                        f"{df_overall.at[0, 'final_value'] / 10000:,.2f} 万",
                                                         className="kpi-value",
                                                     ),
                                                 ],
@@ -210,7 +210,7 @@ def create_layout(app):
                                                         "Cash", className="kpi-label"
                                                     ),
                                                     html.Div(
-                                                        f"{df_overall.at[0, 'cash']}",
+                                                        f"{df_overall.at[0, 'cash'] / 10000:,.2f} 万",
                                                         className="kpi-value",
                                                     ),
                                                 ],
