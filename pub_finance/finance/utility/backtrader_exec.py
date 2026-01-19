@@ -211,7 +211,7 @@ class BacktraderExec:
         def plot_chart(theme="light"):
             """绘制图表（含表格和曲线）"""
             cols_names = [
-                "Year",
+                "YEAR",
                 "Ann.R",
                 "Cum.R",
                 "Mx.DD",
