@@ -53,7 +53,7 @@ class EMCNTickerCategoryCrawler:
             params = {
                 "code": f"{i['symbol']}",
             }
-            time.sleep(random.uniform(0.1, 0.5))
+            # time.sleep(random.uniform(0.1, 0.5))
             res = requests.get(url, params=params, proxies=self.proxy).text.lower()
             try:
                 json_object = json.loads(res)
