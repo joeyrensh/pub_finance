@@ -224,8 +224,8 @@ class BacktraderExec:
             fig, (ax_table, ax_chart) = plt.subplots(
                 1,
                 2,
-                gridspec_kw={"width_ratios": [1, 3]},
-                figsize=(20, 12.5),
+                gridspec_kw={"width_ratios": [1, 2.5]},
+                figsize=(20, 14),
                 facecolor=colors["background"],
             )
 
