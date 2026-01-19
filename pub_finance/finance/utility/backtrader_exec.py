@@ -225,7 +225,7 @@ class BacktraderExec:
                 1,
                 2,
                 gridspec_kw={"width_ratios": [1, 2.5]},
-                figsize=(20, 14),
+                figsize=(20, 12.5),
                 facecolor=colors["background"],
             )
 
