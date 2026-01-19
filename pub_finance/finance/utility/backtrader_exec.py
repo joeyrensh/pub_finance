@@ -283,6 +283,7 @@ class BacktraderExec:
                     cell.set_text_props(color=colors["text"])
                 cell.set_edgecolor(mcolors.to_rgba(colors["table_edge"], alpha=0.2))
                 cell.set_linewidth(1)
+                cell.PAD = 0.15
 
             # ----------------------------
             # 绘制双轴曲线
