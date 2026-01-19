@@ -255,7 +255,8 @@ class BacktraderExec:
             table = ax_table.table(
                 cellText=cellText,
                 rowLabels=cols_names,
-                bbox=[0, 0, 1, 1],
+                # bbox=[0, 0, 1, 1],
+                bbox=[0.03, 0.05, 1, 1],
                 cellLoc="center",
                 edges="horizontal",
             )

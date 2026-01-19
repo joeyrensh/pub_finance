@@ -502,7 +502,7 @@ li::before {
   font-size: 1.4rem;
   font-weight: 500;
   padding: 10px 5px;
-  margin-right: 0px;
+  margin-right: 10px;
   margin-top: -10px;
   text-align: center;
   transition-duration: 1s;
@@ -512,7 +512,7 @@ li::before {
   float: right;
   padding-left: 15px;
   padding-right: 0px !important;
-  margin: 10px 0px 8px 5px;
+  margin: 10px 10px 8px 5px;
   line-height: 30px;
   border: 0.5px;
   border-color: lightgrey;
@@ -862,7 +862,8 @@ a:active {
     padding: 8px;
     margin-top: 5px;
     margin-bottom: 2px;
-    padding-right: 2px !important;
+    margin-right:2px;
+    /* padding-right: 2px !important; */
   }
   
   h5 { font-size: 1.5rem; }
