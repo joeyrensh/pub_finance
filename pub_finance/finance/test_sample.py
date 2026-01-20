@@ -11,7 +11,7 @@ from utility.backtrader_exec import BacktraderExec
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc+8"""
-    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(0)
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
@@ -81,12 +81,12 @@ if __name__ == "__main__":
     # cash, final_value = exec_btstrategy(trade_date)
     # A股主要策略执行
     cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("cn", d).exec_btstrategy(force_run=True)
+        trade_date, lambda d: BacktraderExec("cn", d).exec_btstrategy()
     )
     collected = gc.collect()
     print("Garbage collector: collected %d objects." % (collected))
     """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
+    # StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
     # ETF主要策略执行
     # cash, final_value = run_backtest_in_process(
     #     trade_date, lambda d: BacktraderExec("cnetf", d).exec_btstrategy()
@@ -94,16 +94,16 @@ if __name__ == "__main__":
     # collected = gc.collect()
     # print("Garbage collector: collected %d objects." % (collected))
     """ 发送邮件 """
-    StockProposal("cnetf", trade_date).send_etf_btstrategy_by_email(cash, final_value)
+    # StockProposal("cnetf", trade_date).send_etf_btstrategy_by_email(cash, final_value)
     # A股动态列表执行
     cash, final_value = run_backtest_in_process(
         trade_date,
-        lambda d: BacktraderExec("cn_dynamic", d).exec_btstrategy(force_run=True),
+        lambda d: BacktraderExec("cn_dynamic", d).exec_btstrategy(),
     )
     collected = gc.collect()
     print("Garbage collector: collected %d objects." % (collected))
     """ 发送邮件 """
-    StockProposal("cn_dynamic", trade_date).send_btstrategy_by_email(cash, final_value)
+    # StockProposal("cn_dynamic", trade_date).send_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()

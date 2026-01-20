@@ -699,6 +699,12 @@ a:active {
 /* 中等屏幕设备 */
 @media (max-width: 1200px) and (min-width: 550px),
        (max-device-width: 1200px) and (min-device-width: 550px) {
+
+  .page {
+    width: 100% !important;
+    /* margin-left: -7px !important; */
+  }
+          
   .background {
     background-position-y: 95%;
     background-size: 30%;
@@ -749,6 +755,7 @@ a:active {
     font-size: 1em;
     padding: 5px;
     margin-top: 0px;
+    margin-right: 0px;
   }
 }
 
