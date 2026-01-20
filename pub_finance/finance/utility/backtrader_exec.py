@@ -430,7 +430,21 @@ class BacktraderExec:
                 )
 
             ax_drawdown.grid(False)
-            ax_chart.xaxis.set_major_locator(ticker.AutoLocator())
+            # ax_chart.xaxis.set_major_locator(ticker.AutoLocator())
+            # ax_chart.xaxis.set_major_locator(ticker.MaxNLocator(base=8))
+
+            # 获取x轴范围
+            x_min, x_max = ax_chart.get_xlim()
+            x_max_adjusted = x_max - 10  # 这里减去1，可以根据需要调整
+            # 设置刻度，保证最左最右刻度显示
+            ticks = (
+                [x_min]
+                + np.linspace(x_min, x_max_adjusted, 8).tolist()
+                + [x_max_adjusted]
+            )
+            # 设置x轴刻度
+            ax_chart.set_xticks(ticks)
+
             lines, labels = ax_chart.get_legend_handles_labels()
             lines2, labels2 = ax_drawdown.get_legend_handles_labels()
             legend = ax_chart.legend(
