@@ -385,7 +385,7 @@ class BacktraderExec:
             dd_vals = [v for _, v in dd_points.items()]
             dd_range = max(dd_vals) - min(dd_vals)
             # dd_range = max(dd_range, 1e-6)
-            offset_sign = {label_A: 1, label_B: 1}
+            offset_sign = {label_A: 0.2, label_B: 0.2}
 
             if dd_A_val is not None and dd_B_val is not None:
                 gap_AB = abs(dd_A_val - dd_B_val)
