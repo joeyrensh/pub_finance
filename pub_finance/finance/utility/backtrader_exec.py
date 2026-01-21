@@ -13,6 +13,7 @@ from backtraderref.pandasdata_ext import BTPandasDataExt
 from utility.stock_analysis import StockProposal
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+import matplotlib.dates as mdates
 import warnings
 
 warnings.filterwarnings(
@@ -440,6 +441,9 @@ class BacktraderExec:
             ticks = np.linspace(x_min, x_max_adjusted, 8).tolist()
             # 设置x轴刻度
             ax_chart.set_xticks(ticks)
+            # 将刻度标签格式化为月份，显示为 "yyyy-mm"
+            ax_chart.xaxis.set_major_locator(ticker.FixedLocator(ticks))
+            ax_chart.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
 
             lines, labels = ax_chart.get_legend_handles_labels()
             lines2, labels2 = ax_drawdown.get_legend_handles_labels()
