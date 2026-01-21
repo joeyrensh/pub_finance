@@ -456,7 +456,11 @@ class BacktraderExec:
                 spine.set_visible(False)
             for spine in ax_drawdown.spines.values():
                 spine.set_visible(False)
-            ax_chart.tick_params(axis="x", rotation=-20, colors=colors["legend_text"])
+            # 将 x 轴刻度标签与图表靠得更近：通过减少 pad（标签与刻度线的距离）
+            # 并把子图底部边距稍微减小以节省垂直空间
+            ax_chart.tick_params(
+                axis="x", rotation=-20, colors=colors["legend_text"], pad=-15
+            )
             ax_chart.tick_params(
                 axis="y", labelright=False, labelleft=True, direction="in"
             )
@@ -466,7 +470,7 @@ class BacktraderExec:
             fmt = ticker.FormatStrFormatter("%.2f")
             ax_chart.yaxis.set_major_formatter(fmt)
             ax_drawdown.yaxis.set_major_formatter(fmt)
-            plt.subplots_adjust(left=0.075, right=0.94, top=1, bottom=0.1, wspace=0.1)
+            plt.subplots_adjust(left=0.075, right=0.94, top=1, bottom=0.07, wspace=0.1)
             out_path = f"./dashreport/assets/images/{self.market}_tr_{theme}.svg"
             plt.savefig(
                 out_path,
