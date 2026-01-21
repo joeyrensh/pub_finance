@@ -1756,6 +1756,12 @@ class StockProposal:
         total = pd_top20_industry["cnt"].sum()
 
         def smart_wrap_html(label: str, max_chinese_first_line: int = 5) -> str:
+            # 处理 None/NaN 或非字符串输入，确保后续正则操作安全
+            if pd.isna(label):
+                return ""
+            if not isinstance(label, str):
+                label = str(label)
+
             # 匹配箭头+数字+斜杠（可能带 span） 或 纯文本
             pattern = r"(<span.*?</span>|[^<↑↓↗↘→]+|[↑↓↗↘→]\d+/\d+)"
             segments = re.findall(pattern, label)

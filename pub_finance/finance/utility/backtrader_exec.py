@@ -168,7 +168,7 @@ class BacktraderExec:
             theme_config = {
                 "light": {
                     "text": "#333333",
-                    "background": "white",
+                    "background": "none",
                     "grid": "#333333",
                     "cumret": "#e01c3a",  # 深蓝
                     "drawdown": "#0d876d",  # 红色
@@ -178,7 +178,7 @@ class BacktraderExec:
                 },
                 "dark": {
                     "text": "#ffffffc5",
-                    "background": "black",
+                    "background": "none",
                     "grid": "#FFFFFF",
                     "cumret": "#e01c3a",  # 亮蓝
                     "drawdown": "#0d876d",  # 亮红
@@ -435,13 +435,9 @@ class BacktraderExec:
 
             # 获取x轴范围
             x_min, x_max = ax_chart.get_xlim()
-            x_max_adjusted = x_max - 10  # 这里减去1，可以根据需要调整
-            # 设置刻度，保证最左最右刻度显示
-            ticks = (
-                [x_min]
-                + np.linspace(x_min, x_max_adjusted, 8).tolist()
-                + [x_max_adjusted]
-            )
+            x_max_adjusted = x_max - 10  # 这里减去10，可以根据需要调整
+            # 生成等距刻度，包含端点且避免重复（之前的写法会重复首尾）
+            ticks = np.linspace(x_min, x_max_adjusted, 10).tolist()
             # 设置x轴刻度
             ax_chart.set_xticks(ticks)
 
@@ -456,7 +452,7 @@ class BacktraderExec:
                 spine.set_visible(False)
             for spine in ax_drawdown.spines.values():
                 spine.set_visible(False)
-            ax_chart.tick_params(axis="x", rotation=-20)
+            ax_chart.tick_params(axis="x", rotation=-20, colors=colors["legend_text"])
             ax_chart.tick_params(
                 axis="y", labelright=False, labelleft=True, direction="in"
             )
