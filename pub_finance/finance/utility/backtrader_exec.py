@@ -437,7 +437,7 @@ class BacktraderExec:
             x_min, x_max = ax_chart.get_xlim()
             x_max_adjusted = x_max - 10  # 这里减去10，可以根据需要调整
             # 生成等距刻度，包含端点且避免重复（之前的写法会重复首尾）
-            ticks = np.linspace(x_min, x_max_adjusted, 10).tolist()
+            ticks = np.linspace(x_min, x_max_adjusted, 8).tolist()
             # 设置x轴刻度
             ax_chart.set_xticks(ticks)
 
