@@ -344,13 +344,15 @@ class BacktraderExec:
             ax_drawdown.axhline(
                 max_dd, linestyle="--", color=colors["drawdown"], linewidth=2, zorder=3
             )
-            ax_drawdown.text(
+            ax_chart.text(
                 max_dd_idx,
                 max_dd,
                 f"Max DD: {max_dd:.2%}",
                 color=colors["text"],
                 ha="right",
                 va="bottom",
+                transform=ax_drawdown.transData,
+                zorder=900,
             )
 
             end_date = drawdown.index.max()
