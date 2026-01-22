@@ -413,13 +413,15 @@ class BacktraderExec:
                     va_pos = "top"
                 else:
                     va_pos = "bottom" if y_offset >= 0 else "top"
-                ax_drawdown.text(
+                ax_chart.text(
                     idx,
                     val + y_offset,
                     f"{label} Max DD: {val:.2%}",
                     color=colors["text"],
                     ha="right",
                     va=va_pos,
+                    transform=ax_drawdown.transData,
+                    zorder=1000,
                 )
                 ax_drawdown.axhline(
                     val,
@@ -427,7 +429,7 @@ class BacktraderExec:
                     color=colors["drawdown"],
                     linewidth=1.5,
                     alpha=0.7,
-                    zorder=3,
+                    zorder=4,
                 )
 
             ax_drawdown.grid(False)
