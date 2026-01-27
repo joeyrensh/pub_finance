@@ -51,6 +51,14 @@
   }
 }
 
+/* dash app交互图表配置 */
+/* 日历热图整体容器 */
+.calendar-heatmap {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif !important;
+    color: var(--text-color) !important;
+}
+
+
 /* ==================== 基础与全局样式 ==================== */
 body {
   width: 100%;

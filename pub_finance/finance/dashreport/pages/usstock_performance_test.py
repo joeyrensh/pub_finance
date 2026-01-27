@@ -1,0 +1,777 @@
+import dash_html_components as html
+import dash_core_components as dcc
+import plotly.express as px
+import plotly.graph_objects as go
+import numpy as np
+import ast
+from finance.dashreport.utils import Header, make_dash_format_table
+import pandas as pd
+import pathlib
+import os
+from finance.dashreport.chart_builder import ChartBuilder as cb
+from finance.dashreport.pages.chart_callback import ChartCallback
+from dash import callback, Output, Input, State
+
+
+class ChartBuilder:
+    """Utility to build Plotly figures from CSV candidates."""
+
+    @staticmethod
+    def find_csv(path: pathlib.Path, candidates):
+        for name in candidates:
+            p = path.joinpath(name)
+            if p.exists():
+                return p
+        return None
+
+    @staticmethod
+    def pick_column(df, candidates):
+        for c in candidates:
+            if c in df.columns:
+                return c
+        return df.columns[0] if len(df.columns) > 0 else None
+
+    @staticmethod
+    def bar_from_csv(path, candidates, x_candidates, y_candidates, title=""):
+        p = ChartBuilder.find_csv(path, candidates)
+        if p is None:
+            return go.Figure().update_layout(title_text="")
+        df = pd.read_csv(p)
+        xcol = ChartBuilder.pick_column(df, x_candidates)
+        ycol = ChartBuilder.pick_column(df, y_candidates)
+        if xcol is None or ycol is None:
+            return go.Figure().update_layout(title_text="")
+        fig = px.bar(df, x=xcol, y=ycol)
+        fig.update_layout(title_text="")
+        return fig
+
+    @staticmethod
+    def line_from_csv(path, candidates, date_candidates, value_candidates, title=""):
+        p = ChartBuilder.find_csv(path, candidates)
+        if p is None:
+            return go.Figure().update_layout(title_text="")
+        df = pd.read_csv(p)
+        if any(dc in df.columns for dc in date_candidates):
+            dcol = ChartBuilder.pick_column(df, date_candidates)
+            df[dcol] = pd.to_datetime(df[dcol], errors="coerce")
+            value_col = ChartBuilder.pick_column(df, value_candidates)
+            if value_col is not None and value_col in df.columns:
+                fig = px.line(df, x=dcol, y=value_col)
+                fig.update_layout(title_text="")
+                return fig
+        # fallback: plot multiple value cols
+        value_cols = [c for c in df.columns if c not in date_candidates]
+        if len(value_cols) > 1 and any(dc in df.columns for dc in date_candidates):
+            dcol = ChartBuilder.pick_column(df, date_candidates)
+            fig = go.Figure()
+            for vc in value_cols:
+                fig.add_trace(go.Scatter(x=df[dcol], y=df[vc], name=vc))
+            fig.update_layout(title_text="")
+            return fig
+        return go.Figure().update_layout(title_text="")
+
+
+# 定义全局变量 df_detail
+df_detail = None
+
+
+def create_layout(app):
+    PATH = pathlib.Path(__file__).parent
+    DATA_PATH = PATH.joinpath("../../data").resolve()
+    prefix = "us"
+
+    # placeholders for back-compat (not used when CSV present)
+    encoded_image_trdraw = f"/assets/images/{prefix}_tr_light.svg"
+
+    # Build figures using ChartBuilder
+    fig_position_weight = ChartBuilder.bar_from_csv(
+        DATA_PATH,
+        [f"{prefix}_pd_top20_industry.csv"],
+        ["IND", "ind", "industry", "Industry", "name", "NAME"],
+        ["weight", "WEIGHT", "value", "VALUE", "TOTAL VALUE", "TOTAL_VALUE"],
+        title="Position Weight",
+    )
+
+    fig_earnings_weight = ChartBuilder.bar_from_csv(
+        DATA_PATH,
+        [f"{prefix}_pd_top20_profit_industry.csv"],
+        ["IND", "ind", "industry", "Industry", "name", "NAME"],
+        ["profit", "PROFIT", "value", "VALUE", "TOTAL PNL", "TOTAL_PNL"],
+        title="Earnings Weight",
+    )
+
+    fig_strategy = ChartBuilder.line_from_csv(
+        DATA_PATH,
+        [f"{prefix}_pd_strategy_tracking_lst180days.csv"],
+        ["date", "DATE", "Date"],
+        ["pnl", "pnl", "value", "VALUE"],
+        title="Strategy Tracking",
+    )
+
+    fig_position_trend = ChartBuilder.line_from_csv(
+        DATA_PATH,
+        [f"{prefix}_pd_trade_info_lst180days.csv"],
+        ["buy_date", "date", "DATE", "Date"],
+        ["total_cnt", "total_cnt", "count", "cnt"],
+        title="Position Trend",
+    )
+
+    fig_earnings_trend = ChartBuilder.line_from_csv(
+        DATA_PATH,
+        [f"{prefix}_pd_top5_industry_profit_trend.csv"],
+        ["buy_date", "date", "DATE", "Date"],
+        ["pnl", "profit", "PROFIT", "value", "VALUE"],
+        title="Earnings Trend",
+    )
+
+    df_heatmap = pd.read_csv(DATA_PATH.joinpath(f"{prefix}_pd_calendar_heatmap.csv"))
+    chart_callback = ChartCallback()
+    chart_callback.register_chart(
+        chart_type="heatmap",
+        page_prefix=prefix,
+        chart_builder=cb,
+        df_data=df_heatmap,
+        index=1,
+    )
+
+    # Load tables and other data for page
+    df_overall = pd.read_csv(
+        DATA_PATH.joinpath(f"{prefix}_df_result.csv"), usecols=[i for i in range(1, 5)]
+    )
+    cols_category = [
+        "IDX",
+        "IND",
+        "OPEN",
+        "LRATIO",
+        "L5 OPEN",
+        "L5 CLOSE",
+        "ERP",
+        "PROFIT",
+        "PNL RATIO",
+        "AVG TRANS",
+        "AVG DAYS",
+        "WIN RATE",
+        "PROFIT TREND",
+    ]
+    df = (
+        pd.read_csv(
+            DATA_PATH.joinpath(f"{prefix}_category.csv"),
+            usecols=[i for i in range(1, 16)],
+        )
+        if DATA_PATH.joinpath(f"{prefix}_category.csv").exists()
+        else pd.DataFrame(columns=cols_category)
+    )
+    df["IDX"] = df.index
+    df = df[cols_category].copy()
+
+    cols_format_category = {
+        "OPEN": ("int",),
+        "L5 OPEN": ("int",),
+        "L5 CLOSE": ("int",),
+        "LRATIO": ("ratio", "format"),
+        "PROFIT": ("int", "format"),
+        "PNL RATIO": ("ratio", "format"),
+        "AVG TRANS": ("float",),
+        "AVG DAYS": ("float",),
+        "WIN RATE": ("ratio", "format"),
+        "ERP": ("float",),
+    }
+
+    cols_detail = [
+        "IDX",
+        "SYMBOL",
+        "IND",
+        "NAME",
+        "TOTAL VALUE",
+        "ERP",
+        "SHARPE RATIO",
+        "SORTINO RATIO",
+        "MAX DD",
+        "OPEN DATE",
+        "BASE",
+        "ADJBASE",
+        "PNL",
+        "PNL RATIO",
+        "AVG TRANS",
+        "AVG DAYS",
+        "WIN RATE",
+        "TOTAL PNL RATIO",
+        "STRATEGY",
+    ]
+    df_detail = (
+        pd.read_csv(
+            DATA_PATH.joinpath(f"{prefix}_stockdetail.csv"),
+            usecols=[i for i in range(1, 20)],
+        )
+        if DATA_PATH.joinpath(f"{prefix}_stockdetail.csv").exists()
+        else pd.DataFrame(columns=cols_detail)
+    )
+    df_detail["IDX"] = df_detail.index
+    df_detail = df_detail[cols_detail].copy()
+
+    cols_format_detail = {
+        "BASE": ("float",),
+        "ADJBASE": ("float",),
+        "PNL": ("int", "format"),
+        "AVG TRANS": ("int",),
+        "AVG DAYS": ("float",),
+        "PNL RATIO": ("ratio", "format"),
+        "WIN RATE": ("ratio", "format"),
+        "TOTAL PNL RATIO": ("ratio", "format"),
+        "OPEN DATE": ("date", "format"),
+        "TOTAL VALUE": ("float",),
+        "ERP": ("float",),
+        "SHARPE RATIO": ("float",),
+        "SORTINO RATIO": ("float",),
+        "MAX DD": ("ratio", "format"),
+    }
+    # 减仓明细
+    cols_short = [
+        "IDX",
+        "SYMBOL",
+        "IND",
+        "NAME",
+        "TOTAL VALUE",
+        "ERP",
+        "OPEN DATE",
+        "CLOSE DATE",
+        "BASE",
+        "ADJBASE",
+        "PNL",
+        "PNL RATIO",
+        "HIS DAYS",
+        "STRATEGY",
+    ]
+    df_detail_short = (
+        pd.read_csv(
+            DATA_PATH.joinpath(f"{prefix}_stockdetail_short.csv"),
+            usecols=[i for i in range(1, 15)],
+        )
+        if DATA_PATH.joinpath(f"{prefix}_stockdetail_short.csv").exists()
+        else pd.DataFrame(columns=cols_short)
+    )
+    df_detail_short["IDX"] = df_detail_short.index
+    df_detail_short = df_detail_short[cols_short].copy()
+    cols_format_detail_short = {
+        "TOTAL VALUE": ("float",),
+        "ERP": ("float",),
+        "BASE": ("float",),
+        "ADJBASE": ("float",),
+        "PNL": ("int", "format"),
+        "PNL RATIO": ("ratio", "format"),
+        "HIS DAYS": ("int",),
+    }
+
+    # Build layout with dcc.Graph for interactive charts
+    return html.Div(
+        [
+            Header(app),
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.H6(
+                                ["Market Trends and Index Summary"],
+                                className="subtitle padded",
+                            ),
+                            html.Div(
+                                [
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                [
+                                                    html.Div(
+                                                        "SWDI 指数",
+                                                        className="kpi-label",
+                                                    ),
+                                                    html.Div(
+                                                        f"{int(round(((df_overall.at[0, 'final_value'] - df_overall.at[0, 'cash']) - (df_overall.at[0, 'stock_cnt'] * 10000 - df_overall.at[0, 'cash'])) / df_overall.at[0, 'stock_cnt'], 0))}",
+                                                        className="kpi-value",
+                                                    ),
+                                                ],
+                                                className="kpi-card",
+                                            ),
+                                            html.Div(
+                                                [
+                                                    html.Div(
+                                                        "总资产", className="kpi-label"
+                                                    ),
+                                                    html.Div(
+                                                        f"{df_overall.at[0, 'final_value'] / 10000:,.2f} 万",
+                                                        className="kpi-value",
+                                                    ),
+                                                ],
+                                                className="kpi-card",
+                                            ),
+                                            html.Div(
+                                                [
+                                                    html.Div(
+                                                        "Cash", className="kpi-label"
+                                                    ),
+                                                    html.Div(
+                                                        f"{df_overall.at[0, 'cash'] / 10000:,.2f} 万",
+                                                        className="kpi-value",
+                                                    ),
+                                                ],
+                                                className="kpi-card",
+                                            ),
+                                            html.Div(
+                                                [
+                                                    html.Div(
+                                                        "股票数量",
+                                                        className="kpi-label",
+                                                    ),
+                                                    html.Div(
+                                                        f"{df_overall.at[0, 'stock_cnt']}",
+                                                        className="kpi-value",
+                                                    ),
+                                                ],
+                                                className="kpi-card",
+                                            ),
+                                            html.Div(
+                                                [
+                                                    html.Div(
+                                                        "数据日期",
+                                                        className="kpi-label",
+                                                    ),
+                                                    html.Div(
+                                                        f"{df_overall.at[0, 'end_date']}",
+                                                        className="kpi-value kpi-date",
+                                                    ),
+                                                ],
+                                                className="kpi-card",
+                                            ),
+                                        ],
+                                        className="kpi-container",
+                                    )
+                                ],
+                                className="product",
+                            ),
+                        ],
+                    ),
+                    # Annual Return (left as static image)
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.Button(
+                                        html.H6(
+                                            ["Annual Return ‹"],
+                                            className="subtitle padded",
+                                            id=f"{prefix}-annual-return-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": f"{prefix}",
+                                            "index": 0,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
+                                    ),
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            html.ObjectEl(
+                                                data=encoded_image_trdraw,
+                                                type="image/svg+xml",
+                                                className="responsive-svg svg-light",
+                                                id=f"{prefix}-annual-return-light",
+                                            ),
+                                        ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": f"{prefix}",
+                                            "index": 0,
+                                        },
+                                        style={"display": "block"},
+                                    ),
+                                ],
+                                className="twelve columns",
+                            )
+                        ],
+                    ),
+                    # Row: Industry trend + Strategy
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.Button(
+                                        html.H6(
+                                            ["Industries Tracking ‹"],
+                                            className="subtitle padded",
+                                            id=f"{prefix}-industries-tracking-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": f"{prefix}",
+                                            "index": 1,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
+                                    ),
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            dcc.Graph(
+                                                id=chart_callback.get_chart_id(
+                                                    "heatmap", prefix, 1
+                                                ),
+                                                figure=cb.calendar_heatmap(
+                                                    df=df_heatmap, theme="light"
+                                                ),
+                                                config={
+                                                    "displayModeBar": False,
+                                                    "doubleClick": False,
+                                                    "margin": "0",
+                                                    "padding": "0",
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                },
+                                            )
+                                        ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": f"{prefix}",
+                                            "index": 1,
+                                        },
+                                        style={
+                                            "display": "block",
+                                        },
+                                    ),
+                                ],
+                                className="six columns",
+                            ),
+                            html.Div(
+                                [
+                                    html.Button(
+                                        html.H6(
+                                            ["Strategy Tracking ‹"],
+                                            className="subtitle padded",
+                                            id=f"{prefix}-strategy-tracking-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": f"{prefix}",
+                                            "index": 2,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
+                                    ),
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            dcc.Graph(
+                                                id=f"{prefix}-strategy-tracking-graph",
+                                                figure=fig_strategy,
+                                                config={"displayModeBar": False},
+                                            )
+                                        ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": f"{prefix}",
+                                            "index": 2,
+                                        },
+                                        style={"display": "block"},
+                                    ),
+                                ],
+                                className="six columns",
+                            ),
+                        ],
+                    ),
+                    # Row 2: Position trend + Earnings trend
+                    html.Div(
+                        [
+                            html.Div(
+                                className="six columns",
+                                children=[
+                                    html.Button(
+                                        html.H6(
+                                            ["Position Trend ‹"],
+                                            className="subtitle padded",
+                                            id=f"{prefix}-position-trend-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": f"{prefix}",
+                                            "index": 5,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
+                                    ),
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            dcc.Graph(
+                                                id=f"{prefix}-position-trend-graph",
+                                                figure=fig_position_trend,
+                                                config={"displayModeBar": False},
+                                            )
+                                        ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": f"{prefix}",
+                                            "index": 5,
+                                        },
+                                        style={"display": "block"},
+                                    ),
+                                ],
+                            ),
+                            html.Div(
+                                className="six columns",
+                                children=[
+                                    html.Button(
+                                        html.H6(
+                                            ["Earnings Trend ‹"],
+                                            className="subtitle padded",
+                                            id=f"{prefix}-earnings-trend-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": f"{prefix}",
+                                            "index": 6,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
+                                    ),
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            dcc.Graph(
+                                                id=f"{prefix}-earnings-trend-graph",
+                                                figure=fig_earnings_trend,
+                                                config={"displayModeBar": False},
+                                            )
+                                        ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": f"{prefix}",
+                                            "index": 6,
+                                        },
+                                        style={"display": "block"},
+                                    ),
+                                ],
+                            ),
+                        ],
+                        className="row",
+                    ),
+                    # Row: Position weight + Earnings weight
+                    html.Div(
+                        [
+                            html.Div(
+                                className="six columns",
+                                children=[
+                                    html.Button(
+                                        html.H6(
+                                            ["Position Weight ‹"],
+                                            className="subtitle padded",
+                                            id=f"{prefix}-position-weight-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": f"{prefix}",
+                                            "index": 3,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
+                                    ),
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            dcc.Graph(
+                                                id=f"{prefix}-position-weight-graph",
+                                                figure=fig_position_weight,
+                                                config={"displayModeBar": False},
+                                            )
+                                        ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": f"{prefix}",
+                                            "index": 3,
+                                        },
+                                        style={"display": "block"},
+                                    ),
+                                ],
+                            ),
+                            html.Div(
+                                className="six columns",
+                                children=[
+                                    html.Button(
+                                        html.H6(
+                                            ["Earnings Weight ‹"],
+                                            className="subtitle padded",
+                                            id=f"{prefix}-earnings-weight-title",
+                                        ),
+                                        id={
+                                            "type": "collapse-btn",
+                                            "page": f"{prefix}",
+                                            "index": 4,
+                                        },
+                                        style={
+                                            "background": "none",
+                                            "border": "none",
+                                            "padding": "0",
+                                            "cursor": "pointer",
+                                            "width": "100%",
+                                            "text-align": "left",
+                                        },
+                                    ),
+                                    html.Div(
+                                        className="chart-container",
+                                        children=[
+                                            dcc.Graph(
+                                                id=f"{prefix}-earnings-weight-graph",
+                                                figure=fig_earnings_weight,
+                                                config={"displayModeBar": False},
+                                            )
+                                        ],
+                                        id={
+                                            "type": "collapsible",
+                                            "page": f"{prefix}",
+                                            "index": 4,
+                                        },
+                                        style={"display": "block"},
+                                    ),
+                                ],
+                            ),
+                        ],
+                        className="row",
+                    ),
+                    # Industries List
+                    html.Div(
+                        className="row",
+                        children=[
+                            html.Div(
+                                className="twelve columns",
+                                children=[
+                                    html.H6(
+                                        "Industries List", className="subtitle padded"
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                children=make_dash_format_table(
+                                                    df,
+                                                    cols_format_category,
+                                                    f"{prefix}",
+                                                    f"{df_overall.at[0, 'end_date']}",
+                                                )
+                                            )
+                                        ],
+                                        className="table",
+                                        style={
+                                            "overflow-x": "auto",
+                                            "max-height": 400,
+                                            "overflow-y": "auto",
+                                        },
+                                    ),
+                                ],
+                            )
+                        ],
+                    ),
+                    # Position Holding
+                    html.Div(
+                        className="row",
+                        children=[
+                            html.Div(
+                                className="twelve columns",
+                                children=[
+                                    html.H6(
+                                        "Position Holding", className="subtitle padded"
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                children=make_dash_format_table(
+                                                    df_detail,
+                                                    cols_format_detail,
+                                                    f"{prefix}",
+                                                    f"{df_overall.at[0, 'end_date']}",
+                                                )
+                                            )
+                                        ],
+                                        className="table",
+                                        style={
+                                            "overflow-x": "auto",
+                                            "max-height": 400,
+                                            "overflow-y": "auto",
+                                        },
+                                    ),
+                                ],
+                            )
+                        ],
+                    ),
+                    html.Div(
+                        [
+                            html.Div(
+                                [
+                                    html.H6(
+                                        "Position Reduction",
+                                        className="subtitle padded",
+                                    ),
+                                    html.Div(
+                                        [
+                                            html.Div(
+                                                children=make_dash_format_table(
+                                                    df_detail_short,
+                                                    cols_format_detail_short,
+                                                    f"{prefix}",
+                                                    f"{df_overall.at[0, 'end_date']}",
+                                                )
+                                            )
+                                        ],
+                                        style={
+                                            "overflow-x": "auto",
+                                            "max-height": 300,
+                                            "overflow-y": "auto",
+                                        },
+                                        className="table",
+                                    ),
+                                ],
+                                className="twelve columns",
+                            ),
+                        ],
+                        className="row",
+                        style={"margin-bottom": "10px"},
+                    ),
+                ],
+                className="sub_page",
+            ),
+        ],
+        className="page",
+    )

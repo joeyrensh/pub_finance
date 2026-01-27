@@ -1698,6 +1698,13 @@ class StockProposal:
             .map(replace_dict)
             .combine_first(pd_top20_industry["industry"])
         )
+        # 导出 CSV 供 Dash 使用（带 market 前缀和不带前缀）
+        try:
+            pd_top20_industry.to_csv(
+                f"./data/{self.market}_pd_top20_industry.csv", index=False
+            )
+        except Exception:
+            pass
 
         def get_text_color(hex_color, theme):
             """根据颜色亮度返回黑色或白色文本"""
@@ -1899,6 +1906,13 @@ class StockProposal:
             .map(replace_dict)
             .combine_first(pd_top20_profit_industry["industry"])
         )
+        # 导出 CSV 供 Dash 使用
+        try:
+            pd_top20_profit_industry.to_csv(
+                f"./data/{self.market}_pd_top20_profit_industry.csv", index=False
+            )
+        except Exception:
+            pass
         # 文本颜色
         text_colors = [get_text_color(color, "light") for color in rgba_colors]
         # 应用换行函数
@@ -2023,6 +2037,13 @@ class StockProposal:
         pd_strategy_tracking_lst180days_group = (
             pd_strategy_tracking_lst180days.groupby("date")["pnl"].sum().reset_index()
         )  # 按日期分组并求和
+        # 导出 CSV 供 Dash 使用
+        try:
+            pd_strategy_tracking_lst180days.to_csv(
+                f"./data/{self.market}_pd_strategy_tracking_lst180days.csv", index=False
+            )
+        except Exception:
+            pass
         max_pnl = pd_strategy_tracking_lst180days_group["pnl"].max()
         min_pnl = pd_strategy_tracking_lst180days_group["pnl"].min()
         threshold = pd_strategy_tracking_lst180days["success_rate"].quantile(0.1)
@@ -2358,9 +2379,18 @@ class StockProposal:
             )
         )
         pd_trade_info_lst180days = spark_trade_info_lst180days.toPandas()
+
+        # 导出 CSV 供 Dash 使用 (duplicate section for other market blocks)
+        try:
+            pd_trade_info_lst180days.to_csv(
+                f"./data/{self.market}_pd_trade_info_lst180days.csv", index=False
+            )
+        except Exception:
+            pass
         # df_grouped = pd_trade_info_lst180days.groupby("buy_date")[
         #     ["buy_cnt", "sell_cnt"]
         # ].sum()
+        # 导出 CSV 供 Dash 使用
 
         # max_sum = df_grouped.sum(axis=1).max()
         fig = go.Figure()
@@ -2696,6 +2726,13 @@ class StockProposal:
         pd_top5_industry_profit_trend.sort_values(
             by=["buy_date", "pnl"], ascending=[False, False], inplace=True
         )
+        # 导出 CSV 供 Dash 使用
+        try:
+            pd_top5_industry_profit_trend.to_csv(
+                f"./data/{self.market}_pd_top5_industry_profit_trend.csv", index=False
+            )
+        except Exception:
+            pass
 
         fig = px.line(
             pd_top5_industry_profit_trend,
@@ -2916,7 +2953,8 @@ class StockProposal:
             )
             SELECT 
                 date
-                ,COLLECT_LIST(industry) AS industry_top3
+                -- ,COLLECT_LIST(industry) AS industry_top3
+                ,CONCAT_WS(',', COLLECT_LIST(industry)) AS industry_top3
                 ,MAX(s_pnl) AS s_pnl
             FROM (SELECT * FROM tmp3 WHERE rn <= 3 ORDER BY date, rn) t
             GROUP BY date
@@ -2969,7 +3007,18 @@ class StockProposal:
         pd_calendar_heatmap["week_order"] = pd_calendar_heatmap["week_start"].map(
             week_mapping
         )
-
+        # 导出 CSV 供 Dash 使用
+        try:
+            pd_calendar_heatmap.to_csv(
+                f"./data/{self.market}_pd_calendar_heatmap.csv", index=False
+            )
+        except Exception:
+            pass
+        pd_calendar_heatmap["industry_top3"] = (
+            pd_calendar_heatmap["industry_top3"]
+            .fillna("")
+            .apply(lambda x: [i.strip() for i in x.split(",") if i.strip()])
+        )
         # 创建日历图
         fig = go.Figure()
 

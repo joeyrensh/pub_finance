@@ -84,26 +84,26 @@ if __name__ == "__main__":
     print("Garbage collector: collected %d objects." % (collected))
 
     """ 发送邮件 """
-    # StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
-    # 固定列表追踪
-    cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us_special", d).exec_btstrategy()
-    )
-    collected = gc.collect()
+    StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
+    # # 固定列表追踪
+    # cash, final_value = run_backtest_in_process(
+    #     trade_date, lambda d: BacktraderExec("us_special", d).exec_btstrategy()
+    # )
+    # collected = gc.collect()
 
-    print("Garbage collector: collected %d objects." % (collected))
+    # print("Garbage collector: collected %d objects." % (collected))
 
-    """ 发送邮件 """
+    # """ 发送邮件 """
     # StockProposal("us_special", trade_date).send_btstrategy_by_email(cash, final_value)
-    # 动态列表追踪
-    cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us_dynamic", d).exec_btstrategy()
-    )
-    collected = gc.collect()
+    # # 动态列表追踪
+    # cash, final_value = run_backtest_in_process(
+    #     trade_date, lambda d: BacktraderExec("us_dynamic", d).exec_btstrategy()
+    # )
+    # collected = gc.collect()
 
-    print("Garbage collector: collected %d objects." % (collected))
+    # print("Garbage collector: collected %d objects." % (collected))
 
-    """ 发送邮件 """
+    # """ 发送邮件 """
     # StockProposal("us_dynamic", trade_date).send_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
