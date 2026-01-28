@@ -13,7 +13,6 @@ from finance.dashreport.pages import (
     usdynamicstock_performance,
 )
 from finance.dashreport.pages.chart_callback import ChartCallback
-
 from flask import Flask
 from flask_compress import Compress
 import configparser
@@ -21,6 +20,7 @@ from flask import session
 import os
 from datetime import timedelta
 from pathlib import Path
+from finance.dashreport.chart_builder import ChartBuilder
 
 
 server = Flask(__name__)
@@ -57,8 +57,12 @@ app.layout = html.Div(
         dcc.Location(id="url", refresh=False),
         dcc.Store(id="current-theme", data="light"),
         dcc.Store(id="auth-checked", data=False),  # 标记是否已检查登录
-        html.Div(id="app-init", style={"display": "none"}),
-        html.Div(id="theme-change-trigger", style={"display": "none"}, children="init"),
+        dcc.Store(id="client-width"),
+        dcc.Interval(
+            id="theme-poller",
+            interval=1000,  # 1 秒
+            n_intervals=0,
+        ),
         html.Div(
             id="loading-mask",
             children=[
@@ -149,92 +153,33 @@ app.chart_callback = chart_callback
 
 app.clientside_callback(
     """
-    function() {
-        // 您的检测函数
-        function detectCurrentTheme() {
-            const body = document.body;
-            const html = document.documentElement;
-            
-            if (body.classList.contains('dark') || 
-                body.classList.contains('dark-mode') ||
-                body.getAttribute('data-theme') === 'dark' ||
-                html.classList.contains('dark') ||
-                html.getAttribute('data-theme') === 'dark') {
-                return 'dark';
-            }
-            
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                return 'dark';
-            }
-            
-            return 'light';
+    function(n, currentTheme) {
+        const isDark = window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        const newTheme = isDark ? 'dark' : 'light';
+
+        if (newTheme === currentTheme) {
+            return window.dash_clientside.no_update;
         }
-        
-        // 设置监听器
-        function initThemeListener() {
-            const currentTheme = detectCurrentTheme();
-            console.log('初始主题:', currentTheme);
-            
-            // 监听系统主题变化
-            if (window.matchMedia) {
-                const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-                
-                mediaQuery.addEventListener('change', (e) => {
-                    const newTheme = detectCurrentTheme();
-                    console.log('系统主题变化，新主题:', newTheme);
-                    
-                    // 关键：修改一个dummy组件的属性来触发回调
-                    const trigger = document.getElementById('theme-change-trigger');
-                    if (trigger) {
-                        // 修改内容，确保每次都有变化
-                        const currentValue = trigger.textContent || '';
-                        trigger.textContent = currentValue === 'trigger' ? 'trigger2' : 'trigger';
-                        console.log('已触发主题更新');
-                    }
-                });
-            }
-            
-            return currentTheme;
-        }
-        
-        return initThemeListener();
+
+        console.log('🎨 Theme changed:', currentTheme, '->', newTheme);
+        return newTheme;
     }
     """,
     Output("current-theme", "data"),
-    Input("app-init", "children"),
+    Input("theme-poller", "n_intervals"),
+    State("current-theme", "data"),
 )
 
-# 添加一个监听dummy变化的回调
 app.clientside_callback(
     """
-    function(trigger) {
-        // 重新检测主题
-        function detectCurrentTheme() {
-            const body = document.body;
-            const html = document.documentElement;
-            
-            if (body.classList.contains('dark') || 
-                body.classList.contains('dark-mode') ||
-                body.getAttribute('data-theme') === 'dark' ||
-                html.classList.contains('dark') ||
-                html.getAttribute('data-theme') === 'dark') {
-                return 'dark';
-            }
-            
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                return 'dark';
-            }
-            
-            return 'light';
-        }
-        
-        console.log('触发主题重新检测');
-        return detectCurrentTheme();
+    function(_) {
+        return window.innerWidth || document.documentElement.clientWidth;
     }
     """,
-    Output("current-theme", "data", allow_duplicate=True),
-    Input("theme-change-trigger", "children"),
-    prevent_initial_call=True,
+    output=dash.Output("client-width", "data"),
+    inputs=[dash.Input("calendar-chart", "id")],
 )
 
 
@@ -361,6 +306,22 @@ def update_row_count(indices):
     if indices is None:
         return "Total 0 Rows"
     return f"Total {len(indices)} Rows"
+
+
+@app.callback(
+    Output("calendar-chart", "figure"),
+    Input("client-width", "data"),
+)
+def update_chart(client_width):
+    if not client_width:
+        client_width = 1440  # fallback
+
+    fig = ChartBuilder.calendar_heatmap(
+        df=df,
+        theme="light",
+        fig_width=client_width,  # 👈 关键
+    )
+    return fig
 
 
 if __name__ == "__main__":

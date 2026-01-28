@@ -1,4 +1,3 @@
-# callbacks/chart_callback.py
 """
 修正版：单个通用回调处理所有图表
 """
@@ -27,7 +26,6 @@ class ChartCallback:
             # 记录已注册的回调，避免重复注册
             self._callback_registered = False
             self._initialized = True
-            print("✅ ChartCallback 初始化完成")
 
     def register_chart(self, chart_type, page_prefix, chart_builder, df_data, index=0):
         """
@@ -43,15 +41,14 @@ class ChartCallback:
             "page": page_prefix,
             "index": index,
         }
-        print(f"✅ 注册图表: {key}")
         return key
 
     def get_chart_id(self, chart_type, page_prefix, index=0):
         """获取图表ID（与register_chart对应）"""
         return {
-            "type": "dynamic-chart",  # 固定type，不要用chart_type
+            "type": "dynamic-chart",
             "page": page_prefix,
-            "chart": chart_type,  # 将chart_type作为chart字段
+            "chart": chart_type,
             "index": index,
         }
 
@@ -75,8 +72,8 @@ class ChartCallback:
                 },
                 "figure",
             ),
-            Input("current-theme", "data"),
-            State(
+            Input("current-theme", "data"),  # 主题变化
+            Input(
                 {
                     "type": "dynamic-chart",
                     "page": MATCH,
@@ -91,7 +88,7 @@ class ChartCallback:
             """通用图表回调函数"""
             # 从组件ID获取信息
             page = component_id.get("page", "")
-            chart_type = component_id.get("chart", "")  # 这里是实际的图表类型
+            chart_type = component_id.get("chart", "")
             index = component_id.get("index", 0)
 
             # 构建查找键（与register_chart一致）
@@ -115,7 +112,7 @@ class ChartCallback:
                     return builder.calendar_heatmap(df=data, theme=theme)
                 else:
                     # 尝试通用方法
-                    method_name = f"{chart_type}_from_df"
+                    method_name = f"{chart_type}"
                     if hasattr(builder, method_name):
                         method = getattr(builder, method_name)
                         return method(df=data, theme=theme)
@@ -126,4 +123,3 @@ class ChartCallback:
             return dash.no_update
 
         self._callback_registered = True
-        print("✅ 通用图表回调设置完成")

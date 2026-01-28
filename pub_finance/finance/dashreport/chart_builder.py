@@ -15,6 +15,7 @@ class ChartBuilder:
     def calendar_heatmap(
         df,
         theme="light",  # 主题参数
+        client_width=1440,
     ):
         """
         从CSV文件生成日历热图交互式图表（仅周一到周五）
@@ -57,10 +58,18 @@ class ChartBuilder:
                 "background": "rgba(0, 0, 0, 0)",  # 透明背景
             },
         }
-        base_font_size = 12  # 基础字体大小
-        font_family = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif'
+
+        font_family = (
+            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
+            '"Helvetica Neue", Arial, sans-serif'
+        )
+
+        # 修改点1：调整宽高比为1.6
         fig_width = 1440
-        fig_height = 900
+        fig_height = 900  # 保持原高度
+        scale = client_width / fig_width
+        scale = max(0.7, min(scale, 1.15))  # 防止过小 / 过大
+        base_font_size = int(12 * scale)
 
         # 获取当前主题配置
         config = theme_configs.get(theme, theme_configs["light"])
@@ -124,10 +133,8 @@ class ChartBuilder:
         else:
             quantiles = [0, 0, 0, 0]
 
-        max_size_increase = 25
-        font_steps = np.linspace(
-            base_font_size - 8, base_font_size - 8 + max_size_increase, 5
-        )
+        max_size_increase = 10
+        font_steps = np.linspace(base_font_size, base_font_size + max_size_increase, 5)
 
         # 创建图表
         fig = go.Figure()
@@ -203,49 +210,45 @@ class ChartBuilder:
                         size=base_font_size - 2,
                         color=config["neutral"],  # 使用中性色
                     ),
-                    align="center",
-                    xanchor="center",
+                    align="center",  # 保持居中
+                    xanchor="center",  # 保持居中
                     yanchor="top",
-                    yshift=20,
+                    # xshift=0,  # 不向左偏移
+                    # yshift=20,
                     opacity=0.9,
                 )
-
-            # 2. 添加中间的日期（月份和日期分开两行）
-            # 月份在上
             fig.add_annotation(
-                x=day_of_week,
+                x=day_of_week - 0.48,
                 y=week_order,
                 text=month,
                 showarrow=False,
+                align="left",
+                xanchor="left",
+                yanchor="middle",
+                xshift=0,
+                yshift=int(5 * scale),
                 font=dict(
                     family=font_family,
-                    weight="bold",
                     size=dynamic_font_size,
                     color=text_color,
                 ),
-                align="center",
-                xanchor="center",
-                yanchor="middle",
-                yshift=dynamic_font_size * 0.3,
                 opacity=0.9,
             )
-
-            # 日期在下
             fig.add_annotation(
-                x=day_of_week,
+                x=day_of_week - 0.48,
                 y=week_order,
                 text=day,
                 showarrow=False,
+                align="left",
+                xanchor="left",
+                yanchor="middle",
+                xshift=0,
+                yshift=-int(5 * scale),
                 font=dict(
                     family=font_family,
-                    weight="bold",
                     size=dynamic_font_size,
                     color=text_color,
                 ),
-                align="center",
-                xanchor="center",
-                yanchor="middle",
-                yshift=-dynamic_font_size * 0.3,
                 opacity=0.9,
             )
 
@@ -262,10 +265,11 @@ class ChartBuilder:
                         size=base_font_size - 2,
                         color=config["neutral"],  # 使用中性色
                     ),
-                    align="center",
-                    xanchor="center",
+                    align="center",  # 保持居中
+                    xanchor="center",  # 保持居中
                     yanchor="bottom",
-                    yshift=-20,
+                    # xshift=0,  # 不向左偏移
+                    # yshift=-20,
                     opacity=0.9,
                 )
 
@@ -303,7 +307,7 @@ class ChartBuilder:
             plot_bgcolor=config["background"],
             paper_bgcolor=config["background"],
             margin=dict(l=0, r=0, t=0, b=0, pad=0),
-            autosize=True,
+            autosize=True,  # 修改点：设为False以使用固定尺寸
             dragmode=False,
         )
 
@@ -380,9 +384,4 @@ class ChartBuilder:
             else "无行业数据"
         )
 
-        return (
-            f"日期: {date_str}<br>"
-            f"星期: {day_name}<br>"
-            f"数值: {value:.2f}<br>"
-            f"行业: {industry_text}"
-        )
+        return f"日期: {date_str}<br>" f"星期: {day_name}<br>" f"行业: {industry_text}"

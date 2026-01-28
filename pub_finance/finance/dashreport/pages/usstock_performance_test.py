@@ -9,7 +9,6 @@ import pandas as pd
 import pathlib
 import os
 from finance.dashreport.chart_builder import ChartBuilder as cb
-from finance.dashreport.pages.chart_callback import ChartCallback
 from dash import callback, Output, Input, State
 
 
@@ -125,8 +124,7 @@ def create_layout(app):
     )
 
     df_heatmap = pd.read_csv(DATA_PATH.joinpath(f"{prefix}_pd_calendar_heatmap.csv"))
-    chart_callback = ChartCallback()
-    chart_callback.register_chart(
+    app.chart_callback.register_chart(
         chart_type="heatmap",
         page_prefix=prefix,
         chart_builder=cb,
@@ -425,7 +423,7 @@ def create_layout(app):
                                         className="chart-container",
                                         children=[
                                             dcc.Graph(
-                                                id=chart_callback.get_chart_id(
+                                                id=app.chart_callback.get_chart_id(
                                                     "heatmap", prefix, 1
                                                 ),
                                                 figure=cb.calendar_heatmap(
@@ -448,6 +446,8 @@ def create_layout(app):
                                         },
                                         style={
                                             "display": "block",
+                                            "aspectRatio": 1.6,
+                                            "width": "100%",
                                         },
                                     ),
                                 ],
