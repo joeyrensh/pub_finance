@@ -10,74 +10,32 @@ import pathlib
 import os
 from finance.dashreport.chart_builder import ChartBuilder as cb
 from dash import callback, Output, Input, State
-
-
-class ChartBuilder:
-    """Utility to build Plotly figures from CSV candidates."""
-
-    @staticmethod
-    def find_csv(path: pathlib.Path, candidates):
-        for name in candidates:
-            p = path.joinpath(name)
-            if p.exists():
-                return p
-        return None
-
-    @staticmethod
-    def pick_column(df, candidates):
-        for c in candidates:
-            if c in df.columns:
-                return c
-        return df.columns[0] if len(df.columns) > 0 else None
-
-    @staticmethod
-    def bar_from_csv(path, candidates, x_candidates, y_candidates, title=""):
-        p = ChartBuilder.find_csv(path, candidates)
-        if p is None:
-            return go.Figure().update_layout(title_text="")
-        df = pd.read_csv(p)
-        xcol = ChartBuilder.pick_column(df, x_candidates)
-        ycol = ChartBuilder.pick_column(df, y_candidates)
-        if xcol is None or ycol is None:
-            return go.Figure().update_layout(title_text="")
-        fig = px.bar(df, x=xcol, y=ycol)
-        fig.update_layout(title_text="")
-        return fig
-
-    @staticmethod
-    def line_from_csv(path, candidates, date_candidates, value_candidates, title=""):
-        p = ChartBuilder.find_csv(path, candidates)
-        if p is None:
-            return go.Figure().update_layout(title_text="")
-        df = pd.read_csv(p)
-        if any(dc in df.columns for dc in date_candidates):
-            dcol = ChartBuilder.pick_column(df, date_candidates)
-            df[dcol] = pd.to_datetime(df[dcol], errors="coerce")
-            value_col = ChartBuilder.pick_column(df, value_candidates)
-            if value_col is not None and value_col in df.columns:
-                fig = px.line(df, x=dcol, y=value_col)
-                fig.update_layout(title_text="")
-                return fig
-        # fallback: plot multiple value cols
-        value_cols = [c for c in df.columns if c not in date_candidates]
-        if len(value_cols) > 1 and any(dc in df.columns for dc in date_candidates):
-            dcol = ChartBuilder.pick_column(df, date_candidates)
-            fig = go.Figure()
-            for vc in value_cols:
-                fig.add_trace(go.Scatter(x=df[dcol], y=df[vc], name=vc))
-            fig.update_layout(title_text="")
-            return fig
-        return go.Figure().update_layout(title_text="")
-
-
-# 定义全局变量 df_detail
-df_detail = None
+import pickle
 
 
 def create_layout(app):
     PATH = pathlib.Path(__file__).parent
     DATA_PATH = PATH.joinpath("../../data").resolve()
+    DATA_PATH_ANUAL_RETURN = PATH.joinpath("../../cache").resolve()
     prefix = "us"
+
+    # Load tables and other data for page
+    df_overall = pd.read_csv(
+        DATA_PATH.joinpath(f"{prefix}_df_result.csv"), usecols=[i for i in range(1, 5)]
+    )
+    trade_date = str(df_overall.at[0, "end_date"]).replace("-", "")
+    annual_return_file = DATA_PATH_ANUAL_RETURN.joinpath(
+        f"pnl_{prefix}_{trade_date}.pkl"
+    )
+    with open(annual_return_file, "rb") as f:
+        pnl, cash, total_value = pickle.load(f)
+    app.chart_callback.register_chart(
+        chart_type="annual_return",
+        page_prefix=prefix,
+        chart_builder=cb,
+        df_data=pnl,
+        index=0,
+    )
 
     # placeholders for back-compat (not used when CSV present)
     encoded_image_trdraw = f"/assets/images/{prefix}_tr_light.svg"
@@ -144,10 +102,6 @@ def create_layout(app):
         index=4,
     )
 
-    # Load tables and other data for page
-    df_overall = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_df_result.csv"), usecols=[i for i in range(1, 5)]
-    )
     cols_category = [
         "IDX",
         "IND",
@@ -387,19 +341,35 @@ def create_layout(app):
                                     html.Div(
                                         className="chart-container",
                                         children=[
-                                            html.ObjectEl(
-                                                data=encoded_image_trdraw,
-                                                type="image/svg+xml",
-                                                className="responsive-svg svg-light",
-                                                id=f"{prefix}-annual-return-light",
-                                            ),
+                                            dcc.Graph(
+                                                id=app.chart_callback.get_chart_id(
+                                                    "annual_return", prefix, 0
+                                                ),
+                                                figure=cb.annual_return(
+                                                    pnl=pnl,
+                                                    theme="light",
+                                                    client_width=1440,
+                                                ),
+                                                config={
+                                                    "displayModeBar": False,
+                                                    "doubleClick": False,
+                                                    "margin": "0",
+                                                    "padding": "0",
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                },
+                                            )
                                         ],
                                         id={
                                             "type": "collapsible",
                                             "page": f"{prefix}",
                                             "index": 0,
                                         },
-                                        style={"display": "block"},
+                                        style={
+                                            "display": "block",
+                                            "aspectRatio": 1.6,
+                                            "width": "100%",
+                                        },
                                     ),
                                 ],
                                 className="twelve columns",

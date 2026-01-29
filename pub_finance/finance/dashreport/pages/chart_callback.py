@@ -146,6 +146,12 @@ class ChartCallback:
                         theme=theme,
                         client_width=client_width,
                     )
+                elif chart_type == "annual_return":
+                    return builder.annual_return(
+                        pnl=data,
+                        theme=theme,
+                        client_width=client_width,
+                    )
                 else:
                     # 尝试通用方法
                     method_name = f"{chart_type}"
