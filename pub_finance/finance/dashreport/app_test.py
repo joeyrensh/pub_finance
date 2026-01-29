@@ -20,7 +20,6 @@ from flask import session
 import os
 from datetime import timedelta
 from pathlib import Path
-from finance.dashreport.chart_builder import ChartBuilder
 
 
 server = Flask(__name__)
@@ -55,9 +54,9 @@ app.title = "Financial Report"
 app.layout = html.Div(
     children=[
         dcc.Location(id="url", refresh=False),
-        dcc.Store(id="current-theme", data="light"),
         dcc.Store(id="auth-checked", data=False),  # 标记是否已检查登录
-        dcc.Store(id="client-width"),
+        dcc.Store(id="current-theme", data="light"),
+        dcc.Store(id="client-width", data=1440),
         dcc.Interval(
             id="theme-poller",
             interval=1000,  # 1 秒
@@ -153,33 +152,38 @@ app.chart_callback = chart_callback
 
 app.clientside_callback(
     """
-    function(n, currentTheme) {
+    function(n, currentTheme, currentWidth) {
         const isDark = window.matchMedia &&
             window.matchMedia('(prefers-color-scheme: dark)').matches;
 
         const newTheme = isDark ? 'dark' : 'light';
+        const width = window.innerWidth || document.documentElement.clientWidth;
 
-        if (newTheme === currentTheme) {
-            return window.dash_clientside.no_update;
+        let themeOut = window.dash_clientside.no_update;
+        let widthOut = window.dash_clientside.no_update;
+
+        if (newTheme !== currentTheme) {
+            console.log('Theme changed:', currentTheme, '->', newTheme);
+            themeOut = newTheme;
         }
 
-        console.log('🎨 Theme changed:', currentTheme, '->', newTheme);
-        return newTheme;
-    }
-    """,
-    Output("current-theme", "data"),
-    Input("theme-poller", "n_intervals"),
-    State("current-theme", "data"),
-)
+        if (width !== currentWidth) {
+            console.log('Width changed:', currentWidth, '->', width);
+            widthOut = width;
+        }
 
-app.clientside_callback(
-    """
-    function(_) {
-        return window.innerWidth || document.documentElement.clientWidth;
+        return [themeOut, widthOut];
     }
     """,
-    output=dash.Output("client-width", "data"),
-    inputs=[dash.Input("calendar-chart", "id")],
+    [
+        Output("current-theme", "data"),
+        Output("client-width", "data"),
+    ],
+    Input("theme-poller", "n_intervals"),
+    [
+        State("current-theme", "data"),
+        State("client-width", "data"),
+    ],
 )
 
 
@@ -306,22 +310,6 @@ def update_row_count(indices):
     if indices is None:
         return "Total 0 Rows"
     return f"Total {len(indices)} Rows"
-
-
-@app.callback(
-    Output("calendar-chart", "figure"),
-    Input("client-width", "data"),
-)
-def update_chart(client_width):
-    if not client_width:
-        client_width = 1440  # fallback
-
-    fig = ChartBuilder.calendar_heatmap(
-        df=df,
-        theme="light",
-        fig_width=client_width,  # 👈 关键
-    )
-    return fig
 
 
 if __name__ == "__main__":

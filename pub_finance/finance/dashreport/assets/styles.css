@@ -52,10 +52,14 @@
 }
 
 /* dash app交互图表配置 */
-/* 日历热图整体容器 */
-.calendar-heatmap {
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif !important;
-    color: var(--text-color) !important;
+.js-plotly-plot,
+.js-plotly-plot * {
+    font-family: -apple-system, BlinkMacSystemFont,
+                 "PingFang SC",
+                 "Helvetica Neue",
+                 Arial,
+                 sans-serif !important;
+    font-variant-numeric: tabular-nums !important;
 }
 
 

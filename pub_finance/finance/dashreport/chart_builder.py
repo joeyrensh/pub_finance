@@ -2,6 +2,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.express as px
 import numpy as np
 import ast
 from finance.dashreport.utils import Header, make_dash_format_table
@@ -18,23 +19,10 @@ class ChartBuilder:
         client_width=1440,
     ):
         """
-        从CSV文件生成日历热图交互式图表（仅周一到周五）
-        支持动态主题切换
-
         Parameters:
         -----------
         df : pandas.DataFrame
             包含日历热图数据的DataFrame
-        fig_width : int, default=1440
-            图表宽度
-        fig_height : int, default=900
-            图表高度
-        theme : str, default="light"
-            主题模式，"light" 或 "dark"
-        base_font_size : int, default=12
-            基础字体大小
-        font_family : str, default="Arial"
-            字体家族
 
         Returns:
         --------
@@ -47,14 +35,14 @@ class ChartBuilder:
                 "positive": "#d60a22",  # 红色 - 正数
                 "negative": "#037b66",  # 绿色 - 负数
                 "neutral": "#000000",  # 黑色 - 中性文本、行业文本、坐标轴
-                "grid": "rgba(0, 0, 0, 0.2)",  # 网格线
+                "grid": "rgba(0, 0, 0, 0.3)",  # 网格线
                 "background": "rgba(255, 255, 255, 0)",  # 透明背景
             },
             "dark": {
                 "positive": "#ff6b6b",  # 亮红色 - 正数
                 "negative": "#6bcfb5",  # 亮绿色 - 负数
                 "neutral": "#ffffff",  # 白色 - 中性文本、行业文本、坐标轴
-                "grid": "rgba(255, 255, 255, 0.2)",  # 网格线
+                "grid": "rgba(255, 255, 255, 0.3)",  # 网格线
                 "background": "rgba(0, 0, 0, 0)",  # 透明背景
             },
         }
@@ -68,7 +56,7 @@ class ChartBuilder:
         fig_width = 1440
         fig_height = 900  # 保持原高度
         scale = client_width / fig_width
-        scale = max(0.7, min(scale, 1.15))  # 防止过小 / 过大
+        scale = max(0.9, min(scale, 1))  # 防止过小 / 过大
         base_font_size = int(12 * scale)
 
         # 获取当前主题配置
@@ -226,7 +214,7 @@ class ChartBuilder:
                 xanchor="left",
                 yanchor="middle",
                 xshift=0,
-                yshift=int(5 * scale),
+                yshift=int(7 * scale),
                 font=dict(
                     family=font_family,
                     size=dynamic_font_size,
@@ -243,7 +231,7 @@ class ChartBuilder:
                 xanchor="left",
                 yanchor="middle",
                 xshift=0,
-                yshift=-int(5 * scale),
+                yshift=-int(7 * scale),
                 font=dict(
                     family=font_family,
                     size=dynamic_font_size,
@@ -318,7 +306,7 @@ class ChartBuilder:
             fig.add_hline(
                 y=week - 0.5,
                 line=dict(color=config["grid"], width=1),
-                opacity=0.2,
+                opacity=0.4,
                 layer="below",
             )
 
@@ -326,7 +314,7 @@ class ChartBuilder:
             fig.add_vline(
                 x=day - 0.5,
                 line=dict(color=config["grid"], width=1),
-                opacity=0.2,
+                opacity=0.4,
                 layer="below",
             )
 
@@ -385,3 +373,792 @@ class ChartBuilder:
         )
 
         return f"日期: {date_str}<br>" f"星期: {day_name}<br>" f"行业: {industry_text}"
+
+    @staticmethod
+    def strategy_chart(
+        df,
+        theme="light",
+        client_width=1440,
+    ):
+        # =========================
+        # 0. 内部生成 group
+        # =========================
+        df_group = df.groupby("date")["pnl"].sum().reset_index()
+
+        # =========================
+        # 1. theme 配置（新增）
+        # =========================
+        theme_config = {
+            "light": {
+                "text": "#000000",
+                "grid": "rgba(0, 0, 0, 0.2)",
+                "legend_bg": "rgba(246, 248, 249, 0.8)",
+            },
+            "dark": {
+                "text": "#ffffff",
+                "grid": "rgba(255, 255, 255, 0.25)",
+                "legend_bg": "rgba(20, 20, 20, 0.6)",
+            },
+        }
+
+        cfg = theme_config.get(theme, theme_config["light"])
+        text_color = cfg["text"]
+        grid_color = cfg["grid"]
+        legend_bg = cfg["legend_bg"]
+
+        # =========================
+        # 2. 字体 & scale（与 heatmap 对齐）
+        # =========================
+        fig_width = 1440
+        fig_height = 900
+
+        scale = client_width / fig_width
+        scale = max(0.9, min(scale, 1))
+
+        base_font_size = int(12 * scale)
+        title_font_size = int(14 * scale)
+
+        font_family = (
+            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
+            '"Helvetica Neue", Arial, sans-serif'
+        )
+
+        # =========================
+        # 3. 策略颜色（你提供的）
+        # =========================
+        strategy_colors_light = [
+            "#0c6552",
+            "#0d876d",
+            "#00a380",
+            "#00b89a",
+            "#ffa700",
+            "#d50b3e",
+            "#a90a3f",
+            "#7a0925",
+        ]
+
+        strategy_colors_dark = [
+            "#0d7b67",
+            "#0e987f",
+            "#01b08f",
+            "#00c4a6",
+            "#ffa700",
+            "#e90c4a",
+            "#cf1745",
+            "#b6183d",
+        ]
+
+        strategy_colors = (
+            strategy_colors_dark if theme == "dark" else strategy_colors_light
+        )
+
+        # =========================
+        # 4. 原有数值计算（不动）
+        # =========================
+        max_pnl = df_group["pnl"].max()
+        min_pnl = df_group["pnl"].min()
+
+        threshold = df["success_rate"].quantile(0.1)
+        min_success_rate = df.loc[
+            df["success_rate"] >= threshold,
+            "success_rate",
+        ].min()
+
+        safe_rate = max(min_success_rate, 0.2)
+        max_range = min(2 * max_pnl, max_pnl * 2 / safe_rate)
+
+        # =========================
+        # 5. tick offset（scale）
+        # =========================
+        def calc_tick_offset(min_pnl, max_pnl, num_ticks=6, char_width=10):
+            def to_si(n):
+                abs_n = abs(n)
+                if abs_n >= 1e12:
+                    return f"{n/1e12:.1f}T".rstrip("0").rstrip(".")
+                elif abs_n >= 1e9:
+                    return f"{n/1e9:.1f}B".rstrip("0").rstrip(".")
+                elif abs_n >= 1e6:
+                    return f"{n/1e6:.1f}M".rstrip("0").rstrip(".")
+                elif abs_n >= 1e3:
+                    return f"{n/1e3:.1f}K".rstrip("0").rstrip(".")
+                else:
+                    return str(int(n))
+
+            ticks = np.linspace(min_pnl, max_pnl, num_ticks)
+            tick_texts = [to_si(t) for t in ticks]
+            max_len = max(len(t) for t in tick_texts)
+            return -char_width * max_len
+
+        offset = int(calc_tick_offset(min_pnl, max_range) * scale)
+
+        # =========================
+        # 6. 策略顺序 & 分组
+        # =========================
+        strategy_order = [
+            "多头排列",
+            "均线金叉",
+            "均线收敛",
+            "突破年线",
+            "突破半年线",
+            "连续上涨",
+            "成交量放大",
+            "红三兵",
+        ]
+
+        groups = dict(list(df.groupby("strategy")))
+
+        fig = go.Figure()
+
+        # =========================
+        # 7. 线型（width × scale）
+        # =========================
+        line_styles = [
+            {"dash": "solid", "width": 3.5 * scale},
+            {"dash": "solid", "width": 3.5 * scale},
+            {"dash": "dashdot", "width": 3.2 * scale},
+            {"dash": "dash", "width": 3.0 * scale},
+            {"dash": "6,3", "width": 2.8 * scale},
+            {"dash": "5,5", "width": 2.5 * scale},
+            {"dash": "4,6", "width": 2.2 * scale},
+            {"dash": "2,8", "width": 2.0 * scale},
+        ]
+
+        # =========================
+        # 8. traces（仅颜色补齐）
+        # =========================
+        for i, strategy in enumerate(strategy_order):
+            if strategy not in groups:
+                continue
+
+            data = groups[strategy]
+            color = strategy_colors[i]
+
+            fig.add_trace(
+                go.Scatter(
+                    x=data["date"],
+                    y=data["ema_success_rate"],
+                    mode="lines",
+                    name=strategy,
+                    line=dict(
+                        width=line_styles[i]["width"],
+                        dash=line_styles[i]["dash"],
+                        shape="spline",
+                        color=color,
+                    ),
+                    yaxis="y",
+                )
+            )
+
+            fig.add_trace(
+                go.Bar(
+                    x=data["date"],
+                    y=data["pnl"],
+                    name=strategy,
+                    marker=dict(
+                        color=color,
+                        line=dict(color=color),
+                    ),
+                    yaxis="y2",
+                    showlegend=False,
+                )
+            )
+
+        # =========================
+        # 9. Layout（补齐 text / grid / legend）
+        # =========================
+        fig.update_layout(
+            xaxis=dict(
+                mirror=True,
+                ticks="outside",
+                tickfont=dict(
+                    family=font_family,
+                    size=base_font_size,
+                    color=text_color,
+                ),
+                showline=False,
+                gridcolor=grid_color,
+            ),
+            yaxis=dict(
+                side="left",
+                mirror=True,
+                ticks="inside",
+                tickfont=dict(
+                    family=font_family,
+                    size=base_font_size,
+                    color=text_color,
+                ),
+                showline=False,
+                gridcolor=grid_color,
+                dtick=0.1,
+                fixedrange=True,
+                range=[0, 1],
+            ),
+            yaxis2=dict(
+                side="right",
+                overlaying="y",
+                showgrid=False,
+                ticks="inside",
+                tickfont=dict(
+                    family=font_family,
+                    size=base_font_size,
+                    color=text_color,
+                ),
+                range=[0, max_range],
+                ticklabelstandoff=offset,
+                tickformat="~s",
+            ),
+            legend=dict(
+                orientation="v",
+                x=0.02,
+                y=1,
+                xanchor="left",
+                yanchor="top",
+                font=dict(
+                    family=font_family,
+                    size=base_font_size,
+                    color=text_color,
+                ),
+                bgcolor=legend_bg,
+                borderwidth=0,
+            ),
+            barmode="stack",
+            bargap=0.2,
+            bargroupgap=0.2,
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            margin=dict(t=0, b=0, l=0, r=0),
+            autosize=True,
+        )
+
+        return fig
+
+    @staticmethod
+    def trade_info_chart(
+        df,
+        theme="light",
+        client_width=1440,
+    ):
+        import plotly.graph_objects as go
+        import pandas as pd
+        from datetime import timedelta
+
+        # =========================
+        # 1. theme 配置
+        # =========================
+        theme_config = {
+            "light": {
+                "text": "#000000",
+                "grid": "rgba(0, 0, 0, 0.2)",
+                "legend_bg": "rgba(246, 248, 249, 0.8)",
+                "long": "#e01c3a",
+                "short": "#0d876d",
+            },
+            "dark": {
+                "text": "#ffffff",
+                "grid": "rgba(255, 255, 255, 0.25)",
+                "legend_bg": "rgba(20, 20, 20, 0.6)",
+                "long": "#ff4d6d",
+                "short": "#2ec4a6",
+            },
+        }
+
+        cfg = theme_config.get(theme, theme_config["light"])
+        text_color = cfg["text"]
+        grid_color = cfg["grid"]
+
+        # =========================
+        # 2. font & scale（统一标准）
+        # =========================
+        fig_width = 1440
+        fig_height = 900
+
+        scale = client_width / fig_width
+        scale = max(0.9, min(scale, 1))
+
+        font_size = int(12 * scale)
+        title_font_size = int(14 * scale)
+
+        font_family = (
+            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
+            '"Helvetica Neue", Arial, sans-serif'
+        )
+
+        # =========================
+        # 3. Figure & traces（原逻辑）
+        # =========================
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Scatter(
+                x=df["buy_date"],
+                y=df["total_cnt"],
+                mode="lines+markers",
+                name="Total",
+                line=dict(color=cfg["long"], width=3 * scale),
+                yaxis="y",
+            )
+        )
+
+        fig.add_trace(
+            go.Bar(
+                x=df["buy_date"],
+                y=df["buy_cnt"],
+                name="Long",
+                marker_color=cfg["long"],
+                marker_line_color=cfg["long"],
+                yaxis="y",
+            )
+        )
+
+        fig.add_trace(
+            go.Bar(
+                x=df["buy_date"],
+                y=df["sell_cnt"],
+                name="Short",
+                marker_color=cfg["short"],
+                marker_line_color=cfg["short"],
+                yaxis="y",
+            )
+        )
+
+        # =========================
+        # 4. Layout（light / dark + scale）
+        # =========================
+        fig.update_layout(
+            title=dict(
+                text="Last 180 days trade info",
+                y=0.9,
+                x=0.5,
+                font=dict(
+                    size=title_font_size,
+                    color=text_color,
+                    family=font_family,
+                ),
+            ),
+            xaxis=dict(
+                mirror=True,
+                ticks="outside",
+                tickfont=dict(
+                    size=font_size,
+                    color=text_color,
+                    family=font_family,
+                ),
+                showline=False,
+                gridcolor=grid_color,
+                domain=[0, 1],
+                automargin=True,
+            ),
+            yaxis=dict(
+                side="left",
+                mirror=True,
+                ticks="outside",
+                tickfont=dict(
+                    size=font_size,
+                    color=text_color,
+                    family=font_family,
+                ),
+                showline=False,
+                gridcolor=grid_color,
+                ticklabelposition="outside",
+                tickangle=0,
+            ),
+            legend=dict(
+                orientation="v",
+                x=0.02,
+                y=1,
+                xanchor="left",
+                yanchor="top",
+                font=dict(
+                    size=font_size,
+                    color=text_color,
+                    family=font_family,
+                ),
+                bgcolor=cfg["legend_bg"],
+                borderwidth=0,
+                tracegroupgap=0,
+            ),
+            barmode="stack",
+            bargap=0.2,
+            bargroupgap=0.2,
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            margin=dict(t=0, b=0, l=0, r=0),
+            autosize=True,
+        )
+
+        # =========================
+        # 5. x-axis range（原逻辑）
+        # =========================
+        xmin = pd.to_datetime(df["buy_date"].min())
+        xmax = pd.to_datetime(df["buy_date"].max())
+
+        fig.update_xaxes(
+            range=[
+                xmin - timedelta(days=0.5),
+                xmax + timedelta(days=0.5),
+            ]
+        )
+
+        return fig
+
+    @staticmethod
+    def industry_pnl_trend(
+        df,
+        theme="light",
+        client_width=1440,
+    ):
+
+        # =========================
+        # 1. theme 配置
+        # =========================
+        theme_config = {
+            "light": {
+                "text": "#000000",
+                "grid": "rgba(0, 0, 0, 0.2)",
+                "axis_line": "rgba(0, 0, 0, 0.4)",
+                "legend_bg": "rgba(246, 248, 249, 0.8)",
+                "colors": [
+                    "#0c6552",
+                    "#0d876d",
+                    "#00a380",
+                    "#ffa700",
+                    "#d50b3e",
+                ],
+            },
+            "dark": {
+                "text": "#ffffff",
+                "grid": "rgba(255, 255, 255, 0.25)",
+                "axis_line": "rgba(255, 255, 255, 0.4)",
+                "legend_bg": "rgba(20, 20, 20, 0.6)",
+                "colors": [
+                    "#0d7b67",
+                    "#0e987f",
+                    "#01b08f",
+                    "#ffa700",
+                    "#e90c4a",
+                ],
+            },
+        }
+
+        cfg = theme_config.get(theme, theme_config["light"])
+        text_color = cfg["text"]
+
+        # =========================
+        # 2. font & scale
+        # =========================
+        fig_width = 1440
+        fig_height = 900
+
+        scale = client_width / fig_width
+        scale = max(0.9, min(scale, 1))
+
+        font_size = int(12 * scale)
+        title_font_size = int(14 * scale)
+
+        font_family = (
+            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
+            '"Helvetica Neue", Arial, sans-serif'
+        )
+
+        # =========================
+        # 3. chart
+        # =========================
+        fig = px.line(
+            df,
+            x="buy_date",
+            y="pnl",
+            color="industry",
+            line_group="industry",
+            color_discrete_sequence=cfg["colors"],
+        )
+
+        fig.update_traces(line=dict(width=3 * scale))
+
+        # =========================
+        # 4. X Axis（完整颜色定义）
+        # =========================
+        fig.update_xaxes(
+            mirror=True,
+            ticks="inside",
+            ticklabelposition="inside",
+            tickfont=dict(
+                size=font_size,
+                color=text_color,
+                family=font_family,
+            ),
+            title=dict(
+                text=None,
+                font=dict(
+                    size=title_font_size,
+                    color=text_color,
+                    family=font_family,
+                ),
+            ),
+            showline=False,
+            linecolor=cfg["axis_line"],
+            zeroline=False,
+            gridcolor=cfg["grid"],
+            domain=[0, 1],
+            automargin=True,
+        )
+
+        # =========================
+        # 5. Y Axis（完整颜色定义）
+        # =========================
+        fig.update_yaxes(
+            mirror=True,
+            ticks="outside",
+            tickfont=dict(
+                size=font_size,
+                color=text_color,
+                family=font_family,
+            ),
+            title=dict(
+                text=None,
+                font=dict(
+                    size=title_font_size,
+                    color=text_color,
+                    family=font_family,
+                ),
+            ),
+            showline=False,
+            linecolor=cfg["axis_line"],
+            zeroline=False,
+            gridcolor=cfg["grid"],
+            ticklabelposition="outside",
+            tickangle=0,
+            autorange=True,
+        )
+
+        # =========================
+        # 6. layout
+        # =========================
+        fig.update_layout(
+            title=dict(
+                text="Last 180 days top5 pnl",
+                x=0.5,
+                y=0.9,
+                font=dict(
+                    size=title_font_size,
+                    color=text_color,
+                    family=font_family,
+                ),
+            ),
+            legend_title_text=None,
+            legend=dict(
+                orientation="v",
+                x=0,
+                xanchor="left",
+                y=1,
+                yanchor="top",
+                font=dict(
+                    size=font_size,
+                    color=text_color,
+                    family=font_family,
+                ),
+                bgcolor=cfg["legend_bg"],
+                borderwidth=0,
+                tracegroupgap=0,
+            ),
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            margin=dict(t=0, b=0, l=0, r=0),
+            autosize=True,
+        )
+
+        return fig
+
+    @staticmethod
+    def industry_position_treemap(
+        df,
+        theme="light",
+        client_width=1440,
+    ):
+        # =========================
+        # 1. theme 配置
+        # =========================
+        theme_config = {
+            "light": {
+                "text": "#000000",
+                "border": "rgba(200, 200, 200, 0.8)",
+                "legend_bg": "rgba(246, 248, 249, 0.8)",
+            },
+            "dark": {
+                "text": "#ffffff",
+                "border": "rgba(255, 255, 255, 0.4)",
+                "legend_bg": "rgba(20, 20, 20, 0.6)",
+            },
+        }
+
+        cfg = theme_config.get(theme, theme_config["light"])
+        text_color = cfg["text"]
+
+        # =========================
+        # 2. font & scale
+        # =========================
+        fig_width = 1440
+        fig_height = 900
+
+        scale = client_width / fig_width
+        scale = max(0.9, min(scale, 1))
+
+        font_size = int(12 * scale)
+
+        font_family = (
+            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
+            '"Helvetica Neue", Arial, sans-serif'
+        )
+
+        # =========================
+        # 3. 数据准备（不改你的逻辑）
+        # =========================
+        labels_wrapped_industry = df["industry"]
+        values = df["cnt"]
+        hex_colors = ["rgba(0,0,0,0)" for _ in range(20)]
+
+        # =========================
+        # 4. Treemap
+        # =========================
+        fig = go.Figure(
+            go.Treemap(
+                labels=labels_wrapped_industry,
+                parents=[""] * len(df),
+                values=values,
+                texttemplate="%{label}<br>%{percentParent:.0%}",
+                insidetextfont=dict(
+                    size=font_size,
+                    color=text_color,
+                    family=font_family,
+                ),
+                textposition="middle center",
+                marker=dict(
+                    colors=hex_colors,
+                    line=dict(
+                        color=cfg["border"],
+                        width=1,
+                    ),
+                    showscale=False,
+                    pad=dict(t=0, b=0, l=0, r=0),
+                ),
+                opacity=1,
+                tiling=dict(
+                    squarifyratio=1.2,
+                    pad=10,
+                ),
+            )
+        )
+
+        # =========================
+        # 5. layout（theme 对齐）
+        # =========================
+        fig.update_layout(
+            title=dict(text=None),
+            showlegend=False,
+            margin=dict(t=0, b=20, l=0, r=0),
+            autosize=True,
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            treemapcolorway=hex_colors,
+        )
+
+        return fig
+
+    @staticmethod
+    def industry_profit_treemap(
+        df,
+        theme="light",
+        client_width=1440,
+    ):
+
+        # =========================
+        # 1. theme 配置
+        # =========================
+        theme_config = {
+            "light": {
+                "text": "#000000",
+                "outside_text": "#777777",
+                "border": "rgba(200, 200, 200, 0.8)",
+            },
+            "dark": {
+                "text": "#ffffff",
+                "outside_text": "#aaaaaa",
+                "border": "rgba(255, 255, 255, 0.4)",
+            },
+        }
+
+        cfg = theme_config.get(theme, theme_config["light"])
+        text_color = cfg["text"]
+
+        # =========================
+        # 2. font & scale
+        # =========================
+        fig_width = 1440
+        fig_height = 900
+
+        scale = client_width / fig_width
+        scale = max(0.9, min(scale, 1))
+
+        font_size = int(12 * scale)
+
+        font_family = (
+            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
+            '"Helvetica Neue", Arial, sans-serif'
+        )
+
+        # =========================
+        # 3. 数据准备（字段最小替换）
+        # =========================
+        labels = df["industry"]
+        values = df["pl"]
+        hex_colors = ["rgba(0,0,0,0)" for _ in range(20)]
+
+        # =========================
+        # 4. Treemap
+        # =========================
+        fig = go.Figure(
+            go.Treemap(
+                labels=labels,
+                parents=[""] * len(df),
+                values=values,
+                texttemplate="%{label}<br>%{percentParent:.0%}",
+                insidetextfont=dict(
+                    size=font_size,
+                    color=text_color,
+                    family=font_family,
+                ),
+                outsidetextfont=dict(
+                    color=cfg["outside_text"],
+                    family=font_family,
+                ),
+                textposition="middle center",
+                marker=dict(
+                    colors=hex_colors,
+                    line=dict(
+                        color=cfg["border"],
+                        width=1,
+                    ),
+                    showscale=False,
+                    pad=dict(t=0, b=0, l=0, r=0),
+                ),
+                opacity=1,
+                tiling=dict(
+                    squarifyratio=1.2,
+                    pad=10,
+                ),
+            )
+        )
+
+        # =========================
+        # 5. layout
+        # =========================
+        fig.update_layout(
+            title=dict(text=None),
+            showlegend=False,
+            margin=dict(t=0, b=20, l=0, r=0),
+            autosize=True,
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            treemapcolorway=hex_colors,
+        )
+
+        return fig

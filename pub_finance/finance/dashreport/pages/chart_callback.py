@@ -73,6 +73,7 @@ class ChartCallback:
                 "figure",
             ),
             Input("current-theme", "data"),  # 主题变化
+            Input("client-width", "data"),
             Input(
                 {
                     "type": "dynamic-chart",
@@ -84,7 +85,7 @@ class ChartCallback:
             ),
             prevent_initial_call=False,
         )
-        def universal_chart_callback(theme, component_id):
+        def universal_chart_callback(theme, client_width, component_id):
             """通用图表回调函数"""
             # 从组件ID获取信息
             page = component_id.get("page", "")
@@ -105,17 +106,56 @@ class ChartCallback:
 
             # 确保theme有值
             theme = theme or "light"
+            client_width = client_width or 1440
 
             try:
                 # 根据图表类型调用对应的方法
                 if chart_type == "heatmap":
-                    return builder.calendar_heatmap(df=data, theme=theme)
+                    return builder.calendar_heatmap(
+                        df=data,
+                        theme=theme,
+                        client_width=client_width,
+                    )
+                elif chart_type == "strategy":
+                    return builder.strategy_chart(
+                        df=data,
+                        theme=theme,
+                        client_width=client_width,
+                    )
+                elif chart_type == "trade":
+                    return builder.trade_info_chart(
+                        df=data,
+                        theme=theme,
+                        client_width=client_width,
+                    )
+                elif chart_type == "pnl_trend":
+                    return builder.industry_pnl_trend(
+                        df=data,
+                        theme=theme,
+                        client_width=client_width,
+                    )
+                elif chart_type == "industry_position":
+                    return builder.industry_position_treemap(
+                        df=data,
+                        theme=theme,
+                        client_width=client_width,
+                    )
+                elif chart_type == "industry_profit":
+                    return builder.industry_profit_treemap(
+                        df=data,
+                        theme=theme,
+                        client_width=client_width,
+                    )
                 else:
                     # 尝试通用方法
                     method_name = f"{chart_type}"
                     if hasattr(builder, method_name):
                         method = getattr(builder, method_name)
-                        return method(df=data, theme=theme)
+                        return method(
+                            df=data,
+                            theme=theme,
+                            client_width=client_width,
+                        )
             except Exception as e:
                 print(f"⚠️ 图表生成错误 {key}: {e}")
                 return dash.no_update

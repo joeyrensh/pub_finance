@@ -82,47 +82,6 @@ def create_layout(app):
     # placeholders for back-compat (not used when CSV present)
     encoded_image_trdraw = f"/assets/images/{prefix}_tr_light.svg"
 
-    # Build figures using ChartBuilder
-    fig_position_weight = ChartBuilder.bar_from_csv(
-        DATA_PATH,
-        [f"{prefix}_pd_top20_industry.csv"],
-        ["IND", "ind", "industry", "Industry", "name", "NAME"],
-        ["weight", "WEIGHT", "value", "VALUE", "TOTAL VALUE", "TOTAL_VALUE"],
-        title="Position Weight",
-    )
-
-    fig_earnings_weight = ChartBuilder.bar_from_csv(
-        DATA_PATH,
-        [f"{prefix}_pd_top20_profit_industry.csv"],
-        ["IND", "ind", "industry", "Industry", "name", "NAME"],
-        ["profit", "PROFIT", "value", "VALUE", "TOTAL PNL", "TOTAL_PNL"],
-        title="Earnings Weight",
-    )
-
-    fig_strategy = ChartBuilder.line_from_csv(
-        DATA_PATH,
-        [f"{prefix}_pd_strategy_tracking_lst180days.csv"],
-        ["date", "DATE", "Date"],
-        ["pnl", "pnl", "value", "VALUE"],
-        title="Strategy Tracking",
-    )
-
-    fig_position_trend = ChartBuilder.line_from_csv(
-        DATA_PATH,
-        [f"{prefix}_pd_trade_info_lst180days.csv"],
-        ["buy_date", "date", "DATE", "Date"],
-        ["total_cnt", "total_cnt", "count", "cnt"],
-        title="Position Trend",
-    )
-
-    fig_earnings_trend = ChartBuilder.line_from_csv(
-        DATA_PATH,
-        [f"{prefix}_pd_top5_industry_profit_trend.csv"],
-        ["buy_date", "date", "DATE", "Date"],
-        ["pnl", "profit", "PROFIT", "value", "VALUE"],
-        title="Earnings Trend",
-    )
-
     df_heatmap = pd.read_csv(DATA_PATH.joinpath(f"{prefix}_pd_calendar_heatmap.csv"))
     app.chart_callback.register_chart(
         chart_type="heatmap",
@@ -130,6 +89,59 @@ def create_layout(app):
         chart_builder=cb,
         df_data=df_heatmap,
         index=1,
+    )
+    df_strategy = pd.read_csv(
+        DATA_PATH.joinpath(f"{prefix}_pd_strategy_tracking_lst180days.csv")
+    )
+    app.chart_callback.register_chart(
+        chart_type="strategy",
+        page_prefix=prefix,
+        chart_builder=cb,
+        df_data=df_strategy,
+        index=2,
+    )
+
+    df_trade_info = pd.read_csv(
+        DATA_PATH.joinpath(f"{prefix}_pd_trade_info_lst180days.csv")
+    )
+    app.chart_callback.register_chart(
+        chart_type="trade",
+        page_prefix=prefix,
+        chart_builder=cb,
+        df_data=df_trade_info,
+        index=5,
+    )
+    df_pnl_trend = pd.read_csv(
+        DATA_PATH.joinpath(f"{prefix}_pd_top5_industry_profit_trend.csv")
+    )
+    app.chart_callback.register_chart(
+        chart_type="pnl_trend",
+        page_prefix=prefix,
+        chart_builder=cb,
+        df_data=df_pnl_trend,
+        index=6,
+    )
+
+    df_industry_position = pd.read_csv(
+        DATA_PATH.joinpath(f"{prefix}_pd_top20_industry.csv")
+    )
+    app.chart_callback.register_chart(
+        chart_type="industry_position",
+        page_prefix=prefix,
+        chart_builder=cb,
+        df_data=df_industry_position,
+        index=3,
+    )
+
+    df_industry_profit = pd.read_csv(
+        DATA_PATH.joinpath(f"{prefix}_pd_top20_profit_industry.csv")
+    )
+    app.chart_callback.register_chart(
+        chart_type="industry_profit",
+        page_prefix=prefix,
+        chart_builder=cb,
+        df_data=df_industry_profit,
+        index=4,
     )
 
     # Load tables and other data for page
@@ -427,7 +439,9 @@ def create_layout(app):
                                                     "heatmap", prefix, 1
                                                 ),
                                                 figure=cb.calendar_heatmap(
-                                                    df=df_heatmap, theme="light"
+                                                    df=df_heatmap,
+                                                    theme="light",
+                                                    client_width=1440,
                                                 ),
                                                 config={
                                                     "displayModeBar": False,
@@ -479,9 +493,22 @@ def create_layout(app):
                                         className="chart-container",
                                         children=[
                                             dcc.Graph(
-                                                id=f"{prefix}-strategy-tracking-graph",
-                                                figure=fig_strategy,
-                                                config={"displayModeBar": False},
+                                                id=app.chart_callback.get_chart_id(
+                                                    "strategy", prefix, 2
+                                                ),
+                                                figure=cb.strategy_chart(
+                                                    df=df_strategy,
+                                                    theme="light",
+                                                    client_width=1440,
+                                                ),
+                                                config={
+                                                    "displayModeBar": False,
+                                                    "doubleClick": False,
+                                                    "margin": "0",
+                                                    "padding": "0",
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                },
                                             )
                                         ],
                                         id={
@@ -489,7 +516,11 @@ def create_layout(app):
                                             "page": f"{prefix}",
                                             "index": 2,
                                         },
-                                        style={"display": "block"},
+                                        style={
+                                            "display": "block",
+                                            "aspectRatio": 1.6,
+                                            "width": "100%",
+                                        },
                                     ),
                                 ],
                                 className="six columns",
@@ -526,9 +557,22 @@ def create_layout(app):
                                         className="chart-container",
                                         children=[
                                             dcc.Graph(
-                                                id=f"{prefix}-position-trend-graph",
-                                                figure=fig_position_trend,
-                                                config={"displayModeBar": False},
+                                                id=app.chart_callback.get_chart_id(
+                                                    "trade", prefix, 5
+                                                ),
+                                                figure=cb.trade_info_chart(
+                                                    df=df_trade_info,
+                                                    theme="light",
+                                                    client_width=1440,
+                                                ),
+                                                config={
+                                                    "displayModeBar": False,
+                                                    "doubleClick": False,
+                                                    "margin": "0",
+                                                    "padding": "0",
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                },
                                             )
                                         ],
                                         id={
@@ -536,7 +580,11 @@ def create_layout(app):
                                             "page": f"{prefix}",
                                             "index": 5,
                                         },
-                                        style={"display": "block"},
+                                        style={
+                                            "display": "block",
+                                            "aspectRatio": 1.6,
+                                            "width": "100%",
+                                        },
                                     ),
                                 ],
                             ),
@@ -567,9 +615,22 @@ def create_layout(app):
                                         className="chart-container",
                                         children=[
                                             dcc.Graph(
-                                                id=f"{prefix}-earnings-trend-graph",
-                                                figure=fig_earnings_trend,
-                                                config={"displayModeBar": False},
+                                                id=app.chart_callback.get_chart_id(
+                                                    "pnl_trend", prefix, 6
+                                                ),
+                                                figure=cb.industry_pnl_trend(
+                                                    df=df_pnl_trend,
+                                                    theme="light",
+                                                    client_width=1440,
+                                                ),
+                                                config={
+                                                    "displayModeBar": False,
+                                                    "doubleClick": False,
+                                                    "margin": "0",
+                                                    "padding": "0",
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                },
                                             )
                                         ],
                                         id={
@@ -577,7 +638,11 @@ def create_layout(app):
                                             "page": f"{prefix}",
                                             "index": 6,
                                         },
-                                        style={"display": "block"},
+                                        style={
+                                            "display": "block",
+                                            "aspectRatio": 1.6,
+                                            "width": "100%",
+                                        },
                                     ),
                                 ],
                             ),
@@ -614,9 +679,22 @@ def create_layout(app):
                                         className="chart-container",
                                         children=[
                                             dcc.Graph(
-                                                id=f"{prefix}-position-weight-graph",
-                                                figure=fig_position_weight,
-                                                config={"displayModeBar": False},
+                                                id=app.chart_callback.get_chart_id(
+                                                    "industry_position", prefix, 3
+                                                ),
+                                                figure=cb.industry_position_treemap(
+                                                    df=df_industry_position,
+                                                    theme="light",
+                                                    client_width=1440,
+                                                ),
+                                                config={
+                                                    "displayModeBar": False,
+                                                    "doubleClick": False,
+                                                    "margin": "0",
+                                                    "padding": "0",
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                },
                                             )
                                         ],
                                         id={
@@ -624,7 +702,11 @@ def create_layout(app):
                                             "page": f"{prefix}",
                                             "index": 3,
                                         },
-                                        style={"display": "block"},
+                                        style={
+                                            "display": "block",
+                                            "aspectRatio": 1.6,
+                                            "width": "100%",
+                                        },
                                     ),
                                 ],
                             ),
@@ -655,9 +737,22 @@ def create_layout(app):
                                         className="chart-container",
                                         children=[
                                             dcc.Graph(
-                                                id=f"{prefix}-earnings-weight-graph",
-                                                figure=fig_earnings_weight,
-                                                config={"displayModeBar": False},
+                                                id=app.chart_callback.get_chart_id(
+                                                    "industry_profit", prefix, 4
+                                                ),
+                                                figure=cb.industry_profit_treemap(
+                                                    df=df_industry_profit,
+                                                    theme="light",
+                                                    client_width=1440,
+                                                ),
+                                                config={
+                                                    "displayModeBar": False,
+                                                    "doubleClick": False,
+                                                    "margin": "0",
+                                                    "padding": "0",
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                },
                                             )
                                         ],
                                         id={
@@ -665,7 +760,11 @@ def create_layout(app):
                                             "page": f"{prefix}",
                                             "index": 4,
                                         },
-                                        style={"display": "block"},
+                                        style={
+                                            "display": "block",
+                                            "aspectRatio": 1.6,
+                                            "width": "100%",
+                                        },
                                     ),
                                 ],
                             ),

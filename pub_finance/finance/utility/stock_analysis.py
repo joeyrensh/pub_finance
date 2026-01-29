@@ -1732,16 +1732,6 @@ class StockProposal:
                 else:
                     return light_text_color
 
-        # light mode
-        # 生成动态文本颜色列表（适用于所有区块）
-        # hex_colors = sample_colorscale(
-        #     # pie_sequential_color,  # 原始色阶
-        #     customized_sequential_color,
-        #     samplepoints=np.linspace(0, 1, 20),  # 生成 20 个等间距点
-        #     colortype="rgb",  # 输出为十六进制
-        # )
-        # 生成20个颜色，分段填充
-        # hex_colors = [customized_sequential_color[i // 5] for i in range(20)]
         hex_colors = ["rgba(0,0,0,0)" for _ in range(20)]
         alpha = 1
         # 将 RGB 转换为 RGBA，添加透明度
