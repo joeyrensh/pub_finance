@@ -579,12 +579,13 @@ class ChartBuilder:
                     color=text_color,
                 ),
                 showline=False,
+                zeroline=False,
                 gridcolor=grid_color,
-                # tickmode="linear",
-                # dtick="M1",
-                # tickformat="%Y-%m",
-                domain=[0, 1],
-                automargin=True,
+                tickmode="linear",
+                dtick="M1",
+                tickformat="%Y-%m",
+                # domain=[0, 1],
+                # automargin=True,
             ),
             yaxis=dict(
                 side="left",
@@ -596,6 +597,7 @@ class ChartBuilder:
                     color=text_color,
                 ),
                 showline=False,
+                zeroline=False,
                 gridcolor=grid_color,
                 dtick=0.1,
                 fixedrange=True,
@@ -611,6 +613,7 @@ class ChartBuilder:
                     color=text_color,
                 ),
                 showline=False,
+                zeroline=False,
                 range=[0, max_range],
                 ticklabelstandoff=offset,
                 tickformat="~s",
@@ -750,9 +753,11 @@ class ChartBuilder:
                     family=font_family,
                 ),
                 showline=False,
+                zeroline=False,
                 gridcolor=grid_color,
-                domain=[0, 1],
-                automargin=True,
+                tickmode="linear",
+                dtick="M1",
+                tickformat="%Y-%m",
             ),
             yaxis=dict(
                 side="left",
@@ -767,6 +772,7 @@ class ChartBuilder:
                 gridcolor=grid_color,
                 ticklabelposition="outside",
                 tickangle=0,
+                zeroline=False,
             ),
             legend=dict(
                 orientation="v",
@@ -905,8 +911,9 @@ class ChartBuilder:
             linecolor=cfg["axis_line"],
             zeroline=False,
             gridcolor=cfg["grid"],
-            domain=[0, 1],
-            automargin=True,
+            tickmode="linear",
+            dtick="M1",
+            tickformat="%Y-%m",
         )
 
         # =========================
@@ -1173,7 +1180,9 @@ class ChartBuilder:
 
     @staticmethod
     def annual_return(pnl: pd.Series, theme="light", client_width=1440):
-
+        """
+        生成年度收益图表
+        """
         # =========================
         # 0. 基本校验
         # =========================
@@ -1186,7 +1195,7 @@ class ChartBuilder:
         pnl = pnl.sort_index().dropna()
 
         # =========================
-        # 1. theme 配置 (增强hover配置)
+        # 1. theme 配置
         # =========================
         theme_config = {
             "light": {
@@ -1198,11 +1207,11 @@ class ChartBuilder:
                 "drawdown_fill": "rgba(13,135,109,0.3)",
                 "table_header": "rgba(245,245,245,0)",
                 "table_cell": "rgba(0,0,0,0)",
-                "hover_bg": "#ffffff",  # 新增: hover背景色
-                "hover_text": "#000000",  # 新增: hover文字色
-                "hover_border": "#cccccc",  # 新增: hover边框颜色
-                "positive_color": "#e01c3a",  # 新增: 正数红色
-                "negative_color": "#0d876d",  # 新增: 负数绿色
+                "hover_bg": "#ffffff",
+                "hover_text": "#000000",
+                "hover_border": "#cccccc",
+                "positive_color": "#e01c3a",
+                "negative_color": "#0d876d",
             },
             "dark": {
                 "text": "#ffffff",
@@ -1213,11 +1222,11 @@ class ChartBuilder:
                 "drawdown_fill": "rgba(107,207,181,0.3)",
                 "table_header": "rgba(64,64,64,0)",
                 "table_cell": "rgba(0,0,0,0)",
-                "hover_bg": "#1a1a1a",  # 新增: 深色背景
-                "hover_text": "#ffffff",  # 新增: 白色文字
-                "hover_border": "#666666",  # 新增: hover边框颜色
-                "positive_color": "#ff6b6b",  # 新增: 正数红色
-                "negative_color": "#6bcfb5",  # 新增: 负数绿色
+                "hover_bg": "#1a1a1a",
+                "hover_text": "#ffffff",
+                "hover_border": "#666666",
+                "positive_color": "#ff6b6b",
+                "negative_color": "#6bcfb5",
             },
         }
 
@@ -1225,14 +1234,13 @@ class ChartBuilder:
         text_color = cfg["text"]
 
         # =========================
-        # 2. 尺寸 & 字体自适应 (简化)
+        # 2. 尺寸 & 字体自适应
         # =========================
-        # 简化：基于client_width直接计算缩放
-        scale = client_width / 1440  # 基准1440px
-        scale = max(0.6, min(scale, 1.0))  # 限制在0.6-1.0之间
+        scale = client_width / 1440
+        scale = max(0.6, min(scale, 1.0))
 
-        base_font = int(16 * scale)  # 基础字体14px
-        table_font = int(16 * scale)  # 表格字体13px
+        base_font = int(16 * scale)
+        table_font = int(16 * scale)
 
         font_family = (
             '-apple-system, BlinkMacSystemFont, "PingFang SC", '
@@ -1247,15 +1255,14 @@ class ChartBuilder:
         drawdown = (cumulative - peak) / peak
 
         # =========================
-        # 4. 年度统计 (简化)
+        # 4. 年度统计
         # =========================
-        # 直接获取最近2年的数据
-        years = sorted(pnl.index.year.unique())[-2:]  # 最近2年
+        years = sorted(pnl.index.year.unique())[-2:]
         stats = []
 
         for year in years:
             year_data = pnl[pnl.index.year == year]
-            if len(year_data) >= 5:  # 至少有5个数据点
+            if len(year_data) >= 5:
                 stats.append(
                     {
                         "YEAR": str(year),
@@ -1277,7 +1284,7 @@ class ChartBuilder:
             perf_fmt[col] = perf_fmt[col].apply(lambda x: f"{x*100:.2f}%")
 
         # =========================
-        # 5. 表格数据 (简化)
+        # 5. 表格数据
         # =========================
         table_labels = ["Ann.R", "Cum.R", "Mx.DD", "D.Rsk"]
 
@@ -1290,15 +1297,14 @@ class ChartBuilder:
         table_df = pd.DataFrame(table_data)
 
         # =========================
-        # 6. 表格颜色 (简化逻辑)
+        # 6. 表格颜色
         # =========================
-        last_column = table_df.columns[-1]  # 最右列
+        last_column = table_df.columns[-1]
 
         font_colors = []
         for col in table_df.columns:
             column_colors = []
             for i, val in enumerate(table_df[col]):
-                # 只处理最右列的数据行
                 if col == last_column and i >= 0 and val and val != "":
                     try:
                         num_val = float(val.replace("%", ""))
@@ -1317,44 +1323,34 @@ class ChartBuilder:
         cell_colors = [cfg["table_cell"]] * len(table_df.columns)
 
         # =========================
-        # 7. 创建图表 (固定比例，简单明了)
+        # 7. 创建图表 (使用单独的Figure)
         # =========================
-        # 固定比例：表格40%，图表60%
         TABLE_WIDTH_RATIO = 0.4
         CHART_WIDTH_RATIO = 0.6
-        HORIZONTAL_SPACING = 0.005  # 微小间距
+        HORIZONTAL_SPACING = 0.005
 
-        # 图表区域坐标
-        chart_domain_left = TABLE_WIDTH_RATIO + HORIZONTAL_SPACING
-        chart_domain_right = 1.0
-
-        fig = make_subplots(
-            rows=1,
-            cols=2,
-            column_widths=[TABLE_WIDTH_RATIO, CHART_WIDTH_RATIO],
-            specs=[[{"type": "table"}, {"type": "xy", "secondary_y": True}]],
-            horizontal_spacing=0,
-            vertical_spacing=0,
-        )
+        fig = go.Figure()
 
         # =========================
-        # 8. 左侧表格 (简化)
+        # 8. 左侧表格
         # =========================
         header_height = int(table_font * 5.2) * scale
         cell_height = int(table_font * 4.8) * scale
 
+        TABLE_Y_BOTTOM = 0.15
+        TABLE_Y_TOP = 0.85
+
         fig.add_trace(
             go.Table(
-                domain=dict(x=[0.0, TABLE_WIDTH_RATIO], y=[0.0, 1.0]),
+                domain=dict(
+                    x=[0.0, TABLE_WIDTH_RATIO],
+                    y=[TABLE_Y_BOTTOM, TABLE_Y_TOP],
+                ),
                 header=dict(
                     values=list(table_df.columns),
                     fill_color=cfg["table_header"],
                     line=dict(color=cfg["border"], width=1),
-                    font=dict(
-                        size=table_font,
-                        color=text_color,
-                        family=font_family,
-                    ),
+                    font=dict(size=table_font, color=text_color, family=font_family),
                     align=["left"] * len(table_df.columns),
                     height=header_height,
                 ),
@@ -1362,22 +1358,27 @@ class ChartBuilder:
                     values=[table_df[c] for c in table_df.columns],
                     fill_color=cell_colors,
                     line=dict(color=cfg["border"], width=1),
-                    font=dict(
-                        size=table_font,
-                        color=font_colors,
-                        family=font_family,
-                    ),
+                    font=dict(size=table_font, color=font_colors, family=font_family),
                     align=["left"] * len(table_df.columns),
                     height=cell_height,
                 ),
                 columnwidth=[1.0] + [1.0] * (len(table_df.columns) - 1),
-            ),
-            row=1,
-            col=1,
+            )
         )
 
         # =========================
-        # 9. 右侧图表 (简化线条和标记)
+        # 9. 计算Y轴范围
+        # =========================
+        cum_min = cumulative.min()
+        cum_max = cumulative.max()
+        cum_range = [cum_min * 0.95, cum_max * 1.05]
+
+        dd_min = drawdown.min()
+        dd_max = 0
+        dd_range = [dd_min * 1.05, 0.005]
+
+        # =========================
+        # 10. 添加累计收益曲线
         # =========================
         fig.add_trace(
             go.Scatter(
@@ -1391,12 +1392,13 @@ class ChartBuilder:
                     "<b>Cumulative Return</b>: %{y:.4f}<br>"
                     "<extra></extra>"
                 ),
-            ),
-            row=1,
-            col=2,
-            secondary_y=False,
+                yaxis="y",
+            )
         )
 
+        # =========================
+        # 11. 添加回撤曲线
+        # =========================
         fig.add_trace(
             go.Scatter(
                 x=drawdown.index,
@@ -1411,18 +1413,14 @@ class ChartBuilder:
                     "<b>Drawdown</b>: %{y:.2%}<br>"
                     "<extra></extra>"
                 ),
-            ),
-            row=1,
-            col=2,
-            secondary_y=True,
+                yaxis="y2",
+            )
         )
 
         # =========================
-        # 10. 关键点标注 (包括30D和120D最大回撤)
+        # 12. 关键点标注函数
         # =========================
-
         def get_label_position(index, data_series, is_near_right_threshold=0.2):
-            """简单的标签位置判断"""
             if (
                 index
                 > data_series.index[-int(len(data_series) * is_near_right_threshold)]
@@ -1431,19 +1429,20 @@ class ChartBuilder:
             return "top right"
 
         def get_compact_label(text, value, client_width):
-            """根据屏幕宽度获取紧凑标签"""
-            if client_width >= 550:  # 中等以上屏幕
+            if client_width >= 550:
                 return f"{text}: {value:.2%}"
             else:
-                # 小屏幕使用简短标签
                 if "30D" in text:
                     return f"30D: {value:.1%}"
                 elif "120D" in text:
                     return f"120D: {value:.1%}"
                 else:
-                    return f"{text[:3]}: {value:.1%}"  # 取前3个字符
+                    return f"{text[:3]}: {value:.1%}"
 
-        # 1. 最大累计收益
+        # =========================
+        # 13. 关键点标注
+        # =========================
+        # 最大累计收益
         if len(cumulative) > 0:
             cum_max_idx = cumulative.idxmax()
             cum_max_val = cumulative.max()
@@ -1462,18 +1461,15 @@ class ChartBuilder:
                         f"<b>Max Cumulative Return</b>: {cum_max_val:.4f}<br>"
                         f"<extra></extra>"
                     ),
-                ),
-                row=1,
-                col=2,
-                secondary_y=False,
+                    yaxis="y",
+                )
             )
 
-        # 2. 最大回撤相关标注
+        # 最大回撤
         if len(drawdown) > 0:
             max_dd_idx = drawdown.idxmin()
             max_dd_val = drawdown.min()
 
-            # 最大回撤
             fig.add_trace(
                 go.Scatter(
                     x=[max_dd_idx],
@@ -1487,27 +1483,17 @@ class ChartBuilder:
                     hovertemplate=(
                         f"<b>Max Drawdown</b>: {max_dd_val:.2%}<br>" f"<extra></extra>"
                     ),
-                ),
-                row=1,
-                col=2,
-                secondary_y=True,
+                    yaxis="y2",
+                )
             )
 
-            # 3. 30D最大回撤
+            # 30D最大回撤
             if len(drawdown) >= 30:
                 w_30 = drawdown.iloc[-30:]
                 idx_30 = w_30.idxmin()
                 val_30 = w_30.loc[idx_30]
 
-                # 避免与最大回撤点重合
                 if idx_30 != max_dd_idx:
-                    # 检查是否与最大回撤点太近
-                    days_diff = (
-                        abs((idx_30 - max_dd_idx).days)
-                        if hasattr(idx_30 - max_dd_idx, "days")
-                        else 0
-                    )
-
                     fig.add_trace(
                         go.Scatter(
                             x=[idx_30],
@@ -1517,30 +1503,24 @@ class ChartBuilder:
                                 symbol="diamond", size=6 * scale, color=cfg["drawdown"]
                             ),
                             text=[get_compact_label("30D DD", val_30, client_width)],
-                            textposition=get_label_position(
-                                idx_30, drawdown, 0.15
-                            ),  # 更敏感的判断
+                            textposition=get_label_position(idx_30, drawdown, 0.15),
                             textfont=dict(size=base_font, color=text_color),
                             showlegend=False,
                             hovertemplate=(
                                 f"<b>30D Max Drawdown</b>: {val_30:.2%}<br>"
                                 f"<extra></extra>"
                             ),
-                        ),
-                        row=1,
-                        col=2,
-                        secondary_y=True,
+                            yaxis="y2",
+                        )
                     )
 
-            # 4. 120D最大回撤
+            # 120D最大回撤
             if len(drawdown) >= 120:
                 w_120 = drawdown.iloc[-120:]
                 idx_120 = w_120.idxmin()
                 val_120 = w_120.loc[idx_120]
 
-                # 避免与其他点重合
                 if idx_120 != max_dd_idx and (len(drawdown) < 30 or idx_120 != idx_30):
-
                     fig.add_trace(
                         go.Scatter(
                             x=[idx_120],
@@ -1550,40 +1530,36 @@ class ChartBuilder:
                                 symbol="diamond", size=6 * scale, color=cfg["drawdown"]
                             ),
                             text=[get_compact_label("120D DD", val_120, client_width)],
-                            textposition=get_label_position(
-                                idx_120, drawdown, 0.1
-                            ),  # 更敏感的判断
+                            textposition=get_label_position(idx_120, drawdown, 0.1),
                             textfont=dict(size=base_font, color=text_color),
                             showlegend=False,
                             hovertemplate=(
                                 f"<b>120D Max Drawdown</b>: {val_120:.2%}<br>"
                                 f"<extra></extra>"
                             ),
-                        ),
-                        row=1,
-                        col=2,
-                        secondary_y=True,
+                            yaxis="y2",
+                        )
                     )
 
         # =========================
-        # 11. 布局设置 (简化，确保占满宽度)
+        # 14. 布局设置
         # =========================
-        # 计算图例在图表区域内的位置
+        chart_domain_left = TABLE_WIDTH_RATIO + HORIZONTAL_SPACING
+        chart_domain_right = 1.0
+
         chart_width = chart_domain_right - chart_domain_left
-        legend_absolute_x = chart_domain_left + (
-            0.04 * chart_width
-        )  # 图表区域内左侧4%位置
+        legend_absolute_x = chart_domain_left + (0.04 * chart_width)
 
         fig.update_layout(
             autosize=True,
             dragmode=False,
             width=None,
             height=None,
-            margin=dict(l=0, r=0, t=0, b=0),  # 无外边距
+            margin=dict(l=0, r=0, t=0, b=0),
             font=dict(size=base_font, color=text_color, family=font_family),
             legend=dict(
-                x=legend_absolute_x,  # 在图表区域内
-                y=0.98,  # 顶部
+                x=legend_absolute_x,
+                y=0.98,
                 xanchor="left",
                 yanchor="top",
                 bgcolor="rgba(0,0,0,0)",
@@ -1606,76 +1582,72 @@ class ChartBuilder:
             bargroupgap=0,
             boxgap=0,
             boxgroupgap=0,
-        )
-
-        # X轴设置
-        x_start = cumulative.index.min()
-        x_end = cumulative.index.max()
-
-        fig.update_xaxes(
-            gridcolor=cfg["grid"],
-            tickfont=dict(size=base_font, color=text_color, family=font_family),
-            row=1,
-            col=2,
-            domain=[TABLE_WIDTH_RATIO + HORIZONTAL_SPACING - 0.05, 1],
-            rangeslider=dict(visible=False),
-            # 消除所有内部padding
-            showline=False,
-            linewidth=1,
-            linecolor=cfg["border"],
-            mirror=True,
-            anchor="free",
-            tickmode="linear",
-            dtick="M6",
-            tickformat="%Y-%m",
-        )
-        # 表格X轴也需要设置domain
-        fig.update_xaxes(
-            row=1,
-            col=1,
-            domain=[0, TABLE_WIDTH_RATIO],  # 明确设置表格的domain
-        )
-
-        # 左Y轴 (累计收益)
-        fig.update_yaxes(
-            title_text="",
-            gridcolor=cfg["grid"],
-            tickfont=dict(size=base_font, color=text_color, family=font_family),
-            row=1,
-            col=2,
-            secondary_y=False,
-            automargin=False,  # 关闭自动边距
-            mirror=False,
-            ticklabelposition="inside",
-            ticklabelshift=-8,
-            showline=False,
-            zeroline=False,
-            # 设置锚点
-            anchor="x",
-        )
-
-        # 右Y轴 (回撤)
-        fig.update_yaxes(
-            title_text="",  # 保持无标题，仅显示刻度文本
-            gridcolor="rgba(0,0,0,0)",
-            tickformat=".0%",  # 百分比刻度格式不变
-            tickfont=dict(size=base_font, color=text_color, family=font_family),
-            row=1,
-            col=2,
-            secondary_y=True,
-            automargin=False,  # 关闭自动边距，配合贴边
-            showticklabels=True,  # 强制显示刻度文本（兜底）
-            range=[drawdown.min(), 0],  # 回撤轴范围（最低回撤到0）
-            side="right",  # Y轴放在右侧
-            overlaying="y",
-            # 关键修改1：调整刻度标签位置，确保右侧能显示（内部右侧，贴合轴线）
-            ticklabelposition="inside",
-            ticklabelshift=-14,
-            # 关键修改2：Y轴位置拉满到最右侧，无偏移
-            position=1,
-            showline=False,
-            # 设置锚点
-            anchor="x",
+            # Y轴设置
+            yaxis=dict(
+                title="",
+                side="left",
+                position=chart_domain_left,
+                showgrid=True,
+                gridcolor=cfg["grid"],
+                tickfont=dict(size=base_font, color=text_color, family=font_family),
+                tickformat=".2f",
+                range=cum_range,
+                showticklabels=True,
+                automargin=False,
+                ticklabelposition="inside",
+                ticklabelshift=5,
+                showline=False,
+                linewidth=1,
+                linecolor=cfg["border"],
+                zeroline=False,
+                # ticks="inside",
+                # ticklen=6,
+                # tickwidth=1,
+                # tickcolor=cfg["border"],
+                # nticks=5,
+                anchor="x",
+            ),
+            yaxis2=dict(
+                title="",
+                side="right",
+                overlaying="y",
+                position=1.0,
+                showgrid=False,
+                tickfont=dict(size=base_font, color=text_color, family=font_family),
+                tickformat=".0%",
+                range=dd_range,
+                showticklabels=True,
+                automargin=False,
+                ticklabelposition="inside",
+                ticklabelshift=-12,
+                showline=True,
+                linewidth=1,
+                linecolor=cfg["border"],
+                zeroline=False,
+                # ticks="inside",
+                # ticklen=6,
+                # tickwidth=1,
+                # tickcolor=cfg["border"],
+                # nticks=5,
+                anchor="x",
+            ),
+            # X轴设置
+            xaxis=dict(
+                gridcolor=cfg["grid"],
+                tickfont=dict(size=base_font, color=text_color, family=font_family),
+                domain=[chart_domain_left, chart_domain_right],
+                rangeslider=dict(visible=False),
+                showline=False,
+                linewidth=1,
+                linecolor=cfg["border"],
+                mirror=True,
+                anchor="y",
+                tickmode="linear",
+                dtick="M6",
+                tickformat="%Y-%m",
+                showgrid=True,
+                position=0.0,
+            ),
         )
 
         return fig
