@@ -148,6 +148,42 @@ class ChartBuilder:
             )
         )
 
+        def truncate_text_by_display_width(text, max_display_width=16):
+            """
+            按显示宽度截断文本
+            规则：1个汉字 = 2个字符宽度，1个英文字符 = 1个字符宽度
+            max_display_width=16 对应：8个汉字 或 16个英文字符
+            """
+
+            text = str(text).strip()
+            if not text:
+                return text
+
+            total_width = 0
+            result_chars = []
+
+            for char in text:
+                # 计算字符宽度
+                if "\u4e00" <= char <= "\u9fff":  # 中文字符
+                    char_width = 2
+                else:  # 英文字符、数字、标点等
+                    char_width = 1
+
+                # 检查是否超过最大宽度
+                if total_width + char_width > max_display_width:
+                    break
+
+                result_chars.append(char)
+                total_width += char_width
+
+            result = "".join(result_chars)
+
+            # 如果截断了，添加省略号
+            if len(result) < len(text):
+                result += ".."
+
+            return result
+
         # 为每个数据点添加文本annotation
         for i, row in df.iterrows():
             day_of_week = row["day_of_week"]
@@ -191,6 +227,12 @@ class ChartBuilder:
             # 1. 添加上方的行业（第一个行业）
             if len(industry_items) >= 1:
                 industry_text_top = industry_items[0]
+                # 使用截断或缩写文本
+                if len(industry_text_top) > 7:
+                    industry_text_top = truncate_text_by_display_width(
+                        industry_text_top, 14
+                    )
+
                 fig.add_annotation(
                     x=day_of_week,
                     y=week_order,
@@ -246,6 +288,10 @@ class ChartBuilder:
             # 3. 添加下方的行业（第二个行业）
             if len(industry_items) >= 2:
                 industry_text_bottom = industry_items[1]
+                if len(industry_text_bottom) > 7:
+                    industry_text_bottom = truncate_text_by_display_width(
+                        industry_text_bottom, 14
+                    )
                 fig.add_annotation(
                     x=day_of_week,
                     y=week_order,
@@ -1503,7 +1549,7 @@ class ChartBuilder:
                                 symbol="diamond", size=6 * scale, color=cfg["drawdown"]
                             ),
                             text=[get_compact_label("30D DD", val_30, client_width)],
-                            textposition=get_label_position(idx_30, drawdown, 0.15),
+                            textposition=get_label_position(idx_30, drawdown, 0.2),
                             textfont=dict(size=base_font, color=text_color),
                             showlegend=False,
                             hovertemplate=(
@@ -1530,7 +1576,7 @@ class ChartBuilder:
                                 symbol="diamond", size=6 * scale, color=cfg["drawdown"]
                             ),
                             text=[get_compact_label("120D DD", val_120, client_width)],
-                            textposition=get_label_position(idx_120, drawdown, 0.1),
+                            textposition=get_label_position(idx_120, drawdown, 0.4),
                             textfont=dict(size=base_font, color=text_color),
                             showlegend=False,
                             hovertemplate=(
