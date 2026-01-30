@@ -1334,11 +1334,11 @@ class ChartBuilder:
         # =========================
         # 8. 左侧表格
         # =========================
-        header_height = int(table_font * 5.2) * scale
-        cell_height = int(table_font * 4.8) * scale
+        header_height = int(table_font * 7) * scale
+        cell_height = int(table_font * 6.8) * scale
 
-        TABLE_Y_BOTTOM = 0.15
-        TABLE_Y_TOP = 0.85
+        TABLE_Y_BOTTOM = 0.08
+        TABLE_Y_TOP = 0.92
 
         fig.add_trace(
             go.Table(
