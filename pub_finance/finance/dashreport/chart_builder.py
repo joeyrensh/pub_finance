@@ -59,7 +59,7 @@ class ChartBuilder:
         fig_width = 1440
         fig_height = 900  # 保持原高度
         scale = client_width / fig_width
-        scale = max(0.8, min(scale, 1.05))  # 防止过小 / 过大
+        scale = max(0.85, min(scale, 1.05))  # 防止过小 / 过大
         base_font_size = int(12 * scale)
 
         # 获取当前主题配置
@@ -124,7 +124,7 @@ class ChartBuilder:
         else:
             quantiles = [0, 0, 0, 0]
 
-        max_size_increase = 10
+        max_size_increase = 8
         font_steps = np.linspace(base_font_size, base_font_size + max_size_increase, 5)
 
         # 创建图表
@@ -1237,7 +1237,7 @@ class ChartBuilder:
         # 2. 尺寸 & 字体自适应
         # =========================
         scale = client_width / 1440
-        scale = max(0.6, min(scale, 1.05))
+        scale = max(0.65, min(scale, 1.05))
 
         base_font = int(16 * scale)
         table_font = int(16 * scale)
@@ -1337,8 +1337,8 @@ class ChartBuilder:
         header_height = int(table_font * 7) * scale
         cell_height = int(table_font * 6.8) * scale
 
-        TABLE_Y_BOTTOM = 0.08
-        TABLE_Y_TOP = 0.92
+        TABLE_Y_BOTTOM = 0.0
+        TABLE_Y_TOP = 1.0
 
         fig.add_trace(
             go.Table(
@@ -1375,7 +1375,7 @@ class ChartBuilder:
 
         dd_min = drawdown.min()
         dd_max = 0
-        dd_range = [dd_min * 1.05, 0.005]
+        dd_range = [dd_min * 1.05, 0.0]
 
         # =========================
         # 10. 添加累计收益曲线
@@ -1545,10 +1545,15 @@ class ChartBuilder:
         # 14. 布局设置
         # =========================
         chart_domain_left = TABLE_WIDTH_RATIO + HORIZONTAL_SPACING
-        chart_domain_right = 1.0
+        chart_domain_right = 1
 
         chart_width = chart_domain_right - chart_domain_left
         legend_absolute_x = chart_domain_left + (0.04 * chart_width)
+
+        # 从pnl的索引中获取最小和最大日期
+        data_start_date = pnl.index.min()  # 最小日期
+        data_end_date = pnl.index.max()  # 最大日期
+        data_end_date_limited = data_end_date + pd.Timedelta(days=15)
 
         fig.update_layout(
             autosize=True,
@@ -1595,7 +1600,7 @@ class ChartBuilder:
                 showticklabels=True,
                 automargin=False,
                 ticklabelposition="inside",
-                ticklabelshift=5,
+                # ticklabelshift=5,
                 showline=False,
                 linewidth=1,
                 linecolor=cfg["border"],
@@ -1611,7 +1616,7 @@ class ChartBuilder:
                 title="",
                 side="right",
                 overlaying="y",
-                position=1.0,
+                position=1,
                 showgrid=False,
                 tickfont=dict(size=base_font, color=text_color, family=font_family),
                 tickformat=".0%",
@@ -1619,8 +1624,8 @@ class ChartBuilder:
                 showticklabels=True,
                 automargin=False,
                 ticklabelposition="inside",
-                ticklabelshift=-12,
-                showline=True,
+                # ticklabelshift=-5,
+                showline=False,
                 linewidth=1,
                 linecolor=cfg["border"],
                 zeroline=False,
@@ -1629,7 +1634,7 @@ class ChartBuilder:
                 # tickwidth=1,
                 # tickcolor=cfg["border"],
                 # nticks=5,
-                anchor="x",
+                # anchor="x",
             ),
             # X轴设置
             xaxis=dict(
@@ -1647,6 +1652,7 @@ class ChartBuilder:
                 tickformat="%Y-%m",
                 showgrid=True,
                 position=0.0,
+                range=[data_start_date, data_end_date_limited],  # 使用计算的范围
             ),
         )
 
