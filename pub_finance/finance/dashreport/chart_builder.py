@@ -59,7 +59,7 @@ class ChartBuilder:
         fig_width = 1440
         fig_height = 900  # 保持原高度
         scale = client_width / fig_width
-        scale = max(0.7, min(scale, 1))  # 防止过小 / 过大
+        scale = max(0.8, min(scale, 1.05))  # 防止过小 / 过大
         base_font_size = int(12 * scale)
 
         # 获取当前主题配置
@@ -1237,7 +1237,7 @@ class ChartBuilder:
         # 2. 尺寸 & 字体自适应
         # =========================
         scale = client_width / 1440
-        scale = max(0.6, min(scale, 1.0))
+        scale = max(0.6, min(scale, 1.05))
 
         base_font = int(16 * scale)
         table_font = int(16 * scale)
