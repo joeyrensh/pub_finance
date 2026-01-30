@@ -5,12 +5,12 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State, MATCH
 from dash import clientside_callback
 from finance.dashreport.pages import (
-    cnstock_performance,
+    cnstock_performance_int as cnstock_performance,
     slogans,
-    usstock_performance_test as usstock_performance,
-    usspecialstock_performance,
-    cndynamicstock_performance,
-    usdynamicstock_performance,
+    usstock_performance_int as usstock_performance,
+    usspecialstock_performance_int as usspecialstock_performance,
+    cndynamicstock_performance_int as cndynamicstock_performance,
+    usdynamicstock_performance_int as usdynamicstock_performance,
 )
 from finance.dashreport.pages.chart_callback import ChartCallback
 from flask import Flask

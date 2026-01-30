@@ -14,15 +14,28 @@ import pickle
 
 
 def create_layout(app):
+    # get relative data folder
     PATH = pathlib.Path(__file__).parent
     DATA_PATH = PATH.joinpath("../../data").resolve()
     DATA_PATH_ANUAL_RETURN = PATH.joinpath("../../cache").resolve()
-    prefix = "us"
+    prefix = "us_special"
 
     # Load tables and other data for page
+    # Overall 信息
     df_overall = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_df_result.csv"), usecols=[i for i in range(1, 5)]
+        DATA_PATH.joinpath(f"{prefix}_df_result.csv"),
+        usecols=[i for i in range(1, 5)],
     )
+    # 检查是否为NaN、None、0或空字符串
+    stock_cnt_value = df_overall.at[0, "stock_cnt"]
+    if (
+        pd.isna(stock_cnt_value)
+        or stock_cnt_value is None
+        or stock_cnt_value == 0
+        or stock_cnt_value == ""
+    ):
+        df_overall.at[0, "stock_cnt"] = 1
+
     trade_date = str(df_overall.at[0, "end_date"]).replace("-", "")
     annual_return_file = DATA_PATH_ANUAL_RETURN.joinpath(
         f"pnl_{prefix}_{trade_date}.pkl"
@@ -36,9 +49,6 @@ def create_layout(app):
         df_data=pnl,
         index=0,
     )
-
-    # placeholders for back-compat (not used when CSV present)
-    encoded_image_trdraw = f"/assets/images/{prefix}_tr_light.svg"
 
     df_heatmap = pd.read_csv(DATA_PATH.joinpath(f"{prefix}_pd_calendar_heatmap.csv"))
     app.chart_callback.register_chart(
@@ -102,6 +112,7 @@ def create_layout(app):
         index=4,
     )
 
+    # 板块数据
     cols_category = [
         "IDX",
         "IND",
@@ -141,6 +152,7 @@ def create_layout(app):
         "ERP": ("float",),
     }
 
+    # 持仓明细
     cols_detail = [
         "IDX",
         "SYMBOL",
@@ -172,7 +184,6 @@ def create_layout(app):
     )
     df_detail["IDX"] = df_detail.index
     df_detail = df_detail[cols_detail].copy()
-
     cols_format_detail = {
         "BASE": ("float",),
         "ADJBASE": ("float",),
@@ -357,6 +368,7 @@ def create_layout(app):
                                                     "padding": "0",
                                                     "width": "100%",
                                                     "height": "100%",
+                                                    "overflow": "visible !important",
                                                 },
                                             )
                                         ],
