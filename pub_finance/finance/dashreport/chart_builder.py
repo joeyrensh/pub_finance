@@ -120,12 +120,14 @@ class ChartBuilder:
         # 计算字体大小
         abs_values = np.abs(df["s_pnl"])
         if len(abs_values) > 0:
-            quantiles = np.quantile(abs_values, [0.15, 0.35, 0.55, 0.75, 0.90])
+            quantiles = np.quantile(
+                abs_values, [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+            )
         else:
-            quantiles = [0, 0, 0, 0, 0]
+            quantiles = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         max_size_increase = 10
-        font_steps = np.linspace(base_font_size, base_font_size + max_size_increase, 6)
+        font_steps = np.linspace(base_font_size, base_font_size + max_size_increase, 10)
 
         # 创建图表
         fig = go.Figure()
@@ -195,18 +197,10 @@ class ChartBuilder:
 
             # 确定字体大小（基于s_pnl的绝对值）
             abs_col3 = abs(col3_value)
-            if abs_col3 <= quantiles[0]:
-                dynamic_font_size = font_steps[0]
-            elif abs_col3 <= quantiles[1]:
-                dynamic_font_size = font_steps[1]
-            elif abs_col3 <= quantiles[2]:
-                dynamic_font_size = font_steps[2]
-            elif abs_col3 <= quantiles[3]:
-                dynamic_font_size = font_steps[3]
-            elif abs_col3 <= quantiles[4]:
-                dynamic_font_size = font_steps[4]
-            else:
-                dynamic_font_size = font_steps[5]
+            dynamic_font_size = next(
+                (font_steps[i] for i, q in enumerate(quantiles) if abs_col3 <= q),
+                font_steps[-1],  # 默认值
+            )
 
             dynamic_font_size = int(dynamic_font_size)
 
