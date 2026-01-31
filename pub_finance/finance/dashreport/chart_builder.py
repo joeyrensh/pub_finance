@@ -217,16 +217,13 @@ class ChartBuilder:
                 text_color = config["neutral"]
                 dynamic_font_size = base_font_size
 
-            # 清理行业名称
             industry_items = [
-                str(item).strip()
-                for item in industry_items
-                if item and str(item).strip()
+                str(item).strip() if item else "" for item in industry_items
             ]
 
             # 1. 添加上方的行业（第一个行业）
             if len(industry_items) >= 1:
-                industry_text_top = industry_items[0]
+                industry_text_top = industry_items[1]
                 # 使用截断或缩写文本
                 if len(industry_text_top) > 7:
                     industry_text_top = truncate_text_by_display_width(
@@ -287,7 +284,7 @@ class ChartBuilder:
 
             # 3. 添加下方的行业（第二个行业）
             if len(industry_items) >= 2:
-                industry_text_bottom = industry_items[1]
+                industry_text_bottom = industry_items[0]
                 if len(industry_text_bottom) > 7:
                     industry_text_bottom = truncate_text_by_display_width(
                         industry_text_bottom, 14
@@ -595,6 +592,12 @@ class ChartBuilder:
                         color=color,
                     ),
                     yaxis="y",
+                    hovertemplate=(
+                        "<b>日期</b>: %{x|%Y-%m-%d}<br>"  # 修改这里：添加日期格式化
+                        "<b>成功率</b>: %{y:.2%}<br>"
+                        "<b>策略</b>: " + strategy + "<br>"
+                        "<extra></extra>"
+                    ),
                 )
             )
 
@@ -609,6 +612,12 @@ class ChartBuilder:
                     ),
                     yaxis="y2",
                     showlegend=False,
+                    hovertemplate=(
+                        "<b>日期</b>: %{x|%Y-%m-%d}<br>"
+                        "<b>收益</b>: %{y:,.0f}<br>"
+                        "<b>策略</b>: " + strategy + "<br>"
+                        "<extra></extra>"
+                    ),
                 )
             )
 
@@ -751,6 +760,11 @@ class ChartBuilder:
                 name="Total",
                 line=dict(color=cfg["long"], width=2 * scale),
                 yaxis="y",
+                hovertemplate=(
+                    "<b>日期</b>: %{x|%Y-%m-%d}<br>"
+                    "<b>总数</b>: %{y}<br>"
+                    "<extra></extra>"
+                ),
             )
         )
 
@@ -762,6 +776,11 @@ class ChartBuilder:
                 marker_color=cfg["long"],
                 marker_line_color=cfg["long"],
                 yaxis="y",
+                hovertemplate=(
+                    "<b>日期</b>: %{x|%Y-%m-%d}<br>"
+                    "<b>买入数量</b>: %{y}<br>"
+                    "<extra></extra>"
+                ),
             )
         )
 
@@ -773,6 +792,11 @@ class ChartBuilder:
                 marker_color=cfg["short"],
                 marker_line_color=cfg["short"],
                 yaxis="y",
+                hovertemplate=(
+                    "<b>日期</b>: %{x|%Y-%m-%d}<br>"
+                    "<b>卖出数量</b>: %{y}<br>"
+                    "<extra></extra>"
+                ),
             )
         )
 
@@ -883,6 +907,7 @@ class ChartBuilder:
                     "#ffa700",
                     "#d50b3e",
                 ],
+                "hover_text": "#000000",
             },
             "dark": {
                 "text": "#ffffff",
@@ -896,6 +921,7 @@ class ChartBuilder:
                     "#ffa700",
                     "#e90c4a",
                 ],
+                "hover_text": "#ffffff",
             },
         }
 
@@ -930,8 +956,15 @@ class ChartBuilder:
             line_group="industry",
             color_discrete_sequence=cfg["colors"],
         )
-
-        fig.update_traces(line=dict(width=2 * scale))
+        fig.update_traces(
+            line=dict(width=2 * scale),
+            hovertemplate=(
+                "<b>日期</b>: %{x|%Y-%m-%d}<br>"
+                "<b>收益</b>: %{y}<br>"
+                "<b>行业</b>: %{fullData.name}<br>"
+                "<extra></extra>"
+            ),
+        )
 
         # =========================
         # 4. X Axis（完整颜色定义）
@@ -1621,7 +1654,7 @@ class ChartBuilder:
             ),
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            hovermode="x unified",
+            hovermode="x",
             hoverlabel=dict(
                 bgcolor=cfg["hover_bg"],
                 font_size=base_font,
