@@ -675,7 +675,7 @@ class ChartBuilder:
             ),
             legend=dict(
                 orientation="v",
-                x=0.02,
+                x=-0.05,
                 y=1,
                 xanchor="left",
                 yanchor="top",
@@ -846,7 +846,7 @@ class ChartBuilder:
             ),
             legend=dict(
                 orientation="v",
-                x=0.02,
+                x=-0.05,
                 y=1,
                 xanchor="left",
                 yanchor="top",
@@ -1040,7 +1040,7 @@ class ChartBuilder:
             legend_title_text=None,
             legend=dict(
                 orientation="v",
-                x=0,
+                x=-0.05,
                 xanchor="left",
                 y=1,
                 yanchor="top",
