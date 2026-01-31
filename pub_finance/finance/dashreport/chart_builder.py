@@ -120,12 +120,12 @@ class ChartBuilder:
         # 计算字体大小
         abs_values = np.abs(df["s_pnl"])
         if len(abs_values) > 0:
-            quantiles = np.quantile(abs_values, [0.2, 0.4, 0.6, 0.8])
+            quantiles = np.quantile(abs_values, [0.15, 0.35, 0.55, 0.75, 0.90])
         else:
-            quantiles = [0, 0, 0, 0]
+            quantiles = [0, 0, 0, 0, 0]
 
-        max_size_increase = 8
-        font_steps = np.linspace(base_font_size, base_font_size + max_size_increase, 5)
+        max_size_increase = 10
+        font_steps = np.linspace(base_font_size, base_font_size + max_size_increase, 6)
 
         # 创建图表
         fig = go.Figure()
@@ -203,8 +203,10 @@ class ChartBuilder:
                 dynamic_font_size = font_steps[2]
             elif abs_col3 <= quantiles[3]:
                 dynamic_font_size = font_steps[3]
-            else:
+            elif abs_col3 <= quantiles[4]:
                 dynamic_font_size = font_steps[4]
+            else:
+                dynamic_font_size = font_steps[5]
 
             dynamic_font_size = int(dynamic_font_size)
 
@@ -248,7 +250,7 @@ class ChartBuilder:
                     opacity=0.9,
                 )
             fig.add_annotation(
-                x=day_of_week - 0.48,
+                x=day_of_week - 0.5,
                 y=week_order,
                 text=month,
                 showarrow=False,
@@ -256,7 +258,7 @@ class ChartBuilder:
                 xanchor="left",
                 yanchor="middle",
                 xshift=0,
-                yshift=int(8 * scale),
+                yshift=int(dynamic_font_size * scale * 0.45),
                 font=dict(
                     family=font_family,
                     size=dynamic_font_size,
@@ -265,7 +267,7 @@ class ChartBuilder:
                 opacity=0.9,
             )
             fig.add_annotation(
-                x=day_of_week - 0.48,
+                x=day_of_week - 0.5,
                 y=week_order,
                 text=day,
                 showarrow=False,
@@ -273,7 +275,7 @@ class ChartBuilder:
                 xanchor="left",
                 yanchor="middle",
                 xshift=0,
-                yshift=-int(8 * scale),
+                yshift=-int(dynamic_font_size * scale * 0.45),
                 font=dict(
                     family=font_family,
                     size=dynamic_font_size,
