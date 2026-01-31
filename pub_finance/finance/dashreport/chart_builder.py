@@ -227,7 +227,7 @@ class ChartBuilder:
                     )
 
                 fig.add_annotation(
-                    x=day_of_week,
+                    x=day_of_week + 0.1,
                     y=week_order,
                     text=industry_text_top,
                     showarrow=False,
@@ -239,7 +239,7 @@ class ChartBuilder:
                     align="center",  # 保持居中
                     xanchor="center",  # 保持居中
                     yanchor="top",
-                    # xshift=0,  # 不向左偏移
+                    # xshift=-0.2,
                     # yshift=20,
                     opacity=0.9,
                 )
@@ -286,7 +286,7 @@ class ChartBuilder:
                         industry_text_bottom, 14
                     )
                 fig.add_annotation(
-                    x=day_of_week,
+                    x=day_of_week + 0.1,
                     y=week_order,
                     text=industry_text_bottom,
                     showarrow=False,
