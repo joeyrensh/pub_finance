@@ -1404,8 +1404,8 @@ class ChartBuilder:
         # =========================
         # 7. 创建图表 (使用单独的Figure)
         # =========================
-        TABLE_WIDTH_RATIO = 0.4
-        CHART_WIDTH_RATIO = 0.6
+        TABLE_WIDTH_RATIO = 0.35
+        CHART_WIDTH_RATIO = 0.65
         HORIZONTAL_SPACING = 0.005
 
         fig = go.Figure()
@@ -1441,7 +1441,7 @@ class ChartBuilder:
                     align=["left"] * len(table_df.columns),
                     height=cell_height,
                 ),
-                columnwidth=[1.0] + [1.0] * (len(table_df.columns) - 1),
+                columnwidth=[1.0] + [1.1] * (len(table_df.columns) - 1),
             )
         )
 
@@ -1727,7 +1727,7 @@ class ChartBuilder:
                 mirror=True,
                 anchor="y",
                 tickmode="linear",
-                dtick="M6",
+                dtick="M5",
                 tickformat="%Y-%m",
                 showgrid=True,
                 position=0.0,
