@@ -1341,10 +1341,10 @@ class ChartBuilder:
                 stats.append(
                     {
                         "YEAR": str(year),
-                        "Ann.R": ep.annual_return(year_data),
-                        "Cum.R": (1 + year_data).prod() - 1,
-                        "Mx.DD": ep.max_drawdown(year_data),
-                        "D.Rsk": np.percentile(year_data, 5),
+                        "ANN.R": ep.annual_return(year_data),
+                        "CUM.R": (1 + year_data).prod() - 1,
+                        "MX.DD": ep.max_drawdown(year_data),
+                        "D.RISK": np.percentile(year_data, 5),
                     }
                 )
 
@@ -1361,12 +1361,12 @@ class ChartBuilder:
         # =========================
         # 5. 表格数据
         # =========================
-        table_labels = ["Ann.R", "Cum.R", "Mx.DD", "D.Rsk"]
+        table_labels = ["ANN.R", "CUM.R", "MX.DD", "D.RISK"]
 
         table_data = {" ": table_labels}
         for year in perf_fmt.index:
             table_data[year] = perf_fmt.loc[
-                year, ["Ann.R", "Cum.R", "Mx.DD", "D.Rsk"]
+                year, ["ANN.R", "CUM.R", "MX.DD", "D.RISK"]
             ].tolist()
 
         table_df = pd.DataFrame(table_data)
