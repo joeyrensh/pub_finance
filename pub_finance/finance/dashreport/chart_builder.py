@@ -1437,7 +1437,7 @@ class ChartBuilder:
                     align=["center"] * len(table_df.columns),
                     height=cell_height,
                 ),
-                columnwidth=[1.0] + [1.1] * (len(table_df.columns) - 1),
+                columnwidth=[1.0] + [1.0] * (len(table_df.columns) - 1),
             )
         )
 
