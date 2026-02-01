@@ -1407,42 +1407,7 @@ class ChartBuilder:
         fig = go.Figure()
 
         # =========================
-        # 8. 左侧表格
-        # =========================
-        header_height = int(table_font * 7) * scale
-        cell_height = int(table_font * 6.8) * scale
-
-        TABLE_Y_BOTTOM = 0.0
-        TABLE_Y_TOP = 1.0
-
-        fig.add_trace(
-            go.Table(
-                domain=dict(
-                    x=[0.0, TABLE_WIDTH_RATIO],
-                    y=[TABLE_Y_BOTTOM, TABLE_Y_TOP],
-                ),
-                header=dict(
-                    values=list(table_df.columns),
-                    fill_color=cfg["table_header"],
-                    line=dict(color=cfg["border"], width=1),
-                    font=dict(size=table_font, color=text_color, family=font_family),
-                    align=["center"] * len(table_df.columns),
-                    height=header_height,
-                ),
-                cells=dict(
-                    values=[table_df[c] for c in table_df.columns],
-                    fill_color=cell_colors,
-                    line=dict(color=cfg["border"], width=1),
-                    font=dict(size=table_font, color=font_colors, family=font_family),
-                    align=["center"] * len(table_df.columns),
-                    height=cell_height,
-                ),
-                columnwidth=[1.0] + [1.0] * (len(table_df.columns) - 1),
-            )
-        )
-
-        # =========================
-        # 9. 计算Y轴范围
+        # 8. 计算Y轴范围
         # =========================
         cum_min = cumulative.min()
         cum_max = cumulative.max()
@@ -1453,7 +1418,7 @@ class ChartBuilder:
         dd_range = [dd_min * 1.05, 0.0]
 
         # =========================
-        # 10. 添加累计收益曲线
+        # 9. 添加累计收益曲线
         # =========================
         fig.add_trace(
             go.Scatter(
@@ -1472,7 +1437,7 @@ class ChartBuilder:
         )
 
         # =========================
-        # 11. 添加回撤曲线
+        # 10. 添加回撤曲线
         # =========================
         fig.add_trace(
             go.Scatter(
@@ -1493,7 +1458,7 @@ class ChartBuilder:
         )
 
         # =========================
-        # 12. 关键点标注函数
+        # 11. 关键点标注函数
         # =========================
         def get_label_position(index, data_series, is_near_right_threshold=0.2):
             if (
@@ -1515,7 +1480,7 @@ class ChartBuilder:
                     return f"{text[:3]}: {value:.1%}"
 
         # =========================
-        # 13. 关键点标注
+        # 12. 关键点标注
         # =========================
         # 最大累计收益
         if len(cumulative) > 0:
@@ -1617,14 +1582,57 @@ class ChartBuilder:
                     )
 
         # =========================
-        # 14. 布局设置
+        # 13. 布局设置
         # =========================
-        chart_domain_left = TABLE_WIDTH_RATIO + HORIZONTAL_SPACING
-        chart_domain_right = 1
+        # 计算图表区域（左侧）
+        chart_domain_left = 0.0
+        chart_domain_right = 1 - TABLE_WIDTH_RATIO - HORIZONTAL_SPACING
+
+        # 计算表格区域（右侧）
+        table_domain_left = chart_domain_right + HORIZONTAL_SPACING
+        table_domain_right = 1.0
 
         chart_width = chart_domain_right - chart_domain_left
         legend_absolute_x = chart_domain_left + (0.04 * chart_width)
 
+        # =========================
+        # 14. 添加右侧表格
+        # =========================
+        header_height = int(table_font * 7) * scale
+        cell_height = int(table_font * 6.8) * scale
+
+        TABLE_Y_BOTTOM = 0.0
+        TABLE_Y_TOP = 1.0
+
+        fig.add_trace(
+            go.Table(
+                domain=dict(
+                    x=[table_domain_left, table_domain_right],  # 表格在右侧
+                    y=[TABLE_Y_BOTTOM, TABLE_Y_TOP],
+                ),
+                header=dict(
+                    values=list(table_df.columns),
+                    fill_color=cfg["table_header"],
+                    line=dict(color=cfg["border"], width=1),
+                    font=dict(size=table_font, color=text_color, family=font_family),
+                    align=["center"] * len(table_df.columns),
+                    height=header_height,
+                ),
+                cells=dict(
+                    values=[table_df[c] for c in table_df.columns],
+                    fill_color=cell_colors,
+                    line=dict(color=cfg["border"], width=1),
+                    font=dict(size=table_font, color=font_colors, family=font_family),
+                    align=["center"] * len(table_df.columns),
+                    height=cell_height,
+                ),
+                columnwidth=[1.0] + [1.0] * (len(table_df.columns) - 1),
+            )
+        )
+
+        # =========================
+        # 15. 更新图表布局
+        # =========================
         # 从pnl的索引中获取最小和最大日期
         data_start_date = pnl.index.min()  # 最小日期
         data_end_date = pnl.index.max()  # 最大日期
@@ -1675,23 +1683,17 @@ class ChartBuilder:
                 showticklabels=True,
                 automargin=False,
                 ticklabelposition="inside",
-                # ticklabelshift=5,
                 showline=False,
                 linewidth=1,
                 linecolor=cfg["border"],
                 zeroline=False,
-                # ticks="inside",
-                # ticklen=6,
-                # tickwidth=1,
-                # tickcolor=cfg["border"],
-                # nticks=5,
                 anchor="x",
             ),
             yaxis2=dict(
                 title="",
                 side="right",
                 overlaying="y",
-                position=1,
+                position=chart_domain_right,  # 调整到图表区域右侧
                 showgrid=False,
                 tickfont=dict(size=base_font, color=text_color, family=font_family),
                 tickformat=".0%",
@@ -1699,23 +1701,16 @@ class ChartBuilder:
                 showticklabels=True,
                 automargin=False,
                 ticklabelposition="inside",
-                # ticklabelshift=-5,
                 showline=False,
                 linewidth=1,
                 linecolor=cfg["border"],
                 zeroline=False,
-                # ticks="inside",
-                # ticklen=6,
-                # tickwidth=1,
-                # tickcolor=cfg["border"],
-                # nticks=5,
-                # anchor="x",
             ),
             # X轴设置
             xaxis=dict(
                 gridcolor=cfg["grid"],
                 tickfont=dict(size=base_font, color=text_color, family=font_family),
-                domain=[chart_domain_left, chart_domain_right],
+                domain=[chart_domain_left, chart_domain_right],  # 图表区域
                 rangeslider=dict(visible=False),
                 showline=False,
                 linewidth=1,
