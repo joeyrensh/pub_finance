@@ -1426,7 +1426,7 @@ class ChartBuilder:
                     fill_color=cfg["table_header"],
                     line=dict(color=cfg["border"], width=1),
                     font=dict(size=table_font, color=text_color, family=font_family),
-                    align=["left"] * len(table_df.columns),
+                    align=["center"] * len(table_df.columns),
                     height=header_height,
                 ),
                 cells=dict(
@@ -1434,7 +1434,7 @@ class ChartBuilder:
                     fill_color=cell_colors,
                     line=dict(color=cfg["border"], width=1),
                     font=dict(size=table_font, color=font_colors, family=font_family),
-                    align=["left"] * len(table_df.columns),
+                    align=["center"] * len(table_df.columns),
                     height=cell_height,
                 ),
                 columnwidth=[1.0] + [1.1] * (len(table_df.columns) - 1),
