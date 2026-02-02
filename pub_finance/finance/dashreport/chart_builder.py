@@ -15,8 +15,105 @@ from datetime import timedelta
 
 
 class ChartBuilder:
-    @staticmethod
+    def __init__(self):
+        self.theme_config = {
+            "light": {
+                "positive_int": "#d60a22",  # 红色 - 正数
+                "negative_int": "#037b66",  # 绿色 - 负数
+                "text_color": "#000000",  # 黑色
+                "grid": "rgba(0, 0, 0, 0.2)",  # 网格线
+                "background": "rgba(255, 255, 255, 0)",  # 透明背景
+                "legend_bg": "rgba(246, 248, 249, 0.8)",
+                "strategy_colors": [
+                    "#0c6552",
+                    "#0d876d",
+                    "#00a380",
+                    "#00b89a",
+                    "#ffa700",
+                    "#d50b3e",
+                    "#a90a3f",
+                    "#7a0925",
+                ],
+                "long": "#e01c3a",
+                "short": "#0d876d",
+                "pnl_colors": [
+                    "#0c6552",
+                    "#0d876d",
+                    "#00a380",
+                    "#ffa700",
+                    "#d50b3e",
+                ],
+                "border": "rgba(200, 200, 200, 0.8)",
+                "outside_text": "#777777",
+                "cumret": "#e01c3a",
+                "drawdown": "#0d876d",
+                "drawdown_fill": "rgba(13,135,109,0.3)",
+                "table_header": "rgba(245,245,245,0)",
+                "table_cell": "rgba(0,0,0,0)",
+                "hover_bg": "#ffffff",
+                "hover_text": "#000000",
+                "hover_border": "#cccccc",
+            },
+            "dark": {
+                "positive_int": "#ff6b6b",  # 亮红色 - 正数
+                "negative_int": "#6bcfb5",  # 亮绿色 - 负数
+                "text_color": "#ffffff",  # 白色
+                "grid": "rgba(255, 255, 255, 0.2)",  # 网格线
+                "background": "rgba(0, 0, 0, 0)",  # 透明背景
+                "legend_bg": "rgba(20, 20, 20, 0.6)",
+                "strategy_colors": [
+                    "#0d7b67",
+                    "#0e987f",
+                    "#01b08f",
+                    "#00c4a6",
+                    "#ffa700",
+                    "#e90c4a",
+                    "#cf1745",
+                    "#b6183d",
+                ],
+                "long": "#ff4d6d",
+                "short": "#2ec4a6",
+                "pnl_colors": [
+                    "#0d7b67",
+                    "#0e987f",
+                    "#01b08f",
+                    "#ffa700",
+                    "#e90c4a",
+                ],
+                "border": "rgba(255, 255, 255, 0.4)",
+                "outside_text": "#aaaaaa",
+                "cumret": "#ff6b6b",
+                "drawdown": "#6bcfb5",
+                "drawdown_fill": "rgba(107,207,181,0.3)",
+                "table_header": "rgba(64,64,64,0)",
+                "table_cell": "rgba(0,0,0,0)",
+                "hover_bg": "#1a1a1a",
+                "hover_text": "#ffffff",
+                "hover_border": "#666666",
+            },
+        }
+        self.font_family = (
+            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
+            '"Helvetica Neue", Arial, sans-serif'
+        )
+        self.base_fig_width = 1440
+
+    def _get_scale(self, client_width, min_scale=0.65, max_scale=1.05):
+        """计算缩放比例"""
+        if client_width < 550:
+            scale = client_width / self.base_fig_width
+        else:
+            scale = 1.0
+        return max(min_scale, min(scale, max_scale))
+
+    def _get_font_sizes(self, client_width, base_font=12, min_scale=0.9, max_scale=1.0):
+        """获取字体大小"""
+        scale = self._get_scale(client_width, min_scale, max_scale)
+        font_size = int(base_font * scale)
+        return scale, font_size
+
     def calendar_heatmap(
+        self,
         df,
         theme="light",  # 主题参数
         client_width=1440,
@@ -32,48 +129,20 @@ class ChartBuilder:
         plotly.graph_objects.Figure
             交互式图表对象
         """
-        # 简化主题颜色配置
-        theme_configs = {
-            "light": {
-                "positive": "#d60a22",  # 红色 - 正数
-                "negative": "#037b66",  # 绿色 - 负数
-                "neutral": "#000000",  # 黑色 - 中性文本、行业文本、坐标轴
-                "grid": "rgba(0, 0, 0, 0.3)",  # 网格线
-                "background": "rgba(255, 255, 255, 0)",  # 透明背景
-            },
-            "dark": {
-                "positive": "#ff6b6b",  # 亮红色 - 正数
-                "negative": "#6bcfb5",  # 亮绿色 - 负数
-                "neutral": "#ffffff",  # 白色 - 中性文本、行业文本、坐标轴
-                "grid": "rgba(255, 255, 255, 0.3)",  # 网格线
-                "background": "rgba(0, 0, 0, 0)",  # 透明背景
-            },
-        }
 
-        font_family = (
-            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
-            '"Helvetica Neue", Arial, sans-serif'
+        scale, base_font_size = self._get_font_sizes(
+            client_width, base_font=12, min_scale=0.85, max_scale=1.05
         )
 
-        # 修改点1：调整宽高比为1.6
-        fig_width = 1440
-        fig_height = 900  # 保持原高度
-        scale = client_width / fig_width
-        scale = max(0.85, min(scale, 1.05))  # 防止过小 / 过大
-        base_font_size = int(12 * scale)
-
         # 获取当前主题配置
-        config = theme_configs.get(theme, theme_configs["light"])
-        print("theme:", repr(theme))
-        print("config:", config)
+        config = self.theme_config.get(theme, self.theme_config["light"])
 
         # 休市颜色使用中性色 + 透明度
-        holiday_color = config["neutral"].replace("#", "")
+        holiday_color = config["text_color"].replace("#", "")
         if len(holiday_color) == 6:  # 如果是hex颜色
             holiday_color = f"rgba({int(holiday_color[0:2], 16)}, {int(holiday_color[2:4], 16)}, {int(holiday_color[4:6], 16)}, 0.5)"
         else:
-            holiday_color = config["neutral"]
-
+            holiday_color = config["text_color"]
         # 转换数据类型
         if "date" in df.columns:
             df["date"] = pd.to_datetime(df["date"])
@@ -206,11 +275,11 @@ class ChartBuilder:
 
             # 确定颜色（根据s_pnl正负和主题）
             if col3_value > 0:
-                text_color = config["positive"]
+                dynamic_text_color = config["positive_int"]
             elif col3_value < 0:
-                text_color = config["negative"]
+                dynamic_text_color = config["negative_int"]
             else:
-                text_color = config["neutral"]
+                dynamic_text_color = config["text_color"]
                 dynamic_font_size = base_font_size
 
             industry_items = [
@@ -232,9 +301,9 @@ class ChartBuilder:
                     text=industry_text_top,
                     showarrow=False,
                     font=dict(
-                        family=font_family,
+                        family=self.font_family,
                         size=base_font_size,
-                        color=config["neutral"],  # 使用中性色
+                        color=config["text_color"],  # 使用中性色
                     ),
                     align="center",  # 保持居中
                     xanchor="center",  # 保持居中
@@ -254,9 +323,9 @@ class ChartBuilder:
                 xshift=0,
                 yshift=int(dynamic_font_size * scale * 0.45),
                 font=dict(
-                    family=font_family,
+                    family=self.font_family,
                     size=dynamic_font_size,
-                    color=text_color,
+                    color=dynamic_text_color,
                 ),
                 opacity=0.9,
             )
@@ -271,9 +340,9 @@ class ChartBuilder:
                 xshift=0,
                 yshift=-int(dynamic_font_size * scale * 0.45),
                 font=dict(
-                    family=font_family,
+                    family=self.font_family,
                     size=dynamic_font_size,
-                    color=text_color,
+                    color=dynamic_text_color,
                 ),
                 opacity=0.9,
             )
@@ -291,9 +360,9 @@ class ChartBuilder:
                     text=industry_text_bottom,
                     showarrow=False,
                     font=dict(
-                        family=font_family,
+                        family=self.font_family,
                         size=base_font_size,
-                        color=config["neutral"],  # 使用中性色
+                        color=config["text_color"],  # 使用中性色
                     ),
                     align="center",  # 保持居中
                     xanchor="center",  # 保持居中
@@ -322,10 +391,10 @@ class ChartBuilder:
                 showticklabels=True,
                 dtick=1,
                 tickfont=dict(
-                    family=font_family,
+                    family=self.font_family,
                     size=base_font_size,
                     # weight="bold",
-                    color=config["neutral"],  # 使用中性色
+                    color=config["text_color"],  # 使用中性色
                 ),
             ),
             yaxis=dict(
@@ -348,7 +417,7 @@ class ChartBuilder:
             fig.add_hline(
                 y=week - 0.5,
                 line=dict(color=config["grid"], width=1),
-                opacity=0.4,
+                opacity=0.6,
                 layer="below",
             )
 
@@ -356,7 +425,7 @@ class ChartBuilder:
             fig.add_vline(
                 x=day - 0.5,
                 line=dict(color=config["grid"], width=1),
-                opacity=0.4,
+                opacity=0.6,
                 layer="below",
             )
 
@@ -381,9 +450,9 @@ class ChartBuilder:
                         text="休市",
                         showarrow=False,
                         font=dict(
-                            family=font_family,
+                            family=self.font_family,
                             size=base_font_size,
-                            color=config["neutral"],  # 使用带透明度的中性色
+                            color=config["text_color"],  # 使用带透明度的中性色
                         ),
                         align="center",
                         xanchor="center",
@@ -416,87 +485,27 @@ class ChartBuilder:
 
         return f"日期: {date_str}<br>" f"星期: {day_name}<br>" f"行业: {industry_text}"
 
-    @staticmethod
     def strategy_chart(
+        self,
         df,
         theme="light",
         client_width=1440,
     ):
-        # =========================
-        # 0. 内部生成 group
-        # =========================
         df_group = df.groupby("date")["pnl"].sum().reset_index()
 
-        # =========================
-        # 1. theme 配置（新增）
-        # =========================
-        theme_config = {
-            "light": {
-                "text": "#000000",
-                "grid": "rgba(0, 0, 0, 0.2)",
-                "legend_bg": "rgba(246, 248, 249, 0.8)",
-            },
-            "dark": {
-                "text": "#ffffff",
-                "grid": "rgba(255, 255, 255, 0.25)",
-                "legend_bg": "rgba(20, 20, 20, 0.6)",
-            },
-        }
-
-        cfg = theme_config.get(theme, theme_config["light"])
-        text_color = cfg["text"]
+        cfg = self.theme_config.get(theme, self.theme_config["light"])
+        text_color = cfg["text_color"]
         grid_color = cfg["grid"]
         legend_bg = cfg["legend_bg"]
+        strategy_colors = cfg["strategy_colors"]
 
-        # =========================
-        # 2. 字体 & scale（与 heatmap 对齐）
-        # =========================
-        fig_width = 1440
-        fig_height = 900
-
-        scale = client_width / fig_width
-        scale = max(0.9, min(scale, 1))
-
-        base_font_size = int(12 * scale)
-        title_font_size = int(14 * scale)
-
-        font_family = (
-            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
-            '"Helvetica Neue", Arial, sans-serif'
+        scale, base_font_size = self._get_font_sizes(
+            client_width, base_font=12, min_scale=0.9, max_scale=1.05
+        )
+        scale, title_font_size = self._get_font_sizes(
+            client_width, base_font=14, min_scale=0.9, max_scale=1.05
         )
 
-        # =========================
-        # 3. 策略颜色（你提供的）
-        # =========================
-        strategy_colors_light = [
-            "#0c6552",
-            "#0d876d",
-            "#00a380",
-            "#00b89a",
-            "#ffa700",
-            "#d50b3e",
-            "#a90a3f",
-            "#7a0925",
-        ]
-
-        strategy_colors_dark = [
-            "#0d7b67",
-            "#0e987f",
-            "#01b08f",
-            "#00c4a6",
-            "#ffa700",
-            "#e90c4a",
-            "#cf1745",
-            "#b6183d",
-        ]
-
-        strategy_colors = (
-            strategy_colors_dark if theme == "dark" else strategy_colors_light
-        )
-
-        # =========================
-        # 4. 原有数值计算（不动）
-        # =========================
         max_pnl = df_group["pnl"].max()
         min_pnl = df_group["pnl"].min()
 
@@ -510,7 +519,7 @@ class ChartBuilder:
         max_range = min(2 * max_pnl, max_pnl * 2 / safe_rate)
 
         # =========================
-        # 5. tick offset（scale）
+        # tick offset（scale）
         # =========================
         def calc_tick_offset(min_pnl, max_pnl, num_ticks=6, char_width=5):
             def to_si(n):
@@ -534,7 +543,7 @@ class ChartBuilder:
         offset = int(calc_tick_offset(min_pnl, max_range) * scale)
 
         # =========================
-        # 6. 策略顺序 & 分组
+        # 策略顺序 & 分组
         # =========================
         strategy_order = [
             "多头排列",
@@ -565,9 +574,6 @@ class ChartBuilder:
             {"dash": "2,8", "width": 1.0 * scale},
         ]
 
-        # =========================
-        # 8. traces（仅颜色补齐）
-        # =========================
         for i, strategy in enumerate(strategy_order):
             if strategy not in groups:
                 continue
@@ -617,15 +623,12 @@ class ChartBuilder:
                 )
             )
 
-        # =========================
-        # 9. Layout（补齐 text / grid / legend）
-        # =========================
         fig.update_layout(
             xaxis=dict(
                 mirror=True,
                 ticks="outside",
                 tickfont=dict(
-                    family=font_family,
+                    family=self.font_family,
                     size=base_font_size,
                     color=text_color,
                 ),
@@ -643,7 +646,7 @@ class ChartBuilder:
                 mirror=True,
                 ticks="inside",
                 tickfont=dict(
-                    family=font_family,
+                    family=self.font_family,
                     size=base_font_size,
                     color=text_color,
                 ),
@@ -659,7 +662,7 @@ class ChartBuilder:
                 overlaying="y",
                 showgrid=False,
                 tickfont=dict(
-                    family=font_family,
+                    family=self.font_family,
                     size=base_font_size,
                     color=text_color,
                 ),
@@ -676,7 +679,7 @@ class ChartBuilder:
                 xanchor="left",
                 yanchor="top",
                 font=dict(
-                    family=font_family,
+                    family=self.font_family,
                     size=base_font_size,
                     color=text_color,
                 ),
@@ -696,51 +699,22 @@ class ChartBuilder:
 
         return fig
 
-    @staticmethod
     def trade_info_chart(
+        self,
         df,
         theme="light",
         client_width=1440,
     ):
-        # =========================
-        # 1. theme 配置
-        # =========================
-        theme_config = {
-            "light": {
-                "text": "#000000",
-                "grid": "rgba(0, 0, 0, 0.2)",
-                "legend_bg": "rgba(246, 248, 249, 0.8)",
-                "long": "#e01c3a",
-                "short": "#0d876d",
-            },
-            "dark": {
-                "text": "#ffffff",
-                "grid": "rgba(255, 255, 255, 0.25)",
-                "legend_bg": "rgba(20, 20, 20, 0.6)",
-                "long": "#ff4d6d",
-                "short": "#2ec4a6",
-            },
-        }
 
-        cfg = theme_config.get(theme, theme_config["light"])
-        text_color = cfg["text"]
+        cfg = self.theme_config.get(theme, self.theme_config["light"])
+        text_color = cfg["text_color"]
         grid_color = cfg["grid"]
 
-        # =========================
-        # 2. font & scale（统一标准）
-        # =========================
-        fig_width = 1440
-        fig_height = 900
-
-        scale = client_width / fig_width
-        scale = max(0.9, min(scale, 1))
-
-        font_size = int(12 * scale)
-        title_font_size = int(14 * scale)
-
-        font_family = (
-            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
-            '"Helvetica Neue", Arial, sans-serif'
+        scale, font_size = self._get_font_sizes(
+            client_width, base_font=12, min_scale=0.9, max_scale=1.05
+        )
+        scale, title_font_size = self._get_font_sizes(
+            client_width, base_font=14, min_scale=0.9, max_scale=1.05
         )
 
         # =========================
@@ -796,9 +770,6 @@ class ChartBuilder:
             )
         )
 
-        # =========================
-        # 4. Layout（light / dark + scale）
-        # =========================
         fig.update_layout(
             title=dict(
                 text="Last 180 days trade info",
@@ -807,7 +778,7 @@ class ChartBuilder:
                 font=dict(
                     size=title_font_size,
                     color=text_color,
-                    family=font_family,
+                    family=self.font_family,
                 ),
             ),
             xaxis=dict(
@@ -816,7 +787,7 @@ class ChartBuilder:
                 tickfont=dict(
                     size=font_size,
                     color=text_color,
-                    family=font_family,
+                    family=self.font_family,
                 ),
                 showline=False,
                 zeroline=False,
@@ -832,7 +803,7 @@ class ChartBuilder:
                 tickfont=dict(
                     size=font_size,
                     color=text_color,
-                    family=font_family,
+                    family=self.font_family,
                 ),
                 showline=False,
                 gridcolor=grid_color,
@@ -849,7 +820,7 @@ class ChartBuilder:
                 font=dict(
                     size=font_size,
                     color=text_color,
-                    family=font_family,
+                    family=self.font_family,
                 ),
                 bgcolor=cfg["legend_bg"],
                 borderwidth=0,
@@ -865,9 +836,6 @@ class ChartBuilder:
             dragmode=False,
         )
 
-        # =========================
-        # 5. x-axis range（原逻辑）
-        # =========================
         xmin = pd.to_datetime(df["buy_date"].min())
         xmax = pd.to_datetime(df["buy_date"].max())
 
@@ -880,65 +848,21 @@ class ChartBuilder:
 
         return fig
 
-    @staticmethod
     def industry_pnl_trend(
+        self,
         df,
         theme="light",
         client_width=1440,
     ):
 
-        # =========================
-        # 1. theme 配置
-        # =========================
-        theme_config = {
-            "light": {
-                "text": "#000000",
-                "grid": "rgba(0, 0, 0, 0.2)",
-                "axis_line": "rgba(0, 0, 0, 0.4)",
-                "legend_bg": "rgba(246, 248, 249, 0.8)",
-                "colors": [
-                    "#0c6552",
-                    "#0d876d",
-                    "#00a380",
-                    "#ffa700",
-                    "#d50b3e",
-                ],
-                "hover_text": "#000000",
-            },
-            "dark": {
-                "text": "#ffffff",
-                "grid": "rgba(255, 255, 255, 0.25)",
-                "axis_line": "rgba(255, 255, 255, 0.4)",
-                "legend_bg": "rgba(20, 20, 20, 0.6)",
-                "colors": [
-                    "#0d7b67",
-                    "#0e987f",
-                    "#01b08f",
-                    "#ffa700",
-                    "#e90c4a",
-                ],
-                "hover_text": "#ffffff",
-            },
-        }
+        cfg = self.theme_config.get(theme, self.theme_config["light"])
+        text_color = cfg["text_color"]
 
-        cfg = theme_config.get(theme, theme_config["light"])
-        text_color = cfg["text"]
-
-        # =========================
-        # 2. font & scale
-        # =========================
-        fig_width = 1440
-        fig_height = 900
-
-        scale = client_width / fig_width
-        scale = max(0.9, min(scale, 1))
-
-        font_size = int(12 * scale)
-        title_font_size = int(14 * scale)
-
-        font_family = (
-            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
-            '"Helvetica Neue", Arial, sans-serif'
+        scale, font_size = self._get_font_sizes(
+            client_width, base_font=12, min_scale=0.9, max_scale=1.05
+        )
+        scale, title_font_size = self._get_font_sizes(
+            client_width, base_font=14, min_scale=0.9, max_scale=1.05
         )
 
         # =========================
@@ -950,7 +874,7 @@ class ChartBuilder:
             y="pnl",
             color="industry",
             line_group="industry",
-            color_discrete_sequence=cfg["colors"],
+            color_discrete_sequence=cfg["pnl_colors"],
         )
         fig.update_traces(
             line=dict(width=2 * scale),
@@ -962,9 +886,6 @@ class ChartBuilder:
             ),
         )
 
-        # =========================
-        # 4. X Axis（完整颜色定义）
-        # =========================
         fig.update_xaxes(
             mirror=True,
             ticks="inside",
@@ -972,18 +893,18 @@ class ChartBuilder:
             tickfont=dict(
                 size=font_size,
                 color=text_color,
-                family=font_family,
+                family=self.font_family,
             ),
             title=dict(
                 text=None,
                 font=dict(
                     size=title_font_size,
                     color=text_color,
-                    family=font_family,
+                    family=self.font_family,
                 ),
             ),
             showline=False,
-            linecolor=cfg["axis_line"],
+            linecolor=cfg["grid"],
             zeroline=False,
             gridcolor=cfg["grid"],
             tickmode="linear",
@@ -991,27 +912,24 @@ class ChartBuilder:
             tickformat="%Y-%m",
         )
 
-        # =========================
-        # 5. Y Axis（完整颜色定义）
-        # =========================
         fig.update_yaxes(
             mirror=True,
             ticks="outside",
             tickfont=dict(
                 size=font_size,
                 color=text_color,
-                family=font_family,
+                family=self.font_family,
             ),
             title=dict(
                 text=None,
                 font=dict(
                     size=title_font_size,
                     color=text_color,
-                    family=font_family,
+                    family=self.font_family,
                 ),
             ),
             showline=False,
-            linecolor=cfg["axis_line"],
+            linecolor=cfg["grid"],
             zeroline=False,
             gridcolor=cfg["grid"],
             ticklabelposition="outside",
@@ -1019,9 +937,6 @@ class ChartBuilder:
             autorange=True,
         )
 
-        # =========================
-        # 6. layout
-        # =========================
         fig.update_layout(
             title=dict(
                 text="Last 180 days top5 pnl",
@@ -1030,7 +945,7 @@ class ChartBuilder:
                 font=dict(
                     size=title_font_size,
                     color=text_color,
-                    family=font_family,
+                    family=self.font_family,
                 ),
             ),
             legend_title_text=None,
@@ -1043,7 +958,7 @@ class ChartBuilder:
                 font=dict(
                     size=font_size,
                     color=text_color,
-                    family=font_family,
+                    family=self.font_family,
                 ),
                 bgcolor=cfg["legend_bg"],
                 borderwidth=0,
@@ -1058,56 +973,25 @@ class ChartBuilder:
 
         return fig
 
-    @staticmethod
     def industry_position_treemap(
+        self,
         df,
         theme="light",
         client_width=1440,
     ):
-        # =========================
-        # 1. theme 配置
-        # =========================
-        theme_config = {
-            "light": {
-                "text": "#000000",
-                "border": "rgba(200, 200, 200, 0.8)",
-                "legend_bg": "rgba(246, 248, 249, 0.8)",
-            },
-            "dark": {
-                "text": "#ffffff",
-                "border": "rgba(255, 255, 255, 0.4)",
-                "legend_bg": "rgba(20, 20, 20, 0.6)",
-            },
-        }
 
-        cfg = theme_config.get(theme, theme_config["light"])
-        text_color = cfg["text"]
-
-        # =========================
-        # 2. font & scale
-        # =========================
-        fig_width = 1440
-        fig_height = 900
-
-        scale = client_width / fig_width
-        scale = max(0.9, min(scale, 1))
-
-        font_size = int(12 * scale)
-
-        font_family = (
-            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
-            '"Helvetica Neue", Arial, sans-serif'
+        cfg = self.theme_config.get(theme, self.theme_config["light"])
+        text_color = cfg["text_color"]
+        scale, font_size = self._get_font_sizes(
+            client_width, base_font=12, min_scale=0.9, max_scale=1.0
         )
 
-        # =========================
-        # 3. 数据准备（不改你的逻辑）
-        # =========================
         labels_wrapped_industry = df["industry"]
         values = df["cnt"]
         hex_colors = ["rgba(0,0,0,0)" for _ in range(20)]
 
         # =========================
-        # 4. Treemap
+        # Treemap
         # =========================
         fig = go.Figure(
             go.Treemap(
@@ -1118,7 +1002,7 @@ class ChartBuilder:
                 insidetextfont=dict(
                     size=font_size,
                     color=text_color,
-                    family=font_family,
+                    family=self.font_family,
                 ),
                 textposition="middle center",
                 marker=dict(
@@ -1139,12 +1023,12 @@ class ChartBuilder:
         )
 
         # =========================
-        # 5. layout（theme 对齐）
+        # layout（theme 对齐）
         # =========================
         fig.update_layout(
             title=dict(text=None),
             showlegend=False,
-            margin=dict(t=0, b=20, l=0, r=0),
+            margin=dict(t=0, b=0, l=0, r=0),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1153,57 +1037,25 @@ class ChartBuilder:
 
         return fig
 
-    @staticmethod
     def industry_profit_treemap(
+        self,
         df,
         theme="light",
         client_width=1440,
     ):
 
-        # =========================
-        # 1. theme 配置
-        # =========================
-        theme_config = {
-            "light": {
-                "text": "#000000",
-                "outside_text": "#777777",
-                "border": "rgba(200, 200, 200, 0.8)",
-            },
-            "dark": {
-                "text": "#ffffff",
-                "outside_text": "#aaaaaa",
-                "border": "rgba(255, 255, 255, 0.4)",
-            },
-        }
-
-        cfg = theme_config.get(theme, theme_config["light"])
-        text_color = cfg["text"]
-
-        # =========================
-        # 2. font & scale
-        # =========================
-        fig_width = 1440
-        fig_height = 900
-
-        scale = client_width / fig_width
-        scale = max(0.9, min(scale, 1))
-
-        font_size = int(12 * scale)
-
-        font_family = (
-            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
-            '"Helvetica Neue", Arial, sans-serif'
+        cfg = self.theme_config.get(theme, self.theme_config["light"])
+        text_color = cfg["text_color"]
+        scale, font_size = self._get_font_sizes(
+            client_width, base_font=12, min_scale=0.9, max_scale=1.0
         )
 
-        # =========================
-        # 3. 数据准备（字段最小替换）
-        # =========================
         labels = df["industry"]
         values = df["pl"]
         hex_colors = ["rgba(0,0,0,0)" for _ in range(20)]
 
         # =========================
-        # 4. Treemap
+        # Treemap
         # =========================
         fig = go.Figure(
             go.Treemap(
@@ -1214,11 +1066,11 @@ class ChartBuilder:
                 insidetextfont=dict(
                     size=font_size,
                     color=text_color,
-                    family=font_family,
+                    family=self.font_family,
                 ),
                 outsidetextfont=dict(
                     color=cfg["outside_text"],
-                    family=font_family,
+                    family=self.font_family,
                 ),
                 textposition="middle center",
                 marker=dict(
@@ -1239,12 +1091,12 @@ class ChartBuilder:
         )
 
         # =========================
-        # 5. layout
+        # layout
         # =========================
         fig.update_layout(
             title=dict(text=None),
             showlegend=False,
-            margin=dict(t=0, b=20, l=0, r=0),
+            margin=dict(t=0, b=0, l=0, r=0),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1253,8 +1105,7 @@ class ChartBuilder:
 
         return fig
 
-    @staticmethod
-    def annual_return(pnl: pd.Series, theme="light", client_width=1440):
+    def annual_return(self, pnl: pd.Series, theme="light", client_width=1440):
         """
         生成年度收益图表
         """
@@ -1272,56 +1123,14 @@ class ChartBuilder:
         # =========================
         # 1. theme 配置
         # =========================
-        theme_config = {
-            "light": {
-                "text": "#000000",
-                "grid": "rgba(200,200,200,0.4)",
-                "border": "rgba(200,200,200,0.6)",
-                "cumret": "#e01c3a",
-                "drawdown": "#0d876d",
-                "drawdown_fill": "rgba(13,135,109,0.3)",
-                "table_header": "rgba(245,245,245,0)",
-                "table_cell": "rgba(0,0,0,0)",
-                "hover_bg": "#ffffff",
-                "hover_text": "#000000",
-                "hover_border": "#cccccc",
-                "positive_color": "#e01c3a",
-                "negative_color": "#0d876d",
-            },
-            "dark": {
-                "text": "#ffffff",
-                "grid": "rgba(255,255,255,0.4)",
-                "border": "rgba(255,255,255,0.4)",
-                "cumret": "#ff6b6b",
-                "drawdown": "#6bcfb5",
-                "drawdown_fill": "rgba(107,207,181,0.3)",
-                "table_header": "rgba(64,64,64,0)",
-                "table_cell": "rgba(0,0,0,0)",
-                "hover_bg": "#1a1a1a",
-                "hover_text": "#ffffff",
-                "hover_border": "#666666",
-                "positive_color": "#ff6b6b",
-                "negative_color": "#6bcfb5",
-            },
-        }
-
-        cfg = theme_config.get(theme, theme_config["light"])
-        text_color = cfg["text"]
-
-        # =========================
-        # 2. 尺寸 & 字体自适应
-        # =========================
-        scale = client_width / 1440
-        scale = max(0.65, min(scale, 1.05))
-
-        base_font = int(16 * scale)
-        table_font = int(16 * scale)
-
-        font_family = (
-            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
-            '"Helvetica Neue", Arial, sans-serif'
+        cfg = self.theme_config.get(theme, self.theme_config["light"])
+        text_color = cfg["text_color"]
+        scale, base_font = self._get_font_sizes(
+            client_width, base_font=16, min_scale=0.65, max_scale=1.05
         )
-
+        scale, table_font = self._get_font_sizes(
+            client_width, base_font=16, min_scale=0.65, max_scale=1.05
+        )
         # =========================
         # 3. 收益 / 回撤计算
         # =========================
@@ -1384,9 +1193,7 @@ class ChartBuilder:
                     try:
                         num_val = float(val.replace("%", ""))
                         color = (
-                            cfg["positive_color"]
-                            if num_val >= 0
-                            else cfg["negative_color"]
+                            cfg["positive_int"] if num_val >= 0 else cfg["negative_int"]
                         )
                     except:
                         color = text_color
@@ -1495,7 +1302,9 @@ class ChartBuilder:
                     marker=dict(symbol="circle", size=8 * scale, color=cfg["cumret"]),
                     text=[f"Max: {cum_max_val:.2f}"],
                     textposition=get_label_position(cum_max_idx, cumulative),
-                    textfont=dict(size=base_font, color=text_color, family=font_family),
+                    textfont=dict(
+                        size=base_font, color=text_color, family=self.font_family
+                    ),
                     showlegend=False,
                     hovertemplate=(
                         f"<b>Max Cumulative Return</b>: {cum_max_val:.4f}<br>"
@@ -1590,7 +1399,7 @@ class ChartBuilder:
 
         # 计算表格区域（右侧）
         table_domain_left = chart_domain_right + HORIZONTAL_SPACING
-        table_domain_right = 1.0
+        table_domain_right = 0.99
 
         chart_width = chart_domain_right - chart_domain_left
         legend_absolute_x = chart_domain_left + (0.04 * chart_width)
@@ -1603,6 +1412,12 @@ class ChartBuilder:
 
         TABLE_Y_BOTTOM = 0.0
         TABLE_Y_TOP = 1.0
+        cell_values = []
+        for i, col in enumerate(table_df.columns):
+            if i == 0:
+                cell_values.append([f"<b>{v}</b>" for v in table_df[col]])
+            else:
+                cell_values.append(table_df[col])
 
         fig.add_trace(
             go.Table(
@@ -1614,15 +1429,24 @@ class ChartBuilder:
                     values=list(table_df.columns),
                     fill_color=cfg["table_header"],
                     line=dict(color=cfg["border"], width=1),
-                    font=dict(size=table_font, color=text_color, family=font_family),
+                    font=dict(
+                        size=table_font,
+                        color=text_color,
+                        family=self.font_family,
+                        weight="bold",
+                    ),
                     align=["center"] * len(table_df.columns),
                     height=header_height,
                 ),
                 cells=dict(
-                    values=[table_df[c] for c in table_df.columns],
+                    values=cell_values,
                     fill_color=cell_colors,
                     line=dict(color=cfg["border"], width=1),
-                    font=dict(size=table_font, color=font_colors, family=font_family),
+                    font=dict(
+                        size=table_font,
+                        color=font_colors,
+                        family=self.font_family,
+                    ),
                     align=["center"] * len(table_df.columns),
                     height=cell_height,
                 ),
@@ -1644,7 +1468,7 @@ class ChartBuilder:
             width=None,
             height=None,
             margin=dict(l=0, r=0, t=0, b=0),
-            font=dict(size=base_font, color=text_color, family=font_family),
+            font=dict(size=base_font, color=text_color, family=self.font_family),
             legend=dict(
                 x=legend_absolute_x,
                 y=0.98,
@@ -1652,7 +1476,7 @@ class ChartBuilder:
                 yanchor="top",
                 bgcolor="rgba(0,0,0,0)",
                 borderwidth=0,
-                font=dict(size=base_font, family=font_family),
+                font=dict(size=base_font, family=self.font_family),
                 itemsizing="trace",
                 entrywidth=8,
             ),
@@ -1662,7 +1486,7 @@ class ChartBuilder:
             hoverlabel=dict(
                 bgcolor=cfg["hover_bg"],
                 font_size=base_font,
-                font_family=font_family,
+                font_family=self.font_family,
                 font_color=cfg["hover_text"],
                 bordercolor=cfg["hover_border"],
             ),
@@ -1677,7 +1501,9 @@ class ChartBuilder:
                 position=chart_domain_left,
                 showgrid=True,
                 gridcolor=cfg["grid"],
-                tickfont=dict(size=base_font, color=text_color, family=font_family),
+                tickfont=dict(
+                    size=base_font, color=text_color, family=self.font_family
+                ),
                 tickformat=".2f",
                 range=cum_range,
                 showticklabels=True,
@@ -1695,7 +1521,9 @@ class ChartBuilder:
                 overlaying="y",
                 position=chart_domain_right,  # 调整到图表区域右侧
                 showgrid=False,
-                tickfont=dict(size=base_font, color=text_color, family=font_family),
+                tickfont=dict(
+                    size=base_font, color=text_color, family=self.font_family
+                ),
                 tickformat=".0%",
                 range=dd_range,
                 showticklabels=True,
@@ -1709,7 +1537,9 @@ class ChartBuilder:
             # X轴设置
             xaxis=dict(
                 gridcolor=cfg["grid"],
-                tickfont=dict(size=base_font, color=text_color, family=font_family),
+                tickfont=dict(
+                    size=base_font, color=text_color, family=self.font_family
+                ),
                 domain=[chart_domain_left, chart_domain_right],  # 图表区域
                 rangeslider=dict(visible=False),
                 showline=False,

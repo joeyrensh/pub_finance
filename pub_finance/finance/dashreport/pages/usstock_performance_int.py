@@ -8,7 +8,7 @@ from finance.dashreport.utils import Header, make_dash_format_table
 import pandas as pd
 import pathlib
 import os
-from finance.dashreport.chart_builder import ChartBuilder as cb
+from finance.dashreport.chart_builder import ChartBuilder
 from dash import callback, Output, Input, State
 import pickle
 
@@ -18,6 +18,7 @@ def create_layout(app):
     DATA_PATH = PATH.joinpath("../../data").resolve()
     DATA_PATH_ANUAL_RETURN = PATH.joinpath("../../cache").resolve()
     prefix = "us"
+    cb = ChartBuilder()
 
     # Load tables and other data for page
     # Overall 信息

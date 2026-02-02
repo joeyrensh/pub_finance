@@ -60,8 +60,11 @@
                  Arial,
                  sans-serif !important;
     font-variant-numeric: tabular-nums !important;
+    -webkit-font-smoothing: antialiased !important;
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
-
 
 /* ==================== 基础与全局样式 ==================== */
 body {
