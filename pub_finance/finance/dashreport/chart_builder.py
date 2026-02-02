@@ -51,7 +51,7 @@ class ChartBuilder:
                 "table_header": "rgba(245,245,245,0)",
                 "table_cell": "rgba(0,0,0,0)",
                 "hover_bg": "#ffffff",
-                "hover_text": "#000000",
+                "hover_text": "#ffffff",
                 "hover_border": "#cccccc",
             },
             "dark": {
@@ -88,7 +88,7 @@ class ChartBuilder:
                 "table_header": "rgba(64,64,64,0)",
                 "table_cell": "rgba(0,0,0,0)",
                 "hover_bg": "#1a1a1a",
-                "hover_text": "#ffffff",
+                "hover_text": "#000000",
                 "hover_border": "#666666",
             },
         }
@@ -443,6 +443,11 @@ class ChartBuilder:
             margin=dict(l=0, r=0, t=0, b=0, pad=0),
             autosize=True,  # 修改点：设为False以使用固定尺寸
             dragmode=False,
+            hoverlabel=dict(
+                bgcolor=dynamic_text_color,
+                font_color=config["hover_text"],
+                bordercolor=config["hover_border"],
+            ),
         )
 
         # 在每周之间添加横向分隔线
@@ -1536,7 +1541,8 @@ class ChartBuilder:
             paper_bgcolor="rgba(0,0,0,0)",
             hovermode="x",
             hoverlabel=dict(
-                bgcolor=cfg["hover_bg"],
+                # bgcolor=cfg["hover_bg"],
+                bgcolor=cfg["cumret"],
                 font_size=base_font,
                 font_family=self.font_family,
                 font_color=cfg["hover_text"],
