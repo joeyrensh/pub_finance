@@ -56,7 +56,7 @@ class ChartBuilder:
             },
             "dark": {
                 "positive_int": "#ff6b6b",  # 亮红色 - 正数
-                "negative_int": "#6bcfb5",  # 亮绿色 - 负数
+                "negative_int": "#00c4a6",  # 亮绿色 - 负数
                 "text_color": "#ffffff",  # 白色
                 "grid": "rgba(255, 255, 255, 0.2)",  # 网格线
                 "background": "rgba(0, 0, 0, 0)",  # 透明背景
@@ -88,7 +88,7 @@ class ChartBuilder:
                 "table_header": "rgba(64,64,64,0)",
                 "table_cell": "rgba(0,0,0,0)",
                 "hover_bg": "#1a1a1a",
-                "hover_text": "#000000",
+                "hover_text": "#ffffff",
                 "hover_border": "#666666",
             },
         }
