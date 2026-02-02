@@ -131,7 +131,7 @@ class ChartBuilder:
         """
 
         scale, base_font_size = self._get_font_sizes(
-            client_width, base_font=12, min_scale=0.85, max_scale=1.05
+            client_width, base_font=12, min_scale=0.9, max_scale=1.0
         )
 
         # 获取当前主题配置
@@ -187,16 +187,50 @@ class ChartBuilder:
             filtered_dates = pd.DatetimeIndex([])
 
         # 计算字体大小
-        abs_values = np.abs(df["s_pnl"])
-        if len(abs_values) > 0:
-            quantiles = np.quantile(
-                abs_values, [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-            )
-        else:
-            quantiles = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        s = df["s_pnl"].dropna()
 
-        max_size_increase = 10
-        font_steps = np.linspace(base_font_size, base_font_size + max_size_increase, 10)
+        # 正收益
+        pos_vals = s[s > 0]
+        if len(pos_vals) > 0:
+            pos_median = np.quantile(pos_vals, 0.5)
+            pos_max = pos_vals.max()
+        else:
+            pos_median = 0
+            pos_max = 0
+
+        # 负收益（取绝对值）
+        neg_vals = -s[s < 0]  # 变成正数
+        if len(neg_vals) > 0:
+            neg_median = np.quantile(neg_vals, 0.5)
+            neg_max = neg_vals.max()
+        else:
+            neg_median = 0
+            neg_max = 0
+
+        max_size_increase = 8
+
+        def compute_font_size(s_pnl, base_font_size):
+            # 正收益
+            if s_pnl > 0 and pos_max > pos_median:
+                if s_pnl <= pos_median:
+                    return base_font_size
+
+                ratio = (s_pnl - pos_median) / (pos_max - pos_median)
+                ratio = min(max(ratio, 0), 1)
+                return base_font_size + ratio * max_size_increase
+
+            # 负收益
+            if s_pnl < 0 and neg_max > neg_median:
+                abs_v = abs(s_pnl)
+                if abs_v <= neg_median:
+                    return base_font_size
+
+                ratio = (abs_v - neg_median) / (neg_max - neg_median)
+                ratio = min(max(ratio, 0), 1)
+                return base_font_size + ratio * max_size_increase
+
+            # 0 或异常情况
+            return base_font_size
 
         # 创建图表
         fig = go.Figure()
@@ -266,10 +300,11 @@ class ChartBuilder:
 
             # 确定字体大小（基于s_pnl的绝对值）
             abs_col3 = abs(col3_value)
-            dynamic_font_size = next(
-                (font_steps[i] for i, q in enumerate(quantiles) if abs_col3 <= q),
-                font_steps[-1],  # 默认值
-            )
+            # dynamic_font_size = next(
+            #     (font_steps[i] for i, q in enumerate(quantiles) if abs_col3 <= q),
+            #     font_steps[-1],  # 默认值
+            # )
+            dynamic_font_size = compute_font_size(col3_value, base_font_size + 2)
 
             dynamic_font_size = int(dynamic_font_size)
 
@@ -313,7 +348,7 @@ class ChartBuilder:
                     opacity=0.9,
                 )
             fig.add_annotation(
-                x=day_of_week - 0.5,
+                x=day_of_week - 0.52,
                 y=week_order,
                 text=month,
                 showarrow=False,
@@ -321,7 +356,7 @@ class ChartBuilder:
                 xanchor="left",
                 yanchor="middle",
                 xshift=0,
-                yshift=int(dynamic_font_size * scale * 0.45),
+                yshift=int(dynamic_font_size * scale * 0.48),
                 font=dict(
                     family=self.font_family,
                     size=dynamic_font_size,
@@ -330,7 +365,7 @@ class ChartBuilder:
                 opacity=0.9,
             )
             fig.add_annotation(
-                x=day_of_week - 0.5,
+                x=day_of_week - 0.52,
                 y=week_order,
                 text=day,
                 showarrow=False,
@@ -338,7 +373,7 @@ class ChartBuilder:
                 xanchor="left",
                 yanchor="middle",
                 xshift=0,
-                yshift=-int(dynamic_font_size * scale * 0.45),
+                yshift=-int(dynamic_font_size * scale * 0.48),
                 font=dict(
                     family=self.font_family,
                     size=dynamic_font_size,
