@@ -1293,6 +1293,23 @@ class ChartBuilder:
         if len(cumulative) > 0:
             cum_max_idx = cumulative.idxmax()
             cum_max_val = cumulative.max()
+            last_x = cumulative.index[-1]
+            last_y = cumulative.iloc[-1]
+
+            fig.add_trace(
+                go.Scatter(
+                    x=[last_x],
+                    y=[last_y],
+                    mode="markers+text",
+                    marker=dict(symbol="circle", size=8 * scale, color=cfg["cumret"]),
+                    showlegend=False,
+                    hovertemplate=(
+                        f"<b>Latest Cumulative Return</b>: {last_y:.4f}<br>"
+                        f"<extra></extra>"
+                    ),
+                    yaxis="y",
+                )
+            )
 
             fig.add_trace(
                 go.Scatter(
