@@ -734,6 +734,7 @@ def create_layout(app):
                                                     f"{prefix}",
                                                     f"{df_overall.at[0, 'end_date']}",
                                                 ),
+                                                className="cn_table",
                                             )
                                         ],
                                         className="table",
@@ -767,6 +768,7 @@ def create_layout(app):
                                                     f"{prefix}",
                                                     f"{df_overall.at[0, 'end_date']}",
                                                 ),
+                                                className="cn_table",
                                             )
                                         ],
                                         className="table",

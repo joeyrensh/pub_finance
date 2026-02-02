@@ -807,7 +807,8 @@ def create_layout(app):
                                                     cols_format_category,
                                                     f"{prefix}",
                                                     f"{df_overall.at[0, 'end_date']}",
-                                                )
+                                                ),
+                                                className="cn_table",
                                             )
                                         ],
                                         className="table",
@@ -839,7 +840,8 @@ def create_layout(app):
                                                     cols_format_detail,
                                                     f"{prefix}",
                                                     f"{df_overall.at[0, 'end_date']}",
-                                                )
+                                                ),
+                                                className="cn_table",
                                             )
                                         ],
                                         className="table",
@@ -869,7 +871,8 @@ def create_layout(app):
                                                     cols_format_detail_short,
                                                     f"{prefix}",
                                                     f"{df_overall.at[0, 'end_date']}",
-                                                )
+                                                ),
+                                                className="cn_table",
                                             )
                                         ],
                                         style={
