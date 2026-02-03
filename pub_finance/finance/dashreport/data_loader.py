@@ -255,6 +255,7 @@ class ReportDataLoader:
                         "category",
                         "detail",
                         "detail_short",
+                        "cn_etf",
                     )
                 )
             )
@@ -300,6 +301,7 @@ class ReportDataLoader:
             "category": [D / f"{prefix}_category.csv"],
             "detail": [D / f"{prefix}_stockdetail.csv"],
             "detail_short": [D / f"{prefix}_stockdetail_short.csv"],
+            "cn_etf": [D / f"{prefix}_etf.csv"],
         }
 
         if dataset == "annual_return":
