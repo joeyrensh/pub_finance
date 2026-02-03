@@ -362,12 +362,13 @@ def create_layout(app):
                                                 ),
                                                 config={
                                                     "displayModeBar": False,
-                                                    "doubleClick": False,
-                                                    "margin": "0",
-                                                    "padding": "0",
+                                                    "doubleClick": True,
+                                                },
+                                                style={
+                                                    "margin": 0,
+                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
-                                                    "overflow": "visible !important",
                                                 },
                                             )
                                         ],
@@ -426,9 +427,11 @@ def create_layout(app):
                                                 ),
                                                 config={
                                                     "displayModeBar": False,
-                                                    "doubleClick": False,
-                                                    "margin": "0",
-                                                    "padding": "0",
+                                                    "doubleClick": True,
+                                                },
+                                                style={
+                                                    "margin": 0,
+                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
                                                 },
@@ -484,9 +487,11 @@ def create_layout(app):
                                                 ),
                                                 config={
                                                     "displayModeBar": False,
-                                                    "doubleClick": False,
-                                                    "margin": "0",
-                                                    "padding": "0",
+                                                    "doubleClick": True,
+                                                },
+                                                style={
+                                                    "margin": 0,
+                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
                                                 },
@@ -548,9 +553,11 @@ def create_layout(app):
                                                 ),
                                                 config={
                                                     "displayModeBar": False,
-                                                    "doubleClick": False,
-                                                    "margin": "0",
-                                                    "padding": "0",
+                                                    "doubleClick": True,
+                                                },
+                                                style={
+                                                    "margin": 0,
+                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
                                                 },
@@ -606,9 +613,11 @@ def create_layout(app):
                                                 ),
                                                 config={
                                                     "displayModeBar": False,
-                                                    "doubleClick": False,
-                                                    "margin": "0",
-                                                    "padding": "0",
+                                                    "doubleClick": True,
+                                                },
+                                                style={
+                                                    "margin": 0,
+                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
                                                 },
@@ -670,9 +679,11 @@ def create_layout(app):
                                                 ),
                                                 config={
                                                     "displayModeBar": False,
-                                                    "doubleClick": False,
-                                                    "margin": "0",
-                                                    "padding": "0",
+                                                    "doubleClick": True,
+                                                },
+                                                style={
+                                                    "margin": 0,
+                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
                                                 },
@@ -728,9 +739,11 @@ def create_layout(app):
                                                 ),
                                                 config={
                                                     "displayModeBar": False,
-                                                    "doubleClick": False,
-                                                    "margin": "0",
-                                                    "padding": "0",
+                                                    "doubleClick": True,
+                                                },
+                                                style={
+                                                    "margin": 0,
+                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
                                                 },

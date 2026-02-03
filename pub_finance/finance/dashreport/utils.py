@@ -813,9 +813,11 @@ def make_dash_format_table(df, cols_format, market, trade_date):
                 # id="default-table",
                 id=table_id,
                 data=data,
+                page_size=50,
                 columns=columns,
                 filter_action="native",
                 sort_action="native",
+                sort_mode="single",
                 filter_options={
                     "placeholder_text": "Search",
                     # "case": "insensitive",

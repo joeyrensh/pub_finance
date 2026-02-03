@@ -23,7 +23,11 @@ from pathlib import Path
 
 
 server = Flask(__name__)
-Compress(server)
+Compress(
+    server,
+)
+server.config["COMPRESS_LEVEL"] = 6
+server.config["COMPRESS_MIN_SIZE"] = 500
 
 # 读取配置文件
 config = configparser.ConfigParser()
