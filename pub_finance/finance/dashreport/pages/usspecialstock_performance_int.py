@@ -10,23 +10,22 @@ import pathlib
 import os
 from finance.dashreport.chart_builder import ChartBuilder
 from dash import callback, Output, Input, State
-import pickle
+from finance.dashreport.data_loader import ReportDataLoader
 
 
 def create_layout(app):
-    # get relative data folder
-    PATH = pathlib.Path(__file__).parent
-    DATA_PATH = PATH.joinpath("../../data").resolve()
-    DATA_PATH_ANUAL_RETURN = PATH.joinpath("../../cache").resolve()
     prefix = "us_special"
-    cb = ChartBuilder()
+    data = ReportDataLoader.load(
+        prefix=prefix,
+        datasets=[
+            "overall",
+        ],
+    )
 
     # Load tables and other data for page
     # Overall 信息
-    df_overall = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_df_result.csv"),
-        usecols=[i for i in range(1, 5)],
-    )
+    cb = ChartBuilder()
+    df_overall = data["overall"]
     # 检查是否为NaN、None、0或空字符串
     stock_cnt_value = df_overall.at[0, "stock_cnt"]
     if (
@@ -38,205 +37,62 @@ def create_layout(app):
         df_overall.at[0, "stock_cnt"] = 1
 
     trade_date = str(df_overall.at[0, "end_date"]).replace("-", "")
-    annual_return_file = DATA_PATH_ANUAL_RETURN.joinpath(
-        f"pnl_{prefix}_{trade_date}.pkl"
-    )
-    with open(annual_return_file, "rb") as f:
-        pnl, cash, total_value = pickle.load(f)
+    # annual return 数据
     app.chart_callback.register_chart(
         chart_type="annual_return",
         page_prefix=prefix,
         chart_builder=cb,
-        df_data=pnl,
+        datasets=("annual_return",),
         index=0,
     )
-
-    df_heatmap = pd.read_csv(DATA_PATH.joinpath(f"{prefix}_pd_calendar_heatmap.csv"))
+    # heatmap 数据
     app.chart_callback.register_chart(
         chart_type="heatmap",
         page_prefix=prefix,
         chart_builder=cb,
-        df_data=df_heatmap,
+        datasets=("heatmap",),
         index=1,
     )
-    df_strategy = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_pd_strategy_tracking_lst180days.csv")
-    )
+    # strategy 数据
     app.chart_callback.register_chart(
         chart_type="strategy",
         page_prefix=prefix,
         chart_builder=cb,
-        df_data=df_strategy,
+        datasets=("strategy",),
         index=2,
     )
-
-    df_trade_info = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_pd_trade_info_lst180days.csv")
-    )
+    # trade info 数据
     app.chart_callback.register_chart(
         chart_type="trade",
         page_prefix=prefix,
         chart_builder=cb,
-        df_data=df_trade_info,
+        datasets=("trade",),
         index=5,
     )
-    df_pnl_trend = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_pd_top5_industry_profit_trend.csv")
-    )
+    # pnl trend 数据
     app.chart_callback.register_chart(
         chart_type="pnl_trend",
         page_prefix=prefix,
         chart_builder=cb,
-        df_data=df_pnl_trend,
+        datasets=("pnl_trend",),
         index=6,
     )
-
-    df_industry_position = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_pd_top20_industry.csv")
-    )
+    # industry position 数据
     app.chart_callback.register_chart(
         chart_type="industry_position",
         page_prefix=prefix,
         chart_builder=cb,
-        df_data=df_industry_position,
+        datasets=("industry_position",),
         index=3,
     )
-
-    df_industry_profit = pd.read_csv(
-        DATA_PATH.joinpath(f"{prefix}_pd_top20_profit_industry.csv")
-    )
+    # industry profit 数据
     app.chart_callback.register_chart(
         chart_type="industry_profit",
         page_prefix=prefix,
         chart_builder=cb,
-        df_data=df_industry_profit,
+        datasets=("industry_profit",),
         index=4,
     )
-
-    # 板块数据
-    cols_category = [
-        "IDX",
-        "IND",
-        "OPEN",
-        "LRATIO",
-        "L5 OPEN",
-        "L5 CLOSE",
-        "ERP",
-        "PROFIT",
-        "PNL RATIO",
-        "AVG TRANS",
-        "AVG DAYS",
-        "WIN RATE",
-        "PROFIT TREND",
-    ]
-    df = (
-        pd.read_csv(
-            DATA_PATH.joinpath(f"{prefix}_category.csv"),
-            usecols=[i for i in range(1, 16)],
-        )
-        if DATA_PATH.joinpath(f"{prefix}_category.csv").exists()
-        else pd.DataFrame(columns=cols_category)
-    )
-    df["IDX"] = df.index
-    df = df[cols_category]
-
-    cols_format_category = {
-        "OPEN": ("int",),
-        "L5 OPEN": ("int",),
-        "L5 CLOSE": ("int",),
-        "LRATIO": ("ratio", "format"),
-        "PROFIT": ("int", "format"),
-        "PNL RATIO": ("ratio", "format"),
-        "AVG TRANS": ("float",),
-        "AVG DAYS": ("float",),
-        "WIN RATE": ("ratio", "format"),
-        "ERP": ("float",),
-    }
-
-    # 持仓明细
-    cols_detail = [
-        "IDX",
-        "SYMBOL",
-        "IND",
-        "NAME",
-        "TOTAL VALUE",
-        "ERP",
-        "SHARPE RATIO",
-        "SORTINO RATIO",
-        "MAX DD",
-        "OPEN DATE",
-        "BASE",
-        "ADJBASE",
-        "PNL",
-        "PNL RATIO",
-        "AVG TRANS",
-        "AVG DAYS",
-        "WIN RATE",
-        "TOTAL PNL RATIO",
-        "STRATEGY",
-    ]
-    df_detail = (
-        pd.read_csv(
-            DATA_PATH.joinpath(f"{prefix}_stockdetail.csv"),
-            usecols=[i for i in range(1, 20)],
-        )
-        if DATA_PATH.joinpath(f"{prefix}_stockdetail.csv").exists()
-        else pd.DataFrame(columns=cols_detail)
-    )
-    df_detail["IDX"] = df_detail.index
-    df_detail = df_detail[cols_detail]
-    cols_format_detail = {
-        "BASE": ("float",),
-        "ADJBASE": ("float",),
-        "PNL": ("int", "format"),
-        "AVG TRANS": ("int",),
-        "AVG DAYS": ("float",),
-        "PNL RATIO": ("ratio", "format"),
-        "WIN RATE": ("ratio", "format"),
-        "TOTAL PNL RATIO": ("ratio", "format"),
-        "OPEN DATE": ("date", "format"),
-        "TOTAL VALUE": ("float",),
-        "ERP": ("float",),
-        "SHARPE RATIO": ("float",),
-        "SORTINO RATIO": ("float",),
-        "MAX DD": ("ratio", "format"),
-    }
-    # 减仓明细
-    cols_short = [
-        "IDX",
-        "SYMBOL",
-        "IND",
-        "NAME",
-        "TOTAL VALUE",
-        "ERP",
-        "OPEN DATE",
-        "CLOSE DATE",
-        "BASE",
-        "ADJBASE",
-        "PNL",
-        "PNL RATIO",
-        "HIS DAYS",
-        "STRATEGY",
-    ]
-    df_detail_short = (
-        pd.read_csv(
-            DATA_PATH.joinpath(f"{prefix}_stockdetail_short.csv"),
-            usecols=[i for i in range(1, 15)],
-        )
-        if DATA_PATH.joinpath(f"{prefix}_stockdetail_short.csv").exists()
-        else pd.DataFrame(columns=cols_short)
-    )
-    df_detail_short["IDX"] = df_detail_short.index
-    df_detail_short = df_detail_short[cols_short]
-    cols_format_detail_short = {
-        "TOTAL VALUE": ("float",),
-        "ERP": ("float",),
-        "BASE": ("float",),
-        "ADJBASE": ("float",),
-        "PNL": ("int", "format"),
-        "PNL RATIO": ("ratio", "format"),
-        "HIS DAYS": ("int",),
-    }
 
     # Build layout with dcc.Graph for interactive charts
     return html.Div(
@@ -357,11 +213,7 @@ def create_layout(app):
                                                 id=app.chart_callback.get_chart_id(
                                                     "annual_return", prefix, 0
                                                 ),
-                                                figure=cb.annual_return(
-                                                    pnl=pnl,
-                                                    theme="light",
-                                                    client_width=1440,
-                                                ),
+                                                figure={},
                                                 config={
                                                     "displayModeBar": False,
                                                     "doubleClick": True,
@@ -422,11 +274,7 @@ def create_layout(app):
                                                 id=app.chart_callback.get_chart_id(
                                                     "heatmap", prefix, 1
                                                 ),
-                                                figure=cb.calendar_heatmap(
-                                                    df=df_heatmap,
-                                                    theme="light",
-                                                    client_width=1440,
-                                                ),
+                                                figure={},
                                                 config={
                                                     "displayModeBar": False,
                                                     "doubleClick": True,
@@ -482,11 +330,7 @@ def create_layout(app):
                                                 id=app.chart_callback.get_chart_id(
                                                     "strategy", prefix, 2
                                                 ),
-                                                figure=cb.strategy_chart(
-                                                    df=df_strategy,
-                                                    theme="light",
-                                                    client_width=1440,
-                                                ),
+                                                figure={},
                                                 config={
                                                     "displayModeBar": False,
                                                     "doubleClick": True,
@@ -548,11 +392,7 @@ def create_layout(app):
                                                 id=app.chart_callback.get_chart_id(
                                                     "trade", prefix, 5
                                                 ),
-                                                figure=cb.trade_info_chart(
-                                                    df=df_trade_info,
-                                                    theme="light",
-                                                    client_width=1440,
-                                                ),
+                                                figure={},
                                                 config={
                                                     "displayModeBar": False,
                                                     "doubleClick": True,
@@ -608,11 +448,7 @@ def create_layout(app):
                                                 id=app.chart_callback.get_chart_id(
                                                     "pnl_trend", prefix, 6
                                                 ),
-                                                figure=cb.industry_pnl_trend(
-                                                    df=df_pnl_trend,
-                                                    theme="light",
-                                                    client_width=1440,
-                                                ),
+                                                figure={},
                                                 config={
                                                     "displayModeBar": False,
                                                     "doubleClick": True,
@@ -674,11 +510,7 @@ def create_layout(app):
                                                 id=app.chart_callback.get_chart_id(
                                                     "industry_position", prefix, 3
                                                 ),
-                                                figure=cb.industry_position_treemap(
-                                                    df=df_industry_position,
-                                                    theme="light",
-                                                    client_width=1440,
-                                                ),
+                                                figure={},
                                                 config={
                                                     "displayModeBar": False,
                                                     "doubleClick": True,
@@ -734,11 +566,7 @@ def create_layout(app):
                                                 id=app.chart_callback.get_chart_id(
                                                     "industry_profit", prefix, 4
                                                 ),
-                                                figure=cb.industry_profit_treemap(
-                                                    df=df_industry_profit,
-                                                    theme="light",
-                                                    client_width=1440,
-                                                ),
+                                                figure={},
                                                 config={
                                                     "displayModeBar": False,
                                                     "doubleClick": True,
@@ -780,12 +608,11 @@ def create_layout(app):
                                     html.Div(
                                         [
                                             html.Div(
-                                                children=make_dash_format_table(
-                                                    df,
-                                                    cols_format_category,
-                                                    f"{prefix}",
-                                                    f"{df_overall.at[0, 'end_date']}",
-                                                )
+                                                id={
+                                                    "type": "dynamic-table",
+                                                    "page": prefix,
+                                                    "table": "category",
+                                                },
                                             )
                                         ],
                                         className="table",
@@ -812,12 +639,11 @@ def create_layout(app):
                                     html.Div(
                                         [
                                             html.Div(
-                                                children=make_dash_format_table(
-                                                    df_detail,
-                                                    cols_format_detail,
-                                                    f"{prefix}",
-                                                    f"{df_overall.at[0, 'end_date']}",
-                                                )
+                                                id={
+                                                    "type": "dynamic-table",
+                                                    "page": prefix,
+                                                    "table": "detail",
+                                                },
                                             )
                                         ],
                                         className="table",
@@ -842,12 +668,11 @@ def create_layout(app):
                                     html.Div(
                                         [
                                             html.Div(
-                                                children=make_dash_format_table(
-                                                    df_detail_short,
-                                                    cols_format_detail_short,
-                                                    f"{prefix}",
-                                                    f"{df_overall.at[0, 'end_date']}",
-                                                )
+                                                id={
+                                                    "type": "dynamic-table",
+                                                    "page": prefix,
+                                                    "table": "detail_short",
+                                                },
                                             )
                                         ],
                                         style={

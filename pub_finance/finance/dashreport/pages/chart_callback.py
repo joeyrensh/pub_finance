@@ -1,14 +1,15 @@
 """
-修正版：单个通用回调处理所有图表
+修正版：单个通用回调 + DataLoader 驱动
 """
 
-from dash import callback, Output, Input, State, MATCH
+from dash import Output, Input, MATCH
 import dash
+from finance.dashreport.data_loader import ReportDataLoader
 
 
 class ChartCallback:
     """
-    图表回调管理器 - 使用单个回调处理所有图表类型
+    图表回调管理器 - 单个通用回调
     """
 
     _instance = None
@@ -21,30 +22,35 @@ class ChartCallback:
 
     def __init__(self):
         if not self._initialized:
-            # 存储所有图表数据：key -> (builder, data, chart_type)
             self._charts = {}
-            # 记录已注册的回调，避免重复注册
             self._callback_registered = False
             self._initialized = True
 
-    def register_chart(self, chart_type, page_prefix, chart_builder, df_data, index=0):
+    # =========================
+    # 注册图表（不传 DataFrame）
+    # =========================
+    def register_chart(
+        self,
+        chart_type: str,
+        page_prefix: str,
+        chart_builder,
+        datasets,
+        index: int = 0,
+    ):
         """
-        注册图表数据
-
-        注意：这个方法只存储数据，不创建回调
+        datasets: tuple[str, ...]
         """
         key = f"{chart_type}_{page_prefix}_{index}"
         self._charts[key] = {
             "builder": chart_builder,
-            "data": df_data,
-            "type": chart_type,
+            "datasets": tuple(datasets),
+            "chart_type": chart_type,
             "page": page_prefix,
             "index": index,
         }
         return key
 
     def get_chart_id(self, chart_type, page_prefix, index=0):
-        """获取图表ID（与register_chart对应）"""
         return {
             "type": "dynamic-chart",
             "page": page_prefix,
@@ -52,14 +58,11 @@ class ChartCallback:
             "index": index,
         }
 
+    # =========================
+    # 全局唯一回调
+    # =========================
     def setup_callback(self, app):
-        """
-        设置回调 - 整个应用只调用一次
-
-        重要：这个回调使用了唯一的输出模式
-        """
         if self._callback_registered:
-            print("⚠️ 回调已注册，跳过重复注册")
             return
 
         @app.callback(
@@ -72,7 +75,7 @@ class ChartCallback:
                 },
                 "figure",
             ),
-            Input("current-theme", "data"),  # 主题变化
+            Input("current-theme", "data"),
             Input("client-width", "data"),
             Input(
                 {
@@ -83,89 +86,87 @@ class ChartCallback:
                 },
                 "id",
             ),
-            prevent_initial_call=False,
+            prevent_initial_call=False,  # ⚠️ 允许首次渲染
         )
         def universal_chart_callback(theme, client_width, component_id):
-            """通用图表回调函数"""
-            # 从组件ID获取信息
-            page = component_id.get("page", "")
-            chart_type = component_id.get("chart", "")
-            index = component_id.get("index", 0)
+            page = component_id["page"]
+            chart_type = component_id["chart"]
+            index = component_id["index"]
 
-            # 构建查找键（与register_chart一致）
             key = f"{chart_type}_{page}_{index}"
-
-            # 检查是否有该图表的数据
             if key not in self._charts:
                 return dash.no_update
 
-            # 获取图表数据
-            chart_info = self._charts[key]
-            builder = chart_info["builder"]
-            data = chart_info["data"]
+            info = self._charts[key]
+            builder = info["builder"]
+            datasets = info["datasets"]
 
-            # 确保theme有值
             theme = theme or "light"
             client_width = client_width or 1440
 
             try:
-                # 根据图表类型调用对应的方法
-                if chart_type == "heatmap":
-                    return builder.calendar_heatmap(
-                        df=data,
+                # 🚀 核心：真正命中 mtime-aware LRU
+                data_bundle = ReportDataLoader.load(
+                    prefix=page,
+                    datasets=datasets,
+                )
+
+                # ===== 图表分发 =====
+                if chart_type == "annual_return":
+                    pnl, cash, total_value = data_bundle["annual_return"]
+                    return builder.annual_return(
+                        pnl=pnl,
                         theme=theme,
                         client_width=client_width,
                     )
+
+                elif chart_type == "heatmap":
+                    return builder.calendar_heatmap(
+                        df=data_bundle["heatmap"],
+                        theme=theme,
+                        client_width=client_width,
+                    )
+
                 elif chart_type == "strategy":
                     return builder.strategy_chart(
-                        df=data,
+                        df=data_bundle["strategy"],
                         theme=theme,
                         client_width=client_width,
                     )
+
                 elif chart_type == "trade":
                     return builder.trade_info_chart(
-                        df=data,
+                        df=data_bundle["trade"],
                         theme=theme,
                         client_width=client_width,
                     )
+
                 elif chart_type == "pnl_trend":
                     return builder.industry_pnl_trend(
-                        df=data,
+                        df=data_bundle["pnl_trend"],
                         theme=theme,
                         client_width=client_width,
                     )
+
                 elif chart_type == "industry_position":
                     return builder.industry_position_treemap(
-                        df=data,
+                        df=data_bundle["industry_position"],
                         theme=theme,
                         client_width=client_width,
                     )
+
                 elif chart_type == "industry_profit":
                     return builder.industry_profit_treemap(
-                        df=data,
+                        df=data_bundle["industry_profit"],
                         theme=theme,
                         client_width=client_width,
                     )
-                elif chart_type == "annual_return":
-                    return builder.annual_return(
-                        pnl=data,
-                        theme=theme,
-                        client_width=client_width,
-                    )
-                else:
-                    # 尝试通用方法
-                    method_name = f"{chart_type}"
-                    if hasattr(builder, method_name):
-                        method = getattr(builder, method_name)
-                        return method(
-                            df=data,
-                            theme=theme,
-                            client_width=client_width,
-                        )
-            except Exception as e:
-                print(f"⚠️ 图表生成错误 {key}: {e}")
-                return dash.no_update
 
-            return dash.no_update
+                else:
+                    return dash.no_update
+
+            except Exception as e:
+                print(f"⚠️ 图表生成失败 {key}: {e}")
+                return dash.no_update
 
         self._callback_registered = True

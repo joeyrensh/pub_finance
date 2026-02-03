@@ -13,6 +13,7 @@ from finance.dashreport.pages import (
     usdynamicstock_performance_int as usdynamicstock_performance,
 )
 from finance.dashreport.pages.chart_callback import ChartCallback
+from finance.dashreport.pages.table_callback import TableCallback
 from flask import Flask
 from flask_compress import Compress
 import configparser
@@ -145,14 +146,15 @@ app.layout = html.Div(
         ),
     ],
 )
-# 1. 创建实例
+# ===== 1. 注册chart回调 =====
 chart_callback = ChartCallback()
-
-# 2. 设置回调（只调用一次）
 chart_callback.setup_callback(app)
-
-# 3. 存储到app中供页面使用
 app.chart_callback = chart_callback
+
+# ===== 注册 table callback =====
+table_callback = TableCallback()
+table_callback.setup_callback(app)
+app.table_callback = table_callback
 # ======================================================
 
 app.clientside_callback(
