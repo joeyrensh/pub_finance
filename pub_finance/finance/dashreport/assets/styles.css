@@ -66,6 +66,10 @@
     text-size-adjust: 100%;
 }
 
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
 /* ==================== 基础与全局样式 ==================== */
 body {
   width: 100%;

@@ -136,7 +136,7 @@ def create_layout(app):
         else pd.DataFrame(columns=cols_category)
     )
     df["IDX"] = df.index
-    df = df[cols_category].copy()
+    df = df[cols_category]
 
     cols_format_category = {
         "OPEN": ("int",),
@@ -181,7 +181,7 @@ def create_layout(app):
         else pd.DataFrame(columns=cols_detail)
     )
     df_detail["IDX"] = df_detail.index
-    df_detail = df_detail[cols_detail].copy()
+    df_detail = df_detail[cols_detail]
 
     cols_format_detail = {
         "BASE": ("float",),
@@ -225,7 +225,7 @@ def create_layout(app):
         else pd.DataFrame(columns=cols_short)
     )
     df_detail_short["IDX"] = df_detail_short.index
-    df_detail_short = df_detail_short[cols_short].copy()
+    df_detail_short = df_detail_short[cols_short]
     cols_format_detail_short = {
         "TOTAL VALUE": ("float",),
         "ERP": ("float",),

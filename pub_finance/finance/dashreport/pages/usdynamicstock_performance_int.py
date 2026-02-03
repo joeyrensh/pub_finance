@@ -137,7 +137,7 @@ def create_layout(app):
         else pd.DataFrame(columns=cols_category)
     )
     df["IDX"] = df.index
-    df = df[cols_category].copy()
+    df = df[cols_category]
 
     cols_format_category = {
         "OPEN": ("int",),
@@ -183,7 +183,7 @@ def create_layout(app):
         else pd.DataFrame(columns=cols_detail)
     )
     df_detail["IDX"] = df_detail.index
-    df_detail = df_detail[cols_detail].copy()
+    df_detail = df_detail[cols_detail]
     cols_format_detail = {
         "BASE": ("float",),
         "ADJBASE": ("float",),

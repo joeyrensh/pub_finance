@@ -27,7 +27,7 @@ Compress(
     server,
 )
 server.config["COMPRESS_LEVEL"] = 6
-server.config["COMPRESS_MIN_SIZE"] = 500
+server.config["COMPRESS_MIN_SIZE"] = 1000
 
 # 读取配置文件
 config = configparser.ConfigParser()
@@ -51,6 +51,7 @@ app = dash.Dash(
         }
     ],
     server=server,
+    serve_locally=True,
 )
 app.title = "Financial Report"
 
@@ -317,5 +318,13 @@ def update_row_count(indices):
 
 
 if __name__ == "__main__":
-    app.run_server(host="0.0.0.0", port=80, debug=True)
+    app.run_server(
+        host="0.0.0.0",
+        port=80,
+        debug=False,
+        dev_tools_hot_reload=False,  # 禁用热重载，减少资源占用
+        dev_tools_ui=False,  # 禁用调试面板
+        processes=1,  # 核心：单进程，避免全局数据多进程重复加载
+        threaded=True,  # 开启多线程，处理并发请求（单进程下不影响全局数据）
+    )
     # app.run_server()
