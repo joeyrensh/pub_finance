@@ -447,6 +447,7 @@ class ChartBuilder:
                 bgcolor=dynamic_text_color,
                 bordercolor=config["hover_border"],
                 font_color=config["hover_text"],
+                font_size=base_font_size,
             ),
         )
 
@@ -635,9 +636,9 @@ class ChartBuilder:
                     ),
                     yaxis="y",
                     hovertemplate=(
-                        "<b>日期</b>: %{x|%Y-%m-%d}<br>"  # 修改这里：添加日期格式化
-                        "<b>成功率</b>: %{y:.2%}<br>"
+                        # "<b>日期</b>: %{x|%Y-%m-%d}<br>"  # 修改这里：添加日期格式化
                         "<b>策略</b>: " + strategy + "<br>"
+                        "<b>成功率</b>: %{y:.2%}<br>"
                         "<extra></extra>"
                     ),
                 )
@@ -655,9 +656,9 @@ class ChartBuilder:
                     yaxis="y2",
                     showlegend=False,
                     hovertemplate=(
-                        "<b>日期</b>: %{x|%Y-%m-%d}<br>"
-                        "<b>收益</b>: %{y:,.0f}<br>"
+                        # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
                         "<b>策略</b>: " + strategy + "<br>"
+                        "<b>收益</b>: %{y:,.0f}<br>"
                         "<extra></extra>"
                     ),
                 )
@@ -678,6 +679,10 @@ class ChartBuilder:
                 tickmode="linear",
                 dtick="M1",
                 tickformat="%Y-%m",
+                hoverformat="%Y-%m-%d",
+                spikemode="across",
+                spikesnap="cursor",
+                spikethickness=1,
                 # domain=[0, 1],
                 # automargin=True,
             ),
@@ -735,6 +740,8 @@ class ChartBuilder:
             margin=dict(t=0, b=0, l=0, r=0),
             autosize=True,
             dragmode=False,
+            hovermode="x",
+            hoverlabel=dict(font_size=base_font_size),
         )
 
         return fig
@@ -771,7 +778,7 @@ class ChartBuilder:
                 line=dict(color=cfg["long"], width=2 * scale),
                 yaxis="y",
                 hovertemplate=(
-                    "<b>日期</b>: %{x|%Y-%m-%d}<br>"
+                    # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
                     "<b>总数</b>: %{y}<br>"
                     "<extra></extra>"
                 ),
@@ -787,7 +794,7 @@ class ChartBuilder:
                 marker_line_color=cfg["long"],
                 yaxis="y",
                 hovertemplate=(
-                    "<b>日期</b>: %{x|%Y-%m-%d}<br>"
+                    # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
                     "<b>买入数量</b>: %{y}<br>"
                     "<extra></extra>"
                 ),
@@ -803,7 +810,7 @@ class ChartBuilder:
                 marker_line_color=cfg["short"],
                 yaxis="y",
                 hovertemplate=(
-                    "<b>日期</b>: %{x|%Y-%m-%d}<br>"
+                    # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
                     "<b>卖出数量</b>: %{y}<br>"
                     "<extra></extra>"
                 ),
@@ -835,6 +842,10 @@ class ChartBuilder:
                 tickmode="linear",
                 dtick="M1",
                 tickformat="%Y-%m",
+                hoverformat="%Y-%m-%d",
+                spikemode="across",
+                spikesnap="cursor",
+                spikethickness=1,
             ),
             yaxis=dict(
                 side="left",
@@ -874,6 +885,8 @@ class ChartBuilder:
             margin=dict(t=0, b=0, l=0, r=0),
             autosize=True,
             dragmode=False,
+            hovermode="x",
+            hoverlabel=dict(font_size=font_size),
         )
 
         xmin = pd.to_datetime(df["buy_date"].min())
@@ -920,8 +933,8 @@ class ChartBuilder:
             line=dict(width=2 * scale),
             hovertemplate=(
                 "<b>日期</b>: %{x|%Y-%m-%d}<br>"
-                "<b>收益</b>: %{y}<br>"
                 "<b>行业</b>: %{fullData.name}<br>"
+                "<b>收益</b>: %{y}<br>"
                 "<extra></extra>"
             ),
         )
@@ -950,6 +963,10 @@ class ChartBuilder:
             tickmode="linear",
             dtick="M1",
             tickformat="%Y-%m",
+            hoverformat="%Y-%m-%d",
+            spikemode="across",
+            spikesnap="cursor",
+            spikethickness=1,
         )
 
         fig.update_yaxes(
@@ -1009,6 +1026,8 @@ class ChartBuilder:
             margin=dict(t=0, b=0, l=0, r=0),
             autosize=True,
             dragmode=False,
+            hovermode="x",
+            hoverlabel=dict(font_size=font_size),
         )
 
         return fig
@@ -1620,6 +1639,10 @@ class ChartBuilder:
                 tickmode="linear",
                 dtick="M5",
                 tickformat="%Y-%m",
+                hoverformat="%Y-%m-%d",
+                spikemode="across",
+                spikesnap="cursor",
+                spikethickness=1,
                 showgrid=True,
                 position=0.0,
                 range=[data_start_date, data_end_date_limited],  # 使用计算的范围
