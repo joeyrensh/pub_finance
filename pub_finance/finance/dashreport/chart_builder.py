@@ -1256,7 +1256,7 @@ class ChartBuilder:
         cell_colors = [cfg["table_cell"]] * len(table_df.columns)
 
         # =========================
-        # 7. 创建图表 (使用单独的Figure)
+        # 7. 创建图表
         # =========================
         TABLE_WIDTH_RATIO = 0.35
         CHART_WIDTH_RATIO = 0.65
@@ -1295,7 +1295,7 @@ class ChartBuilder:
                 hoverlabel=dict(
                     bgcolor=cfg["drawdown"],
                 ),
-                yaxis="y2",
+                yaxis="y",
             )
         )
 
@@ -1314,7 +1314,7 @@ class ChartBuilder:
                     "<b>Cumulative Return</b>: %{y:.4f}<br>"
                     "<extra></extra>"
                 ),
-                yaxis="y",
+                yaxis="y2",
             )
         )
 
@@ -1361,7 +1361,7 @@ class ChartBuilder:
                         f"<b>Latest Cumulative Return</b>: {last_y:.4f}<br>"
                         f"<extra></extra>"
                     ),
-                    yaxis="y",
+                    yaxis="y2",
                 )
             )
 
@@ -1381,7 +1381,7 @@ class ChartBuilder:
                         f"<b>Max Cumulative Return</b>: {cum_max_val:.4f}<br>"
                         f"<extra></extra>"
                     ),
-                    yaxis="y",
+                    yaxis="y2",
                 )
             )
 
@@ -1406,7 +1406,7 @@ class ChartBuilder:
                     hoverlabel=dict(
                         bgcolor=cfg["drawdown"],
                     ),
-                    yaxis="y2",
+                    yaxis="y",
                 )
             )
 
@@ -1436,7 +1436,7 @@ class ChartBuilder:
                             hoverlabel=dict(
                                 bgcolor=cfg["drawdown"],
                             ),
-                            yaxis="y2",
+                            yaxis="y",
                         )
                     )
 
@@ -1466,7 +1466,7 @@ class ChartBuilder:
                             hoverlabel=dict(
                                 bgcolor=cfg["drawdown"],
                             ),
-                            yaxis="y2",
+                            yaxis="y",
                         )
                     )
 
@@ -1578,15 +1578,14 @@ class ChartBuilder:
             # Y轴设置
             yaxis=dict(
                 title="",
-                side="left",
-                position=chart_domain_left,
-                showgrid=True,
-                gridcolor=cfg["grid"],
+                side="right",
+                position=chart_domain_right,
+                showgrid=False,
                 tickfont=dict(
                     size=base_font, color=text_color, family=self.font_family
                 ),
-                tickformat=".2f",
-                range=cum_range,
+                tickformat=".0%",
+                range=dd_range,
                 showticklabels=True,
                 automargin=False,
                 ticklabelposition="inside",
@@ -1596,17 +1595,19 @@ class ChartBuilder:
                 zeroline=False,
                 anchor="x",
             ),
+            # Y2轴设置
             yaxis2=dict(
                 title="",
-                side="right",
+                side="left",
                 overlaying="y",
-                position=chart_domain_right,  # 调整到图表区域右侧
-                showgrid=False,
+                position=chart_domain_left,
+                showgrid=True,
+                gridcolor=cfg["grid"],
                 tickfont=dict(
                     size=base_font, color=text_color, family=self.font_family
                 ),
-                tickformat=".0%",
-                range=dd_range,
+                tickformat=".2f",
+                range=cum_range,
                 showticklabels=True,
                 automargin=False,
                 ticklabelposition="inside",
