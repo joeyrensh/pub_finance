@@ -69,6 +69,13 @@
 * {
   -webkit-overflow-scrolling: touch;
 }
+/* ==================== 响应式布局 ==================== */
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+}
 
 /* ==================== 基础与全局样式 ==================== */
 body {
@@ -634,12 +641,6 @@ a:active {
 @media (prefers-color-scheme: dark) {
   .svg-light { display: none; }
   .svg-dark { display: block !important; }
-}
-
-/* ==================== 响应式布局 ==================== */
-.chart-container {
-  width: 100%;
-  margin: 0 auto;
 }
 
 .responsive-svg {

@@ -182,7 +182,7 @@ def create_layout(app):
                             ),
                         ],
                     ),
-                    # Annual Return (left as static image)
+                    # Annual Return
                     html.Div(
                         [
                             html.Div(
@@ -210,21 +210,47 @@ def create_layout(app):
                                     html.Div(
                                         className="chart-container",
                                         children=[
-                                            dcc.Graph(
-                                                id=app.chart_callback.get_chart_id(
-                                                    "annual_return", prefix, 0
-                                                ),
-                                                figure={},
-                                                config={
-                                                    "displayModeBar": False,
-                                                    "doubleClick": True,
-                                                },
+                                            dcc.Loading(
+                                                id=f"loading-annual-return-{prefix}",
+                                                type="circle",
+                                                delay_hide=1000,
                                                 style={
-                                                    "margin": 0,
-                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
+                                                    "position": "relative",
+                                                    "display": "flex",  # 添加flex布局
+                                                    "justifyContent": "center",  # 水平居中
+                                                    "alignItems": "center",  # 垂直居中
                                                 },
+                                                parent_style={
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                    "display": "flex",  # 父容器也需要flex
+                                                    "justifyContent": "center",
+                                                    "alignItems": "center",
+                                                },
+                                                color="#119DFF",
+                                                fullscreen=False,
+                                                children=[
+                                                    dcc.Graph(
+                                                        id=app.chart_callback.get_chart_id(
+                                                            "annual_return",
+                                                            prefix,
+                                                            0,
+                                                        ),
+                                                        figure=None,
+                                                        config={
+                                                            "displayModeBar": False,
+                                                            "doubleClick": True,
+                                                        },
+                                                        style={
+                                                            "margin": 0,
+                                                            "padding": 0,
+                                                            "width": "100%",
+                                                            "height": "100%",
+                                                        },
+                                                    )
+                                                ],
                                             )
                                         ],
                                         id={
@@ -271,21 +297,45 @@ def create_layout(app):
                                     html.Div(
                                         className="chart-container",
                                         children=[
-                                            dcc.Graph(
-                                                id=app.chart_callback.get_chart_id(
-                                                    "heatmap", prefix, 1
-                                                ),
-                                                figure={},
-                                                config={
-                                                    "displayModeBar": False,
-                                                    "doubleClick": True,
-                                                },
+                                            dcc.Loading(
+                                                id=f"loading-heatmap-{prefix}",
+                                                type="circle",
+                                                delay_hide=1000,
                                                 style={
-                                                    "margin": 0,
-                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
+                                                    "position": "relative",
+                                                    "display": "flex",  # 添加flex布局
+                                                    "justifyContent": "center",  # 水平居中
+                                                    "alignItems": "center",  # 垂直居中
                                                 },
+                                                parent_style={
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                    "display": "flex",  # 父容器也需要flex
+                                                    "justifyContent": "center",
+                                                    "alignItems": "center",
+                                                },
+                                                color="#119DFF",
+                                                fullscreen=False,
+                                                children=[
+                                                    dcc.Graph(
+                                                        id=app.chart_callback.get_chart_id(
+                                                            "heatmap", prefix, 1
+                                                        ),
+                                                        figure=None,
+                                                        config={
+                                                            "displayModeBar": False,
+                                                            "doubleClick": True,
+                                                        },
+                                                        style={
+                                                            "margin": 0,
+                                                            "padding": 0,
+                                                            "width": "100%",
+                                                            "height": "100%",
+                                                        },
+                                                    )
+                                                ],
                                             )
                                         ],
                                         id={
@@ -327,21 +377,45 @@ def create_layout(app):
                                     html.Div(
                                         className="chart-container",
                                         children=[
-                                            dcc.Graph(
-                                                id=app.chart_callback.get_chart_id(
-                                                    "strategy", prefix, 2
-                                                ),
-                                                figure={},
-                                                config={
-                                                    "displayModeBar": False,
-                                                    "doubleClick": True,
-                                                },
+                                            dcc.Loading(
+                                                id=f"loading-strategy-{prefix}",
+                                                type="circle",
+                                                delay_hide=1000,
                                                 style={
-                                                    "margin": 0,
-                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
+                                                    "position": "relative",
+                                                    "display": "flex",  # 添加flex布局
+                                                    "justifyContent": "center",  # 水平居中
+                                                    "alignItems": "center",  # 垂直居中
                                                 },
+                                                parent_style={
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                    "display": "flex",  # 父容器也需要flex
+                                                    "justifyContent": "center",
+                                                    "alignItems": "center",
+                                                },
+                                                color="#119DFF",
+                                                fullscreen=False,
+                                                children=[
+                                                    dcc.Graph(
+                                                        id=app.chart_callback.get_chart_id(
+                                                            "strategy", prefix, 2
+                                                        ),
+                                                        figure=None,
+                                                        config={
+                                                            "displayModeBar": False,
+                                                            "doubleClick": True,
+                                                        },
+                                                        style={
+                                                            "margin": 0,
+                                                            "padding": 0,
+                                                            "width": "100%",
+                                                            "height": "100%",
+                                                        },
+                                                    )
+                                                ],
                                             )
                                         ],
                                         id={
@@ -389,21 +463,45 @@ def create_layout(app):
                                     html.Div(
                                         className="chart-container",
                                         children=[
-                                            dcc.Graph(
-                                                id=app.chart_callback.get_chart_id(
-                                                    "trade", prefix, 5
-                                                ),
-                                                figure={},
-                                                config={
-                                                    "displayModeBar": False,
-                                                    "doubleClick": True,
-                                                },
+                                            dcc.Loading(
+                                                id=f"loading-trade-{prefix}",
+                                                type="circle",
+                                                delay_hide=1000,
                                                 style={
-                                                    "margin": 0,
-                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
+                                                    "position": "relative",
+                                                    "display": "flex",  # 添加flex布局
+                                                    "justifyContent": "center",  # 水平居中
+                                                    "alignItems": "center",  # 垂直居中
                                                 },
+                                                parent_style={
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                    "display": "flex",  # 父容器也需要flex
+                                                    "justifyContent": "center",
+                                                    "alignItems": "center",
+                                                },
+                                                color="#119DFF",
+                                                fullscreen=False,
+                                                children=[
+                                                    dcc.Graph(
+                                                        id=app.chart_callback.get_chart_id(
+                                                            "trade", prefix, 5
+                                                        ),
+                                                        figure=None,
+                                                        config={
+                                                            "displayModeBar": False,
+                                                            "doubleClick": True,
+                                                        },
+                                                        style={
+                                                            "margin": 0,
+                                                            "padding": 0,
+                                                            "width": "100%",
+                                                            "height": "100%",
+                                                        },
+                                                    )
+                                                ],
                                             )
                                         ],
                                         id={
@@ -445,21 +543,45 @@ def create_layout(app):
                                     html.Div(
                                         className="chart-container",
                                         children=[
-                                            dcc.Graph(
-                                                id=app.chart_callback.get_chart_id(
-                                                    "pnl_trend", prefix, 6
-                                                ),
-                                                figure={},
-                                                config={
-                                                    "displayModeBar": False,
-                                                    "doubleClick": True,
-                                                },
+                                            dcc.Loading(
+                                                id=f"loading-pnl-trend-{prefix}",
+                                                type="circle",
+                                                delay_hide=1000,
                                                 style={
-                                                    "margin": 0,
-                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
+                                                    "position": "relative",
+                                                    "display": "flex",  # 添加flex布局
+                                                    "justifyContent": "center",  # 水平居中
+                                                    "alignItems": "center",  # 垂直居中
                                                 },
+                                                parent_style={
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                    "display": "flex",  # 父容器也需要flex
+                                                    "justifyContent": "center",
+                                                    "alignItems": "center",
+                                                },
+                                                color="#119DFF",
+                                                fullscreen=False,
+                                                children=[
+                                                    dcc.Graph(
+                                                        id=app.chart_callback.get_chart_id(
+                                                            "pnl_trend", prefix, 6
+                                                        ),
+                                                        figure=None,
+                                                        config={
+                                                            "displayModeBar": False,
+                                                            "doubleClick": True,
+                                                        },
+                                                        style={
+                                                            "margin": 0,
+                                                            "padding": 0,
+                                                            "width": "100%",
+                                                            "height": "100%",
+                                                        },
+                                                    )
+                                                ],
                                             )
                                         ],
                                         id={
@@ -507,21 +629,47 @@ def create_layout(app):
                                     html.Div(
                                         className="chart-container",
                                         children=[
-                                            dcc.Graph(
-                                                id=app.chart_callback.get_chart_id(
-                                                    "industry_position", prefix, 3
-                                                ),
-                                                figure={},
-                                                config={
-                                                    "displayModeBar": False,
-                                                    "doubleClick": True,
-                                                },
+                                            dcc.Loading(
+                                                id=f"loading-industry-position-{prefix}",
+                                                type="circle",
+                                                delay_hide=1000,
                                                 style={
-                                                    "margin": 0,
-                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
+                                                    "position": "relative",
+                                                    "display": "flex",  # 添加flex布局
+                                                    "justifyContent": "center",  # 水平居中
+                                                    "alignItems": "center",  # 垂直居中
                                                 },
+                                                parent_style={
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                    "display": "flex",  # 父容器也需要flex
+                                                    "justifyContent": "center",
+                                                    "alignItems": "center",
+                                                },
+                                                color="#119DFF",
+                                                fullscreen=False,
+                                                children=[
+                                                    dcc.Graph(
+                                                        id=app.chart_callback.get_chart_id(
+                                                            "industry_position",
+                                                            prefix,
+                                                            3,
+                                                        ),
+                                                        figure=None,
+                                                        config={
+                                                            "displayModeBar": False,
+                                                            "doubleClick": True,
+                                                        },
+                                                        style={
+                                                            "margin": 0,
+                                                            "padding": 0,
+                                                            "width": "100%",
+                                                            "height": "100%",
+                                                        },
+                                                    )
+                                                ],
                                             )
                                         ],
                                         id={
@@ -563,21 +711,45 @@ def create_layout(app):
                                     html.Div(
                                         className="chart-container",
                                         children=[
-                                            dcc.Graph(
-                                                id=app.chart_callback.get_chart_id(
-                                                    "industry_profit", prefix, 4
-                                                ),
-                                                figure={},
-                                                config={
-                                                    "displayModeBar": False,
-                                                    "doubleClick": True,
-                                                },
+                                            dcc.Loading(
+                                                id=f"loading-industry-profit-{prefix}",
+                                                type="circle",
+                                                delay_hide=1000,
                                                 style={
-                                                    "margin": 0,
-                                                    "padding": 0,
                                                     "width": "100%",
                                                     "height": "100%",
+                                                    "position": "relative",
+                                                    "display": "flex",  # 添加flex布局
+                                                    "justifyContent": "center",  # 水平居中
+                                                    "alignItems": "center",  # 垂直居中
                                                 },
+                                                parent_style={
+                                                    "width": "100%",
+                                                    "height": "100%",
+                                                    "display": "flex",  # 父容器也需要flex
+                                                    "justifyContent": "center",
+                                                    "alignItems": "center",
+                                                },
+                                                color="#119DFF",
+                                                fullscreen=False,
+                                                children=[
+                                                    dcc.Graph(
+                                                        id=app.chart_callback.get_chart_id(
+                                                            "industry_profit", prefix, 4
+                                                        ),
+                                                        figure=None,
+                                                        config={
+                                                            "displayModeBar": False,
+                                                            "doubleClick": True,
+                                                        },
+                                                        style={
+                                                            "margin": 0,
+                                                            "padding": 0,
+                                                            "width": "100%",
+                                                            "height": "100%",
+                                                        },
+                                                    )
+                                                ],
                                             )
                                         ],
                                         id={

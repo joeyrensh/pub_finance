@@ -127,22 +127,29 @@ app.layout = html.Div(
             ],
             className="background",
         ),
+        # html.Div(
+        #     id="main-page",
+        #     style={"display": "none"},
+        #     children=[
+        #         dcc.Loading(
+        #             id="loading",
+        #             type="circle",
+        #             fullscreen=False,
+        #             delay_show=200,
+        #             color="#119DFF",
+        #             style={"zIndex": "1000"},
+        #             children=[
+        #                 html.Div(id="page-content"),
+        #             ],
+        #             className="loading-dot",
+        #         ),
+        #     ],
+        # ),
         html.Div(
             id="main-page",
             style={"display": "none"},
             children=[
-                dcc.Loading(
-                    id="loading",
-                    type="circle",
-                    fullscreen=False,
-                    delay_show=200,
-                    color="#119DFF",
-                    style={"zIndex": "1000"},
-                    children=[
-                        html.Div(id="page-content"),
-                    ],
-                    className="loading-dot",
-                ),
+                html.Div(id="page-content"),
             ],
         ),
     ],
