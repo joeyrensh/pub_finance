@@ -445,8 +445,8 @@ class ChartBuilder:
             dragmode=False,
             hoverlabel=dict(
                 bgcolor=dynamic_text_color,
-                font_color=config["hover_text"],
                 bordercolor=config["hover_border"],
+                font_color=config["hover_text"],
             ),
         )
 
