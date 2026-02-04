@@ -135,6 +135,7 @@ app.layout = html.Div(
                     id="loading",
                     type="circle",
                     fullscreen=False,
+                    delay_show=200,
                     color="#119DFF",
                     style={"zIndex": "1000"},
                     children=[
