@@ -347,6 +347,32 @@ class ChartBuilder:
                     # yshift=20,
                     opacity=0.9,
                 )
+
+            # 3. 添加下方的行业（第二个行业）
+            if len(industry_items) >= 2:
+                industry_text_bottom = industry_items[0]
+                if len(industry_text_bottom) > 7:
+                    industry_text_bottom = truncate_text_by_display_width(
+                        industry_text_bottom, 14
+                    )
+                fig.add_annotation(
+                    x=day_of_week + 0.1,
+                    y=week_order,
+                    text=industry_text_bottom,
+                    showarrow=False,
+                    font=dict(
+                        family=self.font_family,
+                        size=base_font_size,
+                        color=config["text_color"],  # 使用中性色
+                    ),
+                    align="center",  # 保持居中
+                    xanchor="center",  # 保持居中
+                    yanchor="bottom",
+                    # xshift=0,  # 不向左偏移
+                    # yshift=-20,
+                    opacity=0.9,
+                )
+
             fig.add_annotation(
                 x=day_of_week - 0.52,
                 y=week_order,
@@ -381,31 +407,6 @@ class ChartBuilder:
                 ),
                 opacity=0.9,
             )
-
-            # 3. 添加下方的行业（第二个行业）
-            if len(industry_items) >= 2:
-                industry_text_bottom = industry_items[0]
-                if len(industry_text_bottom) > 7:
-                    industry_text_bottom = truncate_text_by_display_width(
-                        industry_text_bottom, 14
-                    )
-                fig.add_annotation(
-                    x=day_of_week + 0.1,
-                    y=week_order,
-                    text=industry_text_bottom,
-                    showarrow=False,
-                    font=dict(
-                        family=self.font_family,
-                        size=base_font_size,
-                        color=config["text_color"],  # 使用中性色
-                    ),
-                    align="center",  # 保持居中
-                    xanchor="center",  # 保持居中
-                    yanchor="bottom",
-                    # xshift=0,  # 不向左偏移
-                    # yshift=-20,
-                    opacity=0.9,
-                )
 
         # 设置图表布局
         fig.update_layout(
@@ -1351,21 +1352,6 @@ class ChartBuilder:
 
             fig.add_trace(
                 go.Scatter(
-                    x=[last_x],
-                    y=[last_y],
-                    mode="markers+text",
-                    marker=dict(symbol="circle", size=8 * scale, color=cfg["cumret"]),
-                    showlegend=False,
-                    hovertemplate=(
-                        f"<b>Latest Cumulative Return</b>: {last_y:.4f}<br>"
-                        f"<extra></extra>"
-                    ),
-                    yaxis="y",
-                )
-            )
-
-            fig.add_trace(
-                go.Scatter(
                     x=[cum_max_idx],
                     y=[cum_max_val],
                     mode="markers+text",
@@ -1378,6 +1364,20 @@ class ChartBuilder:
                     showlegend=False,
                     hovertemplate=(
                         f"<b>Max Cumulative Return</b>: {cum_max_val:.4f}<br>"
+                        f"<extra></extra>"
+                    ),
+                    yaxis="y",
+                )
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=[last_x],
+                    y=[last_y],
+                    mode="markers+text",
+                    marker=dict(symbol="circle", size=8 * scale, color=cfg["cumret"]),
+                    showlegend=False,
+                    hovertemplate=(
+                        f"<b>Latest Cumulative Return</b>: {last_y:.4f}<br>"
                         f"<extra></extra>"
                     ),
                     yaxis="y",
