@@ -680,9 +680,6 @@ class ChartBuilder:
                 dtick="M1",
                 tickformat="%Y-%m",
                 hoverformat="%Y-%m-%d",
-                spikemode="across",
-                spikesnap="cursor",
-                spikethickness=1,
                 # domain=[0, 1],
                 # automargin=True,
             ),
@@ -843,9 +840,6 @@ class ChartBuilder:
                 dtick="M1",
                 tickformat="%Y-%m",
                 hoverformat="%Y-%m-%d",
-                spikemode="across",
-                spikesnap="cursor",
-                spikethickness=1,
             ),
             yaxis=dict(
                 side="left",
@@ -964,9 +958,6 @@ class ChartBuilder:
             dtick="M1",
             tickformat="%Y-%m",
             hoverformat="%Y-%m-%d",
-            spikemode="across",
-            spikesnap="cursor",
-            spikethickness=1,
         )
 
         fig.update_yaxes(
@@ -1640,9 +1631,6 @@ class ChartBuilder:
                 dtick="M5",
                 tickformat="%Y-%m",
                 hoverformat="%Y-%m-%d",
-                spikemode="across",
-                spikesnap="cursor",
-                spikethickness=1,
                 showgrid=True,
                 position=0.0,
                 range=[data_start_date, data_end_date_limited],  # 使用计算的范围
