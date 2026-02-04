@@ -1285,7 +1285,7 @@ class ChartBuilder:
                 mode="lines",
                 fill="tozeroy",
                 name="Drawdown",
-                line=dict(color=cfg["drawdown"], width=1.5 * scale),
+                line=dict(color=cfg["drawdown"], width=1 * scale),
                 fillcolor=cfg["drawdown_fill"],
                 hovertemplate=(
                     "<b>Date</b>: %{x|%Y-%m-%d}<br>"
