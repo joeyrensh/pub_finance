@@ -652,7 +652,7 @@ class TickerInfo:
         return stock_list
 
     def get_special_us_backtrader_data_feed(self):
-        tickers = self.get_special_us_stock_list_180d()
+        tickers = self.get_stock_list()
         tickers_clean = [
             t for t in tickers if isinstance(t, str) and t != "nan" and t != ""
         ]

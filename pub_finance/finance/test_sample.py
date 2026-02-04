@@ -12,7 +12,7 @@ from utility.backtrader_exec import BacktraderExec
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc-4"""
-    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(0)
+    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
@@ -76,18 +76,19 @@ if __name__ == "__main__":
     # 主函数中替换原有调用
     # cash, final_value = exec_btstrategy(trade_date)
     # 美股主要策略执行
-    cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us", d).exec_btstrategy()
-    )
-    collected = gc.collect()
+    # cash, final_value = run_backtest_in_process(
+    #     trade_date, lambda d: BacktraderExec("us", d).exec_btstrategy()
+    # )
+    # collected = gc.collect()
 
-    print("Garbage collector: collected %d objects." % (collected))
+    # print("Garbage collector: collected %d objects." % (collected))
 
-    """ 发送邮件 """
-    StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
+    # """ 发送邮件 """
+    # StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
     # 固定列表追踪
     cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us_special", d).exec_btstrategy()
+        trade_date,
+        lambda d: BacktraderExec("us_special", d).exec_btstrategy(force_run=True),
     )
     collected = gc.collect()
 
@@ -96,15 +97,15 @@ if __name__ == "__main__":
     """ 发送邮件 """
     StockProposal("us_special", trade_date).send_btstrategy_by_email(cash, final_value)
     # 动态列表追踪
-    cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us_dynamic", d).exec_btstrategy()
-    )
-    collected = gc.collect()
+    # cash, final_value = run_backtest_in_process(
+    #     trade_date, lambda d: BacktraderExec("us_dynamic", d).exec_btstrategy()
+    # )
+    # collected = gc.collect()
 
-    print("Garbage collector: collected %d objects." % (collected))
+    # print("Garbage collector: collected %d objects." % (collected))
 
-    """ 发送邮件 """
-    StockProposal("us_dynamic", trade_date).send_btstrategy_by_email(cash, final_value)
+    # """ 发送邮件 """
+    # StockProposal("us_dynamic", trade_date).send_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()
