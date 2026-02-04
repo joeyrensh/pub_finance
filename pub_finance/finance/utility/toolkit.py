@@ -660,7 +660,7 @@ class ToolKit:
         fig.savefig(
             buf,
             format="png",
-            dpi=150,
+            dpi=120,
             transparent=True,
             bbox_inches="tight",
             pad_inches=0,

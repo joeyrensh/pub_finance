@@ -1300,6 +1300,9 @@ class ChartBuilder:
                     "<b>Drawdown</b>: %{y:.2%}<br>"
                     "<extra></extra>"
                 ),
+                hoverlabel=dict(
+                    bgcolor=cfg["drawdown"],
+                ),
                 yaxis="y2",
             )
         )
@@ -1389,6 +1392,9 @@ class ChartBuilder:
                     hovertemplate=(
                         f"<b>Max Drawdown</b>: {max_dd_val:.2%}<br>" f"<extra></extra>"
                     ),
+                    hoverlabel=dict(
+                        bgcolor=cfg["drawdown"],
+                    ),
                     yaxis="y2",
                 )
             )
@@ -1416,6 +1422,9 @@ class ChartBuilder:
                                 f"<b>30D Max Drawdown</b>: {val_30:.2%}<br>"
                                 f"<extra></extra>"
                             ),
+                            hoverlabel=dict(
+                                bgcolor=cfg["drawdown"],
+                            ),
                             yaxis="y2",
                         )
                     )
@@ -1442,6 +1451,9 @@ class ChartBuilder:
                             hovertemplate=(
                                 f"<b>120D Max Drawdown</b>: {val_120:.2%}<br>"
                                 f"<extra></extra>"
+                            ),
+                            hoverlabel=dict(
+                                bgcolor=cfg["drawdown"],
                             ),
                             yaxis="y2",
                         )

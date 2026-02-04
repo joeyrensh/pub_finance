@@ -73,7 +73,7 @@ app.layout = html.Div(
             children=[
                 dcc.Loading(
                     id="init-loading",
-                    type="dot",
+                    type="circle",
                     fullscreen=True,
                     color="#119DFF",
                     children=[],
@@ -133,7 +133,7 @@ app.layout = html.Div(
             children=[
                 dcc.Loading(
                     id="loading",
-                    type="dot",
+                    type="circle",
                     fullscreen=False,
                     color="#119DFF",
                     style={"zIndex": "1000"},

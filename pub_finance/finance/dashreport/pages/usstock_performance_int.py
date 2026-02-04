@@ -211,7 +211,9 @@ def create_layout(app):
                                         children=[
                                             dcc.Graph(
                                                 id=app.chart_callback.get_chart_id(
-                                                    "annual_return", prefix, 0
+                                                    "annual_return",
+                                                    prefix,
+                                                    0,
                                                 ),
                                                 figure={},
                                                 config={
