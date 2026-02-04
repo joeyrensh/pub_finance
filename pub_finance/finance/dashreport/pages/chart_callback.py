@@ -97,6 +97,11 @@ class ChartCallback:
             if key not in self._charts:
                 return dash.no_update
 
+            # ===== 关键：总是添加微小延迟 =====
+            import time
+
+            time.sleep(0.1)  # 50ms延迟，确保loading有显示时间
+
             info = self._charts[key]
             builder = info["builder"]
             datasets = info["datasets"]
