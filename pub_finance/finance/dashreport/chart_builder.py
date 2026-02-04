@@ -1276,25 +1276,6 @@ class ChartBuilder:
         dd_range = [dd_min * 1.05, 0.0]
 
         # =========================
-        # 9. 添加累计收益曲线
-        # =========================
-        fig.add_trace(
-            go.Scatter(
-                x=cumulative.index,
-                y=cumulative,
-                mode="lines",
-                name="Cumulative Return",
-                line=dict(color=cfg["cumret"], width=2 * scale),
-                hovertemplate=(
-                    "<b>Date</b>: %{x|%Y-%m-%d}<br>"
-                    "<b>Cumulative Return</b>: %{y:.4f}<br>"
-                    "<extra></extra>"
-                ),
-                yaxis="y",
-            )
-        )
-
-        # =========================
         # 10. 添加回撤曲线
         # =========================
         fig.add_trace(
@@ -1315,6 +1296,25 @@ class ChartBuilder:
                     bgcolor=cfg["drawdown"],
                 ),
                 yaxis="y2",
+            )
+        )
+
+        # =========================
+        # 9. 添加累计收益曲线
+        # =========================
+        fig.add_trace(
+            go.Scatter(
+                x=cumulative.index,
+                y=cumulative,
+                mode="lines",
+                name="Cumulative Return",
+                line=dict(color=cfg["cumret"], width=2 * scale),
+                hovertemplate=(
+                    "<b>Date</b>: %{x|%Y-%m-%d}<br>"
+                    "<b>Cumulative Return</b>: %{y:.4f}<br>"
+                    "<extra></extra>"
+                ),
+                yaxis="y",
             )
         )
 
@@ -1352,6 +1352,21 @@ class ChartBuilder:
 
             fig.add_trace(
                 go.Scatter(
+                    x=[last_x],
+                    y=[last_y],
+                    mode="markers+text",
+                    marker=dict(symbol="circle", size=8 * scale, color=cfg["cumret"]),
+                    showlegend=False,
+                    hovertemplate=(
+                        f"<b>Latest Cumulative Return</b>: {last_y:.4f}<br>"
+                        f"<extra></extra>"
+                    ),
+                    yaxis="y",
+                )
+            )
+
+            fig.add_trace(
+                go.Scatter(
                     x=[cum_max_idx],
                     y=[cum_max_val],
                     mode="markers+text",
@@ -1364,20 +1379,6 @@ class ChartBuilder:
                     showlegend=False,
                     hovertemplate=(
                         f"<b>Max Cumulative Return</b>: {cum_max_val:.4f}<br>"
-                        f"<extra></extra>"
-                    ),
-                    yaxis="y",
-                )
-            )
-            fig.add_trace(
-                go.Scatter(
-                    x=[last_x],
-                    y=[last_y],
-                    mode="markers+text",
-                    marker=dict(symbol="circle", size=8 * scale, color=cfg["cumret"]),
-                    showlegend=False,
-                    hovertemplate=(
-                        f"<b>Latest Cumulative Return</b>: {last_y:.4f}<br>"
                         f"<extra></extra>"
                     ),
                     yaxis="y",
