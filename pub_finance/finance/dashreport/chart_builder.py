@@ -520,12 +520,12 @@ class ChartBuilder:
 
         industry_items = row.get("industry_top3_parsed", [])
         industry_text = (
-            ", ".join([str(item) for item in industry_items[:3]])
+            "<br>".join([f"-{str(item)}" for item in industry_items[:3]])
             if industry_items
-            else "无行业数据"
+            else "  无行业数据"
         )
 
-        return f"日期: {date_str}<br>" f"星期: {day_name}<br>" f"行业: {industry_text}"
+        return f"日期: {date_str}<br>星期: {day_name}<br>行业:<br>{industry_text}"
 
     def strategy_chart(
         self,
@@ -638,8 +638,7 @@ class ChartBuilder:
                     yaxis="y",
                     hovertemplate=(
                         # "<b>日期</b>: %{x|%Y-%m-%d}<br>"  # 修改这里：添加日期格式化
-                        "<b>策略</b>: " + strategy + "<br>"
-                        "<b>成功率</b>: %{y:.2%}<br>"
+                        "<b>成功率</b>: " + strategy + " %{y:.2%}<br>"
                         "<extra></extra>"
                     ),
                 )
@@ -658,8 +657,7 @@ class ChartBuilder:
                     showlegend=False,
                     hovertemplate=(
                         # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
-                        "<b>策略</b>: " + strategy + "<br>"
-                        "<b>收益</b>: %{y:,.0f}<br>"
+                        "<b>收益</b>: " + strategy + " %{y:,.0f}<br>"
                         "<extra></extra>"
                     ),
                 )
@@ -927,9 +925,8 @@ class ChartBuilder:
         fig.update_traces(
             line=dict(width=2 * scale),
             hovertemplate=(
-                "<b>日期</b>: %{x|%Y-%m-%d}<br>"
-                "<b>行业</b>: %{fullData.name}<br>"
-                "<b>收益</b>: %{y}<br>"
+                # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
+                "<b>收益</b>: %{fullData.name} %{y}<br>"
                 "<extra></extra>"
             ),
         )
@@ -1288,7 +1285,7 @@ class ChartBuilder:
                 line=dict(color=cfg["drawdown"], width=1 * scale),
                 fillcolor=cfg["drawdown_fill"],
                 hovertemplate=(
-                    "<b>Date</b>: %{x|%Y-%m-%d}<br>"
+                    # "<b>Date</b>: %{x|%Y-%m-%d}<br>"
                     "<b>Drawdown</b>: %{y:.2%}<br>"
                     "<extra></extra>"
                 ),
@@ -1307,11 +1304,11 @@ class ChartBuilder:
                 x=cumulative.index,
                 y=cumulative,
                 mode="lines",
-                name="Cumulative Return",
+                name="Cum. Return",
                 line=dict(color=cfg["cumret"], width=2 * scale),
                 hovertemplate=(
-                    "<b>Date</b>: %{x|%Y-%m-%d}<br>"
-                    "<b>Cumulative Return</b>: %{y:.4f}<br>"
+                    # "<b>Date</b>: %{x|%Y-%m-%d}<br>"
+                    "<b>Cum. Return</b>: %{y:.4f}<br>"
                     "<extra></extra>"
                 ),
                 yaxis="y2",
@@ -1358,7 +1355,7 @@ class ChartBuilder:
                     marker=dict(symbol="circle", size=8 * scale, color=cfg["cumret"]),
                     showlegend=False,
                     hovertemplate=(
-                        f"<b>Latest Cumulative Return</b>: {last_y:.4f}<br>"
+                        f"<b>Latest Cum. Return</b>: {last_y:.4f}<br>"
                         f"<extra></extra>"
                     ),
                     yaxis="y2",
@@ -1378,7 +1375,7 @@ class ChartBuilder:
                     ),
                     showlegend=False,
                     hovertemplate=(
-                        f"<b>Max Cumulative Return</b>: {cum_max_val:.4f}<br>"
+                        f"<b>Max Cum. Return</b>: {cum_max_val:.4f}<br>"
                         f"<extra></extra>"
                     ),
                     yaxis="y2",

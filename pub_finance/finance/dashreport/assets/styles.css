@@ -77,6 +77,10 @@
   margin: 0 auto;
 }
 
+.js-plotly-plot .hoverlayer { overflow: visible !important; z-index: 9999; }
+.js-plotly-plot .hoverlabel { white-space: normal !important; max-width: none !important; overflow: visible !important; }
+.js-plotly-plot, .js-plotly-plot svg { overflow: visible !important; }
+
 /* ==================== 基础与全局样式 ==================== */
 body {
   width: 100%;
