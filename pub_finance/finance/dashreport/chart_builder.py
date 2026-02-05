@@ -523,10 +523,25 @@ class ChartBuilder:
         while len(inds) < 3:
             inds.append("")
 
+        def hover_sep(lines, min_len=0, max_len=35):
+            max_text_len = max(len(line) for line in lines)
+            n = max(min_len, min(max_text_len, max_len))
+            return "--" * n
+
+        lines = [
+            f"No.1: {inds[0]}",
+            f"No.2: {inds[1]}",
+            f"No.3: {inds[2]}",
+        ]
+
+        sep = hover_sep(lines)
+
         hover_lines = (
             f"<b>日期</b>: {date_str}({day_name})<br>"
             f"<b>No.1</b>: {inds[0]}<br>"
+            f"<span style='color:config['text_color']'>{sep}</span><br>"
             f"<b>No.2</b>: {inds[1]}<br>"
+            f"<span style='color:config['text_color']'>{sep}</span><br>"
             f"<b>No.3</b>: {inds[2]}"
         )
 
