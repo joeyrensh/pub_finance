@@ -203,18 +203,12 @@ def handle_login(n_clicks, username, password, auth_checked, current_pathname):
     # 页面首次加载或刷新时，n_clicks is None
     if n_clicks is None and not auth_checked:
         if session.get("logged_in"):
-            # 已登录，显示主页面。仅当当前 pathname 在允许列表中时保留它，否则不修改 URL
-            target = (
-                current_pathname
-                if current_pathname in ALLOWED_PATHS
-                else dash.no_update
-            )
             return (
                 "",
                 {"display": "none"},
                 {"display": "block"},
                 True,
-                target,
+                dash.no_update,
             )
         else:
             # 未登录，显示登录页面，不修改 URL

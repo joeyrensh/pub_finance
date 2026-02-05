@@ -114,7 +114,7 @@ class ChartCallback:
                 # ===== 关键：总是添加微小延迟 =====
                 import time
 
-                time.sleep(0.5)  # 50ms延迟，确保loading有显示时间
+                time.sleep(0.1)  # 50ms延迟，确保loading有显示时间
 
                 # ===== 图表分发 =====
                 if chart_type == "annual_return":
