@@ -56,6 +56,18 @@ app = dash.Dash(
 )
 app.title = "Financial Report"
 
+# 列出应用中允许的页面路径，用于登录后验证并决定是否重定向
+ALLOWED_PATHS = {
+    "/dash-financial-report/overview",
+    "/dash-financial-report/cn-stock-performance",
+    "/dash-financial-report/us-stock-performance",
+    "/dash-financial-report/us-special-stock-performance",
+    "/dash-financial-report/cn-dynamic-stock-performance",
+    "/dash-financial-report/us-dynamic-stock-performance",
+    "/dash-financial-report/slogans",
+    "/dash-financial-report/full-view",
+}
+
 # Describe the layout/ UI of the app
 app.layout = html.Div(
     children=[
@@ -67,19 +79,6 @@ app.layout = html.Div(
             id="theme-poller",
             interval=1000,  # 1 秒
             n_intervals=0,
-        ),
-        html.Div(
-            id="loading-mask",
-            children=[
-                dcc.Loading(
-                    id="init-loading",
-                    type="circle",
-                    fullscreen=True,
-                    color="#119DFF",
-                    children=[],
-                )
-            ],
-            style={"display": "block"},
         ),
         html.Div(
             id="login-page",
@@ -127,24 +126,6 @@ app.layout = html.Div(
             ],
             className="background",
         ),
-        # html.Div(
-        #     id="main-page",
-        #     style={"display": "none"},
-        #     children=[
-        #         dcc.Loading(
-        #             id="loading",
-        #             type="circle",
-        #             fullscreen=False,
-        #             delay_show=200,
-        #             color="#119DFF",
-        #             style={"zIndex": "1000"},
-        #             children=[
-        #                 html.Div(id="page-content"),
-        #             ],
-        #             className="loading-dot",
-        #         ),
-        #     ],
-        # ),
         html.Div(
             id="main-page",
             style={"display": "none"},
@@ -207,51 +188,67 @@ app.clientside_callback(
         Output("output-state", "children"),
         Output("login-page", "style"),
         Output("main-page", "style"),
-        Output("loading-mask", "style"),
         Output("auth-checked", "data"),
+        Output("url", "pathname"),
     ],
     [
         Input("login-button", "n_clicks"),
         State("username", "value"),
         State("password", "value"),
         State("auth-checked", "data"),
+        State("url", "pathname"),
     ],
 )
-def handle_login(n_clicks, username, password, auth_checked):
+def handle_login(n_clicks, username, password, auth_checked, current_pathname):
     # 页面首次加载或刷新时，n_clicks is None
     if n_clicks is None and not auth_checked:
         if session.get("logged_in"):
-            # 已登录，显示主页面
+            # 已登录，显示主页面。仅当当前 pathname 在允许列表中时保留它，否则不修改 URL
+            target = (
+                current_pathname
+                if current_pathname in ALLOWED_PATHS
+                else dash.no_update
+            )
             return (
                 "",
                 {"display": "none"},
                 {"display": "block"},
-                {"display": "none"},
                 True,
+                target,
             )
         else:
-            # 未登录，显示登录页面
+            # 未登录，显示登录页面，不修改 URL
             return (
                 "",
                 {"display": "flex"},
                 {"display": "none"},
-                {"display": "none"},
                 True,
+                dash.no_update,
             )
 
     # 登录按钮被点击
     if username == VALID_USERNAME and password == VALID_PASSWORD:
         session.permanent = True
         session["logged_in"] = True
-        return "", {"display": "none"}, {"display": "block"}, {"display": "none"}, True
+        # 登录成功：仅在当前 pathname 合法时保留，否则不修改 URL（不强制重定向）
+        target = (
+            current_pathname if current_pathname in ALLOWED_PATHS else dash.no_update
+        )
+        return (
+            "",
+            {"display": "none"},
+            {"display": "block"},
+            True,
+            target,
+        )
     else:
         session["logged_in"] = False
         return (
             html.Div("Invalid username or password", style={"color": "red"}),
             {"display": "flex"},
             {"display": "none"},
-            {"display": "none"},
             True,
+            dash.no_update,
         )
 
 
