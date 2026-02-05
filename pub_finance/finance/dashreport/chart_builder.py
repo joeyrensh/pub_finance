@@ -1616,7 +1616,7 @@ class ChartBuilder:
             hovermode="x",
             hoverlabel=dict(
                 # bgcolor=cfg["hover_bg"],
-                bgcolor=cfg["cumret"],
+                bgcolor=hover_config["cumret"],
                 font_size=base_font,
                 font_family=self.font_family,
                 font_color=cfg["hover_text"],
