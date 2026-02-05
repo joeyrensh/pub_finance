@@ -1356,6 +1356,9 @@ class ChartBuilder:
                     "<b>Cum. Return</b>: %{y:.4f}<br>"
                     "<extra></extra>"
                 ),
+                hoverlabel=dict(
+                    bgcolor=hover_config["cumret"],
+                ),
                 yaxis="y2",
             )
         )
@@ -1403,6 +1406,9 @@ class ChartBuilder:
                         f"<b>Latest Cum. Return</b>: {last_y:.4f}<br>"
                         f"<extra></extra>"
                     ),
+                    hoverlabel=dict(
+                        bgcolor=hover_config["cumret"],
+                    ),
                     yaxis="y2",
                 )
             )
@@ -1422,6 +1428,9 @@ class ChartBuilder:
                     hovertemplate=(
                         f"<b>Max Cum. Return</b>: {cum_max_val:.4f}<br>"
                         f"<extra></extra>"
+                    ),
+                    hoverlabel=dict(
+                        bgcolor=hover_config["cumret"],
                     ),
                     yaxis="y2",
                 )
