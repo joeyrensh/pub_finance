@@ -517,15 +517,20 @@ class ChartBuilder:
             "Sunday",
         ][int(row["day_of_week"])]
         value = row["s_pnl"]
-
         industry_items = row.get("industry_top3_parsed", [])
-        industry_text = (
-            "<br>".join([f"{str(item)}" for item in industry_items[:3]])
-            if industry_items
-            else "  无行业数据"
+        inds = [str(item) for item in industry_items[:3]] if industry_items else []
+        # 补齐到 3 个条目，避免索引错误
+        while len(inds) < 3:
+            inds.append("")
+
+        hover_lines = (
+            f"<b>日期</b>: {date_str}({day_name})<br>"
+            f"<b>No.1</b>: {inds[0]}<br>"
+            f"<b>No.2</b>: {inds[1]}<br>"
+            f"<b>No.3</b>: {inds[2]}"
         )
 
-        return f"日期: {date_str}({day_name})<br>{industry_text}"
+        return hover_lines
 
     def strategy_chart(
         self,
