@@ -524,7 +524,7 @@ class ChartBuilder:
             inds.append("")
 
         hover_lines = (
-            f"<b>行业</b><br>"
+            f"<b>{date_str}</b><br>"
             f"<b>   ├</b> {inds[0]}<br>"
             f"<b>   ├</b> {inds[1]}<br>"
             f"<b>   ├</b>{inds[2]}"
