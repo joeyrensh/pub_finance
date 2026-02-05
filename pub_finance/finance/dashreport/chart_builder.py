@@ -544,8 +544,6 @@ class ChartBuilder:
         theme="light",
         client_width=1440,
     ):
-        df_group = df.groupby("date")["pnl"].sum().reset_index()
-
         cfg = self.theme_config.get(theme, self.theme_config["light"])
         text_color = cfg["text_color"]
         grid_color = cfg["grid"]
@@ -559,8 +557,13 @@ class ChartBuilder:
             client_width, base_font=14, min_scale=0.9, max_scale=1.05
         )
 
-        max_pnl = df_group["pnl"].max()
-        min_pnl = df_group["pnl"].min()
+        df["pnl_pos"] = df["pnl"].clip(lower=0)
+        df["pnl_neg"] = df["pnl"].clip(upper=0)
+
+        df_group = df.groupby("date")["pnl_pos"].sum().reset_index()
+
+        max_pnl = df_group["pnl_pos"].max()
+        min_pnl = df_group["pnl_pos"].min()
 
         threshold = df["success_rate"].quantile(0.1)
         min_success_rate = df.loc[
@@ -570,6 +573,9 @@ class ChartBuilder:
 
         safe_rate = max(min_success_rate, 0.2)
         max_range = min(2 * max_pnl, max_pnl * 2 / safe_rate)
+
+        df_group2 = df.groupby("date")["pnl_neg"].sum().reset_index()
+        min_range = df_group2["pnl_neg"].min()
 
         # =========================
         # tick offset（scale）
@@ -593,7 +599,7 @@ class ChartBuilder:
             max_len = max(len(t) for t in tick_texts)
             return -char_width * max_len
 
-        offset = int(calc_tick_offset(min_pnl, max_range) * scale)
+        offset = int(calc_tick_offset(min_range, max_range) * scale)
 
         # =========================
         # 策略顺序 & 分组
@@ -654,11 +660,11 @@ class ChartBuilder:
                     ),
                 )
             )
-
+            data_pos = data[data["pnl"] >= 0]
             fig.add_trace(
                 go.Bar(
-                    x=data["date"],
-                    y=data["pnl"],
+                    x=data_pos["date"],
+                    y=data_pos["pnl_pos"],
                     name=strategy,
                     marker=dict(
                         color=color,
@@ -671,6 +677,26 @@ class ChartBuilder:
                         "<b>收益</b>: " + strategy + " %{y:,.0f}<br>"
                         "<extra></extra>"
                     ),
+                )
+            )
+            data_neg = data[data["pnl"] < 0]
+            fig.add_trace(
+                go.Bar(
+                    x=data_neg["date"],
+                    y=data_neg["pnl_neg"],
+                    name=strategy,
+                    marker=dict(
+                        color=color,
+                        line=dict(color=color),
+                    ),
+                    yaxis="y2",
+                    showlegend=False,
+                    hovertemplate=(
+                        # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
+                        "<b>收益</b>: " + strategy + " %{y:,.0f}<br>"
+                        "<extra></extra>"
+                    ),
+                    base=0,
                 )
             )
 
@@ -720,7 +746,8 @@ class ChartBuilder:
                 ),
                 showline=False,
                 zeroline=False,
-                range=[0, max_range],
+                range=[min_range, max_range],
+                # autorange=True,
                 ticklabelstandoff=offset,
                 tickformat="~s",
             ),
