@@ -523,11 +523,16 @@ class ChartBuilder:
         while len(inds) < 3:
             inds.append("")
 
+        # hover_lines = (
+        #     f"<b>{date_str}</b><br>"
+        #     f"<b>   ├</b> {inds[0]}<br>"
+        #     f"<b>   ├</b> {inds[1]}<br>"
+        #     f"<b>   ├</b>{inds[2]}"
+        #     "<extra></extra>"
+        # )
         hover_lines = (
             f"<b>{date_str}</b><br>"
-            f"<b>   ├</b> {inds[0]}<br>"
-            f"<b>   ├</b> {inds[1]}<br>"
-            f"<b>   ├</b>{inds[2]}"
+            f"<b>   ├</b>{inds[0]},{inds[1]},{inds[2]}<br>"
             "<extra></extra>"
         )
 
