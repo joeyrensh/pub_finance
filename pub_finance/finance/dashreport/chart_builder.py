@@ -520,12 +520,12 @@ class ChartBuilder:
 
         industry_items = row.get("industry_top3_parsed", [])
         industry_text = (
-            "<br>".join([f"-{str(item)}" for item in industry_items[:3]])
+            "<br>".join([f"{str(item)}" for item in industry_items[:3]])
             if industry_items
             else "  无行业数据"
         )
 
-        return f"日期: {date_str}<br>星期: {day_name}<br>行业:<br>{industry_text}"
+        return f"日期: {date_str}({day_name})<br>{industry_text}"
 
     def strategy_chart(
         self,
