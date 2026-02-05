@@ -677,6 +677,8 @@ class ChartBuilder:
                         "<b>收益</b>: " + strategy + " %{y:,.0f}<br>"
                         "<extra></extra>"
                     ),
+                    legendgroup=strategy,
+                    # base=0,
                 )
             )
             data_neg = data[data["pnl"] < 0]
@@ -696,7 +698,8 @@ class ChartBuilder:
                         "<b>收益</b>: " + strategy + " %{y:,.0f}<br>"
                         "<extra></extra>"
                     ),
-                    base=0,
+                    legendgroup=strategy,
+                    # base=0,
                 )
             )
 
@@ -766,7 +769,7 @@ class ChartBuilder:
                 borderwidth=0,
                 itemsizing="trace",
             ),
-            barmode="stack",
+            barmode="relative",
             bargap=0.2,
             bargroupgap=0.2,
             plot_bgcolor="rgba(0,0,0,0)",
