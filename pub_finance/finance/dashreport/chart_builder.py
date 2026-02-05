@@ -136,7 +136,7 @@ class ChartBuilder:
 
         # 获取当前主题配置
         config = self.theme_config.get(theme, self.theme_config["light"])
-
+        hover_config = self.theme_config["light"]
         # 休市颜色使用中性色 + 透明度
         holiday_color = config["text_color"].replace("#", "")
         if len(holiday_color) == 6:  # 如果是hex颜色
@@ -311,10 +311,13 @@ class ChartBuilder:
             # 确定颜色（根据s_pnl正负和主题）
             if col3_value > 0:
                 dynamic_text_color = config["positive_int"]
+                hover_bg = hover_config["positive_int"]
             elif col3_value < 0:
                 dynamic_text_color = config["negative_int"]
+                hover_bg = hover_config["negative_int"]
             else:
                 dynamic_text_color = config["text_color"]
+                hover_bg = hover_config = config["text_color"]
                 dynamic_font_size = base_font_size
 
             industry_items = [
@@ -445,7 +448,7 @@ class ChartBuilder:
             autosize=True,  # 修改点：设为False以使用固定尺寸
             dragmode=False,
             hoverlabel=dict(
-                bgcolor=dynamic_text_color,
+                bgcolor=hover_bg,
                 bordercolor=config["hover_border"],
                 font_color=config["hover_text"],
                 font_size=base_font_size,
@@ -1213,6 +1216,7 @@ class ChartBuilder:
         # 1. theme 配置
         # =========================
         cfg = self.theme_config.get(theme, self.theme_config["light"])
+        hover_config = self.theme_config["light"]
         text_color = cfg["text_color"]
         scale, base_font = self._get_font_sizes(
             client_width, base_font=16, min_scale=0.65, max_scale=1.05
@@ -1331,7 +1335,7 @@ class ChartBuilder:
                     "<extra></extra>"
                 ),
                 hoverlabel=dict(
-                    bgcolor=cfg["drawdown"],
+                    bgcolor=hover_config["drawdown"],
                 ),
                 yaxis="y",
             )
@@ -1442,7 +1446,7 @@ class ChartBuilder:
                         f"<b>Max Drawdown</b>: {max_dd_val:.2%}<br>" f"<extra></extra>"
                     ),
                     hoverlabel=dict(
-                        bgcolor=cfg["drawdown"],
+                        bgcolor=hover_config["drawdown"],
                     ),
                     yaxis="y",
                 )
@@ -1472,7 +1476,7 @@ class ChartBuilder:
                                 f"<extra></extra>"
                             ),
                             hoverlabel=dict(
-                                bgcolor=cfg["drawdown"],
+                                bgcolor=hover_config["drawdown"],
                             ),
                             yaxis="y",
                         )
@@ -1502,7 +1506,7 @@ class ChartBuilder:
                                 f"<extra></extra>"
                             ),
                             hoverlabel=dict(
-                                bgcolor=cfg["drawdown"],
+                                bgcolor=hover_config["drawdown"],
                             ),
                             yaxis="y",
                         )
