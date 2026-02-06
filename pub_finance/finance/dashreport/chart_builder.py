@@ -343,13 +343,14 @@ class ChartBuilder:
             if len(industry_items) >= 2:
                 industry_text_top = industry_items[1]
 
+                is_top3_text_top = industry_text_top in top3_industries
+
                 if len(industry_text_top) > 7:
                     industry_text_top = truncate_text_by_display_width(
                         industry_text_top, 14
                     )
 
-                # ⭐ Top3 行业加粗
-                if industry_text_top in top3_industries:
+                if is_top3_text_top:
                     industry_text_top = f"<b>{industry_text_top}</b>"
 
                 fig.add_annotation(
@@ -378,13 +379,15 @@ class ChartBuilder:
             if len(industry_items) >= 1:
                 industry_text_bottom = industry_items[0]
 
+                is_top3_text_bottom = industry_text_bottom in top3_industries
+
                 if len(industry_text_bottom) > 7:
                     industry_text_bottom = truncate_text_by_display_width(
                         industry_text_bottom, 14
                     )
 
                 # ⭐ Top3 行业加粗
-                if industry_text_bottom in top3_industries:
+                if is_top3_text_bottom:
                     industry_text_bottom = f"<b>{industry_text_bottom}</b>"
 
                 fig.add_annotation(
