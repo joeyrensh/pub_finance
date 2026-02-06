@@ -305,7 +305,7 @@ class ChartBuilder:
                     industry_counter[str(item).strip()] += 1
 
         # 定义排名映射：原始排名 → 显示值
-        rank_mapping = {1: 2, 2: 1, 3: 0.5}
+        rank_mapping = {1: 3, 2: 2, 3: 1}
 
         # ===============================
         # 2️⃣ 为每个数据点添加 annotation
@@ -364,7 +364,7 @@ class ChartBuilder:
                 font_size_top = (
                     rank_mapping.get(rank_text_top, 0)
                     if page.startswith("cn")
-                    else rank_mapping.get(rank_text_top, 0) * 0.5
+                    else rank_mapping.get(rank_text_top, 0) * 0.4
                 )
 
                 fig.add_annotation(
@@ -415,7 +415,7 @@ class ChartBuilder:
                 font_size_bottom = (
                     rank_mapping.get(rank_text_bottom, 0)
                     if page.startswith("cn")
-                    else rank_mapping.get(rank_text_bottom, 0) * 0.5
+                    else rank_mapping.get(rank_text_bottom, 0) * 0.4
                 )
 
                 fig.add_annotation(
