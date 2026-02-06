@@ -114,6 +114,7 @@ class ChartBuilder:
 
     def calendar_heatmap(
         self,
+        page,
         df,
         theme="light",  # 主题参数
         client_width=1440,
@@ -129,7 +130,6 @@ class ChartBuilder:
         plotly.graph_objects.Figure
             交互式图表对象
         """
-
         scale, base_font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.0
         )
@@ -340,7 +340,11 @@ class ChartBuilder:
                     showarrow=False,
                     font=dict(
                         family=self.font_family,
-                        size=base_font_size,
+                        size=(
+                            base_font_size
+                            if not page.startswith("cn")
+                            else base_font_size + 2
+                        ),
                         color=config["text_color"],  # 使用中性色
                     ),
                     align="center",  # 保持居中
@@ -543,6 +547,7 @@ class ChartBuilder:
 
     def strategy_chart(
         self,
+        page,
         df,
         theme="light",
         client_width=1440,
@@ -788,6 +793,7 @@ class ChartBuilder:
 
     def trade_info_chart(
         self,
+        page,
         df,
         theme="light",
         client_width=1440,
@@ -940,6 +946,7 @@ class ChartBuilder:
 
     def industry_pnl_trend(
         self,
+        page,
         df,
         theme="light",
         client_width=1440,
@@ -1067,6 +1074,7 @@ class ChartBuilder:
 
     def industry_position_treemap(
         self,
+        page,
         df,
         theme="light",
         client_width=1440,
@@ -1131,6 +1139,7 @@ class ChartBuilder:
 
     def industry_profit_treemap(
         self,
+        page,
         df,
         theme="light",
         client_width=1440,
@@ -1197,7 +1206,7 @@ class ChartBuilder:
 
         return fig
 
-    def annual_return(self, pnl: pd.Series, theme="light", client_width=1440):
+    def annual_return(self, page, pnl: pd.Series, theme="light", client_width=1440):
         """
         生成年度收益图表
         """

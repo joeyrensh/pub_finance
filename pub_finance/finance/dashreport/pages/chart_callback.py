@@ -119,49 +119,56 @@ class ChartCallback:
                 # ===== 图表分发 =====
                 if chart_type == "annual_return":
                     pnl, cash, total_value = data_bundle["annual_return"]
-                    return builder.annual_return(
+                    fig = builder.annual_return(
+                        page=page,
                         pnl=pnl,
                         theme=theme,
                         client_width=client_width,
                     )
 
                 elif chart_type == "heatmap":
-                    return builder.calendar_heatmap(
+                    fig = builder.calendar_heatmap(
+                        page=page,
                         df=data_bundle["heatmap"],
                         theme=theme,
                         client_width=client_width,
                     )
 
                 elif chart_type == "strategy":
-                    return builder.strategy_chart(
+                    fig = builder.strategy_chart(
+                        page=page,
                         df=data_bundle["strategy"],
                         theme=theme,
                         client_width=client_width,
                     )
 
                 elif chart_type == "trade":
-                    return builder.trade_info_chart(
+                    fig = builder.trade_info_chart(
+                        page=page,
                         df=data_bundle["trade"],
                         theme=theme,
                         client_width=client_width,
                     )
 
                 elif chart_type == "pnl_trend":
-                    return builder.industry_pnl_trend(
+                    fig = builder.industry_pnl_trend(
+                        page=page,
                         df=data_bundle["pnl_trend"],
                         theme=theme,
                         client_width=client_width,
                     )
 
                 elif chart_type == "industry_position":
-                    return builder.industry_position_treemap(
+                    fig = builder.industry_position_treemap(
+                        page=page,
                         df=data_bundle["industry_position"],
                         theme=theme,
                         client_width=client_width,
                     )
 
                 elif chart_type == "industry_profit":
-                    return builder.industry_profit_treemap(
+                    fig = builder.industry_profit_treemap(
+                        page=page,
                         df=data_bundle["industry_profit"],
                         theme=theme,
                         client_width=client_width,
@@ -170,6 +177,7 @@ class ChartCallback:
                 else:
                     return dash.no_update
 
+                return fig
             except Exception as e:
                 print(f"⚠️ 图表生成失败 {key}: {e}")
                 return dash.no_update
