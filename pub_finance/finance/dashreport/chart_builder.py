@@ -304,7 +304,8 @@ class ChartBuilder:
                 if item:
                     industry_counter[str(item).strip()] += 1
 
-        top3_industries = {industry for industry, _ in industry_counter.most_common(3)}
+        # 定义排名映射：原始排名 → 显示值
+        rank_mapping = {1: 2, 2: 1, 3: 0.5}
 
         # ===============================
         # 2️⃣ 为每个数据点添加 annotation
@@ -343,15 +344,28 @@ class ChartBuilder:
             if len(industry_items) >= 2:
                 industry_text_top = industry_items[1]
 
-                is_top3_text_top = industry_text_top in top3_industries
+                rank_text_top = next(
+                    (
+                        i + 1
+                        for i, (ind, _) in enumerate(industry_counter.most_common(3))
+                        if ind == industry_text_top
+                    ),
+                    0,
+                )
 
                 if len(industry_text_top) > 7:
                     industry_text_top = truncate_text_by_display_width(
                         industry_text_top, 14
                     )
 
-                if is_top3_text_top:
+                if rank_text_top > 0:
                     industry_text_top = f"<b>{industry_text_top}</b>"
+
+                font_size_top = (
+                    rank_mapping.get(rank_text_top, 0)
+                    if page.startswith("cn")
+                    else rank_mapping.get(rank_text_top, 0) * 0.5
+                )
 
                 fig.add_annotation(
                     x=day_of_week + 0.1,
@@ -360,11 +374,12 @@ class ChartBuilder:
                     showarrow=False,
                     font=dict(
                         family=self.font_family,
-                        size=(
-                            base_font_size
-                            if not page.startswith("cn")
-                            else base_font_size + 2
-                        ),
+                        # size=(
+                        #     base_font_size
+                        #     if not page.startswith("cn")
+                        #     else base_font_size + 2
+                        # ),
+                        size=(base_font_size + font_size_top),
                         color=config["text_color"],
                     ),
                     align="center",
@@ -379,7 +394,14 @@ class ChartBuilder:
             if len(industry_items) >= 1:
                 industry_text_bottom = industry_items[0]
 
-                is_top3_text_bottom = industry_text_bottom in top3_industries
+                rank_text_bottom = next(
+                    (
+                        i + 1
+                        for i, (ind, _) in enumerate(industry_counter.most_common(3))
+                        if ind == industry_text_bottom
+                    ),
+                    0,
+                )
 
                 if len(industry_text_bottom) > 7:
                     industry_text_bottom = truncate_text_by_display_width(
@@ -387,8 +409,14 @@ class ChartBuilder:
                     )
 
                 # ⭐ Top3 行业加粗
-                if is_top3_text_bottom:
+                if rank_text_bottom > 0:
                     industry_text_bottom = f"<b>{industry_text_bottom}</b>"
+
+                font_size_bottom = (
+                    rank_mapping.get(rank_text_bottom, 0)
+                    if page.startswith("cn")
+                    else rank_mapping.get(rank_text_bottom, 0) * 0.5
+                )
 
                 fig.add_annotation(
                     x=day_of_week + 0.1,
@@ -397,7 +425,8 @@ class ChartBuilder:
                     showarrow=False,
                     font=dict(
                         family=self.font_family,
-                        size=base_font_size,
+                        # size=base_font_size,
+                        size=(base_font_size + font_size_bottom),
                         color=config["text_color"],
                     ),
                     align="center",
