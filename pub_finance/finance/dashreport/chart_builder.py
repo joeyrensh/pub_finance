@@ -289,7 +289,26 @@ class ChartBuilder:
 
             return result
 
-        # 为每个数据点添加文本annotation
+        # ===============================
+        # 1️⃣ 统计出现频率最高的 3 个行业
+        # ===============================
+        from collections import Counter
+
+        industry_counter = Counter()
+
+        for _, row in df.iterrows():
+            items = row["industry_top3_parsed"]
+            if not items:
+                continue
+            for item in items:
+                if item:
+                    industry_counter[str(item).strip()] += 1
+
+        top3_industries = {industry for industry, _ in industry_counter.most_common(3)}
+
+        # ===============================
+        # 2️⃣ 为每个数据点添加 annotation
+        # ===============================
         for i, row in df.iterrows():
             day_of_week = row["day_of_week"]
             week_order = row["week_order"]
@@ -298,17 +317,11 @@ class ChartBuilder:
             industry_items = row["industry_top3_parsed"]
             col3_value = row["s_pnl"]
 
-            # 确定字体大小（基于s_pnl的绝对值）
-            abs_col3 = abs(col3_value)
-            # dynamic_font_size = next(
-            #     (font_steps[i] for i, q in enumerate(quantiles) if abs_col3 <= q),
-            #     font_steps[-1],  # 默认值
-            # )
+            # -------- 字体大小 --------
             dynamic_font_size = compute_font_size(col3_value, base_font_size + 2)
-
             dynamic_font_size = int(dynamic_font_size)
 
-            # 确定颜色（根据s_pnl正负和主题）
+            # -------- 颜色 --------
             if col3_value > 0:
                 dynamic_text_color = config["positive_int"]
                 hover_bg = hover_config["positive_int"]
@@ -317,21 +330,27 @@ class ChartBuilder:
                 hover_bg = hover_config["negative_int"]
             else:
                 dynamic_text_color = config["text_color"]
-                hover_bg = hover_config = config["text_color"]
+                hover_bg = config["text_color"]
                 dynamic_font_size = base_font_size
 
             industry_items = [
                 str(item).strip() if item else "" for item in industry_items
             ]
 
-            # 1. 添加上方的行业（第一个行业）
-            if len(industry_items) >= 1:
+            # ===============================
+            # 上方行业（第二大行业）
+            # ===============================
+            if len(industry_items) >= 2:
                 industry_text_top = industry_items[1]
-                # 使用截断或缩写文本
+
                 if len(industry_text_top) > 7:
                     industry_text_top = truncate_text_by_display_width(
                         industry_text_top, 14
                     )
+
+                # ⭐ Top3 行业加粗
+                if industry_text_top in top3_industries:
+                    industry_text_top = f"<b>{industry_text_top}</b>"
 
                 fig.add_annotation(
                     x=day_of_week + 0.1,
@@ -345,23 +364,29 @@ class ChartBuilder:
                             if not page.startswith("cn")
                             else base_font_size + 2
                         ),
-                        color=config["text_color"],  # 使用中性色
+                        color=config["text_color"],
                     ),
-                    align="center",  # 保持居中
-                    xanchor="center",  # 保持居中
+                    align="center",
+                    xanchor="center",
                     yanchor="top",
-                    # xshift=-0.2,
-                    # yshift=20,
                     opacity=0.9,
                 )
 
-            # 3. 添加下方的行业（第二个行业）
-            if len(industry_items) >= 2:
+            # ===============================
+            # 下方行业（第一大行业）
+            # ===============================
+            if len(industry_items) >= 1:
                 industry_text_bottom = industry_items[0]
+
                 if len(industry_text_bottom) > 7:
                     industry_text_bottom = truncate_text_by_display_width(
                         industry_text_bottom, 14
                     )
+
+                # ⭐ Top3 行业加粗
+                if industry_text_bottom in top3_industries:
+                    industry_text_bottom = f"<b>{industry_text_bottom}</b>"
+
                 fig.add_annotation(
                     x=day_of_week + 0.1,
                     y=week_order,
@@ -370,16 +395,17 @@ class ChartBuilder:
                     font=dict(
                         family=self.font_family,
                         size=base_font_size,
-                        color=config["text_color"],  # 使用中性色
+                        color=config["text_color"],
                     ),
-                    align="center",  # 保持居中
-                    xanchor="center",  # 保持居中
+                    align="center",
+                    xanchor="center",
                     yanchor="bottom",
-                    # xshift=0,  # 不向左偏移
-                    # yshift=-20,
                     opacity=0.9,
                 )
 
+            # ===============================
+            # 日期（月 / 日）
+            # ===============================
             fig.add_annotation(
                 x=day_of_week - 0.52,
                 y=week_order,
@@ -388,7 +414,6 @@ class ChartBuilder:
                 align="left",
                 xanchor="left",
                 yanchor="middle",
-                xshift=0,
                 yshift=int(dynamic_font_size * scale * 0.48),
                 font=dict(
                     family=self.font_family,
@@ -397,6 +422,7 @@ class ChartBuilder:
                 ),
                 opacity=0.9,
             )
+
             fig.add_annotation(
                 x=day_of_week - 0.52,
                 y=week_order,
@@ -405,7 +431,6 @@ class ChartBuilder:
                 align="left",
                 xanchor="left",
                 yanchor="middle",
-                xshift=0,
                 yshift=-int(dynamic_font_size * scale * 0.48),
                 font=dict(
                     family=self.font_family,
