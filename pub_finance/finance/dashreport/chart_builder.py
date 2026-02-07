@@ -338,6 +338,8 @@ class ChartBuilder:
                 str(item).strip() if item else "" for item in industry_items
             ]
 
+            dynamic_font_size = base_font_size + 6
+
             # ===============================
             # 上方行业（第二大行业）
             # ===============================
