@@ -207,7 +207,7 @@ class ChartBuilder:
             neg_median = 0
             neg_max = 0
 
-        max_size_increase = 8
+        max_size_increase = 4
 
         def compute_font_size(s_pnl, base_font_size):
             # 正收益
@@ -319,7 +319,7 @@ class ChartBuilder:
             col3_value = row["s_pnl"]
 
             # -------- 字体大小 --------
-            dynamic_font_size = compute_font_size(col3_value, base_font_size + 2)
+            dynamic_font_size = compute_font_size(col3_value, base_font_size + 6)
             dynamic_font_size = int(dynamic_font_size)
 
             # -------- 颜色 --------
@@ -338,7 +338,7 @@ class ChartBuilder:
                 str(item).strip() if item else "" for item in industry_items
             ]
 
-            dynamic_font_size = base_font_size + 6
+            # dynamic_font_size = base_font_size + 6
 
             # ===============================
             # 上方行业（第二大行业）
