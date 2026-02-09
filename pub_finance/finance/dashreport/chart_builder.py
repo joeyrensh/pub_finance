@@ -323,6 +323,11 @@ class ChartBuilder:
             # -------- 字体大小 --------
             dynamic_font_size, ratio = compute_font_size(col3_value, base_font_size + 4)
             dynamic_font_size = int(dynamic_font_size)
+            # 格式化 ratio 为百分比，保留 1 位小数（例如 "10.1%"）
+            try:
+                formatted_ratio = f"{float(ratio) * 100:.1f}%"
+            except Exception:
+                formatted_ratio = str(ratio)
 
             # -------- 颜色 --------
             if col3_value > 0:
@@ -475,12 +480,6 @@ class ChartBuilder:
                 ),
                 opacity=0.9,
             )
-
-            # 格式化 ratio 为百分比，保留 1 位小数（例如 "10.1%"）
-            try:
-                formatted_ratio = f"{float(ratio) * 100:.1f}%"
-            except Exception:
-                formatted_ratio = str(ratio)
 
         # 设置图表布局
         fig.update_layout(
