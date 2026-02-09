@@ -362,9 +362,9 @@ class ChartBuilder:
                     0,
                 )
 
-                if len(industry_text_top) > 7:
+                if len(industry_text_top) > 6:
                     industry_text_top = truncate_text_by_display_width(
-                        industry_text_top, 14
+                        industry_text_top, 12
                     )
 
                 if rank_text_top > 0:
@@ -412,9 +412,9 @@ class ChartBuilder:
                     0,
                 )
 
-                if len(industry_text_bottom) > 7:
+                if len(industry_text_bottom) > 6:
                     industry_text_bottom = truncate_text_by_display_width(
-                        industry_text_bottom, 14
+                        industry_text_bottom, 12
                     )
 
                 # ⭐ Top3 行业加粗

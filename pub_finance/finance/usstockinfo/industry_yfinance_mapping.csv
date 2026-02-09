@@ -1,8 +1,8 @@
 industry_eng,industry_cn
 Advertising Agencies,广告代理
-Aerospace & Defense,航空航天与国防
+Aerospace & Defense,航空航天国防
 Airlines,航空公司
-Airports & Air Services,机场与航空服务
+Airports & Air Services,机场航空服务
 Aluminum,铝业
 Agricultural Inputs,农业投入
 Apparel Manufacturing,服装制造
@@ -10,7 +10,7 @@ Apparel Retail,服装零售
 Asset Management,资产管理
 Auto Manufacturers,汽车制造
 Auto Parts,汽车零部件
-Auto & Truck Dealerships,汽车与卡车经销
+Auto & Truck Dealerships,汽车卡车经销
 Banks - Diversified,多元化银行
 Banks - Regional,区域性银行
 Beverages - Brewers,啤酒饮料
@@ -19,8 +19,8 @@ Beverages - Wineries & Distilleries,酒庄与酿酒厂
 Biotechnology,生物技术
 Broadcasting,广播媒体
 Building Materials,建筑材料
-Building Products & Equipment,建筑产品与设备
-Business Equipment & Supplies,商业设备与用品
+Building Products & Equipment,建筑产品设备
+Business Equipment & Supplies,商业设备用品
 Capital Markets,资本市场
 Chemicals,化学品
 Coking Coal,焦煤
@@ -37,65 +37,65 @@ Diagnostics & Research,诊断与研究
 Discount Stores,折扣商店
 Drug Manufacturers - General,药品制造商
 Drug Manufacturers - Specialty & Generic,药品制造商
-Education & Training Services,教育与培训服务
-Electrical Equipment & Parts,电气设备与零件
+Education & Training Services,教育培训服务
+Electrical Equipment & Parts,电气设备零件
 Electronic Components,电子元件
-Electronic Gaming & Multimedia,电子游戏与多媒体
-Electronics & Computer Distribution,电子与计算机分销
+Electronic Gaming & Multimedia,电子游戏多媒体
+Electronics & Computer Distribution,电子计算机分销
 Engineering & Construction,工程与建筑
 Entertainment,娱乐
-Farm & Heavy Construction Machinery,农用与重型建筑机械
+Farm & Heavy Construction Machinery,农用重型机械
 Farm Products,农产品
 Financial Conglomerates,金融集团
-Financial Data & Stock Exchanges,金融数据与证券交易所
+Financial Data & Stock Exchanges,金融证券交易所
 Food Distribution,食品分销
 Footwear & Accessories,鞋类与配饰
-"Furnishings, Fixtures & Appliances",家用器具与家电
+"Furnishings, Fixtures & Appliances",家用器具家电
 Gambling,博彩
 Gold,黄金
 Grocery Stores,杂货店
 Healthcare Plans,医疗保险
 Health Information Services,健康信息服务
 Home Improvement Retail,家居改善零售
-Household & Personal Products,家庭与个人用品
-Independent Oil & Gas,独立石油与天然气
+Household & Personal Products,家庭个人用品
+Independent Oil & Gas,独立石油天然气
 Industrial Distribution,工业分销
 Information Technology Services,信息技术服务
 Infrastructure Operations,基础设施运营
 Insurance Brokers,保险经纪
 Insurance - Diversified,多元化保险
 Insurance - Life,人寿保险
-Insurance - Property & Casualty,财产与意外保险
+Insurance - Property & Casualty,财产意外保险
 Insurance - Reinsurance,再保险
 Insurance - Specialty,专业保险
-Integrated Freight & Logistics,综合货运与物流
-Internet Content & Information,互联网内容与信息
+Integrated Freight & Logistics,综合货运物流
+Internet Content & Information,互联网内容信息
 Internet Retail,互联网零售
 Leisure,休闲
 Lodging,住宿
-Lumber & Wood Production,木材与木制品生产
+Lumber & Wood Production,木材木制品生产
 Luxury Goods,奢侈品
 Marine Shipping,海运
 Medical Care Facilities,医疗设施
 Medical Devices,医疗设备
 Medical Distribution,医疗分销
-Medical Instruments & Supplies,医疗仪器与用品
+Medical Instruments & Supplies,医疗仪器用品
 Metal Fabrication,金属加工
 Mortgage Finance,抵押贷款金融
-Oil & Gas Drilling,石油与天然气钻探
-Oil & Gas E&P,石油与天然气勘探生产
-Oil & Gas Equipment & Services,石油与天然气设备服务
-Oil & Gas Integrated,石油与天然气
-Oil & Gas Midstream,石油与天然气
-Oil & Gas Refining & Marketing,石油与天然气炼制销售
-Other Industrial Metals & Mining,工业金属与采矿
-Other Precious Metals & Mining,贵金属与采矿
+Oil & Gas Drilling,石油天然气钻探
+Oil & Gas E&P,石油天然气勘探生产
+Oil & Gas Equipment & Services,石油天然气设备服务
+Oil & Gas Integrated,石油天然气
+Oil & Gas Midstream,石油天然气
+Oil & Gas Refining & Marketing,石油天然气炼制销售
+Other Industrial Metals & Mining,工业金属采矿
+Other Precious Metals & Mining,贵金属采矿
 Packaged Foods,包装食品
-Packaging & Containers,包装与容器
-Paper & Paper Products,纸与纸制品
+Packaging & Containers,包装容器
+Paper & Paper Products,纸制品
 Personal Services,个人服务
 Pharmaceutical Retailers,药品零售商
-Pollution & Treatment Controls,污染与处理控制
+Pollution & Treatment Controls,污染处理控制
 Publishing,出版
 Railroads,铁路
 Real Estate - Development,房地产
@@ -104,7 +104,7 @@ Real Estate Services,房地产
 Recreational Vehicles,休闲车辆
 REIT - Diversified,多元化地产REIT
 REIT - Healthcare Facilities,医疗保健地产REIT
-REIT - Hotel & Motel,酒店与汽车旅馆REIT
+REIT - Hotel & Motel,酒店汽车旅馆REIT
 REIT - Industrial,工业地产REIT
 REIT - Mortgage,抵押贷款REIT
 REIT - Office,办公地产REIT
@@ -117,7 +117,7 @@ Resorts & Casinos,度假村与赌场
 Restaurants,餐厅
 Scientific & Technical Instruments,科学技术仪器
 Security & Protection Services,安保服务
-Semiconductor Equipment & Materials,半导体设备与材料
+Semiconductor Equipment & Materials,半导体设备材料
 Semiconductors,半导体
 Shell Companies,空壳公司
 Silver,白银
@@ -128,7 +128,7 @@ Specialty Business Services,专业商业服务
 Specialty Chemicals,专业化学品
 Specialty Industrial Machinery,专业工业机械
 Specialty Retail,专业零售
-Staffing & Employment Services,人力资源与就业服务
+Staffing & Employment Services,人力资源就业服务
 Steel,钢铁
 Telecom Services,电信服务
 Textile Manufacturing,纺织制造
