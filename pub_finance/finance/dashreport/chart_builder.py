@@ -191,7 +191,7 @@ class ChartBuilder:
 
         # 正收益
         pos_vals = s[s > 0]
-        if len(pos_vals) > 0:
+        if len(pos_vals) >= 0:
             pos_median = np.quantile(pos_vals, 0.5)
             pos_max = pos_vals.max()
         else:
@@ -211,26 +211,28 @@ class ChartBuilder:
 
         def compute_font_size(s_pnl, base_font_size):
             # 正收益
-            if s_pnl > 0 and pos_max > pos_median:
-                if s_pnl <= pos_median:
-                    return base_font_size
-
+            if s_pnl >= 0 and pos_max > pos_median:
                 ratio = (s_pnl - pos_median) / (pos_max - pos_median)
                 ratio = min(max(ratio, 0), 1)
-                return base_font_size + ratio * max_size_increase
+                ratio_real = (s_pnl - 0) / (pos_max - 0)
+                if s_pnl <= pos_median:
+                    return base_font_size, ratio_real
+
+                return base_font_size + ratio * max_size_increase, ratio_real
 
             # 负收益
             if s_pnl < 0 and neg_max > neg_median:
                 abs_v = abs(s_pnl)
-                if abs_v <= neg_median:
-                    return base_font_size
-
                 ratio = (abs_v - neg_median) / (neg_max - neg_median)
                 ratio = min(max(ratio, 0), 1)
-                return base_font_size + ratio * max_size_increase
+                ratio_real = (s_pnl - 0) / (neg_max - 0)
+                if abs_v <= neg_median:
+                    return base_font_size, ratio_real
+
+                return base_font_size + ratio * max_size_increase, ratio_real
 
             # 0 或异常情况
-            return base_font_size
+            return base_font_size, ratio_real
 
         # 创建图表
         fig = go.Figure()
@@ -319,7 +321,7 @@ class ChartBuilder:
             col3_value = row["s_pnl"]
 
             # -------- 字体大小 --------
-            dynamic_font_size = compute_font_size(col3_value, base_font_size + 4)
+            dynamic_font_size, ratio = compute_font_size(col3_value, base_font_size + 4)
             dynamic_font_size = int(dynamic_font_size)
 
             # -------- 颜色 --------
@@ -473,6 +475,12 @@ class ChartBuilder:
                 ),
                 opacity=0.9,
             )
+
+            # 格式化 ratio 为百分比，保留 1 位小数（例如 "10.1%"）
+            try:
+                formatted_ratio = f"{float(ratio) * 100:.1f}%"
+            except Exception:
+                formatted_ratio = str(ratio)
 
         # 设置图表布局
         fig.update_layout(
