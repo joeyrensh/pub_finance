@@ -200,7 +200,7 @@ class ReportDataLoader:
     # mtime-aware LRU（真正缓存点）
     # =========================================================
     @staticmethod
-    @lru_cache(maxsize=16)
+    @lru_cache(maxsize=24)
     def _load_cached(
         prefix: str,
         datasets: Tuple[str, ...],
