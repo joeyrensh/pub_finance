@@ -1441,13 +1441,45 @@ class ChartBuilder:
         # =========================
         # 11. 关键点标注函数
         # =========================
-        def get_label_position(index, data_series, is_near_right_threshold=0.2):
-            if (
-                index
-                > data_series.index[-int(len(data_series) * is_near_right_threshold)]
-            ):
-                return "top left"
-            return "top right"
+        def get_label_position(
+            index,
+            data_series,
+            is_near_right_threshold=0.2,
+            avoid_indices=None,
+            avoid_days=10,
+        ):
+            """
+            返回文本标注位置，默认根据是否靠近右侧选择左右。
+            当传入 avoid_indices（timestamp 列表）且有靠近的索引时，
+            会尝试翻转锚点以避免与这些索引的注释重叠。
+            """
+            try:
+                right_threshold_idx = data_series.index[
+                    -int(len(data_series) * is_near_right_threshold)
+                ]
+            except Exception:
+                right_threshold_idx = data_series.index[0]
+
+            # 默认位于右侧附近时放在左上，否则右上
+            pos = "top left" if index > right_threshold_idx else "top right"
+
+            # 若提供了需要避让的索引，则在时间上接近时仅翻转上下位置，保持左右不变（简单、稳健）
+            if avoid_indices:
+                for ai in avoid_indices:
+                    try:
+                        delta_days = abs(
+                            (pd.to_datetime(ai) - pd.to_datetime(index)).days
+                        )
+                    except Exception:
+                        continue
+                    if delta_days <= avoid_days:
+                        pos = (
+                            pos.replace("top", "bottom")
+                            if pos.startswith("top")
+                            else pos.replace("bottom", "top")
+                        )
+                        break
+            return pos
 
         def get_compact_label(text, value, client_width):
             if client_width >= 550:
@@ -1511,6 +1543,11 @@ class ChartBuilder:
                 )
             )
 
+        # 在处理回撤注释前准备需要规避的索引列表（例如累计最大值与最新日期）
+        avoid_list = []
+        avoid_list.append(cum_max_idx)
+        avoid_list.append(cumulative.index[-1])
+
         # 最大回撤
         if len(drawdown) > 0:
             max_dd_idx = drawdown.idxmin()
@@ -1523,7 +1560,9 @@ class ChartBuilder:
                     mode="markers+text",
                     marker=dict(symbol="circle", size=8 * scale, color=cfg["drawdown"]),
                     text=[get_compact_label("Max DD", max_dd_val, client_width)],
-                    textposition=get_label_position(max_dd_idx, drawdown),
+                    textposition=get_label_position(
+                        max_dd_idx, drawdown, avoid_indices=avoid_list
+                    ),
                     textfont=dict(size=base_font, color=text_color),
                     showlegend=False,
                     hovertemplate=(
@@ -1535,6 +1574,7 @@ class ChartBuilder:
                     yaxis="y",
                 )
             )
+            avoid_list.append(max_dd_idx)
 
             # 30D最大回撤
             if len(drawdown) >= 30:
@@ -1552,7 +1592,12 @@ class ChartBuilder:
                                 symbol="diamond", size=6 * scale, color=cfg["drawdown"]
                             ),
                             text=[get_compact_label("30D DD", val_30, client_width)],
-                            textposition=get_label_position(idx_30, drawdown, 0.2),
+                            textposition=get_label_position(
+                                idx_30,
+                                drawdown,
+                                is_near_right_threshold=0.2,
+                                avoid_indices=avoid_list,
+                            ),
                             textfont=dict(size=base_font, color=text_color),
                             showlegend=False,
                             hovertemplate=(
@@ -1565,6 +1610,7 @@ class ChartBuilder:
                             yaxis="y",
                         )
                     )
+                avoid_list.append(idx_30)
 
             # 120D最大回撤
             if len(drawdown) >= 120:
@@ -1582,7 +1628,12 @@ class ChartBuilder:
                                 symbol="diamond", size=6 * scale, color=cfg["drawdown"]
                             ),
                             text=[get_compact_label("120D DD", val_120, client_width)],
-                            textposition=get_label_position(idx_120, drawdown, 0.4),
+                            textposition=get_label_position(
+                                idx_120,
+                                drawdown,
+                                is_near_right_threshold=0.4,
+                                avoid_indices=avoid_list,
+                            ),
                             textfont=dict(size=base_font, color=text_color),
                             showlegend=False,
                             hovertemplate=(
