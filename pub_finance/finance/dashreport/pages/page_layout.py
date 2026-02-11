@@ -13,14 +13,6 @@ from dash import callback, Output, Input, State
 from finance.dashreport.data_loader import ReportDataLoader
 
 
-import dash_html_components as html
-import dash_core_components as dcc
-import pandas as pd
-from finance.dashreport.utils import Header
-from finance.dashreport.data_loader import ReportDataLoader
-from finance.dashreport.chart_builder import ChartBuilder
-
-
 class PageLayout:
     def __init__(self, app, prefix="cn", show_charts=None, show_tables=None):
         self.app = app
