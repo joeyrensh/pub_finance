@@ -6,6 +6,7 @@ from datetime import datetime
 import pandas as pd
 from utility.fileinfo import FileInfo
 import numpy as np
+from backtraderref.nanindicator import NaNIndicator
 
 
 class GlobalStrategy(bt.Strategy):
@@ -133,7 +134,8 @@ class GlobalStrategy(bt.Strategy):
                     )
                 else:
                     # 数据不足时，创建一个始终为NaN的虚拟指标
-                    self.inds[d._name]["sma_long"] = bt.LineNum(float("nan"))
+                    # self.inds[d._name]["sma_long"] = bt.LineNum(float("nan"))
+                    self.inds[d._name]["sma_long"] = NaNIndicator(data=d.close)
                     print(
                         f"警告: {d._name} 数据长度({d.buflen()})小于SMA周期({self.params.ma_long_period})"
                     )
@@ -147,7 +149,9 @@ class GlobalStrategy(bt.Strategy):
                     )
                 else:
                     # 数据不足时，创建一个始终为NaN的虚拟指标
-                    self.inds[d._name]["sma_annual"] = bt.LineNum(float("nan"))
+                    # self.inds[d._name]["sma_annual"] = bt.LineNum(float("nan"))
+                    self.inds[d._name]["sma_annual"] = NaNIndicator(data=d.close)
+
                     print(
                         f"警告: {d._name} 数据长度({d.buflen()})小于SMA周期({self.params.annual_period})"
                     )
@@ -404,6 +408,19 @@ class GlobalStrategy(bt.Strategy):
                 )
             except Exception as e:
                 print(f"❌ 初始化失败-辅助指标5: {d._name}, {e}")
+
+            """
+            辅助指标6：判断形态是否属于多头形态
+            """
+            try:
+                self.signals[d._name]["is_short_position"] = bt.Or(
+                    d.close < self.inds[d._name]["sma_short"],
+                    d.close < self.inds[d._name]["sma_mid"],
+                    d.close < self.inds[d._name]["sma_long"],
+                    d.close < self.inds[d._name]["sma_annual"],
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-辅助指标6: {d._name}, {e}")
 
             """
             买入1: 均线金叉
@@ -937,22 +954,40 @@ class GlobalStrategy(bt.Strategy):
                         "max_drawdown": self.max_drawdowns[d._name],
                     }
                     list.append(dict)
-
-                if self.signals[d._name]["short_position"][0] == 1:
-                    self.order[d._name] = self.close(data=d)
-                    self.myorder[d._name]["strategy"] = "空头排列"
-                elif self.signals[d._name]["ma_crossover_bearish"][0] == 1:
-                    self.order[d._name] = self.close(data=d)
-                    self.myorder[d._name]["strategy"] = "均线死叉"
-                elif self.signals[d._name]["closs_crossdown_annualline"][0] == 1:
-                    self.order[d._name] = self.close(data=d)
-                    self.myorder[d._name]["strategy"] = "跌破年线"
-                elif self.signals[d._name]["closs_crossdown_halfannualline"][0] == 1:
-                    self.order[d._name] = self.close(data=d)
-                    self.myorder[d._name]["strategy"] = "跌破半年线"
-                elif self.signals[d._name]["close_falling"][0] == 1:
-                    self.order[d._name] = self.close(data=d)
-                    self.myorder[d._name]["strategy"] = "连续下跌"
+                # 记录买入信息，对短线策略卖出进行限制
+                if (
+                    self.myorder[d._name]["strategy"]
+                    in (
+                        "连续上涨",
+                        "成交量放大",
+                        "红三兵",
+                    )
+                    and self.signals[d._name]["is_short_position"][0] == 1
+                ):
+                    if self.signals[d._name]["close_falling"][0] == 1:
+                        self.order[d._name] = self.close(data=d)
+                        self.myorder[d._name]["strategy"] = "连续下跌"
+                    elif pos.adjbase <= pos.price * 0.9:
+                        self.order[d._name] = self.close(data=d)
+                        self.myorder[d._name]["strategy"] = "低于买入价10%"
+                else:
+                    if self.signals[d._name]["short_position"][0] == 1:
+                        self.order[d._name] = self.close(data=d)
+                        self.myorder[d._name]["strategy"] = "空头排列"
+                    elif self.signals[d._name]["ma_crossover_bearish"][0] == 1:
+                        self.order[d._name] = self.close(data=d)
+                        self.myorder[d._name]["strategy"] = "均线死叉"
+                    elif self.signals[d._name]["closs_crossdown_annualline"][0] == 1:
+                        self.order[d._name] = self.close(data=d)
+                        self.myorder[d._name]["strategy"] = "跌破年线"
+                    elif (
+                        self.signals[d._name]["closs_crossdown_halfannualline"][0] == 1
+                    ):
+                        self.order[d._name] = self.close(data=d)
+                        self.myorder[d._name]["strategy"] = "跌破半年线"
+                    elif self.signals[d._name]["close_falling"][0] == 1:
+                        self.order[d._name] = self.close(data=d)
+                        self.myorder[d._name]["strategy"] = "连续下跌"
 
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)

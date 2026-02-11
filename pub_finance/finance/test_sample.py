@@ -1,21 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-
 import progressbar
 from utility.toolkit import ToolKit
 from utility.stock_analysis import StockProposal
 import gc
 from utility.em_stock_uti import EMWebCrawlerUti
-from uscrawler.ak_incre_crawler import AKUSWebCrawler
+from cncrawler.ak_incre_crawler import AKCNWebCrawler
 from utility.backtrader_exec import BacktraderExec
 
 # 主程序入口
 if __name__ == "__main__":
-    """美股交易日期 utc-4"""
-    trade_date = ToolKit("get latest trade date").get_us_latest_trade_date(1)
+    """美股交易日期 utc+8"""
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
-    if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
+    if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
         pass
     else:
         sys.exit()
@@ -32,13 +31,18 @@ if __name__ == "__main__":
     """ 创建进度条并开始运行 """
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
+    print("trade_date is :", trade_date)
+
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
     # em = EMWebCrawlerUti()
-    # em.get_daily_stock_info("us", trade_date)
+    # em.get_daily_stock_info("cn", trade_date)
 
-    # ak_daily_crawler = AKUSWebCrawler()
-    # df_stock_daily = ak_daily_crawler.get_us_daily_stock_info_ak(trade_date)
+    # em = AKCNWebCrawler()
+    # em.get_cn_daily_stock_info_ak(trade_date)
+
+    # em = EMWebCrawlerUti()
+    # em.get_daily_gz_info("cn", trade_date)
 
     """ 执行bt相关策略 """
 
@@ -73,38 +77,33 @@ if __name__ == "__main__":
             raise RuntimeError(result[1])
         return result[0], result[1]
 
-    # 主函数中替换原有调用
+    # 主函数中替换原有调用：将具体的回测执行逻辑通过参数传入
     # cash, final_value = exec_btstrategy(trade_date)
-    # 美股主要策略执行
+    # A股主要策略执行
     cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us", d).exec_btstrategy()
+        trade_date, lambda d: BacktraderExec("cn", d).exec_btstrategy(force_run=True)
     )
     collected = gc.collect()
-
     print("Garbage collector: collected %d objects." % (collected))
-
     """ 发送邮件 """
-    StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
-    # 固定列表追踪
+    StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
+    # ETF主要策略执行
     cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us_special", d).exec_btstrategy()
+        trade_date, lambda d: BacktraderExec("cnetf", d).exec_btstrategy(force_run=True)
     )
     collected = gc.collect()
-
     print("Garbage collector: collected %d objects." % (collected))
-
     """ 发送邮件 """
-    StockProposal("us_special", trade_date).send_btstrategy_by_email(cash, final_value)
-    # 动态列表追踪
+    StockProposal("cnetf", trade_date).send_etf_btstrategy_by_email(cash, final_value)
+    # A股动态列表执行
     cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us_dynamic", d).exec_btstrategy()
+        trade_date,
+        lambda d: BacktraderExec("cn_dynamic", d).exec_btstrategy(force_run=True),
     )
     collected = gc.collect()
-
     print("Garbage collector: collected %d objects." % (collected))
-
     """ 发送邮件 """
-    StockProposal("us_dynamic", trade_date).send_btstrategy_by_email(cash, final_value)
+    StockProposal("cn_dynamic", trade_date).send_btstrategy_by_email(cash, final_value)
 
     """ 结束进度条 """
     pbar.finish()
