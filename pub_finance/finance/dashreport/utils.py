@@ -781,6 +781,13 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         style_data_conditional.extend(
             discrete_background_color_bins(df, col, n_bins=10, positive_is_red=True)
         )
+
+    gradient_target_cols = ["L5 CLOSE"]
+
+    for col in gradient_target_cols:
+        style_data_conditional.extend(
+            discrete_background_color_bins(df, col, n_bins=10, positive_is_red=False)
+        )
     import uuid
 
     table_key = str(uuid.uuid4())
