@@ -3,15 +3,11 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State, MATCH
-from finance.dashreport.pages import (
-    cnstock_performance,
-    slogans,
-    usstock_performance,
-    usspecialstock_performance,
-    cndynamicstock_performance,
-    usdynamicstock_performance,
-)
-
+from dash import clientside_callback
+from finance.dashreport.pages import slogans
+from finance.dashreport.pages.page import Page as page_creater
+from finance.dashreport.pages.chart_callback import ChartCallback
+from finance.dashreport.pages.table_callback import TableCallback
 from flask import Flask
 from flask_compress import Compress
 import configparser
@@ -22,7 +18,11 @@ from pathlib import Path
 
 
 server = Flask(__name__)
-Compress(server)
+Compress(
+    server,
+)
+server.config["COMPRESS_LEVEL"] = 6
+server.config["COMPRESS_MIN_SIZE"] = 1000
 
 # 读取配置文件
 config = configparser.ConfigParser()
@@ -38,6 +38,7 @@ server.permanent_session_lifetime = timedelta(minutes=1440)
 
 app = dash.Dash(
     __name__,
+    suppress_callback_exceptions=True,
     meta_tags=[
         {
             "name": "viewport",
@@ -45,26 +46,33 @@ app = dash.Dash(
         }
     ],
     server=server,
+    serve_locally=False,
 )
 app.title = "Financial Report"
+
+# 列出应用中允许的页面路径，用于登录后验证并决定是否重定向
+ALLOWED_PATHS = {
+    "/dash-financial-report/overview",
+    "/dash-financial-report/cn-stock-performance",
+    "/dash-financial-report/us-stock-performance",
+    "/dash-financial-report/us-special-stock-performance",
+    "/dash-financial-report/cn-dynamic-stock-performance",
+    "/dash-financial-report/us-dynamic-stock-performance",
+    "/dash-financial-report/slogans",
+    "/dash-financial-report/full-view",
+}
 
 # Describe the layout/ UI of the app
 app.layout = html.Div(
     children=[
         dcc.Location(id="url", refresh=False),
         dcc.Store(id="auth-checked", data=False),  # 标记是否已检查登录
-        html.Div(
-            id="loading-mask",
-            children=[
-                dcc.Loading(
-                    id="init-loading",
-                    type="dot",
-                    fullscreen=True,
-                    color="#119DFF",
-                    children=[],
-                )
-            ],
-            style={"display": "block"},
+        dcc.Store(id="current-theme", data="light"),
+        dcc.Store(id="client-width", data=1440),
+        dcc.Interval(
+            id="theme-poller",
+            interval=1000,  # 1 秒
+            n_intervals=0,
         ),
         html.Div(
             id="login-page",
@@ -116,19 +124,55 @@ app.layout = html.Div(
             id="main-page",
             style={"display": "none"},
             children=[
-                dcc.Loading(
-                    id="loading",
-                    type="dot",
-                    fullscreen=False,
-                    color="#119DFF",
-                    style={"zIndex": "1000"},
-                    children=[
-                        html.Div(id="page-content"),
-                    ],
-                    className="loading-dot",
-                ),
+                html.Div(id="page-content"),
             ],
         ),
+    ],
+)
+# ===== 1. 注册chart回调 =====
+chart_callback = ChartCallback()
+chart_callback.setup_callback(app)
+app.chart_callback = chart_callback
+
+# ===== 注册 table callback =====
+table_callback = TableCallback()
+table_callback.setup_callback(app)
+app.table_callback = table_callback
+# ======================================================
+
+app.clientside_callback(
+    """
+    function(n, currentTheme, currentWidth) {
+        const isDark = window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        const newTheme = isDark ? 'dark' : 'light';
+        const width = window.innerWidth || document.documentElement.clientWidth;
+
+        let themeOut = window.dash_clientside.no_update;
+        let widthOut = window.dash_clientside.no_update;
+
+        if (newTheme !== currentTheme) {
+            console.log('Theme changed:', currentTheme, '->', newTheme);
+            themeOut = newTheme;
+        }
+
+        if (width !== currentWidth) {
+            console.log('Width changed:', currentWidth, '->', width);
+            widthOut = width;
+        }
+
+        return [themeOut, widthOut];
+    }
+    """,
+    [
+        Output("current-theme", "data"),
+        Output("client-width", "data"),
+    ],
+    Input("theme-poller", "n_intervals"),
+    [
+        State("current-theme", "data"),
+        State("client-width", "data"),
     ],
 )
 
@@ -138,51 +182,61 @@ app.layout = html.Div(
         Output("output-state", "children"),
         Output("login-page", "style"),
         Output("main-page", "style"),
-        Output("loading-mask", "style"),
         Output("auth-checked", "data"),
+        Output("url", "pathname"),
     ],
     [
         Input("login-button", "n_clicks"),
         State("username", "value"),
         State("password", "value"),
         State("auth-checked", "data"),
+        State("url", "pathname"),
     ],
 )
-def handle_login(n_clicks, username, password, auth_checked):
+def handle_login(n_clicks, username, password, auth_checked, current_pathname):
     # 页面首次加载或刷新时，n_clicks is None
     if n_clicks is None and not auth_checked:
         if session.get("logged_in"):
-            # 已登录，显示主页面
             return (
                 "",
                 {"display": "none"},
                 {"display": "block"},
-                {"display": "none"},
                 True,
+                dash.no_update,
             )
         else:
-            # 未登录，显示登录页面
+            # 未登录，显示登录页面，不修改 URL
             return (
                 "",
                 {"display": "flex"},
                 {"display": "none"},
-                {"display": "none"},
                 True,
+                dash.no_update,
             )
 
     # 登录按钮被点击
     if username == VALID_USERNAME and password == VALID_PASSWORD:
         session.permanent = True
         session["logged_in"] = True
-        return "", {"display": "none"}, {"display": "block"}, {"display": "none"}, True
+        # 登录成功：仅在当前 pathname 合法时保留，否则不修改 URL（不强制重定向）
+        target = (
+            current_pathname if current_pathname in ALLOWED_PATHS else dash.no_update
+        )
+        return (
+            "",
+            {"display": "none"},
+            {"display": "block"},
+            True,
+            target,
+        )
     else:
         session["logged_in"] = False
         return (
             html.Div("Invalid username or password", style={"color": "red"}),
             {"display": "flex"},
             {"display": "none"},
-            {"display": "none"},
             True,
+            dash.no_update,
         )
 
 
@@ -192,29 +246,146 @@ def handle_login(n_clicks, username, password, auth_checked):
 )
 def update_page_content(pathname):
     if pathname == "/dash-financial-report/overview":
-        # return overview.create_layout(app)
-        return cnstock_performance.create_layout(app)
+        return page_creater(
+            app,
+            "cn",
+            show_charts=[
+                "annual_return",
+                "heatmap",
+                "strategy",
+                "trade",
+                "pnl_trend",
+                "industry_position",
+                "industry_profit",
+            ],
+            show_tables=["category", "detail", "cn_etf", "detail_short"],
+        ).get_layout()
     elif pathname == "/dash-financial-report/cn-stock-performance":
-        return cnstock_performance.create_layout(app)
+        return page_creater(
+            app,
+            "cn",
+            show_charts=[
+                "annual_return",
+                "heatmap",
+                "strategy",
+                "trade",
+                "pnl_trend",
+                "industry_position",
+                "industry_profit",
+            ],
+            show_tables=["category", "detail", "cn_etf", "detail_short"],
+        ).get_layout()
     elif pathname == "/dash-financial-report/us-stock-performance":
-        return usstock_performance.create_layout(app)
+        return page_creater(
+            app,
+            "us",
+            show_charts=[
+                "annual_return",
+                "heatmap",
+                "strategy",
+                "trade",
+                "pnl_trend",
+                "industry_position",
+                "industry_profit",
+            ],
+            show_tables=["category", "detail", "detail_short"],
+        ).get_layout()
     elif pathname == "/dash-financial-report/us-special-stock-performance":
-        return usspecialstock_performance.create_layout(app)
+        return page_creater(
+            app,
+            "us_special",
+            show_charts=[
+                "annual_return",
+                "heatmap",
+                "strategy",
+                "trade",
+                "pnl_trend",
+                "industry_position",
+                "industry_profit",
+            ],
+            show_tables=["category", "detail", "detail_short"],
+        ).get_layout()
     elif pathname == "/dash-financial-report/cn-dynamic-stock-performance":
-        return cndynamicstock_performance.create_layout(app)
+        return page_creater(
+            app,
+            "cn_dynamic",
+            show_charts=[
+                "annual_return",
+                "heatmap",
+                "strategy",
+                "trade",
+                "pnl_trend",
+                "industry_position",
+                "industry_profit",
+            ],
+            show_tables=["category", "detail"],
+        ).get_layout()
     elif pathname == "/dash-financial-report/us-dynamic-stock-performance":
-        return usdynamicstock_performance.create_layout(app)
+        return page_creater(
+            app,
+            "us_dynamic",
+            show_charts=[
+                "annual_return",
+                "heatmap",
+                "strategy",
+                "trade",
+                "pnl_trend",
+                "industry_position",
+                "industry_profit",
+            ],
+            show_tables=["category", "detail"],
+        ).get_layout()
     elif pathname == "/dash-financial-report/slogans":
         return slogans.create_layout(app)
     elif pathname == "/dash-financial-report/full-view":
         return [
-            cnstock_performance.create_layout(app),
-            usstock_performance.create_layout(app),
-            # overview.create_layout(app),
+            page_creater(
+                app,
+                "cn",
+                show_charts=[
+                    "annual_return",
+                    "heatmap",
+                    "strategy",
+                    "trade",
+                    "pnl_trend",
+                    "industry_position",
+                    "industry_profit",
+                ],
+                show_tables=["category", "detail", "cn_etf", "detail_short"],
+            ).get_layout(),
+            page_creater(
+                app,
+                "us",
+                show_charts=[
+                    "annual_return",
+                    "heatmap",
+                    "strategy",
+                    "trade",
+                    "pnl_trend",
+                    "industry_position",
+                    "industry_profit",
+                ],
+                show_tables=["category", "detail", "detail_short"],
+            ).get_layout(),
             slogans.create_layout(app),
         ]
     else:
-        return (cnstock_performance.create_layout(app),)
+        return (
+            page_creater(
+                app,
+                "cn",
+                show_charts=[
+                    "annual_return",
+                    "heatmap",
+                    "strategy",
+                    "trade",
+                    "pnl_trend",
+                    "industry_position",
+                    "industry_profit",
+                ],
+                show_tables=["category", "detail", "cn_etf", "detail_short"],
+            ).get_layout(),
+        )
 
 
 @app.callback(
@@ -259,5 +430,13 @@ def update_row_count(indices):
 
 
 if __name__ == "__main__":
-    app.run_server(host="0.0.0.0", port=80, debug=True)
+    app.run_server(
+        host="0.0.0.0",
+        port=80,
+        debug=False,
+        dev_tools_hot_reload=False,  # 禁用热重载，减少资源占用
+        dev_tools_ui=False,  # 禁用调试面板
+        processes=1,  # 核心：单进程，避免全局数据多进程重复加载
+        threaded=True,  # 开启多线程，处理并发请求（单进程下不影响全局数据）
+    )
     # app.run_server()
