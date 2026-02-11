@@ -270,18 +270,16 @@ class GlobalStrategy(bt.Strategy):
             """
             try:
                 self.signals[d._name]["price_higher"] = bt.Or(
-                    # 情况1：创新高模式
+                    # 情况1：创新高
                     bt.And(
                         d.close > self.inds[d._name]["highest_short"](-1),
-                        d.close > d.close(-5),
                         self.signals[d._name]["upper_shadow"] == 1,
                     ),
-                    # 情况2：收敛上涨模式 - 低点上移
+                    # 情况2：低点上移 - 收敛上涨
                     bt.And(
                         self.inds[d._name]["lowest_short"]
                         > self.inds[d._name]["lowest_short"](-5),
                         d.close > d.close(-5),
-                        # 可选：添加波动率收敛条件
                         (
                             self.inds[d._name]["highest_short"]
                             - self.inds[d._name]["lowest_short"]
@@ -291,7 +289,7 @@ class GlobalStrategy(bt.Strategy):
                             - self.inds[d._name]["lowest_short"](-5)
                         ),
                     ),
-                    # 情况3：高点上移但未创新高
+                    # 情况3：高点上移
                     bt.And(
                         self.inds[d._name]["highest_short"]
                         > self.inds[d._name]["highest_short"](-5),
@@ -302,27 +300,15 @@ class GlobalStrategy(bt.Strategy):
                 )
 
                 self.signals[d._name]["price_lower"] = bt.Or(
-                    # 情况1：创新低模式
-                    bt.And(
-                        d.close < self.inds[d._name]["lowest_short"](-1),
-                        d.close < d.close(-5),
-                    ),
-                    # 情况2：高点下移模式
+                    # 情况1：创新低
+                    d.close < self.inds[d._name]["lowest_short"](-1),
+                    # 情况2：低点下移
                     bt.And(
                         self.inds[d._name]["highest_short"]
                         < self.inds[d._name]["highest_short"](-5),
                         d.close < d.close(-5),
-                        # 确认卖压增强
                         self.inds[d._name]["lowest_short"]
                         <= self.inds[d._name]["lowest_short"](-5),
-                    ),
-                    # 情况3：收敛下跌模式 - 高低点同步下移但幅度小
-                    bt.And(
-                        self.inds[d._name]["highest_short"]
-                        < self.inds[d._name]["highest_short"](-5),
-                        self.inds[d._name]["lowest_short"]
-                        < self.inds[d._name]["lowest_short"](-5),
-                        d.close < d.close(-5),
                     ),
                 )
             except Exception as e:
@@ -340,16 +326,12 @@ class GlobalStrategy(bt.Strategy):
                         == 1,
                         self.inds[d._name]["dea"] > self.inds[d._name]["dea"](-1),
                     ),
-                    bt.And(
-                        self.inds[d._name]["dea"] > self.inds[d._name]["dea"](-1),
-                        bt.indicators.crossover.CrossUp(self.inds[d._name]["dif"], 0)
-                        == 1,
-                    ),
+                    bt.indicators.crossover.CrossUp(self.inds[d._name]["dif"], 0) == 1,
                     bt.And(
                         self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
                         self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
                     ),
-                    d.volume > self.inds[d._name]["emavol_short"] * 1.25,
+                    # d.volume > self.inds[d._name]["emavol_short"] * 1.25,
                 )
                 self.signals[d._name]["death_cross"] = bt.Or(
                     bt.And(
@@ -359,11 +341,8 @@ class GlobalStrategy(bt.Strategy):
                         == 1,
                         self.inds[d._name]["dea"] < self.inds[d._name]["dea"](-1),
                     ),
-                    bt.And(
-                        self.inds[d._name]["dea"] < self.inds[d._name]["dea"](-1),
-                        bt.indicators.crossover.CrossDown(self.inds[d._name]["dif"], 0)
-                        == 1,
-                    ),
+                    bt.indicators.crossover.CrossDown(self.inds[d._name]["dif"], 0)
+                    == 1,
                     bt.And(
                         self.inds[d._name]["dif"] < self.inds[d._name]["dea"],
                         self.inds[d._name]["dif"] < self.inds[d._name]["dif"](-1),
@@ -430,7 +409,6 @@ class GlobalStrategy(bt.Strategy):
                     bt.And(
                         self.inds[d._name]["sma_mid"]
                         > self.inds[d._name]["sma_mid"](-1),
-                        self.inds[d._name]["ema_short"] > self.inds[d._name]["ema_mid"],
                         bt.indicators.crossover.CrossUp(
                             self.inds[d._name]["sma_short"],
                             self.inds[d._name]["sma_mid"],
@@ -501,7 +479,7 @@ class GlobalStrategy(bt.Strategy):
             买入4: 成交量突然增加，价格走高
             """
             try:
-                self.signals[d._name]["volume_spike"] = bt.And(
+                self.signals[d._name]["volume_breakout"] = bt.And(
                     self.inds[d._name]["emavol_short"]
                     > self.inds[d._name]["emavol_long"],
                     d.volume > self.inds[d._name]["emavol_short"] * 1.5,
@@ -631,8 +609,8 @@ class GlobalStrategy(bt.Strategy):
                         self.signals[d._name]["price_lower"] == 1,
                         self.signals[d._name]["death_cross"] == 1,
                     ),
-                    self.inds[d._name]["sma_annual"]
-                    < self.inds[d._name]["sma_annual"](-1),
+                    # self.inds[d._name]["sma_annual"]
+                    # < self.inds[d._name]["sma_annual"](-1),
                 )
             except Exception as e:
                 print(f"❌ 初始化失败-卖出4: {d._name}, {e}")
@@ -649,7 +627,7 @@ class GlobalStrategy(bt.Strategy):
                         self.signals[d._name]["price_lower"] == 1,
                         self.signals[d._name]["death_cross"] == 1,
                     ),
-                    self.inds[d._name]["sma_long"] < self.inds[d._name]["sma_long"](-1),
+                    # self.inds[d._name]["sma_long"] < self.inds[d._name]["sma_long"](-1),
                 )
             except Exception as e:
                 print(f"❌ 初始化失败-卖出5: {d._name}, {e}")
@@ -926,7 +904,7 @@ class GlobalStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "连续上涨"
-                elif self.signals[d._name]["volume_spike"][0] == 1:
+                elif self.signals[d._name]["volume_breakout"][0] == 1:
                     """买入对应仓位"""
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)

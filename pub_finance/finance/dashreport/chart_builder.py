@@ -732,6 +732,7 @@ class ChartBuilder:
                         "<b>成功率</b>: " + strategy + " %{y:.2%}<br>"
                         "<extra></extra>"
                     ),
+                    legendgroup=strategy,
                 )
             )
             data_pos = data[data["pnl"] >= 0]
@@ -842,6 +843,8 @@ class ChartBuilder:
                 bgcolor=legend_bg,
                 borderwidth=0,
                 itemsizing="trace",
+                tracegroupgap=0,
+                # itemsizing="constant",
             ),
             barmode="relative",
             bargap=0.2,
@@ -1735,6 +1738,7 @@ class ChartBuilder:
                 borderwidth=0,
                 font=dict(size=base_font, family=self.font_family),
                 itemsizing="trace",
+                tracegroupgap=0,
                 entrywidth=8,
             ),
             plot_bgcolor="rgba(0,0,0,0)",
