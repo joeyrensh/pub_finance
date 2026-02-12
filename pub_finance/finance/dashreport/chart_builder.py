@@ -652,30 +652,6 @@ class ChartBuilder:
         min_range = df_group2["pnl_neg"].min()
 
         # =========================
-        # tick offset（scale）
-        # =========================
-        def calc_tick_offset(min_pnl, max_pnl, num_ticks=6, char_width=5):
-            def to_si(n):
-                abs_n = abs(n)
-                if abs_n >= 1e12:
-                    return f"{n/1e12:.1f}T".rstrip("0").rstrip(".")
-                elif abs_n >= 1e9:
-                    return f"{n/1e9:.1f}B".rstrip("0").rstrip(".")
-                elif abs_n >= 1e6:
-                    return f"{n/1e6:.1f}M".rstrip("0").rstrip(".")
-                elif abs_n >= 1e3:
-                    return f"{n/1e3:.1f}K".rstrip("0").rstrip(".")
-                else:
-                    return str(int(n))
-
-            ticks = np.linspace(min_pnl, max_pnl, num_ticks)
-            tick_texts = [to_si(t) for t in ticks]
-            max_len = max(len(t) for t in tick_texts)
-            return -char_width * max_len
-
-        offset = int(calc_tick_offset(min_range, max_range) * scale)
-
-        # =========================
         # 策略顺序 & 分组
         # =========================
         strategy_order = [
@@ -825,9 +801,10 @@ class ChartBuilder:
                 showline=False,
                 zeroline=False,
                 range=[min_range, max_range],
-                # autorange=True,
-                ticklabelstandoff=offset,
                 tickformat="~s",
+                # anchor="free",
+                # position=0.94,
+                showticklabels=False,
             ),
             legend=dict(
                 orientation="v",
@@ -857,7 +834,6 @@ class ChartBuilder:
             hovermode="x",
             hoverlabel=dict(font_size=base_font_size),
         )
-
         return fig
 
     def trade_info_chart(

@@ -402,6 +402,17 @@ class GlobalStrategy(bt.Strategy):
                 print(f"❌ 初始化失败-辅助指标6: {d._name}, {e}")
 
             """
+            辅助指标7：成交量增加
+            """
+            try:
+                self.signals[d._name]["volume_increased"] = bt.And(
+                    d.volume > d.volume(-1),
+                    d.volume > self.inds[d._name]["emavol_short"],
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败-辅助指标7: {d._name}, {e}")
+
+            """
             买入1: 均线金叉
             """
             try:
@@ -441,6 +452,7 @@ class GlobalStrategy(bt.Strategy):
                 self.signals[d._name]["close_rising"] = (
                     bt.And(
                         self.signals[d._name]["price_higher"] == 1,
+                        # self.signals[d._name]["volume_increased"] == 1,
                         d.close > d.open,
                         self.signals[d._name]["deviant"] == 1,
                         bt.Or(
