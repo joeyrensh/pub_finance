@@ -804,7 +804,6 @@ class ChartBuilder:
                 tickformat="~s",
                 anchor="free",
                 position=0.95,
-                automargin=True,
             ),
             legend=dict(
                 orientation="v",

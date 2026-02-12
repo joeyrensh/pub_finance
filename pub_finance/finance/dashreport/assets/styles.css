@@ -3,12 +3,12 @@
 :root {
   /* 表格相关变量 */
   --data-bar-color: #7dcfff;
-  --date-bg-color: #ffeb3b;
+  --date-bg-color: #57a0ec94;
   --row-bg-color: #ff4444;
   --negative-value-bg-color: #00a859;
   --positive-value-bg-color: #ff4444;
   --track-color: #ecf0f1;
-  --positive-databar-color: #3498dbc4;
+  --positive-databar-color: #ff444482;
   --negative-databar-color: #0d876cd9;
   --gridcolor: rgba(0, 0, 0, 0.2);
   
@@ -32,8 +32,8 @@
   :root {
     /* 表格相关变量 */
     --data-bar-color: #0074d973;
-    --date-bg-color: #97880652;
-    --positive-databar-color: #0d5f9589;
+    --date-bg-color: #3078c291;
+    --positive-databar-color: #ff444482;
     --negative-databar-color: #0d876cd9;
     --gridcolor: rgba(255, 255, 255, 0.2);
     
