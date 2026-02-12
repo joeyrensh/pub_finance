@@ -802,9 +802,9 @@ class ChartBuilder:
                 zeroline=False,
                 range=[min_range, max_range],
                 tickformat="~s",
-                # anchor="free",
-                # position=0.94,
-                showticklabels=False,
+                anchor="free",
+                position=0.95,
+                automargin=True,
             ),
             legend=dict(
                 orientation="v",
