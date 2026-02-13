@@ -33,17 +33,28 @@ class TickerInfo:
         """ 获取动态追踪股票列表文件路径 """
         self.file_dynamic_list = file.get_file_path_dynamic_list
 
-    @staticmethod
-    def _top_by_activity(cond, df, percent=0.2):
+    def _top_by_activity(self, cond, df, percent=0.2, max_activity=0.15):
         df_g = df.loc[cond].copy()
         if df_g.empty:
             return []
 
         df_g["activity"] = np.where(
             df_g["total_value"] > 0,
-            df_g["close"] * df_g["volume"] / df_g["total_value"],
+            (
+                df_g["close"] * df_g["volume"] * 100 / df_g["total_value"]
+                if self.market.startswith("cn")
+                else df_g["close"] * df_g["volume"] / df_g["total_value"]
+            ),
             0.0,
         )
+
+        # 找出有极值的 symbol
+        symbols_with_extreme = df_g.loc[
+            df_g["activity"] > max_activity, "symbol"
+        ].unique()
+
+        # 剔除这些 symbol 的所有行
+        df_g = df_g[~df_g["symbol"].isin(symbols_with_extreme)]
 
         sym_act = df_g.groupby("symbol", sort=False)["activity"].mean()
 
@@ -106,18 +117,10 @@ class TickerInfo:
 
         if self.market == "us":
             # 美股筛选条件
-            # 条件1: 市值超过100亿的股票直接入选
-            # 基础条件（适用于所有股票）
-            # 定义市值阈值（单位：人民币元，假设1美元≈7人民币）
             SMALL_CAP_THRESHOLD = 2000000000  # 20亿美元 ≈ 140亿人民币
-            MID_CAP_THRESHOLD = 10000000000  # 100亿美元 ≈ 700亿人民币
-            LARGE_CAP_THRESHOLD = 100000000000  # 1000亿美元 ≈ 7000亿人民币
+            LARGE_CAP_THRESHOLD = 10000000000  # 100亿美元 ≈ 700亿人民币
+            MEGA_CAP_THRESHOLD = 100000000000  # 1000亿美元 ≈ 7000亿人民币
 
-            # 定义活跃度阈值（成交额占市值的百分比）
-            MID_CAP_TURNOVER = 0.03  # 3%
-            LARGE_CAP_TURNOVER = 0.005  # 0.5% 或者 50亿以上
-            MEGA_CAP_TURNOVER = 0.003  # 0.1%
-            # 首先找出所有单日涨幅超过200%的股票，这些将被排除
             high_increase_symbols = (
                 df_recent[
                     ((df_recent["close"] - df_recent["open"]) / df_recent["open"] >= 2)
@@ -133,29 +136,27 @@ class TickerInfo:
                 & (df_recent["low"] > 0)
             )
 
-            mid_cap_cond = (
+            small_cap_cond = (
                 base_cond
                 & (df_recent["total_value"] >= SMALL_CAP_THRESHOLD)
-                & (df_recent["total_value"] < MID_CAP_THRESHOLD)
+                & (df_recent["total_value"] < LARGE_CAP_THRESHOLD)
             )
 
             large_cap_cond = (
                 base_cond
-                & (df_recent["total_value"] >= MID_CAP_THRESHOLD)
-                & (df_recent["total_value"] < LARGE_CAP_THRESHOLD)
+                & (df_recent["total_value"] >= LARGE_CAP_THRESHOLD)
+                & (df_recent["total_value"] < MEGA_CAP_THRESHOLD)
             )
 
-            mega_cap_cond = base_cond & (
-                df_recent["total_value"] >= LARGE_CAP_THRESHOLD
-            )
+            mega_cap_cond = base_cond & (df_recent["total_value"] >= MEGA_CAP_THRESHOLD)
 
             # 合并所有条件
-            mid_top = self._top_by_activity(mid_cap_cond, df_recent, 0.3)
+            small_top = self._top_by_activity(small_cap_cond, df_recent, 0.2)
             large_top = self._top_by_activity(large_cap_cond, df_recent, 0.3)
-            mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.3)
+            mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.5)
 
             # 合并三组的 top20% symbol
-            combined_symbols = list(set(mid_top + large_top + mega_top))
+            combined_symbols = list(set(small_top + large_top + mega_top))
 
             # 排除单日涨幅超过200%的股票
             filtered_symbols = [
@@ -167,16 +168,9 @@ class TickerInfo:
 
         elif self.market == "cn":
             # A股筛选条件
-            # 条件1: 市值超过100亿的股票直接入选
-            # 定义A股市值阈值（单位：人民币元）
             SMALL_CAP_THRESHOLD = 5000000000  # 50亿人民币
-            MID_CAP_THRESHOLD = 20000000000  # 200亿人民币
-            LARGE_CAP_THRESHOLD = 100000000000  # 1千亿人民币
-
-            # 定义A股活跃度阈值（成交金额，单位：人民币元）
-            SMALL_CAP_TURNOVER = 300000000  # 3亿人民币
-            MID_CAP_TURNOVER = 500000000  # 5亿人民币
-            LARGE_CAP_TURNOVER = 1000000000  # 10亿人民币
+            LARGE_CAP_THRESHOLD = 10000000000  # 200亿人民币
+            MEGA_CAP_THRESHOLD = 100000000000  # 1千亿人民币
 
             # 基础条件（不包含涨幅限制）
             base_cond = (
@@ -190,24 +184,22 @@ class TickerInfo:
             small_cap_cond = (
                 base_cond
                 & (df_recent["total_value"] >= SMALL_CAP_THRESHOLD)
-                & (df_recent["total_value"] < MID_CAP_THRESHOLD)
-            )
-
-            mid_cap_cond = (
-                base_cond
-                & (df_recent["total_value"] >= MID_CAP_THRESHOLD)
                 & (df_recent["total_value"] < LARGE_CAP_THRESHOLD)
             )
 
-            large_cap_cond = base_cond & (
-                df_recent["total_value"] >= LARGE_CAP_THRESHOLD
+            large_cap_cond = (
+                base_cond
+                & (df_recent["total_value"] >= LARGE_CAP_THRESHOLD)
+                & (df_recent["total_value"] < MEGA_CAP_THRESHOLD)
             )
 
-            small_top = self._top_by_activity(small_cap_cond, df_recent, 0.3)
-            mid_top = self._top_by_activity(mid_cap_cond, df_recent, 0.3)
-            large_top = self._top_by_activity(large_cap_cond, df_recent, 0.3)
+            mega_cap_cond = base_cond & (df_recent["total_value"] >= MEGA_CAP_THRESHOLD)
 
-            combined_symbols = list(set(small_top + mid_top + large_top))
+            small_top = self._top_by_activity(small_cap_cond, df_recent, 0.3)
+            large_top = self._top_by_activity(large_cap_cond, df_recent, 0.2)
+            mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.4)
+
+            combined_symbols = list(set(small_top + large_top + mega_top))
 
             # 合并所有符合条件的股票
             tickers.extend(combined_symbols)
