@@ -32,13 +32,19 @@ class TickerInfo:
         self.file_fixed_list = file.get_file_path_fixed_list
         """ 获取动态追踪股票列表文件路径 """
         self.file_dynamic_list = file.get_file_path_dynamic_list
+        # 获取交易日
+        tk = ToolKit("获取交易日")
+        if market.startswith("us"):
+            self.date_threshold = tk.get_us_trade_date_by_delta(10, trade_date)
+        elif market.startswith("cn"):
+            self.date_threshold = tk.get_cn_trade_date_by_delta(10, trade_date)
 
-    def _top_by_activity(self, cond, df, percent=0.2, max_activity=0.15):
+    def _top_by_activity(self, cond, df, percent=0.2, max_turnover=0.15):
         df_g = df.loc[cond].copy()
         if df_g.empty:
             return []
-
-        df_g["activity"] = np.where(
+        # 按照换手比例来过滤
+        df_g["turnover"] = np.where(
             df_g["total_value"] > 0,
             (
                 df_g["close"] * df_g["volume"] * 100 / df_g["total_value"]
@@ -50,11 +56,22 @@ class TickerInfo:
 
         # 找出有极值的 symbol
         symbols_with_extreme = df_g.loc[
-            df_g["activity"] > max_activity, "symbol"
+            df_g["turnover"] > max_turnover, "symbol"
         ].unique()
 
         # 剔除这些 symbol 的所有行
         df_g = df_g[~df_g["symbol"].isin(symbols_with_extreme)]
+
+        # 按照成交金额来排序
+        df_g["activity"] = np.where(
+            df_g["total_value"] > 0,
+            (
+                df_g["close"] * df_g["volume"] * 100
+                if self.market.startswith("cn")
+                else df_g["close"] * df_g["volume"]
+            ),
+            0.0,
+        )
 
         sym_act = df_g.groupby("symbol", sort=False)["activity"].mean()
 
@@ -101,12 +118,10 @@ class TickerInfo:
                 df_all["date"], errors="coerce", format="%Y-%m-%d"
             )
 
-            # 获取近60天的日期
-            trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
-            date_threshold = trade_date_dt - datetime.timedelta(days=30)
-
             # 将 datetime 对象转换回字符串格式 (YYYYMMDD)
-            date_threshold_str = date_threshold.strftime("%Y-%m-%d")
+            date_threshold_str = datetime.datetime.strptime(
+                self.date_threshold, "%Y%m%d"
+            ).strftime("%Y-%m-%d")
 
             # 使用相同格式的字符串进行筛选
             df_recent = df_all[df_all["date"] >= date_threshold_str]
@@ -152,8 +167,8 @@ class TickerInfo:
 
             # 合并所有条件
             small_top = self._top_by_activity(small_cap_cond, df_recent, 0.1)
-            large_top = self._top_by_activity(large_cap_cond, df_recent, 0.3)
-            mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.5)
+            large_top = self._top_by_activity(large_cap_cond, df_recent, 0.2)
+            mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.3)
 
             # 合并三组的 top20% symbol
             combined_symbols = list(set(small_top + large_top + mega_top))
@@ -195,7 +210,7 @@ class TickerInfo:
 
             mega_cap_cond = base_cond & (df_recent["total_value"] >= MEGA_CAP_THRESHOLD)
 
-            small_top = self._top_by_activity(small_cap_cond, df_recent, 0.3)
+            small_top = self._top_by_activity(small_cap_cond, df_recent, 0.2)
             large_top = self._top_by_activity(large_cap_cond, df_recent, 0.3)
             mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.2)
 
@@ -442,11 +457,9 @@ class TickerInfo:
         df_all = pd.concat(dfs, ignore_index=True)
         df_all.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
         # 2. 取近60天的日期
-        trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
-        date_threshold = trade_date_dt - datetime.timedelta(days=30)
-
-        # 将 datetime 对象转换回字符串格式 (YYYYMMDD)
-        date_threshold_str = date_threshold.strftime("%Y-%m-%d")
+        date_threshold_str = datetime.datetime.strptime(
+            self.date_threshold, "%Y%m%d"
+        ).strftime("%Y-%m-%d")
 
         # 使用相同格式的字符串进行筛选
         df_recent = df_all[df_all["date"] >= date_threshold_str]
@@ -529,11 +542,9 @@ class TickerInfo:
         df_all = pd.concat(dfs, ignore_index=True)
         df_all.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
         # 2. 取近60天的日期
-        trade_date_dt = datetime.datetime.strptime(str(self.trade_date), "%Y%m%d")
-        date_threshold = trade_date_dt - datetime.timedelta(days=30)
-
-        # 将 datetime 对象转换回字符串格式 (YYYYMMDD)
-        date_threshold_str = date_threshold.strftime("%Y-%m-%d")
+        date_threshold_str = datetime.datetime.strptime(
+            self.date_threshold, "%Y%m%d"
+        ).strftime("%Y-%m-%d")
 
         # 使用相同格式的字符串进行筛选
         df_recent = df_all[df_all["date"] >= date_threshold_str]

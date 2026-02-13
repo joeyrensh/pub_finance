@@ -104,6 +104,37 @@ class ToolKit:
             else:
                 continue
 
+    @staticmethod
+    def get_us_trade_date_by_delta(offset, trade_date) -> str | None:
+        """
+        utc_us = datetime.fromisoformat('2021-01-18 01:00:00')
+        美股休市日，https://www.nyse.com/markets/hours-calendars
+        marketclosed.config 是2021和2022两年的美股法定休市配置文件
+        """
+        if offset == 0:
+            return trade_date
+        f = open("./usstockinfo/marketclosed.config").readlines()
+        x = []
+        for i in f:
+            x.append(i.split(",")[0].strip())
+        """ 循环遍历最近一个交易日期 """
+        counter = 0
+        for h in range(1, 365):
+            """当前美国时间 UTC-4"""
+            utc_us = datetime.strptime(str(trade_date), "%Y%m%d") - timedelta(days=h)
+            """ 周末正常休市 """
+            if utc_us.isoweekday() in [1, 2, 3, 4, 5]:
+                if str(utc_us)[0:10] in x:
+                    continue
+                else:
+                    """返回日期字符串格式20200101"""
+                    counter += 1
+                    if counter == offset:  # 找到第 offset 个交易日
+                        print("trade date: ", str(utc_us)[0:10].replace("-", ""))
+                        return str(utc_us)[0:10].replace("-", "")
+            else:
+                continue
+
     """ 获取美股两个日期间的交易天数 """
 
     @staticmethod
@@ -170,6 +201,32 @@ class ToolKit:
         for h in range(1, 365):
             """当前北京时间 UTC+8"""
             utc_cn = datetime.now() - timedelta(days=h)
+            """ 周末正常休市 """
+            if utc_cn.isoweekday() in [1, 2, 3, 4, 5]:
+                if str(utc_cn)[0:10] in x:
+                    continue
+                else:
+                    """返回日期字符串格式20200101"""
+                    counter += 1
+                    if counter == offset:  # 找到第 offset 个交易日
+                        print("trade date: ", str(utc_cn)[0:10].replace("-", ""))
+                        return str(utc_cn)[0:10].replace("-", "")
+            else:
+                continue
+
+    @staticmethod
+    def get_cn_trade_date_by_delta(offset, trade_date) -> str | None:
+        if offset == 0:
+            return trade_date
+        f = open("./cnstockinfo/marketclosed.config").readlines()
+        x = []
+        for i in f:
+            x.append(i.split(",")[0].strip())
+        """ 循环遍历最近一个交易日期 """
+        counter = 0
+        for h in range(1, 365):
+            """当前北京时间 UTC+8"""
+            utc_cn = datetime.strptime(str(trade_date), "%Y%m%d") - timedelta(days=h)
             """ 周末正常休市 """
             if utc_cn.isoweekday() in [1, 2, 3, 4, 5]:
                 if str(utc_cn)[0:10] in x:
