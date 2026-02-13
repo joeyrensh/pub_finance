@@ -33,6 +33,27 @@ class TickerInfo:
         """ 获取动态追踪股票列表文件路径 """
         self.file_dynamic_list = file.get_file_path_dynamic_list
 
+    @staticmethod
+    def _top_by_activity(cond, df, percent=0.2):
+        df_g = df.loc[cond].copy()
+        if df_g.empty:
+            return []
+
+        df_g["activity"] = np.where(
+            df_g["total_value"] > 0,
+            df_g["close"] * df_g["volume"] / df_g["total_value"],
+            0.0,
+        )
+
+        sym_act = df_g.groupby("symbol", sort=False)["activity"].mean()
+
+        sym_act = sym_act[sym_act > 0]
+        if sym_act.empty:
+            return []
+
+        top_n = max(1, int(len(sym_act) * percent))
+        return sym_act.nlargest(top_n).index.tolist()
+
     """ 获取股票代码列表 """
 
     def get_stock_list(self):
@@ -116,57 +137,30 @@ class TickerInfo:
                 base_cond
                 & (df_recent["total_value"] >= SMALL_CAP_THRESHOLD)
                 & (df_recent["total_value"] < MID_CAP_THRESHOLD)
-                & (
-                    df_recent["close"] * df_recent["volume"]
-                    >= MID_CAP_TURNOVER * df_recent["total_value"]
-                )
             )
 
             large_cap_cond = (
                 base_cond
                 & (df_recent["total_value"] >= MID_CAP_THRESHOLD)
                 & (df_recent["total_value"] < LARGE_CAP_THRESHOLD)
-                & (
-                    df_recent["close"] * df_recent["volume"]
-                    >= LARGE_CAP_TURNOVER * df_recent["total_value"]
-                )
             )
 
-            mega_cap_cond = (
-                base_cond
-                & (df_recent["total_value"] >= LARGE_CAP_THRESHOLD)
-                & (
-                    (
-                        df_recent["close"] * df_recent["volume"]
-                        >= MEGA_CAP_TURNOVER * df_recent["total_value"]
-                    )
-                    | (df_recent["close"] * df_recent["volume"] > 5000000000)
-                )
+            mega_cap_cond = base_cond & (
+                df_recent["total_value"] >= LARGE_CAP_THRESHOLD
             )
 
             # 合并所有条件
-            all_cond = mid_cap_cond | large_cap_cond | mega_cap_cond
-            filtered_df = df_recent[all_cond]
-            # 计算每个股票满足条件的次数
-            symbol_counts = filtered_df["symbol"].value_counts()
+            mid_top = self._top_by_activity(mid_cap_cond, df_recent, 0.3)
+            large_top = self._top_by_activity(large_cap_cond, df_recent, 0.3)
+            mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.3)
 
-            # 只选择出现1次或以上的股票
-            avail_date_count = (
-                df_recent[
-                    df_recent["total_value"].notnull() & (df_recent["total_value"] > 0)
-                ]["date"]
-                .unique()
-                .size
-            )
-            # 阈值：小于10取实际可用日期数，超过10取10，最少取1
-            threshold = max(1, min(10, int(avail_date_count)))
-            print(f"可用日期数: {avail_date_count}, 阈值: {threshold}")
-            frequent_symbols = symbol_counts[symbol_counts >= threshold].index.tolist()
+            # 合并三组的 top20% symbol
+            combined_symbols = list(set(mid_top + large_top + mega_top))
 
             # 排除单日涨幅超过200%的股票
             filtered_symbols = [
                 symbol
-                for symbol in frequent_symbols
+                for symbol in combined_symbols
                 if symbol not in high_increase_symbols
             ]
             tickers.extend(filtered_symbols)
@@ -193,53 +187,30 @@ class TickerInfo:
                 & (df_recent["low"] > 0)
             )
 
-            # 小盘股条件（50-200亿市值）
             small_cap_cond = (
                 base_cond
-                & (df_recent["total_value"] >= SMALL_CAP_THRESHOLD)  # 50亿人民币
-                & (df_recent["total_value"] < MID_CAP_THRESHOLD)  # 200亿人民币
-                & (df_recent["close"] * df_recent["volume"] * 100 >= SMALL_CAP_TURNOVER)
+                & (df_recent["total_value"] >= SMALL_CAP_THRESHOLD)
+                & (df_recent["total_value"] < MID_CAP_THRESHOLD)
             )
 
-            # 中盘股条件（200-1000亿市值）
             mid_cap_cond = (
                 base_cond
-                & (df_recent["total_value"] >= MID_CAP_THRESHOLD)  # 200亿人民币
-                & (df_recent["total_value"] < LARGE_CAP_TURNOVER)  # 1000亿人民币
-                & (df_recent["close"] * df_recent["volume"] * 100 >= MID_CAP_TURNOVER)
+                & (df_recent["total_value"] >= MID_CAP_THRESHOLD)
+                & (df_recent["total_value"] < LARGE_CAP_THRESHOLD)
             )
 
-            # 大盘股条件（≥1000亿市值）
-            large_cap_cond = (
-                base_cond
-                & (df_recent["total_value"] >= LARGE_CAP_THRESHOLD)  # 1000亿人民币
-                & (df_recent["close"] * df_recent["volume"] * 100 >= LARGE_CAP_TURNOVER)
+            large_cap_cond = base_cond & (
+                df_recent["total_value"] >= LARGE_CAP_THRESHOLD
             )
 
-            # 合并所有条件
-            all_cond = small_cap_cond | mid_cap_cond | large_cap_cond
+            small_top = self._top_by_activity(small_cap_cond, df_recent, 0.3)
+            mid_top = self._top_by_activity(mid_cap_cond, df_recent, 0.3)
+            large_top = self._top_by_activity(large_cap_cond, df_recent, 0.3)
 
-            # 筛选出满足条件的行
-            filtered_df = df_recent[all_cond]
-
-            # 计算每个股票满足条件的次数
-            symbol_counts = filtered_df["symbol"].value_counts()
-
-            # 只选择出现1次或以上的股票
-            avail_date_count = (
-                df_recent[
-                    df_recent["total_value"].notnull() & (df_recent["total_value"] > 0)
-                ]["date"]
-                .unique()
-                .size
-            )
-            # 阈值：小于10取实际可用日期数，超过10取10，最少取1
-            threshold = max(1, min(10, int(avail_date_count)))
-            print(f"可用日期数: {avail_date_count}, 阈值: {threshold}")
-            filtered_symbols = symbol_counts[symbol_counts >= threshold].index.tolist()
+            combined_symbols = list(set(small_top + mid_top + large_top))
 
             # 合并所有符合条件的股票
-            tickers.extend(filtered_symbols)
+            tickers.extend(combined_symbols)
 
         elif self.market == "us_special":
             # 特殊美股筛选条件
@@ -423,36 +394,31 @@ class TickerInfo:
     def get_backtrader_data_feed_testonly(self, stocklist):
         tickers = stocklist
         his_data = self.get_history_data().groupby(by="symbol")
-        t = ToolKit("加载历史数据")
-        """ 存放策略结果 """
-        list = []
-        results = []
-        """ 创建多进程 """
-        pool = multiprocessing.Pool(processes=4)
-        for i in tickers:
-            """
-            适配BackTrader数据结构
-            每个股票数据为一组
-            """
-            group_obj = his_data.get_group(i)
-            result = pool.apply_async(self.reconstruct_dataframe, (group_obj, i))
-            results.append(result)
-        """ 关闭进程池，表示不能再往进程池中添加进程，需要在join之前调用 """
-        pool.close()
-        """ 等待进程池中的所有进程执行完毕 """
-        pool.join()
+        t = ToolKit("读取历史数据文件")
+        list_results = []
 
-        """ 获取进程内数据 """
-        for dic in results:
-            if len(dic.get()) > 0:
-                list.append(dic.get())
-            t.progress_bar(len(results), results.index(dic))
-        """ 垃圾回收 """
+        with multiprocessing.Pool(processes=4) as pool:
+            results = [
+                pool.apply_async(self.reconstruct_dataframe, (his_data.get_group(i), i))
+                for i in tickers
+            ]
+            for idx, result in enumerate(results):
+                df = result.get()
+                if not df.empty:
+                    list_results.append(df)
+                t.progress_bar(len(results), idx)
+
+        # 手动清理不再需要的对象
         his_data = None
-        results = None
         gc.collect()
-        list.sort(key=lambda x: x["datetime"].min())
-        return list
+        list_results.sort(key=lambda x: x["datetime"].min())
+        print(
+            f"第一组股票symbol为: {list_results[0]['symbol'].iloc[0]}, 数据起始日期: {list_results[0]['datetime'].min()}, 结束日期: {list_results[0]['datetime'].max()}"
+        )
+        print(
+            f"最后一组股票symbol为: {list_results[-1]['symbol'].iloc[0]}, 数据起始日期: {list_results[-1]['datetime'].min()}, 结束日期: {list_results[-1]['datetime'].max()}"
+        )
+        return list_results
 
     def get_etf_list(self):
         # 预定义列的数据类型
@@ -497,31 +463,14 @@ class TickerInfo:
         cond = (df_recent["total_value"] > 5000000000) & (
             df_recent["name"].str.upper().str.contains("ETF")
         )
-        # 筛选出满足条件的行
-        filtered_df = df_recent[cond]
 
-        # 计算每个股票满足条件的次数
-        symbol_counts = filtered_df["symbol"].value_counts()
+        etf_top = self._top_by_activity(cond, df_recent, 0.3)
 
-        # 只选择出现1次或以上的股票
-        avail_date_count = (
-            df_recent[
-                df_recent["total_value"].notnull() & (df_recent["total_value"] > 0)
-            ]["date"]
-            .unique()
-            .size
-        )
-        # 阈值：小于10取实际可用日期数，超过10取10，最少取1
-        threshold = max(1, min(10, int(avail_date_count)))
-        print(f"可用日期数: {avail_date_count}, 阈值: {threshold}")
-        frequent_symbols = symbol_counts[symbol_counts >= threshold].index.tolist()
-
-        # 更新 stock_list
-        stock_list = frequent_symbols
+        combined_symbols = list(set(etf_top))
 
         dfs, df_all, df_recent, df = None, None, None, None
         gc.collect()
-        return stock_list
+        return combined_symbols
 
     def get_etf_backtrader_data_feed(self):
         tickers = self.get_etf_list()
@@ -598,36 +547,18 @@ class TickerInfo:
         df_recent = df_all[df_all["date"] >= date_threshold_str]
 
         # 3. 条件筛选
-        cond = (
+        tiny_cond = (
             (df_recent["total_value"] < 2000000000)
             & (df_recent["total_value"] > 100000000)
             & (df_recent["close"] > 1)
-            & (
-                df_recent["close"] * df_recent["volume"]
-                >= 0.05 * df_recent["total_value"]
-            )
         )
-        # 筛选出满足条件的行
-        filtered_df = df_recent[cond]
 
-        # 计算每个股票满足条件的次数
-        symbol_counts = filtered_df["symbol"].value_counts()
+        tiny_top = self._top_by_activity(tiny_cond, df_recent, 0.05)
 
-        # 只选择出现1次或以上的股票
-        avail_date_count = (
-            df_recent[
-                df_recent["total_value"].notnull() & (df_recent["total_value"] > 0)
-            ]["date"]
-            .unique()
-            .size
-        )
-        # 阈值：小于10取实际可用日期数，超过10取10，最少取1
-        threshold = max(1, min(10, int(avail_date_count)))
-        print(f"可用日期数: {avail_date_count}, 阈值: {threshold}")
-        frequent_symbols = symbol_counts[symbol_counts >= threshold].index.tolist()
+        combined_symbols = list(set(tiny_top))
 
         # 更新 stock_list
-        stock_list = frequent_symbols
+        stock_list = combined_symbols
 
         # ===== 新增：读取 fixed_list.csv 并合并 =====
         if os.path.exists(self.file_fixed_list):

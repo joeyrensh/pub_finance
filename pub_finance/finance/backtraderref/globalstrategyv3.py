@@ -369,7 +369,7 @@ class GlobalStrategy(bt.Strategy):
             try:
                 self.signals[d._name]["deviant"] = (
                     d.close - self.inds[d._name]["sma_short"]
-                ) / self.inds[d._name]["sma_short"] <= 0.12
+                ) / self.inds[d._name]["sma_short"] <= 0.20
             except Exception as e:
                 print(f"❌ 初始化失败-辅助指标4: {d._name}, {e}")
 
@@ -847,11 +847,11 @@ class GlobalStrategy(bt.Strategy):
                 # if is_invalid_sortino:
                 #     continue
                 # 诱多风险判定
-                r1 = self.signals[d._name]["close_crossdown_sma"].get(
-                    ago=-1, size=self.params.ma_short_period
-                )
-                if sum(1 for value in r1 if value == 1) >= 2:
-                    continue
+                # r1 = self.signals[d._name]["close_crossdown_sma"].get(
+                #     ago=-1, size=self.params.ma_short_period
+                # )
+                # if sum(1 for value in r1 if value == 1) >= 2:
+                #     continue
 
                 # 均线密集判断，短期ema与中期ema近20日内密集排列
                 x1 = self.inds[d._name]["ema_short"].get(

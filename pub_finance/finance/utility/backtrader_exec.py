@@ -34,9 +34,11 @@ import pickle
 
 class BacktraderExec:
 
-    def __init__(self, market, trade_date):
+    def __init__(self, market, trade_date, test=False, stocklist=[]):
         self.market = market
         self.trade_date = trade_date
+        self.test = test
+        self.stocklist = stocklist
 
     def run_strategy(self):
         """运行 backtrader 策略并返回 pnl, cash, total_value 。同时覆盖缓存文件。"""
@@ -58,20 +60,28 @@ class BacktraderExec:
         cerebro.broker.setcommission(commission=0, stocklike=True)
         cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
         # 添加股票当日即历史数据
-        if self.market in ("cn", "us"):
-            list = TickerInfo(self.trade_date, self.market).get_backtrader_data_feed()
-        elif self.market == "cnetf":
-            list = TickerInfo(
-                self.trade_date, self.market
-            ).get_etf_backtrader_data_feed()
-        elif self.market == "us_special":
-            list = TickerInfo(
-                self.trade_date, self.market
-            ).get_special_us_backtrader_data_feed()
-        elif self.market in ("cn_dynamic", "us_dynamic"):
-            list = TickerInfo(
-                self.trade_date, self.market
-            ).get_dynamic_backtrader_data_feed()
+        if self.test == False:
+            if self.market in ("cn", "us"):
+                list = TickerInfo(
+                    self.trade_date, self.market
+                ).get_backtrader_data_feed()
+            elif self.market == "cnetf":
+                list = TickerInfo(
+                    self.trade_date, self.market
+                ).get_etf_backtrader_data_feed()
+            elif self.market == "us_special":
+                list = TickerInfo(
+                    self.trade_date, self.market
+                ).get_special_us_backtrader_data_feed()
+            elif self.market in ("cn_dynamic", "us_dynamic"):
+                list = TickerInfo(
+                    self.trade_date, self.market
+                ).get_dynamic_backtrader_data_feed()
+        else:
+            if self.market in ("cn", "us"):
+                list = TickerInfo(
+                    self.trade_date, self.market
+                ).get_backtrader_data_feed_testonly(stocklist=self.stocklist)
         # 初始资金100M
         start_cash = len(list) * 10000
         cerebro.broker.setcash(start_cash)
