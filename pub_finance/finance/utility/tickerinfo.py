@@ -39,7 +39,7 @@ class TickerInfo:
         elif market.startswith("cn"):
             self.date_threshold = tk.get_cn_trade_date_by_delta(10, trade_date)
 
-    def _top_by_activity(self, cond, df, percent=0.2, max_turnover=0.15):
+    def _top_by_activity(self, cond, df, percent=0.2, max_turnover=0.2):
         df_g = df.loc[cond].copy()
         if df_g.empty:
             return []
@@ -144,7 +144,7 @@ class TickerInfo:
                 .tolist()
             )
             base_cond = (
-                (df_recent["close"] > 1)
+                (df_recent["close"] > 3)
                 & (df_recent["close"] < 10000)
                 & (df_recent["open"] > 0)
                 & (df_recent["high"] > 0)
@@ -168,7 +168,7 @@ class TickerInfo:
             # 合并所有条件
             small_top = self._top_by_activity(small_cap_cond, df_recent, 0.1)
             large_top = self._top_by_activity(large_cap_cond, df_recent, 0.2)
-            mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.3)
+            mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.5)
 
             # 合并三组的 top20% symbol
             combined_symbols = list(set(small_top + large_top + mega_top))
@@ -189,7 +189,7 @@ class TickerInfo:
 
             # 基础条件（不包含涨幅限制）
             base_cond = (
-                (df_recent["close"] > 1)
+                (df_recent["close"] > 3)
                 & (df_recent["close"] < 10000)
                 & (df_recent["open"] > 0)
                 & (df_recent["high"] > 0)
@@ -553,7 +553,7 @@ class TickerInfo:
         tiny_cond = (
             (df_recent["total_value"] < 2000000000)
             & (df_recent["total_value"] > 100000000)
-            & (df_recent["close"] > 1)
+            & (df_recent["close"] > 3)
         )
 
         tiny_top = self._top_by_activity(tiny_cond, df_recent, 0.05)
