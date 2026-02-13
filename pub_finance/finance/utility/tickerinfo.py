@@ -151,7 +151,7 @@ class TickerInfo:
             mega_cap_cond = base_cond & (df_recent["total_value"] >= MEGA_CAP_THRESHOLD)
 
             # 合并所有条件
-            small_top = self._top_by_activity(small_cap_cond, df_recent, 0.2)
+            small_top = self._top_by_activity(small_cap_cond, df_recent, 0.1)
             large_top = self._top_by_activity(large_cap_cond, df_recent, 0.3)
             mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.5)
 
@@ -196,8 +196,8 @@ class TickerInfo:
             mega_cap_cond = base_cond & (df_recent["total_value"] >= MEGA_CAP_THRESHOLD)
 
             small_top = self._top_by_activity(small_cap_cond, df_recent, 0.3)
-            large_top = self._top_by_activity(large_cap_cond, df_recent, 0.2)
-            mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.4)
+            large_top = self._top_by_activity(large_cap_cond, df_recent, 0.3)
+            mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.2)
 
             combined_symbols = list(set(small_top + large_top + mega_top))
 
