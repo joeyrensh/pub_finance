@@ -80,21 +80,21 @@ if __name__ == "__main__":
     # 主函数中替换原有调用：将具体的回测执行逻辑通过参数传入
     # cash, final_value = exec_btstrategy(trade_date)
     # A股主要策略执行
-    # cash, final_value = run_backtest_in_process(
-    #     trade_date, lambda d: BacktraderExec("cn", d).exec_btstrategy(force_run=True)
-    # )
-    # collected = gc.collect()
-    # print("Garbage collector: collected %d objects." % (collected))
-    # """ 发送邮件 """
-    # StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
-    # # ETF主要策略执行
-    # cash, final_value = run_backtest_in_process(
-    #     trade_date, lambda d: BacktraderExec("cnetf", d).exec_btstrategy()
-    # )
-    # collected = gc.collect()
-    # print("Garbage collector: collected %d objects." % (collected))
-    # """ 发送邮件 """
-    # StockProposal("cnetf", trade_date).send_etf_btstrategy_by_email(cash, final_value)
+    cash, final_value = run_backtest_in_process(
+        trade_date, lambda d: BacktraderExec("cn", d).exec_btstrategy(force_run=True)
+    )
+    collected = gc.collect()
+    print("Garbage collector: collected %d objects." % (collected))
+    """ 发送邮件 """
+    StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
+    # ETF主要策略执行
+    cash, final_value = run_backtest_in_process(
+        trade_date, lambda d: BacktraderExec("cnetf", d).exec_btstrategy(force_run=True)
+    )
+    collected = gc.collect()
+    print("Garbage collector: collected %d objects." % (collected))
+    """ 发送邮件 """
+    StockProposal("cnetf", trade_date).send_etf_btstrategy_by_email(cash, final_value)
     # A股动态列表执行
     cash, final_value = run_backtest_in_process(
         trade_date,

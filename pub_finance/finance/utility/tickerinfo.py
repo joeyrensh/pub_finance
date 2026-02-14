@@ -39,11 +39,46 @@ class TickerInfo:
         elif market.startswith("cn"):
             self.date_threshold = tk.get_cn_trade_date_by_delta(10, trade_date)
 
-    def _top_by_activity(self, cond, df, percent=0.2, max_turnover=0.2):
+    def _top_by_activity(
+        self,
+        cond,
+        df,
+        n_groups=None,
+        top_n_per_group=100,
+        max_turnover=0.15,
+        group_bins=None,
+    ):
+        """
+        根据成交金额（activity）分组筛选股票，每组取 activity 最高的若干只。
+
+        参数
+        ----------
+        cond : pandas.Series
+            布尔条件，用于初步筛选数据行（例如价格、市值范围等）。
+        df : pandas.DataFrame
+            原始数据，必须包含列：symbol, close, volume, total_value, open, high, low（用于 cond）。
+        n_groups : int, optional
+            分组数量，例如 5 表示按市值均分为 5 档。当提供 group_bins 时此参数可忽略。
+        top_n_per_group : int, default 100
+            每组取 activity 最高的股票数量。
+        max_turnover : float, default 0.15
+            换手率上限，任何一天换手率超过该值的股票将被剔除。
+        group_bins : list, optional
+            自定义分组边界，例如 [0, 1e9, 5e9, 1e10, np.inf] 表示将市值划分到
+            [0,1e9)、[1e9,5e9)、[5e9,1e10)、[1e10,∞) 四个区间。若提供此参数，则忽略 n_groups。
+            注意：边界值需单调递增，且最后一个边界建议设为 np.inf 以包含所有股票。
+
+        返回
+        -------
+        list
+            合并后的股票代码列表（无重复）。
+        """
+        # 1. 应用条件筛选
         df_g = df.loc[cond].copy()
         if df_g.empty:
             return []
-        # 按照换手比例来过滤
+
+        # 2. 计算换手率，并剔除高换手股票
         df_g["turnover"] = np.where(
             df_g["total_value"] > 0,
             (
@@ -53,16 +88,15 @@ class TickerInfo:
             ),
             0.0,
         )
-
-        # 找出有极值的 symbol
         symbols_with_extreme = df_g.loc[
             df_g["turnover"] > max_turnover, "symbol"
         ].unique()
-
-        # 剔除这些 symbol 的所有行
         df_g = df_g[~df_g["symbol"].isin(symbols_with_extreme)]
 
-        # 按照成交金额来排序
+        if df_g.empty:
+            return []
+
+        # 3. 计算每只股票的平均成交金额（activity）
         df_g["activity"] = np.where(
             df_g["total_value"] > 0,
             (
@@ -72,15 +106,64 @@ class TickerInfo:
             ),
             0.0,
         )
+        sym_act = df_g.groupby("symbol")["activity"].mean()
+        sym_act = sym_act[sym_act > 0]  # 仅保留 activity 为正的股票
 
-        sym_act = df_g.groupby("symbol", sort=False)["activity"].mean()
+        # 4. 计算每只股票的平均市值（用于分档）
+        sym_mcap = df_g.groupby("symbol")["total_value"].mean()
 
-        sym_act = sym_act[sym_act > 0]
-        if sym_act.empty:
+        # 5. 对齐两个 Series 的索引（确保股票一致）
+        common_syms = sym_act.index.intersection(sym_mcap.index)
+        if len(common_syms) == 0:
             return []
+        sym_act = sym_act[common_syms]
+        sym_mcap = sym_mcap[common_syms]
 
-        top_n = max(1, int(len(sym_act) * percent))
-        return sym_act.nlargest(top_n).index.tolist()
+        # 6. 分组
+        if group_bins is not None:
+            # 使用自定义边界分组
+            # 确保边界单调递增，且最后一个边界能包含所有股票
+            labels = pd.cut(sym_mcap, bins=group_bins, right=False)  # 左闭右开区间
+            # 移除无法归组的股票（例如超出边界的数据）
+            valid_mask = labels.notna()
+            if not valid_mask.all():
+                print(f"警告: {valid_mask.sum()} 只股票市值超出自定义边界，将被忽略")
+                sym_act = sym_act[valid_mask]
+                sym_mcap = sym_mcap[valid_mask]
+                labels = labels[valid_mask]
+
+            # 按标签分组，保留原始顺序
+            groups = []
+            categories = labels.cat.categories  # 按区间顺序
+            for cat in categories:
+                group_syms = labels[labels == cat].index.tolist()
+                groups.append(group_syms)
+        else:
+            # 使用均分分组，需要 n_groups
+            if n_groups is None:
+                raise ValueError("必须提供 n_groups 或 group_bins 参数")
+            syms_sorted = sym_mcap.sort_values().index.tolist()
+            n = len(syms_sorted)
+            group_size = n // n_groups
+            groups = []
+            for i in range(n_groups):
+                start = i * group_size
+                end = (i + 1) * group_size if i < n_groups - 1 else n
+                groups.append(syms_sorted[start:end])
+
+        # 7. 每组取 activity 最高的 top_n_per_group 只股票
+        top_per_group = []
+        for i, group_syms in enumerate(groups):
+            if not group_syms:
+                continue
+            act_series = sym_act[group_syms].sort_values(ascending=False)
+            top_n = act_series.head(top_n_per_group).index.tolist()
+            top_per_group.extend(top_n)
+            print(
+                f"Group {i}: {len(top_n)} symbols taken (group size: {len(group_syms)})"
+            )
+
+        return top_per_group
 
     """ 获取股票代码列表 """
 
@@ -144,34 +227,31 @@ class TickerInfo:
                 .tolist()
             )
             base_cond = (
-                (df_recent["close"] > 3)
+                (df_recent["total_value"] > SMALL_CAP_THRESHOLD)
+                & (df_recent["close"] > 3)
                 & (df_recent["close"] < 10000)
                 & (df_recent["open"] > 0)
                 & (df_recent["high"] > 0)
                 & (df_recent["low"] > 0)
             )
-
-            small_cap_cond = (
-                base_cond
-                & (df_recent["total_value"] >= SMALL_CAP_THRESHOLD)
-                & (df_recent["total_value"] < LARGE_CAP_THRESHOLD)
-            )
-
-            large_cap_cond = (
-                base_cond
-                & (df_recent["total_value"] >= LARGE_CAP_THRESHOLD)
-                & (df_recent["total_value"] < MEGA_CAP_THRESHOLD)
-            )
-
-            mega_cap_cond = base_cond & (df_recent["total_value"] >= MEGA_CAP_THRESHOLD)
-
+            bins = [
+                2e9,
+                1e10,
+                5e10,
+                1e11,
+                5e11,
+                np.inf,
+            ]  # 20亿 100亿 500亿 1000亿 5000亿
             # 合并所有条件
-            small_top = self._top_by_activity(small_cap_cond, df_recent, 0.1)
-            large_top = self._top_by_activity(large_cap_cond, df_recent, 0.2)
-            mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.5)
+            # filtered_top = self._top_by_activity(
+            #     base_cond, df_recent, n_groups=5, top_n_per_group=100
+            # )
+            filtered_top = self._top_by_activity(
+                base_cond, df_recent, group_bins=bins, top_n_per_group=100
+            )
 
             # 合并三组的 top20% symbol
-            combined_symbols = list(set(small_top + large_top + mega_top))
+            combined_symbols = list(set(filtered_top))
 
             # 排除单日涨幅超过200%的股票
             filtered_symbols = [
@@ -189,32 +269,30 @@ class TickerInfo:
 
             # 基础条件（不包含涨幅限制）
             base_cond = (
-                (df_recent["close"] > 3)
+                (df_recent["total_value"] > 5e9)
+                & (df_recent["close"] > 3)
                 & (df_recent["close"] < 10000)
                 & (df_recent["open"] > 0)
                 & (df_recent["high"] > 0)
                 & (df_recent["low"] > 0)
             )
-
-            small_cap_cond = (
-                base_cond
-                & (df_recent["total_value"] >= SMALL_CAP_THRESHOLD)
-                & (df_recent["total_value"] < LARGE_CAP_THRESHOLD)
+            bins = [
+                5e9,
+                1e10,
+                5e10,
+                1e11,
+                5e11,
+                np.inf,
+            ]  # 50亿 100亿 500亿 1000亿 5000亿
+            # 合并所有条件
+            filtered_top = self._top_by_activity(
+                base_cond, df_recent, n_groups=5, top_n_per_group=100
             )
+            # filtered_top = self._top_by_activity(
+            #     base_cond, df_recent, group_bins=bins, top_n_per_group=100
+            # )
 
-            large_cap_cond = (
-                base_cond
-                & (df_recent["total_value"] >= LARGE_CAP_THRESHOLD)
-                & (df_recent["total_value"] < MEGA_CAP_THRESHOLD)
-            )
-
-            mega_cap_cond = base_cond & (df_recent["total_value"] >= MEGA_CAP_THRESHOLD)
-
-            small_top = self._top_by_activity(small_cap_cond, df_recent, 0.2)
-            large_top = self._top_by_activity(large_cap_cond, df_recent, 0.3)
-            mega_top = self._top_by_activity(mega_cap_cond, df_recent, 0.2)
-
-            combined_symbols = list(set(small_top + large_top + mega_top))
+            combined_symbols = list(set(filtered_top))
 
             # 合并所有符合条件的股票
             tickers.extend(combined_symbols)
@@ -465,11 +543,10 @@ class TickerInfo:
         df_recent = df_all[df_all["date"] >= date_threshold_str]
 
         # 3. 条件筛选
-        cond = (df_recent["total_value"] > 5000000000) & (
+        cond = (df_recent["total_value"] > 5e9) & (
             df_recent["name"].str.upper().str.contains("ETF")
         )
-
-        etf_top = self._top_by_activity(cond, df_recent, 0.3)
+        etf_top = self._top_by_activity(cond, df_recent, n_groups=1, top_n_per_group=50)
 
         combined_symbols = list(set(etf_top))
 
@@ -551,12 +628,14 @@ class TickerInfo:
 
         # 3. 条件筛选
         tiny_cond = (
-            (df_recent["total_value"] < 2000000000)
-            & (df_recent["total_value"] > 100000000)
+            (df_recent["total_value"] < 2e9)
+            & (df_recent["total_value"] > 1e9)
             & (df_recent["close"] > 3)
         )
 
-        tiny_top = self._top_by_activity(tiny_cond, df_recent, 0.05)
+        tiny_top = self._top_by_activity(
+            tiny_cond, df_recent, n_groups=1, top_n_per_group=50
+        )
 
         combined_symbols = list(set(tiny_top))
 
