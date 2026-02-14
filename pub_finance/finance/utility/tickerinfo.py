@@ -208,6 +208,11 @@ class TickerInfo:
 
             # 使用相同格式的字符串进行筛选
             df_recent = df_all[df_all["date"] >= date_threshold_str]
+            # 去重并返回
+            df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
+            valid_symbols = df_o["symbol"].unique()
+            df_recent = df_recent[df_recent["symbol"].isin(valid_symbols)]
+
             dfs, df_all, df = None, None, None
             gc.collect()
 
@@ -239,9 +244,9 @@ class TickerInfo:
                 1e10,
                 5e10,
                 1e11,
-                5e11,
+                2e11,
                 np.inf,
-            ]  # 20亿 100亿 500亿 1000亿 5000亿
+            ]  # 20亿 100亿 500亿 1000亿 2000亿
             # 合并所有条件
             # filtered_top = self._top_by_activity(
             #     base_cond, df_recent, n_groups=5, top_n_per_group=100
@@ -281,9 +286,9 @@ class TickerInfo:
                 1e10,
                 5e10,
                 1e11,
-                5e11,
+                2e11,
                 np.inf,
-            ]  # 50亿 100亿 500亿 1000亿 5000亿
+            ]  # 50亿 100亿 500亿 1000亿 2000亿
             # 合并所有条件
             filtered_top = self._top_by_activity(
                 base_cond, df_recent, n_groups=5, top_n_per_group=100
@@ -304,12 +309,8 @@ class TickerInfo:
             # 动态追踪股票列表
             tickers = self.get_dynamic_stock_list()
 
-        # 去重并返回
-        df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
-        valid_symbols = df_o["symbol"].unique()
-        stock_list_with_industry = [s for s in list(set(tickers)) if s in valid_symbols]
-        print(f"满足条件的股票数量: {len(stock_list_with_industry)}")
-        return stock_list_with_industry
+        print(f"满足条件的股票数量: {len(tickers)}")
+        return tickers
 
     """ 获取最新一天股票数据 """
 
@@ -625,6 +626,9 @@ class TickerInfo:
 
         # 使用相同格式的字符串进行筛选
         df_recent = df_all[df_all["date"] >= date_threshold_str]
+        df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
+        valid_symbols = df_o["symbol"].unique()
+        df_recent = df_recent[df_recent["symbol"].isin(valid_symbols)]
 
         # 3. 条件筛选
         tiny_cond = (
