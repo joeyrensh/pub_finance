@@ -73,55 +73,26 @@ class PageLayout:
                 )
 
     def build_kpi_section(self):
-        df_overall = self.data["overall"]
-        # 检查是否为NaN、None、0或空字符串
-        stock_cnt_value = df_overall.at[0, "stock_cnt"]
-        if pd.isna(stock_cnt_value) or stock_cnt_value in [None, 0, ""]:
-            df_overall.at[0, "stock_cnt"] = 1
-
-        kpis = [
-            (
-                "SWDI 指数",
-                int(
-                    round(
-                        (
-                            (df_overall.at[0, "final_value"] - df_overall.at[0, "cash"])
-                            - (
-                                df_overall.at[0, "stock_cnt"] * 10000
-                                - df_overall.at[0, "cash"]
-                            )
-                        )
-                        / df_overall.at[0, "stock_cnt"],
-                        0,
-                    )
-                ),
-            ),
-            ("总资产", f"{df_overall.at[0,'final_value']/10000:,.2f} 万"),
-            ("Cash", f"{df_overall.at[0,'cash']/10000:,.2f} 万"),
-            ("股票数量", f"{df_overall.at[0,'stock_cnt']}"),
-            ("数据日期", df_overall.at[0, "end_date"]),
-        ]
-
-        kpi_cards = []
-        for label, value in kpis:
-            extra_class = " kpi-date" if label == "数据日期" else ""
-            kpi_cards.append(
-                html.Div(
-                    [
-                        html.Div(label, className="kpi-label"),
-                        html.Div(value, className=f"kpi-value{extra_class}"),
-                    ],
-                    className="kpi-card",
-                )
-            )
-
         return html.Div(
             [
                 html.H6(
                     ["Market Trends and Index Summary"], className="subtitle padded"
                 ),
                 html.Div(
-                    [html.Div(kpi_cards, className="kpi-container")],
+                    [
+                        dcc.Loading(
+                            id=f"loading-kpi-{self.prefix}",
+                            type="circle",
+                            delay_hide=1000,
+                            style={"width": "100%", "height": "100%"},
+                            color="#119DFF",
+                            fullscreen=False,
+                            children=html.Div(
+                                id=self.app.kpi_callback.get_container_id(self.prefix),
+                                className="kpi-container",
+                            ),
+                        )
+                    ],
                     className="product",
                 ),
             ]

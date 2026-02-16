@@ -8,6 +8,7 @@ import gc
 from utility.em_stock_uti import EMWebCrawlerUti
 from uscrawler.ak_incre_crawler import AKUSWebCrawler
 from utility.backtrader_exec import BacktraderExec
+import sys
 
 # 主程序入口
 if __name__ == "__main__":

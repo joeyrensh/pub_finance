@@ -118,7 +118,9 @@ class ToolKit:
         for i in f:
             x.append(i.split(",")[0].strip())
         """ 循环遍历最近一个交易日期 """
-        counter = 0
+        counter = 1
+        if counter == offset:
+            return trade_date
         for h in range(1, 365):
             """当前美国时间 UTC-4"""
             utc_us = datetime.strptime(str(trade_date), "%Y%m%d") - timedelta(days=h)
@@ -223,7 +225,9 @@ class ToolKit:
         for i in f:
             x.append(i.split(",")[0].strip())
         """ 循环遍历最近一个交易日期 """
-        counter = 0
+        counter = 1
+        if counter == offset:
+            return trade_date
         for h in range(1, 365):
             """当前北京时间 UTC+8"""
             utc_cn = datetime.strptime(str(trade_date), "%Y%m%d") - timedelta(days=h)

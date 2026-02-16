@@ -8,6 +8,7 @@ from finance.dashreport.pages import slogans
 from finance.dashreport.pages.page import Page as page_creater
 from finance.dashreport.pages.chart_callback import ChartCallback
 from finance.dashreport.pages.table_callback import TableCallback
+from finance.dashreport.pages.kpi_callback import KpiCallback
 from flask import Flask
 from flask_compress import Compress
 import configparser
@@ -138,6 +139,11 @@ app.chart_callback = chart_callback
 table_callback = TableCallback()
 table_callback.setup_callback(app)
 app.table_callback = table_callback
+
+# ===== 注册 KPI 回调 =====
+kpi_callback = KpiCallback()
+kpi_callback.setup_callback(app)
+app.kpi_callback = kpi_callback
 # ======================================================
 
 app.clientside_callback(
