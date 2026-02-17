@@ -239,14 +239,22 @@ class TickerInfo:
                 & (df_recent["high"] > 0)
                 & (df_recent["low"] > 0)
             )
+            # bins = [
+            #     2e9,
+            #     1e10,
+            #     5e10,
+            #     1e11,
+            #     2e11,
+            #     np.inf,
+            # ]  # 20亿 100亿 500亿 1000亿 2000亿
             bins = [
                 2e9,
                 1e10,
-                5e10,
+                2e10,
                 1e11,
                 2e11,
                 np.inf,
-            ]  # 20亿 100亿 500亿 1000亿 2000亿
+            ]  # 20亿 100亿 200亿 1000亿 2000亿
             # 合并所有条件
             # filtered_top = self._top_by_activity(
             #     base_cond, df_recent, n_groups=5, top_n_per_group=100
@@ -274,7 +282,7 @@ class TickerInfo:
 
             # 基础条件（不包含涨幅限制）
             base_cond = (
-                (df_recent["total_value"] > 5e9)
+                (df_recent["total_value"] > SMALL_CAP_THRESHOLD)
                 & (df_recent["close"] > 3)
                 & (df_recent["close"] < 10000)
                 & (df_recent["open"] > 0)
@@ -284,18 +292,18 @@ class TickerInfo:
             bins = [
                 5e9,
                 1e10,
+                2e10,
                 5e10,
                 1e11,
-                2e11,
                 np.inf,
-            ]  # 50亿 100亿 500亿 1000亿 2000亿
+            ]  # 50亿 100亿 200亿 500亿 1000亿
             # 合并所有条件
-            filtered_top = self._top_by_activity(
-                base_cond, df_recent, n_groups=5, top_n_per_group=100
-            )
             # filtered_top = self._top_by_activity(
-            #     base_cond, df_recent, group_bins=bins, top_n_per_group=100
+            #     base_cond, df_recent, n_groups=5, top_n_per_group=100
             # )
+            filtered_top = self._top_by_activity(
+                base_cond, df_recent, group_bins=bins, top_n_per_group=100
+            )
 
             combined_symbols = list(set(filtered_top))
 
