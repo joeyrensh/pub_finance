@@ -45,7 +45,7 @@ class TickerInfo:
         df,
         n_groups=None,
         top_n_per_group=100,
-        max_turnover=0.15,
+        max_turnover=0.25,
         group_bins=None,
     ):
         """
