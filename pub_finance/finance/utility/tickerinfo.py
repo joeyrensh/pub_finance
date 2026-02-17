@@ -224,13 +224,6 @@ class TickerInfo:
             LARGE_CAP_THRESHOLD = 10000000000  # 100亿美元 ≈ 700亿人民币
             MEGA_CAP_THRESHOLD = 100000000000  # 1000亿美元 ≈ 7000亿人民币
 
-            high_increase_symbols = (
-                df_recent[
-                    ((df_recent["close"] - df_recent["open"]) / df_recent["open"] >= 2)
-                ]["symbol"]
-                .unique()
-                .tolist()
-            )
             base_cond = (
                 (df_recent["total_value"] > SMALL_CAP_THRESHOLD)
                 & (df_recent["close"] > 3)
@@ -266,13 +259,7 @@ class TickerInfo:
             # 合并三组的 top20% symbol
             combined_symbols = list(set(filtered_top))
 
-            # 排除单日涨幅超过200%的股票
-            filtered_symbols = [
-                symbol
-                for symbol in combined_symbols
-                if symbol not in high_increase_symbols
-            ]
-            tickers.extend(filtered_symbols)
+            tickers.extend(combined_symbols)
 
         elif self.market == "cn":
             # A股筛选条件
