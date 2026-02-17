@@ -1424,7 +1424,7 @@ class ChartBuilder:
             data_series,
             is_near_right_threshold=0.2,
             avoid_indices=None,
-            avoid_days=10,
+            avoid_days=20,
         ):
             """
             返回文本标注位置，默认根据是否靠近右侧选择左右。
@@ -1552,7 +1552,7 @@ class ChartBuilder:
                     yaxis="y",
                 )
             )
-            avoid_list.append(max_dd_idx)
+            # avoid_list.append(max_dd_idx)
 
             # 30D最大回撤
             if len(drawdown) >= 30:
