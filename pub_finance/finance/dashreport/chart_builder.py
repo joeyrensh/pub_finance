@@ -1422,14 +1422,16 @@ class ChartBuilder:
         def get_label_position(
             index,
             data_series,
+            current_value,  # 新增：当前点的 y 值
             is_near_right_threshold=0.2,
             avoid_indices=None,
             avoid_days=20,
+            avoid_y_threshold=0.05,  # 新增：y 轴接近阈值（绝对差值，默认 5%）
         ):
             """
             返回文本标注位置，默认根据是否靠近右侧选择左右。
             当传入 avoid_indices（timestamp 列表）且有靠近的索引时，
-            会尝试翻转锚点以避免与这些索引的注释重叠。
+            会检查该点与当前点在时间上和数值上是否都接近，若都接近则翻转上下位置。
             """
             try:
                 right_threshold_idx = data_series.index[
@@ -1441,16 +1443,21 @@ class ChartBuilder:
             # 默认位于右侧附近时放在左上，否则右上
             pos = "top left" if index > right_threshold_idx else "top right"
 
-            # 若提供了需要避让的索引，则在时间上接近时仅翻转上下位置，保持左右不变（简单、稳健）
+            # 若提供了需要避让的索引，则在时间和数值上都接近时翻转上下位置
             if avoid_indices:
                 for ai in avoid_indices:
                     try:
+                        # x 轴距离（天数）
                         delta_days = abs(
                             (pd.to_datetime(ai) - pd.to_datetime(index)).days
                         )
+                        # y 轴距离（数值差）
+                        other_value = data_series.loc[ai]  # 从序列中获取避让点的 y 值
+                        delta_y = abs(current_value - other_value)
                     except Exception:
                         continue
-                    if delta_days <= avoid_days:
+                    # 如果 x 接近或者 y 接近，则翻转
+                    if delta_days <= avoid_days or delta_y <= avoid_y_threshold:
                         pos = (
                             pos.replace("top", "bottom")
                             if pos.startswith("top")
@@ -1505,7 +1512,9 @@ class ChartBuilder:
                     mode="markers+text",
                     marker=dict(symbol="circle", size=8 * scale, color=cfg["cumret"]),
                     text=[f"Max: {cum_max_val:.2f}"],
-                    textposition=get_label_position(cum_max_idx, cumulative),
+                    textposition=get_label_position(
+                        cum_max_idx, cumulative, cum_max_val
+                    ),
                     textfont=dict(
                         size=base_font, color=text_color, family=self.font_family
                     ),
@@ -1539,7 +1548,7 @@ class ChartBuilder:
                     marker=dict(symbol="circle", size=8 * scale, color=cfg["drawdown"]),
                     text=[get_compact_label("Max DD", max_dd_val, client_width)],
                     textposition=get_label_position(
-                        max_dd_idx, drawdown, avoid_indices=avoid_list
+                        max_dd_idx, drawdown, max_dd_val, avoid_indices=avoid_list
                     ),
                     textfont=dict(size=base_font, color=text_color),
                     showlegend=False,
@@ -1573,7 +1582,8 @@ class ChartBuilder:
                             textposition=get_label_position(
                                 idx_30,
                                 drawdown,
-                                is_near_right_threshold=0.2,
+                                val_30,
+                                is_near_right_threshold=0.4,
                                 avoid_indices=avoid_list,
                             ),
                             textfont=dict(size=base_font, color=text_color),
@@ -1609,6 +1619,7 @@ class ChartBuilder:
                             textposition=get_label_position(
                                 idx_120,
                                 drawdown,
+                                val_120,
                                 is_near_right_threshold=0.4,
                                 avoid_indices=avoid_list,
                             ),
