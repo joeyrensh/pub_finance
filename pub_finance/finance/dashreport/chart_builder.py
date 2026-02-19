@@ -804,6 +804,7 @@ class ChartBuilder:
                 tickformat="~s",
                 anchor="free",
                 position=0.95,
+                layer="below traces",
             ),
             legend=dict(
                 orientation="v",
@@ -1645,7 +1646,7 @@ class ChartBuilder:
 
         # 计算表格区域（右侧）
         table_domain_left = chart_domain_right + HORIZONTAL_SPACING
-        table_domain_right = 0.99
+        table_domain_right = 1.0
 
         chart_width = chart_domain_right - chart_domain_left
         legend_absolute_x = chart_domain_left + (0.04 * chart_width)

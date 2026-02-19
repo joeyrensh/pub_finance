@@ -66,8 +66,12 @@
     text-size-adjust: 100%;
 }
 
-* {
+/* * {
   -webkit-overflow-scrolling: touch;
+} */
+
+.xy2 .drag {
+    pointer-events: none !important;
 }
 /* ==================== 响应式布局 ==================== */
 .chart-container {
@@ -796,7 +800,7 @@ a:active {
   }
   
   .page {
-    width: 100% !important;
+    width: 99% !important;
     /* margin-left: -7px !important; */
   }
   
