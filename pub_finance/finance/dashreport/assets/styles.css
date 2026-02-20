@@ -135,10 +135,16 @@ body {
 .kpi-value {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: #FF4136;
+  color: #ff4444;
 }
 .kpi-date {
   font-weight: 500;
+}
+
+@media (prefers-color-scheme: dark) {
+  .kpi-value {
+    color: #ff6b6b;
+  }
 }
 
 /* ==================== 布局与容器样式 ==================== */

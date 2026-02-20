@@ -18,8 +18,8 @@ class ChartBuilder:
     def __init__(self):
         self.theme_config = {
             "light": {
-                "positive_int": "#d60a22",  # 红色 - 正数
-                "negative_int": "#037b66",  # 绿色 - 负数
+                "positive_int": "#ff4444",  # 红色 - 正数
+                "negative_int": "#0d876d",  # 绿色 - 负数
                 "text_color": "#000000",  # 黑色
                 "grid": "rgba(0, 0, 0, 0.2)",  # 网格线
                 "background": "rgba(255, 255, 255, 0)",  # 透明背景
@@ -34,7 +34,7 @@ class ChartBuilder:
                     "#a90a3f",
                     "#7a0925",
                 ],
-                "long": "#e01c3a",
+                "long": "#ff4444",
                 "short": "#0d876d",
                 "pnl_colors": [
                     "#0c6552",
@@ -45,7 +45,7 @@ class ChartBuilder:
                 ],
                 "border": "rgba(200, 200, 200, 0.8)",
                 "outside_text": "#777777",
-                "cumret": "#e01c3a",
+                "cumret": "#ff4444",
                 "drawdown": "#0d876d",
                 "drawdown_fill": "rgba(13,135,109,0.3)",
                 "table_header": "rgba(245,245,245,0)",
@@ -71,8 +71,8 @@ class ChartBuilder:
                     "#cf1745",
                     "#b6183d",
                 ],
-                "long": "#ff4d6d",
-                "short": "#2ec4a6",
+                "long": "#ff6b6b",
+                "short": "#00c4a6",
                 "pnl_colors": [
                     "#0d7b67",
                     "#0e987f",
@@ -83,7 +83,7 @@ class ChartBuilder:
                 "border": "rgba(255, 255, 255, 0.4)",
                 "outside_text": "#aaaaaa",
                 "cumret": "#ff6b6b",
-                "drawdown": "#6bcfb5",
+                "drawdown": "#00c4a6",
                 "drawdown_fill": "rgba(107,207,181,0.3)",
                 "table_header": "rgba(64,64,64,0)",
                 "table_cell": "rgba(0,0,0,0)",
@@ -136,7 +136,7 @@ class ChartBuilder:
 
         # 获取当前主题配置
         config = self.theme_config.get(theme, self.theme_config["light"])
-        hover_config = self.theme_config["light"]
+        hover_config = self.theme_config.get(theme, self.theme_config["light"])
         # 休市颜色使用中性色 + 透明度
         holiday_color = config["text_color"].replace("#", "")
         if len(holiday_color) == 6:  # 如果是hex颜色
@@ -519,8 +519,8 @@ class ChartBuilder:
             dragmode=False,
             hoverlabel=dict(
                 bgcolor=hover_bg,
-                bordercolor=config["hover_border"],
-                font_color=config["hover_text"],
+                # bordercolor=config["hover_border"],
+                # font_color=config["text_color"],
                 font_size=base_font_size,
             ),
         )
@@ -1270,7 +1270,7 @@ class ChartBuilder:
         # 1. theme 配置
         # =========================
         cfg = self.theme_config.get(theme, self.theme_config["light"])
-        hover_config = self.theme_config["light"]
+        hover_config = self.theme_config.get(theme, self.theme_config["light"])
         text_color = cfg["text_color"]
         scale, base_font = self._get_font_sizes(
             client_width, base_font=16, min_scale=0.65, max_scale=1.05
