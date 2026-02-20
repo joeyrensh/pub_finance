@@ -864,7 +864,7 @@ class ChartBuilder:
             go.Scatter(
                 x=df["buy_date"],
                 y=df["total_cnt"],
-                mode="lines+markers",
+                mode="lines",
                 name="Total",
                 line=dict(color=cfg["long"], width=2 * scale),
                 yaxis="y",
