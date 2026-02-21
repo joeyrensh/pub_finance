@@ -25,11 +25,11 @@ class ChartBuilder:
                 "background": "rgba(255, 255, 255, 0)",  # 透明背景
                 "legend_bg": "rgba(246, 248, 249, 0.8)",
                 "strategy_colors": [
-                    "#0c6552",
-                    "#0d876d",
-                    "#00a380",
-                    "#00b89a",
+                    "#000000",
+                    "#7dcfff",
                     "#ffa700",
+                    "#00b89a",
+                    "#00a380",
                     "#d50b3e",
                     "#a90a3f",
                     "#7a0925",
@@ -37,8 +37,8 @@ class ChartBuilder:
                 "long": "#ff4444",
                 "short": "#0d876d",
                 "pnl_colors": [
-                    "#0c6552",
-                    "#0d876d",
+                    "#000000",
+                    "#7dcfff",
                     "#00a380",
                     "#ffa700",
                     "#d50b3e",
@@ -62,11 +62,11 @@ class ChartBuilder:
                 "background": "rgba(0, 0, 0, 0)",  # 透明背景
                 "legend_bg": "rgba(20, 20, 20, 0.6)",
                 "strategy_colors": [
-                    "#0d7b67",
-                    "#0e987f",
-                    "#01b08f",
-                    "#00c4a6",
+                    "#ffffff",
+                    "#7dcfff",
                     "#ffa700",
+                    "#00c4a6",
+                    "#01b08f",
                     "#e90c4a",
                     "#cf1745",
                     "#b6183d",
@@ -74,8 +74,8 @@ class ChartBuilder:
                 "long": "#ff6b6b",
                 "short": "#00c4a6",
                 "pnl_colors": [
-                    "#0d7b67",
-                    "#0e987f",
+                    "#ffffff",
+                    "#7dcfff",
                     "#01b08f",
                     "#ffa700",
                     "#e90c4a",
