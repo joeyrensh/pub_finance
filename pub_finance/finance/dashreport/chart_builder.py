@@ -34,6 +34,7 @@ class ChartBuilder:
                     "#a90a3f",
                     "#7a0925",
                 ],
+                "long2": "#000000",
                 "long": "#ff4444",
                 "short": "#0d876d",
                 "pnl_colors": [
@@ -71,6 +72,7 @@ class ChartBuilder:
                     "#cf1745",
                     "#b6183d",
                 ],
+                "long2": "#ffffff",
                 "long": "#ff6b6b",
                 "short": "#00c4a6",
                 "pnl_colors": [
@@ -866,7 +868,7 @@ class ChartBuilder:
                 y=df["total_cnt"],
                 mode="lines",
                 name="Total",
-                line=dict(color=cfg["long"], width=2 * scale),
+                line=dict(color=cfg["long2"], width=2 * scale),
                 yaxis="y",
                 hovertemplate=(
                     # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
