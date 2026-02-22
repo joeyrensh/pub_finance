@@ -48,37 +48,23 @@ class TickerInfo:
         max_turnover=0.25,
         group_bins=None,
     ):
-        """
-        根据成交金额（activity）分组筛选股票，每组取 activity 最高的若干只。
-
-        参数
-        ----------
-        cond : pandas.Series
-            布尔条件，用于初步筛选数据行（例如价格、市值范围等）。
-        df : pandas.DataFrame
-            原始数据，必须包含列：symbol, close, volume, total_value, open, high, low（用于 cond）。
-        n_groups : int, optional
-            分组数量，例如 5 表示按市值均分为 5 档。当提供 group_bins 时此参数可忽略。
-        top_n_per_group : int, default 100
-            每组取 activity 最高的股票数量。
-        max_turnover : float, default 0.15
-            换手率上限，任何一天换手率超过该值的股票将被剔除。
-        group_bins : list, optional
-            自定义分组边界，例如 [0, 1e9, 5e9, 1e10, np.inf] 表示将市值划分到
-            [0,1e9)、[1e9,5e9)、[5e9,1e10)、[1e10,∞) 四个区间。若提供此参数，则忽略 n_groups。
-            注意：边界值需单调递增，且最后一个边界建议设为 np.inf 以包含所有股票。
-
-        返回
-        -------
-        list
-            合并后的股票代码列表（无重复）。
-        """
-        # 1. 应用条件筛选
-        df_g = df.loc[cond].copy()
-        if df_g.empty:
+        # 1. 找出最新交易日满足 cond 的股票
+        df_cond = df.loc[cond].copy()  # 满足 cond 的所有行
+        if df_cond.empty:
+            return []
+        latest_date = df_cond["date"].max()
+        symbols_latest = df_cond[df_cond["date"] == latest_date]["symbol"].unique()
+        if len(symbols_latest) == 0:
             return []
 
-        # 2. 计算换手率，并剔除高换手股票
+        # 2. 从原始数据中提取这些股票的所有行（不再应用 cond）
+        df_g = df[df["symbol"].isin(symbols_latest)].copy()
+        # 保存最新交易日市值（用于分组）
+        mcap_latest = df_g[df_g["date"] == latest_date].set_index("symbol")[
+            "total_value"
+        ]
+
+        # 3. 剔除高换手股票（基于所有交易日）
         df_g["turnover"] = np.where(
             df_g["total_value"] > 0,
             (
@@ -92,50 +78,41 @@ class TickerInfo:
             df_g["turnover"] > max_turnover, "symbol"
         ].unique()
         df_g = df_g[~df_g["symbol"].isin(symbols_with_extreme)]
-
         if df_g.empty:
             return []
 
-        # 3. 计算每只股票的平均成交金额（activity）
+        # 4. 计算带符号的 activity（基于剩余所有交易日）
         factor = 100 if self.market.startswith("cn") else 1
         base = df_g["close"] * df_g["volume"] * factor
         sign = np.where(df_g["close"] >= df_g["open"], 1, -1)
         df_g["activity"] = base * sign
-        # sym_act = df_g.groupby("symbol")["activity"].sum()
-        sym_act = df_g.groupby("symbol")["activity"].mean()
-        # sym_act = sym_act[sym_act > 0]  # 仅保留 activity 为正的股票
+        sym_act = df_g.groupby("symbol")["activity"].mean()  # 仍用平均值
 
-        # 4. 计算每只股票的平均市值（用于分档）
-        sym_mcap = df_g.groupby("symbol")["total_value"].mean()
+        # 5. 使用最新日市值进行分组
+        sym_mcap = mcap_latest[sym_act.index]  # 自动过滤掉被剔除的股票
 
-        # 5. 对齐两个 Series 的索引（确保股票一致）
+        # 6. 对齐索引（确保一致）
         common_syms = sym_act.index.intersection(sym_mcap.index)
         if len(common_syms) == 0:
             return []
         sym_act = sym_act[common_syms]
         sym_mcap = sym_mcap[common_syms]
 
-        # 6. 分组
+        # 7. 分组（与原逻辑相同）
         if group_bins is not None:
-            # 使用自定义边界分组
-            # 确保边界单调递增，且最后一个边界能包含所有股票
-            labels = pd.cut(sym_mcap, bins=group_bins, right=False)  # 左闭右开区间
-            # 移除无法归组的股票（例如超出边界的数据）
+            labels = pd.cut(sym_mcap, bins=group_bins, right=False)
             valid_mask = labels.notna()
             if not valid_mask.all():
                 print(f"警告: {valid_mask.sum()} 只股票市值超出自定义边界，将被忽略")
                 sym_act = sym_act[valid_mask]
                 sym_mcap = sym_mcap[valid_mask]
                 labels = labels[valid_mask]
-
-            # 按标签分组，保留原始顺序
             groups = []
-            categories = labels.cat.categories  # 按区间顺序
+            categories = labels.cat.categories
             for cat in categories:
                 group_syms = labels[labels == cat].index.tolist()
                 groups.append(group_syms)
         else:
-            # 使用均分分组，需要 n_groups
             if n_groups is None:
                 raise ValueError("必须提供 n_groups 或 group_bins 参数")
             syms_sorted = sym_mcap.sort_values().index.tolist()
@@ -147,7 +124,7 @@ class TickerInfo:
                 end = (i + 1) * group_size if i < n_groups - 1 else n
                 groups.append(syms_sorted[start:end])
 
-        # 7. 每组取 activity 最高的 top_n_per_group 只股票
+        # 8. 每组取 activity 最高的 top_n_per_group 只股票
         top_per_group = []
         for i, group_syms in enumerate(groups):
             if not group_syms:
