@@ -101,7 +101,8 @@ class TickerInfo:
         base = df_g["close"] * df_g["volume"] * factor
         sign = np.where(df_g["close"] >= df_g["open"], 1, -1)
         df_g["activity"] = np.where(df_g["total_value"] > 0, base * sign, 0.0)
-        sym_act = df_g.groupby("symbol")["activity"].mean()
+        sym_act = df_g.groupby("symbol")["activity"].sum()
+        # sym_act = df_g.groupby("symbol")["activity"].mean()
         # sym_act = sym_act[sym_act > 0]  # 仅保留 activity 为正的股票
 
         # 4. 计算每只股票的平均市值（用于分档）
