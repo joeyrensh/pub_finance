@@ -83,9 +83,12 @@ class TickerInfo:
 
         # 4. 计算带符号的 activity（基于剩余所有交易日）
         factor = 100 if self.market.startswith("cn") else 1
-        base = df_g["close"] * df_g["volume"] * factor
-        sign = np.where(df_g["close"] >= df_g["open"], 1, -1)
-        df_g["activity"] = base * sign
+        # # 按照成交额计算，如果当日阴线，则为负值
+        # base = df_g["close"] * df_g["volume"] * factor
+        # sign = np.where(df_g["close"] >= df_g["open"], 1, -1)
+        # df_g["activity"] = base * sign
+        # 按照简单计算净流入净流出来排序
+        df_g["activity"] = (df_g["close"] - df_g["open"]) * df_g["volume"] * factor
         sym_act = df_g.groupby("symbol")["activity"].mean()  # 仍用平均值
         sym_act = sym_act[sym_act > 0]  # 仅保留平均活跃度 > 0 的股票
 
