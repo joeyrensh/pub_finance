@@ -87,6 +87,7 @@ class TickerInfo:
         sign = np.where(df_g["close"] >= df_g["open"], 1, -1)
         df_g["activity"] = base * sign
         sym_act = df_g.groupby("symbol")["activity"].mean()  # 仍用平均值
+        sym_act = sym_act[sym_act > 0]  # 仅保留平均活跃度 > 0 的股票
 
         # 5. 使用最新日市值进行分组
         sym_mcap = mcap_latest[sym_act.index]  # 自动过滤掉被剔除的股票
