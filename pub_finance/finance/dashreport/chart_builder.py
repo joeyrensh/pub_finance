@@ -118,7 +118,7 @@ class ChartBuilder:
         self,
         page,
         df,
-        theme="light",  # 主题参数
+        theme="light",
         client_width=1440,
     ):
         """
@@ -170,14 +170,8 @@ class ChartBuilder:
         # 计算每周的起始日期
         df["week_start"] = df["date"] - pd.to_timedelta(df["day_of_week"], unit="d")
 
-        # 确定每周的顺序
-        unique_weeks = (
-            df["week_start"].drop_duplicates().sort_values().reset_index(drop=True)
-        )
-        week_mapping = {date: i for i, date in enumerate(unique_weeks)}
-        df["week_order"] = df["week_start"].map(week_mapping)
-
-        # 获取数据中的最新日期
+        # ===== 修改开始：构建包含所有可能周的 week_mapping =====
+        # 获取数据中的最新日期（用于计算交易日范围）
         if len(df) > 0:
             latest_date = df["date"].max()
             weekday = latest_date.weekday()
@@ -187,6 +181,30 @@ class ChartBuilder:
             )
         else:
             filtered_dates = pd.DatetimeIndex([])
+
+        # 基于交易日范围生成所有可能的周起始
+        if len(filtered_dates) > 0:
+            all_week_starts = (
+                pd.Series(filtered_dates)
+                .apply(lambda d: d - pd.to_timedelta(d.weekday(), unit="d"))
+                .unique()
+            )
+            all_week_starts = sorted(all_week_starts)
+            week_mapping = {date: i for i, date in enumerate(all_week_starts)}
+            total_weeks = len(week_mapping)
+        else:
+            # 如果没有交易日数据，回退到原始方式（仅基于df）
+            unique_weeks = (
+                df["week_start"].drop_duplicates().sort_values().reset_index(drop=True)
+            )
+            week_mapping = {date: i for i, date in enumerate(unique_weeks)}
+            total_weeks = len(week_mapping)
+        # ===== 修改结束 =====
+
+        # 为数据中的每行分配 week_order
+        df["week_order"] = df["week_start"].map(week_mapping)
+
+        # 获取数据中的最新日期（已在上方计算 filtered_dates 时使用）
 
         # 计算字体大小
         s = df["s_pnl"].dropna()
@@ -484,6 +502,12 @@ class ChartBuilder:
             )
 
         # 设置图表布局
+        # ===== 修改开始：手动设置y轴范围以包含所有周 =====
+        if total_weeks > 0:
+            yaxis_range = [total_weeks - 0.5, -0.5]
+        else:
+            yaxis_range = None
+
         fig.update_layout(
             xaxis=dict(
                 tickmode="array",
@@ -512,7 +536,9 @@ class ChartBuilder:
                 showgrid=False,
                 zeroline=False,
                 showticklabels=False,
-                autorange="reversed",
+                # autorange="reversed",  # 原代码，替换为手动范围
+                autorange=False,
+                range=yaxis_range,
             ),
             plot_bgcolor=config["background"],
             paper_bgcolor=config["background"],
@@ -526,6 +552,7 @@ class ChartBuilder:
                 font_size=base_font_size,
             ),
         )
+        # ===== 修改结束 =====
 
         # 在每周之间添加横向分隔线
         unique_weeks_list = sorted(df["week_order"].unique()) if len(df) > 0 else []
@@ -557,24 +584,25 @@ class ChartBuilder:
                 day_of_week = missing_date.dayofweek
                 week_start = missing_date - pd.to_timedelta(day_of_week, unit="d")
 
-                if week_start in week_mapping:
-                    week_order = week_mapping[week_start]
+                # ===== 修改开始：week_start 现在一定在 week_mapping 中 =====
+                week_order = week_mapping[week_start]
+                # ===== 修改结束 =====
 
-                    # 添加 annotation
-                    fig.add_annotation(
-                        x=day_of_week,
-                        y=week_order,
-                        text="休市",
-                        showarrow=False,
-                        font=dict(
-                            family=self.font_family,
-                            size=base_font_size,
-                            color=config["text_color"],  # 使用带透明度的中性色
-                        ),
-                        align="center",
-                        xanchor="center",
-                        yanchor="middle",
-                    )
+                # 添加 annotation
+                fig.add_annotation(
+                    x=day_of_week,
+                    y=week_order,
+                    text="休市",
+                    showarrow=False,
+                    font=dict(
+                        family=self.font_family,
+                        size=base_font_size,
+                        color=config["text_color"],  # 使用带透明度的中性色
+                    ),
+                    align="center",
+                    xanchor="center",
+                    yanchor="middle",
+                )
 
         return fig
 

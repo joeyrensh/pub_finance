@@ -2986,14 +2986,18 @@ class StockProposal:
             "date"
         ] - pd.to_timedelta(pd_calendar_heatmap["day_of_week"], unit="d")
 
-        # 确定每周的顺序
-        unique_weeks = (
-            pd_calendar_heatmap["week_start"]
-            .drop_duplicates()
-            .sort_values()
-            .reset_index(drop=True)
+        # ===== 修改开始：基于 filtered_dates 构建所有周的映射 =====
+        # 生成所有可能的周起始（从交易日范围中提取）
+        all_week_starts = (
+            pd.Series(filtered_dates)
+            .apply(lambda d: d - pd.to_timedelta(d.weekday(), unit="d"))
+            .unique()
         )
-        week_mapping = {date: i for i, date in enumerate(unique_weeks)}
+        all_week_starts = sorted(all_week_starts)
+        week_mapping = {date: i for i, date in enumerate(all_week_starts)}
+        # ===== 修改结束 =====
+
+        # 为数据中的每行分配 week_order
         pd_calendar_heatmap["week_order"] = pd_calendar_heatmap["week_start"].map(
             week_mapping
         )
@@ -3009,7 +3013,7 @@ class StockProposal:
             .fillna("")
             .apply(lambda x: [i.strip() for i in x.split(",") if i.strip()])
         )
-        # 创建日历图
+        # 创建日历图（light mode）
         fig = go.Figure()
 
         # 假设 s_pnl 的最小值为负，最大值为正
@@ -3068,7 +3072,10 @@ class StockProposal:
                 zeroline=False,
                 showticklabels=False,
                 # title="Week",
-                autorange="reversed",  # 反转Y轴，使得最新的一周在最下方
+                # ===== 修改开始：手动设置 y 轴范围以包含所有周 =====
+                autorange=False,  # 禁用自动范围
+                range=[len(week_mapping) - 0.5, -0.5],  # 最新周在底部
+                # ===== 修改结束 =====
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0, 0, 0, 0)",
@@ -3272,7 +3279,7 @@ class StockProposal:
             scale=2,
         )
 
-        # dark mode
+        # ===== dark mode 部分同样需要修改 y 轴设置 =====
         # 创建日历图
         fig = go.Figure()
 
@@ -3329,7 +3336,10 @@ class StockProposal:
                 zeroline=False,
                 showticklabels=False,
                 # title="Week",
-                autorange="reversed",  # 反转Y轴，使得最新的一周在最下方
+                # ===== 修改开始：手动设置 y 轴范围以包含所有周 =====
+                autorange=False,
+                range=[len(week_mapping) - 0.5, -0.5],
+                # ===== 修改结束 =====
             ),
             plot_bgcolor="rgba(0, 0, 0, 0)",
             paper_bgcolor="rgba(0, 0, 0, 0)",
