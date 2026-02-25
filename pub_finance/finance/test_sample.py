@@ -78,7 +78,7 @@ if __name__ == "__main__":
     # cash, final_value = exec_btstrategy(trade_date)
     # 美股主要策略执行
     cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us", d).exec_btstrategy()
+        trade_date, lambda d: BacktraderExec("us", d).exec_btstrategy(force_run=True)
     )
     collected = gc.collect()
 
@@ -88,7 +88,8 @@ if __name__ == "__main__":
     StockProposal("us", trade_date).send_btstrategy_by_email(cash, final_value)
     # 固定列表追踪
     cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us_special", d).exec_btstrategy()
+        trade_date,
+        lambda d: BacktraderExec("us_special", d).exec_btstrategy(force_run=True),
     )
     collected = gc.collect()
 
@@ -98,7 +99,8 @@ if __name__ == "__main__":
     StockProposal("us_special", trade_date).send_btstrategy_by_email(cash, final_value)
     # 动态列表追踪
     cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("us_dynamic", d).exec_btstrategy()
+        trade_date,
+        lambda d: BacktraderExec("us_dynamic", d).exec_btstrategy(force_run=True),
     )
     collected = gc.collect()
 

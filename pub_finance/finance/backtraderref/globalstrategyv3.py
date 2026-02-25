@@ -402,6 +402,21 @@ class GlobalStrategy(bt.Strategy):
                 print(f"❌ 初始化失败-辅助指标6: {d._name}, {e}")
 
             """
+            辅助指标7：判断是否资金净流入
+            """
+            try:
+                # 市场因子
+                factor = 100 if self.market.startswith("cn") else 1
+                # 每日净流入 = (close - open) * volume * factor
+                daily_net_inflow = (d.close - d.open) * d.volume * factor
+                self.inds[d._name]["is_net_inflow"] = bt.indicators.SMA(
+                    daily_net_inflow, period=self.params.price_short_period
+                )
+
+            except Exception as e:
+                print(f"❌ 初始化失败-辅助指标7: {d._name}, {e}")
+
+            """
             买入1: 均线金叉
             """
             try:
@@ -852,6 +867,8 @@ class GlobalStrategy(bt.Strategy):
                 # )
                 # if sum(1 for value in r1 if value == 1) >= 2:
                 #     continue
+                if self.inds[d._name]["is_net_inflow"] < 0:
+                    continue
 
                 # 均线密集判断，短期ema与中期ema近20日内密集排列
                 x1 = self.inds[d._name]["ema_short"].get(
