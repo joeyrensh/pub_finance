@@ -35,9 +35,9 @@ class TickerInfo:
         # 获取交易日
         tk = ToolKit("获取交易日")
         if market.startswith("us"):
-            self.date_threshold = tk.get_us_trade_date_by_delta(10, trade_date)
+            self.date_threshold = tk.get_us_trade_date_by_delta(5, trade_date)
         elif market.startswith("cn"):
-            self.date_threshold = tk.get_cn_trade_date_by_delta(10, trade_date)
+            self.date_threshold = tk.get_cn_trade_date_by_delta(5, trade_date)
 
     def _top_by_activity(
         self,
