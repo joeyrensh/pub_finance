@@ -409,8 +409,11 @@ class GlobalStrategy(bt.Strategy):
                 factor = 100 if self.market.startswith("cn") else 1
                 # 每日净流入 = (close - open) * volume * factor
                 daily_net_inflow = (d.close - d.open) * d.volume * factor
-                self.inds[d._name]["is_net_inflow"] = bt.indicators.SMA(
-                    daily_net_inflow, period=self.params.price_short_period
+                self.inds[d._name]["is_net_inflow_short"] = bt.indicators.SMA(
+                    daily_net_inflow, period=self.params.vol_short_period
+                )
+                self.inds[d._name]["is_net_inflow_long"] = bt.indicators.SMA(
+                    daily_net_inflow, period=self.params.vol_long_period
                 )
 
             except Exception as e:
@@ -432,6 +435,7 @@ class GlobalStrategy(bt.Strategy):
                         self.signals[d._name]["golden_cross"] == 1,
                         d.close > d.open,
                         self.signals[d._name]["deviant"] == 1,
+                        self.inds[d._name]["is_net_inflow_long"] > 0,
                     ),
                     bt.And(
                         self.inds[d._name]["ema_mid"]
@@ -444,6 +448,7 @@ class GlobalStrategy(bt.Strategy):
                         self.signals[d._name]["golden_cross"] == 1,
                         d.close > d.open,
                         self.signals[d._name]["deviant"] == 1,
+                        self.inds[d._name]["is_net_inflow_long"] > 0,
                     ),
                 )
             except Exception as e:
@@ -469,6 +474,7 @@ class GlobalStrategy(bt.Strategy):
                             == 1,
                             self.signals[d._name]["golden_cross"] == 1,
                         ),
+                        self.inds[d._name]["is_net_inflow_short"] > 0,
                     ),
                 )
             except Exception as e:
@@ -486,6 +492,7 @@ class GlobalStrategy(bt.Strategy):
                     self.inds[d._name]["ema_mid"] > self.inds[d._name]["ema_mid"](-1),
                     self.signals[d._name]["golden_cross"] == 1,
                     self.signals[d._name]["deviant"] == 1,
+                    self.inds[d._name]["is_net_inflow_long"] > 0,
                 )
             except Exception as e:
                 print(f"❌ 初始化失败-买入3: {d._name}, {e}")
@@ -520,6 +527,7 @@ class GlobalStrategy(bt.Strategy):
                     self.inds[d._name]["sma_annual"]
                     > self.inds[d._name]["sma_annual"](-1),
                     self.signals[d._name]["deviant"] == 1,
+                    self.inds[d._name]["is_net_inflow_long"] > 0,
                 )
             except Exception as e:
                 print(f"❌ 初始化失败-买入5: {d._name}, {e}")
@@ -539,6 +547,7 @@ class GlobalStrategy(bt.Strategy):
                     ),
                     self.inds[d._name]["sma_long"] > self.inds[d._name]["sma_long"](-1),
                     self.signals[d._name]["deviant"] == 1,
+                    self.inds[d._name]["is_net_inflow_long"] > 0,
                 )
             except Exception as e:
                 print(f"❌ 初始化失败-买入6: {d._name}, {e}")
@@ -867,8 +876,8 @@ class GlobalStrategy(bt.Strategy):
                 # )
                 # if sum(1 for value in r1 if value == 1) >= 2:
                 #     continue
-                if self.inds[d._name]["is_net_inflow"] < 0:
-                    continue
+                # if self.inds[d._name]["is_net_inflow"] < 0:
+                #     continue
 
                 # 均线密集判断，短期ema与中期ema近20日内密集排列
                 x1 = self.inds[d._name]["ema_short"].get(
@@ -902,6 +911,7 @@ class GlobalStrategy(bt.Strategy):
                     and sum(1 for value in diff_array2 if value < 2) >= 5
                     and sum(1 for value in diff_array3 if value < 2) >= 5
                     and self.signals[d._name]["deviant"][0] == 1
+                    and self.inds[d._name]["is_net_inflow_long"] > 0
                 ):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
