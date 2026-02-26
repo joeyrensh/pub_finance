@@ -184,10 +184,9 @@ class TickerInfo:
             top_per_group.extend(top_n)
             # 计算阈值：入选股票的最低 activity（若组内股票不足 top_n_per_group，则取全部股票的最低值）
             threshold_activity = act_series.head(top_n_per_group).min()
-            threshold_activity_mean = act_series.head(top_n_per_group).mean()
             print(
                 f"Group {i}: {len(top_n)} symbols taken (group size: {len(group_syms)}), "
-                f"activity threshold: {threshold_activity:.2f}, activity mean: {threshold_activity_mean:.2f}"
+                f"activity threshold: {threshold_activity:.2f}"
             )
 
             # 记录存活目标在本组的信息
@@ -195,12 +194,15 @@ class TickerInfo:
                 if sym in group_syms:
                     rank = act_series.index.get_loc(sym) + 1
                     selected = sym in top_n
+                    # 获取该股票的 activity 值
+                    activity_value = act_series[sym]
+
                     diag[sym] = {
                         "status": "alive" if selected else "filtered",
                         "reason": (
                             None
                             if selected
-                            else f"组 {i}, 组内排名 {rank}, 超出前 {top_n_per_group}"
+                            else f"Group {i}, 排名 {rank}, 超出前 {top_n_per_group}, activity: {activity_value:.2f}"
                         ),
                         "group": i,
                         "rank": rank,
@@ -221,7 +223,7 @@ class TickerInfo:
                 reason = info.get("reason")
                 if status == "alive":
                     print(
-                        f"{sym}: 存活，组 {info['group']}，排名 {info['rank']}，选中 {info['selected']}"
+                        f"{sym}: 存活，Group {info['group']}，排名 {info['rank']}，选中 {info['selected']}"
                     )
                 elif reason:
                     print(f"{sym}: 被过滤，原因: {reason}")
@@ -358,7 +360,7 @@ class TickerInfo:
                 df_recent,
                 group_bins=bins,
                 top_n_per_group=100,
-                # target_symbols=["SZ002448", "SZ002533"],
+                target_symbols=["SZ002448", "SZ002533"],
             )
 
             combined_symbols = list(set(filtered_top))
