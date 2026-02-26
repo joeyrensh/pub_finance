@@ -360,7 +360,7 @@ class TickerInfo:
                 df_recent,
                 group_bins=bins,
                 top_n_per_group=100,
-                target_symbols=["SZ002448", "SZ002533"],
+                # target_symbols=["SZ002448", "SZ002533"],
             )
 
             combined_symbols = list(set(filtered_top))

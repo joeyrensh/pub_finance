@@ -99,10 +99,10 @@ if __name__ == "__main__":
             proposal.send_btstrategy_by_email(cash, final_value)
 
     # A股主要策略执行
-    run_backtest_and_send("cn", trade_date, force_run=True)
+    # run_backtest_and_send("cn", trade_date)
 
     # ETF主要策略执行
-    run_backtest_and_send("cnetf", trade_date, force_run=True)
+    # run_backtest_and_send("cnetf", trade_date, force_run=True)
 
     # A股动态列表执行
     run_backtest_and_send("cn_dynamic", trade_date, force_run=True)

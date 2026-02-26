@@ -467,7 +467,7 @@ class StockProposal:
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
-                    WHERE row_num = 2)
+                    WHERE row_num = 6)
                 GROUP BY t2.industry
             )
             , tmp2 AS (
@@ -478,7 +478,7 @@ class StockProposal:
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
                     FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
-                    WHERE row_num = 6)
+                    WHERE row_num = 10)
                 GROUP BY t2.industry
             )
             SELECT tmp.industry
