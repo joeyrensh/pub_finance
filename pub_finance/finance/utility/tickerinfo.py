@@ -182,8 +182,12 @@ class TickerInfo:
             act_series = sym_act[group_syms].sort_values(ascending=False)
             top_n = act_series.head(top_n_per_group).index.tolist()
             top_per_group.extend(top_n)
+            # 计算阈值：入选股票的最低 activity（若组内股票不足 top_n_per_group，则取全部股票的最低值）
+            threshold_activity = act_series.head(top_n_per_group).min()
+            threshold_activity_mean = act_series.head(top_n_per_group).mean()
             print(
-                f"Group {i}: {len(top_n)} symbols taken (group size: {len(group_syms)})"
+                f"Group {i}: {len(top_n)} symbols taken (group size: {len(group_syms)}), "
+                f"activity threshold: {threshold_activity:.2f}, activity mean: {threshold_activity_mean:.2f}"
             )
 
             # 记录存活目标在本组的信息

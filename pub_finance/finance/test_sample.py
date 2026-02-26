@@ -12,7 +12,7 @@ import sys
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc+8"""
-    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(1)
+    trade_date = ToolKit("get_latest_trade_date").get_cn_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断当天是否交易日").is_cn_trade_date(trade_date):
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     run_backtest_and_send("cn", trade_date, force_run=True)
 
     # ETF主要策略执行
-    # run_backtest_and_send("cnetf", trade_date, force_run=True)
+    run_backtest_and_send("cnetf", trade_date, force_run=True)
 
     # A股动态列表执行
     run_backtest_and_send("cn_dynamic", trade_date, force_run=True)
