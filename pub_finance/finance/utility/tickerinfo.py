@@ -47,44 +47,38 @@ class TickerInfo:
         top_n_per_group=100,
         max_turnover=0.25,
         group_bins=None,
-        target_symbols=None,  # 新增：要诊断的股票代码列表
+        target_symbols=None,
     ):
-        """
-        根据成交金额（activity）分组筛选股票，每组取 activity 最高的若干只。
-        ...（原有文档字符串）...
-        target_symbols : list, optional
-            指定要诊断的股票代码列表，会输出各阶段的过滤状态。
-        """
-        # 初始化目标集合
+        # 初始化诊断记录
+        diag = {}
         target_set = set(target_symbols) if target_symbols else set()
+        for sym in target_set:
+            diag[sym] = {"status": "alive", "reason": None, "group": None, "rank": None}
 
-        def log_filtered(filtered_set, step_name):
-            """打印在 step_name 步骤中被过滤的股票"""
-            if filtered_set:
-                print(f"[诊断] 在 {step_name} 中被过滤: {', '.join(filtered_set)}")
+        # 辅助函数：标记股票被过滤
+        def mark_filtered(reason):
+            for sym in list(target_set):
+                diag[sym] = {"status": "filtered", "reason": reason}
+                target_set.remove(sym)
 
         # 1. 找出最新交易日满足 cond 的股票
         df_cond = df.loc[cond].copy()
         if df_cond.empty:
-            if target_set:
-                print(
-                    f"[诊断] cond 条件无任何股票，所有目标被排除: {', '.join(target_set)}"
-                )
+            mark_filtered("cond 无数据")
             return []
+
         latest_date = df_cond["date"].max()
         symbols_latest = df_cond[df_cond["date"] == latest_date]["symbol"].unique()
-        # 检查目标股票是否在最新交易日满足条件
-        if target_set:
-            not_in_latest = target_set - set(symbols_latest)
-            log_filtered(not_in_latest, "最新交易日筛选（不在当日满足cond的股票中）")
-            target_set -= not_in_latest
+        not_in_latest = target_set - set(symbols_latest)
+        for sym in list(not_in_latest):
+            diag[sym] = {"status": "filtered", "reason": "最新交易日不满足cond"}
+            target_set.remove(sym)
 
-        if len(symbols_latest) == 0:
+        if not symbols_latest.size:
             return []
 
         # 2. 从原始数据中提取这些股票的所有行
         df_g = df[df["symbol"].isin(symbols_latest)].copy()
-        # 保存最新交易日市值
         mcap_latest = df_g[df_g["date"] == latest_date].set_index("symbol")[
             "total_value"
         ]
@@ -99,24 +93,23 @@ class TickerInfo:
             ),
             0.0,
         )
-        # 检查目标股票的换手率是否超标
-        if target_set:
-            high_turnover_symbols = set()
-            for sym in target_set:
-                if sym in df_g["symbol"].values:
-                    turnover_vals = df_g[df_g["symbol"] == sym]["turnover"]
-                    if not turnover_vals.empty and turnover_vals.max() > max_turnover:
-                        high_turnover_symbols.add(sym)
-            log_filtered(high_turnover_symbols, f"换手率 > {max_turnover}")
-            target_set -= high_turnover_symbols
+        # 检查目标股票是否换手率超标
+        for sym in list(target_set):
+            if sym in df_g["symbol"].values:
+                turnover_vals = df_g[df_g["symbol"] == sym]["turnover"]
+                if not turnover_vals.empty and turnover_vals.max() > max_turnover:
+                    diag[sym] = {
+                        "status": "filtered",
+                        "reason": f"换手率 > {max_turnover}",
+                    }
+                    target_set.remove(sym)
 
         symbols_with_extreme = df_g.loc[
             df_g["turnover"] > max_turnover, "symbol"
         ].unique()
         df_g = df_g[~df_g["symbol"].isin(symbols_with_extreme)]
         if df_g.empty:
-            if target_set:
-                print("[诊断] 剔除高换手后数据为空，所有目标被排除")
+            mark_filtered("剔除高换手后无数据")
             return []
 
         # 4. 计算 activity
@@ -124,18 +117,15 @@ class TickerInfo:
         df_g["activity"] = (df_g["close"] - df_g["open"]) * df_g["volume"] * factor
         sym_act = df_g.groupby("symbol")["activity"].mean()
 
-        # 检查 activity <= 0 的股票
-        if target_set:
-            zero_act_symbols = set()
-            for sym in target_set:
-                if sym in sym_act.index and sym_act[sym] <= 0:
-                    zero_act_symbols.add(sym)
-            log_filtered(zero_act_symbols, "平均 activity <= 0")
-            target_set -= zero_act_symbols
+        # 检查 activity <= 0
+        for sym in list(target_set):
+            if sym in sym_act.index and sym_act[sym] <= 0:
+                diag[sym] = {"status": "filtered", "reason": "平均 activity <= 0"}
+                target_set.remove(sym)
 
         sym_act = sym_act[sym_act > 0]
         if sym_act.empty and target_set:
-            print("[诊断] 无股票 activity > 0，所有目标被排除")
+            mark_filtered("无 activity > 0 的股票")
             return []
 
         # 5. 使用最新日市值
@@ -143,12 +133,12 @@ class TickerInfo:
 
         # 6. 对齐索引
         common_syms = sym_act.index.intersection(sym_mcap.index)
-        if target_set:
-            not_aligned = target_set - set(common_syms)
-            log_filtered(not_aligned, "市值与 activity 对齐")
-            target_set -= not_aligned
+        for sym in list(target_set):
+            if sym not in common_syms:
+                diag[sym] = {"status": "filtered", "reason": "市值与 activity 对齐失败"}
+                target_set.remove(sym)
 
-        if len(common_syms) == 0:
+        if not common_syms.size:
             return []
         sym_act = sym_act[common_syms]
         sym_mcap = sym_mcap[common_syms]
@@ -157,10 +147,11 @@ class TickerInfo:
         if group_bins is not None:
             labels = pd.cut(sym_mcap, bins=group_bins, right=False)
             valid_mask = labels.notna()
-            if target_set:
-                out_of_bounds = target_set - set(sym_mcap[valid_mask].index)
-                log_filtered(out_of_bounds, "市值超出自定义边界")
-                target_set -= out_of_bounds
+            # 检查市值超边界
+            for sym in list(target_set):
+                if sym in sym_mcap.index and not valid_mask[sym]:
+                    diag[sym] = {"status": "filtered", "reason": "市值超出自定义边界"}
+                    target_set.remove(sym)
             if not valid_mask.all():
                 print(f"警告: {valid_mask.sum()} 只股票市值超出自定义边界，将被忽略")
                 sym_act = sym_act[valid_mask]
@@ -195,23 +186,43 @@ class TickerInfo:
                 f"Group {i}: {len(top_n)} symbols taken (group size: {len(group_syms)})"
             )
 
-            # 输出目标股票在本组的排名
-            if target_set:
-                for sym in target_set:
-                    if sym in group_syms:
-                        rank = act_series.index.get_loc(sym) + 1  # 1-based
-                        selected = sym in top_n
-                        print(
-                            f"[诊断] {sym} 位于组 {i}，组内排名 {rank}/{len(group_syms)}，是否被选中: {selected}"
-                        )
-                        if not selected:
-                            print(
-                                f"[诊断] {sym} 排名 {rank} 超出前 {top_n_per_group} 名"
-                            )
+            # 记录存活目标在本组的信息
+            for sym in list(target_set):
+                if sym in group_syms:
+                    rank = act_series.index.get_loc(sym) + 1
+                    selected = sym in top_n
+                    diag[sym] = {
+                        "status": "alive" if selected else "filtered",
+                        "reason": (
+                            None
+                            if selected
+                            else f"组 {i}, 组内排名 {rank}, 超出前 {top_n_per_group}"
+                        ),
+                        "group": i,
+                        "rank": rank,
+                        "selected": selected,
+                    }
+                    target_set.remove(sym)  # 无论是否选中，都已处理，从待处理集合移除
 
-        if target_set and all(sym not in act_series.index for sym in target_set):
-            # 目标股票不在任何组中（可能因排序被组排除，但实际应已在前面步骤被过滤）
-            print("[诊断] 剩余目标股票未出现在任何分组中，请检查之前的过滤")
+        # 处理未被任何组覆盖的存活目标
+        for sym in list(target_set):
+            diag[sym] = {"status": "filtered", "reason": "未出现在任何分组中"}
+
+        # 输出诊断结果
+        if target_symbols:
+            print("\n===== 诊断结果 =====")
+            for sym in target_symbols:
+                info = diag.get(sym, {})
+                status = info.get("status", "unknown")
+                reason = info.get("reason")
+                if status == "alive":
+                    print(
+                        f"{sym}: 存活，组 {info['group']}，排名 {info['rank']}，选中 {info['selected']}"
+                    )
+                elif reason:
+                    print(f"{sym}: 被过滤，原因: {reason}")
+                else:
+                    print(f"{sym}: 未找到诊断信息")
 
         return top_per_group
 

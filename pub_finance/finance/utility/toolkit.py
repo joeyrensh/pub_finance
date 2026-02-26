@@ -858,9 +858,11 @@ class ToolKit:
         open_dt = pd.to_datetime(df[c["open_date"]], errors="coerce")
 
         days = (trade_dt - open_dt).dt.days.clip(lower=1)
-        df["pnl_score"] = rank_score(
+        pnl_daily_score = rank_score(
             df[c["pnl_ratio"]] / days, higher_is_better=True, mid=0
         )
+        days_score = rank_score(days, higher_is_better=False)
+        df["pnl_score"] = 0.5 * days_score + 0.5 * pnl_daily_score
 
         # ===== 稳定性 =====
         df["win_rate_score"] = rank_score(df[c["win_rate"]], mid=0.5)
