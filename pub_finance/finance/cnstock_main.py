@@ -78,32 +78,34 @@ if __name__ == "__main__":
             raise RuntimeError(result[1])
         return result[0], result[1]
 
-    # 主函数中替换原有调用：将具体的回测执行逻辑通过参数传入
-    # cash, final_value = exec_btstrategy(trade_date)
+    def run_backtest_and_send(market, trade_date, force_run=False):
+        """
+        运行指定市场的回测并发送邮件
+        - market: 市场标识 ("cn", "cnetf", "cn_dynamic")
+        - market: 市场标识 ("us", "us_special", "us_dynamic")
+        - trade_date: 交易日期
+        """
+        cash, final_value = run_backtest_in_process(
+            trade_date,
+            lambda d: BacktraderExec(market, d).exec_btstrategy(force_run=force_run),
+        )
+        collected = gc.collect()
+        print("Garbage collector: collected %d objects." % (collected))
+
+        proposal = StockProposal(market, trade_date)
+        if market == "cnetf":
+            proposal.send_etf_btstrategy_by_email(cash, final_value)
+        else:
+            proposal.send_btstrategy_by_email(cash, final_value)
+
     # A股主要策略执行
-    cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("cn", d).exec_btstrategy()
-    )
-    collected = gc.collect()
-    print("Garbage collector: collected %d objects." % (collected))
-    """ 发送邮件 """
-    StockProposal("cn", trade_date).send_btstrategy_by_email(cash, final_value)
+    run_backtest_and_send("cn", trade_date)
+
     # ETF主要策略执行
-    cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("cnetf", d).exec_btstrategy()
-    )
-    collected = gc.collect()
-    print("Garbage collector: collected %d objects." % (collected))
-    """ 发送邮件 """
-    StockProposal("cnetf", trade_date).send_etf_btstrategy_by_email(cash, final_value)
+    run_backtest_and_send("cnetf", trade_date)
+
     # A股动态列表执行
-    cash, final_value = run_backtest_in_process(
-        trade_date, lambda d: BacktraderExec("cn_dynamic", d).exec_btstrategy()
-    )
-    collected = gc.collect()
-    print("Garbage collector: collected %d objects." % (collected))
-    """ 发送邮件 """
-    StockProposal("cn_dynamic", trade_date).send_btstrategy_by_email(cash, final_value)
+    run_backtest_and_send("cn_dynamic", trade_date)
 
     """ 结束进度条 """
     pbar.finish()

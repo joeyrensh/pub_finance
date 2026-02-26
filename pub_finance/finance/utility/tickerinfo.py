@@ -47,24 +47,49 @@ class TickerInfo:
         top_n_per_group=100,
         max_turnover=0.25,
         group_bins=None,
+        target_symbols=None,  # 新增：要诊断的股票代码列表
     ):
+        """
+        根据成交金额（activity）分组筛选股票，每组取 activity 最高的若干只。
+        ...（原有文档字符串）...
+        target_symbols : list, optional
+            指定要诊断的股票代码列表，会输出各阶段的过滤状态。
+        """
+        # 初始化目标集合
+        target_set = set(target_symbols) if target_symbols else set()
+
+        def log_filtered(filtered_set, step_name):
+            """打印在 step_name 步骤中被过滤的股票"""
+            if filtered_set:
+                print(f"[诊断] 在 {step_name} 中被过滤: {', '.join(filtered_set)}")
+
         # 1. 找出最新交易日满足 cond 的股票
-        df_cond = df.loc[cond].copy()  # 满足 cond 的所有行
+        df_cond = df.loc[cond].copy()
         if df_cond.empty:
+            if target_set:
+                print(
+                    f"[诊断] cond 条件无任何股票，所有目标被排除: {', '.join(target_set)}"
+                )
             return []
         latest_date = df_cond["date"].max()
         symbols_latest = df_cond[df_cond["date"] == latest_date]["symbol"].unique()
+        # 检查目标股票是否在最新交易日满足条件
+        if target_set:
+            not_in_latest = target_set - set(symbols_latest)
+            log_filtered(not_in_latest, "最新交易日筛选（不在当日满足cond的股票中）")
+            target_set -= not_in_latest
+
         if len(symbols_latest) == 0:
             return []
 
-        # 2. 从原始数据中提取这些股票的所有行（不再应用 cond）
+        # 2. 从原始数据中提取这些股票的所有行
         df_g = df[df["symbol"].isin(symbols_latest)].copy()
-        # 保存最新交易日市值（用于分组）
+        # 保存最新交易日市值
         mcap_latest = df_g[df_g["date"] == latest_date].set_index("symbol")[
             "total_value"
         ]
 
-        # 3. 剔除高换手股票（基于所有交易日）
+        # 3. 剔除高换手股票
         df_g["turnover"] = np.where(
             df_g["total_value"] > 0,
             (
@@ -74,38 +99,68 @@ class TickerInfo:
             ),
             0.0,
         )
+        # 检查目标股票的换手率是否超标
+        if target_set:
+            high_turnover_symbols = set()
+            for sym in target_set:
+                if sym in df_g["symbol"].values:
+                    turnover_vals = df_g[df_g["symbol"] == sym]["turnover"]
+                    if not turnover_vals.empty and turnover_vals.max() > max_turnover:
+                        high_turnover_symbols.add(sym)
+            log_filtered(high_turnover_symbols, f"换手率 > {max_turnover}")
+            target_set -= high_turnover_symbols
+
         symbols_with_extreme = df_g.loc[
             df_g["turnover"] > max_turnover, "symbol"
         ].unique()
         df_g = df_g[~df_g["symbol"].isin(symbols_with_extreme)]
         if df_g.empty:
+            if target_set:
+                print("[诊断] 剔除高换手后数据为空，所有目标被排除")
             return []
 
-        # 4. 计算带符号的 activity（基于剩余所有交易日）
+        # 4. 计算 activity
         factor = 100 if self.market.startswith("cn") else 1
-        # # 按照成交额计算，如果当日阴线，则为负值
-        # base = df_g["close"] * df_g["volume"] * factor
-        # sign = np.where(df_g["close"] >= df_g["open"], 1, -1)
-        # df_g["activity"] = base * sign
-        # 按照简单计算净流入净流出来排序
         df_g["activity"] = (df_g["close"] - df_g["open"]) * df_g["volume"] * factor
-        sym_act = df_g.groupby("symbol")["activity"].mean()  # 仍用平均值
-        sym_act = sym_act[sym_act > 0]  # 仅保留平均活跃度 > 0 的股票
+        sym_act = df_g.groupby("symbol")["activity"].mean()
 
-        # 5. 使用最新日市值进行分组
-        sym_mcap = mcap_latest[sym_act.index]  # 自动过滤掉被剔除的股票
+        # 检查 activity <= 0 的股票
+        if target_set:
+            zero_act_symbols = set()
+            for sym in target_set:
+                if sym in sym_act.index and sym_act[sym] <= 0:
+                    zero_act_symbols.add(sym)
+            log_filtered(zero_act_symbols, "平均 activity <= 0")
+            target_set -= zero_act_symbols
 
-        # 6. 对齐索引（确保一致）
+        sym_act = sym_act[sym_act > 0]
+        if sym_act.empty and target_set:
+            print("[诊断] 无股票 activity > 0，所有目标被排除")
+            return []
+
+        # 5. 使用最新日市值
+        sym_mcap = mcap_latest[sym_act.index]
+
+        # 6. 对齐索引
         common_syms = sym_act.index.intersection(sym_mcap.index)
+        if target_set:
+            not_aligned = target_set - set(common_syms)
+            log_filtered(not_aligned, "市值与 activity 对齐")
+            target_set -= not_aligned
+
         if len(common_syms) == 0:
             return []
         sym_act = sym_act[common_syms]
         sym_mcap = sym_mcap[common_syms]
 
-        # 7. 分组（与原逻辑相同）
+        # 7. 分组
         if group_bins is not None:
             labels = pd.cut(sym_mcap, bins=group_bins, right=False)
             valid_mask = labels.notna()
+            if target_set:
+                out_of_bounds = target_set - set(sym_mcap[valid_mask].index)
+                log_filtered(out_of_bounds, "市值超出自定义边界")
+                target_set -= out_of_bounds
             if not valid_mask.all():
                 print(f"警告: {valid_mask.sum()} 只股票市值超出自定义边界，将被忽略")
                 sym_act = sym_act[valid_mask]
@@ -128,7 +183,7 @@ class TickerInfo:
                 end = (i + 1) * group_size if i < n_groups - 1 else n
                 groups.append(syms_sorted[start:end])
 
-        # 8. 每组取 activity 最高的 top_n_per_group 只股票
+        # 8. 每组取 activity 最高的 top_n_per_group 只
         top_per_group = []
         for i, group_syms in enumerate(groups):
             if not group_syms:
@@ -139,6 +194,24 @@ class TickerInfo:
             print(
                 f"Group {i}: {len(top_n)} symbols taken (group size: {len(group_syms)})"
             )
+
+            # 输出目标股票在本组的排名
+            if target_set:
+                for sym in target_set:
+                    if sym in group_syms:
+                        rank = act_series.index.get_loc(sym) + 1  # 1-based
+                        selected = sym in top_n
+                        print(
+                            f"[诊断] {sym} 位于组 {i}，组内排名 {rank}/{len(group_syms)}，是否被选中: {selected}"
+                        )
+                        if not selected:
+                            print(
+                                f"[诊断] {sym} 排名 {rank} 超出前 {top_n_per_group} 名"
+                            )
+
+        if target_set and all(sym not in act_series.index for sym in target_set):
+            # 目标股票不在任何组中（可能因排序被组排除，但实际应已在前面步骤被过滤）
+            print("[诊断] 剩余目标股票未出现在任何分组中，请检查之前的过滤")
 
         return top_per_group
 
@@ -266,7 +339,11 @@ class TickerInfo:
             #     base_cond, df_recent, n_groups=5, top_n_per_group=100
             # )
             filtered_top = self._top_by_activity(
-                base_cond, df_recent, group_bins=bins, top_n_per_group=100
+                base_cond,
+                df_recent,
+                group_bins=bins,
+                top_n_per_group=100,
+                # target_symbols=["SZ002448", "SZ002533"],
             )
 
             combined_symbols = list(set(filtered_top))

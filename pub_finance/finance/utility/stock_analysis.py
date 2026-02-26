@@ -613,6 +613,7 @@ class StockProposal:
             ],
             header=True,
         )
+        print("板块数据生成完成...")
         cm = sns.light_palette("seagreen", as_cmap=True)
 
         total_rows = len(pd_industry_history_tracking)
@@ -1053,6 +1054,7 @@ class StockProposal:
             inplace=True,
         )
         pd_position_history.to_csv(f"./data/{self.market}_stockdetail.csv", header=True)
+        print("持仓明细生成完成...")
         cm = sns.light_palette("seagreen", as_cmap=True)
 
         column_map_default = {
@@ -1431,6 +1433,7 @@ class StockProposal:
             pd_position_reduction.to_csv(
                 f"./data/{self.market}_stockdetail_short.csv", header=True
             )
+            print("减仓明细生成完成...")
             cm = sns.light_palette("seagreen", as_cmap=True)
             pd_position_reduction = pd_position_reduction.head(100)
             total_rows = len(pd_position_reduction)
@@ -1879,6 +1882,7 @@ class StockProposal:
         )
         pd_top20_industry = None
         gc.collect()
+        print("Tree Map-Position生成完成...")
 
         # TOP20盈利行业
         spark_top20_profit_industry = spark.sql(
@@ -1979,6 +1983,7 @@ class StockProposal:
 
         pd_top20_profit_industry = None
         gc.collect()
+        print("Tree Map-PnL生成完成...")
 
         # 180天内策略交易概率
         spark_strategy_tracking_lst180days = spark.sql(
@@ -2336,6 +2341,7 @@ class StockProposal:
 
         pd_strategy_tracking_lst180days = None
         gc.collect()
+        print("Strategy Chart生成完成...")
 
         # 180天内交易明细分析
         spark_trade_info_lst180days = spark.sql(
@@ -2531,6 +2537,7 @@ class StockProposal:
 
         pd_trade_info_lst180days = None
         gc.collect()
+        print("Trade Trend生成完成...")
 
         # TOP5行业仓位变化趋势
         spark_top5_industry_position_trend = spark.sql(
@@ -2672,6 +2679,7 @@ class StockProposal:
 
         pd_top5_industry_position_trend = None
         gc.collect()
+        print("Top5 Position Trend生成完成...")
         # TOP5行业PnL变化趋势
         spark_industry_history_tracking_lst5days.createOrReplaceTempView(
             "temp_industry_history_tracking_lst5days"
@@ -2883,6 +2891,7 @@ class StockProposal:
         )
         pd_top5_industry_profit_trend = None
         gc.collect()
+        print("Top5 Pnl Trend生成完成...")
 
         spark_calendar_heatmap = spark.sql(
             """
@@ -3536,6 +3545,7 @@ class StockProposal:
             height=fig_height,
             scale=2,
         )
+        print("Calendar Map生成完成...")
 
         spark.stop()
         subject = f"""{self.market.upper()} Stock Market Trends - {end_date}""".format(
