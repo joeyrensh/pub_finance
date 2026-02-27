@@ -1303,10 +1303,10 @@ class ChartBuilder:
         hover_config = self.theme_config.get(theme, self.theme_config["light"])
         text_color = cfg["text_color"]
         scale, base_font = self._get_font_sizes(
-            client_width, base_font=16, min_scale=0.65, max_scale=1.05
+            client_width, base_font=16, min_scale=0.63, max_scale=1.05
         )
         scale, table_font = self._get_font_sizes(
-            client_width, base_font=16, min_scale=0.65, max_scale=1.05
+            client_width, base_font=16, min_scale=0.63, max_scale=1.05
         )
         # =========================
         # 3. 收益 / 回撤计算
@@ -1684,8 +1684,8 @@ class ChartBuilder:
         # =========================
         # 14. 添加右侧表格
         # =========================
-        header_height = int(table_font * 7) * scale
-        cell_height = int(table_font * 6.8) * scale
+        header_height = int(table_font * 5) * scale
+        cell_height = int(table_font * 7.5) * scale
 
         TABLE_Y_BOTTOM = 0.0
         TABLE_Y_TOP = 1.0
