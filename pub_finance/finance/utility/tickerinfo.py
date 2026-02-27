@@ -113,6 +113,7 @@ class TickerInfo:
             return []
 
         # 4. 计算 activity
+        # 方法A：简单计算日内资金流动
         factor = 100 if self.market.startswith("cn") else 1
         df_g["activity"] = (df_g["close"] - df_g["open"]) * df_g["volume"] * factor
         sym_act = df_g.groupby("symbol")["activity"].mean()

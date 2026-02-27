@@ -407,8 +407,9 @@ class GlobalStrategy(bt.Strategy):
             try:
                 # 市场因子
                 factor = 100 if self.market.startswith("cn") else 1
-                # 每日净流入 = (close - open) * volume * factor
+                # 方法A: 每日净流入 = (close - open) * volume * factor
                 daily_net_inflow = (d.close - d.open) * d.volume * factor
+
                 self.inds[d._name]["is_net_inflow_short"] = bt.indicators.SMA(
                     daily_net_inflow, period=self.params.vol_short_period
                 )
