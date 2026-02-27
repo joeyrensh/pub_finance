@@ -98,19 +98,26 @@ class ChartBuilder:
             '-apple-system, BlinkMacSystemFont, "PingFang SC", '
             '"Helvetica Neue", Arial, sans-serif'
         )
-        self.base_fig_width = 1440
 
-    def _get_scale(self, client_width, min_scale=0.65, max_scale=1.05):
+    def _get_scale(
+        self,
+        base_fig_width=1440,
+        client_width=None,
+        min_scale=0.6,
+        max_scale=1.05,
+    ):
         """计算缩放比例"""
         if client_width < 550:
-            scale = client_width / self.base_fig_width
+            scale = client_width / base_fig_width
         else:
             scale = 1.0
         return max(min_scale, min(scale, max_scale))
 
-    def _get_font_sizes(self, client_width, base_font=12, min_scale=0.9, max_scale=1.0):
+    def _get_font_sizes(
+        self, client_width, base_font=12, min_scale=0.9, max_scale=1.05
+    ):
         """获取字体大小"""
-        scale = self._get_scale(client_width, min_scale, max_scale)
+        scale = self._get_scale(1440, client_width, min_scale, max_scale)
         font_size = int(base_font * scale)
         return scale, font_size
 
@@ -1303,10 +1310,10 @@ class ChartBuilder:
         hover_config = self.theme_config.get(theme, self.theme_config["light"])
         text_color = cfg["text_color"]
         scale, base_font = self._get_font_sizes(
-            client_width, base_font=16, min_scale=0.63, max_scale=1.05
+            client_width, base_font=16, min_scale=0.65, max_scale=1.05
         )
         scale, table_font = self._get_font_sizes(
-            client_width, base_font=16, min_scale=0.63, max_scale=1.05
+            client_width, base_font=16, min_scale=0.65, max_scale=1.05
         )
         # =========================
         # 3. 收益 / 回撤计算
@@ -1684,8 +1691,12 @@ class ChartBuilder:
         # =========================
         # 14. 添加右侧表格
         # =========================
-        header_height = int(table_font * 5) * scale
-        cell_height = int(table_font * 7.5) * scale
+        scale_adj = self._get_scale(
+            base_fig_width=630, client_width=client_width, min_scale=0.1, max_scale=0.8
+        )
+        print(f"scale: {scale}, scale_adj: {scale_adj}")
+        header_height = int(table_font * 5) * (scale if scale == 1.0 else scale_adj)
+        cell_height = int(table_font * 7.5) * (scale if scale == 1.0 else scale_adj)
 
         TABLE_Y_BOTTOM = 0.0
         TABLE_Y_TOP = 1.0
