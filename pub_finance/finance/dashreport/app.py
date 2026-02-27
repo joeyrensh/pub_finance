@@ -70,11 +70,13 @@ app.layout = html.Div(
         dcc.Store(id="auth-checked", data=False),  # 标记是否已检查登录
         dcc.Store(id="current-theme", data="light"),
         dcc.Store(id="client-width", data=1440),
-        dcc.Interval(
-            id="theme-poller",
-            interval=1000,  # 1 秒
-            n_intervals=0,
-        ),
+        # 用于触发客户端事件
+        html.Button(id="client-event", style={"display": "none"}),
+        # dcc.Interval(
+        #     id="theme-poller",
+        #     interval=1000,  # 1 秒
+        #     n_intervals=0,
+        # ),
         html.Div(
             id="login-page",
             style={"display": "none"},
@@ -175,7 +177,8 @@ app.clientside_callback(
         Output("current-theme", "data"),
         Output("client-width", "data"),
     ],
-    Input("theme-poller", "n_intervals"),
+    # Input("theme-poller", "n_intervals"),
+    Input("client-event", "n_clicks"),
     [
         State("current-theme", "data"),
         State("client-width", "data"),
