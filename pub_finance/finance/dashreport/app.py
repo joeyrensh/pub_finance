@@ -68,10 +68,10 @@ app.layout = html.Div(
     children=[
         dcc.Location(id="url", refresh=False),
         dcc.Store(id="auth-checked", data=False),  # 标记是否已检查登录
-        dcc.Store(id="current-theme", data="light"),
-        dcc.Store(id="client-width", data=1440),
         # 用于触发客户端事件
         html.Button(id="client-event", style={"display": "none"}),
+        dcc.Store(id="current-theme", data="light"),
+        dcc.Store(id="client-width", data=1440),
         # dcc.Interval(
         #     id="theme-poller",
         #     interval=1000,  # 1 秒
