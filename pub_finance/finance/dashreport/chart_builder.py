@@ -177,7 +177,7 @@ class ChartBuilder:
         # 计算每周的起始日期
         df["week_start"] = df["date"] - pd.to_timedelta(df["day_of_week"], unit="d")
 
-        # ===== 修改开始：构建包含所有可能周的 week_mapping =====
+        # ===== 构建包含所有可能周的 week_mapping =====
         # 获取数据中的最新日期（用于计算交易日范围）
         if len(df) > 0:
             latest_date = df["date"].max()
@@ -206,12 +206,10 @@ class ChartBuilder:
             )
             week_mapping = {date: i for i, date in enumerate(unique_weeks)}
             total_weeks = len(week_mapping)
-        # ===== 修改结束 =====
+        # ===== 结束 =====
 
         # 为数据中的每行分配 week_order
         df["week_order"] = df["week_start"].map(week_mapping)
-
-        # 获取数据中的最新日期（已在上方计算 filtered_dates 时使用）
 
         # 计算字体大小
         s = df["s_pnl"].dropna()
@@ -372,8 +370,6 @@ class ChartBuilder:
                 str(item).strip() if item else "" for item in industry_items
             ]
 
-            # dynamic_font_size = base_font_size + 6
-
             # ===============================
             # 上方行业（第二大行业）
             # ===============================
@@ -410,11 +406,6 @@ class ChartBuilder:
                     showarrow=False,
                     font=dict(
                         family=self.font_family,
-                        # size=(
-                        #     base_font_size
-                        #     if not page.startswith("cn")
-                        #     else base_font_size + 2
-                        # ),
                         size=(base_font_size + font_size_top),
                         color=config["text_color"],
                     ),
@@ -461,7 +452,6 @@ class ChartBuilder:
                     showarrow=False,
                     font=dict(
                         family=self.font_family,
-                        # size=base_font_size,
                         size=(base_font_size + font_size_bottom),
                         color=config["text_color"],
                     ),
@@ -509,7 +499,6 @@ class ChartBuilder:
             )
 
         # 设置图表布局
-        # ===== 修改开始：手动设置y轴范围以包含所有周 =====
         if total_weeks > 0:
             yaxis_range = [total_weeks - 0.5, -0.5]
         else:
@@ -535,36 +524,30 @@ class ChartBuilder:
                 tickfont=dict(
                     family=self.font_family,
                     size=base_font_size,
-                    # weight="bold",
-                    color=config["text_color"],  # 使用中性色
+                    color=config["text_color"],
                 ),
             ),
             yaxis=dict(
                 showgrid=False,
                 zeroline=False,
                 showticklabels=False,
-                # autorange="reversed",  # 原代码，替换为手动范围
                 autorange=False,
                 range=yaxis_range,
             ),
             plot_bgcolor=config["background"],
             paper_bgcolor=config["background"],
             margin=dict(l=0, r=0, t=0, b=0, pad=0),
-            autosize=True,  # 修改点：设为False以使用固定尺寸
+            autosize=True,
             dragmode=False,
             hoverlabel=dict(
                 bgcolor=hover_bg,
-                # bordercolor=config["hover_border"],
-                # font_color=config["text_color"],
                 font_size=base_font_size,
             ),
         )
-        # ===== 修改结束 =====
 
-        # 在每周之间添加横向分隔线
-        unique_weeks_list = sorted(df["week_order"].unique()) if len(df) > 0 else []
-
-        for week in unique_weeks_list[1:]:
+        # ===== 简化的分割线绘制 =====
+        # 横向分割线：每周之间
+        for week in range(1, total_weeks):
             fig.add_hline(
                 y=week - 0.5,
                 line=dict(color=config["grid"], width=1),
@@ -572,6 +555,8 @@ class ChartBuilder:
                 layer="below",
             )
 
+        # 纵向分割线：每列（工作日）之间，画在相邻工作日之间
+        # 工作日为0=周一,1=周二,2=周三,3=周四,4=周五，画在1-2,2-3,3-4,4-5之间
         for day in range(1, 5):
             fig.add_vline(
                 x=day - 0.5,
@@ -579,23 +564,19 @@ class ChartBuilder:
                 opacity=0.6,
                 layer="below",
             )
+        # ===== 结束 =====
 
-        # 缺失日期处理逻辑
+        # 缺失日期处理
         if len(df) > 0 and len(filtered_dates) > 0:
             existing_dates = set(df["date"])
             missing_dates = set(filtered_dates) - existing_dates
             missing_dates = [date for date in missing_dates if date.weekday() < 5]
 
-            # 为每个缺失日期添加 annotation
             for missing_date in missing_dates:
                 day_of_week = missing_date.dayofweek
                 week_start = missing_date - pd.to_timedelta(day_of_week, unit="d")
-
-                # ===== 修改开始：week_start 现在一定在 week_mapping 中 =====
                 week_order = week_mapping[week_start]
-                # ===== 修改结束 =====
 
-                # 添加 annotation
                 fig.add_annotation(
                     x=day_of_week,
                     y=week_order,
@@ -604,7 +585,7 @@ class ChartBuilder:
                     font=dict(
                         family=self.font_family,
                         size=base_font_size,
-                        color=config["text_color"],  # 使用带透明度的中性色
+                        color=config["text_color"],
                     ),
                     align="center",
                     xanchor="center",
