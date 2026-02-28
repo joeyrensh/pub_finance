@@ -52,7 +52,7 @@ class ChartBuilder:
                 "table_header": "rgba(245,245,245,0)",
                 "table_cell": "rgba(0,0,0,0)",
                 "hover_bg": "#ffffff",
-                "hover_text": "#ffffff",
+                "hover_text": "#000000",
                 "hover_border": "#cccccc",
             },
             "dark": {
@@ -542,6 +542,7 @@ class ChartBuilder:
             hoverlabel=dict(
                 bgcolor=hover_bg,
                 font_size=base_font_size,
+                # font_color=config["hover_text"],
             ),
         )
 
