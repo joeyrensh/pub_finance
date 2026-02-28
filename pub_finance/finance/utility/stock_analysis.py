@@ -187,6 +187,7 @@ class StockProposal:
         # 生成时间序列，用于时间序列补齐
         end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
         start_date = pd.to_datetime(end_date) - pd.DateOffset(days=180)
+        start_date_200 = pd.to_datetime(end_date) - pd.DateOffset(days=220)
         date_range = pd.date_range(
             start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
         )
@@ -2017,7 +2018,7 @@ class StockProposal:
             GROUP BY date, strategy
             ORDER BY date, pnl
             """.format(
-                start_date
+                start_date_200
             )
         )
         pd_strategy_tracking_lst180days = spark_strategy_tracking_lst180days.toPandas()
@@ -2029,6 +2030,9 @@ class StockProposal:
             .ewm(span=20, adjust=False)
             .mean()
         )
+        pd_strategy_tracking_lst180days = pd_strategy_tracking_lst180days[
+            pd_strategy_tracking_lst180days["date"] >= pd.to_datetime(start_date).date()
+        ]
         pd_strategy_tracking_lst180days_group = (
             pd_strategy_tracking_lst180days.groupby("date")["pnl"].sum().reset_index()
         )  # 按日期分组并求和
