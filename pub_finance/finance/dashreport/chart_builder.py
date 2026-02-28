@@ -623,7 +623,7 @@ class ChartBuilder:
         # )
         hover_lines = (
             f"<b>{date_str}</b><br>"
-            f"<b>   ├</b>{inds[0]},{inds[1]},{inds[2]}<br>"
+            f"<b>行业: </b>{inds[0]},{inds[1]},{inds[2]}<br>"
             "<extra></extra>"
         )
 
