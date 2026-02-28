@@ -217,21 +217,21 @@ class GlobalStrategy(bt.Strategy):
                 self.inds[d._name]["highest_short"] = bt.indicators.Highest(
                     d.close, period=self.params.price_short_period
                 )
-                self.inds[d._name]["highest_mid"] = bt.indicators.Highest(
-                    d.close, period=self.params.price_mid_period
-                )
-                self.inds[d._name]["highest_long"] = bt.indicators.Highest(
-                    d.close, period=self.params.price_long_period
-                )
+                # self.inds[d._name]["highest_mid"] = bt.indicators.Highest(
+                #     d.close, period=self.params.price_mid_period
+                # )
+                # self.inds[d._name]["highest_long"] = bt.indicators.Highest(
+                #     d.close, period=self.params.price_long_period
+                # )
                 self.inds[d._name]["lowest_short"] = bt.indicators.Lowest(
                     d.close, period=self.params.price_short_period
                 )
-                self.inds[d._name]["lowest_mid"] = bt.indicators.Lowest(
-                    d.close, period=self.params.price_mid_period
-                )
-                self.inds[d._name]["lowest_long"] = bt.indicators.Lowest(
-                    d.close, period=self.params.price_long_period
-                )
+                # self.inds[d._name]["lowest_mid"] = bt.indicators.Lowest(
+                #     d.close, period=self.params.price_mid_period
+                # )
+                # self.inds[d._name]["lowest_long"] = bt.indicators.Lowest(
+                #     d.close, period=self.params.price_long_period
+                # )
             except Exception as e:
                 print(f"❌ 初始化失败-高低点指标: {d._name}, {e}")
 
@@ -272,7 +272,8 @@ class GlobalStrategy(bt.Strategy):
                 self.signals[d._name]["price_higher"] = bt.Or(
                     # 情况1：创新高
                     bt.And(
-                        d.close > self.inds[d._name]["highest_short"](-1),
+                        d.close >= self.inds[d._name]["highest_short"],
+                        d.close > self.inds[d._name]["highest_short"](-5),
                         self.signals[d._name]["upper_shadow"] == 1,
                     ),
                     # 情况2：低点上移 - 收敛上涨
@@ -301,7 +302,10 @@ class GlobalStrategy(bt.Strategy):
 
                 self.signals[d._name]["price_lower"] = bt.Or(
                     # 情况1：创新低
-                    d.close < self.inds[d._name]["lowest_short"](-1),
+                    bt.And(
+                        d.close <= self.inds[d._name]["lowest_short"],
+                        d.close < self.inds[d._name]["lowest_short"](-5),
+                    ),
                     # 情况2：低点下移
                     bt.And(
                         self.inds[d._name]["highest_short"]
@@ -410,8 +414,8 @@ class GlobalStrategy(bt.Strategy):
                 # 方法A: 每日净流入 = (close - open) * volume * factor
                 daily_net_inflow = (d.close - d.open) * d.volume * factor
 
-                self.inds[d._name]["is_net_inflow_short"] = bt.indicators.SMA(
-                    daily_net_inflow, period=self.params.vol_short_period
+                self.inds[d._name]["is_net_inflow_mid"] = bt.indicators.SMA(
+                    daily_net_inflow, period=self.params.vol_mid_period
                 )
                 self.inds[d._name]["is_net_inflow_long"] = bt.indicators.SMA(
                     daily_net_inflow, period=self.params.vol_long_period
@@ -475,7 +479,7 @@ class GlobalStrategy(bt.Strategy):
                             == 1,
                             self.signals[d._name]["golden_cross"] == 1,
                         ),
-                        self.inds[d._name]["is_net_inflow_short"] > 0,
+                        self.inds[d._name]["is_net_inflow_mid"] > 0,
                     ),
                 )
             except Exception as e:
