@@ -538,7 +538,7 @@ class ChartBuilder:
             paper_bgcolor=config["background"],
             margin=dict(l=0, r=0, t=0, b=0, pad=0),
             autosize=True,
-            dragmode=False,
+            dragmode="pan",
             hoverlabel=dict(
                 bgcolor=hover_bg,
                 font_size=base_font_size,
@@ -849,7 +849,7 @@ class ChartBuilder:
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
             autosize=True,
-            dragmode=False,
+            dragmode="pan",
             hovermode="x",
             hoverlabel=dict(font_size=base_font_size),
         )
@@ -991,7 +991,7 @@ class ChartBuilder:
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
             autosize=True,
-            dragmode=False,
+            dragmode="pan",
             hovermode="x",
             hoverlabel=dict(font_size=font_size),
         )
@@ -1129,7 +1129,7 @@ class ChartBuilder:
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=0, l=0, r=0),
             autosize=True,
-            dragmode=False,
+            dragmode="pan",
             hovermode="x",
             hoverlabel=dict(font_size=font_size),
         )
@@ -1734,7 +1734,7 @@ class ChartBuilder:
 
         fig.update_layout(
             autosize=True,
-            dragmode=False,
+            dragmode="pan",
             width=None,
             height=None,
             margin=dict(l=0, r=0, t=0, b=0),
