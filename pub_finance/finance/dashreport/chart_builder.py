@@ -1464,7 +1464,7 @@ class ChartBuilder:
             is_near_right_threshold=0.2,
             avoid_indices=None,
             avoid_days=20,
-            avoid_y_threshold=0.05,  # 新增：y 轴接近阈值（绝对差值，默认 5%）
+            avoid_y_threshold=0.01,  # 新增：y 轴接近阈值（绝对差值，默认 5%）
         ):
             """
             返回文本标注位置，默认根据是否靠近右侧选择左右。
