@@ -7,6 +7,7 @@ from utility.fileinfo import FileInfo
 import akshare as ak
 from utility.em_stock_uti import EMWebCrawlerUti
 import pandas as pd
+import json
 
 
 class AKUSWebCrawler:
@@ -15,9 +16,22 @@ class AKUSWebCrawler:
 
     """ AKshare获取美股历史数据"""
 
-    def get_us_daily_stock_info_ak(self, trade_date):
+    def get_us_daily_stock_info_ak(self, trade_date, max_retry=3):
         """新浪财经接口获取美股数据"""
-        ak_stock_daily = ak.stock_us_spot()
+        for attempt in range(1, max_retry + 1):
+            try:
+                ak_stock_daily = ak.stock_us_spot()
+                break
+            except (
+                json.JSONDecodeError,
+                ValueError,
+                ConnectionError,
+                TimeoutError,
+            ) as e:
+                print(f"[AK retry {attempt}/{max_retry}] " f"{type(e).__name__}: {e}")
+
+                if attempt >= max_retry:
+                    raise RuntimeError("ak.stock_us_spot failed after retries") from e
         pd_ak_stock_daily = pd.DataFrame(ak_stock_daily)
         df_stock_daily = pd_ak_stock_daily[
             [
