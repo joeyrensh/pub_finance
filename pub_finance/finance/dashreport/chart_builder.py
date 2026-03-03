@@ -929,7 +929,11 @@ class ChartBuilder:
 
         fig.update_layout(
             title=dict(
-                text="Last 180 days trade info",
+                # text="Last 180 days trade info",
+                text=r"""
+                    $\mathrm{成交}_{180d} = \sum_{i=1}^{N} \mathrm{买入}_i -
+                    \sum_{j=1}^{M} \mathrm{卖出}_j$
+                    """,
                 y=0.9,
                 x=0.5,
                 font=dict(
@@ -1100,7 +1104,11 @@ class ChartBuilder:
 
         fig.update_layout(
             title=dict(
-                text="Last 180 days top5 pnl",
+                # text="Last 180 days top5 pnl",
+                text=r"""
+                    $\mathrm{Top5\ 盈亏}_{180d} = \sum_{i=1}^{5} \mathrm{PnL}_i 
+                    \ (\text{倒排序})$
+                    """,
                 x=0.5,
                 y=0.9,
                 font=dict(
