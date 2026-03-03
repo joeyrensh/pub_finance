@@ -30,7 +30,7 @@ class ChartBuilder:
                     "#ffa700",
                     "#00b89a",
                     "#00a380",
-                    "#d50b3e",
+                    "#ff4444",
                     "#a90a3f",
                     "#7a0925",
                 ],
@@ -56,8 +56,8 @@ class ChartBuilder:
                 "hover_border": "#cccccc",
             },
             "dark": {
-                "positive_int": "#ff6b6b",  # 亮红色 - 正数
-                "negative_int": "#00c4a6",  # 亮绿色 - 负数
+                "positive_int": "#ff4444",  # 亮红色 - 正数
+                "negative_int": "#00a859",  # 亮绿色 - 负数
                 "text_color": "#ffffff",  # 白色
                 "grid": "rgba(255, 255, 255, 0.2)",  # 网格线
                 "background": "rgba(0, 0, 0, 0)",  # 透明背景
@@ -68,13 +68,13 @@ class ChartBuilder:
                     "#ffa700",
                     "#00c4a6",
                     "#01b08f",
-                    "#e90c4a",
+                    "#ff4444",
                     "#cf1745",
                     "#b6183d",
                 ],
                 "long2": "#ffffff",
-                "long": "#ff6b6b",
-                "short": "#00c4a6",
+                "long": "#ff4444",
+                "short": "#00a859",
                 "pnl_colors": [
                     "#ffffff",
                     "#7dcfff",
@@ -84,8 +84,8 @@ class ChartBuilder:
                 ],
                 "border": "rgba(255, 255, 255, 0.4)",
                 "outside_text": "#aaaaaa",
-                "cumret": "#ff6b6b",
-                "drawdown": "#00c4a6",
+                "cumret": "#ff4444",
+                "drawdown": "#00a859",
                 "drawdown_fill": "rgba(107,207,181,0.3)",
                 "table_header": "rgba(64,64,64,0)",
                 "table_cell": "rgba(0,0,0,0)",
