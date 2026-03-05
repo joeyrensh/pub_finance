@@ -99,15 +99,15 @@ if __name__ == "__main__":
             proposal.send_btstrategy_by_email(cash, final_value)
 
     # A股主要策略执行
-    print("A股主策略执行")
+    print("-----------A股主策略执行-----------")
     run_backtest_and_send("cn", trade_date)
 
     # ETF主要策略执行
-    print("A股ETF策略执行")
+    print("-----------A股ETF策略执行-----------")
     run_backtest_and_send("cnetf", trade_date)
 
     # A股动态列表执行
-    print("A股动态列表策略执行")
+    print("-----------A股动态列表策略执行-----------")
     run_backtest_and_send("cn_dynamic", trade_date)
 
     """ 结束进度条 """

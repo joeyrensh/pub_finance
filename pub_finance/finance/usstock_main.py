@@ -95,15 +95,15 @@ if __name__ == "__main__":
             proposal.send_btstrategy_by_email(cash, final_value)
 
     # 美股主要策略执行
-    print("美股主策略执行")
+    print("-----------美股主策略执行-----------")
     run_backtest_and_send("us", trade_date)
 
     # 固定列表追踪
-    print("美股固定列表策略执行")
+    print("-----------美股固定列表策略执行-----------")
     run_backtest_and_send("us_special", trade_date)
 
     # 动态列表追踪
-    print("美股动态列表策略执行")
+    print("-----------美股动态列表策略执行-----------")
     run_backtest_and_send("us_dynamic", trade_date)
 
     """ 结束进度条 """
