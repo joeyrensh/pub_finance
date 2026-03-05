@@ -80,7 +80,11 @@ class ToolKit:
         marketclosed.config 是2021和2022两年的美股法定休市配置文件
         """
         if offset == 0:
-            return str(datetime.now() - timedelta(hours=12))[0:10].replace("-", "")
+            trade_date = str(datetime.now() - timedelta(hours=12))[0:10].replace(
+                "-", ""
+            )
+            print("trade date: ", trade_date)
+            return trade_date
         f = open("./usstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:
@@ -193,7 +197,9 @@ class ToolKit:
     @staticmethod
     def get_cn_latest_trade_date(offset) -> str | None:
         if offset == 0:
-            return str(datetime.now())[0:10].replace("-", "")
+            trade_date = str(datetime.now())[0:10].replace("-", "")
+            print("trade date: ", trade_date)
+            return trade_date
         f = open("./cnstockinfo/marketclosed.config").readlines()
         x = []
         for i in f:

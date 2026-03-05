@@ -33,8 +33,6 @@ if __name__ == "__main__":
     """ 创建进度条并开始运行 """
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
 
-    print("trade_date is :", trade_date)
-
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
     # em = EMWebCrawlerUti()
