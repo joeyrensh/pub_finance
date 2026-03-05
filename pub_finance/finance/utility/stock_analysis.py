@@ -59,7 +59,7 @@ class StockProposal:
         """
         # 启动Spark Session
         spark = initialize_spark("StockAnalysis", memory="450m", partitions=1)
-        spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
+        spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "false")
         spark.sparkContext.setLogLevel("ERROR")
 
         """ 
@@ -3852,7 +3852,7 @@ class StockProposal:
         """
         # 启动Spark Session
         spark = initialize_spark("StockAnalysis", memory="512m", partitions=1)
-        spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "true")
+        spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "false")
 
         """ 
         读取交易相关数据，交易明细，持仓明细，仓位日志明细，行业信息

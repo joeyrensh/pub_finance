@@ -1,0 +1,95 @@
+#!/bin/bash
+US_LOG="/home/ubuntu/pub_finance/finance/us.log"
+CN_LOG="/home/ubuntu/pub_finance/finance/cn.log"
+
+echo "========================================"
+echo "     策略日志执行汇总报告"
+echo "========================================"
+echo "检查时间：$(date "+%Y-%m-%d %H:%M:%S")"
+echo ""
+
+# ============ US 策略 ============
+echo "=== 🇺🇸 US 策略日志 ==="
+us_lines=$(wc -l < "$US_LOG" 2>/dev/null)
+us_done=$(grep -qa "doing task: 100%" "$US_LOG" && echo "✅ 完成" || echo "⏳ 进行中")
+# 使用 trade date 字段获取最新日期
+us_date=$(grep "trade date:" "$US_LOG" | tail -1 | awk -F"trade date:" "{print \$2}" | tr -d " ")
+
+# 提取最后的持仓信息
+us_info=$(grep "总持仓.*浮盈.*浮亏" "$US_LOG" | tail -1)
+us_position=$(echo "$us_info" | awk -F"总持仓：" "{print \$2}" | awk -F"," "{print \$1}")
+us_profit=$(echo "$us_info" | awk -F"浮盈：" "{print \$2}" | awk -F"," "{print \$1}")
+us_loss=$(echo "$us_info" | awk -F"浮亏：" "{print \$2}")
+us_cash=$(grep "当前现金持有:" "$US_LOG" | tail -1 | awk -F"当前现金持有:" "{print \$2}" | tr -d " ")
+us_value=$(grep "Final Portfolio Value:" "$US_LOG" | tail -1 | awk -F"Final Portfolio Value:" "{print \$2}" | tr -d " ")
+
+# 动态追踪股票数（最后的满足条件的股票数量）
+us_symbols=$(grep "满足条件的股票数量:" "$US_LOG" | tail -1 | awk -F"满足条件的股票数量:" "{print \$2}" | tr -d " ")
+
+us_email=$(grep -c "Email sent successfully!" "$US_LOG" 2>/dev/null)
+
+if [ -n "$us_symbols" ] && [ "$us_symbols" != "0" ]; then
+  us_return=$(echo "scale=2; $us_value / ($us_symbols * 10000) * 100" | bc 2>/dev/null || echo "N/A")
+else
+  us_return="N/A"
+fi
+
+echo "状态：$us_done"
+echo "最新日期：${us_date:0:4}-${us_date:4:2}-${us_date:6:2}"
+echo "跟踪股票：$us_symbols 只"
+echo "总持仓：¥$(printf "%.2f" ${us_position:-0})"
+echo "浮动盈亏：+¥$(printf "%.2f" ${us_profit:-0}) / ¥$(printf "%.2f" ${us_loss:-0})"
+echo "现金持有：¥$(printf "%.2f" ${us_cash:-0})"
+echo "组合价值：¥$(printf "%.2f" ${us_value:-0})"
+echo "收益率：${us_return}%"
+echo "邮件通知：$us_email 封"
+echo "日志行数：$us_lines"
+echo ""
+
+# ============ CN 策略 ============
+echo "=== 🇨🇳 CN 策略日志 ==="
+cn_lines=$(wc -l < "$CN_LOG" 2>/dev/null)
+cn_done=$(grep -qa "doing task: 100%" "$CN_LOG" && echo "✅ 完成" || echo "⏳ 进行中")
+
+# 运行日期（get_latest_trade_date 后的日期）
+cn_run_date=$(grep "trade date:" "$CN_LOG" | head -1 | awk -F"trade date:" "{print \$2}" | tr -d " ")
+# 数据周期（最后一次出现的 trade date）
+cn_data_date=$(grep "trade date:" "$CN_LOG" | tail -1 | awk -F"trade date:" "{print \$2}" | tr -d " ")
+
+# 初始选股池（第一次出现）
+cn_init_symbols=$(grep "满足条件的股票数量:" "$CN_LOG" | head -1 | awk -F"满足条件的股票数量:" "{print \$2}" | tr -d " ")
+# 动态追踪（最后一次出现）
+cn_track_symbols=$(grep "满足条件的股票数量:" "$CN_LOG" | tail -1 | awk -F"满足条件的股票数量:" "{print \$2}" | tr -d " ")
+
+# 使用最后一次完整财务数据
+cn_info=$(grep "总持仓.*浮盈.*浮亏" "$CN_LOG" | tail -1)
+cn_position=$(echo "$cn_info" | awk -F"总持仓：" "{print \$2}" | awk -F"," "{print \$1}")
+cn_profit=$(echo "$cn_info" | awk -F"浮盈：" "{print \$2}" | awk -F"," "{print \$1}")
+cn_loss=$(echo "$cn_info" | awk -F"浮亏：" "{print \$2}")
+cn_cash=$(grep "当前现金持有:" "$CN_LOG" | tail -1 | awk -F"当前现金持有:" "{print \$2}" | tr -d " ")
+cn_value=$(grep "Final Portfolio Value:" "$CN_LOG" | tail -1 | awk -F"Final Portfolio Value:" "{print \$2}" | tr -d " ")
+
+cn_email=$(grep -c "Email sent successfully!" "$CN_LOG" 2>/dev/null)
+cn_time=$(grep "Time:" "$CN_LOG" | tail -1 | awk -F"Time:" "{print \$2}" | tr -d " ")
+
+if [ -n "$cn_track_symbols" ] && [ "$cn_track_symbols" != "0" ]; then
+  cn_return=$(echo "scale=2; $cn_value / ($cn_track_symbols * 10000) * 100" | bc 2>/dev/null || echo "N/A")
+else
+  cn_return="N/A"
+fi
+
+echo "状态：$cn_done"
+echo "最新日期：${cn_run_date:0:4}-${cn_run_date:4:2}-${cn_run_date:6:2}"
+echo "数据周期：${cn_data_date:0:4}-${cn_data_date:4:2}-${cn_data_date:6:2}"
+echo "初始选股：$cn_init_symbols 只"
+echo "动态追踪：$cn_track_symbols 只"
+echo "总持仓：¥$(printf "%.2f" ${cn_position:-0})"
+echo "浮动盈亏：+¥$(printf "%.2f" ${cn_profit:-0}) / ¥$(printf "%.2f" ${cn_loss:-0})"
+echo "现金持有：¥$(printf "%.2f" ${cn_cash:-0})"
+echo "组合价值：¥$(printf "%.2f" ${cn_value:-0})"
+echo "收益率：${cn_return}%"
+echo "执行耗时：$cn_time"
+echo "邮件通知：$cn_email 封"
+echo "日志行数：$cn_lines"
+echo ""
+echo "========================================"
