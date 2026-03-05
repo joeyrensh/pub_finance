@@ -33,7 +33,7 @@ class TickerInfo:
         """ 获取动态追踪股票列表文件路径 """
         self.file_dynamic_list = file.get_file_path_dynamic_list
         # 获取交易日
-        tk = ToolKit("获取交易日")
+        tk = ToolKit("获取10天前交易日")
         if market.startswith("us"):
             self.date_threshold = tk.get_us_trade_date_by_delta(10, trade_date)
         elif market.startswith("cn"):
