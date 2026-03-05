@@ -12,6 +12,7 @@ import pathlib
 import os
 import empyrical as ep
 from datetime import timedelta
+from typing import Any, Literal
 
 
 class ChartBuilder:
@@ -1448,18 +1449,21 @@ class ChartBuilder:
         # 11. 关键点标注函数
         # =========================
         def get_label_position(
-            index,
-            data_series,
-            current_value,  # 新增：当前点的 y 值
-            is_near_right_threshold=0.2,
-            avoid_indices=None,
-            avoid_days=20,
-            avoid_y_threshold=0.01,  # 新增：y 轴接近阈值（绝对差值，默认 5%）
-        ):
+            index: Any,
+            data_series: pd.Series,  # 主 series，用于默认位置判断
+            current_value: Any,
+            is_near_right_threshold: float = 0.2,
+            avoid_indices: list | None = None,
+            avoid_days: int = 20,
+            avoid_y_threshold: float = 0.01,
+            avoid_scale_map: dict | None = None,
+            data_series_map: dict | None = None,  # 新增：索引 -> series 映射
+        ) -> Literal["top left", "top right", "bottom left", "bottom right"]:
             """
             返回文本标注位置，默认根据是否靠近右侧选择左右。
-            当传入 avoid_indices（timestamp 列表）且有靠近的索引时，
-            会检查该点与当前点在时间上和数值上是否都接近，若都接近则翻转上下位置。
+            当传入 avoid_indices（索引列表）且有靠近的索引时，
+            会检查该点与当前点在时间和数值上是否接近，若接近则翻转上下位置。
+            支持不同 series 混合（data_series_map）。
             """
             try:
                 right_threshold_idx = data_series.index[
@@ -1479,11 +1483,23 @@ class ChartBuilder:
                         delta_days = abs(
                             (pd.to_datetime(ai) - pd.to_datetime(index)).days
                         )
-                        # y 轴距离（数值差）
-                        other_value = data_series.loc[ai]  # 从序列中获取避让点的 y 值
-                        delta_y = abs(current_value - other_value)
+
+                        # 判断 other_value 来自哪个 series
+                        if data_series_map and ai in data_series_map:
+                            series = data_series_map[ai]
+                        else:
+                            series = data_series  # 默认回退到主 series
+
+                        other_value = series.loc[ai]
+
+                        if avoid_scale_map and ai in avoid_scale_map:
+                            other_value = other_value / avoid_scale_map[ai]
+
+                        # y 轴距离
+                        delta_y = abs(abs(current_value) - abs(other_value))
                     except Exception:
                         continue
+
                     # 如果 x 接近或者 y 接近，则翻转
                     if delta_days <= avoid_days or delta_y <= avoid_y_threshold:
                         pos = (
@@ -1492,6 +1508,7 @@ class ChartBuilder:
                             else pos.replace("bottom", "top")
                         )
                         break
+
             return pos
 
         def get_compact_label(text, value, client_width):
@@ -1562,6 +1579,14 @@ class ChartBuilder:
         avoid_list = []
         avoid_list.append(cum_max_idx)
         avoid_list.append(cumulative.index[-1])
+        avoid_scale_map = {
+            cum_max_idx: 100,
+            cumulative.index[-1]: 100,
+        }
+        data_series_map = {
+            cum_max_idx: cumulative,
+            cumulative.index[-1]: cumulative,
+        }
 
         # 最大回撤
         if len(drawdown) > 0:
@@ -1576,7 +1601,12 @@ class ChartBuilder:
                     marker=dict(symbol="circle", size=8 * scale, color=cfg["drawdown"]),
                     text=[get_compact_label("Max DD", max_dd_val, client_width)],
                     textposition=get_label_position(
-                        max_dd_idx, drawdown, max_dd_val, avoid_indices=avoid_list
+                        max_dd_idx,
+                        drawdown,
+                        max_dd_val,
+                        avoid_indices=avoid_list,
+                        avoid_scale_map=avoid_scale_map,
+                        data_series_map=data_series_map,
                     ),
                     textfont=dict(size=base_font, color=text_color),
                     showlegend=False,
@@ -1613,6 +1643,8 @@ class ChartBuilder:
                                 val_30,
                                 is_near_right_threshold=0.4,
                                 avoid_indices=avoid_list,
+                                avoid_scale_map=avoid_scale_map,
+                                data_series_map=data_series_map,
                             ),
                             textfont=dict(size=base_font, color=text_color),
                             showlegend=False,
@@ -1650,6 +1682,8 @@ class ChartBuilder:
                                 val_120,
                                 is_near_right_threshold=0.4,
                                 avoid_indices=avoid_list,
+                                avoid_scale_map=avoid_scale_map,
+                                data_series_map=data_series_map,
                             ),
                             textfont=dict(size=base_font, color=text_color),
                             showlegend=False,
