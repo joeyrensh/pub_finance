@@ -20,7 +20,7 @@ import os
 class ToolKit:
     def __init__(self, val):
         self.val = val
-        print("\n" + val + "...")
+        print(val + "...")
 
     """ 执行进度显示 """
 

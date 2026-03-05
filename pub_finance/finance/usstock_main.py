@@ -16,7 +16,7 @@ if __name__ == "__main__":
     trade_date = ToolKit("获取最新交易日").get_us_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
-    if ToolKit("判断当天是否交易日").is_us_trade_date(trade_date):
+    if ToolKit("判断是否休市").is_us_trade_date(trade_date):
         pass
     else:
         sys.exit()
@@ -29,6 +29,7 @@ if __name__ == "__main__":
         progressbar.Bar(),
         " ",
         progressbar.ETA(),
+        "\n",
     ]
     """ 创建进度条并开始运行 """
     pbar = progressbar.ProgressBar(maxval=100, widgets=widgets).start()
