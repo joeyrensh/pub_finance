@@ -15,6 +15,7 @@ for item in "$SRC_DIR/finance"/*; do
         cp -r "$item" "$DST_DIR/finance/"
     fi
 done
+cp -r "$SRC_DIR/finance/.gitignore" "$DST_DIR/finance/"
 
 # 处理 cnstockinfo 和 usstockinfo
 for special in cnstockinfo usstockinfo; do
