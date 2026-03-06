@@ -1393,11 +1393,13 @@ class ChartBuilder:
         # =========================
         cum_min = cumulative.min()
         cum_max = cumulative.max()
-        cum_range = [cum_min * 0.95, cum_max * 1.05]
+        # cum_range = [cum_min * 0.95, cum_max * 1.05]
+        cum_range = [cum_min, cum_max]
 
         dd_min = drawdown.min()
         dd_max = 0
-        dd_range = [dd_min * 1.05, 0.0]
+        # dd_range = [dd_min * 1.05, 0.0]
+        dd_range = [dd_min, 0.0]
 
         # =========================
         # 10. 添加回撤曲线
@@ -1563,6 +1565,7 @@ class ChartBuilder:
                     textfont=dict(
                         size=base_font, color=text_color, family=self.font_family
                     ),
+                    cliponaxis=False,
                     showlegend=False,
                     hovertemplate=(
                         f"<b>Max Cum. Return</b>: {cum_max_val:.4f}<br>"
@@ -1609,6 +1612,7 @@ class ChartBuilder:
                         data_series_map=data_series_map,
                     ),
                     textfont=dict(size=base_font, color=text_color),
+                    cliponaxis=False,
                     showlegend=False,
                     hovertemplate=(
                         f"<b>Max Drawdown</b>: {max_dd_val:.2%}<br>" f"<extra></extra>"
@@ -1718,9 +1722,8 @@ class ChartBuilder:
         scale_adj = self._get_scale(
             base_fig_width=630, client_width=client_width, min_scale=0.1, max_scale=0.8
         )
-        print(f"scale: {scale}, scale_adj: {scale_adj}")
-        header_height = int(table_font * 5) * (scale if scale == 1.0 else scale_adj)
-        cell_height = int(table_font * 7.5) * (scale if scale == 1.0 else scale_adj)
+        header_height = int(table_font * 4.8) * (scale if scale == 1.0 else scale_adj)
+        cell_height = int(table_font * 8) * (scale if scale == 1.0 else scale_adj)
 
         TABLE_Y_BOTTOM = 0.0
         TABLE_Y_TOP = 1.0
