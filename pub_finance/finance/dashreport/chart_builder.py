@@ -1457,7 +1457,7 @@ class ChartBuilder:
             is_near_right_threshold: float = 0.2,
             avoid_indices: list | None = None,
             avoid_days: int = 20,
-            avoid_y_threshold: float = 0.01,
+            avoid_y_threshold: float = 0.02,
             avoid_scale_map: dict | None = None,
             data_series_map: dict | None = None,  # 新增：索引 -> series 映射
         ) -> Literal["top left", "top right", "bottom left", "bottom right"]:
