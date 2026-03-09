@@ -61,17 +61,17 @@ class ProxyManager:
         # 对特定键生成随机值
         for key in keys_to_randomize:
             if key in cookie_dict:
-                length = key_lengths.get(key, 32)  # 默认长度32
+                length = key_lengths.get(key, 32)  # 默认长度 32
                 cookie_dict[key] = generate_random_hex(length)
-        # print(f"✅ 解析并随机化Cookie: {cookie_dict}")
+        # print(f"✅ 解析并随机化 Cookie: {cookie_dict}")
         return cookie_dict
 
     def generate_ut_param(self):
-        """生成基于中国地区随机IP的32位十六进制格式ut参数"""
+        """生成基于中国地区随机 IP 的 32 位十六进制格式 ut 参数"""
 
-        # 生成随机中国IP地址
+        # 生成随机中国 IP 地址
         def generate_china_ip():
-            # 中国IP地址的主要A类、B类网络号
+            # 中国 IP 地址的主要 A 类、B 类网络号
             china_networks = [
                 (58, random.randint(0, 255)),  # 58.x.x.x - 中国电信
                 (59, random.randint(0, 255)),  # 59.x.x.x - 中国电信
@@ -119,15 +119,15 @@ class ProxyManager:
             ]
             return ".".join(map(str, ip_parts))
 
-        # 生成随机IP并用于ut参数
+        # 生成随机 IP 并用于 ut 参数
         random_ip = generate_china_ip()
         timestamp = int(time.time() * 1000)
         random_num = random.randint(1000000000, 9999999999)
 
-        # 将IP地址加入基础字符串
+        # 将 IP 地址加入基础字符串
         base_str = f"{timestamp}{random_num}{random_ip}"
 
-        # 使用MD5生成32位十六进制字符串
+        # 使用 MD5 生成 32 位十六进制字符串
         ut_hash = hashlib.md5(base_str.encode()).hexdigest()
         return ut_hash
 
@@ -144,7 +144,7 @@ class ProxyManager:
             print(f"已加载 {len(self.proxies_list)} 个代理")
             # 可选：打印被忽略的注释行数量
             if len(self.proxies_list) > 0:
-                print(f"代理列表示例: {self.proxies_list[:3]}...")  # 显示前3个代理
+                print(f"代理列表示例：{self.proxies_list[:3]}...")  # 显示前 3 个代理
         else:
             print(f"代理文件 {self.proxy_file_path} 不存在")
             self.proxies_list = []
@@ -159,7 +159,7 @@ class ProxyManager:
             self.proxies_list
         )
 
-        # 转换为requests需要的格式
+        # 转换为 requests 需要的格式
         proxy_dict = {"http": f"http://{proxy_str}", "https": f"http://{proxy_str}"}
 
         return proxy_dict
@@ -193,7 +193,7 @@ class ProxyManager:
         #     ).json()
         #     klines = res.get("data", {}).get("klines", [])
         #     if klines:
-        #         print(f"代理测试成功，获取到 {len(klines)} 条K线数据")
+        #         print(f"代理测试成功，获取到 {len(klines)} 条 K 线数据")
         #         return True, len(klines)
         #     else:
         #         return False, 0
@@ -227,10 +227,10 @@ class ProxyManager:
             if result:
                 return True
             else:
-                print(f"❌ 代理测试失败: {proxy_dict}")
+                print(f"❌ 代理测试失败：{proxy_dict}")
                 return False
         except Exception as e:
-            print(f"❌ 代理测试失败: {e}")
+            print(f"❌ 代理测试失败：{e}")
             return False
 
     def get_working_proxy(self, max_retries=3):
@@ -244,12 +244,12 @@ class ProxyManager:
             # 显示进度
             progress = _ / target_retries * 100
             print(
-                f"测试进度: {_+1}/{target_retries} ({progress:.0f}%) - 测试代理: {proxy}"
+                f"测试进度：{_+1}/{target_retries} ({progress:.0f}%) - 测试代理：{proxy}"
             )
 
             success = self.test_proxy(proxy, self.validate_proxy)
             if success:
-                print(f"✅ 代理可用: {proxy}")
+                print(f"✅ 代理可用：{proxy}")
                 return proxy
 
         print("所有代理测试失败")
@@ -259,8 +259,8 @@ class ProxyManager:
         r"""
         测试所有代理并将有效代理保存到指定文件
         每次调用都会重新生成文件
-        # 站大爷IP格式化命令：
-        # 把 Port： 改成 :
+        # 站大爷 IP 格式化命令：
+        # 把 Port：改成 :
         # :%s/Port：/:/g
         # 把 IP 行和下一行端口合并
         # :%s/\(\d\+\.\d\+\.\d\+\.\d\+\)\n\n\?:\(\d\+\)/\1:\2/g
@@ -285,16 +285,16 @@ class ProxyManager:
             # 显示进度
             progress = (i + 1) / total_proxies * 100
             print(
-                f"测试进度: {i+1}/{total_proxies} ({progress:.0f}%) - 测试代理: {proxy_str}"
+                f"测试进度：{i+1}/{total_proxies} ({progress:.0f}%) - 测试代理：{proxy_str}"
             )
 
             # 测试代理
             success = self.test_proxy(proxy_dict, self.validate_proxy)
             if success:
                 working_proxies.append(proxy_str)
-                print(f"✅ 代理可用: {proxy_str}")
+                print(f"✅ 代理可用：{proxy_str}")
             else:
-                print(f"❌ 代理不可用: {proxy_str}")
+                print(f"❌ 代理不可用：{proxy_str}")
 
         # 保存有效代理到文件
         if working_proxies:
@@ -306,7 +306,55 @@ class ProxyManager:
                 for proxy in working_proxies:
                     f.write(f"{proxy}\n")
 
-            print(f"✅ 已保存 {len(working_proxies)} 个有效代理到: {output_file}")
-            print(f"有效代理列表: {working_proxies}")
+            print(f"✅ 已保存 {len(working_proxies)} 个有效代理到：{output_file}")
+            print(f"有效代理列表：{working_proxies}")
         else:
             print("❌ 没有找到任何有效代理")
+
+    def sync_working_proxies_to_proxy_file(
+        self,
+        working_proxies_file="./utility/working_proxies.txt",
+        proxy_file="./utility/proxy.txt"
+    ):
+        """
+        将 working_proxies.txt 中的最新可用代理同步到 proxy.txt
+        - 检查新代理是否已存在于 proxy.txt
+        - 如果不存在，append 到文件首行
+        - 不添加任何注释
+        """
+        # 读取 working_proxies.txt
+        if not os.path.exists(working_proxies_file):
+            print(f"工作代理文件 {working_proxies_file} 不存在")
+            return
+        
+        with open(working_proxies_file, "r", encoding="utf-8") as f:
+            working_proxies = [line.strip() for line in f if line.strip()]
+        
+        print(f"读取到 {len(working_proxies)} 个工作代理")
+        
+        # 读取现有 proxy.txt
+        existing_proxies = []
+        if os.path.exists(proxy_file):
+            with open(proxy_file, "r", encoding="utf-8") as f:
+                existing_proxies = [line.strip() for line in f if line.strip()]
+            print(f"现有 proxy.txt 中有 {len(existing_proxies)} 个代理")
+        
+        # 找出需要添加的新代理（存在于 working_proxies 但不存在于 existing_proxies）
+        new_proxies = [p for p in working_proxies if p not in existing_proxies]
+        
+        if not new_proxies:
+            print("没有新代理需要添加")
+            return
+        
+        print(f"发现 {len(new_proxies)} 个新代理需要添加")
+        
+        # 构建新的代理列表：新代理在前 + 原有代理
+        updated_proxies = new_proxies + existing_proxies
+        
+        # 写入 proxy.txt（覆盖模式）
+        with open(proxy_file, "w", encoding="utf-8") as f:
+            for proxy in updated_proxies:
+                f.write(f"{proxy}\n")
+        
+        print(f"✅ 已同步 {len(new_proxies)} 个新代理到 {proxy_file}")
+        print(f"新代理列表：{new_proxies}")
