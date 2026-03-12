@@ -59,7 +59,6 @@ class EMWebCrawlerUti:
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
             "Referer": "https://quote.eastmoney.com/center/gridlist.html",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-            "accept-encoding": "gzip, deflate, br",
             "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
         }
         self.cg = CookieGeneration()
@@ -240,6 +239,9 @@ class EMWebCrawlerUti:
                     cookies=self.cookie_str,
                     timeout=10,
                 ).json()
+                if res["data"]["total"] < 1000:
+                    self.proxy = self.pm.get_working_proxy()
+                    continue
                 break
             except Exception:
                 print("请求失败，正在重试...", _)
