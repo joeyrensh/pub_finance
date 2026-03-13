@@ -953,34 +953,27 @@ class GlobalStrategy(bt.Strategy):
                 else:
                     self.peak_price[d._name] = max(self.peak_price[d._name], d.close[0])
 
-                # ===== 优化后的卖出策略（与买入策略匹配）=====
+                if self.signals[d._name]["short_position"][0] == 1:
+                    self.order[d._name] = self.close(data=d)
+                    self.myorder[d._name]["strategy"] = "空头排列"
+                    self.peak_price[d._name] = None
 
-                # 趋势策略（多头排列/均线金叉/均线收敛）
+                if self.signals[d._name]["ma_crossover_bearish"][0] == 1:
+                    self.order[d._name] = self.close(data=d)
+                    self.myorder[d._name]["strategy"] = "均线死叉"
+                    self.peak_price[d._name] = None
+
+                if self.signals[d._name]["closs_crossdown_annualline"][0] == 1:
+                    self.order[d._name] = self.close(data=d)
+                    self.myorder[d._name]["strategy"] = "跌破年线"
+                    self.peak_price[d._name] = None
+
+                if self.signals[d._name]["closs_crossdown_halfannualline"][0] == 1:
+                    self.order[d._name] = self.close(data=d)
+                    self.myorder[d._name]["strategy"] = "跌破半年线"
+                    self.peak_price[d._name] = None
+
                 if self.myorder[d._name]["strategy"] in (
-                    "多头排列",
-                    "均线金叉",
-                    "均线收敛",
-                ):
-                    if self.signals[d._name]["short_position"][0] == 1:
-                        self.order[d._name] = self.close(data=d)
-                        self.myorder[d._name]["strategy"] = "空头排列"
-                    elif self.signals[d._name]["ma_crossover_bearish"][0] == 1:
-                        self.order[d._name] = self.close(data=d)
-                        self.myorder[d._name]["strategy"] = "均线死叉"
-
-                # 关键点位策略（突破年线/突破半年线）
-                elif self.myorder[d._name]["strategy"] == "突破年线":
-                    if self.signals[d._name]["closs_crossdown_annualline"][0] == 1:
-                        self.order[d._name] = self.close(data=d)
-                        self.myorder[d._name]["strategy"] = "跌破年线"
-
-                elif self.myorder[d._name]["strategy"] == "突破半年线":
-                    if self.signals[d._name]["closs_crossdown_halfannualline"][0] == 1:
-                        self.order[d._name] = self.close(data=d)
-                        self.myorder[d._name]["strategy"] = "跌破半年线"
-
-                # 短线策略（连续上涨/成交量放大/红三兵）
-                elif self.myorder[d._name]["strategy"] in (
                     "连续上涨",
                     "成交量放大",
                     "红三兵",
@@ -988,20 +981,22 @@ class GlobalStrategy(bt.Strategy):
                     if self.signals[d._name]["close_falling"][0] == 1:
                         self.order[d._name] = self.close(data=d)
                         self.myorder[d._name]["strategy"] = "连续下跌"
-                    elif pos.adjbase <= pos.price * 0.9:
-                        self.order[d._name] = self.close(data=d)
-                        self.myorder[d._name]["strategy"] = "低于买入价 10%"
+                        self.peak_price[d._name] = None
 
-                # # 移动止盈（新增）：从最高点回撤 15%
-                # if pos.adjbase < self.peak_price[d._name] * 0.85:
-                #     self.order[d._name] = self.close(data=d)
-                #     self.myorder[d._name]["strategy"] = "移动止盈"
-                #     self.peak_price[d._name] = None
-
-                # 兜底止损：亏损≥25%
-                if pos.adjbase <= pos.price * 0.75:
+                # 移动止盈（新增）：从最高点回撤 20%
+                if (
+                    self.peak_price[d._name] is not None
+                    and self.peak_price[d._name] >= pos.price * 1.2
+                    and pos.adjbase
+                    <= pos.price + (self.peak_price[d._name] - pos.price) * 0.5
+                ):
                     self.order[d._name] = self.close(data=d)
-                    self.myorder[d._name]["strategy"] = "低于买入价 25%"
+                    self.myorder[d._name]["strategy"] = "移动止盈"
+
+                # 兜底止损：亏损≥15%
+                if pos.adjbase <= pos.price * 0.85:
+                    self.order[d._name] = self.close(data=d)
+                    self.myorder[d._name]["strategy"] = "低于买入价15%"
 
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
