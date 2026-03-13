@@ -957,23 +957,19 @@ class GlobalStrategy(bt.Strategy):
                     self.order[d._name] = self.close(data=d)
                     self.myorder[d._name]["strategy"] = "空头排列"
                     self.peak_price[d._name] = None
-
-                if self.signals[d._name]["ma_crossover_bearish"][0] == 1:
+                elif self.signals[d._name]["ma_crossover_bearish"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.myorder[d._name]["strategy"] = "均线死叉"
                     self.peak_price[d._name] = None
-
-                if self.signals[d._name]["closs_crossdown_annualline"][0] == 1:
+                elif self.signals[d._name]["closs_crossdown_annualline"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.myorder[d._name]["strategy"] = "跌破年线"
                     self.peak_price[d._name] = None
-
-                if self.signals[d._name]["closs_crossdown_halfannualline"][0] == 1:
+                elif self.signals[d._name]["closs_crossdown_halfannualline"][0] == 1:
                     self.order[d._name] = self.close(data=d)
                     self.myorder[d._name]["strategy"] = "跌破半年线"
                     self.peak_price[d._name] = None
-
-                if self.myorder[d._name]["strategy"] in (
+                elif self.myorder[d._name]["strategy"] in (
                     "连续上涨",
                     "成交量放大",
                     "红三兵",
@@ -982,9 +978,8 @@ class GlobalStrategy(bt.Strategy):
                         self.order[d._name] = self.close(data=d)
                         self.myorder[d._name]["strategy"] = "连续下跌"
                         self.peak_price[d._name] = None
-
                 # 移动止盈（新增）：从最高点回撤 20%
-                if (
+                elif (
                     self.peak_price[d._name] is not None
                     and self.peak_price[d._name] >= pos.price * 1.2
                     and pos.adjbase
@@ -992,11 +987,12 @@ class GlobalStrategy(bt.Strategy):
                 ):
                     self.order[d._name] = self.close(data=d)
                     self.myorder[d._name]["strategy"] = "移动止盈"
-
+                    self.peak_price[d._name] = None
                 # 兜底止损：亏损≥15%
-                if pos.adjbase <= pos.price * 0.85:
+                elif d.close[0] <= pos.price * 0.85:
                     self.order[d._name] = self.close(data=d)
                     self.myorder[d._name]["strategy"] = "低于买入价15%"
+                    self.peak_price[d._name] = None
 
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
