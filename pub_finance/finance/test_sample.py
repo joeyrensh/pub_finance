@@ -12,7 +12,7 @@ import sys
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc+8"""
-    trade_date = ToolKit("获取最新交易日").get_cn_latest_trade_date(0)
+    trade_date = ToolKit("获取最新交易日").get_cn_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断是否休市").is_cn_trade_date(trade_date):
