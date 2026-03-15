@@ -18,7 +18,7 @@ class GlobalStrategy(bt.Strategy):
     - 信号优先级：多头排列 > 突破年线 > 均线金叉 > 均线收敛 > 突破半年线 > 连续上涨 > 成交量放大 > 红三兵
     - 乖离率收紧：20% → 5%
     - 红三兵放宽：61.8% → 50%
-    - 双轨记录：initial_strategy（初始买入策略，不变）+ current_signal（当前信号，动态更新）
+    - 双轨记录：current_signal（当前信号，动态更新）
     - 信号升级机制：短期→中期→长期，持仓期间信号可升级（只升级不降级）
     - 智能卖出：基于当前级别，检查该级别所有卖出信号（任一触发即卖出）
     - 3 级别框架：长线/趋势/短线，平衡复杂度与灵活性
@@ -173,7 +173,6 @@ class GlobalStrategy(bt.Strategy):
             self.sortino_ratios[d._name] = None
             self.max_drawdowns[d._name] = 0
             self.peak_price[d._name] = None  # 初始化最高价
-            self.initial_strategy[d._name] = None  # 初始化初始买入策略
             self.current_signal[d._name] = None  # 初始化当前信号
 
             """MA20/60/120 指标 """
@@ -894,7 +893,6 @@ class GlobalStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "多头排列"
-                    self.initial_strategy[d._name] = "多头排列"
                     # 更新当前满足的最高级别买入信号
                     self.current_signal[d._name] = (1, "多头排列")
 
@@ -903,7 +901,6 @@ class GlobalStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "突破年线"
-                    self.initial_strategy[d._name] = "突破年线"
                     self.current_signal[d._name] = (1, "突破年线")
 
                 # 优先级 3: 均线金叉（中期趋势反转）
@@ -911,7 +908,6 @@ class GlobalStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "均线金叉"
-                    self.initial_strategy[d._name] = "均线金叉"
                     self.current_signal[d._name] = (2, "均线金叉")
 
                 # 优先级 4: 均线收敛（趋势启动前 - 均线密集 + 突破）
@@ -949,7 +945,6 @@ class GlobalStrategy(bt.Strategy):
                         self.broker.cancel(self.order[d._name])
                         self.order[d._name] = self.buy(data=d)
                         self.myorder[d._name]["strategy"] = "均线收敛"
-                        self.initial_strategy[d._name] = "均线收敛"
                         self.current_signal[d._name] = (2, "均线收敛")
 
                 # 优先级 5: 突破半年线（中期突破）
@@ -957,7 +952,6 @@ class GlobalStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "突破半年线"
-                    self.initial_strategy[d._name] = "突破半年线"
                     self.current_signal[d._name] = (2, "突破半年线")
 
                 # 优先级 6: 连续上涨（短期动量）
@@ -965,7 +959,6 @@ class GlobalStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "连续上涨"
-                    self.initial_strategy[d._name] = "连续上涨"
                     self.current_signal[d._name] = (3, "连续上涨")
 
                 # 优先级 7: 成交量放大（量能确认）
@@ -973,7 +966,6 @@ class GlobalStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "成交量放大"
-                    self.initial_strategy[d._name] = "成交量放大"
                     self.current_signal[d._name] = (3, "成交量放大")
 
                 # 优先级 8: 红三兵（短期形态 - 已放宽条件）
@@ -984,7 +976,6 @@ class GlobalStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "红三兵"
-                    self.initial_strategy[d._name] = "红三兵"
                     self.current_signal[d._name] = (3, "红三兵")
             else:
                 # ===== 持仓期间：每日检查并更新当前满足的最高级别买入信号 =====
@@ -993,14 +984,14 @@ class GlobalStrategy(bt.Strategy):
                 current_level, current_strategy = self.current_signal.get(d._name)
 
                 # 检查长线信号 (级别 1)
-                if current_level > 1:
+                if current_level >= 1:
                     if self.signals[d._name]["long_position"][0] == 1:
                         self.current_signal[d._name] = (1, "多头排列")
                     elif self.signals[d._name]["close_crossup_annualline"][0] == 1:
                         self.current_signal[d._name] = (1, "突破年线")
 
                 # 检查趋势信号 (级别 2)
-                if current_level > 2:
+                if current_level >= 2:
                     if self.signals[d._name]["ma_crossover_bullish"][0] == 1:
                         self.current_signal[d._name] = (2, "均线金叉")
                     elif self.signals[d._name]["close_crossup_ema_short"][0] == 1:
