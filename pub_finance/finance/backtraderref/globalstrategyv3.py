@@ -894,21 +894,21 @@ class GlobalStrategy(bt.Strategy):
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "多头排列"
                     # 更新当前满足的最高级别买入信号
-                    self.current_signal[d._name] = (1, "多头排列")
+                    self.current_signal[d._name] = (1, "多头排列", "initial")
 
                 # 优先级 2: 突破年线（长期趋势反转）
                 elif self.signals[d._name]["close_crossup_annualline"][0] == 1:
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "突破年线"
-                    self.current_signal[d._name] = (1, "突破年线")
+                    self.current_signal[d._name] = (1, "突破年线", "initial")
 
                 # 优先级 3: 均线金叉（中期趋势反转）
                 elif self.signals[d._name]["ma_crossover_bullish"][0] == 1:
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "均线金叉"
-                    self.current_signal[d._name] = (2, "均线金叉")
+                    self.current_signal[d._name] = (2, "均线金叉", "initial")
 
                 # 优先级 4: 均线收敛（趋势启动前 - 均线密集 + 突破）
                 elif self.signals[d._name]["close_crossup_ema_short"][0] == 1:
@@ -945,28 +945,28 @@ class GlobalStrategy(bt.Strategy):
                         self.broker.cancel(self.order[d._name])
                         self.order[d._name] = self.buy(data=d)
                         self.myorder[d._name]["strategy"] = "均线收敛"
-                        self.current_signal[d._name] = (2, "均线收敛")
+                        self.current_signal[d._name] = (2, "均线收敛", "initial")
 
                 # 优先级 5: 突破半年线（中期突破）
                 elif self.signals[d._name]["close_crossup_halfannualline"][0] == 1:
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "突破半年线"
-                    self.current_signal[d._name] = (2, "突破半年线")
+                    self.current_signal[d._name] = (2, "突破半年线", "initial")
 
                 # 优先级 6: 连续上涨（短期动量）
                 elif self.signals[d._name]["close_rising"][0] == 1:
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "连续上涨"
-                    self.current_signal[d._name] = (3, "连续上涨")
+                    self.current_signal[d._name] = (3, "连续上涨", "initial")
 
                 # 优先级 7: 成交量放大（量能确认）
                 elif self.signals[d._name]["volume_breakout"][0] == 1:
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "成交量放大"
-                    self.current_signal[d._name] = (3, "成交量放大")
+                    self.current_signal[d._name] = (3, "成交量放大", "initial")
 
                 # 优先级 8: 红三兵（短期形态 - 已放宽条件）
                 elif (
@@ -976,24 +976,32 @@ class GlobalStrategy(bt.Strategy):
                     self.broker.cancel(self.order[d._name])
                     self.order[d._name] = self.buy(data=d)
                     self.myorder[d._name]["strategy"] = "红三兵"
-                    self.current_signal[d._name] = (3, "红三兵")
+                    self.current_signal[d._name] = (3, "红三兵", "initial")
             else:
                 # ===== 持仓期间：每日检查并更新当前满足的最高级别买入信号 =====
                 # 检查所有买入信号，找到当前满足的最高级别（数字越小级别越高）
                 # 注意：只升级不降级，符合投资逻辑（仓位级别只升不降）
-                current_level, current_strategy = self.current_signal.get(d._name)
+                current_level, current_strategy, current_status = (
+                    *self.current_signal.get(d._name, (None, None))[:2],
+                    "initial",
+                )
+                self.current_signal[d._name] = (
+                    current_level,
+                    current_strategy,
+                    current_status,
+                )
 
                 # 检查长线信号 (级别 1)
                 if current_level >= 1:
                     if self.signals[d._name]["long_position"][0] == 1:
-                        self.current_signal[d._name] = (1, "多头排列")
+                        self.current_signal[d._name] = (1, "多头排列", "updated")
                     elif self.signals[d._name]["close_crossup_annualline"][0] == 1:
-                        self.current_signal[d._name] = (1, "突破年线")
+                        self.current_signal[d._name] = (1, "突破年线", "updated")
 
                 # 检查趋势信号 (级别 2)
                 if current_level >= 2:
                     if self.signals[d._name]["ma_crossover_bullish"][0] == 1:
-                        self.current_signal[d._name] = (2, "均线金叉")
+                        self.current_signal[d._name] = (2, "均线金叉", "updated")
                     elif self.signals[d._name]["close_crossup_ema_short"][0] == 1:
                         # 需要检查均线收敛条件
                         x1 = self.inds[d._name]["ema_short"].get(
@@ -1024,24 +1032,26 @@ class GlobalStrategy(bt.Strategy):
                             and self.signals[d._name]["deviant"][0] == 1
                             and self.inds[d._name]["is_net_inflow_long"] > 0
                         ):
-                            self.current_signal[d._name] = (2, "均线收敛")
+                            self.current_signal[d._name] = (2, "均线收敛", "updated")
                     elif self.signals[d._name]["close_crossup_halfannualline"][0] == 1:
-                        self.current_signal[d._name] = (2, "突破半年线")
+                        self.current_signal[d._name] = (2, "突破半年线", "updated")
 
                 # 检查短线信号 (级别 3)
                 if current_level == 3:
                     if self.signals[d._name]["close_rising"][0] == 1:
-                        self.current_signal[d._name] = (3, "连续上涨")
+                        self.current_signal[d._name] = (3, "连续上涨", "updated")
                     elif self.signals[d._name]["volume_breakout"][0] == 1:
-                        self.current_signal[d._name] = (3, "成交量放大")
+                        self.current_signal[d._name] = (3, "成交量放大", "updated")
                     elif (
                         self.signals[d._name]["red_three_soldiers"][0] == 1
                         and self.signals[d._name]["deviant"][0] == 1
                     ):
-                        self.current_signal[d._name] = (3, "红三兵")
+                        self.current_signal[d._name] = (3, "红三兵", "updated")
 
                 # 更新当前满足的最高级别买入信号
-                current_level, current_strategy = self.current_signal.get(d._name)
+                current_level, current_strategy, current_status = (
+                    self.current_signal.get(d._name, (None, None, None))
+                )
 
                 # ===== 持仓数据处理 =====
                 if len(d) <= d.buflen() - 1:
@@ -1067,6 +1077,8 @@ class GlobalStrategy(bt.Strategy):
 
                 # ===== 卖出逻辑（基于当前级别，检查该级别所有卖出信号）=====
                 # 如果当前最高级别信号不再满足，检查是否需要卖出
+                if current_status == "updated":
+                    continue  # 升级后不立即检查卖出信号，等下一周期再检查，避免过度交易
                 if current_level == 1:  # 长线信号不满足，检查长线卖出信号
                     if self.signals[d._name]["short_position"][0] == 1:
                         self.order[d._name] = self.close(data=d)
