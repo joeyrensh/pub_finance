@@ -1040,10 +1040,10 @@ class GlobalStrategy(bt.Strategy):
                 if current_level == 1:  # 长线信号不满足，检查长线卖出信号
                     if self.check_signal(d._name, "short_position"):
                         self.execute_sell(d, "空头排列")
-                    elif self.check_signal(d._name, "closs_crossdown_annualline"):
-                        self.execute_sell(d, "跌破年线")
                     elif self.check_signal(d._name, "ma_crossover_bearish"):
                         self.execute_sell(d, "均线死叉")
+                    elif self.check_signal(d._name, "closs_crossdown_annualline"):
+                        self.execute_sell(d, "跌破年线")
                     elif self.check_signal(d._name, "closs_crossdown_halfannualline"):
                         self.execute_sell(d, "跌破半年线")
                 elif current_level == 2:  # 趋势信号不满足，检查趋势卖出信号

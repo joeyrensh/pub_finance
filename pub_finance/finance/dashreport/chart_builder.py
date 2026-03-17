@@ -1775,13 +1775,13 @@ class ChartBuilder:
         # 从pnl的索引中获取最小和最大日期
         data_start_date = pnl.index.min()  # 最小日期
         data_end_date = pnl.index.max()  # 最大日期
-        data_end_date_limited = data_end_date + pd.Timedelta(days=15)
+        # data_end_date_limited = data_end_date + pd.Timedelta(days=5)
 
         fig.update_layout(
             autosize=True,
             dragmode=False,
-            width=None,
-            height=None,
+            # width=None,
+            # height=None,
             margin=dict(l=0, r=0, t=0, b=0),
             font=dict(size=base_font, color=text_color, family=self.font_family),
             legend=dict(
@@ -1871,7 +1871,7 @@ class ChartBuilder:
                 hoverformat="%Y-%m-%d",
                 showgrid=True,
                 position=0.0,
-                range=[data_start_date, data_end_date_limited],  # 使用计算的范围
+                range=[data_start_date, data_end_date],  # 使用计算的范围
             ),
         )
 
