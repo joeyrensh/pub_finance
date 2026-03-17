@@ -11,9 +11,55 @@ from backtraderref.nanindicator import NaNIndicator
 
 class GlobalStrategy(bt.Strategy):
     """
-    自定义均线的时间间隔
-    目前定义了MA/EMA/MACD三类指标的时间区间
+    优化版本 (v5.0) - 专注于消除重复的买卖逻辑
+    - 统一信号检查方法
+    - 统一买入执行方法
+    - 统一卖出执行方法
+    - 提取复杂信号逻辑（均线收敛）
     """
+
+    # ===== 策略级别定义（数字越小级别越高）=====
+    STRATEGY_LEVELS = {
+        # 长线策略 (级别 1)
+        "多头排列": 1,
+        "突破年线": 1,
+        "跌破年线": 1,
+        "空头排列": 1,
+        # 趋势策略 (级别 2)
+        "均线金叉": 2,
+        "均线死叉": 2,
+        "突破半年线": 2,
+        "跌破半年线": 2,
+        "均线收敛": 2,
+        # 短线策略 (级别 3)
+        "连续上涨": 3,
+        "成交量放大": 3,
+        "红三兵": 3,
+        "连续下跌": 3,
+        # 止损止盈 (级别 0 - 最高优先级，任何时候都可以卖出)
+        "移动止盈": 0,
+        "低于买入价 15%": 0,
+    }
+
+    # 买入信号到卖出信号的映射
+    BUY_TO_SELL_SIGNALS = {
+        # 长线买入信号 → 对应的长线卖出信号
+        "多头排列": "short_position",
+        "突破年线": "closs_crossdown_annualline",
+        # 趋势买入信号 → 对应的趋势卖出信号
+        "均线金叉": "ma_crossover_bearish",
+        "均线收敛": "ma_crossover_bearish",
+        "突破半年线": "closs_crossdown_halfannualline",
+        # 短线买入信号 → 对应的短线卖出信号
+        "连续上涨": "close_falling",
+        "成交量放大": "close_falling",
+        "红三兵": "close_falling",
+    }
+
+    @staticmethod
+    def get_strategy_level(strategy_name):
+        """获取策略级别，未知策略默认返回 3（短线级别）"""
+        return GlobalStrategy.STRATEGY_LEVELS.get(strategy_name, 3)
 
     params = (
         ("macd_fast_period", 10),
@@ -36,7 +82,7 @@ class GlobalStrategy(bt.Strategy):
 
     def log(self, txt, dt=None):
         """
-        backtrader自己的log函数
+        backtrader 自己的 log 函数
         打印执行的时间以及执行日志
         """
         dt = dt or self.datas[0].datetime.date(0)
@@ -61,7 +107,7 @@ class GlobalStrategy(bt.Strategy):
         将每日回测完的持仓数据存储文件
         方便后面打印输出
         """
-        """ backtrader一些常用属性的初始化 """
+        """ backtrader 一些常用属性的初始化 """
         self.trade_date = trade_date
         self.market = market
         self.trade = None
@@ -69,9 +115,9 @@ class GlobalStrategy(bt.Strategy):
         self.buyprice = None
         self.buycomm = None
         """
-        技术指标的初始化，每个指标的key值是每个datafeed
-        买入以及卖出信号的初始化，每个指标的key值是每个datafeed
-        存储每一笔股票最后一笔订单的购买日期，方便追踪股票后期走势
+        技术指标的初始化，每个指标的 key 值是每个 datafeed
+        买入以及卖出信号的初始化，每个指标的 key 值是每个 datafeed
+        存储每一笔股票最后一笔订单的购买日期，方便追踪股票走势
         """
         self.inds = dict()
         self.signals = dict()
@@ -81,6 +127,10 @@ class GlobalStrategy(bt.Strategy):
         self.sharpe_ratios = {}  # 每只股票当前夏普比率
         self.sortino_ratios = {}
         self.max_drawdowns = {}  # 每只股票最大回撤率
+        self.current_signal = (
+            {}
+        )  # 记录当前满足的最高级别买入信号（动态更新，用于卖出决策）
+        self.peak_price = {}  # 持仓期间最高价（用于移动止盈）
         # 读取国债收益率
         file = FileInfo(trade_date, market)
         file_gz = file.get_file_path_gz
@@ -91,20 +141,20 @@ class GlobalStrategy(bt.Strategy):
             df_gz = df_gz.dropna(subset=["new"])
             if not df_gz.empty:
                 self.rf_rate = df_gz["new"].astype(float).iloc[-1] / 100.0
-                print(f"✅ 读取国债收益率: {self.rf_rate:.2f}")
+                print(f"✅ 读取国债收益率：{self.rf_rate:.2f}")
         except Exception as e:
             print(f"⚠️ 无法读取国债收益率{e}")
         """ 策略进度方法初始化 """
         t = ToolKit("策略初始化")
         """
-        循环遍历每一个datafeed
-        每一个datafeed包括每一支股票的o/c/h/l/v相关数据
-        初始化indicators，signals
+        循环遍历每一个 datafeed
+        每一个 datafeed 包括每一支股票的 o/c/h/l/v 相关数据
+        初始化 indicators，signals
         """
         for i, d in enumerate(self.datas):
-            """初始化最后一笔订单的购买日期，key是symbol"""
+            """初始化最后一笔订单的购买日期，key 是 symbol"""
             self.last_deal_date[d._name] = None
-            """为每个股票初始化技术指标，key是symbol """
+            """为每个股票初始化技术指标，key 是 symbol """
             self.order[d._name] = None
             self.inds[d._name] = dict()
             self.signals[d._name] = dict()
@@ -115,8 +165,10 @@ class GlobalStrategy(bt.Strategy):
             self.sharpe_ratios[d._name] = None
             self.sortino_ratios[d._name] = None
             self.max_drawdowns[d._name] = 0
+            self.peak_price[d._name] = None  # 初始化最高价
+            self.current_signal[d._name] = None  # 初始化当前信号
 
-            """MA20/60/120指标 """
+            """MA20/60/120 指标 """
             try:
                 self.inds[d._name]["sma_short"] = bt.indicators.SMA(
                     d.close, period=self.params.ma_short_period
@@ -125,7 +177,7 @@ class GlobalStrategy(bt.Strategy):
                     d.close, period=self.params.ma_mid_period
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-SMA指标: {d._name}, {e}")
+                print(f"❌ 初始化失败-SMA 指标：{d._name}, {e}")
             # 半年线
             try:
                 if d.buflen() > self.params.ma_long_period:
@@ -133,14 +185,13 @@ class GlobalStrategy(bt.Strategy):
                         d.close, period=self.params.ma_long_period
                     )
                 else:
-                    # 数据不足时，创建一个始终为NaN的虚拟指标
-                    # self.inds[d._name]["sma_long"] = bt.LineNum(float("nan"))
+                    # 数据不足时，创建一个始终为 NaN 的虚拟指标
                     self.inds[d._name]["sma_long"] = NaNIndicator(data=d.close)
                     print(
-                        f"警告: {d._name} 数据长度({d.buflen()})小于SMA周期({self.params.ma_long_period})"
+                        f"警告：{d._name} 数据长度 ({d.buflen()}) 小于 SMA 周期 ({self.params.ma_long_period})"
                     )
             except Exception as e:
-                print(f"❌ 初始化失败-半年线指标: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 半年线指标：{d._name}, {e}")
             # 年线
             try:
                 if d.buflen() > self.params.annual_period:
@@ -148,15 +199,14 @@ class GlobalStrategy(bt.Strategy):
                         d.close, period=self.params.annual_period
                     )
                 else:
-                    # 数据不足时，创建一个始终为NaN的虚拟指标
-                    # self.inds[d._name]["sma_annual"] = bt.LineNum(float("nan"))
+                    # 数据不足时，创建一个始终为 NaN 的虚拟指标
                     self.inds[d._name]["sma_annual"] = NaNIndicator(data=d.close)
 
                     print(
-                        f"警告: {d._name} 数据长度({d.buflen()})小于SMA周期({self.params.annual_period})"
+                        f"警告：{d._name} 数据长度 ({d.buflen()}) 小于 SMA 周期 ({self.params.annual_period})"
                     )
             except Exception as e:
-                print(f"❌ 初始化失败-年线指标: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 年线指标：{d._name}, {e}")
 
             """EMA20/60/120"""
             try:
@@ -167,12 +217,12 @@ class GlobalStrategy(bt.Strategy):
                     d.close, period=self.params.ma_mid_period
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-ema指标: {d._name}, {e}")
+                print(f"❌ 初始化失败-ema 指标：{d._name}, {e}")
 
             """
-            日线DIF值
-            日线DEA值
-            日线MACD值
+            日线 DIF 值
+            日线 DEA 值
+            日线 MACD 值
             """
             try:
                 self.inds[d._name]["dif"] = bt.indicators.MACDHisto(
@@ -197,10 +247,10 @@ class GlobalStrategy(bt.Strategy):
                     * 2
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-MACD指标: {d._name}, {e}")
+                print(f"❌ 初始化失败-MACD 指标：{d._name}, {e}")
 
             """
-            MAVOL5、10、20成交量均线
+            MAVOL5、10、20 成交量均线
             """
             try:
                 self.inds[d._name]["emavol_short"] = bt.indicators.EMA(
@@ -210,33 +260,21 @@ class GlobalStrategy(bt.Strategy):
                     d.volume, period=self.params.vol_long_period
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-Vol指标: {d._name}, {e}")
+                print(f"❌ 初始化失败-Vol 指标：{d._name}, {e}")
 
             """ 收盘价高点/低点 """
             try:
                 self.inds[d._name]["highest_short"] = bt.indicators.Highest(
                     d.close, period=self.params.price_short_period
                 )
-                # self.inds[d._name]["highest_mid"] = bt.indicators.Highest(
-                #     d.close, period=self.params.price_mid_period
-                # )
-                # self.inds[d._name]["highest_long"] = bt.indicators.Highest(
-                #     d.close, period=self.params.price_long_period
-                # )
                 self.inds[d._name]["lowest_short"] = bt.indicators.Lowest(
                     d.close, period=self.params.price_short_period
                 )
-                # self.inds[d._name]["lowest_mid"] = bt.indicators.Lowest(
-                #     d.close, period=self.params.price_mid_period
-                # )
-                # self.inds[d._name]["lowest_long"] = bt.indicators.Lowest(
-                #     d.close, period=self.params.price_long_period
-                # )
             except Exception as e:
-                print(f"❌ 初始化失败-高低点指标: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 高低点指标：{d._name}, {e}")
 
             """
-            红三兵
+            红三兵（优化版：放宽到 50% 分位）
             """
             try:
                 self.signals[d._name]["red_three_soldiers"] = bt.And(
@@ -245,38 +283,39 @@ class GlobalStrategy(bt.Strategy):
                     d.close > d.open,
                     d.close(-1) > d.open(-1),
                     d.close(-2) > d.open(-2),
-                    d.close > ((d.high - d.low) * 0.618 + d.low),
-                    d.close(-1) > ((d.high(-1) - d.low(-1)) * 0.618 + d.low(-1)),
-                    d.close(-2) > ((d.high(-2) - d.low(-2)) * 0.618 + d.low(-2)),
+                    # 放宽：从 61.8% 改为 50%
+                    d.close > ((d.high - d.low) * 0.50 + d.low),
+                    d.close(-1) > ((d.high(-1) - d.low(-1)) * 0.50 + d.low(-1)),
+                    d.close(-2) > ((d.high(-2) - d.low(-2)) * 0.50 + d.low(-2)),
                     d.volume > d.volume(-1),
                     d.volume(-1) > d.volume(-2),
                     d.volume > self.inds[d._name]["emavol_short"],
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-红三兵指标: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 红三兵指标：{d._name}, {e}")
 
             """
-            辅助指标1：上影线判定
+            辅助指标 1：上影线判定
             """
             try:
                 self.signals[d._name]["upper_shadow"] = bt.And(
                     d.close > ((d.high - d.low) * 0.618 + d.low), d.close > d.open
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-上影线指标: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 上影线指标：{d._name}, {e}")
 
             """
             高低点上移/下移
             """
             try:
                 self.signals[d._name]["price_higher"] = bt.Or(
-                    # 情况1：创新高
+                    # 情况 1：创新高
                     bt.And(
                         d.close >= self.inds[d._name]["highest_short"],
                         d.close > self.inds[d._name]["highest_short"](-5),
                         self.signals[d._name]["upper_shadow"] == 1,
                     ),
-                    # 情况2：低点上移 - 收敛上涨
+                    # 情况 2：低点上移 - 收敛上涨
                     bt.And(
                         self.inds[d._name]["lowest_short"]
                         > self.inds[d._name]["lowest_short"](-5),
@@ -290,7 +329,7 @@ class GlobalStrategy(bt.Strategy):
                             - self.inds[d._name]["lowest_short"](-5)
                         ),
                     ),
-                    # 情况3：高点上移
+                    # 情况 3：高点上移
                     bt.And(
                         self.inds[d._name]["highest_short"]
                         > self.inds[d._name]["highest_short"](-5),
@@ -301,12 +340,12 @@ class GlobalStrategy(bt.Strategy):
                 )
 
                 self.signals[d._name]["price_lower"] = bt.Or(
-                    # 情况1：创新低
+                    # 情况 1：创新低
                     bt.And(
                         d.close <= self.inds[d._name]["lowest_short"],
                         d.close < self.inds[d._name]["lowest_short"](-5),
                     ),
-                    # 情况2：低点下移
+                    # 情况 2：低点下移
                     bt.And(
                         self.inds[d._name]["highest_short"]
                         < self.inds[d._name]["highest_short"](-5),
@@ -316,10 +355,10 @@ class GlobalStrategy(bt.Strategy):
                     ),
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-价格上涨和下跌指标: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 价格上涨和下跌指标：{d._name}, {e}")
 
             """
-            辅助指标2：Dif和Dea的关系
+            辅助指标 2：Dif 和 Dea 的关系
             """
             try:
                 self.signals[d._name]["golden_cross"] = bt.Or(
@@ -335,7 +374,6 @@ class GlobalStrategy(bt.Strategy):
                         self.inds[d._name]["dif"] > self.inds[d._name]["dea"],
                         self.inds[d._name]["dif"] > self.inds[d._name]["dif"](-1),
                     ),
-                    # d.volume > self.inds[d._name]["emavol_short"] * 1.25,
                 )
                 self.signals[d._name]["death_cross"] = bt.Or(
                     bt.And(
@@ -353,10 +391,10 @@ class GlobalStrategy(bt.Strategy):
                     ),
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-辅助指标2: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 辅助指标 2: {d._name}, {e}")
 
             """
-            辅助指标3：收盘价上穿短期均线
+            辅助指标 3：收盘价上穿短期均线
             """
             try:
                 self.signals[d._name]["close_crossup_ema_short"] = (
@@ -365,20 +403,23 @@ class GlobalStrategy(bt.Strategy):
                     )
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-辅助指标3: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 辅助指标 3: {d._name}, {e}")
 
             """ 
-            辅助指标4：乖离率判断
+            辅助指标 4：乖离率判断（优化版：收紧到 5%）
             """
             try:
-                self.signals[d._name]["deviant"] = (
-                    d.close - self.inds[d._name]["sma_short"]
-                ) / self.inds[d._name]["sma_short"] <= 0.20
+                # 收紧：从 20% 改为 5%，同时增加下限 -10% 防止超跌
+                self.signals[d._name]["deviant"] = bt.And(
+                    (d.close - self.inds[d._name]["sma_short"])
+                    / self.inds[d._name]["sma_short"]
+                    <= 0.10,
+                )
             except Exception as e:
-                print(f"❌ 初始化失败-辅助指标4: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 辅助指标 4: {d._name}, {e}")
 
             """ 
-            辅助指标5：波动过大，避免频繁交易
+            辅助指标 5：波动过大，避免频繁交易
             """
             try:
                 self.signals[d._name]["close_crossdown_sma"] = bt.And(
@@ -390,28 +431,15 @@ class GlobalStrategy(bt.Strategy):
                     self.signals[d._name]["death_cross"] == 1,
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-辅助指标5: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 辅助指标 5: {d._name}, {e}")
 
             """
-            辅助指标6：判断形态是否属于多头形态
-            """
-            try:
-                self.signals[d._name]["is_short_position"] = bt.Or(
-                    d.close < self.inds[d._name]["sma_short"],
-                    d.close < self.inds[d._name]["sma_mid"],
-                    d.close < self.inds[d._name]["sma_long"],
-                    d.close < self.inds[d._name]["sma_annual"],
-                )
-            except Exception as e:
-                print(f"❌ 初始化失败-辅助指标6: {d._name}, {e}")
-
-            """
-            辅助指标7：判断是否资金净流入
+            辅助指标 6：判断是否资金净流入
             """
             try:
                 # 市场因子
                 factor = 100 if self.market.startswith("cn") else 1
-                # 方法A: 每日净流入 = (close - open) * volume * factor
+                # 方法 A: 每日净流入 = (close - open) * volume * factor
                 daily_net_inflow = (d.close - d.open) * d.volume * factor
 
                 self.inds[d._name]["is_net_inflow_mid"] = bt.indicators.SMA(
@@ -422,10 +450,10 @@ class GlobalStrategy(bt.Strategy):
                 )
 
             except Exception as e:
-                print(f"❌ 初始化失败-辅助指标7: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 辅助指标 7: {d._name}, {e}")
 
             """
-            买入1: 均线金叉
+            买入 1: 均线金叉
             """
             try:
                 self.signals[d._name]["ma_crossover_bullish"] = bt.Or(
@@ -457,35 +485,33 @@ class GlobalStrategy(bt.Strategy):
                     ),
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-买入1: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 买入 1: {d._name}, {e}")
 
             """
-            买入2: 收盘价连续上涨
+            买入 2: 收盘价连续上涨
             """
             try:
-                self.signals[d._name]["close_rising"] = (
-                    bt.And(
-                        self.signals[d._name]["price_higher"] == 1,
-                        d.close > d.open,
-                        self.signals[d._name]["deviant"] == 1,
-                        bt.Or(
-                            bt.indicators.crossover.CrossUp(
-                                d.close, self.inds[d._name]["ema_short"]
-                            )
-                            == 1,
-                            bt.indicators.crossover.CrossUp(
-                                d.close, self.inds[d._name]["sma_short"]
-                            )
-                            == 1,
-                            self.signals[d._name]["golden_cross"] == 1,
-                        ),
-                        self.inds[d._name]["is_net_inflow_mid"] > 0,
+                self.signals[d._name]["close_rising"] = bt.And(
+                    self.signals[d._name]["price_higher"] == 1,
+                    d.close > d.open,
+                    self.signals[d._name]["deviant"] == 1,
+                    bt.Or(
+                        bt.indicators.crossover.CrossUp(
+                            d.close, self.inds[d._name]["ema_short"]
+                        )
+                        == 1,
+                        bt.indicators.crossover.CrossUp(
+                            d.close, self.inds[d._name]["sma_short"]
+                        )
+                        == 1,
+                        self.signals[d._name]["golden_cross"] == 1,
                     ),
+                    self.inds[d._name]["is_net_inflow_mid"] > 0,
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-买入2: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 买入 2: {d._name}, {e}")
             """ 
-            买入3: 均线多头排列
+            买入 3: 均线多头排列
             """
             try:
                 self.signals[d._name]["long_position"] = bt.And(
@@ -500,10 +526,10 @@ class GlobalStrategy(bt.Strategy):
                     self.inds[d._name]["is_net_inflow_long"] > 0,
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-买入3: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 买入 3: {d._name}, {e}")
 
             """ 
-            买入4: 成交量突然增加，价格走高
+            买入 4: 成交量突然增加，价格走高
             """
             try:
                 self.signals[d._name]["volume_breakout"] = bt.And(
@@ -514,10 +540,10 @@ class GlobalStrategy(bt.Strategy):
                     self.signals[d._name]["deviant"] == 1,
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-买入4: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 买入 4: {d._name}, {e}")
 
             """
-            买入5: 穿越年线
+            买入 5: 穿越年线
             """
             try:
                 self.signals[d._name]["close_crossup_annualline"] = bt.And(
@@ -535,10 +561,10 @@ class GlobalStrategy(bt.Strategy):
                     self.inds[d._name]["is_net_inflow_long"] > 0,
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-买入5: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 买入 5: {d._name}, {e}")
 
             """
-            买入6: 穿越半年线
+            买入 6: 穿越半年线
             """
             try:
                 self.signals[d._name]["close_crossup_halfannualline"] = bt.And(
@@ -555,10 +581,10 @@ class GlobalStrategy(bt.Strategy):
                     self.inds[d._name]["is_net_inflow_long"] > 0,
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-买入6: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 买入 6: {d._name}, {e}")
 
             """
-            卖出1: 均线死叉
+            卖出 1: 均线死叉
             """
             try:
                 self.signals[d._name]["ma_crossover_bearish"] = bt.Or(
@@ -586,9 +612,9 @@ class GlobalStrategy(bt.Strategy):
                     ),
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-卖出1: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 卖出 1: {d._name}, {e}")
             """
-            卖出2: 收盘价连续下跌
+            卖出 2: 收盘价连续下跌
             """
             try:
                 self.signals[d._name]["close_falling"] = bt.And(
@@ -609,9 +635,9 @@ class GlobalStrategy(bt.Strategy):
                     ),
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-卖出2: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 卖出 2: {d._name}, {e}")
             """ 
-            卖出3: 均线空头排列
+            卖出 3: 均线空头排列
             """
             try:
                 self.signals[d._name]["short_position"] = bt.And(
@@ -624,9 +650,9 @@ class GlobalStrategy(bt.Strategy):
                     self.signals[d._name]["death_cross"] == 1,
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-卖出3: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 卖出 3: {d._name}, {e}")
             """ 
-            卖出4: 跌破年线
+            卖出 4: 跌破年线
             """
             try:
                 self.signals[d._name]["closs_crossdown_annualline"] = bt.And(
@@ -638,13 +664,11 @@ class GlobalStrategy(bt.Strategy):
                         self.signals[d._name]["price_lower"] == 1,
                         self.signals[d._name]["death_cross"] == 1,
                     ),
-                    # self.inds[d._name]["sma_annual"]
-                    # < self.inds[d._name]["sma_annual"](-1),
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-卖出4: {d._name}, {e}")
+                print(f"❌ 初始化失败 - 卖出 4: {d._name}, {e}")
             """
-            卖出5: 跌破半年线
+            卖出 5: 跌破半年线
             """
             try:
                 self.signals[d._name]["closs_crossdown_halfannualline"] = bt.And(
@@ -656,12 +680,58 @@ class GlobalStrategy(bt.Strategy):
                         self.signals[d._name]["price_lower"] == 1,
                         self.signals[d._name]["death_cross"] == 1,
                     ),
-                    # self.inds[d._name]["sma_long"] < self.inds[d._name]["sma_long"](-1),
                 )
             except Exception as e:
-                print(f"❌ 初始化失败-卖出5: {d._name}, {e}")
-            """ indicators以及signals初始化进度打印 """
+                print(f"❌ 初始化失败 - 卖出 5: {d._name}, {e}")
+            """ indicators 以及 signals 初始化进度打印 """
             t.progress_bar(len(self.datas), i)
+
+    # ===== 新增：统一信号检查方法 =====
+    def check_signal(self, symbol, signal_name):
+        """统一检查信号状态，避免重复 [0] == 1"""
+        return self.signals[symbol][signal_name][0] == 1
+
+    # ===== 新增：均线收敛检查方法 =====
+    def check_convergence_signal(self, symbol):
+        """检查均线收敛信号（复杂逻辑提取）"""
+        # 计算均线密集程度（近 20 日）
+        x1 = self.inds[symbol]["ema_short"].get(
+            ago=-1, size=self.params.ma_short_period
+        )
+        y1 = self.inds[symbol]["ema_mid"].get(ago=-1, size=self.params.ma_short_period)
+        x2 = self.inds[symbol]["sma_short"].get(
+            ago=-1, size=self.params.ma_short_period
+        )
+        y2 = self.inds[symbol]["sma_mid"].get(ago=-1, size=self.params.ma_short_period)
+        diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y > 1]
+        diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y > 1]
+        diff_array3 = [abs((x - y) * 100 / y) for x, y in zip(x1, x2) if y > 1]
+
+        return (
+            sum(1 for value in diff_array if value < 2) >= 5
+            and sum(1 for value in diff_array2 if value < 2) >= 5
+            and sum(1 for value in diff_array3 if value < 2) >= 5
+            and self.check_signal(symbol, "deviant")
+            and self.inds[symbol]["is_net_inflow_long"] > 0
+        )
+
+    # ===== 新增：统一买入执行方法 =====
+    def execute_buy(self, data, strategy_name, level):
+        """统一买入执行逻辑"""
+        symbol = data._name
+        self.broker.cancel(self.order[symbol])
+        self.order[symbol] = self.buy(data=data)
+        self.myorder[symbol]["strategy"] = strategy_name
+        self.current_signal[symbol] = (level, strategy_name, "initial")
+
+    # ===== 新增：统一卖出执行方法 =====
+    def execute_sell(self, data, strategy_name):
+        """统一卖出执行逻辑"""
+        symbol = data._name
+        self.order[symbol] = self.close(data=data)
+        self.myorder[symbol]["strategy"] = strategy_name
+        self.peak_price[symbol] = None
+        self.current_signal[symbol] = None
 
     """ 订单状态改变回调方法 """
 
@@ -763,9 +833,7 @@ class GlobalStrategy(bt.Strategy):
         for i, d in enumerate(self.datas):
             if self.order[d._name]:
                 continue
-            """ 头部index不计算，有bug """
-            # if len(d) == 0:
-            #     continue
+            """ 头部 index 不计算，有 bug """
             if len(d) < 2:
                 continue
 
@@ -789,11 +857,11 @@ class GlobalStrategy(bt.Strategy):
                     ]
 
                 # ---- (2) 夏普比率计算 ----
-                # 条件1: 有足够天数
+                # 条件 1: 有足够天数
                 enough_data = len(self.daily_returns[d._name]) >= min(
                     self.params.rf_window, self.params.annual_period
                 )
-                # 条件2: 无风险利率有效
+                # 条件 2: 无风险利率有效
                 valid_rf = self.rf_rate is not None and self.rf_rate > 0
 
                 if enough_data and valid_rf:
@@ -827,7 +895,7 @@ class GlobalStrategy(bt.Strategy):
                         else:
                             self.sortino_ratios[d._name] = 0
                     else:
-                        # 没有下行波动，定义索提诺比率为年化平均收益除以小数值1e-10防止除零
+                        # 没有下行波动，定义索提诺比率为年化平均收益除以小数值 1e-10 防止除零
                         self.sortino_ratios[d._name] = self.sharpe_ratios[d._name]
 
                     # ---- (3) 近 rf_window 日 Max Drawdown 计算 ----
@@ -851,7 +919,7 @@ class GlobalStrategy(bt.Strategy):
                     self.max_drawdowns[d._name] = max_dd
 
                 else:
-                    # 数据不足或无风险利率为0 → 夏普比率置0
+                    # 数据不足或无风险利率为 0 → 夏普比率置 0
                     self.sharpe_ratios[d._name] = None
                     self.sortino_ratios[d._name] = None
                     self.max_drawdowns[d._name] = None
@@ -859,97 +927,91 @@ class GlobalStrategy(bt.Strategy):
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
             if not pos:
-                # is_invalid_sortino = (
-                #     self.sortino_ratios[d._name] is not None
-                #     and (
-                #         self.sortino_ratios[d._name] < 0.3
-                #         or self.sortino_ratios[d._name] > 5
-                #     )
-                # ) or (
-                #     self.sharpe_ratios[d._name] is not None
-                #     and (
-                #         self.sharpe_ratios[d._name] < 0.5
-                #         or self.sharpe_ratios[d._name] > 5
-                #     )
-                # )
+                # ===== 优化后的信号优先级（使用统一方法）=====
+                # 优先级 1: 多头排列（最高质量 - 多周期共振）
+                if self.check_signal(d._name, "long_position"):
+                    self.execute_buy(d, "多头排列", 1)
 
-                # if is_invalid_sortino:
-                #     continue
-                # 诱多风险判定
-                # r1 = self.signals[d._name]["close_crossdown_sma"].get(
-                #     ago=-1, size=self.params.ma_short_period
-                # )
-                # if sum(1 for value in r1 if value == 1) >= 2:
-                #     continue
-                # if self.inds[d._name]["is_net_inflow"] < 0:
-                #     continue
+                # 优先级 2: 突破年线（长期趋势反转）
+                elif self.check_signal(d._name, "close_crossup_annualline"):
+                    self.execute_buy(d, "突破年线", 1)
 
-                # 均线密集判断，短期ema与中期ema近20日内密集排列
-                x1 = self.inds[d._name]["ema_short"].get(
-                    ago=-1, size=self.params.ma_short_period
-                )
-                y1 = self.inds[d._name]["ema_mid"].get(
-                    ago=-1, size=self.params.ma_short_period
-                )
-                x2 = self.inds[d._name]["sma_short"].get(
-                    ago=-1, size=self.params.ma_short_period
-                )
-                y2 = self.inds[d._name]["sma_mid"].get(
-                    ago=-1, size=self.params.ma_short_period
-                )
-                diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y > 1]
-                diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y > 1]
-                diff_array3 = [abs((x - y) * 100 / y) for x, y in zip(x1, x2) if y > 1]
-                if self.signals[d._name]["long_position"][0] == 1:
-                    """买入对应仓位"""
-                    self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "多头排列"
-                elif self.signals[d._name]["ma_crossover_bullish"][0] == 1:
-                    """买入对应仓位"""
-                    self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "均线金叉"
-                elif (
-                    self.signals[d._name]["close_crossup_ema_short"][0] == 1
-                    and sum(1 for value in diff_array if value < 2) >= 5
-                    and sum(1 for value in diff_array2 if value < 2) >= 5
-                    and sum(1 for value in diff_array3 if value < 2) >= 5
-                    and self.signals[d._name]["deviant"][0] == 1
-                    and self.inds[d._name]["is_net_inflow_long"] > 0
-                ):
-                    self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "均线收敛"
-                elif self.signals[d._name]["close_crossup_annualline"][0] == 1:
-                    """买入对应仓位"""
-                    self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "突破年线"
-                elif self.signals[d._name]["close_crossup_halfannualline"][0] == 1:
-                    """买入对应仓位"""
-                    self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "突破半年线"
-                elif self.signals[d._name]["close_rising"][0] == 1:
-                    """买入对应仓位"""
-                    self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "连续上涨"
-                elif self.signals[d._name]["volume_breakout"][0] == 1:
-                    """买入对应仓位"""
-                    self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "成交量放大"
-                elif (
-                    self.signals[d._name]["red_three_soldiers"][0] == 1
-                    and self.signals[d._name]["deviant"][0] == 1
-                ):
-                    """买入对应仓位"""
-                    self.broker.cancel(self.order[d._name])
-                    self.order[d._name] = self.buy(data=d)
-                    self.myorder[d._name]["strategy"] = "红三兵"
+                # 优先级 3: 均线金叉（中期趋势反转）
+                elif self.check_signal(d._name, "ma_crossover_bullish"):
+                    self.execute_buy(d, "均线金叉", 2)
+
+                # 优先级 4: 均线收敛（趋势启动前 - 均线密集 + 突破）
+                elif self.check_signal(
+                    d._name, "close_crossup_ema_short"
+                ) and self.check_convergence_signal(d._name):
+                    self.execute_buy(d, "均线收敛", 2)
+
+                # 优先级 5: 突破半年线（中期突破）
+                elif self.check_signal(d._name, "close_crossup_halfannualline"):
+                    self.execute_buy(d, "突破半年线", 2)
+
+                # 优先级 6: 连续上涨（短期动量）
+                elif self.check_signal(d._name, "close_rising"):
+                    self.execute_buy(d, "连续上涨", 3)
+
+                # 优先级 7: 成交量放大（量能确认）
+                elif self.check_signal(d._name, "volume_breakout"):
+                    self.execute_buy(d, "成交量放大", 3)
+
+                # 优先级 8: 红三兵（短期形态 - 已放宽条件）
+                elif self.check_signal(
+                    d._name, "red_three_soldiers"
+                ) and self.check_signal(d._name, "deviant"):
+                    self.execute_buy(d, "红三兵", 3)
             else:
+                # ===== 持仓期间：每日检查并更新当前满足的最高级别买入信号 =====
+                # 检查所有买入信号，找到当前满足的最高级别（数字越小级别越高）
+                # 注意：只升级不降级，符合投资逻辑（仓位级别只升不降）
+                current_level, current_strategy, current_status = (
+                    *self.current_signal.get(d._name, (None, None))[:2],
+                    "initial",
+                )
+                self.current_signal[d._name] = (
+                    current_level,
+                    current_strategy,
+                    current_status,
+                )
+
+                # 检查长线信号 (级别 1)
+                if current_level >= 1:
+                    if self.check_signal(d._name, "long_position"):
+                        self.current_signal[d._name] = (1, "多头排列", "updated")
+                    elif self.check_signal(d._name, "close_crossup_annualline"):
+                        self.current_signal[d._name] = (1, "突破年线", "updated")
+
+                # 检查趋势信号 (级别 2)
+                if current_level >= 2:
+                    if self.check_signal(d._name, "ma_crossover_bullish"):
+                        self.current_signal[d._name] = (2, "均线金叉", "updated")
+                    elif self.check_signal(
+                        d._name, "close_crossup_ema_short"
+                    ) and self.check_convergence_signal(d._name):
+                        self.current_signal[d._name] = (2, "均线收敛", "updated")
+                    elif self.check_signal(d._name, "close_crossup_halfannualline"):
+                        self.current_signal[d._name] = (2, "突破半年线", "updated")
+
+                # 检查短线信号 (级别 3)
+                if current_level == 3:
+                    if self.check_signal(d._name, "close_rising"):
+                        self.current_signal[d._name] = (3, "连续上涨", "updated")
+                    elif self.check_signal(d._name, "volume_breakout"):
+                        self.current_signal[d._name] = (3, "成交量放大", "updated")
+                    elif self.check_signal(
+                        d._name, "red_three_soldiers"
+                    ) and self.check_signal(d._name, "deviant"):
+                        self.current_signal[d._name] = (3, "红三兵", "updated")
+
+                # 更新当前满足的最高级别买入信号
+                current_level, current_strategy, current_status = (
+                    self.current_signal.get(d._name, (None, None, None))
+                )
+
+                # ===== 持仓数据处理 =====
                 if len(d) <= d.buflen() - 1:
                     dt = self.datas[0].datetime.date(0)
                     dict = {
@@ -964,44 +1026,45 @@ class GlobalStrategy(bt.Strategy):
                         "max_drawdown": self.max_drawdowns[d._name],
                     }
                     list.append(dict)
-                # 趋势策略
-                if self.myorder[d._name]["strategy"] in (
-                    "多头排列",
-                    "均线金叉",
-                    "均线收敛",
-                ):
-                    if self.signals[d._name]["short_position"][0] == 1:
-                        self.order[d._name] = self.close(data=d)
-                        self.myorder[d._name]["strategy"] = "空头排列"
-                    elif self.signals[d._name]["ma_crossover_bearish"][0] == 1:
-                        self.order[d._name] = self.close(data=d)
-                        self.myorder[d._name]["strategy"] = "均线死叉"
-                # 关键点位策略
-                elif self.myorder[d._name]["strategy"] == "突破年线":
-                    if self.signals[d._name]["closs_crossdown_annualline"][0] == 1:
-                        self.order[d._name] = self.close(data=d)
-                        self.myorder[d._name]["strategy"] = "跌破年线"
-                elif self.myorder[d._name]["strategy"] == "突破半年线":
-                    if self.signals[d._name]["closs_crossdown_halfannualline"][0] == 1:
-                        self.order[d._name] = self.close(data=d)
-                        self.myorder[d._name]["strategy"] = "跌破半年线"
-                # 短线策略
-                elif self.myorder[d._name]["strategy"] in (
-                    "连续上涨",
-                    "成交量放大",
-                    "红三兵",
-                ):
-                    if self.signals[d._name]["close_falling"][0] == 1:
-                        self.order[d._name] = self.close(data=d)
-                        self.myorder[d._name]["strategy"] = "连续下跌"
-                    elif pos.adjbase <= pos.price * 0.9:
-                        self.order[d._name] = self.close(data=d)
-                        self.myorder[d._name]["strategy"] = "低于买入价10%"
 
-                # 兜底策略
-                if pos.adjbase <= pos.price * 0.75:
-                    self.order[d._name] = self.close(data=d)
-                    self.myorder[d._name]["strategy"] = "低于买入价25%"
+                # 更新持仓期间最高价（用于移动止盈）
+                if self.peak_price[d._name] is None:
+                    self.peak_price[d._name] = d.close[0]
+                else:
+                    self.peak_price[d._name] = max(self.peak_price[d._name], d.close[0])
+
+                # ===== 卖出逻辑（基于当前级别，检查该级别所有卖出信号）=====
+                # 如果当前最高级别信号不再满足，检查是否需要卖出
+                if current_status == "updated":
+                    continue  # 升级后不立即检查卖出信号，等下一周期再检查，避免过度交易
+                if current_level == 1:  # 长线信号不满足，检查长线卖出信号
+                    if self.check_signal(d._name, "short_position"):
+                        self.execute_sell(d, "空头排列")
+                    elif self.check_signal(d._name, "closs_crossdown_annualline"):
+                        self.execute_sell(d, "跌破年线")
+                    elif self.check_signal(d._name, "ma_crossover_bearish"):
+                        self.execute_sell(d, "均线死叉")
+                    elif self.check_signal(d._name, "closs_crossdown_halfannualline"):
+                        self.execute_sell(d, "跌破半年线")
+                elif current_level == 2:  # 趋势信号不满足，检查趋势卖出信号
+                    if self.check_signal(d._name, "ma_crossover_bearish"):
+                        self.execute_sell(d, "均线死叉")
+                    elif self.check_signal(d._name, "closs_crossdown_halfannualline"):
+                        self.execute_sell(d, "跌破半年线")
+                elif current_level == 3:  # 短线信号不满足，检查短线级别卖出信号
+                    if self.check_signal(d._name, "close_falling"):
+                        self.execute_sell(d, "连续下跌")
+                # 止盈逻辑：如果价格从峰值回落超过一定比例（如 20%），且回落幅度超过买入价的一定比例（如 50%），则止盈卖出
+                if self.peak_price[d._name] is not None:
+                    if (
+                        self.peak_price[d._name] >= pos.price * 1.2
+                        and pos.adjbase
+                        <= pos.price + (self.peak_price[d._name] - pos.price) * 0.5
+                    ):
+                        self.execute_sell(d, "移动止盈")
+                    # 兜底止损（只在未卖出时检查）
+                    elif d.close[0] <= pos.price * 0.85:
+                        self.execute_sell(d, "低于买入价15%")
 
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
@@ -1037,8 +1100,8 @@ class GlobalStrategy(bt.Strategy):
                 }
                 """ 
                 过滤累计涨幅不满足条件的
-                5天内累计上涨10个点以上
-                5天以上累计上15个点以上
+                5 天内累计上涨 10 个点以上
+                5 天以上累计上 15 个点以上
                 """
                 if dict["buy_date"] is None:
                     continue
