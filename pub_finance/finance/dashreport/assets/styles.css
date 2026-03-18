@@ -73,6 +73,11 @@
 .xy2 .drag {
     pointer-events: none !important;
 }
+
+.sdrag,
+.ndrag {
+    pointer-events: none !important;
+}
 /* ==================== 响应式布局 ==================== */
 .chart-container {
   position: relative;
