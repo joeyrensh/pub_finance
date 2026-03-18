@@ -52,9 +52,9 @@ class BacktraderExec:
         # 回测时需要添加 TimeReturn 分析器
         cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
         # 每手10000块/美金
-        if self.market in ("cn", "cnetf", "cn_dynamic"):
+        if self.market in ("cn", "cnetf", "cn_dynamic", "cn_backtest"):
             cerebro.addsizer(cnFixedAmount, amount=10000)
-        elif self.market in ("us", "us_special", "us_dynamic"):
+        elif self.market in ("us", "us_special", "us_dynamic", "us_backtest"):
             cerebro.addsizer(usFixedAmount, amount=10000)
         # 费率千分之一
         cerebro.broker.setcommission(commission=0, stocklike=True)

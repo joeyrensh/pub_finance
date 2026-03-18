@@ -496,9 +496,9 @@ class TickerInfo:
         if trade_date_formatted not in group_obj["date"].values:
             return pd.DataFrame()
         """ 适配BackTrader数据结构 """
-        if self.market in ("us", "us_special", "us_dynamic"):
+        if self.market in ("us", "us_special", "us_dynamic", "us_backtest"):
             market = 1
-        elif self.market in ("cn", "cn_dynamic", "cnetf"):
+        elif self.market in ("cn", "cn_dynamic", "cnetf", "cn_backtest"):
             market = 2
         df_copy = pd.DataFrame(
             {

@@ -84,7 +84,9 @@ if __name__ == "__main__":
         """
         cash, final_value = run_backtest_in_process(
             trade_date,
-            lambda d: BacktraderExec(market, d).exec_btstrategy(force_run=force_run),
+            lambda d: BacktraderExec(
+                market, d, test=True, stocklist=["INTC"]
+            ).exec_btstrategy(force_run=force_run),
         )
         collected = gc.collect()
         print("Garbage collector: collected %d objects." % (collected))
@@ -97,15 +99,18 @@ if __name__ == "__main__":
 
     # 美股主要策略执行
     print("-----------美股主策略执行-----------")
-    run_backtest_and_send("us", trade_date, force_run=True)
+    BacktraderExec(
+        market="us_backtest", trade_date=trade_date, test=True, stocklist=["INTC"]
+    ).exec_btstrategy(force_run=True)
+    # run_backtest_and_send("us_backtest", trade_date, force_run=True)
 
-    # 固定列表追踪
-    print("-----------美股固定列表策略执行-----------")
-    run_backtest_and_send("us_special", trade_date, force_run=True)
+    # # 固定列表追踪
+    # print("-----------美股固定列表策略执行-----------")
+    # run_backtest_and_send("us_special", trade_date, force_run=True)
 
-    # 动态列表追踪
-    print("-----------美股动态列表策略执行-----------")
-    run_backtest_and_send("us_dynamic", trade_date, force_run=True)
+    # # 动态列表追踪
+    # print("-----------美股动态列表策略执行-----------")
+    # run_backtest_and_send("us_dynamic", trade_date, force_run=True)
 
     """ 结束进度条 """
     pbar.finish()

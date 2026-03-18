@@ -1115,7 +1115,15 @@ class GlobalStrategy(bt.Strategy):
         df = pd.DataFrame(list)
         if df.empty:
             return
-        if self.market in ("cn", "us", "us_special", "us_dynamic", "cn_dynamic"):
+        if self.market in (
+            "cn",
+            "us",
+            "us_special",
+            "us_dynamic",
+            "cn_dynamic",
+            "us_backtest",
+            "cn_backtest",
+        ):
             """
             匹配行业信息
             """
