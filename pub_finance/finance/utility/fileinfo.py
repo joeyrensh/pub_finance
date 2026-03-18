@@ -21,6 +21,8 @@ class FileInfo:
             "us_dynamic": "us",
             "cnetf": "cn",
             "cn_dynamic": "cn",
+            "cn_backtest": "cn",
+            "us_backtest": "us",
         }.get(market, market)
         self.market = market
         # 交易日期

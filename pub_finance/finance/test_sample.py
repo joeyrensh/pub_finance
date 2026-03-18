@@ -99,9 +99,9 @@ if __name__ == "__main__":
     print("-----------美股主策略执行-----------")
     run_backtest_and_send("us", trade_date, force_run=True)
 
-    # # 固定列表追踪
-    # print("-----------美股固定列表策略执行-----------")
-    # run_backtest_and_send("us_special", trade_date, force_run=True)
+    # 固定列表追踪
+    print("-----------美股固定列表策略执行-----------")
+    run_backtest_and_send("us_special", trade_date, force_run=True)
 
     # 动态列表追踪
     print("-----------美股动态列表策略执行-----------")
