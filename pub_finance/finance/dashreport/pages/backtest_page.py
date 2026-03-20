@@ -20,6 +20,24 @@ class BacktestPage:
         self.cb = ChartBuilder()
         self.register_callbacks()
 
+    def _get_scale(
+        self, base_fig_width=1440, client_width=1440, min_scale=0.6, max_scale=1.05
+    ):
+        """计算缩放比例（参考 chart_builder.py）"""
+        if client_width < 550:
+            scale = client_width / base_fig_width
+        else:
+            scale = 1.0
+        return max(min_scale, min(scale, max_scale))
+
+    def _get_font_sizes(
+        self, client_width=1440, base_font=12, min_scale=0.9, max_scale=1.05
+    ):
+        """获取字体大小（参考 chart_builder.py）"""
+        scale = self._get_scale(1440, client_width, min_scale, max_scale)
+        font_size = int(base_font * scale)
+        return scale, font_size
+
     def create_layout(self):
         """创建页面布局"""
         return html.Div(
@@ -228,8 +246,12 @@ class BacktestPage:
                     else 0
                 )
 
+                # 将 pnl 转换为字典格式存储（避免 Dash 序列化问题）
+                pnl_dict = {str(k): v for k, v in pnl.to_dict().items()}
+
                 data = {
-                    "pnl": pnl,
+                    "pnl": pnl_dict,
+                    "pnl_index": pnl.index.tolist(),
                     "trades": trades,
                     "hist": (
                         [x.to_dict("records") for x in hist_data] if hist_data else []
@@ -263,14 +285,23 @@ class BacktestPage:
         def update_pnl_chart(data):
             if not data or data.get("pnl") is None:
                 return go.Figure()
-            pnl = data["pnl"]
-            if len(pnl) == 0:
-                return go.Figure()
             try:
+                # 从字典恢复 pnl Series
+                pnl_dict = data["pnl"]
+                pnl_index = data.get("pnl_index", list(pnl_dict.keys()))
+                pnl = pd.Series(
+                    list(pnl_dict.values()), index=pd.to_datetime(pnl_index)
+                )
+                pnl = pnl.sort_index().dropna()
+
+                if len(pnl) == 0:
+                    return go.Figure()
+
                 fig = self.cb.annual_return(page="backtest", pnl=pnl, theme="light")
                 return fig
-            except:
-                return self._create_pnl_chart_fallback(pnl)
+            except Exception as e:
+                print(f"annual_return 图表错误：{e}")
+                return self._create_pnl_chart_fallback({})
 
         @self.app.callback(
             Output("backtest-kline-charts", "children"), Input("backtest-data", "data")
@@ -286,7 +317,7 @@ class BacktestPage:
                 df = pd.DataFrame(hist_df)
                 if df.empty:
                     continue
-                fig = self._create_kline_chart(df, trades, symbol)
+                fig = self._create_kline_chart(df, trades, symbol, theme="light")
                 charts.append(
                     html.Div(
                         [dcc.Graph(figure=fig, config={"displayModeBar": False})],
@@ -312,7 +343,15 @@ class BacktestPage:
                 pass
             return self._create_trade_table_fallback(trades)
 
-    def _create_pnl_chart_fallback(self, pnl):
+    def _create_pnl_chart_fallback(self, pnl_dict):
+        # 从字典恢复 pnl Series
+        if isinstance(pnl_dict, dict) and pnl_dict:
+            pnl_index = list(pnl_dict.keys())
+            pnl = pd.Series(list(pnl_dict.values()), index=pd.to_datetime(pnl_index))
+        elif isinstance(pnl_dict, pd.Series):
+            pnl = pnl_dict
+        else:
+            return go.Figure()
         pnl = pnl.sort_index()
         dates = pd.to_datetime(pnl.index)
         cumret = (1 + pnl).cumprod()
@@ -349,16 +388,22 @@ class BacktestPage:
             col=1,
         )
         fig.update_layout(
-            height=450, margin=dict(l=60, r=40, t=50, b=40), hovermode="x unified"
+            height=450, margin=dict(l=0, r=0, t=0, b=0), hovermode="x unified"
         )
         return fig
 
-    def _create_kline_chart(self, df, trades, symbol):
+    def _create_kline_chart(self, df, trades, symbol, name=None, theme="light", client_width=1440):
+        """
+        创建 K 线图（带买卖点标记）- 参考 chart_builder.py 实现
+        """
+        # 如果没有传入 name，使用 symbol 作为名称
+        if name is None:
+            name = symbol
         df = df.copy()
         df["datetime"] = pd.to_datetime(df["datetime"])
         df = df.sort_values("datetime")
 
-        # 只保留最近 360 天的数据
+        # 1. 只保留最近 360 天的数据
         end_date = df["datetime"].max()
         start_date = end_date - timedelta(days=360)
         df = df[df["datetime"] >= start_date].copy()
@@ -366,7 +411,12 @@ class BacktestPage:
         if df.empty:
             return go.Figure()
 
+        # 2. 获取主题配置
+        cfg = self.cb.theme_config.get(theme, self.cb.theme_config["light"])
+        scale, base_font = self._get_font_sizes(client_width, base_font=12)
+
         min_p, max_p = df["low"].min() * 0.97, df["high"].max() * 1.03
+
         fig = make_subplots(
             rows=2,
             cols=1,
@@ -375,7 +425,7 @@ class BacktestPage:
             vertical_spacing=0.02,
         )
 
-        # K 线图
+        # 3. K 线图
         fig.add_trace(
             go.Candlestick(
                 x=df["datetime"],
@@ -383,45 +433,44 @@ class BacktestPage:
                 high=df["high"],
                 low=df["low"],
                 close=df["close"],
-                name=symbol,
-                increasing_line_color="#ef5350",
-                decreasing_line_color="#26a69a",
+                name=f"{symbol}:{name}",
+                increasing_line_color=cfg["positive_int"],
+                decreasing_line_color=cfg["negative_int"],
             ),
             row=1,
             col=1,
         )
 
-        # 买卖点信号 - 美化版本（竖线 + 圆形标记）
+        # 4. 买卖点信号（限制在 360 天内）
         symbol_trades = [x for x in trades if x.get("symbol") == symbol]
         for t in symbol_trades:
             try:
                 td = pd.to_datetime(t["date"])
                 tp = t["price"]
                 tt = t["type"]
+                if td < start_date or td > end_date:
+                    continue
+                line_color = cfg["positive_int"] if tt == "buy" else cfg["negative_int"]
+                marker_color = (
+                    cfg["positive_int"] if tt == "buy" else cfg["negative_int"]
+                )
 
-                # 买入信号 - 红色，卖出信号 - 绿色
-                if tt == "buy":
-                    line_color = "#ff4444"
-                    marker_color = "#ff4444"
-                else:
-                    line_color = "#0d876d"
-                    marker_color = "#0d876d"
-
-                # 竖线贯穿整个价格区间
+                # 竖线
                 fig.add_trace(
                     go.Scatter(
                         x=[td, td],
                         y=[min_p, max_p],
                         mode="lines",
-                        line=dict(color=line_color, width=1.5),
-                        opacity=0.6,
+                        line=dict(color=line_color, width=1.5 * scale, dash="solid"),
+                        opacity=0.5,
                         showlegend=False,
+                        hoverinfo="skip",
                     ),
                     row=1,
                     col=1,
                 )
 
-                # 圆形标记在价格位置（带白边）
+                # 圆形标记
                 fig.add_trace(
                     go.Scatter(
                         x=[td],
@@ -429,35 +478,91 @@ class BacktestPage:
                         mode="markers",
                         marker=dict(
                             symbol="circle",
-                            size=12,
+                            size=10 * scale,
                             color=marker_color,
                             line=dict(color="white", width=2),
                         ),
                         showlegend=False,
+                        name=f"{symbol}:{tt.upper()}",
+                        hovertemplate=f"<b>{tt.upper()}</b><br>价格：{tp:.2f}<br>日期：%{{x|%Y-%m-%d}}<extra></extra>",
                     ),
                     row=1,
                     col=1,
                 )
-            except:
-                pass
+            except Exception as e:
+                print(f"添加买卖点失败：{e}")
 
-        # 成交量 - 加深颜色（opacity=1.0）
+        # 5. 成交量
         colors = [
-            "#ef5350" if df["close"].iloc[i] >= df["open"].iloc[i] else "#26a69a"
+            (
+                cfg["positive_int"]
+                if df["close"].iloc[i] >= df["open"].iloc[i]
+                else cfg["negative_int"]
+            )
             for i in range(len(df))
         ]
         fig.add_trace(
-            go.Bar(x=df["datetime"], y=df["volume"], marker_color=colors, opacity=1.0),
+            go.Bar(
+                x=df["datetime"],
+                y=df["volume"],
+                marker_color=colors,
+                opacity=1.0,
+                marker_line_width=0,
+                name="成交量",
+            ),
             row=2,
             col=1,
         )
 
+        # 6. 更新布局
         fig.update_layout(
-            title=dict(text=f"{symbol}", x=0.5),
-            height=500,
+            plot_bgcolor=cfg["background"],
+            paper_bgcolor=cfg["background"],
+            margin=dict(l=0, r=0, t=0, b=0),
+            height=450,
             xaxis_rangeslider_visible=False,
-            margin=dict(l=50, r=50, t=50, b=50),
+            hovermode="x unified",
+            legend=dict(
+                orientation="h",
+                y=1.02,
+                x=0,
+                bgcolor=cfg.get("legend_bg", "rgba(0,0,0,0)"),
+                font=dict(size=base_font, color=cfg["text_color"]),
+                itemsizing="constant",
+                itemclick="toggleothers",
+                itemdoubleclick="toggle",
+            ),
+            font=dict(
+                family=self.cb.font_family, size=base_font, color=cfg["text_color"]
+            ),
         )
+
+        # 7. 更新坐标轴
+        fig.update_xaxes(
+            gridcolor=cfg["grid"],
+            tickfont=dict(size=base_font, color=cfg["text_color"]),
+            row=1,
+            col=1,
+        )
+        fig.update_xaxes(
+            gridcolor=cfg["grid"],
+            tickfont=dict(size=base_font, color=cfg["text_color"]),
+            row=2,
+            col=1,
+        )
+        fig.update_yaxes(
+            gridcolor=cfg["grid"],
+            tickfont=dict(size=base_font, color=cfg["text_color"]),
+            row=1,
+            col=1,
+        )
+        fig.update_yaxes(
+            gridcolor=cfg["grid"],
+            tickfont=dict(size=base_font, color=cfg["text_color"]),
+            row=2,
+            col=1,
+        )
+
         return fig
 
     def _create_trade_table_fallback(self, trades):

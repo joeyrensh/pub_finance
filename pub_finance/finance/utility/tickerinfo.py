@@ -398,10 +398,10 @@ class TickerInfo:
             ],
         )
         df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
-        """ 匹配行业信息 """
-        df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
-        df_n = pd.merge(df, df_o, how="inner", on="symbol")
-        return df_n
+        # """ 匹配行业信息 """
+        # df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
+        # df_n = pd.merge(df, df_o, how="inner", on="symbol")
+        return df
 
     """ 获取历史数据 """
 
