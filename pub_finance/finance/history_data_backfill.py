@@ -5,7 +5,8 @@ import csv
 import tempfile
 from tqdm import tqdm  # 进度条库，可选安装
 import akshare as ak  # 爬取股票数据的库，可选安装
-from utility.em_stock_uti import EMWebCrawlerUti
+from finance.utility.em_stock_uti import EMWebCrawlerUti
+from finance.paths import FINANCE_ROOT
 
 
 class StockDataUpdater:
@@ -226,9 +227,11 @@ class StockDataUpdater:
 # 使用示例
 if __name__ == "__main__":
     # 配置参数
-    DATA_DIR = "./usstockinfo"  # 数据文件目录
+    DATA_DIR = FINANCE_ROOT / "usstockinfo"  # 数据文件目录
     UPDATE_COLS = ["open", "close", "high", "low", "volume"]  # 需要更新的列
-    NEW_DATA_PATH = "./usstockinfo/new_stock_data.csv"  # 新爬取的数据文件
+    NEW_DATA_PATH = (
+        FINANCE_ROOT / "usstockinfo" / "new_stock_data.csv"
+    )  # 新爬取的数据文件
     BATCH_SIZE = 10000  # 每批处理的行数
     """每股列表，需要重新匹配market code"""
     # 美股如下

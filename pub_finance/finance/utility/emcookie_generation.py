@@ -8,6 +8,7 @@ import json
 import tempfile
 import chromedriver_autoinstaller
 from selenium.webdriver.chrome.service import Service
+from finance.paths import FINANCE_ROOT
 
 
 class CookieGeneration(object):
@@ -97,7 +98,9 @@ class CookieGeneration(object):
 
                 # 将Cookie保存为JSON文件（可选）
                 with open(
-                    "./utility/eastmoney_cookie.json", "w", encoding="utf-8"
+                    FINANCE_ROOT / "utility/eastmoney_cookie.json",
+                    "w",
+                    encoding="utf-8",
                 ) as f:
                     json.dump(cookies_dict, f, ensure_ascii=False, indent=2)
                 print("💾 Cookie已保存到 eastmoney_cookie.json")
@@ -141,6 +144,6 @@ class CookieGeneration(object):
         # 新增：将Cookie字符串直接导出到文本文件
         # if cookie_header:
         #     # 直接将Cookie字符串保存到文本文件
-        #     with open("./utility/cookie.txt", "w", encoding="utf-8") as f:
+        #     with open(FINANCE_ROOT / "utility/cookie.txt", "w", encoding="utf-8") as f:
         #         f.write(cookie_header)
         #     print("✅ Cookie字符串已成功导出到 cookie.txt 文件")

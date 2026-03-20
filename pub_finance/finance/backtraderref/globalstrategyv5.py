@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 import backtrader as bt
-from utility.toolkit import ToolKit
+from finance.utility.toolkit import ToolKit
 from datetime import datetime
 import pandas as pd
-from utility.fileinfo import FileInfo
+from finance.utility.fileinfo import FileInfo
 import numpy as np
-from backtraderref.nanindicator import NaNIndicator
+from finance.backtraderref.nanindicator import NaNIndicator
 
 
 class GlobalStrategy(bt.Strategy):

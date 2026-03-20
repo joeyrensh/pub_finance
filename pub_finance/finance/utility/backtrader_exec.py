@@ -2,15 +2,15 @@
 # -*- coding: UTF-8 -*-
 
 import progressbar
-from utility.toolkit import ToolKit
+from finance.utility.toolkit import ToolKit
 from datetime import datetime
 import pandas as pd
 import sys
-from backtraderref.globalstrategyv5 import GlobalStrategy
+from finance.backtraderref.globalstrategyv5 import GlobalStrategy
 import backtrader as bt
-from utility.tickerinfo import TickerInfo
-from backtraderref.pandasdata_ext import BTPandasDataExt
-from utility.stock_analysis import StockProposal
+from finance.utility.tickerinfo import TickerInfo
+from finance.backtraderref.pandasdata_ext import BTPandasDataExt
+from finance.utility.stock_analysis import StockProposal
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib.dates as mdates
@@ -22,14 +22,15 @@ warnings.filterwarnings(
 )
 import pyfolio as pf
 import gc
-from backtraderref.usfixedamount import FixedAmount as usFixedAmount
-from backtraderref.cnfixedamount import FixedAmount as cnFixedAmount
+from finance.backtraderref.usfixedamount import FixedAmount as usFixedAmount
+from finance.backtraderref.cnfixedamount import FixedAmount as cnFixedAmount
 from matplotlib import rcParams
 import matplotlib.colors as mcolors
-from utility.em_stock_uti import EMWebCrawlerUti
+from finance.utility.em_stock_uti import EMWebCrawlerUti
 import numpy as np
 import os
 import pickle
+from finance.paths import FINANCE_ROOT
 
 
 class BacktraderExec:
@@ -121,7 +122,7 @@ class BacktraderExec:
         total_value = round(cerebro.broker.getvalue(), 2)
 
         # 保存缓存（覆盖）
-        cache_dir = "./cache"
+        cache_dir = FINANCE_ROOT / "cache"
         os.makedirs(cache_dir, exist_ok=True)
         cache_path = os.path.join(cache_dir, f"pnl_{self.market}_{self.trade_date}.pkl")
         try:
@@ -485,7 +486,9 @@ class BacktraderExec:
             ax_chart.yaxis.set_major_formatter(fmt)
             ax_drawdown.yaxis.set_major_formatter(fmt)
             plt.subplots_adjust(left=0.075, right=0.94, top=1, bottom=0.07, wspace=0.1)
-            out_path = f"./dashreport/assets/images/{self.market}_tr_{theme}.svg"
+            out_path = (
+                FINANCE_ROOT / f"dashreport/assets/images/{self.market}_tr_{theme}.svg"
+            )
             plt.savefig(
                 out_path,
                 format="svg",
@@ -501,7 +504,9 @@ class BacktraderExec:
 
     def exec_btstrategy(self, force_run=False):
         """执行器：优先读取缓存（当 force_run=False 且缓存存在），否则运行策略并生成缓存，最后调用绘图函数。返回 (cash, total_value)"""
-        cache_path = os.path.join("./cache", f"pnl_{self.market}_{self.trade_date}.pkl")
+        cache_path = os.path.join(
+            FINANCE_ROOT / "cache", f"pnl_{self.market}_{self.trade_date}.pkl"
+        )
         if (not force_run) and os.path.exists(cache_path):
             try:
                 with open(cache_path, "rb") as f:

@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 import progressbar
-from utility.toolkit import ToolKit
-from utility.stock_analysis import StockProposal
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from finance.utility.toolkit import ToolKit
+from finance.utility.stock_analysis import StockProposal
 import gc
-from utility.em_stock_uti import EMWebCrawlerUti
-from cncrawler.ak_incre_crawler import AKCNWebCrawler
-from utility.backtrader_exec import BacktraderExec
+from finance.utility.em_stock_uti import EMWebCrawlerUti
+from finance.cncrawler.ak_incre_crawler import AKCNWebCrawler
+from finance.utility.backtrader_exec import BacktraderExec
 import sys
 
 # 主程序入口

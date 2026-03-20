@@ -3,7 +3,7 @@
 
 from uscrawler.eastmoney_tickercategory_crawler import EMUsTickerCategoryCrawler
 from cncrawler.eastmoney_tickercategory_crawler import EMCNTickerCategoryCrawler
-from utility.toolkit import ToolKit
+from finance.utility.toolkit import ToolKit
 
 # 主程序入口
 if __name__ == "__main__":

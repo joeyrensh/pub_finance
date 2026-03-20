@@ -4,12 +4,12 @@ import re
 import dash_table
 from datetime import datetime, timedelta
 from dash.dash_table.Format import Format, Scheme, Trim
-import pathlib
 import pandas as pd
 import numpy as np
 import hashlib
 import os
 from finance.utility.toolkit import ToolKit
+from finance.paths import FINANCE_ROOT
 
 
 def Header(app):
@@ -880,15 +880,14 @@ def get_us_specific_trade_date(offset) -> str | None:
     美股休市日，https://www.nyse.com/markets/hours-calendars
     marketclosed.config 是2021和2022两年的美股法定休市配置文件
     """
-    BASE_DIR = pathlib.Path(__file__).resolve().parents[1]  # finance
-    f = open(BASE_DIR / "usstockinfo" / "marketclosed.config").readlines()
+    f = open(FINANCE_ROOT / "usstockinfo" / "marketclosed.config").readlines()
     x = []
     for i in f:
         x.append(i.split(",")[0].strip())
     """ 循环遍历最近一个交易日期 """
     counter = 0
     # 收益率曲线
-    DATA_PATH = BASE_DIR / "data"
+    DATA_PATH = FINANCE_ROOT / "data"
     df_overall = pd.read_csv(
         DATA_PATH / "us_df_result.csv",
         usecols=[i for i in range(1, 5)],
@@ -912,15 +911,14 @@ def get_us_specific_trade_date(offset) -> str | None:
 
 
 def get_cn_specific_trade_date(offset) -> str | None:
-    BASE_DIR = pathlib.Path(__file__).resolve().parents[1]  # finance
-    f = open(BASE_DIR / "cnstockinfo" / "marketclosed.config").readlines()
+    f = open(FINANCE_ROOT / "cnstockinfo" / "marketclosed.config").readlines()
     x = []
     for i in f:
         x.append(i.split(",")[0].strip())
     """ 循环遍历最近一个交易日期 """
     counter = 0
     # 收益率曲线
-    DATA_PATH = BASE_DIR / "data"
+    DATA_PATH = FINANCE_ROOT / "data"
     df_overall = pd.read_csv(
         DATA_PATH / "cn_df_result.csv",
         usecols=[i for i in range(1, 5)],

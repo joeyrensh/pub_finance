@@ -5,8 +5,8 @@ import geopandas as gpd
 import pandas as pd
 import matplotlib.pyplot as plt
 import math
-from utility.email_uti import MyEmail
-from utility.toolkit import ToolKit
+from finance.utility.email_uti import MyEmail
+from finance.utility.toolkit import ToolKit
 import os
 from lxml import html
 import concurrent.futures
@@ -966,9 +966,9 @@ if __name__ == "__main__":
     gdf_agg = gdf_merged.groupby("adcode")[["sell_cnt", "total_cnt"]].sum().round(0)
     # 计算 sell_cnt / total_cnt 比例，但仅在 total_cnt 不为 0 的情况下
     gdf_agg["ratio"] = gdf_agg.apply(
-        lambda row: row["sell_cnt"] / row["total_cnt"]
-        if row["total_cnt"] != 0
-        else None,
+        lambda row: (
+            row["sell_cnt"] / row["total_cnt"] if row["total_cnt"] != 0 else None
+        ),
         axis=1,
     )
     result = geo_data_s.merge(gdf_agg, how="left", left_on="adcode", right_on="adcode")

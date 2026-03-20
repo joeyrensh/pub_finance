@@ -4,17 +4,14 @@ from datetime import datetime, timedelta
 import re
 from base64 import b64encode
 from io import BytesIO
-from matplotlib_inline.backend_inline import set_matplotlib_formats
 import matplotlib.pyplot as plt
 import sys
 import numpy as np
-from matplotlib.patches import Wedge, Circle, Rectangle
-from matplotlib.collections import PolyCollection
 from matplotlib import colors as mcolors
 import pandas as pd
-import pathlib
 import hashlib
 import os
+from finance.paths import FINANCE_ROOT
 
 
 class ToolKit:
@@ -55,7 +52,7 @@ class ToolKit:
         美股休市日，https://www.nyse.com/markets/hours-calendars
         marketclosed.config 是2021和2022两年的美股法定休市配置文件 
         """
-        f = open("./usstockinfo/marketclosed.config").readlines()
+        f = open(FINANCE_ROOT / "usstockinfo" / "marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(i.split(",")[0].strip())
@@ -85,7 +82,7 @@ class ToolKit:
             )
             print("trade date: ", trade_date)
             return trade_date
-        f = open("./usstockinfo/marketclosed.config").readlines()
+        f = open(FINANCE_ROOT / "usstockinfo" / "marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(i.split(",")[0].strip())
@@ -117,7 +114,7 @@ class ToolKit:
         """
         if offset == 0:
             return trade_date
-        f = open("./usstockinfo/marketclosed.config").readlines()
+        f = open(FINANCE_ROOT / "usstockinfo" / "marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(i.split(",")[0].strip())
@@ -149,7 +146,7 @@ class ToolKit:
         取两个交易日起之间的交易天数，用来过滤塞选滞胀的股票
         cur, before都需是datetime类型
         """
-        f = open("./usstockinfo/marketclosed.config").readlines()
+        f = open(FINANCE_ROOT / "usstockinfo" / "marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(i.split(",")[0].strip())
@@ -177,7 +174,7 @@ class ToolKit:
         A股休市日
         marketclosed.config 是2021和2022两年的美股法定休市配置文件 
         """
-        f = open("./cnstockinfo/marketclosed.config").readlines()
+        f = open(FINANCE_ROOT / "cnstockinfo" / "marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(i.split(",")[0].strip())
@@ -200,7 +197,7 @@ class ToolKit:
             trade_date = str(datetime.now())[0:10].replace("-", "")
             print("trade date: ", trade_date)
             return trade_date
-        f = open("./cnstockinfo/marketclosed.config").readlines()
+        f = open(FINANCE_ROOT / "cnstockinfo" / "marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(i.split(",")[0].strip())
@@ -226,7 +223,7 @@ class ToolKit:
     def get_cn_trade_date_by_delta(offset, trade_date) -> str | None:
         if offset == 0:
             return trade_date
-        f = open("./cnstockinfo/marketclosed.config").readlines()
+        f = open(FINANCE_ROOT / "cnstockinfo" / "marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(i.split(",")[0].strip())
@@ -258,7 +255,7 @@ class ToolKit:
         取两个交易日起之间的交易天数，用来过滤塞选滞胀的股票
         cur, before都需是datetime类型
         """
-        f = open("./cnstockinfo/marketclosed.config").readlines()
+        f = open(FINANCE_ROOT / "cnstockinfo" / "marketclosed.config").readlines()
         x = []
         for i in f:
             x.append(i.split(",")[0].strip())
@@ -909,11 +906,7 @@ class ToolKit:
             MSFT
             ...
         """
-        out_file = (
-            pathlib.Path(__file__).resolve().parent.parent
-            / f"{market}stockinfo"
-            / "dynamic_list.csv"
-        )
+        out_file = FINANCE_ROOT / f"{market}stockinfo" / "dynamic_list.csv"
         # 将 selected_symbols 转为已排序的字符串列表，保证顺序确定且可用于 pandas
         symbols_list = sorted([str(s).strip() for s in selected_symbols])
         # 当前内容 hash（使用排序后的列表以确保可复现的哈希）

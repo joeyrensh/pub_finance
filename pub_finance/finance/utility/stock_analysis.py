@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-from utility.email_uti import MyEmail
-from utility.fileinfo import FileInfo
-from utility.tickerinfo import TickerInfo
+from finance.utility.email_uti import MyEmail
+from finance.utility.fileinfo import FileInfo
+from finance.utility.tickerinfo import TickerInfo
 import pandas as pd
 import seaborn as sns
 from pyspark.sql import SparkSession
@@ -11,13 +11,14 @@ import os
 import plotly.graph_objects as go
 import plotly.express as px
 import gc
-from utility.toolkit import ToolKit
+from finance.utility.toolkit import ToolKit
 import numpy as np
 from matplotlib.colors import to_rgb
 import re
 from plotly.colors import sample_colorscale
 from datetime import datetime, timedelta
 import os
+from finance.paths import FINANCE_ROOT
 
 # mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
 
@@ -69,20 +70,22 @@ class StockProposal:
         # 国债信息
         file_gz = file.get_file_path_gz
         cols = ["code", "name", "date", "new"]
-        spark_gz = spark.read.csv(file_gz, header=True, inferSchema=True)
+        spark_gz = spark.read.csv(str(file_gz), header=True, inferSchema=True)
         spark_gz = spark_gz.toDF(*cols)
         spark_gz.createOrReplaceTempView("temp_gz")
         # 交易明细
         file_path_trade = file.get_file_path_trade
         cols = ["idx", "symbol", "date", "trade_type", "price", "size", "strategy"]
         spark_transaction_detail = spark.read.csv(
-            file_path_trade, header=None, inferSchema=True
+            str(file_path_trade), header=None, inferSchema=True
         )
         spark_transaction_detail = spark_transaction_detail.toDF(*cols)
         spark_transaction_detail.createOrReplaceTempView("temp_transaction_detail")
         # 持仓明细, spark读取
         file_cur_p = file.get_file_path_position
-        spark_cur_position = spark.read.csv(file_cur_p, header=True, inferSchema=True)
+        spark_cur_position = spark.read.csv(
+            str(file_cur_p), header=True, inferSchema=True
+        )
         cols = [
             "idx",
             "symbol",
@@ -110,7 +113,7 @@ class StockProposal:
         ].toPandas()
         # 行业明细
         file_path_indus = file.get_file_path_industry
-        spark_industry_info = spark.read.csv(file_path_indus, header=True)
+        spark_industry_info = spark.read.csv(str(file_path_indus), header=True)
         spark_industry_info.createOrReplaceTempView("temp_industry_info")
         # 仓位日志明细
         file_path_position_detail = file.get_file_path_position_detail
@@ -127,7 +130,7 @@ class StockProposal:
             "max_drawdown",
         ]
         spark_position_detail = spark.read.csv(
-            file_path_position_detail, header=None, inferSchema=True
+            str(file_path_position_detail), header=None, inferSchema=True
         )
         spark_position_detail = spark_position_detail.toDF(*cols)
         spark_position_detail.createOrReplaceTempView("temp_position_detail")
@@ -146,7 +149,7 @@ class StockProposal:
             "date",
         ]
         spark_latest_stock_info = spark.read.csv(
-            file_name_day, header=True, inferSchema=True
+            str(file_name_day), header=True, inferSchema=True
         )
         spark_latest_stock_info = spark_latest_stock_info.select(cols)
         spark_latest_stock_info.createOrReplaceTempView("temp_latest_stock_info")
@@ -594,7 +597,7 @@ class StockProposal:
             inplace=True,
         )
         pd_industry_history_tracking.to_csv(
-            f"./data/{self.market}_category.csv",
+            FINANCE_ROOT / f"data/{self.market}_category.csv",
             columns=[
                 "IND",
                 "OPEN",
@@ -1054,7 +1057,9 @@ class StockProposal:
             },
             inplace=True,
         )
-        pd_position_history.to_csv(f"./data/{self.market}_stockdetail.csv", header=True)
+        pd_position_history.to_csv(
+            FINANCE_ROOT / f"data/{self.market}_stockdetail.csv", header=True
+        )
         print("持仓明细生成完成...")
         cm = sns.light_palette("seagreen", as_cmap=True)
 
@@ -1432,7 +1437,7 @@ class StockProposal:
             )
 
             pd_position_reduction.to_csv(
-                f"./data/{self.market}_stockdetail_short.csv", header=True
+                FINANCE_ROOT / f"data/{self.market}_stockdetail_short.csv", header=True
             )
             print("减仓明细生成完成...")
             cm = sns.light_palette("seagreen", as_cmap=True)
@@ -1705,7 +1710,7 @@ class StockProposal:
         # 导出 CSV 供 Dash 使用（带 market 前缀和不带前缀）
         try:
             pd_top20_industry.to_csv(
-                f"./data/{self.market}_pd_top20_industry.csv", index=False
+                FINANCE_ROOT / f"data/{self.market}_pd_top20_industry.csv", index=False
             )
         except Exception:
             pass
@@ -1860,7 +1865,8 @@ class StockProposal:
         )
 
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_postion_byindustry_light.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_postion_byindustry_light.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -1876,7 +1882,8 @@ class StockProposal:
         )
 
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_postion_byindustry_dark.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_postion_byindustry_dark.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -1904,7 +1911,8 @@ class StockProposal:
         # 导出 CSV 供 Dash 使用
         try:
             pd_top20_profit_industry.to_csv(
-                f"./data/{self.market}_pd_top20_profit_industry.csv", index=False
+                FINANCE_ROOT / f"data/{self.market}_pd_top20_profit_industry.csv",
+                index=False,
             )
         except Exception:
             pass
@@ -1960,7 +1968,8 @@ class StockProposal:
         )
 
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_pl_byindustry_light.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_pl_byindustry_light.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -1976,7 +1985,8 @@ class StockProposal:
         )
 
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_pl_byindustry_dark.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_pl_byindustry_dark.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -2039,7 +2049,9 @@ class StockProposal:
         # 导出 CSV 供 Dash 使用
         try:
             pd_strategy_tracking_lst180days.to_csv(
-                f"./data/{self.market}_pd_strategy_tracking_lst180days.csv", index=False
+                FINANCE_ROOT
+                / f"data/{self.market}_pd_strategy_tracking_lst180days.csv",
+                index=False,
             )
         except Exception:
             pass
@@ -2224,7 +2236,8 @@ class StockProposal:
         )
 
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_strategy_tracking_light.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_strategy_tracking_light.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -2337,7 +2350,8 @@ class StockProposal:
         )
 
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_strategy_tracking_dark.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_strategy_tracking_dark.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -2383,7 +2397,8 @@ class StockProposal:
         # 导出 CSV 供 Dash 使用 (duplicate section for other market blocks)
         try:
             pd_trade_info_lst180days.to_csv(
-                f"./data/{self.market}_pd_trade_info_lst180days.csv", index=False
+                FINANCE_ROOT / f"data/{self.market}_pd_trade_info_lst180days.csv",
+                index=False,
             )
         except Exception:
             pass
@@ -2503,7 +2518,8 @@ class StockProposal:
         )
 
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_trade_trend_light.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_trade_trend_light.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -2533,7 +2549,8 @@ class StockProposal:
         )
 
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_trade_trend_dark.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_trade_trend_dark.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -2650,7 +2667,8 @@ class StockProposal:
         )
 
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_top_industry_position_trend_light.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_top_industry_position_trend_light.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -2675,7 +2693,8 @@ class StockProposal:
             ),
         )
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_top_industry_position_trend_dark.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_top_industry_position_trend_dark.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -2731,7 +2750,8 @@ class StockProposal:
         # 导出 CSV 供 Dash 使用
         try:
             pd_top5_industry_profit_trend.to_csv(
-                f"./data/{self.market}_pd_top5_industry_profit_trend.csv", index=False
+                FINANCE_ROOT / f"data/{self.market}_pd_top5_industry_profit_trend.csv",
+                index=False,
             )
         except Exception:
             pass
@@ -2808,7 +2828,8 @@ class StockProposal:
         )
 
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_top_industry_pl_trend_light.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_top_industry_pl_trend_light.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -2888,7 +2909,8 @@ class StockProposal:
         )
 
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_top_industry_pl_trend_dark.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_top_industry_pl_trend_dark.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -3017,7 +3039,8 @@ class StockProposal:
         # 导出 CSV 供 Dash 使用
         try:
             pd_calendar_heatmap.to_csv(
-                f"./data/{self.market}_pd_calendar_heatmap.csv", index=False
+                FINANCE_ROOT / f"data/{self.market}_pd_calendar_heatmap.csv",
+                index=False,
             )
         except Exception:
             pass
@@ -3286,7 +3309,8 @@ class StockProposal:
             )
 
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_industry_trend_heatmap_light.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_industry_trend_heatmap_light.svg",
             width=fig_width,
             height=fig_height,
             scale=2,
@@ -3544,7 +3568,8 @@ class StockProposal:
             )
 
         fig.write_image(
-            f"./dashreport/assets/images/{self.market}_industry_trend_heatmap_dark.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_industry_trend_heatmap_dark.svg",
             width=fig_width,
             height=fig_height,
             scale=2,
@@ -3555,25 +3580,69 @@ class StockProposal:
         subject = f"""{self.market.upper()} Stock Market Trends - {end_date}""".format(
             end_date=end_date
         )
-        image_path_return_light = (
-            f"./dashreport/assets/images/{self.market}_tr_light.svg"
+        image_path_return_light = str(
+            FINANCE_ROOT / f"dashreport/assets/images/{self.market}_tr_light.svg"
         )
-        image_path_return_dark = f"./dashreport/assets/images/{self.market}_tr_dark.svg"
+        image_path_return_dark = str(
+            FINANCE_ROOT / f"dashreport/assets/images/{self.market}_tr_dark.svg"
+        )
         image_path = [
-            f"./dashreport/assets/images/{self.market}_postion_byindustry_light.svg",
-            f"./dashreport/assets/images/{self.market}_postion_byindustry_dark.svg",
-            f"./dashreport/assets/images/{self.market}_pl_byindustry_light.svg",
-            f"./dashreport/assets/images/{self.market}_pl_byindustry_dark.svg",
-            f"./dashreport/assets/images/{self.market}_trade_trend_light.svg",
-            f"./dashreport/assets/images/{self.market}_trade_trend_dark.svg",
-            f"./dashreport/assets/images/{self.market}_top_industry_position_trend_light.svg",
-            f"./dashreport/assets/images/{self.market}_top_industry_position_trend_dark.svg",
-            f"./dashreport/assets/images/{self.market}_top_industry_pl_trend_light.svg",
-            f"./dashreport/assets/images/{self.market}_top_industry_pl_trend_dark.svg",
-            f"./dashreport/assets/images/{self.market}_industry_trend_heatmap_light.svg",
-            f"./dashreport/assets/images/{self.market}_industry_trend_heatmap_dark.svg",
-            f"./dashreport/assets/images/{self.market}_strategy_tracking_light.svg",
-            f"./dashreport/assets/images/{self.market}_strategy_tracking_dark.svg",
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_postion_byindustry_light.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_postion_byindustry_dark.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_pl_byindustry_light.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_pl_byindustry_dark.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_trade_trend_light.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_trade_trend_dark.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_top_industry_position_trend_light.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_top_industry_position_trend_dark.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_top_industry_pl_trend_light.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_top_industry_pl_trend_dark.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_industry_trend_heatmap_light.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_industry_trend_heatmap_dark.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_strategy_tracking_light.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_strategy_tracking_dark.svg"
+            ),
             image_path_return_light,
             image_path_return_dark,
         ]
@@ -3803,7 +3872,9 @@ class StockProposal:
             }
         ]
         df_result = pd.DataFrame.from_dict(result)
-        df_result.to_csv(f"./data/{self.market}_df_result.csv", header=True)
+        df_result.to_csv(
+            FINANCE_ROOT / f"data/{self.market}_df_result.csv", header=True
+        )
 
         final_html = f"""
         <!DOCTYPE html>
@@ -3862,7 +3933,7 @@ class StockProposal:
         file_path_trade = file.get_file_path_trade
         cols = ["idx", "symbol", "date", "trade_type", "price", "size", "strategy"]
         spark_transaction_detail = spark.read.csv(
-            file_path_trade, header=None, inferSchema=True
+            str(file_path_trade), header=None, inferSchema=True
         )
         spark_transaction_detail = spark_transaction_detail.toDF(*cols)
         spark_transaction_detail.createOrReplaceTempView("temp_transaction_detail")
@@ -3878,7 +3949,9 @@ class StockProposal:
             "p&l",
             "p&l_ratio",
         ]
-        spark_cur_position = spark.read.csv(file_cur_p, header=True, inferSchema=True)
+        spark_cur_position = spark.read.csv(
+            str(file_cur_p), header=True, inferSchema=True
+        )
         spark_cur_position = spark_cur_position.toDF(*cols)
         spark_cur_position.createOrReplaceTempView("temp_cur_position")
         pd_cur_position = spark_cur_position[
@@ -3907,7 +3980,7 @@ class StockProposal:
             "max_drawdown",
         ]
         spark_position_detail = spark.read.csv(
-            file_path_position_detail, header=None, inferSchema=True
+            str(file_path_position_detail), header=None, inferSchema=True
         )
         spark_position_detail = spark_position_detail.toDF(*cols)
         spark_position_detail.createOrReplaceTempView("temp_position_detail")
@@ -3926,7 +3999,7 @@ class StockProposal:
             "date",
         ]
         spark_latest_stock_info = spark.read.csv(
-            file_name_day,
+            str(file_name_day),
             header=True,
             inferSchema=True,
         )
@@ -4111,9 +4184,13 @@ class StockProposal:
             inplace=True,
         )
         if self.market == "us":
-            pd_position_history.to_csv("./data/us_etf.csv", header=True)
+            pd_position_history.to_csv(
+                FINANCE_ROOT / f"data/{self.market}_etf.csv", header=True
+            )
         else:
-            pd_position_history.to_csv("./data/cn_etf.csv", header=True)
+            pd_position_history.to_csv(
+                FINANCE_ROOT / f"data/{self.market}_etf.csv", header=True
+            )
         cm = sns.light_palette("seagreen", as_cmap=True)
 
         pd_timeseries_sorted = pd_timeseries.sort_values(by="buy_date", ascending=False)
@@ -4713,7 +4790,8 @@ class StockProposal:
         )
 
         fig.write_image(
-            "./dashreport/assets/images/cnetf_trade_trend_light.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_trade_trend_light.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -4790,7 +4868,8 @@ class StockProposal:
         )
 
         fig.write_image(
-            "./dashreport/assets/images/cnetf_trade_trend_dark.svg",
+            FINANCE_ROOT
+            / f"dashreport/assets/images/{self.market}_trade_trend_dark.svg",
             width=fig_width,
             height=fig_height,
             scale=scale_factor,
@@ -4804,11 +4883,21 @@ class StockProposal:
         subject = f"""CN Stock Market ETF Trends - {end_date}""".format(
             end_date=end_date
         )
-        image_path_return_light = "./dashreport/assets/images/cnetf_tr_light.svg"
-        image_path_return_dark = "./dashreport/assets/images/cnetf_tr_dark.svg"
+        image_path_return_light = str(
+            FINANCE_ROOT / f"dashreport/assets/images/{self.market}_tr_light.svg"
+        )
+        image_path_return_dark = str(
+            FINANCE_ROOT / f"dashreport/assets/images/{self.market}_tr_dark.svg"
+        )
         image_path = [
-            "./dashreport/assets/images/cnetf_trade_trend_light.svg",
-            "./dashreport/assets/images/cnetf_trade_trend_dark.svg",
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_trade_trend_light.svg"
+            ),
+            str(
+                FINANCE_ROOT
+                / f"dashreport/assets/images/{self.market}_trade_trend_dark.svg"
+            ),
             image_path_return_light,
             image_path_return_dark,
         ]

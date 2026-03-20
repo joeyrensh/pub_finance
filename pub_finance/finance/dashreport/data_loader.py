@@ -1,12 +1,11 @@
 from __future__ import annotations
-
-import pathlib
 import pickle
 import pandas as pd
 from typing import Dict, Iterable, Optional, Tuple
 from functools import lru_cache
 import copy
 import os
+from finance.paths import FINANCE_ROOT
 
 
 class ReportDataLoader:
@@ -14,9 +13,8 @@ class ReportDataLoader:
     Dash 报告页面数据统一加载器（mtime-aware LRU）
     """
 
-    BASE_PATH = pathlib.Path(__file__).resolve().parent.parent
-    DATA_PATH = BASE_PATH / "data"
-    CACHE_PATH = BASE_PATH / "cache"
+    DATA_PATH = FINANCE_ROOT / "data"
+    CACHE_PATH = FINANCE_ROOT / "cache"
 
     # =========================
     # Table schemas（唯一真源）

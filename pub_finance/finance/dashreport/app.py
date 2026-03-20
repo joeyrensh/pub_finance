@@ -15,7 +15,7 @@ import configparser
 from flask import session
 import os
 from datetime import timedelta
-from pathlib import Path
+from finance.paths import FINANCE_ROOT
 
 
 server = Flask(__name__)
@@ -27,8 +27,7 @@ server.config["COMPRESS_MIN_SIZE"] = 1000
 
 # 读取配置文件
 config = configparser.ConfigParser()
-BASE_DIR = Path(__file__).resolve().parent
-config.read(BASE_DIR / "login.ini")
+config.read(FINANCE_ROOT / "dashreport" / "login.ini")
 
 VALID_USERNAME = config["credentials"]["username"]
 VALID_PASSWORD = config["credentials"]["password"]

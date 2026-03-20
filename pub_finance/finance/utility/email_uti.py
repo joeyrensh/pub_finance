@@ -9,6 +9,7 @@ from email.header import Header
 import base64
 import csv
 import os
+from finance.paths import FINANCE_ROOT
 
 
 class MyEmail(object):
@@ -21,7 +22,7 @@ class MyEmail(object):
 
     def __init__(self):
         # 打开文件
-        file_path = "./mail.conf"
+        file_path = FINANCE_ROOT / "mail.conf"
         with open(file_path, "r", newline="") as file:
             # 创建 CSV 读取器
             reader = csv.reader(file)

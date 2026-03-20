@@ -7,10 +7,11 @@ import pandas as pd
 import random
 import hashlib
 import time
+from finance.paths import FINANCE_ROOT
 
 
 class ProxyManager:
-    def __init__(self, proxy_file_path="./utility/proxy.txt"):
+    def __init__(self, proxy_file_path=FINANCE_ROOT / "utility/proxy.txt"):
         self.proxy_file_path = proxy_file_path
         self.proxies_list = []
         self.current_proxy_index = 0
@@ -27,7 +28,9 @@ class ProxyManager:
 
     def parse_cookie_string(self):
         # 读取 JSON 格式的 cookie 文件
-        with open("./utility/eastmoney_cookie.json", "r", encoding="utf-8") as f:
+        with open(
+            FINANCE_ROOT / "utility/eastmoney_cookie.json", "r", encoding="utf-8"
+        ) as f:
             cookie_data = json.load(f)
             print("已加载 JSON cookie 信息")
         # 直接返回解析后的字典
@@ -255,7 +258,9 @@ class ProxyManager:
         print("所有代理测试失败")
         return None
 
-    def save_working_proxies_to_file(self, output_file="./utility/working_proxies.txt"):
+    def save_working_proxies_to_file(
+        self, output_file=FINANCE_ROOT / "utility/working_proxies.txt"
+    ):
         r"""
         测试所有代理并将有效代理保存到指定文件
         每次调用都会重新生成文件
@@ -313,8 +318,8 @@ class ProxyManager:
 
     def sync_working_proxies_to_proxy_file(
         self,
-        working_proxies_file="./utility/working_proxies.txt",
-        proxy_file="./utility/proxy.txt"
+        working_proxies_file=FINANCE_ROOT / "utility/working_proxies.txt",
+        proxy_file=FINANCE_ROOT / "utility/proxy.txt",
     ):
         """
         将 working_proxies.txt 中的最新可用代理同步到 proxy.txt
@@ -326,35 +331,35 @@ class ProxyManager:
         if not os.path.exists(working_proxies_file):
             print(f"工作代理文件 {working_proxies_file} 不存在")
             return
-        
+
         with open(working_proxies_file, "r", encoding="utf-8") as f:
             working_proxies = [line.strip() for line in f if line.strip()]
-        
+
         print(f"读取到 {len(working_proxies)} 个工作代理")
-        
+
         # 读取现有 proxy.txt
         existing_proxies = []
         if os.path.exists(proxy_file):
             with open(proxy_file, "r", encoding="utf-8") as f:
                 existing_proxies = [line.strip() for line in f if line.strip()]
             print(f"现有 proxy.txt 中有 {len(existing_proxies)} 个代理")
-        
+
         # 找出需要添加的新代理（存在于 working_proxies 但不存在于 existing_proxies）
         new_proxies = [p for p in working_proxies if p not in existing_proxies]
-        
+
         if not new_proxies:
             print("没有新代理需要添加")
             return
-        
+
         print(f"发现 {len(new_proxies)} 个新代理需要添加")
-        
+
         # 构建新的代理列表：新代理在前 + 原有代理
         updated_proxies = new_proxies + existing_proxies
-        
+
         # 写入 proxy.txt（覆盖模式）
         with open(proxy_file, "w", encoding="utf-8") as f:
             for proxy in updated_proxies:
                 f.write(f"{proxy}\n")
-        
+
         print(f"✅ 已同步 {len(new_proxies)} 个新代理到 {proxy_file}")
         print(f"新代理列表：{new_proxies}")

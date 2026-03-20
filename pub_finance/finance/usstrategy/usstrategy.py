@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 import pandas as pd
-from utility.toolkit import ToolKit
+from finance.utility.toolkit import ToolKit
 import talib as tl
 import multiprocessing
-from utility.tickerinfo import TickerInfo
+from finance.utility.tickerinfo import TickerInfo
 
 
 """ 策略类 """

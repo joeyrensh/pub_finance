@@ -1,15 +1,7 @@
 import dash_html_components as html
 import dash_core_components as dcc
-import plotly.express as px
-import plotly.graph_objects as go
-import numpy as np
-import ast
-from finance.dashreport.utils import Header, make_dash_format_table
-import pandas as pd
-import pathlib
-import os
+from finance.dashreport.utils import Header
 from finance.dashreport.chart_builder import ChartBuilder
-from dash import callback, Output, Input, State
 from finance.dashreport.data_loader import ReportDataLoader
 
 

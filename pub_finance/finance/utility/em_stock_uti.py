@@ -7,17 +7,18 @@ import requests
 import pandas as pd
 from datetime import datetime
 import os
-from utility.fileinfo import FileInfo
+from finance.utility.fileinfo import FileInfo
 import csv
 import math
-from utility.toolkit import ToolKit
+from finance.utility.toolkit import ToolKit
 import concurrent.futures
 import re
 import hashlib
 from fake_useragent import UserAgent
-from utility.emcookie_generation import CookieGeneration
+from finance.utility.emcookie_generation import CookieGeneration
 import json
-from utility.get_proxy import ProxyManager
+from finance.utility.get_proxy import ProxyManager
+from finance.paths import FINANCE_ROOT
 
 
 class EMWebCrawlerUti:
@@ -68,7 +69,9 @@ class EMWebCrawlerUti:
 
     def parse_cookie_string(self):
         # 读取 JSON 格式的 cookie 文件
-        with open("./utility/eastmoney_cookie.json", "r", encoding="utf-8") as f:
+        with open(
+            FINANCE_ROOT / "utility" / "eastmoney_cookie.json", "r", encoding="utf-8"
+        ) as f:
             cookie_data = json.load(f)
             print("已加载 JSON cookie 信息")
         # 直接返回解析后的字典
@@ -253,7 +256,9 @@ class EMWebCrawlerUti:
         return total_page_no
 
     def get_stock_list(self, market, trade_date, target_file=None):
-        cache_file = f"./{market}stockinfo/daily_stock_cache_{trade_date}.json"
+        cache_file = (
+            FINANCE_ROOT / f"{market}stockinfo" / f"daily_stock_cache_{trade_date}.json"
+        )
         cache_data = {}
 
         if os.path.exists(target_file) and not os.path.exists(cache_file):
@@ -429,7 +434,9 @@ class EMWebCrawlerUti:
     def get_daily_stock_info(self, market, trade_date):
         if self.proxy is None:
             self.proxy = self.pm.get_working_proxy()
-        cache_file = f"./{market}stockinfo/daily_stock_cache_{trade_date}.json"
+        cache_file = (
+            FINANCE_ROOT / f"{market}stockinfo" / f"daily_stock_cache_{trade_date}.json"
+        )
         cache_data = {}
         file_name_d = FileInfo(trade_date, market).get_file_path_latest
 
@@ -675,12 +682,16 @@ class EMWebCrawlerUti:
     ):
         paths = {
             "us": {
-                "empty_klines": "./usstockinfo/us_empty_klines_cache.csv",
-                "stock_list": "./usstockinfo/us_stock_list_cache.csv",
+                "empty_klines": FINANCE_ROOT
+                / "usstockinfo"
+                / "us_empty_klines_cache.csv",
+                "stock_list": FINANCE_ROOT / "usstockinfo" / "us_stock_list_cache.csv",
             },
             "cn": {
-                "empty_klines": "./cnstockinfo/cn_empty_klines_cache.csv",
-                "stock_list": "./cnstockinfo/cn_stock_list_cache.csv",
+                "empty_klines": FINANCE_ROOT
+                / "cnstockinfo"
+                / "cn_empty_klines_cache.csv",
+                "stock_list": FINANCE_ROOT / "cnstockinfo" / "cn_stock_list_cache.csv",
             },
         }
 

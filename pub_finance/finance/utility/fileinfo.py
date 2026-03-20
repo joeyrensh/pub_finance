@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 import os
 import re
+from finance.paths import FINANCE_ROOT
 
 
 """ 获取文件相关信息 """
@@ -27,64 +28,43 @@ class FileInfo:
         self.market = market
         # 交易日期
         self.trade_date = trade_date
-        base_path = "."
         # stock每日数据存储文件
         self._file_path_latest = (
-            base_path
-            + "/"
-            + f"{decode_market}stockinfo"
-            + "/"
-            + f"stock_{trade_date}.csv"
+            FINANCE_ROOT / f"{decode_market}stockinfo" / f"stock_{trade_date}.csv"
         )
         # 10年期国债每日数据存储文件
         self._file_path_gz = (
-            base_path + "/" + f"{decode_market}stockinfo" + "/" + f"gz_{trade_date}.csv"
+            FINANCE_ROOT / f"{decode_market}stockinfo" / f"gz_{trade_date}.csv"
         )
         # stock目录
-        self._file_path_dir = base_path + "/" + f"{decode_market}stockinfo/"
+        self._file_path_dir = FINANCE_ROOT / f"{decode_market}stockinfo"
         # talib策略文件
         self._file_path_sta = (
-            base_path
-            + "/"
-            + f"{decode_market}strategy"
-            + "/"
-            + f"strategy_{trade_date}.csv"
+            FINANCE_ROOT / f"{decode_market}strategy" / f"strategy_{trade_date}.csv"
         )
         # stock行业文件
         self._file_path_industry = (
-            base_path + "/" + f"{decode_market}stockinfo" + "/" + "industry.csv"
+            FINANCE_ROOT / f"{decode_market}stockinfo" / "industry.csv"
         )
         # 仓位日志文件
         self._file_path_position = (
-            base_path
-            + "/"
-            + f"{decode_market}stockinfo"
-            + "/"
-            + f"{market}_position_logs.csv"
+            FINANCE_ROOT / f"{decode_market}stockinfo" / f"{market}_position_logs.csv"
         )
         # 仓位明细文件
         self._file_path_position_detail = (
-            base_path
-            + "/"
-            + f"{decode_market}stockinfo"
-            + "/"
-            + f"{market}_position_detail.csv"
+            FINANCE_ROOT / f"{decode_market}stockinfo" / f"{market}_position_detail.csv"
         )
         # 交易日志文件
         self._file_path_trade = (
-            base_path
-            + "/"
-            + f"{decode_market}stockinfo"
-            + "/"
-            + f"{market}_trade_logs.csv"
+            FINANCE_ROOT / f"{decode_market}stockinfo" / f"{market}_trade_logs.csv"
         )
         # 固定追踪股票列表
         self._file_path_fixed_list = (
-            base_path + "/" + f"{decode_market}stockinfo" + "/" + "fixed_list.csv"
+            FINANCE_ROOT / f"{decode_market}stockinfo" / "fixed_list.csv"
         )
         # 动态追踪股票列表
         self._file_path_dynamic_list = (
-            base_path + "/" + f"{decode_market}stockinfo" + "/" + "dynamic_list.csv"
+            FINANCE_ROOT / f"{decode_market}stockinfo" / "dynamic_list.csv"
         )
 
     """ 返回某日数据文件路径 """
@@ -116,7 +96,7 @@ class FileInfo:
                 and str(file).replace("stock_", "").replace(".csv", "")
                 <= self.trade_date
             ):
-                file_list.append(self._file_path_dir + file)
+                file_list.append(self._file_path_dir / file)
         file_list.sort()
         return file_list
 
@@ -132,7 +112,7 @@ class FileInfo:
                 re.search("gz_", file)
                 and str(file).replace("gz_", "").replace(".csv", "") <= self.trade_date
             ):
-                file_list.append(self._file_path_dir + file)
+                file_list.append(self._file_path_dir / file)
         file_list.sort()
         return file_list
 

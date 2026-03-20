@@ -1,15 +1,8 @@
-import dash_html_components as html
-import dash_core_components as dcc
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.express as px
-from plotly.subplots import make_subplots
 import numpy as np
-import ast
-from finance.dashreport.utils import Header, make_dash_format_table
 import pandas as pd
-import pathlib
-import os
 import empyrical as ep
 from datetime import timedelta
 from typing import Any, Literal
@@ -1646,6 +1639,7 @@ class ChartBuilder:
                                 drawdown,
                                 val_30,
                                 is_near_right_threshold=0.4,
+                                avoid_days=0,
                                 avoid_indices=avoid_list,
                                 avoid_scale_map=avoid_scale_map,
                                 data_series_map=data_series_map,

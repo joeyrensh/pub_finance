@@ -8,6 +8,7 @@ import logging
 from requests.exceptions import ProxyError, ConnectionError, Timeout, HTTPError
 import csv
 import os
+from finance.paths import FINANCE_ROOT
 
 # 配置日志记录
 logging.basicConfig(
@@ -245,7 +246,7 @@ def convert_industry(source_file: str, map_file: str, target_file: str) -> None:
 if __name__ == "__main__":
     # free proxy website : http://free-proxy.cz/en/proxylist/country/all/https/ping/level1
     # free proxy website: https://proxydb.net/?protocol=https&country=
-    """ 
+    """
     remove rows with industry as N/A
     awk -F, 'BEGIN{OFS=","} { sub(/\r$/, "", $3); if (toupper($3) != "N/A") print }' industry_yfinance.csv > tmp && mv tmp industry_yfinance.csv
     remove rows with industry as empty
@@ -257,12 +258,12 @@ if __name__ == "__main__":
         # "http://57.129.81.201:999",
         # "http://185.191.236.162:3128",
     ]  # 代理列表
-    CACHE_FILE = "./usstockinfo/symbol_list_cache.csv"
-    OUTPUT_FILE = "./usstockinfo/industry_yfinance.csv"
+    CACHE_FILE = FINANCE_ROOT / "usstockinfo" / "symbol_list_cache.csv"
+    OUTPUT_FILE = FINANCE_ROOT / "usstockinfo" / "industry_yfinance.csv"
 
     # main(proxy_list, CACHE_FILE, OUTPUT_FILE)
     convert_industry(
         source_file=OUTPUT_FILE,
-        map_file="./usstockinfo/industry_yfinance_mapping.csv",
-        target_file="./usstockinfo/industry_yfinance_cn.csv",
+        map_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_mapping.csv",
+        target_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_cn.csv",
     )

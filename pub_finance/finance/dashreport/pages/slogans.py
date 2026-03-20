@@ -1,14 +1,10 @@
 import dash_html_components as html
 from finance.dashreport.utils import Header
-import pathlib
+from finance.paths import FINANCE_ROOT
 
-PATH = pathlib.Path(__file__).parent
-IMAGE_PATH = PATH.joinpath("../assets").resolve()
-# encoded_image_bg = base64.b64encode(
-#     IMAGE_PATH.joinpath("cartoon.png").read_bytes()
-# ).decode("utf-8")
-encoded_image_bg = "/assets/cartoon.png"
-encoded_image_bg1 = "/assets/cartoon1.png"
+IMAGE_PATH = FINANCE_ROOT / "dashreport" / "assets"
+encoded_image_bg = "cartoon.png"
+encoded_image_bg1 = "cartoon1.png"
 
 
 def create_layout(app):
