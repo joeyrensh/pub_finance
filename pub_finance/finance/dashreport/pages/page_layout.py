@@ -141,9 +141,11 @@ class PageLayout:
                                     id=self.app.chart_callback.get_chart_id(
                                         chart_type, self.prefix, index
                                     ),
-                                    figure=None,
+                                    # figure=None,
                                     config={
                                         "displayModeBar": False,
+                                        "doubleClick": False,  # 禁用双击缩放
+                                        "responsive": True,
                                     },
                                     style={
                                         "margin": 0,

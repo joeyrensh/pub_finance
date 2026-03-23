@@ -159,7 +159,11 @@ class BacktestPage:
                     theme=theme,
                     client_width=client_width or 1440,
                 ),
-                config={"displayModeBar": False},
+                config={
+                    "displayModeBar": False,
+                    "doubleClick": False,  # 禁用双击缩放
+                    "responsive": True,
+                },
                 style={
                     "margin": 0,
                     "padding": 0,
@@ -198,9 +202,18 @@ class BacktestPage:
                     html.Div(
                         dcc.Graph(
                             figure=fig,
-                            config={"displayModeBar": False, "responsive": True},
+                            config={
+                                "displayModeBar": False,
+                                "scrollZoom": False,  # 禁用滚轮缩放
+                                "doubleClick": False,  # 禁用双击缩放
+                                "responsive": True,
+                            },
                         ),
-                        style={"width": "100%", "height": "auto"},
+                        style={
+                            "width": "100%",
+                            "height": "auto",
+                            "marginBottom": "20px",
+                        },
                     )
                 )
             return html.Div(
