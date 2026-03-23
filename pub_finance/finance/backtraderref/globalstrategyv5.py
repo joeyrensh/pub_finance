@@ -1113,30 +1113,31 @@ class GlobalStrategy(bt.Strategy):
                     pos_loss = pos_loss + pos.size * (pos.adjbase - pos.price)
         print("\n总持仓：%s, 浮盈：%s, 浮亏：%s" % (pos_share, pos_earn, pos_loss))
         df = pd.DataFrame(list)
-        if df.empty:
-            return
-        if self.market in (
-            "cn",
-            "us",
-            "us_special",
-            "us_dynamic",
-            "cn_dynamic",
-            "us_backtest",
-            "cn_backtest",
-        ):
-            """
-            匹配行业信息
-            """
-            df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
-            df_n = pd.merge(df, df_o, how="left", on="symbol")
-            """ 按照买入日期以及盈亏比倒排 """
-            df_n.sort_values(
-                by=["industry", "buy_date", "p&l_ratio"], ascending=False, inplace=True
-            )
-        elif self.market == "cnetf":
-            df_n = df.sort_values(by=["buy_date", "p&l_ratio"], ascending=False)
-        df_n.reset_index(drop=True, inplace=True)
-        df_n.to_csv(self.file_path_position, header=True, mode="w")
-        self.file_path_position.close()
-        self.file_path_position_detail.close()
-        self.file_path_trade.close()
+        try:
+            if df.empty:
+                return  # 没有持仓数据，直接退出（但 finally 会执行关闭）
+            if self.market in (
+                "cn",
+                "us",
+                "us_special",
+                "us_dynamic",
+                "cn_dynamic",
+                "us_backtest",
+                "cn_backtest",
+            ):
+                df_o = pd.read_csv(self.file_industry, usecols=[i for i in range(1, 3)])
+                df_n = pd.merge(df, df_o, how="left", on="symbol")
+                df_n.sort_values(
+                    by=["industry", "buy_date", "p&l_ratio"],
+                    ascending=False,
+                    inplace=True,
+                )
+            elif self.market == "cnetf":
+                df_n = df.sort_values(by=["buy_date", "p&l_ratio"], ascending=False)
+            df_n.reset_index(drop=True, inplace=True)
+            df_n.to_csv(self.file_path_position, header=True, mode="w")
+        finally:
+            # 无论是否出现异常或提前 return，都会关闭文件
+            self.file_path_position.close()
+            self.file_path_position_detail.close()
+            self.file_path_trade.close()

@@ -14,6 +14,8 @@ from finance.utility.toolkit import ToolKit
 from finance.utility.backtrader_exec import BacktraderExec
 from finance.utility.tickerinfo import TickerInfo
 from finance.paths import FINANCE_ROOT
+import time
+import os
 
 
 def run_bt(stocks, dt, m):
@@ -24,7 +26,7 @@ def run_bt(stocks, dt, m):
 
 def load_logs(m):
     f = FINANCE_ROOT / (
-        f"cnstockinfo/cn_backtest_trade_logs.csv"
+        "cnstockinfo/cn_backtest_trade_logs.csv"
         if m == "cn"
         else "usstockinfo/us_backtest_trade_logs.csv"
     )
@@ -63,7 +65,7 @@ def get_default_date(market="cn"):
 
 
 class BacktestPage:
-    def __init__(self, app, market="cn_backtest"):
+    def __init__(self, app, market="cn"):
         self.app = app
         self.market = market
         self.cb = ChartBuilder()
