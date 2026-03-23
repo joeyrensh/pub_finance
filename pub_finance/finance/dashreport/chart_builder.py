@@ -1617,7 +1617,7 @@ class ChartBuilder:
                     yaxis="y",
                 )
             )
-            # avoid_list.append(max_dd_idx)
+            avoid_list.append(max_dd_idx)
 
             # 30D最大回撤
             if len(drawdown) >= 30:
@@ -1939,6 +1939,7 @@ class ChartBuilder:
                     "<b>%{x|%Y-%m-%d}</b><br>开盘: %{open:.2f}<br>最高: %{high:.2f}<br>"
                     "最低: %{low:.2f}<br>收盘: %{close:.2f}<extra></extra>"
                 ),
+                hoverlabel=dict(font_size=font_size, font_family=self.font_family),
             ),
             row=1,
             col=1,
@@ -2002,6 +2003,9 @@ class ChartBuilder:
                         showlegend=False,
                         hovertemplate=f'<b>{"买入" if tt=="buy" else "卖出"}</b><br>'
                         f"价格：{tp:.2f}<br>策略：{ts}<br>日期：%{{x|%Y-%m-%d}}<extra></extra>",
+                        hoverlabel=dict(
+                            font_size=font_size, font_family=self.font_family
+                        ),
                     ),
                     row=1,
                     col=1,
