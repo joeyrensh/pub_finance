@@ -17,7 +17,6 @@ from finance.paths import FINANCE_ROOT
 
 
 def run_bt(stocks, dt, m):
-
     return BacktraderExec(
         f"{m}_backtest", dt, test=True, stocklist=stocks
     ).run_strategy()
@@ -47,7 +46,6 @@ def load_logs(m):
 
 
 def load_hist(stocks, dt, m):
-
     return (
         TickerInfo(dt, f"{m}_backtest").get_backtrader_data_feed_testonly(stocks) or []
     )
@@ -130,6 +128,7 @@ class BacktestPage:
                     "c": c,
                     "tv": tv,
                     "returns": returns,
+                    "market": market,  # 保存市场信息，供表格使用
                 }
                 status = f"回测完成 | 收益率：{returns:+.2f}% | 现金：{c:,.0f} | 总值：{tv:,.0f}"
                 return data, status
@@ -142,8 +141,9 @@ class BacktestPage:
         @self.app.callback(
             Output("backtest-pnl-chart", "children"),
             Input("backtest-data", "data"),
-            Input("theme", "data"),
+            Input("current-theme", "data"),
             Input("client-width", "data"),
+            prevent_initial_call=True,  # 添加
         )
         def up_pnl(d, theme, client_width):
             if not d or not d.get("pnl") or not d["pnl"].get("index"):
@@ -152,7 +152,6 @@ class BacktestPage:
                     style={"color": "#999", "padding": "60px", "textAlign": "center"},
                 )
             pnl = pd.Series(d["pnl"]["values"], index=pd.to_datetime(d["pnl"]["index"]))
-
             return dcc.Graph(
                 figure=self.cb.annual_return(
                     page="backtest",
@@ -160,7 +159,7 @@ class BacktestPage:
                     theme=theme,
                     client_width=client_width or 1440,
                 ),
-                config={"displayModeBar": False, "doubleClick": True},
+                config={"displayModeBar": False},
                 style={
                     "margin": 0,
                     "padding": 0,
@@ -174,8 +173,9 @@ class BacktestPage:
         @self.app.callback(
             Output("backtest-kline-charts", "children"),
             Input("backtest-data", "data"),
-            Input("theme", "data"),
+            Input("current-theme", "data"),
             Input("client-width", "data"),
+            prevent_initial_call=True,  # 添加
         )
         def uk(d, theme, client_width):
             if not d or not d.get("h"):
@@ -183,15 +183,11 @@ class BacktestPage:
                     "请执行回测",
                     style={"color": "#999", "padding": "60px", "textAlign": "center"},
                 )
-
-            # 准备股票数据
             stocks = d.get("s", [])
             histories = d.get("h", [])
             tr = d.get("tr", [])
-
             charts = []
             width = client_width or 1440
-
             for i in range(min(6, len(histories))):
                 stock_data = pd.DataFrame(histories[i])
                 symbol = stocks[i] if i < len(stocks) else f"S{i}"
@@ -204,25 +200,29 @@ class BacktestPage:
                             figure=fig,
                             config={"displayModeBar": False, "responsive": True},
                         ),
-                        style={"width": "100%", "marginBottom": "20px"},
+                        style={"width": "100%", "height": "auto"},
                     )
                 )
+            return html.Div(
+                charts, style={"display": "block", "width": "100%", "height": "auto"}
+            )
 
-            return html.Div(charts, style={"display": "block"})
-
+        # ========== 修正后的交易记录回调 ==========
         @self.app.callback(
             Output("backtest-trade-table", "children"),
-            Input("backtest-data", "data"),
-            Input("theme", "data"),
+            Input("backtest-data", "data"),  # 依赖回测数据
+            Input("current-theme", "data"),  # 主题
+            Input("client-width", "data"),  # 宽度（可保留，未使用）
+            prevent_initial_call=True,  # 避免空数据时触发
         )
-        def ut(d, theme):
+        def update_trade_table(data, theme, client_width):
             """使用 make_dash_format_table 格式化交易记录表格"""
-            if not d or not d.get("tr"):
+            if not data or not data.get("tr"):
                 return html.Div(
                     "暂无交易记录",
                     style={"color": "#999", "padding": "60px", "textAlign": "center"},
                 )
-            tr = d.get("tr", [])
+            tr = data.get("tr", [])
             df = pd.DataFrame(tr)
             if df.empty:
                 return html.Div(
@@ -244,7 +244,8 @@ class BacktestPage:
                 "PRICE": ("float",),
                 "VOLUME": ("float",),
             }
-            market = "cn"
+            # 从回测数据中获取市场，默认为 cn
+            market = data.get("market", "cn")
             trade_date = get_default_date(market)
             return make_dash_format_table(df, cols_format, market, trade_date)
 
@@ -279,6 +280,7 @@ class BacktestPage:
                                     id="backtest-date",
                                     type="text",
                                     value=get_default_date("cn"),
+                                    className="kpi-label",
                                     style={"width": "100%"},
                                 ),
                             ],
@@ -294,6 +296,7 @@ class BacktestPage:
                                     id="backtest-stocks",
                                     type="text",
                                     value="SZ002077,SZ002119",
+                                    className="kpi-label",
                                     style={"width": "100%"},
                                 ),
                             ],
@@ -309,7 +312,7 @@ class BacktestPage:
                                     "执行回测",
                                     id="backtest-run",
                                     n_clicks=0,
-                                    className="btn btn-primary",
+                                    className="btn btn-primary kpi-label",
                                     style={"width": "100%"},
                                 ),
                             ],
@@ -319,7 +322,7 @@ class BacktestPage:
                             lg=2,
                         ),
                     ],
-                    className="align-items-end g-2",
+                    className="kpi-label",
                 ),
                 html.Div(
                     id="backtest-status",
@@ -450,9 +453,8 @@ class BacktestPage:
     def get_layout(self):
         return html.Div(
             [
-                dcc.Store(id="backtest-data"),
-                dcc.Store(id="theme", data="light"),
-                dcc.Store(id="client-width", data=1440),
+                # 添加数据存储组件（关键！）
+                dcc.Store(id="backtest-data", data=None),  # 初始为空，回测后填充
                 Header(self.app),
                 html.Div(
                     [

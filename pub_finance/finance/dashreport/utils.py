@@ -127,14 +127,14 @@ def get_menu():
                         href="/dash-financial-report/us-stock-performance",
                         className="tab",
                     ),
-                    dcc.Link(
-                        [
-                            html.I(className="fa-solid fa-rocket icon"),
-                            html.Span("U.fsl"),
-                        ],
-                        href="/dash-financial-report/us-special-stock-performance",
-                        className="tab",
-                    ),
+                    # dcc.Link(
+                    #     [
+                    #         html.I(className="fa-solid fa-rocket icon"),
+                    #         html.Span("U.fsl"),
+                    #     ],
+                    #     href="/dash-financial-report/us-special-stock-performance",
+                    #     className="tab",
+                    # ),
                     dcc.Link(
                         [
                             html.I(className="fa-solid fa-rocket icon"),
@@ -149,6 +149,14 @@ def get_menu():
                             html.Span("U.dsl"),
                         ],
                         href="/dash-financial-report/us-dynamic-stock-performance",
+                        className="tab",
+                    ),
+                    dcc.Link(
+                        [
+                            html.I(className="fa-solid fa-rocket icon"),
+                            html.Span("B.test"),
+                        ],
+                        href="/dash-financial-report/backtest",
                         className="tab",
                     ),
                     dcc.Link(

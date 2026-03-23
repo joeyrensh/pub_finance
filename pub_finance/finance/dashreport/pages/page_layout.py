@@ -144,7 +144,6 @@ class PageLayout:
                                     figure=None,
                                     config={
                                         "displayModeBar": False,
-                                        "doubleClick": True,
                                     },
                                     style={
                                         "margin": 0,

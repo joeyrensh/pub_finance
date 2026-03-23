@@ -9,6 +9,7 @@ from finance.dashreport.pages.page import Page as page_creater
 from finance.dashreport.pages.chart_callback import ChartCallback
 from finance.dashreport.pages.table_callback import TableCallback
 from finance.dashreport.pages.kpi_callback import KpiCallback
+from finance.dashreport.pages.backtest_page import BacktestPage
 from flask import Flask
 from flask_compress import Compress
 import configparser
@@ -145,6 +146,8 @@ app.table_callback = table_callback
 kpi_callback = KpiCallback()
 kpi_callback.setup_callback(app)
 app.kpi_callback = kpi_callback
+
+backtestpage = BacktestPage(app)
 # ======================================================
 
 app.clientside_callback(
@@ -298,21 +301,23 @@ def update_page_content(pathname):
             ],
             show_tables=["category", "detail", "detail_short"],
         ).get_layout()
-    elif pathname == "/dash-financial-report/us-special-stock-performance":
-        return page_creater(
-            app,
-            "us_special",
-            show_charts=[
-                "annual_return",
-                "heatmap",
-                "strategy",
-                "trade",
-                "pnl_trend",
-                "industry_position",
-                "industry_profit",
-            ],
-            show_tables=["category", "detail", "detail_short"],
-        ).get_layout()
+    # elif pathname == "/dash-financial-report/us-special-stock-performance":
+    #     return page_creater(
+    #         app,
+    #         "us_special",
+    #         show_charts=[
+    #             "annual_return",
+    #             "heatmap",
+    #             "strategy",
+    #             "trade",
+    #             "pnl_trend",
+    #             "industry_position",
+    #             "industry_profit",
+    #         ],
+    #         show_tables=["category", "detail", "detail_short"],
+    #     ).get_layout()
+    elif pathname == "/dash-financial-report/backtest":
+        return backtestpage.get_layout()
     elif pathname == "/dash-financial-report/cn-dynamic-stock-performance":
         return page_creater(
             app,

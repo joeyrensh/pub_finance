@@ -1909,7 +1909,7 @@ class ChartBuilder:
         # 主题配置
         cfg = self.theme_config.get(theme, self.theme_config["light"])
         scale, font_size = self._get_font_sizes(
-            client_width, base_font=16, min_scale=0.9, max_scale=1.0
+            client_width, base_font=16, min_scale=0.65, max_scale=1.05
         )
         min_price = df["low"].min() * 0.97
         max_price = df["high"].max() * 1.03
@@ -1955,6 +1955,7 @@ class ChartBuilder:
                 y=df["volume"],
                 name="成交量",
                 marker_color=colors,
+                marker_line_color=colors,
                 opacity=1.0,
                 showlegend=True,
             ),
@@ -2005,13 +2006,12 @@ class ChartBuilder:
 
         # 布局
         fig.update_layout(
-            height=int(380 * scale),
+            height=int(400 * scale),
             margin=dict(l=0, r=0, t=0, b=0),
+            autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            font=dict(
-                family="Arial, sans-serif", size=font_size, color=cfg["text_color"]
-            ),
+            font=dict(family=self.font_family, size=font_size, color=cfg["text_color"]),
             hovermode="x",
             dragmode=False,
             showlegend=True,
@@ -2024,8 +2024,48 @@ class ChartBuilder:
                 font=dict(size=font_size),
             ),
         )
+
+        xmin = pd.to_datetime(df["datetime"].min())
+        xmax = pd.to_datetime(df["datetime"].max())
+
+        # x 轴（主图）
         fig.update_xaxes(
-            rangeslider_visible=False, showgrid=True, gridcolor=cfg["grid"], gridwidth=1
+            rangeslider_visible=False,
+            showgrid=True,
+            gridcolor=cfg["grid"],
+            gridwidth=1,
+            showline=True,
+            linecolor=cfg["grid"],
+            linewidth=1,
+            automargin=False,
+            range=[
+                xmin - timedelta(days=0.5),
+                xmax + timedelta(days=0.5),
+            ],
         )
-        fig.update_yaxes(showgrid=True, gridcolor=cfg["grid"], gridwidth=1)
+
+        fig.update_yaxes(
+            mirror=True,
+            ticks="outside",
+            tickfont=dict(
+                size=font_size,
+                color=cfg["text_color"],
+                family=self.font_family,
+            ),
+            title=dict(
+                text=None,
+                font=dict(
+                    size=font_size,
+                    color=cfg["text_color"],
+                    family=self.font_family,
+                ),
+            ),
+            showline=False,
+            linecolor=cfg["grid"],
+            zeroline=False,
+            gridcolor=cfg["grid"],
+            ticklabelposition="inside",
+            tickangle=0,
+            autorange=True,
+        )
         return fig
