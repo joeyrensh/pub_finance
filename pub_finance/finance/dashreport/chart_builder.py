@@ -1966,7 +1966,12 @@ class ChartBuilder:
         # 买卖点标记
         for t in trades_filtered:
             try:
-                td, tp, tt = pd.to_datetime(t["date"]), t["price"], t["type"]
+                td, tp, tt, ts = (
+                    pd.to_datetime(t["date"]),
+                    t["price"],
+                    t["type"],
+                    t["strategy"],
+                )
                 color = cfg["long"] if tt == "buy" else cfg["short"]
                 # 虚线
                 fig.add_trace(
@@ -1996,7 +2001,7 @@ class ChartBuilder:
                         ),
                         showlegend=False,
                         hovertemplate=f'<b>{"买入" if tt=="buy" else "卖出"}</b><br>'
-                        f"价格：{tp:.2f}<br>日期：%{{x|%Y-%m-%d}}<extra></extra>",
+                        f"价格：{tp:.2f}<br>策略：{ts}<br>日期：%{{x|%Y-%m-%d}}<extra></extra>",
                     ),
                     row=1,
                     col=1,

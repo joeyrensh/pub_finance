@@ -259,6 +259,9 @@ class BacktestPage:
                 "PRICE": ("float",),
                 "VOLUME": ("float",),
             }
+            df = df.groupby("SYMBOL", group_keys=False).apply(
+                lambda x: x.sort_values("DATE", ascending=False)
+            )
             # 从回测数据中获取市场，默认为 cn
             market = data.get("market", "cn")
             trade_date = get_default_date(market)
