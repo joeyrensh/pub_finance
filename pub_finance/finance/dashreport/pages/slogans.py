@@ -3,8 +3,8 @@ from finance.dashreport.utils import Header
 from finance.paths import FINANCE_ROOT
 
 IMAGE_PATH = FINANCE_ROOT / "dashreport" / "assets"
-encoded_image_bg = "cartoon.png"
-encoded_image_bg1 = "cartoon1.png"
+encoded_image_bg = IMAGE_PATH / "cartoon.png"
+encoded_image_bg1 = IMAGE_PATH / "cartoon1.png"
 
 
 def create_layout(app):
