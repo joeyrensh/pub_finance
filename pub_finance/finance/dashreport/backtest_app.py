@@ -24,7 +24,7 @@ from finance.dashreport.pages.backtest_page import BacktestPage
 
 # 创建页面实例并获取布局
 backtest_page = BacktestPage(app)
-app.layout = backtest_page.create_layout()
+app.layout = backtest_page.get_layout()
 
 if __name__ == "__main__":
     print("=" * 60)

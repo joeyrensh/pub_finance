@@ -61,7 +61,7 @@ class KpiCallback:
 
             cards = []
             for label, value in kpis:
-                extra_class = " kpi-date" if label == "数据日期" else ""
+                extra_class = "kpi-date" if label == "数据日期" else ""
                 cards.append(
                     html.Div(
                         [

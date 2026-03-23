@@ -6,6 +6,7 @@ import pandas as pd
 import empyrical as ep
 from datetime import timedelta
 from typing import Any, Literal
+from plotly.subplots import make_subplots
 
 
 class ChartBuilder:
@@ -1869,4 +1870,162 @@ class ChartBuilder:
             ),
         )
 
+        return fig
+
+    def kl_fig(self, his, trades, symbol, theme="light", client_width=1440):
+        """
+        绘制K线图（含成交量和买卖点）
+
+        Args:
+            his: pd.DataFrame, 历史行情，必须包含 ['datetime','open','high','low','close','volume']
+            trades: list[dict], 交易记录，每条 dict 至少包含 {'symbol','date','price','type'}
+            symbol: str, 股票代码
+            theme: str, 'light' 或 'dark'
+            client_width: int, 客户端宽度
+
+        Returns:
+            plotly.graph_objects.Figure
+        """
+        df = his.copy()
+        if df.empty:
+            return go.Figure()  # 没有历史数据，返回空 Figure
+
+        if "datetime" in df.columns:
+            df["datetime"] = pd.to_datetime(df["datetime"])
+        df = df.sort_values("datetime")
+        cutoff = df["datetime"].max() - pd.Timedelta(days=360)
+        df = df[df["datetime"] >= cutoff]
+        if df.empty:
+            return go.Figure()
+
+        # 过滤只属于当前股票的交易记录
+        trades_filtered = [
+            t
+            for t in trades
+            if t.get("symbol") == symbol
+            and pd.to_datetime(t["date"]) >= df["datetime"].min()
+        ]
+
+        # 主题配置
+        cfg = self.theme_config.get(theme, self.theme_config["light"])
+        scale, font_size = self._get_font_sizes(
+            client_width, base_font=16, min_scale=0.9, max_scale=1.0
+        )
+        min_price = df["low"].min() * 0.97
+        max_price = df["high"].max() * 1.03
+
+        # 子图
+        fig = make_subplots(
+            rows=2,
+            cols=1,
+            row_heights=[0.7, 0.3],
+            vertical_spacing=0.03,
+            shared_xaxes=True,
+        )
+
+        # K线
+        fig.add_trace(
+            go.Candlestick(
+                x=df["datetime"],
+                open=df["open"],
+                high=df["high"],
+                low=df["low"],
+                close=df["close"],
+                name=symbol,
+                increasing_line_color=cfg["long"],
+                decreasing_line_color=cfg["short"],
+                showlegend=True,
+                hovertemplate=(
+                    "<b>%{x|%Y-%m-%d}</b><br>开盘: %{open:.2f}<br>最高: %{high:.2f}<br>"
+                    "最低: %{low:.2f}<br>收盘: %{close:.2f}<extra></extra>"
+                ),
+            ),
+            row=1,
+            col=1,
+        )
+
+        # 成交量
+        colors = [
+            cfg["long"] if df["close"].iloc[i] >= df["open"].iloc[i] else cfg["short"]
+            for i in range(len(df))
+        ]
+        fig.add_trace(
+            go.Bar(
+                x=df["datetime"],
+                y=df["volume"],
+                name="成交量",
+                marker_color=colors,
+                opacity=1.0,
+                showlegend=True,
+            ),
+            row=2,
+            col=1,
+        )
+
+        # 买卖点标记
+        for t in trades_filtered:
+            try:
+                td, tp, tt = pd.to_datetime(t["date"]), t["price"], t["type"]
+                color = cfg["long"] if tt == "buy" else cfg["short"]
+                # 虚线
+                fig.add_trace(
+                    go.Scatter(
+                        x=[td, td],
+                        y=[min_price, max_price],
+                        mode="lines",
+                        line=dict(color=color, width=1.5, dash="dash"),
+                        opacity=0.7,
+                        showlegend=False,
+                        hoverinfo="skip",
+                    ),
+                    row=1,
+                    col=1,
+                )
+                # 圆点
+                fig.add_trace(
+                    go.Scatter(
+                        x=[td],
+                        y=[tp],
+                        mode="markers",
+                        marker=dict(
+                            symbol="circle",
+                            size=10,
+                            color="white",
+                            line=dict(color=color, width=2.5),
+                        ),
+                        showlegend=False,
+                        hovertemplate=f'<b>{"买入" if tt=="buy" else "卖出"}</b><br>'
+                        f"价格：{tp:.2f}<br>日期：%{{x|%Y-%m-%d}}<extra></extra>",
+                    ),
+                    row=1,
+                    col=1,
+                )
+            except:
+                pass
+
+        # 布局
+        fig.update_layout(
+            height=int(380 * scale),
+            margin=dict(l=0, r=0, t=0, b=0),
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(
+                family="Arial, sans-serif", size=font_size, color=cfg["text_color"]
+            ),
+            hovermode="x",
+            dragmode=False,
+            showlegend=True,
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1,
+                xanchor="left",
+                x=0,
+                font=dict(size=font_size),
+            ),
+        )
+        fig.update_xaxes(
+            rangeslider_visible=False, showgrid=True, gridcolor=cfg["grid"], gridwidth=1
+        )
+        fig.update_yaxes(showgrid=True, gridcolor=cfg["grid"], gridwidth=1)
         return fig
