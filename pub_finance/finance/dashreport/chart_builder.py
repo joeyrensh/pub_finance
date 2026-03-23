@@ -2020,6 +2020,7 @@ class ChartBuilder:
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
+            hoverlabel=dict(font_size=font_size, font_family=self.font_family),
             font=dict(family=self.font_family, size=font_size, color=cfg["text_color"]),
             hovermode="x",
             dragmode=False,
