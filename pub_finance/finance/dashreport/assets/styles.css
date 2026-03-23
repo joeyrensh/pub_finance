@@ -138,6 +138,10 @@ body {
   font-size: 1.3rem;
 }
 
+.dash-input {
+  color: #333 !important;
+}
+
 .kpi-value {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
