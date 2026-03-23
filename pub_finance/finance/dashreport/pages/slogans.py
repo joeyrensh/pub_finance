@@ -1,10 +1,8 @@
 import dash_html_components as html
 from finance.dashreport.utils import Header
-from finance.paths import FINANCE_ROOT
 
-IMAGE_PATH = FINANCE_ROOT / "dashreport" / "assets"
-encoded_image_bg = IMAGE_PATH / "cartoon.png"
-encoded_image_bg1 = IMAGE_PATH / "cartoon1.png"
+encoded_image_bg = "/assets/cartoon.png"
+encoded_image_bg1 = "/assets/cartoon1.png"
 
 
 def create_layout(app):
