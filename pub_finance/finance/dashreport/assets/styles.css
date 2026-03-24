@@ -146,8 +146,11 @@ body {
 .custom-date-picker .DateInput_input {
     height: 38px;
     font-size: 1.3rem !important;
+    font-weight: 500 !important;
     color: #333 !important;
     margin: 0 !important;
+    width: 100%;
+
 }
 
 /* 日历弹窗中的日期数字字体 */
@@ -157,7 +160,7 @@ body {
 
 /* 月份标题 */
 .custom-date-picker .CalendarMonth_caption {
-    font-size: 1.3rem !important;
+    font-size: 1.5rem !important;
 }
 
 .kpi-value {
@@ -847,7 +850,7 @@ a:active {
 
   /* 日历弹窗中的日期数字字体 */
   .custom-date-picker .CalendarDay__default {
-      font-size: 1rem !important;
+      font-size: 1.2rem !important;
   }
 
   /* 月份标题 */
