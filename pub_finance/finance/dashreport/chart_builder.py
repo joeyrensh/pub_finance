@@ -1932,8 +1932,9 @@ class ChartBuilder:
                 low=df["low"],
                 close=df["close"],
                 name=symbol,
-                increasing_line_color=cfg["long"],
-                decreasing_line_color=cfg["short"],
+                increasing=dict(line_color=cfg["long"], fillcolor=cfg["long"]),
+                decreasing=dict(line_color=cfg["short"], fillcolor=cfg["short"]),
+                line=dict(width=1),
                 showlegend=True,
                 hovertemplate=(
                     "<b>%{x|%Y-%m-%d}</b><br>开盘: %{open:.2f}<br>最高: %{high:.2f}<br>"
@@ -1955,8 +1956,7 @@ class ChartBuilder:
                 x=df["datetime"],
                 y=df["volume"],
                 name="成交量",
-                marker_color=colors,
-                marker_line_color=colors,
+                marker=dict(color=colors, line=dict(width=0)),  # 取消边框
                 opacity=1.0,
                 showlegend=True,
             ),
