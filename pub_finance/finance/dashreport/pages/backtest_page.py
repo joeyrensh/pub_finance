@@ -73,12 +73,16 @@ class BacktestPage:
 
     def register_callbacks(self):
         @self.app.callback(
-            Output("backtest-date", "value"),
+            Output("backtest-date", "date"),  # 改为 date
             Input("backtest-market", "value"),
             prevent_initial_call=False,
         )
         def init_date(market):
-            return get_default_date(market or "cn")
+            default = get_default_date(market or "cn")
+            if default:
+                # 转换为 YYYY-MM-DD 格式
+                return datetime.strptime(default, "%Y%m%d").strftime("%Y-%m-%d")
+            return None
 
         # 回测 callback（增强：按钮锁定 + 进度条）
         @self.app.callback(
@@ -86,7 +90,7 @@ class BacktestPage:
             Output("backtest-status", "children"),
             Input("backtest-run", "n_clicks"),
             State("backtest-market", "value"),
-            State("backtest-date", "value"),
+            State("backtest-date", "date"),  # 注意这里是 date
             State("backtest-stocks", "value"),
             prevent_initial_call=True,
             running=[
@@ -106,9 +110,12 @@ class BacktestPage:
             if not stock_list:
                 return None, "请输入有效的股票代码"
             try:
-                pnl, c, tv = run_bt(stock_list, date, market)
+                # 将 YYYY-MM-DD 转换为 YYYYMMDD
+                date_obj = datetime.strptime(date, "%Y-%m-%d")
+                date_str = date_obj.strftime("%Y%m%d")
+                pnl, c, tv = run_bt(stock_list, date_str, market)
                 tr = load_logs(market)
-                h = load_hist(stock_list, date, market)
+                h = load_hist(stock_list, date_str, market)
                 pnl_data = (
                     {
                         "index": [str(x) for x in pnl.index.tolist()],
@@ -268,6 +275,14 @@ class BacktestPage:
             return make_dash_format_table(df, cols_format, market, trade_date)
 
     def build_control_panel(self):
+        # 计算默认日期
+        default_date_str = get_default_date("cn")
+        default_date = (
+            datetime.strptime(default_date_str, "%Y%m%d").date()
+            if default_date_str
+            else None
+        )
+
         return dbc.Container(
             [
                 html.H6("回测分析", className="subtitle padded"),
@@ -294,11 +309,12 @@ class BacktestPage:
                         dbc.Col(
                             [
                                 html.Label("回测日期"),
-                                dcc.Input(
+                                dcc.DatePickerSingle(
                                     id="backtest-date",
-                                    type="text",
-                                    value=get_default_date("cn"),
-                                    className="kpi-label",
+                                    date=default_date,
+                                    display_format="YYYY-MM-DD",
+                                    placeholder="选择日期",
+                                    className="custom-date-picker kpi-label",
                                     style={"width": "100%"},
                                 ),
                             ],
