@@ -847,6 +847,7 @@ a:active {
       height: 30px;
       font-size: 1rem !important;
       margin: 0 !important;
+      border: 0 !important;
   }
 
   /* 日历弹窗中的日期数字字体 */
