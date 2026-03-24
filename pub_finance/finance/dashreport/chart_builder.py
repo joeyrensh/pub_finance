@@ -1975,7 +1975,7 @@ class ChartBuilder:
                     t["type"],
                     t["strategy"],
                 )
-                color = cfg["long"] if tt == "buy" else cfg["short"]
+                color = cfg["long"] if tt == "买入" else cfg["short"]
                 # 虚线
                 fig.add_trace(
                     go.Scatter(
@@ -2003,7 +2003,7 @@ class ChartBuilder:
                             line=dict(color=color, width=2.5),
                         ),
                         showlegend=False,
-                        hovertemplate=f'<b>{"买入" if tt=="buy" else "卖出"}</b><br>'
+                        hovertemplate=f"<b>{tt}</b><br>"
                         f"价格：{tp:.2f}<br>策略：{ts}<br>日期：%{{x|%Y-%m-%d}}<extra></extra>",
                         hoverlabel=dict(
                             font_size=font_size, font_family=self.font_family

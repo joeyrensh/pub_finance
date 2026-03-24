@@ -38,7 +38,7 @@ def load_logs(m):
                 {
                     "symbol": r["s"],
                     "date": r["d"],
-                    "type": r["t"],
+                    "type": "买入" if r["t"] == "buy" else "卖出",
                     "price": r["p"],
                     "volume": r["v"],
                     "strategy": r.get("st", ""),
