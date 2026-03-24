@@ -1980,7 +1980,7 @@ class ChartBuilder:
                         x=[td, td],
                         y=[min_price, max_price],
                         mode="lines",
-                        line=dict(color=color, width=1.5, dash="dash"),
+                        line=dict(color=color, width=1, dash="dash"),
                         opacity=0.7,
                         showlegend=False,
                         hoverinfo="skip",
@@ -1996,7 +1996,7 @@ class ChartBuilder:
                         mode="markers",
                         marker=dict(
                             symbol="circle",
-                            size=10,
+                            size=6,
                             color="white",
                             line=dict(color=color, width=2.5),
                         ),
@@ -2015,7 +2015,7 @@ class ChartBuilder:
 
         # 布局
         fig.update_layout(
-            height=int(400 * scale),
+            height=int(420 * scale),
             margin=dict(l=0, r=0, t=0, b=0),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
