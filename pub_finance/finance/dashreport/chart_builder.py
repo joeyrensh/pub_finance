@@ -1601,6 +1601,8 @@ class ChartBuilder:
                         max_dd_idx,
                         drawdown,
                         max_dd_val,
+                        is_near_right_threshold=0,
+                        avoid_days=0,
                         avoid_indices=avoid_list,
                         avoid_scale_map=avoid_scale_map,
                         data_series_map=data_series_map,
