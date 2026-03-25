@@ -500,7 +500,7 @@ class ReportDataLoader:
 
     @staticmethod
     def _load_cnetf(prefix: str) -> Dict[str, object]:
-        path = ReportDataLoader.DATA_PATH / f"{prefix}_etf.csv"
+        path = ReportDataLoader.DATA_PATH / f"{prefix}etf_etf.csv"
         if not path.exists():
             return ReportDataLoader._apply_schema(
                 pd.DataFrame(),
