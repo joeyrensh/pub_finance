@@ -2022,6 +2022,7 @@ class StockProposal:
             SELECT date
                     ,strategy
                     ,SUM(pnl) AS pnl
+                    ,COUNT(symbol) AS cnt
                     ,IF(COUNT(symbol) > 0, SUM(CASE WHEN pnl - l_pnl > 0 THEN 1 ELSE 0 END) / COUNT(symbol), 0) AS success_rate_daily
                     ,IF(COUNT(symbol) > 0, SUM(CASE WHEN pnl > 0 THEN 1 ELSE 0 END) / COUNT(symbol), 0) AS success_rate
             FROM tmp2
@@ -2103,8 +2104,6 @@ class StockProposal:
             return offset
 
         offset = calc_tick_offset(min_pnl, max_range)
-
-        from plotly.subplots import make_subplots
 
         strategy_order = [
             "多头排列",

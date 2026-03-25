@@ -631,6 +631,7 @@ class ChartBuilder:
         df,
         theme="light",
         client_width=1440,
+        bar_metric="pnl",  # ✅ 新增参数：控制 bar 显示 pnl 还是 cnt
     ):
         cfg = self.theme_config.get(theme, self.theme_config["light"])
         text_color = cfg["text_color"]
@@ -645,28 +646,41 @@ class ChartBuilder:
             client_width, base_font=14, min_scale=0.9, max_scale=1.05
         )
 
-        df["pnl_pos"] = df["pnl"].clip(lower=0)
-        df["pnl_neg"] = df["pnl"].clip(upper=0)
+        # =========================
+        # 数据预处理
+        # =========================
+        df = df.copy()
 
-        df_group = df.groupby("date")["pnl_pos"].sum().reset_index()
+        if bar_metric == "pnl":
+            df["bar_pos"] = df["pnl"].clip(lower=0)
+            df["bar_neg"] = df["pnl"].clip(upper=0)
+        elif bar_metric == "cnt":
+            df["bar_pos"] = df["cnt"]
+            df["bar_neg"] = 0
+        else:
+            raise ValueError("bar_metric must be 'pnl' or 'cnt'")
 
-        max_pnl = df_group["pnl_pos"].max()
-        min_pnl = df_group["pnl_pos"].min()
+        # 用于 Y2 轴范围计算
+        df_pos = df.groupby("date")["bar_pos"].sum().reset_index()
+        df_neg = df.groupby("date")["bar_neg"].sum().reset_index()
 
-        threshold = df["success_rate"].quantile(0.1)
-        min_success_rate = df.loc[
-            df["success_rate"] >= threshold,
-            "success_rate",
-        ].min()
+        max_pos = df_pos["bar_pos"].max()
+        min_neg = df_neg["bar_neg"].min()
 
-        safe_rate = max(min_success_rate, 0.2)
-        max_range = min(2 * max_pnl, max_pnl * 2 / safe_rate)
-
-        df_group2 = df.groupby("date")["pnl_neg"].sum().reset_index()
-        min_range = df_group2["pnl_neg"].min()
+        if bar_metric == "pnl":
+            threshold = df["success_rate"].quantile(0.1)
+            min_success_rate = df.loc[
+                df["success_rate"] >= threshold, "success_rate"
+            ].min()
+            safe_rate = max(min_success_rate, 0.2)
+            max_range = min(2 * max_pos, max_pos * 2 / safe_rate)
+            min_range = min_neg
+        else:
+            max_range = max_pos * 2
+            min_range = 0
 
         # =========================
-        # 策略顺序 & 分组
+        # 策略顺序
         # =========================
         strategy_order = [
             "多头排列",
@@ -680,11 +694,10 @@ class ChartBuilder:
         ]
 
         groups = dict(list(df.groupby("strategy")))
-
         fig = go.Figure()
 
         # =========================
-        # 7. 线型（width × scale）
+        # 线型样式
         # =========================
         line_styles = [
             {"dash": "solid", "width": 2.2 * scale},
@@ -697,6 +710,9 @@ class ChartBuilder:
             {"dash": "2,8", "width": 1.0 * scale},
         ]
 
+        # =========================
+        # 画图
+        # =========================
         for i, strategy in enumerate(strategy_order):
             if strategy not in groups:
                 continue
@@ -704,6 +720,7 @@ class ChartBuilder:
             data = groups[strategy]
             color = strategy_colors[i]
 
+            # —— 成功率折线
             fig.add_trace(
                 go.Scatter(
                     x=data["date"],
@@ -718,56 +735,66 @@ class ChartBuilder:
                     ),
                     yaxis="y",
                     hovertemplate=(
-                        # "<b>日期</b>: %{x|%Y-%m-%d}<br>"  # 修改这里：添加日期格式化
-                        "<b>成功率</b>: " + strategy + " %{y:.2%}<br>"
-                        "<extra></extra>"
+                        "<b>成功率</b>: " + strategy + " %{y:.2%}<extra></extra>"
                     ),
                     legendgroup=strategy,
-                )
-            )
-            data_pos = data[data["pnl"] >= 0]
-            fig.add_trace(
-                go.Bar(
-                    x=data_pos["date"],
-                    y=data_pos["pnl_pos"],
-                    name=strategy,
-                    marker=dict(
-                        color=color,
-                        line=dict(color=color),
-                    ),
-                    yaxis="y2",
-                    showlegend=False,
-                    hovertemplate=(
-                        # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
-                        "<b>收益</b>: " + strategy + " %{y:,.0f}<br>"
-                        "<extra></extra>"
-                    ),
-                    legendgroup=strategy,
-                    # base=0,
-                )
-            )
-            data_neg = data[data["pnl"] < 0]
-            fig.add_trace(
-                go.Bar(
-                    x=data_neg["date"],
-                    y=data_neg["pnl_neg"],
-                    name=strategy,
-                    marker=dict(
-                        color=color,
-                        line=dict(color=color),
-                    ),
-                    yaxis="y2",
-                    showlegend=False,
-                    hovertemplate=(
-                        # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
-                        "<b>收益</b>: " + strategy + " %{y:,.0f}<br>"
-                        "<extra></extra>"
-                    ),
-                    legendgroup=strategy,
-                    # base=0,
                 )
             )
 
+            # —— Bar（统一使用 bar_pos / bar_neg）
+            if bar_metric == "pnl":
+                pos = data[data["bar_pos"] > 0]
+                neg = data[data["bar_neg"] < 0]
+
+                fig.add_trace(
+                    go.Bar(
+                        x=pos["date"],
+                        y=pos["bar_pos"],
+                        yaxis="y2",
+                        marker=dict(
+                            color=color,
+                            line=dict(color=color),
+                        ),
+                        showlegend=False,
+                        legendgroup=strategy,
+                        hovertemplate="<b>收益</b>: %{y:,.0f}<extra></extra>",
+                    )
+                )
+
+                fig.add_trace(
+                    go.Bar(
+                        x=neg["date"],
+                        y=neg["bar_neg"],
+                        yaxis="y2",
+                        marker=dict(
+                            color=color,
+                            line=dict(color=color),
+                        ),
+                        showlegend=False,
+                        legendgroup=strategy,
+                        hovertemplate="<b>收益</b>: %{y:,.0f}<extra></extra>",
+                    )
+                )
+
+            else:  # cnt
+                fig.add_trace(
+                    go.Bar(
+                        x=data["date"],
+                        y=data["bar_pos"],
+                        yaxis="y2",
+                        marker=dict(
+                            color=color,
+                            line=dict(color=color),
+                        ),
+                        showlegend=False,
+                        legendgroup=strategy,
+                        hovertemplate="<b>次数</b>: %{y}<extra></extra>",
+                    )
+                )
+
+        # =========================
+        # Layout
+        # =========================
         fig.update_layout(
             xaxis=dict(
                 mirror=True,
@@ -848,6 +875,7 @@ class ChartBuilder:
             hovermode="x",
             hoverlabel=dict(font_size=base_font_size),
         )
+
         return fig
 
     def trade_info_chart(
