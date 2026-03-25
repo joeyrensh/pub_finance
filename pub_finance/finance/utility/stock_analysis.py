@@ -128,6 +128,7 @@ class StockProposal:
             "sharpe_ratio",
             "sortino_ratio",
             "max_drawdown",
+            "strategy",
         ]
         spark_position_detail = spark.read.csv(
             str(file_path_position_detail), header=None, inferSchema=True
@@ -2003,7 +2004,7 @@ class StockProposal:
                 SELECT t1.date
                     ,t1.symbol
                     ,t1.pnl
-                    ,t2.strategy
+                    ,t1.strategy
                     ,ROW_NUMBER() OVER(PARTITION BY t1.date, t1.symbol ORDER BY ABS(t1.date - t2.date) ASC) AS rn
                 FROM temp_position_detail t1 LEFT JOIN temp_transaction_detail t2 ON t1.symbol = t2.symbol AND t1.date >= t2.date AND t2.trade_type = 'buy'
                 WHERE t1.date >= '{}'
@@ -3978,6 +3979,7 @@ class StockProposal:
             "sharpe_ratio",
             "sortino_ratio",
             "max_drawdown",
+            "strategy",
         ]
         spark_position_detail = spark.read.csv(
             str(file_path_position_detail), header=None, inferSchema=True

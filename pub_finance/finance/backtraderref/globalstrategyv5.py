@@ -1010,6 +1010,7 @@ class GlobalStrategy(bt.Strategy):
                 current_level, current_strategy, current_status = (
                     self.current_signal.get(d._name, (None, None, None))
                 )
+                self.myorder[d._name]["strategy"] = current_strategy
 
                 # ===== 持仓数据处理 =====
                 if len(d) <= d.buflen() - 1:
@@ -1024,6 +1025,7 @@ class GlobalStrategy(bt.Strategy):
                         "sharpe_ratio": self.sharpe_ratios[d._name],
                         "sortino_ratio": self.sortino_ratios[d._name],
                         "max_drawdown": self.max_drawdowns[d._name],
+                        "strategy": self.myorder[d._name].get("strategy", ""),
                     }
                     list.append(dict)
 
