@@ -140,7 +140,7 @@ class ChartCallback:
                         df=data_bundle["strategy"],
                         theme=theme,
                         client_width=client_width,
-                        bar_metric="cnt",
+                        bar_metric="avg",
                     )
 
                 elif chart_type == "trade":

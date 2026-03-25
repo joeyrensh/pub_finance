@@ -631,14 +631,13 @@ class ChartBuilder:
         df,
         theme="light",
         client_width=1440,
-        bar_metric="pnl",  # ✅ 新增参数：控制 bar 显示 pnl 还是 cnt
+        bar_metric="pnl",  # 可选 'pnl', 'cnt', 'avg'
     ):
         cfg = self.theme_config.get(theme, self.theme_config["light"])
         text_color = cfg["text_color"]
         grid_color = cfg["grid"]
         legend_bg = cfg["legend_bg"]
         strategy_colors = cfg["strategy_colors"]
-
         scale, base_font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.05
         )
@@ -650,24 +649,29 @@ class ChartBuilder:
         # 数据预处理
         # =========================
         df = df.copy()
-
         if bar_metric == "pnl":
             df["bar_pos"] = df["pnl"].clip(lower=0)
             df["bar_neg"] = df["pnl"].clip(upper=0)
         elif bar_metric == "cnt":
             df["bar_pos"] = df["cnt"]
             df["bar_neg"] = 0
+        elif bar_metric == "avg":  # 新增：平均收益
+            # 计算平均收益，避免除零（cnt=0 时 avg=0）
+            df["avg"] = df["pnl"] / df["cnt"].replace(0, np.nan)
+            df["avg"] = df["avg"].fillna(0)
+            df["bar_pos"] = df["avg"].clip(lower=0)
+            df["bar_neg"] = df["avg"].clip(upper=0)
         else:
-            raise ValueError("bar_metric must be 'pnl' or 'cnt'")
+            raise ValueError("bar_metric must be 'pnl', 'cnt', or 'avg'")
 
         # 用于 Y2 轴范围计算
         df_pos = df.groupby("date")["bar_pos"].sum().reset_index()
         df_neg = df.groupby("date")["bar_neg"].sum().reset_index()
-
         max_pos = df_pos["bar_pos"].max()
         min_neg = df_neg["bar_neg"].min()
 
-        if bar_metric == "pnl":
+        # 根据 bar_metric 确定 y2 轴范围（修改：pnl 和 avg 采用相同逻辑）
+        if bar_metric != "cnt":  # 包括 'pnl' 和 'avg'
             threshold = df["success_rate"].quantile(0.1)
             min_success_rate = df.loc[
                 df["success_rate"] >= threshold, "success_rate"
@@ -692,8 +696,8 @@ class ChartBuilder:
             "成交量放大",
             "红三兵",
         ]
-
         groups = dict(list(df.groupby("strategy")))
+
         fig = go.Figure()
 
         # =========================
@@ -716,7 +720,6 @@ class ChartBuilder:
         for i, strategy in enumerate(strategy_order):
             if strategy not in groups:
                 continue
-
             data = groups[strategy]
             color = strategy_colors[i]
 
@@ -741,11 +744,10 @@ class ChartBuilder:
                 )
             )
 
-            # —— Bar（统一使用 bar_pos / bar_neg）
+            # —— Bar（根据 bar_metric 决定显示方式）
             if bar_metric == "pnl":
                 pos = data[data["bar_pos"] > 0]
                 neg = data[data["bar_neg"] < 0]
-
                 fig.add_trace(
                     go.Bar(
                         x=pos["date"],
@@ -760,7 +762,6 @@ class ChartBuilder:
                         hovertemplate="<b>收益</b>: %{y:,.0f}<extra></extra>",
                     )
                 )
-
                 fig.add_trace(
                     go.Bar(
                         x=neg["date"],
@@ -775,7 +776,37 @@ class ChartBuilder:
                         hovertemplate="<b>收益</b>: %{y:,.0f}<extra></extra>",
                     )
                 )
-
+            elif bar_metric == "avg":  # 新增：平均收益（分正负显示）
+                pos = data[data["bar_pos"] > 0]
+                neg = data[data["bar_neg"] < 0]
+                fig.add_trace(
+                    go.Bar(
+                        x=pos["date"],
+                        y=pos["bar_pos"],
+                        yaxis="y2",
+                        marker=dict(
+                            color=color,
+                            line=dict(color=color),
+                        ),
+                        showlegend=False,
+                        legendgroup=strategy,
+                        hovertemplate="<b>平均收益</b>: %{y:,.2f}<extra></extra>",
+                    )
+                )
+                fig.add_trace(
+                    go.Bar(
+                        x=neg["date"],
+                        y=neg["bar_neg"],
+                        yaxis="y2",
+                        marker=dict(
+                            color=color,
+                            line=dict(color=color),
+                        ),
+                        showlegend=False,
+                        legendgroup=strategy,
+                        hovertemplate="<b>平均收益</b>: %{y:,.2f}<extra></extra>",
+                    )
+                )
             else:  # cnt
                 fig.add_trace(
                     go.Bar(
@@ -788,7 +819,7 @@ class ChartBuilder:
                         ),
                         showlegend=False,
                         legendgroup=strategy,
-                        hovertemplate="<b>次数</b>: %{y}<extra></extra>",
+                        hovertemplate="<b>股数</b>: %{y}<extra></extra>",
                     )
                 )
 
@@ -811,8 +842,6 @@ class ChartBuilder:
                 dtick="M1",
                 tickformat="%Y-%m",
                 hoverformat="%Y-%m-%d",
-                # domain=[0, 1],
-                # automargin=True,
             ),
             yaxis=dict(
                 side="left",
@@ -862,7 +891,6 @@ class ChartBuilder:
                 borderwidth=0,
                 itemsizing="trace",
                 tracegroupgap=0,
-                # itemsizing="constant",
             ),
             barmode="relative",
             bargap=0.2,
@@ -875,7 +903,6 @@ class ChartBuilder:
             hovermode="x",
             hoverlabel=dict(font_size=base_font_size),
         )
-
         return fig
 
     def trade_info_chart(
