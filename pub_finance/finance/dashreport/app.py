@@ -59,6 +59,7 @@ ALLOWED_PATHS = {
     "/dash-financial-report/us-special-stock-performance",
     "/dash-financial-report/cn-dynamic-stock-performance",
     "/dash-financial-report/us-dynamic-stock-performance",
+    "/dash-financial-report/backtest",
     "/dash-financial-report/slogans",
     "/dash-financial-report/full-view",
 }
@@ -410,20 +411,38 @@ def update_page_content(pathname):
     prevent_initial_call=True,
 )
 def toggle_collapse(n_clicks, current_style, btn_content):
-    # 获取当前显示状态
-    current_display = current_style.get("display", "block")
 
-    # 切换显示状态
-    new_display = "none" if current_display == "block" else "block"
+    current_style = current_style or {}
 
-    # 解析原始标题文本（去掉箭头）
+    is_open = current_style.get("maxHeight") != "0px"
+
+    new_style = dict(current_style)
+
+    if is_open:
+        new_style.update(
+            {
+                "maxHeight": "0px",
+                "overflow": "hidden",
+                "transition": "max-height 0.25s ease",
+            }
+        )
+        new_arrow = "›"
+    else:
+        # 展开：移除高度限制，恢复由 aspectRatio 控制
+        new_style.pop("maxHeight", None)
+        new_style.pop("overflow", None)
+        new_style["transition"] = "max-height 0.25s ease"
+        new_arrow = "‹"
+
+    # 解析原标题（去掉箭头）
     original_text = btn_content["props"]["children"][0].rstrip(" ‹›")
-    new_arrow = "‹" if new_display == "block" else "›"
 
-    # 构建新的标题元素
-    new_title = html.H6([f"{original_text} {new_arrow}"], className="subtitle padded")
+    new_title = html.H6(
+        [f"{original_text} {new_arrow}"],
+        className="subtitle padded",
+    )
 
-    return {"display": new_display}, new_title
+    return new_style, new_title
 
 
 @app.callback(
@@ -452,4 +471,5 @@ if __name__ == "__main__":
         processes=1,  # 核心：单进程，避免全局数据多进程重复加载
         threaded=True,  # 开启多线程，处理并发请求（单进程下不影响全局数据）
     )
-    # app.run_server()
+
+    # app.run(host="0.0.0.0", port=8050, debug=True)
