@@ -44,7 +44,28 @@ def load_logs(m):
                     "strategy": r.get("st", ""),
                 }
             )
-    return logs
+    # 新增持仓明细加载
+    pos_path = FINANCE_ROOT / (
+        "cnstockinfo/cn_backtest_position_detail.csv"
+        if m == "cn"
+        else "usstockinfo/us_backtest_position_detail.csv"
+    )
+    if pos_path.exists():
+        df_pos = pd.read_csv(
+            pos_path, header=None, names=[f"col{i}" for i in range(1, 12)]
+        )
+        df_pos = df_pos.rename(
+            columns={"col2": "symbol", "col3": "date", "col11": "strategy"}
+        )[["symbol", "date", "strategy"]]
+        df_pos["date"] = pd.to_datetime(df_pos["date"])
+        # 排序并去除完全重复的行（同一天同一策略）
+        df_pos = df_pos.sort_values(["symbol", "date"]).drop_duplicates(
+            subset=["symbol", "date", "strategy"], keep="first"
+        )
+    else:
+        df_pos = pd.DataFrame(columns=["symbol", "date", "strategy"])
+
+    return logs, df_pos
 
 
 def load_hist(stocks, dt, m):
@@ -114,7 +135,8 @@ class BacktestPage:
                 date_obj = datetime.strptime(date, "%Y-%m-%d")
                 date_str = date_obj.strftime("%Y%m%d")
                 pnl, c, tv = run_bt(stock_list, date_str, market)
-                tr = load_logs(market)
+                tr, pos_detail_df = load_logs(market)  # 现在返回两个值
+
                 h = load_hist(stock_list, date_str, market)
                 pnl_data = (
                     {
@@ -132,6 +154,11 @@ class BacktestPage:
                 data = {
                     "pnl": pnl_data,
                     "tr": tr,
+                    "pos_detail": (
+                        pos_detail_df.to_dict("records")
+                        if not pos_detail_df.empty
+                        else []
+                    ),
                     "h": [x.to_dict("records") for x in h] if h else [],
                     "s": stock_list,
                     "c": c,
@@ -199,13 +226,20 @@ class BacktestPage:
             stocks = d.get("s", [])
             histories = d.get("h", [])
             tr = d.get("tr", [])
+            pos_detail = d.get("pos_detail", [])  # 获取持仓明细
+
             charts = []
             width = client_width or 1440
             for i in range(min(6, len(histories))):
                 stock_data = pd.DataFrame(histories[i])
                 symbol = stocks[i] if i < len(stocks) else f"S{i}"
                 fig = self.cb.kl_fig(
-                    stock_data, tr, symbol, theme=theme, client_width=width
+                    stock_data,
+                    tr,
+                    pos_detail=pos_detail,
+                    symbol=symbol,
+                    theme=theme,
+                    client_width=width,
                 )
                 charts.append(
                     html.Div(
