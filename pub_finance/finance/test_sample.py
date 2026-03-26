@@ -16,7 +16,7 @@ import sys
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc+8"""
-    trade_date = ToolKit("获取最新交易日").get_cn_latest_trade_date(0)
+    trade_date = ToolKit("获取最新交易日").get_cn_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断是否休市").is_cn_trade_date(trade_date):
@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     # ETF主要策略执行
     print("-----------A股ETF策略执行-----------")
-    run_backtest_and_send("cnetf", trade_date, force_run=True)
+    run_backtest_and_send("cnetf", trade_date)
 
     # A股动态列表执行
     print("-----------A股动态列表策略执行-----------")

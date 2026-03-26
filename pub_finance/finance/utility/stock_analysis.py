@@ -4184,14 +4184,10 @@ class StockProposal:
             },
             inplace=True,
         )
-        if self.market == "us":
-            pd_position_history.to_csv(
-                FINANCE_ROOT / f"data/{self.market}_etf.csv", header=True
-            )
-        else:
-            pd_position_history.to_csv(
-                FINANCE_ROOT / f"data/{self.market}_etf.csv", header=True
-            )
+
+        pd_position_history.to_csv(
+            FINANCE_ROOT / f"data/{self.market}.csv", header=True
+        )
         cm = sns.light_palette("seagreen", as_cmap=True)
 
         pd_timeseries_sorted = pd_timeseries.sort_values(by="buy_date", ascending=False)
