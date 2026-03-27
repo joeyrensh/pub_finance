@@ -444,45 +444,22 @@ class BacktestPage:
                             id="loading-backtest-pnl",
                             type="circle",
                             delay_hide=1000,
-                            style={
-                                "width": "100%",
-                                "height": "100%",
-                                "position": "relative",
-                                "display": "flex",
-                                "justifyContent": "center",
-                                "alignItems": "center",
-                            },
-                            parent_style={
-                                "width": "100%",
-                                "height": "100%",
-                                "display": "flex",
-                                "justifyContent": "center",
-                                "alignItems": "center",
-                            },
                             color="#119DFF",
                             fullscreen=False,
                             children=[
                                 html.Div(
                                     id="backtest-pnl-chart",
                                     style={
+                                        "margin": 0,
+                                        "padding": 0,
                                         "width": "100%",
                                         "height": "100%",
-                                        "display": "flex",
-                                        "justifyContent": "center",
-                                        "alignItems": "center",
                                     },
-                                    children=html.Div(
-                                        "请执行回测",
-                                        style={
-                                            "color": "#999",
-                                            "textAlign": "center",
-                                            "padding": "40px",
-                                        },
-                                    ),
                                 )
                             ],
                         )
                     ],
+                    style={"display": "block", "width": "100%"},
                 ),
             ],
             className="twelve columns",
