@@ -2080,6 +2080,7 @@ class ChartBuilder:
                 pass
 
         # ========== 计算策略升级点 ==========
+        strategy_colors = cfg["strategy_colors"]
         upgrade_points = []
         if pos_detail is not None and len(pos_detail) > 0:
             # 转换为 DataFrame 并过滤当前股票
@@ -2147,8 +2148,8 @@ class ChartBuilder:
                     marker=dict(
                         symbol="triangle-up",
                         size=8,
-                        color=cfg["long"],
-                        line=dict(color=cfg["long"], width=0.5),
+                        color=strategy_colors[2],
+                        line=dict(color=strategy_colors[2], width=0.5),
                     ),
                     showlegend=False,
                     hovertemplate=f"<b>策略升级</b><br>日期：%{{x|%Y-%m-%d}}<br>新策略：{up['strategy']}<extra></extra>",
