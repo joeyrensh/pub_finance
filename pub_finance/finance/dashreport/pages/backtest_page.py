@@ -105,6 +105,40 @@ class BacktestPage:
                 return datetime.strptime(default, "%Y%m%d").strftime("%Y-%m-%d")
             return None
 
+        # ========== 新增：市场切换时动态加载股票代码 ==========
+        @self.app.callback(
+            Output("backtest-stocks", "value"),
+            Input("backtest-market", "value"),
+            prevent_initial_call=False,
+        )
+        def load_stock_list(market):
+            """加载对应市场的动态股票列表，取前3个"""
+            file_path = FINANCE_ROOT / (
+                "cnstockinfo/dynamic_list.csv"
+                if market == "cn"
+                else "usstockinfo/dynamic_list.csv"
+            )
+            symbols = []
+            if file_path.exists():
+                try:
+                    # 假设 CSV 有表头 "symbol"，读取第一列
+                    df = pd.read_csv(file_path, usecols=["symbol"], dtype=str)
+                    # 去除空值并取前三个非空
+                    symbols = df["symbol"].dropna().astype(str).str.strip().tolist()
+                    symbols = [s for s in symbols if s]
+                except Exception as e:
+                    print(f"读取股票列表失败: {e}")
+                    symbols = []
+            # 取前三个，用逗号拼接
+            if symbols:
+                return ",".join(symbols[:3])
+            else:
+                # 文件不存在或读取失败，返回默认值
+                if market == "cn":
+                    return "SZ002077,SZ002119"
+                else:
+                    return "AAPL,MSFT,GOOGL"
+
         # 回测 callback（增强：按钮锁定 + 进度条）
         @self.app.callback(
             Output("backtest-data", "data"),
@@ -309,7 +343,6 @@ class BacktestPage:
             return make_dash_format_table(df, cols_format, market, trade_date)
 
     def build_control_panel(self):
-        # 计算默认日期
         default_date_str = get_default_date("cn")
         default_date = (
             datetime.strptime(default_date_str, "%Y%m%d").date()
@@ -363,7 +396,7 @@ class BacktestPage:
                                 dcc.Input(
                                     id="backtest-stocks",
                                     type="text",
-                                    value="SZ002077,SZ002119",
+                                    value="SZ002077,SZ002119",  # 初始值，会被回调覆盖
                                     className="kpi-label",
                                     style={"width": "100%"},
                                 ),
