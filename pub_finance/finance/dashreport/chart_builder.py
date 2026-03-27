@@ -2070,7 +2070,9 @@ class ChartBuilder:
                         hovertemplate=f"<b>{tt}</b><br>"
                         f"价格：{tp:.2f}<br>策略：{ts}<br>日期：%{{x|%Y-%m-%d}}<extra></extra>",
                         hoverlabel=dict(
-                            font_size=font_size, font_family=self.font_family
+                            font_size=font_size,
+                            font_family=self.font_family,
+                            bgcolor=color,
                         ),
                     ),
                     row=1,
@@ -2153,7 +2155,11 @@ class ChartBuilder:
                     ),
                     showlegend=False,
                     hovertemplate=f"<b>策略升级</b><br>日期：%{{x|%Y-%m-%d}}<br>新策略：{up['strategy']}<extra></extra>",
-                    hoverlabel=dict(font_size=font_size, font_family=self.font_family),
+                    hoverlabel=dict(
+                        font_size=font_size,
+                        font_family=self.font_family,
+                        bgcolor=strategy_colors[2],
+                    ),
                 ),
                 row=1,
                 col=1,
