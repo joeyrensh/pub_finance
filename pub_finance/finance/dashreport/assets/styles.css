@@ -840,9 +840,6 @@ a:active {
     font-size: 1rem;
   }
 
-  .dash-input {
-    height: 30px !important;
-  }
   .custom-date-picker .DateInput_input {
       height: 30px;
       font-size: 1rem !important;
