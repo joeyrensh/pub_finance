@@ -2,10 +2,8 @@
 """回测分析页面 - 优化版"""
 from dash import dcc, html, Input, Output, State
 import dash_bootstrap_components as dbc
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+import dash
 import pandas as pd
-from pathlib import Path
 from datetime import datetime
 
 from finance.dashreport.chart_builder import ChartBuilder
@@ -14,8 +12,6 @@ from finance.utility.toolkit import ToolKit
 from finance.utility.backtrader_exec import BacktraderExec
 from finance.utility.tickerinfo import TickerInfo
 from finance.paths import FINANCE_ROOT
-import time
-import os
 
 
 def run_bt(stocks, dt, m):
