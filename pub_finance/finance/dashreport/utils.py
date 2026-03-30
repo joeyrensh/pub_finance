@@ -531,7 +531,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         else:
             url = f"https://quote.eastmoney.com/us/{symbol}.html"
         # 使用 inline style 让链接继承单元格颜色，并去掉下划线
-        return f'<a href="{url}" target="_blank" style="color:inherit;text-decoration:none;">{symbol}</a>'
+        return f'<a href="{url}" target="_blank" style="color:inherit;text-decoration:underline;">{symbol}</a>'
 
     if "SYMBOL" in df.columns:
         df["SYMBOL"] = df["SYMBOL"].apply(lambda symbol: create_link(symbol, market))
