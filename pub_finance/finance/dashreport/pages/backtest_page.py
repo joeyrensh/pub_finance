@@ -334,8 +334,10 @@ class BacktestPage:
                 "PRICE": ("float",),
                 "VOLUME": ("float",),
             }
-            df = df.groupby("SYMBOL", group_keys=False).apply(
-                lambda x: x.sort_values("DATE", ascending=False)
+            df = (
+                df.sort_values(["SYMBOL", "DATE"], ascending=[True, False])
+                .groupby("SYMBOL", as_index=False)
+                .head(2)
             )
             # 从回测数据中获取市场，默认为 cn
             market = data.get("market", "cn")
