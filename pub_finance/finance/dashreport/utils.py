@@ -601,7 +601,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
             "presentation": (
                 None
                 if col in cols_format
-                and cols_format[col][0] in ("ratio", "float", "int")
+                and cols_format[col][0] in ("ratio", "float", "int", "text")
                 else "markdown"
             ),
         }

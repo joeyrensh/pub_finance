@@ -20,7 +20,7 @@ def run_bt(stocks, dt, m):
     ).run_strategy()
 
 
-def load_logs(m):
+def load_logs(stocks, dt, m):
     f = FINANCE_ROOT / (
         "cnstockinfo/cn_backtest_trade_logs.csv"
         if m == "cn"
@@ -28,18 +28,74 @@ def load_logs(m):
     )
     logs = []
     if f.exists():
-        df = pd.read_csv(f, header=None, names=["i", "s", "d", "t", "p", "v", "st"])
-        for _, r in df.iterrows():
-            logs.append(
-                {
-                    "symbol": r["s"],
-                    "date": r["d"],
-                    "type": "买入" if r["t"] == "buy" else "卖出",
-                    "price": r["p"],
-                    "volume": r["v"],
-                    "strategy": r.get("st", ""),
-                }
-            )
+        df_logs = pd.read_csv(
+            f, header=None, names=["i", "s", "d", "t", "p", "v", "st"]
+        )
+    else:
+        df_logs = pd.DataFrame(columns=["i", "s", "d", "t", "p", "v", "st"])
+    # -----------------------------
+    # 读取行业信息，只取相关股票
+    f_industry = FINANCE_ROOT / (
+        "cnstockinfo/industry.csv" if m == "cn" else "usstockinfo/industry.csv"
+    )
+    if f_industry.exists():
+        df_industry = pd.read_csv(
+            f_industry,
+            usecols=["symbol", "industry"],
+            dtype=str,
+        )
+        df_industry = df_industry[df_industry["symbol"].isin(stocks)]
+    else:
+        df_industry = pd.DataFrame(columns=["symbol", "industry"])
+
+    # -----------------------------
+    # 读取最新股票信息，只取相关股票
+    f_latest_info = FINANCE_ROOT / (
+        f"cnstockinfo/stock_{dt}.csv" if m == "cn" else f"usstockinfo/stock_{dt}.csv"
+    )
+    if f_latest_info.exists():
+        df_latest = pd.read_csv(
+            f_latest_info,
+            usecols=["symbol", "name", "total_value", "pe"],
+            dtype=str,
+        )
+        df_latest = df_latest[df_latest["symbol"].isin(stocks)]
+    else:
+        df_latest = pd.DataFrame(columns=["symbol", "name", "total_value", "pe"])
+
+    # -----------------------------
+    # --- 新增字段合并 ---
+    if not df_logs.empty:
+        # 先把 logs 转成 DataFrame
+        df_logs = df_logs.rename(
+            columns={
+                "s": "symbol",
+                "d": "date",
+                "t": "type",
+                "p": "price",
+                "v": "volume",
+                "st": "strategy",
+            }
+        )
+        df_logs["type"] = (
+            df_logs["type"].map({"buy": "买入", "sell": "卖出"}).fillna(df_logs["type"])
+        )
+
+        # 左连接行业信息和最新信息
+        df_logs = df_logs.merge(df_industry, on="symbol", how="left")
+        df_logs = df_logs.merge(df_latest, on="symbol", how="left")
+
+        # 处理缺失值
+        df_logs["industry"] = df_logs["industry"].fillna("-")
+        # total_value 转为亿，非数值或缺失不报错
+        df_logs["total_value"] = (
+            pd.to_numeric(df_logs["total_value"], errors="coerce") / 100000000
+        ).round(2)
+        df_logs["total_value"] = df_logs["total_value"].fillna("-")
+        df_logs["pe"] = df_logs["pe"].fillna("-")
+        logs = df_logs.to_dict("records")
+
+    # -----------------------------
     # 新增持仓明细加载
     pos_path = FINANCE_ROOT / (
         "cnstockinfo/cn_backtest_position_detail.csv"
@@ -165,7 +221,9 @@ class BacktestPage:
                 date_obj = datetime.strptime(date, "%Y-%m-%d")
                 date_str = date_obj.strftime("%Y%m%d")
                 pnl, c, tv = run_bt(stock_list, date_str, market)
-                tr, pos_detail_df = load_logs(market)  # 现在返回两个值
+                tr, pos_detail_df = load_logs(
+                    stock_list, date_str, market
+                )  # 现在返回两个值
 
                 h = load_hist(stock_list, date_str, market)
                 pnl_data = (
@@ -315,20 +373,29 @@ class BacktestPage:
                     "暂无交易记录",
                     style={"color": "#999", "padding": "60px", "textAlign": "center"},
                 )
-            df = df.rename(
-                columns={
-                    "symbol": "SYMBOL",
-                    "date": "DATE",
-                    "type": "TYPE",
-                    "price": "PRICE",
-                    "volume": "VOLUME",
-                    "strategy": "STRATEGY",
-                }
-            )
+            # --- 字段重命名 & 顺序 ---
+            rename_map = {
+                "symbol": "SYMBOL",
+                "industry": "INDUSTRY",
+                "name": "NAME",
+                "total_value": "TOTAL VALUE",
+                "pe": "PE",
+                "date": "DATE",
+                "type": "TYPE",
+                "price": "PRICE",
+                "volume": "VOLUME",
+                "strategy": "STRATEGY",
+            }
+            df = df.rename(columns=rename_map)
+
+            # 保留指定字段顺序，剔除其它字段
+            df = df[[v for k, v in rename_map.items() if v in df.columns]]
             cols_format = {
                 "DATE": ("date", "format"),
                 "PRICE": ("float",),
                 "VOLUME": ("float",),
+                "INDUSTRY": ("text",),
+                "PE": ("text",),
             }
             df = (
                 df.sort_values(["SYMBOL", "DATE"], ascending=[True, False])
