@@ -254,15 +254,20 @@ class BacktestPage:
             if not stock_list:
                 return None, "请输入有效的股票代码"
             try:
-                # 将 YYYY-MM-DD 转换为 YYYYMMDD
                 date_obj = datetime.strptime(date, "%Y-%m-%d")
                 date_str = date_obj.strftime("%Y%m%d")
                 pnl, c, tv = run_bt(stock_list, date_str, market)
-                tr, pos_detail_df = load_logs(
-                    stock_list, date_str, market
-                )  # 现在返回两个值
+                tr, pos_detail_df = load_logs(stock_list, date_str, market)
 
-                h = load_hist(stock_list, date_str, market)
+                # ----- 修复历史数据顺序：逐股票获取 -----
+                h = []
+                for sym in stock_list:
+                    hist_data = load_hist([sym], date_str, market)
+                    if hist_data and len(hist_data) > 0:
+                        h.append(hist_data[0])
+                    else:
+                        h.append(pd.DataFrame())  # 空DataFrame
+
                 pnl_data = (
                     {
                         "index": [str(x) for x in pnl.index.tolist()],
@@ -284,12 +289,12 @@ class BacktestPage:
                         if not pos_detail_df.empty
                         else []
                     ),
-                    "h": [x.to_dict("records") for x in h] if h else [],
+                    "h": [x.to_dict("records") if not x.empty else [] for x in h],
                     "s": stock_list,
                     "c": c,
                     "tv": tv,
                     "returns": returns,
-                    "market": market,  # 保存市场信息，供表格使用
+                    "market": market,
                 }
                 status = f"回测完成 | 收益率：{returns:+.2f}% | 现金：{c:,.0f} | 总值：{tv:,.0f}"
                 return data, status
