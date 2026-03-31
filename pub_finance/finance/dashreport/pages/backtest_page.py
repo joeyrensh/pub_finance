@@ -512,7 +512,7 @@ class BacktestPage:
                                             "刷新",
                                             id="backtest-refresh",
                                             n_clicks=0,
-                                            className="btn btn-secondary",
+                                            className="kpi-label btn btn-secondary",
                                             style={
                                                 "flex": "0 0 auto",
                                                 "minWidth": "20%",  # 按钮固定最小宽度
