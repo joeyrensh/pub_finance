@@ -12,6 +12,9 @@ from finance.utility.toolkit import ToolKit
 from finance.utility.backtrader_exec import BacktraderExec
 from finance.utility.tickerinfo import TickerInfo
 from finance.paths import FINANCE_ROOT
+from threading import Lock
+
+BACKTEST_LOCK = Lock()
 
 
 def run_bt(stocks, dt, m):
@@ -250,6 +253,8 @@ class BacktestPage:
         def run_backtest(n_clicks, market, date, stocks):
             if not n_clicks or not stocks:
                 return None, "请输入股票代码"
+            if not BACKTEST_LOCK.acquire(blocking=False):
+                return None, "⚠️ 系统正在执行回测，请稍后"
             stock_list = [s.strip() for s in stocks.split(",") if s.strip()]
             if not stock_list:
                 return None, "请输入有效的股票代码"
@@ -303,6 +308,8 @@ class BacktestPage:
 
                 traceback.print_exc()
                 return None, f"错误：{e}"
+            finally:
+                BACKTEST_LOCK.release()
 
         @self.app.callback(
             Output("backtest-pnl-chart", "children"),
