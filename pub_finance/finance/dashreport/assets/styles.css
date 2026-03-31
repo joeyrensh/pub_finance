@@ -177,11 +177,18 @@ body {
 .progress-btn.running {
     position: relative;
     overflow: hidden;
-    background-color: #57a0ec94;
+    background-color: #57a0ec94; /* 按钮底色固定 */
     color: var(--text-color);
 }
 
-/* 进度条层 */
+/* 文案在最上层 */
+.progress-btn.running span,
+.progress-btn.running {
+    position: relative;
+    z-index: 1;
+}
+
+/* 默认 light mode 进度条 */
 .progress-btn.running::after {
     content: "";
     position: absolute;
@@ -198,14 +205,18 @@ body {
     z-index: 0;
 }
 
-/* 文案在最上层 */
-.progress-btn.running span,
-.progress-btn.running {
-    position: relative;
-    z-index: 1;
+/* dark mode 进度条颜色更深 */
+@media (prefers-color-scheme: dark) {
+    .progress-btn.running::after {
+        background: linear-gradient(
+            90deg,
+            rgba(0,0,0,0.2),
+            rgba(0,0,0,0.4)
+        );
+    }
 }
 
-/* 动画：非常慢 */
+/* 动画：进度条从左向右填充 */
 @keyframes queue-fill {
     0%   { width: 0%; }
     90%  { width: 100%; }
