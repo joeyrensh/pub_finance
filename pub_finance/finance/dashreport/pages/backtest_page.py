@@ -92,7 +92,9 @@ def load_logs(stocks, dt, m):
             pd.to_numeric(df_logs["total_value"], errors="coerce") / 100000000
         ).round(2)
         df_logs["total_value"] = df_logs["total_value"].fillna("-")
-        df_logs["pe"] = df_logs["pe"].fillna("-")
+        df_logs["pe"] = (
+            pd.to_numeric(df_logs["pe"], errors="coerce").round(2).fillna("-")
+        )
         logs = df_logs.to_dict("records")
 
     # -----------------------------
