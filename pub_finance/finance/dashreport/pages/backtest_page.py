@@ -244,6 +244,11 @@ class BacktestPage:
                 (Output("backtest-run", "disabled"), True, False),
                 (Output("backtest-run", "children"), "回测中…", "执行回测"),
                 (
+                    Output("backtest-run", "className"),
+                    "btn btn-primary kpi-label progress-btn running",
+                    "btn btn-primary kpi-label progress-btn",
+                ),
+                (
                     Output("backtest-progress", "style"),
                     {"display": "block"},
                     {"display": "none"},
@@ -553,7 +558,7 @@ class BacktestPage:
                                     "执行回测",
                                     id="backtest-run",
                                     n_clicks=0,
-                                    className="btn btn-primary kpi-label",
+                                    className="btn btn-primary kpi-label progress-btn",
                                     style={"width": "100%"},
                                 ),
                             ],
