@@ -157,14 +157,18 @@ class BacktestPage:
                 return datetime.strptime(default, "%Y%m%d").strftime("%Y-%m-%d")
             return None
 
-        # ========== 新增：市场切换时动态加载股票代码 ==========
         @self.app.callback(
-            Output("backtest-stocks", "value"),
+            [
+                Output("backtest-stocks", "value"),
+                Output("backtest-full-list", "data"),
+                Output("backtest-page", "data"),
+                Output("backtest-refresh", "children"),
+            ],
             Input("backtest-market", "value"),
             prevent_initial_call=False,
         )
         def load_stock_list(market):
-            """加载对应市场的动态股票列表，取前3个"""
+            """市场切换时：加载完整股票列表，重置页码，显示前三支，并更新按钮文本"""
             file_path = FINANCE_ROOT / (
                 "cnstockinfo/dynamic_list.csv"
                 if market == "cn"
@@ -173,23 +177,54 @@ class BacktestPage:
             symbols = []
             if file_path.exists():
                 try:
-                    # 假设 CSV 有表头 "symbol"，读取第一列
                     df = pd.read_csv(file_path, usecols=["symbol"], dtype=str)
-                    # 去除空值并取前三个非空
                     symbols = df["symbol"].dropna().astype(str).str.strip().tolist()
                     symbols = [s for s in symbols if s]
                 except Exception as e:
                     print(f"读取股票列表失败: {e}")
                     symbols = []
-            # 取前三个，用逗号拼接
-            if symbols:
-                return ",".join(symbols[:3])
-            else:
-                # 文件不存在或读取失败，返回默认值
+            if not symbols:
+                # 默认股票列表（回退）
                 if market == "cn":
-                    return "SZ002077,SZ002119"
+                    symbols = ["SZ002077", "SZ002119"]
                 else:
-                    return "AAPL,MSFT,GOOGL"
+                    symbols = ["AAPL", "MSFT", "GOOGL"]
+
+            total = len(symbols)
+            page = 0
+            start = page * 3
+            end = min(start + 3, total)
+            if start >= total:  # 边界处理
+                start = 0
+                end = min(3, total)
+            current_stocks = symbols[start:end]
+            button_text = f"{start+1}-{end} / {total}"
+
+            return ",".join(current_stocks), symbols, page, button_text
+
+        @self.app.callback(
+            [
+                Output("backtest-stocks", "value", allow_duplicate=True),
+                Output("backtest-page", "data", allow_duplicate=True),
+                Output("backtest-refresh", "children", allow_duplicate=True),
+            ],
+            Input("backtest-refresh", "n_clicks"),
+            State("backtest-full-list", "data"),
+            State("backtest-page", "data"),
+            prevent_initial_call=True,
+        )
+        def refresh_stocks(n_clicks, full_list, current_page):
+            """刷新按钮：滚动到下一组股票，循环"""
+            if not full_list:
+                return "", 0, "0-0"
+            total = len(full_list)
+            max_page = (total - 1) // 3
+            next_page = (current_page + 1) % (max_page + 1) if max_page >= 0 else 0
+            start = next_page * 3
+            end = min(start + 3, total)
+            current_stocks = full_list[start:end]
+            button_text = f"{start+1}-{end} / {total}"
+            return ",".join(current_stocks), next_page, button_text
 
         # 回测 callback（增强：按钮锁定 + 进度条）
         @self.app.callback(
@@ -420,6 +455,7 @@ class BacktestPage:
                 html.H6("回测分析", className="subtitle padded"),
                 dbc.Row(
                     [
+                        # 市场选择列（不变）
                         dbc.Col(
                             [
                                 html.Label("市场"),
@@ -438,6 +474,7 @@ class BacktestPage:
                             md=3,
                             lg=2,
                         ),
+                        # 回测日期列（不变）
                         dbc.Col(
                             [
                                 html.Label("回测日期"),
@@ -458,12 +495,35 @@ class BacktestPage:
                         dbc.Col(
                             [
                                 html.Label("股票代码"),
-                                dcc.Input(
-                                    id="backtest-stocks",
-                                    type="text",
-                                    value="SZ002077,SZ002119",  # 初始值，会被回调覆盖
-                                    className="kpi-label",
-                                    style={"width": "100%"},
+                                html.Div(
+                                    [
+                                        dcc.Input(
+                                            id="backtest-stocks",
+                                            type="text",
+                                            value="SZ002077,SZ002119",
+                                            className="kpi-label",
+                                            style={
+                                                "flex": "1",
+                                                "marginRight": "12px",  # 输入框右侧间隙
+                                                "minWidth": "30%",  # 最小宽度为父容器宽度的 30%
+                                            },
+                                        ),
+                                        html.Button(
+                                            "刷新",
+                                            id="backtest-refresh",
+                                            n_clicks=0,
+                                            className="btn btn-secondary",
+                                            style={
+                                                "flex": "0 0 auto",
+                                                "minWidth": "20%",  # 按钮固定最小宽度
+                                            },
+                                        ),
+                                    ],
+                                    style={
+                                        "display": "flex",
+                                        "alignItems": "flex-start",  # 让子元素高度一致
+                                        "width": "100%",
+                                    },
                                 ),
                             ],
                             xs=12,
@@ -471,6 +531,7 @@ class BacktestPage:
                             md=4,
                             lg=5,
                         ),
+                        # 回测按钮列（单独一行，保持不变）
                         dbc.Col(
                             [
                                 html.Label(" "),
@@ -598,6 +659,9 @@ class BacktestPage:
             [
                 # 添加数据存储组件（关键！）
                 dcc.Store(id="backtest-data", data=None),  # 初始为空，回测后填充
+                # 新增两个 Store
+                dcc.Store(id="backtest-full-list", data=[]),
+                dcc.Store(id="backtest-page", data=0),
                 Header(self.app),
                 html.Div(
                     [
