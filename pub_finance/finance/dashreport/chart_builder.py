@@ -2169,7 +2169,7 @@ class ChartBuilder:
 
         # 布局
         fig.update_layout(
-            height=int(420 * scale),
+            # height=int(420 * scale),
             margin=dict(l=0, r=0, t=0, b=0),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",

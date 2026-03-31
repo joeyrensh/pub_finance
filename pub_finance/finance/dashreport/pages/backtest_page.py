@@ -395,9 +395,11 @@ class BacktestPage:
                             },
                         ),
                         style={
+                            "marginBottom": "30px",
+                            "padding": 0,
                             "width": "100%",
-                            "height": "auto",
-                            "marginBottom": "20px",
+                            "height": "100%",
+                            "aspectRatio": 1.6,
                         },
                     )
                 )
