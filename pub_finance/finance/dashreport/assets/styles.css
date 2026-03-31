@@ -136,6 +136,7 @@ body {
   color: var(--text-color);
   margin-bottom: 4px;
   font-size: 1.3rem;
+  font-weight: 500;
 }
 
 .dash-input {
