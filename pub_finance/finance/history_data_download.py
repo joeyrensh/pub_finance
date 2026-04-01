@@ -1,3 +1,7 @@
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from finance.utility.em_stock_uti import EMWebCrawlerUti
 from finance.cncrawler.ak_history_crawler import AKCNHistoryDataCrawler
 from finance.paths import FINANCE_ROOT

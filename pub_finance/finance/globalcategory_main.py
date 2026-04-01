@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
+from pathlib import Path
+import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from uscrawler.eastmoney_tickercategory_crawler import EMUsTickerCategoryCrawler
 from cncrawler.eastmoney_tickercategory_crawler import EMCNTickerCategoryCrawler
 from finance.utility.toolkit import ToolKit

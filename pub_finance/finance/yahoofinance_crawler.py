@@ -8,7 +8,13 @@ import logging
 from requests.exceptions import ProxyError, ConnectionError, Timeout, HTTPError
 import csv
 import os
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from finance.paths import FINANCE_ROOT
+from finance.utility.em_stock_uti import EMWebCrawlerUti
+from finance.utility.toolkit import ToolKit
 
 # 配置日志记录
 logging.basicConfig(
@@ -32,12 +38,13 @@ def get_industry_info(symbol, proxy_list, max_retries=3):
         proxy_priority_list.extend([p for p in proxy_list if p != last_success_proxy])
     else:
         proxy_priority_list = proxy_list.copy()
+    from curl_cffi import requests as curl_requests
 
     for attempt in range(1, max_retries + 1):
         for proxy in proxy_priority_list:
             try:
                 # 创建新会话
-                with requests.Session() as session:
+                with curl_requests.Session() as session:
                     if use_proxy:
                         session.proxies = {"http": proxy, "https": proxy}
                         logger.info(f"[{symbol}] 尝试第{attempt}次请求 | 代理: {proxy}")
@@ -45,15 +52,14 @@ def get_industry_info(symbol, proxy_list, max_retries=3):
                         logger.info(f"[{symbol}] 尝试第{attempt}次请求 | 直连")
 
                     # 动态请求头
-                    session.headers.update(
-                        {
-                            "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                            f"AppleWebKit/537.36 (尝试次数: {attempt})"
-                        }
-                    )
+                    session.headers = {
+                        "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                        f"AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{random.randint(80, 100)}.0.{random.randint(4000, 5000)}.100 Safari/537.36"
+                    }
 
                     # 获取行业信息
                     ticker = yf.Ticker(symbol, session=session)
+                    # ticker = yf.Ticker(symbol)
                     info = ticker.info
                     industry = info.get("industry", None)
 
@@ -104,24 +110,32 @@ def get_processed_symbols(output_file):
 def get_us_stock_symbols(cache_file, output_file):
     """获取未处理的美股代码列表（带CSV缓存）"""
     processed = get_processed_symbols(output_file)
+    trade_date = ToolKit("获取最新交易日").get_us_latest_trade_date(1)
+    em = EMWebCrawlerUti()
 
     try:
         # 如果缓存文件存在则直接读取
         if os.path.exists(cache_file):
-            stock_df = pd.read_csv(cache_file)
+            stock_df = pd.read_csv(
+                cache_file,
+                usecols=["symbol", "mkt_code"],
+                on_bad_lines="skip",
+                engine="python",
+                encoding="utf-8",
+            )
+            stock_list = stock_df["symbol"].tolist()
             logger.info(f"从缓存文件 {cache_file} 加载股票代码")
         else:
             # 无缓存时请求接口
             logger.info("未找到缓存文件，开始请求原始数据...")
-            stock_df = ak.stock_us_spot_em()
-            stock_df["clean_symbol"] = stock_df["代码"].str.split(".").str[1]
 
-            # 保存缓存
-            stock_df.to_csv(cache_file, index=False)
-            logger.info(f"已缓存股票代码到 {cache_file}")
+            # 使用自定义爬虫获取美股symbol list
+            stock_list = em.get_stock_list(
+                market="us", trade_date=trade_date, target_file=cache_file
+            )
 
         # 获取有效代码列表
-        all_symbols = stock_df["clean_symbol"].tolist()
+        all_symbols = stock_list
         logger.info(f"总代码数量：{len(all_symbols)}")
 
         # 过滤已处理代码，并排除非字符串和空值
@@ -254,16 +268,16 @@ if __name__ == "__main__":
     """
     proxy_list = [
         # "http://23.237.210.82:80",
-        "http://34.170.24.59:3128",
+        # "http://34.170.24.59:3128",
         # "http://57.129.81.201:999",
-        # "http://185.191.236.162:3128",
+        "http://185.191.236.162:3128",
     ]  # 代理列表
     CACHE_FILE = FINANCE_ROOT / "usstockinfo" / "symbol_list_cache.csv"
     OUTPUT_FILE = FINANCE_ROOT / "usstockinfo" / "industry_yfinance.csv"
 
-    # main(proxy_list, CACHE_FILE, OUTPUT_FILE)
-    convert_industry(
-        source_file=OUTPUT_FILE,
-        map_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_mapping.csv",
-        target_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_cn.csv",
-    )
+    main(proxy_list, CACHE_FILE, OUTPUT_FILE)
+    # convert_industry(
+    #     source_file=OUTPUT_FILE,
+    #     map_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_mapping.csv",
+    #     target_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_cn.csv",
+    # )
