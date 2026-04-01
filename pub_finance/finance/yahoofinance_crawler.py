@@ -59,7 +59,6 @@ def get_industry_info(symbol, proxy_list, max_retries=3):
 
                     # 获取行业信息
                     ticker = yf.Ticker(symbol, session=session)
-                    # ticker = yf.Ticker(symbol)
                     info = ticker.info
                     industry = info.get("industry", None)
 
