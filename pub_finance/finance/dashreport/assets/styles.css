@@ -177,7 +177,7 @@ body {
 .progress-btn.running {
     position: relative;
     overflow: hidden;
-    background-color: #57a0ec94; /* 按钮底色固定 */
+    background-color: transparent; /* 按钮底色固定 */
     color: var(--text-color);
 }
 
@@ -196,24 +196,9 @@ body {
     top: 0;
     height: 100%;
     width: 0%;
-    background: linear-gradient(
-        90deg,
-        rgba(255,255,255,0.15),
-        rgba(255,255,255,0.35)
-    );
+    background-color: rgba(87, 160, 236, 0.45);
     animation: queue-fill 12s linear infinite;
     z-index: 0;
-}
-
-/* dark mode 进度条颜色更深 */
-@media (prefers-color-scheme: dark) {
-    .progress-btn.running::after {
-        background: linear-gradient(
-            90deg,
-            rgba(0,0,0,0.2),
-            rgba(0,0,0,0.4)
-        );
-    }
 }
 
 /* 动画：进度条从左向右填充 */
