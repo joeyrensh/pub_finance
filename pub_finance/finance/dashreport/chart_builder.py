@@ -1431,9 +1431,6 @@ class ChartBuilder:
         # =========================
         # 7. 创建图表
         # =========================
-        TABLE_WIDTH_RATIO = 0.35
-        CHART_WIDTH_RATIO = 0.65
-        HORIZONTAL_SPACING = 0.01
 
         fig = go.Figure()
 
@@ -1757,9 +1754,12 @@ class ChartBuilder:
         # =========================
         # 13. 布局设置
         # =========================
+        TABLE_WIDTH_RATIO = 0.35
+        CHART_WIDTH_RATIO = 0.65
+        HORIZONTAL_SPACING = 0.005
         # 计算图表区域（左侧）
         chart_domain_left = 0.0
-        chart_domain_right = 1 - TABLE_WIDTH_RATIO - HORIZONTAL_SPACING
+        chart_domain_right = 1.0 - TABLE_WIDTH_RATIO - HORIZONTAL_SPACING
 
         # 计算表格区域（右侧）
         table_domain_left = chart_domain_right + HORIZONTAL_SPACING
@@ -1817,7 +1817,7 @@ class ChartBuilder:
                     align=["center"] * len(table_df.columns),
                     height=cell_height,
                 ),
-                columnwidth=[1.0] + [1.0] * (len(table_df.columns) - 1),
+                # columnwidth=[1.0] + [1.0] * (len(table_df.columns) - 1),
             )
         )
 
@@ -1829,11 +1829,11 @@ class ChartBuilder:
         data_end_date = pnl.index.max()  # 最大日期
 
         fig.update_layout(
-            autosize=True,
+            # autosize=True,
             dragmode=False,
-            # width=None,
+            width=None,
             # height=None,
-            margin=dict(l=0, r=0, t=0, b=0),
+            margin=dict(l=0, r=1, t=0, b=0),
             font=dict(size=base_font, color=text_color, family=self.font_family),
             legend=dict(
                 x=legend_absolute_x,
@@ -1916,15 +1916,13 @@ class ChartBuilder:
                 linecolor=cfg["border"],
                 mirror=True,
                 anchor="y",
-                tickmode="linear",
-                dtick="M5",
                 tickformat="%Y-%m",
                 hoverformat="%Y-%m-%d",
                 showgrid=True,
                 position=0.0,
                 range=[
                     data_start_date - timedelta(days=0.5),
-                    data_end_date + timedelta(days=0.5),
+                    data_end_date + timedelta(days=10),
                 ],  # 使用计算的范围
             ),
         )
