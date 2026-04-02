@@ -1,4 +1,3 @@
-import akshare as ak
 import yfinance as yf
 import pandas as pd
 import requests
@@ -16,78 +15,84 @@ from finance.paths import FINANCE_ROOT
 from finance.utility.em_stock_uti import EMWebCrawlerUti
 from finance.utility.toolkit import ToolKit
 
-# 配置日志记录
+# ========== 添加日志配置 ==========
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-last_success_proxy = None  # 持久化存储最后成功的代理
+last_success_proxy = None
 
 
-def get_industry_info(symbol, proxy_list, max_retries=3):
+def get_industry_info(symbol, proxy_list, max_retries=1, preferred_proxy=None):
+    """
+    获取股票行业信息，支持代理轮询和优先使用指定代理
+    返回 (industry, used_proxy) 或 ("N/A", None)
+    """
+    # 关闭 SSL 校验（环境变量方式）
+    os.environ.setdefault("CURL_CA_BUNDLE", "")
+    os.environ.setdefault("SSL_CERT_FILE", "")
+
     global last_success_proxy
-
     use_proxy = bool(proxy_list)
-    if not use_proxy:
-        logger.info(f"[{symbol}] 代理列表为空，直连访问")
 
-    # 代理使用优先级：最后成功 > 未使用代理 > 已失败代理
-    proxy_priority_list = []
-    if last_success_proxy and last_success_proxy in proxy_list:
-        proxy_priority_list.append(last_success_proxy)
-        proxy_priority_list.extend([p for p in proxy_list if p != last_success_proxy])
-    else:
-        proxy_priority_list = proxy_list.copy()
-    from curl_cffi import requests as curl_requests
+    # 构建代理优先级列表
+    proxy_priority = []
+    if preferred_proxy and preferred_proxy in proxy_list:
+        proxy_priority.append(preferred_proxy)
+    if (
+        last_success_proxy
+        and last_success_proxy not in proxy_priority
+        and last_success_proxy in proxy_list
+    ):
+        proxy_priority.append(last_success_proxy)
+    for p in proxy_list:
+        if p not in proxy_priority:
+            proxy_priority.append(p)
 
     for attempt in range(1, max_retries + 1):
-        for proxy in proxy_priority_list:
+        for proxy in proxy_priority:
             try:
-                # 创建新会话
-                with curl_requests.Session() as session:
-                    if use_proxy:
-                        session.proxies = {"http": proxy, "https": proxy}
-                        logger.info(f"[{symbol}] 尝试第{attempt}次请求 | 代理: {proxy}")
-                    else:
-                        logger.info(f"[{symbol}] 尝试第{attempt}次请求 | 直连")
+                # 通过环境变量设置代理
+                if use_proxy:
+                    os.environ["HTTP_PROXY"] = proxy
+                    os.environ["HTTPS_PROXY"] = proxy
+                    logger.info(f"[{symbol}] 尝试第{attempt}次请求 | 代理: {proxy}")
+                else:
+                    os.environ.pop("HTTP_PROXY", None)
+                    os.environ.pop("HTTPS_PROXY", None)
+                    logger.info(f"[{symbol}] 尝试第{attempt}次请求 | 直连")
 
-                    # 动态请求头
-                    session.headers = {
-                        "User-Agent": f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                        f"AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{random.randint(80, 100)}.0.{random.randint(4000, 5000)}.100 Safari/537.36"
-                    }
+                ticker = yf.Ticker(symbol)
+                info = ticker.info
+                industry = info.get("industry", None)
 
-                    # 获取行业信息
-                    ticker = yf.Ticker(symbol, session=session)
-                    info = ticker.info
-                    industry = info.get("industry", None)
-
-                    # 记录成功代理
-                    if use_proxy:
-                        last_success_proxy = proxy
-                        logger.debug(f"[{symbol}] 代理 {proxy} 标记为有效")
-
-                    logger.info(f"✅ 成功获取 {symbol} 行业信息")
-                    return industry
+                if use_proxy:
+                    last_success_proxy = proxy
+                logger.info(f"✅ 成功获取 {symbol} 行业信息: {industry}")
+                return industry, proxy if use_proxy else None
 
             except (ProxyError, ConnectionError, Timeout, HTTPError) as e:
-                if use_proxy:
-                    logger.warning(f"[{symbol}] 代理 {proxy} 失效 | 错误: {str(e)}")
-                else:
-                    logger.warning(f"[{symbol}] 直连失败 | 错误: {str(e)}")
-                continue  # 继续尝试下一个代理
+                logger.warning(f"[{symbol}] 代理 {proxy} 网络错误: {str(e)}")
+                time.sleep(random.uniform(1, 3))
+                continue
 
             except Exception as e:
-                logger.warning(f"[{symbol}] 处理错误: {str(e)}")
-                return
+                error_msg = str(e)
+                if "Rate limited" in error_msg or "Too Many Requests" in error_msg:
+                    logger.warning(f"[{symbol}] 触发限流，等待后重试")
+                    time.sleep(random.uniform(5, 10))
+                else:
+                    logger.warning(f"[{symbol}] 代理 {proxy} 处理错误: {error_msg}")
+                time.sleep(random.uniform(1, 3))
+                continue
 
-        # 当前优先级列表全部失败时重置
-        if use_proxy:
-            logger.warning(f"[{symbol}] 所有代理尝试失败，重置代理状态")
-            last_success_proxy = None
-            proxy_priority_list = proxy_list.copy()
+        # 所有代理均失败，等待后进入下一次重试
+        if use_proxy and attempt < max_retries:
+            wait = 2**attempt * random.uniform(1, 2)
+            logger.warning(f"[{symbol}] 所有代理失败，{wait:.1f}秒后重试")
+            time.sleep(wait)
 
-    return "N/A"
+    return "N/A", None
 
 
 def get_processed_symbols(output_file):
@@ -127,17 +132,13 @@ def get_us_stock_symbols(cache_file, output_file):
         else:
             # 无缓存时请求接口
             logger.info("未找到缓存文件，开始请求原始数据...")
-
-            # 使用自定义爬虫获取美股symbol list
             stock_list = em.get_stock_list(
                 market="us", trade_date=trade_date, target_file=cache_file
             )
 
-        # 获取有效代码列表
         all_symbols = stock_list
         logger.info(f"总代码数量：{len(all_symbols)}")
 
-        # 过滤已处理代码，并排除非字符串和空值
         filtered = [
             s
             for s in all_symbols
@@ -148,7 +149,6 @@ def get_us_stock_symbols(cache_file, output_file):
 
     except Exception as e:
         logger.error(f"股票代码获取失败: {str(e)}")
-        # 如果缓存文件生成失败，尝试删除损坏文件
         if os.path.exists(cache_file):
             try:
                 os.remove(cache_file)
@@ -164,7 +164,6 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
         logger.info("没有需要处理的新股票代码")
         return
 
-    # 创建文件并写入表头（如果文件不存在）
     file_exists = os.path.exists(OUTPUT_FILE)
     with open(OUTPUT_FILE, "a", newline="", encoding="utf-8-sig") as f:
         writer = csv.writer(f)
@@ -172,23 +171,29 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
             writer.writerow(["idx", "symbol", "industry"])
 
         batch_buffer = []
-        global_index = (
-            sum(1 for _ in open(OUTPUT_FILE, "r", encoding="utf-8-sig")) - 1
-        )  # 计算当前索引
+        global_index = sum(1 for _ in open(OUTPUT_FILE, "r", encoding="utf-8-sig")) - 1
+
+        current_proxy = None
 
         for idx, symbol in enumerate(symbols, 1):
             try:
                 start_time = time.time()
 
-                # 获取行业信息
-                industry = get_industry_info(symbol, PROXY_LIST, max_retries=1)
+                industry, used_proxy = get_industry_info(
+                    symbol,
+                    PROXY_LIST,
+                    max_retries=1,
+                    preferred_proxy=current_proxy,
+                )
+                if used_proxy:
+                    current_proxy = used_proxy
+                else:
+                    current_proxy = None
 
-                # 构建记录
                 global_index += 1
                 record = [global_index, symbol, industry]
                 batch_buffer.append(record)
 
-                # 批量写入
                 if len(batch_buffer) >= 10:
                     writer.writerows(batch_buffer)
                     f.flush()
@@ -207,7 +212,6 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
             except Exception as e:
                 logger.error(f"处理 {symbol} 失败: {str(e)}")
 
-        # 写入剩余数据
         if batch_buffer:
             writer.writerows(batch_buffer)
             f.flush()
@@ -216,38 +220,20 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
 def convert_industry(source_file: str, map_file: str, target_file: str) -> None:
     """
     转换行业信息并生成新文件
-
-    参数:
-        source_file: 输入文件a.csv路径
-        map_file: 映射文件b.csv路径
-        target_file: 输出文件c.csv路径
     """
     try:
-        # 读取原始数据
         df_a = pd.read_csv(source_file)
-
-        # 过滤无效行业数据
         valid_industry = df_a["industry"].notna() & (
             df_a["industry"].str.upper() != "N/A"
         )
         df_filtered = df_a[valid_industry].copy()
-
-        # 读取映射关系
         df_b = pd.read_csv(map_file)
         mapping = df_b.set_index("industry_eng")["industry_cn"].to_dict()
-
-        # 进行行业转换
         df_filtered.loc[:, "industry"] = df_filtered["industry"].map(mapping)
-
-        # 移除转换失败的记录
         df_result = df_filtered.dropna(subset=["industry"])
-
-        # 保存结果
         df_result[["idx", "symbol", "industry"]].to_csv(target_file, index=False)
-
         print(f"成功生成文件: {target_file}")
         print(f"原始记录数: {len(df_a)}, 有效记录数: {len(df_result)}")
-
     except FileNotFoundError as e:
         print(f"文件不存在错误: {str(e)}")
     except KeyError as e:
@@ -257,20 +243,19 @@ def convert_industry(source_file: str, map_file: str, target_file: str) -> None:
 
 
 if __name__ == "__main__":
-    # free proxy website : http://free-proxy.cz/en/proxylist/country/all/https/ping/level1
-    # free proxy website: https://proxydb.net/?protocol=https&country=
-    """
-    remove rows with industry as N/A
-    awk -F, 'BEGIN{OFS=","} { sub(/\r$/, "", $3); if (toupper($3) != "N/A") print }' industry_yfinance.csv > tmp && mv tmp industry_yfinance.csv
-    remove rows with industry as empty
-    awk -F, 'BEGIN{OFS=","} { sub(/\r$/, "", $3); if ($3 != "") print }' industry_yfinance.csv > tmp && mv tmp industry_yfinance.csv
-    """
+    # 代理列表（请自行替换为有效的代理）
     proxy_list = [
-        # "http://23.237.210.82:80",
-        # "http://34.170.24.59:3128",
-        # "http://57.129.81.201:999",
-        "http://185.191.236.162:3128",
-    ]  # 代理列表
+        "http://1.231.81.166:3128",
+        "http://103.178.21.104:3125",
+        "http://103.191.254.134:8080",
+        "http://113.160.132.26:8080",
+        "http://83.219.250.8:62920",
+        "http://95.213.217.168:52004",
+        "http://208.87.243.199:7878",
+        "http://34.101.184.164:3128",
+        "http://8.213.151.128:3128",
+        "http://202.183.236.219:8080",
+    ]
     CACHE_FILE = FINANCE_ROOT / "usstockinfo" / "symbol_list_cache.csv"
     OUTPUT_FILE = FINANCE_ROOT / "usstockinfo" / "industry_yfinance.csv"
 

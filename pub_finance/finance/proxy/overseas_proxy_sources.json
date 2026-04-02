@@ -1,0 +1,80 @@
+{
+  "description": "海外代理源配置（中国大陆可访问）",
+  "last_updated": "2026-04-01",
+  "sources": {
+    "openproxylist_http": {
+      "name": "OpenProxyList-HTTP",
+      "url": "https://api.openproxylist.xyz/http.txt",
+      "type": "requests",
+      "enabled": true,
+      "note": "✅ 直连可用，约 5000 个"
+    },
+    "openproxylist_https": {
+      "name": "OpenProxyList-HTTPS",
+      "url": "https://api.openproxylist.xyz/https.txt",
+      "type": "requests",
+      "enabled": true,
+      "note": "✅ 直连可用，约 3000 个"
+    },
+    "openproxylist_socks4": {
+      "name": "OpenProxyList-SOCKS4",
+      "url": "https://api.openproxylist.xyz/socks4.txt",
+      "type": "requests",
+      "enabled": true,
+      "note": "✅ 直连可用"
+    },
+    "openproxylist_socks5": {
+      "name": "OpenProxyList-SOCKS5",
+      "url": "https://api.openproxylist.xyz/socks5.txt",
+      "type": "requests",
+      "enabled": true,
+      "note": "✅ 直连可用"
+    },
+    "geonode_http": {
+      "name": "Geonode-HTTP",
+      "url": "https://proxylist.geonode.com/api/proxy-list?limit=100&protocols=http",
+      "type": "requests",
+      "enabled": true,
+      "note": "✅ API 可用，约 50 个"
+    },
+    "geonode_socks4": {
+      "name": "Geonode-SOCKS4",
+      "url": "https://proxylist.geonode.com/api/proxy-list?limit=100&protocols=socks4",
+      "type": "requests",
+      "enabled": true,
+      "note": "✅ API 可用，约 50 个"
+    },
+    "geonode_socks5": {
+      "name": "Geonode-SOCKS5",
+      "url": "https://proxylist.geonode.com/api/proxy-list?limit=100&protocols=socks5",
+      "type": "requests",
+      "enabled": true,
+      "note": "✅ API 可用，约 50 个"
+    }
+  },
+  "github_sources": [],
+  "disabled_sources": {
+    "note": "以下源在中国大陆无法访问，已禁用",
+    "github_raw": "raw.githubusercontent.com 被墙",
+    "proxyscrape": "api.proxyscrape.com 被墙",
+    "free_proxy_list": "free-proxy-list.net 需要 JS 渲染",
+    "spys_one": "spys.one 需要 JS 渲染且被墙"
+  },
+  "validation": {
+    "method": "yfinance",
+    "test_symbols": [
+      "AAPL",
+      "GOOGL",
+      "MSFT"
+    ],
+    "timeout": 2,
+    "max_workers": 20,
+    "note": "高并发 + 短超时，快速测试"
+  },
+  "maintenance": {
+    "target_count": 5,
+    "max_failures": 3,
+    "proxies_file": "overseas_proxies.txt",
+    "proxies_json": "overseas_proxies.json"
+  }
+}
