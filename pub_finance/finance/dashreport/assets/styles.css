@@ -160,10 +160,10 @@ body {
     font-size: 1.3rem !important;
 }
 
-/* 月份标题 */
-.custom-date-picker .CalendarMonth_caption {
-    font-size: 1.5rem !important;
+.custom-date-picker .DayPicker_weekHeaders__horizontal{
+  padding: 5px;
 }
+
 
 .kpi-value {
   font-weight: 600;
@@ -886,11 +886,6 @@ a:active {
   .custom-date-picker .CalendarDay__default {
       font-size: 1.2rem !important;
   }
-
-  /* 月份标题 */
-  .custom-date-picker .CalendarMonth_caption {
-      font-size: 1rem !important;
-  }  
 
   .page {
     width: 99% !important;
