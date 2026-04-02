@@ -16,20 +16,6 @@
       "enabled": true,
       "note": "✅ 直连可用，约 3000 个"
     },
-    "openproxylist_socks4": {
-      "name": "OpenProxyList-SOCKS4",
-      "url": "https://api.openproxylist.xyz/socks4.txt",
-      "type": "requests",
-      "enabled": true,
-      "note": "✅ 直连可用"
-    },
-    "openproxylist_socks5": {
-      "name": "OpenProxyList-SOCKS5",
-      "url": "https://api.openproxylist.xyz/socks5.txt",
-      "type": "requests",
-      "enabled": true,
-      "note": "✅ 直连可用"
-    },
     "geonode_http": {
       "name": "Geonode-HTTP",
       "url": "https://proxylist.geonode.com/api/proxy-list?limit=100&protocols=http",
@@ -37,20 +23,13 @@
       "enabled": true,
       "note": "✅ API 可用，约 50 个"
     },
-    "geonode_socks4": {
-      "name": "Geonode-SOCKS4",
-      "url": "https://proxylist.geonode.com/api/proxy-list?limit=100&protocols=socks4",
+    "proxifly": {
+      "name": "Proxifly-GitHub",
+      "url": "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt",
       "type": "requests",
       "enabled": true,
-      "note": "✅ API 可用，约 50 个"
-    },
-    "geonode_socks5": {
-      "name": "Geonode-SOCKS5",
-      "url": "https://proxylist.geonode.com/api/proxy-list?limit=100&protocols=socks5",
-      "type": "requests",
-      "enabled": true,
-      "note": "✅ API 可用，约 50 个"
-    }
+      "note": "✅ GitHub 仓库，约 8000+ 代理"
+    }    
   },
   "github_sources": [],
   "disabled_sources": {

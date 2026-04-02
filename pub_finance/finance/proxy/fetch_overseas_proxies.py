@@ -20,6 +20,8 @@ from datetime import datetime
 from pathlib import Path
 import urllib3
 
+### free proxy links:
+# https://github.com/proxifly/free-proxy-list?tab=readme-ov-file
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 try:
@@ -85,15 +87,24 @@ def save_proxy_pool(pool):
 def fetch_text_source(url, source_name):
     proxies = []
     try:
-        resp = requests.get(url, timeout=15)
+        headers = {"User-Agent": "Mozilla/5.0"}
+        resp = requests.get(url, timeout=15, headers=headers)
         if resp.status_code == 200:
             for line in resp.text.strip().split("\n"):
                 line = line.strip()
-                if line and ":" in line and not line.startswith("#"):
-                    proxies.append(line)
+                # 跳过注释和空行
+                if not line or line.startswith("#"):
+                    continue
+                # 提取 IP:PORT 格式（支持多种格式）
+                if ":" in line:
+                    parts = line.split(":")
+                    if len(parts) >= 2 and parts[-1].isdigit():
+                        # 处理可能的额外字段（如：IP:PORT:country:protocol）
+                        ip_port = f"{parts[0]}:{parts[1]}"
+                        proxies.append(ip_port)
             print(f"   {source_name}: {len(proxies)} 个")
     except Exception as e:
-        print(f"   ⚠️ {source_name}: {e}")
+        print(f"   ⚠️ {source_name}: {str(e)[:50]}")
     return proxies
 
 
