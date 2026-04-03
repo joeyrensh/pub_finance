@@ -19,28 +19,24 @@ IP_RANGES = [
     "13.0.0.0/8",
     "34.0.0.0/8",
     "35.0.0.0/8",
-    "40.64.0.0/10",
     "52.0.0.0/8",
-    "66.102.0.0/20",
-    "72.14.192.0/18",
     "88.0.0.0/8",
     "91.0.0.0/8",
     "103.0.0.0/8",
 ]
 
 
-def generate_targets(limit):
-    res = []
-    while len(res) < limit:
+def generate_targets(n):
+    out = []
+    while len(out) < n:
         net = IPv4Network(random.choice(IP_RANGES))
         ip = str(random.choice(list(net.hosts())))
         port = random.choice(COMMON_PORTS)
-        res.append(f"{ip}:{port}")
-    return res
+        out.append(f"{ip}:{port}")
+    return out
 
 
 async def test_proxy(session, proxy, timeout):
-    start = time.time()
     try:
         async with session.get(
             TEST_URL,
@@ -51,22 +47,27 @@ async def test_proxy(session, proxy, timeout):
                 return None
             data = await r.json()
 
-        latency = time.time() - start
         origin = data.get("origin", "")
-
         if "," in origin:
-            anonymity = "transparent"
+            level = "transparent"
         elif proxy.split(":")[0] in origin:
-            anonymity = "anonymous"
+            level = "anonymous"
         else:
-            anonymity = "elite"
+            level = "elite"
 
-        return anonymity, latency
+        return level
     except Exception:
         return None
 
 
-async def worker_loop(task_q, result_q, concurrency, timeout):
+async def worker_loop(
+    task_q,
+    result_q,
+    scanned,
+    lock,
+    concurrency,
+    timeout,
+):
     sem = asyncio.Semaphore(concurrency)
     connector = aiohttp.TCPConnector(limit=concurrency * 2, ssl=False)
 
@@ -74,28 +75,20 @@ async def worker_loop(task_q, result_q, concurrency, timeout):
 
         async def handle(proxy):
             async with sem:
-                ok = 0
-                latency_sum = 0
-                anonymity = None
+                level = await test_proxy(session, proxy, timeout)
 
-                for _ in range(2):
-                    r = await test_proxy(session, proxy, timeout)
-                    if r:
-                        anonymity, lat = r
-                        ok += 1
-                        latency_sum += lat
+                # 🔥 原子计数：这是关键
+                with lock:
+                    scanned.value += 1
 
-                # 无论成功与否，都算“扫描完成”
-                result_q.put(("DONE", None))
-
-                if ok == 0:
+                if not level:
                     return
 
                 try:
                     async with session.get(
                         IP_CHECK_URL,
                         proxy=f"http://{proxy}",
-                        timeout=aiohttp.ClientTimeout(total=timeout),
+                        timeout=timeout,
                     ) as r:
                         exit_ip = (await r.text()).strip()
                 except Exception:
@@ -104,28 +97,18 @@ async def worker_loop(task_q, result_q, concurrency, timeout):
                 try:
                     async with session.get(
                         GEO_URL.format(ip=exit_ip),
-                        timeout=aiohttp.ClientTimeout(total=timeout),
+                        timeout=timeout,
                     ) as r:
                         country = (await r.text()).strip()
                 except Exception:
                     country = "Unknown"
 
-                result_q.put(
-                    (
-                        "OK",
-                        (proxy, country, anonymity, round(latency_sum / ok, 3), ok / 2),
-                    )
-                )
+                result_q.put((proxy, country, level))
 
         while True:
-            batch = []
             try:
-                for _ in range(concurrency):
-                    batch.append(task_q.get_nowait())
+                batch = [task_q.get_nowait() for _ in range(concurrency)]
             except Exception:
-                pass
-
-            if not batch:
                 break
 
             await asyncio.gather(*(handle(p) for p in batch))
@@ -152,33 +135,46 @@ def main():
     for t in targets:
         task_q.put(t)
 
+    scanned = mp.Value("i", 0)
+    lock = mp.Lock()
+
     workers = []
     for _ in range(args.workers):
         p = mp.Process(
             target=worker_entry,
-            args=(task_q, result_q, args.concurrency, args.timeout),
+            args=(
+                task_q,
+                result_q,
+                scanned,
+                lock,
+                args.concurrency,
+                args.timeout,
+            ),
         )
         p.start()
         workers.append(p)
 
-    scanned = 0
     results = []
+    last = 0
 
     with tqdm(total=len(targets), desc="Scanning") as bar:
-        while scanned < len(targets):
-            typ, payload = result_q.get()
-            if typ == "DONE":
-                scanned += 1
-                bar.update(1)
-            elif typ == "OK":
-                results.append(payload)
+        while last < len(targets):
+            time.sleep(0.2)
+            with lock:
+                cur = scanned.value
+            if cur > last:
+                bar.update(cur - last)
+                last = cur
 
     for p in workers:
         p.join()
 
+    while not result_q.empty():
+        results.append(result_q.get())
+
     with open(args.out, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["proxy", "country", "anonymity", "latency", "success_rate"])
+        writer.writerow(["proxy", "country", "anonymity"])
         writer.writerows(results)
 
     print(f"\n✅ 扫描完成 | 可用代理: {len(results)}")
