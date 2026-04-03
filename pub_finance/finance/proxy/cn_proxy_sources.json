@@ -1,10 +1,10 @@
 {
-  "description": "中国大陆代理源配置",
+  "description": "中国大陆代理源配置（requests 版 - 无需 agent-browser）",
   "sources": {
     "zdaye": {
       "name": "站大爷",
       "url": "https://www.zdaye.com/free/",
-      "type": "browser",
+      "type": "requests",
       "params": {
         "max_pages": 3,
         "dengji": 3
@@ -25,31 +25,18 @@
         "limit": 500
       },
       "enabled": true
+    },
+    "proxifly": {
+      "name": "Proxifly-GitHub",
+      "url": "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt",
+      "type": "requests",
+      "enabled": true,
+      "note": "✅ GitHub 仓库，约 8000+ 代理"
     }
   },
-  "github_sources": [
-    {
-      "name": "TheSpeedX-HTTP",
-      "url": "https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/http.txt",
-      "protocol": "http",
-      "enabled": true
-    },
-    {
-      "name": "monosans-HTTP",
-      "url": "https://raw.githubusercontent.com/monosans/proxy-list/main/proxies/http.txt",
-      "protocol": "http",
-      "enabled": true
-    },
-    {
-      "name": "ShiftyTR-HTTP",
-      "url": "https://raw.githubusercontent.com/ShiftyTR/Proxy-List/master/http.txt",
-      "protocol": "http",
-      "enabled": true
-    }
-  ],
+  "github_sources": [],
   "validation": {
     "test_url": "http://www.baidu.com",
-    "china_first_octets": [1, 14, 18, 21, 27, 31, 36, 39, 42, 49, 58, 59, 60, 61, 62, 63, 101, 102, 106, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 140, 144, 150, 153, 163, 171, 172, 173, 174, 175, 180, 181, 182, 183, 187, 189, 202, 210, 211, 218, 219, 220, 221, 222, 223],
     "timeout": 3,
     "max_workers": 20
   },
