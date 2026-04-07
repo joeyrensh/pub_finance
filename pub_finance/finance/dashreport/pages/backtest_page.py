@@ -511,7 +511,7 @@ class BacktestPage:
                                     style={
                                         "width": "auto",
                                         "minWidth": "160px",
-                                        "margin-left": "10px",
+                                        "margin-left": "5px",
                                         "zIndex": 1050,
                                     },
                                 ),
