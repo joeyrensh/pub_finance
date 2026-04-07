@@ -474,10 +474,10 @@ class BacktestPage:
         return dbc.Container(
             [
                 html.H6("回测分析", className="subtitle padded"),
-                dbc.Row(
+                # 第一行：市场 + 回测日期（强制同行，横向滚动）
+                html.Div(
                     [
-                        # 市场选择列（不变）
-                        dbc.Col(
+                        html.Div(
                             [
                                 html.Label("市场"),
                                 dcc.RadioItems(
@@ -490,13 +490,16 @@ class BacktestPage:
                                     inline=True,
                                 ),
                             ],
-                            xs=12,
-                            sm=6,
-                            md=3,
-                            lg=2,
+                            style={
+                                "display": "inline-flex",
+                                "alignItems": "baseline",
+                                "align-content": "flex-end",
+                                "flex-direction": "row",
+                                "marginRight": "20px",
+                                "flexShrink": 0,
+                            },
                         ),
-                        # 回测日期列（不变）
-                        dbc.Col(
+                        html.Div(
                             [
                                 html.Label("回测日期"),
                                 dcc.DatePickerSingle(
@@ -505,14 +508,30 @@ class BacktestPage:
                                     display_format="YYYY-MM-DD",
                                     placeholder="选择日期",
                                     className="custom-date-picker kpi-label",
-                                    style={"width": "100%"},
+                                    style={
+                                        "width": "auto",
+                                        "minWidth": "160px",
+                                        "margin-left": "10px",
+                                        "zIndex": 1050,
+                                    },
                                 ),
                             ],
-                            xs=12,
-                            sm=6,
-                            md=3,
-                            lg=3,
+                            style={
+                                "display": "inline-flex",
+                                "alignItems": "center",
+                                "flexShrink": 0,
+                            },
                         ),
+                    ],
+                    style={
+                        "flexWrap": "nowrap",
+                        # "overflowX": "auto",
+                    },
+                    className="kpi-label",
+                ),
+                # 第二行：股票代码区域 + 回测按钮（原样保留）
+                dbc.Row(
+                    [
                         dbc.Col(
                             [
                                 html.Label("股票代码"),
@@ -525,8 +544,8 @@ class BacktestPage:
                                             className="kpi-label",
                                             style={
                                                 "flex": "1",
-                                                "marginRight": "12px",  # 输入框右侧间隙
-                                                "minWidth": "30%",  # 最小宽度为父容器宽度的 30%
+                                                "marginRight": "12px",
+                                                "minWidth": "30%",
                                             },
                                         ),
                                         html.Button(
@@ -536,23 +555,23 @@ class BacktestPage:
                                             className="kpi-label btn btn-secondary",
                                             style={
                                                 "flex": "0 0 auto",
-                                                "minWidth": "20%",  # 按钮固定最小宽度
+                                                "minWidth": "20%",
                                             },
                                         ),
                                     ],
                                     style={
                                         "display": "flex",
-                                        "alignItems": "flex-start",  # 让子元素高度一致
+                                        "alignItems": "flex-start",
                                         "width": "100%",
+                                        "flexWrap": "nowrap",
                                     },
                                 ),
                             ],
                             xs=12,
-                            sm=12,
-                            md=4,
-                            lg=5,
+                            sm=8,
+                            md=8,
+                            lg=9,
                         ),
-                        # 回测按钮列（单独一行，保持不变）
                         dbc.Col(
                             [
                                 html.Label(" "),
@@ -565,9 +584,9 @@ class BacktestPage:
                                 ),
                             ],
                             xs=12,
-                            sm=6,
-                            md=2,
-                            lg=2,
+                            sm=4,
+                            md=4,
+                            lg=3,
                         ),
                     ],
                     className="kpi-label",
