@@ -187,7 +187,7 @@ def test_proxies_batch(proxies, target_count, config):
     validation = config.get("validation", {})
     symbols = validation.get("test_symbols", ["AAPL", "GOOGL", "MSFT"])
     timeout = validation.get("timeout", 2)
-    max_workers = validation.get("max_workers", 2)
+    max_workers = validation.get("max_workers", 4)
 
     valid = []
     total = len(proxies)

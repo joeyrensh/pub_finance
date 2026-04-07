@@ -175,7 +175,7 @@ async def worker_loop(task_q, result_q, scanned, lock, concurrency, timeout, wor
                 try:
                     proxy = task_q.get_nowait()
                 except:
-                    print(f"[Worker-{worker_id}] 队列空，协程退出", flush=True)
+                    # print(f"[Worker-{worker_id}] 队列空，协程退出", flush=True)
                     return
                 async with sem:
                     level = await test_proxy(session, proxy, timeout)

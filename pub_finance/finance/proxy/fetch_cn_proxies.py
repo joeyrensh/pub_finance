@@ -29,7 +29,7 @@ PROXIES_JSON = SCRIPT_DIR / "china_proxies.json"
 
 REQUEST_TIMEOUT = 5
 TEST_TIMEOUT = 3
-MAX_WORKERS = 50
+MAX_WORKERS = 100
 MAX_FAILURES = 3
 
 
@@ -135,7 +135,7 @@ def fetch_proxifly():
     return proxies
 
 
-def is_china_ip(ip, timeout=5):
+def is_china_ip(ip, timeout=2):
     """使用 ipapi.co API 验证 IP 是否为中国大陆代理"""
     try:
         geo_url = f"https://ipapi.co/{ip}/json/"
@@ -156,7 +156,7 @@ def is_china_ip(ip, timeout=5):
         return False, None
 
 
-def test_proxy_strict(proxy, timeout=3):
+def test_proxy_strict(proxy, timeout=1):
     """
     三级验证：
     1. ipapi.co 地理位置验证（确认中国大陆 IP）
