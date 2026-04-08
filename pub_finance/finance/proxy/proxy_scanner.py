@@ -10,6 +10,7 @@ import subprocess
 import json
 import tempfile
 import os
+import re
 from ipaddress import IPv4Network, IPv4Address
 
 # 强制标准输出行缓冲
@@ -102,12 +103,6 @@ IP_RANGES = RESIDENTIAL_IP_RANGES + IDC_IP_RANGES
 
 # ========== 阶段一：通过 ASN 获取 IP 段 ==========
 def normalize_ip_ranges(ranges):
-    """
-    将 ipatel 返回的混合格式统一转换为 masscan 可接受的字符串格式。
-    支持：
-    - CIDR 字符串: "1.224.0.0/11"
-    - 元组 (start_ip, end_ip): 转为 "start_ip-end_ip"
-    """
     normalized = []
     for item in ranges:
         if isinstance(item, tuple) and len(item) == 2:
@@ -119,189 +114,221 @@ def normalize_ip_ranges(ranges):
     return normalized
 
 
-def get_ip_ranges_from_asn(asn_numbers, use_ipatel=True):
-    """
-    通过 ASN 编号获取 IP 段列表，返回字符串列表（CIDR 或 start-end 格式）
-    """
+def get_ip_ranges_from_ipatel(asn_numbers):
     all_ranges = []
+    try:
+        import ipatel as ip
 
-    if use_ipatel:
-        try:
-            import ipatel as ip
-
-            for asn in asn_numbers:
-                asn_str = str(asn).upper().replace("AS", "")
-                asn_int = int(asn_str)
-                result = ip.get_ip_ranges_for_asn(asn_int)
-
-                # 提取 ip_ranges 字段
-                if isinstance(result, dict):
-                    raw_ranges = result.get("ip_ranges", [])
-                elif isinstance(result, list):
-                    raw_ranges = result
-                else:
-                    print(
-                        f"[WARN] AS{asn_int} 返回未知格式: {type(result)}", flush=True
-                    )
-                    continue
-
-                # 规范化格式
-                ranges = normalize_ip_ranges(raw_ranges)
-
-                if ranges:
-                    all_ranges.extend(ranges)
-                    print(f"[ASN] AS{asn_int} 提供 {len(ranges)} 个 IP 段", flush=True)
-                else:
-                    print(f"[WARN] AS{asn_int} 未返回任何 IP 段", flush=True)
-
-        except ImportError:
-            print("[WARN] ipatel 未安装，请执行: pip install ipatel", flush=True)
-            use_ipatel = False
-        except Exception as e:
-            print(f"[ERROR] ipatel 查询失败: {e}", flush=True)
-            use_ipatel = False
-
-    # 备选：asnmap（输出 CIDR，无需额外转换）
-    if not use_ipatel:
         for asn in asn_numbers:
             asn_str = str(asn).upper().replace("AS", "")
-            cmd = ["asnmap", "-a", f"AS{asn_str}", "-silent"]
-            try:
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-                if result.returncode == 0 and result.stdout:
-                    lines = result.stdout.strip().split("\n")
-                    ranges = [line.strip() for line in lines if line.strip()]
-                    all_ranges.extend(ranges)
-                    print(
-                        f"[ASN] AS{asn_str} 通过 asnmap 获取 {len(ranges)} 个 IP 段",
-                        flush=True,
-                    )
-            except FileNotFoundError:
+            asn_int = int(asn_str)
+            result = ip.get_ip_ranges_for_asn(asn_int)
+            if isinstance(result, dict):
+                raw_ranges = result.get("ip_ranges", [])
+            elif isinstance(result, list):
+                raw_ranges = result
+            else:
+                print(f"[WARN] AS{asn_int} 返回未知格式: {type(result)}", flush=True)
+                continue
+            ranges = normalize_ip_ranges(raw_ranges)
+            if ranges:
+                all_ranges.extend(ranges)
                 print(
-                    "[ERROR] asnmap 未安装，请从 https://github.com/projectdiscovery/asnmap 安装",
+                    f"[ASN] AS{asn_int} (ipatel) 提供 {len(ranges)} 个 IP 段",
                     flush=True,
                 )
-                break
-            except Exception as e:
-                print(f"[ERROR] asnmap 执行失败: {e}", flush=True)
+            else:
+                print(f"[WARN] AS{asn_int} (ipatel) 未返回任何 IP 段", flush=True)
+    except ImportError:
+        print("[ERROR] ipatel 未安装，请执行: pip install ipatel", flush=True)
+        raise
+    except Exception as e:
+        print(f"[ERROR] ipatel 查询失败: {e}", flush=True)
+        raise
+    return all_ranges
 
-    # 去重
-    unique_ranges = list(set(all_ranges))
+
+def get_ip_ranges_from_asnmap(asn_numbers):
+    all_ranges = []
+    for asn in asn_numbers:
+        asn_str = str(asn).upper().replace("AS", "")
+        cmd = ["asnmap", "-a", f"AS{asn_str}", "-silent"]
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            if result.returncode == 0 and result.stdout:
+                lines = result.stdout.strip().split("\n")
+                ranges = [line.strip() for line in lines if line.strip()]
+                all_ranges.extend(ranges)
+                print(
+                    f"[ASN] AS{asn_str} (asnmap) 获取 {len(ranges)} 个 IP 段",
+                    flush=True,
+                )
+            else:
+                if "authentication" in result.stderr.lower():
+                    print("[ERROR] asnmap 未认证，请先运行: asnmap -auth", flush=True)
+                else:
+                    print(f"[WARN] asnmap 未返回 AS{asn_str} 的任何 IP 段", flush=True)
+        except FileNotFoundError:
+            print(
+                "[ERROR] asnmap 未安装，请从 https://github.com/projectdiscovery/asnmap 安装",
+                flush=True,
+            )
+            raise
+        except Exception as e:
+            print(f"[ERROR] asnmap 执行失败: {e}", flush=True)
+            raise
+    return all_ranges
+
+
+def get_ip_ranges_from_whois(asn_numbers, timeout=120):
+    all_cidrs = []
+    for asn in asn_numbers:
+        asn_str = str(asn).upper().replace("AS", "")
+        cmd = ["whois", "-h", "whois.radb.net", "--", f"-i origin AS{asn_str}"]
+        try:
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=timeout
+            )
+            if result.returncode == 0:
+                cidrs = re.findall(r"([0-9.]+/[0-9]+)", result.stdout)
+                unique_cidrs = list(set(cidrs))
+                all_cidrs.extend(unique_cidrs)
+                print(
+                    f"[ASN] AS{asn_str} (whois) 获取 {len(unique_cidrs)} 个 IP 段",
+                    flush=True,
+                )
+            else:
+                print(
+                    f"[WARN] whois 查询 AS{asn_str} 失败，返回码: {result.returncode}",
+                    flush=True,
+                )
+        except subprocess.TimeoutExpired:
+            print(f"[ERROR] whois 查询 AS{asn_str} 超时 ({timeout}s)", flush=True)
+            raise
+        except FileNotFoundError:
+            print(
+                "[ERROR] whois 命令未找到，请安装 whois (apt install whois)", flush=True
+            )
+            raise
+        except Exception as e:
+            print(f"[ERROR] whois 执行失败: {e}", flush=True)
+            raise
+    return list(set(all_cidrs))
+
+
+def get_ip_ranges_from_asn(asn_numbers, source="ipatel", whois_timeout=120):
+    if source == "ipatel":
+        ranges = get_ip_ranges_from_ipatel(asn_numbers)
+    elif source == "asnmap":
+        ranges = get_ip_ranges_from_asnmap(asn_numbers)
+    elif source == "whois":
+        ranges = get_ip_ranges_from_whois(asn_numbers, timeout=whois_timeout)
+    else:
+        raise ValueError(f"不支持的 source: {source}")
+    unique_ranges = list(set(ranges))
     print(f"[ASN] 共获取 {len(unique_ranges)} 个唯一 IP 段", flush=True)
     return unique_ranges
 
 
 # ========== 阶段二：masscan 快速端口扫描 ==========
-
-
-def run_masscan_scan(cidr_list, ports, rate=10000, timeout=300):
+def run_masscan_scan(cidr_list, ports, rate=10000, timeout=300, batch_size=100):
     """
-    使用 masscan 对 CIDR 列表进行快速端口扫描。
-    返回开放端口列表: [(ip, port), ...]
+    分批调用 masscan 扫描 CIDR 列表
     """
     if not cidr_list:
         print("[ERROR] 没有提供 IP 段，无法进行 masscan 扫描", flush=True)
         return []
 
-    # 将 CIDR 列表合并为逗号分隔的字符串
-    targets = ",".join(cidr_list)
-    # 端口参数：支持单端口、范围、列表
+    all_open_ports = []
+    total_batches = (len(cidr_list) + batch_size - 1) // batch_size
     ports_arg = ",".join(str(p) for p in ports)
 
-    # 创建临时文件存储 masscan 输出
-    with tempfile.NamedTemporaryFile(mode="w+", suffix=".json", delete=False) as tmp:
-        output_file = tmp.name
-
-    # 构建 masscan 命令
-    # -oJ: JSON 格式输出，便于解析
-    # --rate: 发包速率（包/秒），根据网络环境调整
-    cmd = [
-        "sudo",
-        "masscan",
-        targets,
-        "-p",
-        ports_arg,
-        "--rate",
-        "100",  # 降低扫描速率，如 100
-        "--source-port",
-        "40000-41023",  # 指定源端口范围
-        "--retries",
-        "2",  # 增加重试次数
-        "-e",
-        "eth0",  # 指定物理网卡，确保是本机网络出口
-        "--wait",
-        "20",  # 增加扫描结束后的等待时间，防止漏包
-        "-oJ",
-        output_file,
-    ]
-
-    print(
-        f"[MASSCAN] 开始扫描 {len(cidr_list)} 个 IP 段，{len(ports)} 个端口", flush=True
-    )
-    print(
-        f"[MASSCAN] 命令: masscan {targets[:100]}... -p {ports_arg} --rate {rate}",
-        flush=True,
-    )
-
-    try:
-        # 执行 masscan
-        proc = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    for i in range(0, len(cidr_list), batch_size):
+        batch = cidr_list[i : i + batch_size]
+        batch_num = i // batch_size + 1
+        targets = ",".join(batch)
+        print(
+            f"[MASSCAN] 批次 {batch_num}/{total_batches}，扫描 {len(batch)} 个 IP 段",
+            flush=True,
         )
 
-        # 实时读取 stderr 输出进度信息
-        for line in proc.stderr:
-            if "rate:" in line.lower() or "done:" in line.lower():
-                print(f"[MASSCAN] {line.strip()}", flush=True)
+        # 创建临时输出文件
+        with tempfile.NamedTemporaryFile(
+            mode="w+", suffix=".json", delete=False
+        ) as tmp:
+            output_file = tmp.name
 
-        proc.wait(timeout=timeout)
+        # 构建命令（与手动成功的参数保持一致）
+        cmd = [
+            "sudo",
+            "masscan",
+            targets,
+            "-p",
+            ports_arg,
+            "--rate",
+            str(rate),
+            "--source-port",
+            "40000-41023",
+            "--retries",
+            "1",
+            "--wait",
+            "10",  # 减少等待时间
+        ]
 
-    except subprocess.TimeoutExpired:
-        proc.terminate()
-        print(f"[MASSCAN] 扫描超时 ({timeout}s)，强制终止", flush=True)
-    except Exception as e:
-        print(f"[MASSCAN] 执行失败: {e}", flush=True)
-        return []
+        try:
+            proc = subprocess.Popen(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+            )
+            # 实时输出进度
+            for line in proc.stderr:
+                if "rate:" in line.lower() or "done:" in line.lower():
+                    print(f"[MASSCAN] {line.strip()}", flush=True)
+            proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            proc.terminate()
+            print(f"[MASSCAN] 批次 {batch_num} 超时，跳过", flush=True)
+            continue
+        except Exception as e:
+            print(f"[MASSCAN] 批次 {batch_num} 执行失败: {e}", flush=True)
+            continue
 
-    # 解析 JSON 输出
-    open_ports = []
-    try:
-        with open(output_file, "r") as f:
-            # masscan 输出的是每行一个 JSON 对象，不是标准 JSON 数组
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    data = json.loads(line)
-                    ip = data.get("ip")
-                    ports_list = data.get("ports", [])
-                    for p in ports_list:
-                        port = p.get("port")
-                        if port:
-                            open_ports.append((ip, port))
-                except json.JSONDecodeError:
-                    continue
-    except Exception as e:
-        print(f"[MASSCAN] 解析结果失败: {e}", flush=True)
+        # 解析 JSON 结果
+        try:
+            with open(output_file, "r") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        data = json.loads(line)
+                        ip = data.get("ip")
+                        ports_list = data.get("ports", [])
+                        for p in ports_list:
+                            port = p.get("port")
+                            if port:
+                                all_open_ports.append((ip, port))
+                    except json.JSONDecodeError:
+                        continue
+        except Exception as e:
+            print(f"[MASSCAN] 解析结果失败: {e}", flush=True)
 
-    # 清理临时文件
-    try:
-        os.unlink(output_file)
-    except:
-        pass
+        # 清理临时文件
+        try:
+            os.unlink(output_file)
+        except:
+            pass
 
-    # 去重并统计
-    open_ports = list(set(open_ports))
-    print(f"[MASSCAN] 扫描完成，发现 {len(open_ports)} 个开放端口", flush=True)
-    return open_ports
-
-
-# ========== 阶段三：代理验证（复用原有逻辑）==========
+    # 去重
+    all_open_ports = list(set(all_open_ports))
+    print(
+        f"[MASSCAN] 所有批次扫描完成，共发现 {len(all_open_ports)} 个开放端口",
+        flush=True,
+    )
+    return all_open_ports
 
 
+# ========== 阶段三：代理验证 ==========
 async def test_proxy(session, proxy, timeout):
-    """测试代理的匿名级别"""
     try:
         async with session.get(
             TEST_URL,
@@ -324,18 +351,9 @@ async def test_proxy(session, proxy, timeout):
 
 
 async def verify_proxy(session, proxy, timeout):
-    """
-    完整验证一个代理：
-    1. 测试匿名级别
-    2. 获取出口 IP
-    3. 获取国家
-    """
     level = await test_proxy(session, proxy, timeout)
     if not level:
         return None
-
-    host, port = proxy.split(":")
-    # 获取出口 IP
     try:
         async with session.get(
             IP_CHECK_URL,
@@ -345,8 +363,6 @@ async def verify_proxy(session, proxy, timeout):
             exit_ip = (await r.text()).strip()
     except:
         return None
-
-    # 获取国家
     try:
         async with session.get(
             GEO_URL.format(ip=exit_ip),
@@ -355,18 +371,15 @@ async def verify_proxy(session, proxy, timeout):
             country = (await r.text()).strip()
     except:
         country = "Unknown"
-
     return (proxy, country, level)
 
 
 async def verify_worker(
     task_q, result_q, scanned, lock, concurrency, timeout, worker_id
 ):
-    """验证工作协程"""
     print(f"[Worker-{worker_id}] 启动，并发数={concurrency}", flush=True)
     sem = asyncio.Semaphore(concurrency)
     connector = aiohttp.TCPConnector(limit=concurrency * 2, ssl=False)
-
     async with aiohttp.ClientSession(connector=connector) as session:
 
         async def handle_one():
@@ -396,11 +409,7 @@ def verify_worker_entry(
 
 
 # ========== 辅助函数 ==========
-
-
 def generate_fallback_targets(n):
-    """回退方案：随机生成 IP:端口（复用原有逻辑）"""
-
     def random_ip_from_network(network_str):
         net = IPv4Network(network_str)
         first = int(net.network_address) + 1
@@ -427,22 +436,43 @@ def generate_fallback_targets(n):
     return out
 
 
+def load_cidr_file(filename):
+    """从文件读取 CIDR 列表，每行一个 CIDR"""
+    cidrs = []
+    try:
+        with open(filename, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    cidrs.append(line)
+        print(f"[CIDR] 从文件 {filename} 加载了 {len(cidrs)} 个 CIDR 段", flush=True)
+    except Exception as e:
+        print(f"[ERROR] 读取 CIDR 文件失败: {e}", flush=True)
+        raise
+    return cidrs
+
+
 # ========== 主函数 ==========
-
-
 def main():
     parser = argparse.ArgumentParser(description="ASN 驱动的代理扫描器")
+    parser.add_argument("--asn", type=str, default="", help="ASN 编号，多个用逗号分隔")
     parser.add_argument(
-        "--asn",
+        "--asn-source",
         type=str,
-        default="",
-        help="ASN 编号，多个用逗号分隔，例如: 9318,4766 (AS 前缀可选)",
+        default="ipatel",
+        choices=["ipatel", "asnmap", "whois"],
+        help="ASN 数据源",
     )
     parser.add_argument(
-        "--targets",
-        type=int,
-        default=10000,
-        help="需要验证的代理目标数量（从开放端口中随机选取）",
+        "--whois-timeout", type=int, default=120, help="whois 查询超时时间（秒）"
+    )
+    parser.add_argument(
+        "--cidr-file",
+        type=str,
+        help="直接提供 CIDR 列表文件（每行一个 CIDR），跳过 ASN 查询",
+    )
+    parser.add_argument(
+        "--targets", type=int, default=10000, help="需要验证的代理目标数量"
     )
     parser.add_argument("--workers", type=int, default=4, help="并行进程数")
     parser.add_argument(
@@ -455,38 +485,45 @@ def main():
         "--masscan-rate", type=int, default=10000, help="masscan 发包速率（包/秒）"
     )
     parser.add_argument("--out", default="proxies_ok.csv", help="输出 CSV 文件名")
-    parser.add_argument(
-        "--fallback",
-        action="store_true",
-        help="如果 ASN 未提供或获取失败，回退到随机生成模式",
-    )
+    parser.add_argument("--fallback", action="store_true", help="回退到随机生成模式")
     args = parser.parse_args()
 
-    # ========== 阶段一：获取 IP 段 ==========
+    # 获取 CIDR 列表
     cidr_list = []
-
-    if args.asn:
+    if args.cidr_file:
+        cidr_list = load_cidr_file(args.cidr_file)
+    elif args.asn:
         asn_numbers = [a.strip().upper().replace("AS", "") for a in args.asn.split(",")]
-        print(f"[MAIN] 正在查询 ASN: {asn_numbers}", flush=True)
-        cidr_list = get_ip_ranges_from_asn(asn_numbers, use_ipatel=True)
-
-    # 如果未提供 ASN 或查询结果为空，且允许回退，则使用预定义 IP 段
-    if not cidr_list:
+        print(
+            f"[MAIN] 正在查询 ASN: {asn_numbers}，数据源: {args.asn_source}", flush=True
+        )
+        try:
+            cidr_list = get_ip_ranges_from_asn(
+                asn_numbers, source=args.asn_source, whois_timeout=args.whois_timeout
+            )
+        except Exception as e:
+            print(f"[ERROR] 获取 ASN IP 段失败: {e}", flush=True)
+            if args.fallback:
+                print("[MAIN] 回退到预定义 IP 段", flush=True)
+                cidr_list = IP_RANGES
+            else:
+                return
+    else:
         if args.fallback:
-            print("[MAIN] 未获取到 ASN 数据，回退到预定义 IP 段", flush=True)
+            print("[MAIN] 未提供 ASN 或 CIDR 文件，回退到预定义 IP 段", flush=True)
             cidr_list = IP_RANGES
         else:
-            print(
-                "[ERROR] 未获取到任何 IP 段，请检查 ASN 编号或启用 --fallback",
-                flush=True,
-            )
+            print("[ERROR] 请提供 --asn 或 --cidr-file，或启用 --fallback", flush=True)
             return
+
+    if not cidr_list:
+        print("[ERROR] 没有可用的 IP 段", flush=True)
+        return
 
     print(f"[MAIN] 共获取 {len(cidr_list)} 个 IP 段", flush=True)
 
-    # ========== 阶段二：masscan 快速扫描 ==========
+    # masscan 扫描
     open_ports = run_masscan_scan(cidr_list, COMMON_PORTS, rate=args.masscan_rate)
-
     if not open_ports:
         print("[ERROR] masscan 未发现任何开放端口", flush=True)
         if args.fallback:
@@ -495,9 +532,7 @@ def main():
         else:
             return
     else:
-        # 将开放端口转换为 "ip:port" 格式
         all_proxies = [f"{ip}:{port}" for ip, port in open_ports]
-        # 如果发现的目标超过需求数量，随机抽样
         if len(all_proxies) > args.targets:
             targets = random.sample(all_proxies, args.targets)
         else:
@@ -511,7 +546,7 @@ def main():
         print("[ERROR] 没有生成任何验证目标", flush=True)
         return
 
-    # ========== 阶段三：精细代理验证 ==========
+    # 代理验证
     task_q = mp.Queue()
     result_q = mp.Queue()
     for t in targets:
@@ -530,7 +565,6 @@ def main():
         workers.append(p)
         print(f"[MAIN] 启动验证 Worker {i}", flush=True)
 
-    # 监控进度
     last = 0
     print("[MAIN] 开始验证代理...", flush=True)
     while last < len(targets):
