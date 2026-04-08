@@ -232,9 +232,6 @@ def get_ip_ranges_from_asn(asn_numbers, source="ipatel", whois_timeout=120):
 
 # ========== 阶段二：masscan 快速端口扫描 ==========
 def run_masscan_scan(cidr_list, ports, rate=10000, timeout=300, batch_size=100):
-    """
-    分批调用 masscan 扫描 CIDR 列表
-    """
     if not cidr_list:
         print("[ERROR] 没有提供 IP 段，无法进行 masscan 扫描", flush=True)
         return []
@@ -252,13 +249,7 @@ def run_masscan_scan(cidr_list, ports, rate=10000, timeout=300, batch_size=100):
             flush=True,
         )
 
-        # 创建临时输出文件
-        with tempfile.NamedTemporaryFile(
-            mode="w+", suffix=".json", delete=False
-        ) as tmp:
-            output_file = tmp.name
-
-        # 构建命令（与手动成功的参数保持一致）
+        # 构建命令：不使用任何 -o 参数，直接从 stdout 读取
         cmd = [
             "sudo",
             "masscan",
@@ -267,58 +258,61 @@ def run_masscan_scan(cidr_list, ports, rate=10000, timeout=300, batch_size=100):
             ports_arg,
             "--rate",
             str(rate),
+            "--open-only",  # 只输出开放端口
             "--source-port",
             "40000-41023",
             "--retries",
-            "1",
+            "2",
             "--wait",
-            "10",  # 减少等待时间
+            "10",
         ]
 
         try:
+            # 启动进程，捕获 stdout 和 stderr
             proc = subprocess.Popen(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                bufsize=1,
             )
-            # 实时输出进度
-            for line in proc.stderr:
-                if "rate:" in line.lower() or "done:" in line.lower():
-                    print(f"[MASSCAN] {line.strip()}", flush=True)
+
+            # 实时读取 stdout 中的每一行
+            for line in proc.stdout:
+                line = line.strip()
+                if not line:
+                    continue
+                # 示例输出: "Discovered open port 3128/tcp on 1.231.81.166"
+                if "Discovered open port" in line:
+                    parts = line.split()
+                    if len(parts) >= 6:
+                        port_proto = parts[3]  # "3128/tcp"
+                        ip = parts[5]  # "1.231.81.166"
+                        port = int(port_proto.split("/")[0])
+                        all_open_ports.append((ip, port))
+                        print(f"[MASSCAN] 发现开放端口: {ip}:{port}", flush=True)
+                # 其他行（如进度信息）暂时忽略，但可以打印 stderr 中的信息
+
+            # 等待进程结束
             proc.wait(timeout=timeout)
+            # 读取 stderr 中的进度信息并打印
+            stderr_output = proc.stderr.read()
+            for line in stderr_output.splitlines():
+                if (
+                    "rate:" in line.lower()
+                    or "done:" in line.lower()
+                    or "found=" in line
+                ):
+                    print(f"[MASSCAN] {line.strip()}", flush=True)
+
         except subprocess.TimeoutExpired:
             proc.terminate()
-            print(f"[MASSCAN] 批次 {batch_num} 超时，跳过", flush=True)
+            print(f"[MASSCAN] 批次 {batch_num} 超时 ({timeout}s)，强制终止", flush=True)
             continue
         except Exception as e:
             print(f"[MASSCAN] 批次 {batch_num} 执行失败: {e}", flush=True)
             continue
 
-        # 解析 JSON 结果
-        try:
-            with open(output_file, "r") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        data = json.loads(line)
-                        ip = data.get("ip")
-                        ports_list = data.get("ports", [])
-                        for p in ports_list:
-                            port = p.get("port")
-                            if port:
-                                all_open_ports.append((ip, port))
-                    except json.JSONDecodeError:
-                        continue
-        except Exception as e:
-            print(f"[MASSCAN] 解析结果失败: {e}", flush=True)
-
-        # 清理临时文件
-        try:
-            os.unlink(output_file)
-        except:
-            pass
-
-    # 去重
     all_open_ports = list(set(all_open_ports))
     print(
         f"[MASSCAN] 所有批次扫描完成，共发现 {len(all_open_ports)} 个开放端口",
