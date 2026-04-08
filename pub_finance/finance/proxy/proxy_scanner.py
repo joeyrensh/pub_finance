@@ -6,21 +6,24 @@ import time
 import csv
 import argparse
 import sys
+import subprocess
+import json
+import tempfile
+import os
 from ipaddress import IPv4Network, IPv4Address
 
-
-# 强制标准输出行缓冲，避免缓冲延迟
+# 强制标准输出行缓冲
 sys.stdout.reconfigure(line_buffering=True)
 
+# ========== 配置参数 ==========
 TEST_URL = "http://httpbin.org/get"
 IP_CHECK_URL = "https://api.ipify.org"
 GEO_URL = "https://ipapi.co/{ip}/country_name/"
 
+# 需要扫描的常见代理端口（masscan 会扫描这些端口）
 COMMON_PORTS = [
-    # 标准
     80,
     443,
-    # 常见 Web / Proxy
     8080,
     8081,
     8082,
@@ -30,77 +33,65 @@ COMMON_PORTS = [
     8123,
     8181,
     8888,
-    # 高位常见
     9999,
     10000,
     18080,
 ]
+
+# 备选住宅 IP 段（如果未使用 ASN 模式，可回退到随机生成）
 RESIDENTIAL_IP_RANGES = [
-    # 🇰🇷 韩国 ISP
-    "1.224.0.0/11",  # SK Broadband
+    "1.224.0.0/11",
     "39.7.0.0/16",
     "59.0.0.0/11",
-    "211.36.0.0/14",  # Korea Telecom
+    "211.36.0.0/14",
     "121.128.0.0/10",
-    "211.106.0.0/15",  # LG DACOM
+    "211.106.0.0/15",
     "1.96.0.0/12",
-    # 🇯🇵 日本 ISP
-    "126.0.0.0/8",  # Softbank
+    "126.0.0.0/8",
     "153.120.0.0/13",
     "219.96.0.0/12",
-    "106.128.0.0/9",  # KDDI
+    "106.128.0.0/9",
     "118.0.0.0/11",
     "153.160.0.0/12",
-    # 🇺🇸 美国 ISP
-    "24.0.0.0/13",  # Comcast
+    "24.0.0.0/13",
     "68.32.0.0/11",
     "69.136.0.0/13",
-    "96.224.0.0/13",  # Verizon
+    "96.224.0.0/13",
     "70.192.0.0/10",
     "71.176.0.0/12",
-    # 🇩🇪 德国 ISP
-    "79.192.0.0/10",  # Deutsche Telekom
+    "79.192.0.0/10",
     "80.128.0.0/10",
     "87.160.0.0/11",
-    # 🇫🇷 法国 ISP
-    "81.48.0.0/13",  # Orange
+    "81.48.0.0/13",
     "86.192.0.0/11",
     "90.0.0.0/10",
 ]
+
 IDC_IP_RANGES = [
-    # Vultr
     "108.61.0.0/16",
     "149.28.0.0/16",
     "207.148.0.0/16",
-    # DigitalOcean
     "159.65.0.0/16",
     "159.89.0.0/16",
     "174.138.0.0/16",
-    # Linode
     "45.33.0.0/16",
     "96.126.0.0/16",
     "172.104.0.0/16",
-    # OVH
     "51.68.0.0/16",
     "91.134.0.0/16",
     "149.202.0.0/16",
-    # Hetzner
     "49.12.0.0/16",
     "78.46.0.0/16",
     "88.198.0.0/16",
-    # SoftLayer
     "50.22.0.0/16",
     "169.44.0.0/16",
     "208.43.0.0/16",
-    # Oracle Cloud
     "129.146.0.0/16",
     "130.61.0.0/16",
     "140.238.0.0/16",
-    # Alibaba Cloud (海外)
     "47.52.0.0/16",
     "47.56.0.0/16",
     "8.129.0.0/16",
-    # Voxility
     "5.254.0.0/16",
     "31.14.128.0/17",
     "185.156.0.0/16",
@@ -109,37 +100,161 @@ IDC_IP_RANGES = [
 IP_RANGES = RESIDENTIAL_IP_RANGES + IDC_IP_RANGES
 
 
-def random_ip_from_network(network_str):
-    """从 IPv4 网络中随机生成一个有效的 IP（不包括网络地址和广播地址）"""
-    net = IPv4Network(network_str)
-    # 网络地址和广播地址之间的整数范围
-    first = int(net.network_address) + 1
-    last = int(net.broadcast_address) - 1
-    if first > last:
-        return None
-    rand_int = random.randint(first, last)
-    return IPv4Address(rand_int).exploded
+# ========== 阶段一：通过 ASN 获取 IP 段 ==========
 
 
-def generate_targets(n):
-    out = []
-    print("[MAIN] 开始生成目标代理...", flush=True)
-    while len(out) < n:
+def get_ip_ranges_from_asn(asn_numbers, use_ipatel=True):
+    """
+    通过 ASN 编号获取 IP 段列表。
+    支持两种后端：
+    - ipatel（离线数据库，快速，推荐）
+    - asnmap（ProjectDiscovery 工具，需单独安装）
+    """
+    all_cidrs = []
+
+    if use_ipatel:
+        # 使用 ipatel 库（需要先 pip install ipatel）
         try:
-            net_str = random.choice(IP_RANGES)
-            ip = random_ip_from_network(net_str)
-            if ip is None:
-                continue
-            port = random.choice(COMMON_PORTS)
-            out.append(f"{ip}:{port}")
-        except Exception as e:
-            print(f"[WARN] 生成目标失败: {e}", flush=True)
-            continue
-    print(f"[MAIN] 生成了 {len(out)} 个目标代理", flush=True)
-    return out
+            import ipatel as ip
+
+            for asn in asn_numbers:
+                # 确保 asn 是整数格式
+                asn_int = (
+                    int(asn)
+                    if isinstance(asn, str) and asn.startswith("AS")
+                    else int(asn)
+                )
+                ranges = ip.get_ip_ranges_for_asn(asn_int)
+                all_cidrs.extend(ranges)
+                print(f"[ASN] AS{asn_int} 提供 {len(ranges)} 个 IP 段", flush=True)
+        except ImportError:
+            print("[WARN] ipatel 未安装，请执行 pip install ipatel", flush=True)
+            print("[WARN] 将尝试使用 asnmap 作为备选...", flush=True)
+            use_ipatel = False
+
+    if not use_ipatel:
+        # 备选：使用 asnmap 命令行工具（需提前安装）
+        for asn in asn_numbers:
+            cmd = ["asnmap", "-a", f"AS{asn}", "-silent"]
+            try:
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+                if result.returncode == 0 and result.stdout:
+                    lines = result.stdout.strip().split("\n")
+                    all_cidrs.extend([line.strip() for line in lines if line.strip()])
+                    print(
+                        f"[ASN] AS{asn} 通过 asnmap 获取 {len(lines)} 个 IP 段",
+                        flush=True,
+                    )
+            except Exception as e:
+                print(f"[ERROR] asnmap 执行失败 (AS{asn}): {e}", flush=True)
+
+    return list(set(all_cidrs))  # 去重
+
+
+# ========== 阶段二：masscan 快速端口扫描 ==========
+
+
+def run_masscan_scan(cidr_list, ports, rate=10000, timeout=300):
+    """
+    使用 masscan 对 CIDR 列表进行快速端口扫描。
+    返回开放端口列表: [(ip, port), ...]
+    """
+    if not cidr_list:
+        print("[ERROR] 没有提供 IP 段，无法进行 masscan 扫描", flush=True)
+        return []
+
+    # 将 CIDR 列表合并为逗号分隔的字符串
+    targets = ",".join(cidr_list)
+    # 端口参数：支持单端口、范围、列表
+    ports_arg = ",".join(str(p) for p in ports)
+
+    # 创建临时文件存储 masscan 输出
+    with tempfile.NamedTemporaryFile(mode="w+", suffix=".json", delete=False) as tmp:
+        output_file = tmp.name
+
+    # 构建 masscan 命令
+    # -oJ: JSON 格式输出，便于解析
+    # --rate: 发包速率（包/秒），根据网络环境调整
+    cmd = [
+        "masscan",
+        targets,
+        "-p",
+        ports_arg,
+        "--rate",
+        str(rate),
+        "-oJ",
+        output_file,
+        "--wait",
+        "0",  # 扫描完成后立即退出，不等待
+    ]
+
+    print(
+        f"[MASSCAN] 开始扫描 {len(cidr_list)} 个 IP 段，{len(ports)} 个端口", flush=True
+    )
+    print(
+        f"[MASSCAN] 命令: masscan {targets[:100]}... -p {ports_arg} --rate {rate}",
+        flush=True,
+    )
+
+    try:
+        # 执行 masscan
+        proc = subprocess.Popen(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
+
+        # 实时读取 stderr 输出进度信息
+        for line in proc.stderr:
+            if "rate:" in line.lower() or "done:" in line.lower():
+                print(f"[MASSCAN] {line.strip()}", flush=True)
+
+        proc.wait(timeout=timeout)
+
+    except subprocess.TimeoutExpired:
+        proc.terminate()
+        print(f"[MASSCAN] 扫描超时 ({timeout}s)，强制终止", flush=True)
+    except Exception as e:
+        print(f"[MASSCAN] 执行失败: {e}", flush=True)
+        return []
+
+    # 解析 JSON 输出
+    open_ports = []
+    try:
+        with open(output_file, "r") as f:
+            # masscan 输出的是每行一个 JSON 对象，不是标准 JSON 数组
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    data = json.loads(line)
+                    ip = data.get("ip")
+                    ports_list = data.get("ports", [])
+                    for p in ports_list:
+                        port = p.get("port")
+                        if port:
+                            open_ports.append((ip, port))
+                except json.JSONDecodeError:
+                    continue
+    except Exception as e:
+        print(f"[MASSCAN] 解析结果失败: {e}", flush=True)
+
+    # 清理临时文件
+    try:
+        os.unlink(output_file)
+    except:
+        pass
+
+    # 去重并统计
+    open_ports = list(set(open_ports))
+    print(f"[MASSCAN] 扫描完成，发现 {len(open_ports)} 个开放端口", flush=True)
+    return open_ports
+
+
+# ========== 阶段三：代理验证（复用原有逻辑）==========
 
 
 async def test_proxy(session, proxy, timeout):
+    """测试代理的匿名级别"""
     try:
         async with session.get(
             TEST_URL,
@@ -157,13 +272,50 @@ async def test_proxy(session, proxy, timeout):
         else:
             level = "elite"
         return level
-    except Exception as e:
-        # 可选：打印错误（调试用，可注释）
-        # print(f"[DEBUG] test_proxy 失败: {proxy} {e}", flush=True)
+    except Exception:
         return None
 
 
-async def worker_loop(task_q, result_q, scanned, lock, concurrency, timeout, worker_id):
+async def verify_proxy(session, proxy, timeout):
+    """
+    完整验证一个代理：
+    1. 测试匿名级别
+    2. 获取出口 IP
+    3. 获取国家
+    """
+    level = await test_proxy(session, proxy, timeout)
+    if not level:
+        return None
+
+    host, port = proxy.split(":")
+    # 获取出口 IP
+    try:
+        async with session.get(
+            IP_CHECK_URL,
+            proxy=f"http://{proxy}",
+            timeout=timeout,
+        ) as r:
+            exit_ip = (await r.text()).strip()
+    except:
+        return None
+
+    # 获取国家
+    try:
+        async with session.get(
+            GEO_URL.format(ip=exit_ip),
+            timeout=timeout,
+        ) as r:
+            country = (await r.text()).strip()
+    except:
+        country = "Unknown"
+
+    return (proxy, country, level)
+
+
+async def verify_worker(
+    task_q, result_q, scanned, lock, concurrency, timeout, worker_id
+):
+    """验证工作协程"""
     print(f"[Worker-{worker_id}] 启动，并发数={concurrency}", flush=True)
     sem = asyncio.Semaphore(concurrency)
     connector = aiohttp.TCPConnector(limit=concurrency * 2, ssl=False)
@@ -175,65 +327,148 @@ async def worker_loop(task_q, result_q, scanned, lock, concurrency, timeout, wor
                 try:
                     proxy = task_q.get_nowait()
                 except:
-                    # print(f"[Worker-{worker_id}] 队列空，协程退出", flush=True)
                     return
                 async with sem:
-                    level = await test_proxy(session, proxy, timeout)
+                    result = await verify_proxy(session, proxy, timeout)
                     with lock:
                         scanned.value += 1
-                        if scanned.value % 1000 == 0:
-                            print(f"[DEBUG] 已扫描 {scanned.value} 个代理", flush=True)
-                    if not level:
-                        continue
-                    # 获取出口 IP
-                    try:
-                        async with session.get(
-                            IP_CHECK_URL,
-                            proxy=f"http://{proxy}",
-                            timeout=timeout,
-                        ) as r:
-                            exit_ip = (await r.text()).strip()
-                    except:
-                        continue
-                    # 获取国家
-                    try:
-                        async with session.get(
-                            GEO_URL.format(ip=exit_ip),
-                            timeout=timeout,
-                        ) as r:
-                            country = (await r.text()).strip()
-                    except:
-                        country = "Unknown"
-                    result_q.put((proxy, country, level))
+                        if scanned.value % 100 == 0:
+                            print(f"[DEBUG] 已验证 {scanned.value} 个代理", flush=True)
+                    if result:
+                        result_q.put(result)
 
         await asyncio.gather(*(handle_one() for _ in range(concurrency)))
 
 
-def worker_entry(task_q, result_q, scanned, lock, concurrency, timeout, worker_id):
+def verify_worker_entry(
+    task_q, result_q, scanned, lock, concurrency, timeout, worker_id
+):
     asyncio.run(
-        worker_loop(task_q, result_q, scanned, lock, concurrency, timeout, worker_id)
+        verify_worker(task_q, result_q, scanned, lock, concurrency, timeout, worker_id)
     )
 
 
+# ========== 辅助函数 ==========
+
+
+def generate_fallback_targets(n):
+    """回退方案：随机生成 IP:端口（复用原有逻辑）"""
+
+    def random_ip_from_network(network_str):
+        net = IPv4Network(network_str)
+        first = int(net.network_address) + 1
+        last = int(net.broadcast_address) - 1
+        if first > last:
+            return None
+        rand_int = random.randint(first, last)
+        return IPv4Address(rand_int).exploded
+
+    out = []
+    print("[FALLBACK] 开始随机生成目标代理...", flush=True)
+    while len(out) < n:
+        try:
+            net_str = random.choice(IP_RANGES)
+            ip = random_ip_from_network(net_str)
+            if ip is None:
+                continue
+            port = random.choice(COMMON_PORTS)
+            out.append(f"{ip}:{port}")
+        except Exception as e:
+            print(f"[WARN] 生成目标失败: {e}", flush=True)
+            continue
+    print(f"[FALLBACK] 生成了 {len(out)} 个随机目标", flush=True)
+    return out
+
+
+# ========== 主函数 ==========
+
+
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--targets", type=int, default=100000)
-    parser.add_argument("--workers", type=int, default=4)
-    parser.add_argument("--concurrency", type=int, default=100)
-    parser.add_argument("--timeout", type=int, default=2)
-    parser.add_argument("--out", default="proxies_ok.csv")
+    parser = argparse.ArgumentParser(description="ASN 驱动的代理扫描器")
+    parser.add_argument(
+        "--asn",
+        type=str,
+        default="",
+        help="ASN 编号，多个用逗号分隔，例如: 9318,4766 (AS 前缀可选)",
+    )
+    parser.add_argument(
+        "--targets",
+        type=int,
+        default=10000,
+        help="需要验证的代理目标数量（从开放端口中随机选取）",
+    )
+    parser.add_argument("--workers", type=int, default=4, help="并行进程数")
+    parser.add_argument(
+        "--concurrency", type=int, default=100, help="每个进程内部的异步并发数"
+    )
+    parser.add_argument(
+        "--timeout", type=int, default=3, help="HTTP 验证超时时间（秒）"
+    )
+    parser.add_argument(
+        "--masscan-rate", type=int, default=10000, help="masscan 发包速率（包/秒）"
+    )
+    parser.add_argument("--out", default="proxies_ok.csv", help="输出 CSV 文件名")
+    parser.add_argument(
+        "--fallback",
+        action="store_true",
+        help="如果 ASN 未提供或获取失败，回退到随机生成模式",
+    )
     args = parser.parse_args()
 
-    targets = generate_targets(args.targets)
+    # ========== 阶段一：获取 IP 段 ==========
+    cidr_list = []
+
+    if args.asn:
+        asn_numbers = [a.strip().upper().replace("AS", "") for a in args.asn.split(",")]
+        print(f"[MAIN] 正在查询 ASN: {asn_numbers}", flush=True)
+        cidr_list = get_ip_ranges_from_asn(asn_numbers, use_ipatel=True)
+
+    # 如果未提供 ASN 或查询结果为空，且允许回退，则使用预定义 IP 段
+    if not cidr_list:
+        if args.fallback:
+            print("[MAIN] 未获取到 ASN 数据，回退到预定义 IP 段", flush=True)
+            cidr_list = IP_RANGES
+        else:
+            print(
+                "[ERROR] 未获取到任何 IP 段，请检查 ASN 编号或启用 --fallback",
+                flush=True,
+            )
+            return
+
+    print(f"[MAIN] 共获取 {len(cidr_list)} 个 IP 段", flush=True)
+
+    # ========== 阶段二：masscan 快速扫描 ==========
+    open_ports = run_masscan_scan(cidr_list, COMMON_PORTS, rate=args.masscan_rate)
+
+    if not open_ports:
+        print("[ERROR] masscan 未发现任何开放端口", flush=True)
+        if args.fallback:
+            print("[MAIN] 回退到随机生成模式", flush=True)
+            targets = generate_fallback_targets(args.targets)
+        else:
+            return
+    else:
+        # 将开放端口转换为 "ip:port" 格式
+        all_proxies = [f"{ip}:{port}" for ip, port in open_ports]
+        # 如果发现的目标超过需求数量，随机抽样
+        if len(all_proxies) > args.targets:
+            targets = random.sample(all_proxies, args.targets)
+        else:
+            targets = all_proxies
+        print(
+            f"[MAIN] 从 {len(all_proxies)} 个开放端口中选取 {len(targets)} 个进行验证",
+            flush=True,
+        )
+
     if not targets:
-        print("[ERROR] 没有生成任何目标代理，请检查 IP_RANGES 或目标数量", flush=True)
+        print("[ERROR] 没有生成任何验证目标", flush=True)
         return
 
+    # ========== 阶段三：精细代理验证 ==========
     task_q = mp.Queue()
     result_q = mp.Queue()
     for t in targets:
         task_q.put(t)
-    print(f"[MAIN] 已将 {len(targets)} 个目标放入队列", flush=True)
 
     scanned = mp.Value("i", 0)
     lock = mp.Lock()
@@ -241,35 +476,33 @@ def main():
     workers = []
     for i in range(args.workers):
         p = mp.Process(
-            target=worker_entry,
+            target=verify_worker_entry,
             args=(task_q, result_q, scanned, lock, args.concurrency, args.timeout, i),
         )
         p.start()
         workers.append(p)
-        print(f"[MAIN] 启动 Worker {i}", flush=True)
+        print(f"[MAIN] 启动验证 Worker {i}", flush=True)
 
     # 监控进度
     last = 0
-    print("[MAIN] 开始监控扫描进度...", flush=True)
+    print("[MAIN] 开始验证代理...", flush=True)
     while last < len(targets):
         time.sleep(1)
         with lock:
             cur = scanned.value
         if cur > last:
             print(
-                f"[MAIN] 进度: {cur}/{len(targets)} ({cur*100/len(targets):.1f}%)",
+                f"[MAIN] 验证进度: {cur}/{len(targets)} ({cur*100/len(targets):.1f}%)",
                 flush=True,
             )
             last = cur
-        # 检查进程是否意外退出
         alive = any(p.is_alive() for p in workers)
         if not alive and cur < len(targets):
-            print("[WARN] 所有 worker 已退出但任务未完成，可能发生异常", flush=True)
+            print("[WARN] 所有 worker 已退出但任务未完成", flush=True)
             break
 
     for p in workers:
         p.join()
-        print(f"[MAIN] Worker 进程已结束", flush=True)
 
     results = []
     while not result_q.empty():
@@ -280,7 +513,7 @@ def main():
         writer.writerow(["proxy", "country", "anonymity"])
         writer.writerows(results)
 
-    print(f"\n✅ 扫描完成 | 可用代理: {len(results)}", flush=True)
+    print(f"\n✅ 扫描完成 | 有效代理: {len(results)}", flush=True)
 
 
 if __name__ == "__main__":
