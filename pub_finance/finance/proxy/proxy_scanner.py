@@ -11,6 +11,7 @@ import json
 import tempfile
 import os
 import re
+import threading
 from ipaddress import IPv4Network, IPv4Address
 
 # 强制标准输出行缓冲
@@ -231,7 +232,9 @@ def get_ip_ranges_from_asn(asn_numbers, source="ipatel", whois_timeout=120):
 
 
 # ========== 阶段二：masscan 快速端口扫描 ==========
-def run_masscan_scan(cidr_list, ports, rate=10000, timeout=300, batch_size=100):
+def run_masscan_scan(
+    cidr_list, ports, rate=10000, timeout=300, batch_size=100, verbose=False
+):
     if not cidr_list:
         print("[ERROR] 没有提供 IP 段，无法进行 masscan 扫描", flush=True)
         return []
@@ -249,7 +252,6 @@ def run_masscan_scan(cidr_list, ports, rate=10000, timeout=300, batch_size=100):
             flush=True,
         )
 
-        # 构建命令：不使用任何 -o 参数，直接从 stdout 读取
         cmd = [
             "sudo",
             "masscan",
@@ -258,17 +260,73 @@ def run_masscan_scan(cidr_list, ports, rate=10000, timeout=300, batch_size=100):
             ports_arg,
             "--rate",
             str(rate),
-            "--open-only",  # 只输出开放端口
+            "--open-only",
             "--source-port",
             "40000-41023",
             "--retries",
-            "2",
+            "0",
             "--wait",
-            "10",
+            "1",
         ]
 
+        # 用于线程间共享的变量
+        batch_ports = []
+        batch_lock = threading.Lock()
+        # 用于通知 stderr 读取线程可以结束的事件
+        stop_event = threading.Event()
+
+        def read_stdout():
+            """读取 stdout，提取开放端口"""
+            nonlocal batch_ports
+            # 注意：proc.stdout 是文件对象，需要在主进程中使用
+            for line in proc.stdout:
+                line = line.strip()
+                if not line:
+                    continue
+                if "Discovered open port" in line:
+                    parts = line.split()
+                    if len(parts) >= 6:
+                        port_proto = parts[3]
+                        ip = parts[5]
+                        port = int(port_proto.split("/")[0])
+                        with batch_lock:
+                            batch_ports.append((ip, port))
+                            # 如果 verbose 开启，实时打印每个端口
+                            if verbose:
+                                print(
+                                    f"[MASSCAN] 发现开放端口: {ip}:{port}", flush=True
+                                )
+            # stdout 读取完毕，设置事件通知 stderr 线程可以退出
+            stop_event.set()
+
+        def read_stderr():
+            """读取 stderr，实时输出进度信息"""
+            for line in proc.stderr:
+                line = line.strip()
+                if not line:
+                    continue
+                # 输出进度信息（始终显示）
+                if (
+                    "rate:" in line.lower()
+                    or "done:" in line.lower()
+                    or "found=" in line
+                ):
+                    # 如果 verbose 关闭，可以在这里显示当前累计发现的端口数
+                    if not verbose:
+                        # 从 stderr 行中提取 found=xxx 的数字
+                        found_match = re.search(r"found=(\d+)", line)
+                        if found_match:
+                            found_count = found_match.group(1)
+                            # 可选：将进度信息与已发现端口数结合
+                            print(f"[MASSCAN] 进度: {line.strip()}", flush=True)
+                        else:
+                            print(f"[MASSCAN] {line.strip()}", flush=True)
+                    else:
+                        print(f"[MASSCAN] {line.strip()}", flush=True)
+            # stderr 读取完毕后，如果 stdout 线程还在运行，等待它结束
+            stop_event.wait()
+
         try:
-            # 启动进程，捕获 stdout 和 stderr
             proc = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
@@ -277,33 +335,28 @@ def run_masscan_scan(cidr_list, ports, rate=10000, timeout=300, batch_size=100):
                 bufsize=1,
             )
 
-            # 实时读取 stdout 中的每一行
-            for line in proc.stdout:
-                line = line.strip()
-                if not line:
-                    continue
-                # 示例输出: "Discovered open port 3128/tcp on 1.231.81.166"
-                if "Discovered open port" in line:
-                    parts = line.split()
-                    if len(parts) >= 6:
-                        port_proto = parts[3]  # "3128/tcp"
-                        ip = parts[5]  # "1.231.81.166"
-                        port = int(port_proto.split("/")[0])
-                        all_open_ports.append((ip, port))
-                        print(f"[MASSCAN] 发现开放端口: {ip}:{port}", flush=True)
-                # 其他行（如进度信息）暂时忽略，但可以打印 stderr 中的信息
+            # 启动两个线程同时读取 stdout 和 stderr
+            stdout_thread = threading.Thread(target=read_stdout)
+            stderr_thread = threading.Thread(target=read_stderr)
 
-            # 等待进程结束
+            stdout_thread.start()
+            stderr_thread.start()
+
+            # 等待进程结束（超时）
             proc.wait(timeout=timeout)
-            # 读取 stderr 中的进度信息并打印
-            stderr_output = proc.stderr.read()
-            for line in stderr_output.splitlines():
-                if (
-                    "rate:" in line.lower()
-                    or "done:" in line.lower()
-                    or "found=" in line
-                ):
-                    print(f"[MASSCAN] {line.strip()}", flush=True)
+
+            # 等待线程结束
+            stdout_thread.join(timeout=5)
+            stderr_thread.join(timeout=5)
+
+            # 如果进程超时，终止它
+            if proc.returncode is None:
+                proc.terminate()
+                print(
+                    f"[MASSCAN] 批次 {batch_num} 超时 ({timeout}s)，强制终止",
+                    flush=True,
+                )
+                continue
 
         except subprocess.TimeoutExpired:
             proc.terminate()
@@ -312,6 +365,16 @@ def run_masscan_scan(cidr_list, ports, rate=10000, timeout=300, batch_size=100):
         except Exception as e:
             print(f"[MASSCAN] 批次 {batch_num} 执行失败: {e}", flush=True)
             continue
+
+        # 将本批次的端口添加到总列表
+        with batch_lock:
+            all_open_ports.extend(batch_ports)
+
+        # 批次结束，打印本批次的统计信息
+        print(
+            f"[MASSCAN] 批次 {batch_num} 完成，发现 {len(batch_ports)} 个开放端口，累计 {len(all_open_ports)} 个",
+            flush=True,
+        )
 
     all_open_ports = list(set(all_open_ports))
     print(
@@ -480,6 +543,7 @@ def main():
     )
     parser.add_argument("--out", default="proxies_ok.csv", help="输出 CSV 文件名")
     parser.add_argument("--fallback", action="store_true", help="回退到随机生成模式")
+    parser.add_argument("--verbose", action="store_true", help="打印每个发现的端口详情")
     args = parser.parse_args()
 
     # 获取 CIDR 列表
@@ -517,7 +581,9 @@ def main():
     print(f"[MAIN] 共获取 {len(cidr_list)} 个 IP 段", flush=True)
 
     # masscan 扫描
-    open_ports = run_masscan_scan(cidr_list, COMMON_PORTS, rate=args.masscan_rate)
+    open_ports = run_masscan_scan(
+        cidr_list, COMMON_PORTS, rate=args.masscan_rate, verbose=args.verbose
+    )
     if not open_ports:
         print("[ERROR] masscan 未发现任何开放端口", flush=True)
         if args.fallback:
