@@ -101,54 +101,94 @@ IP_RANGES = RESIDENTIAL_IP_RANGES + IDC_IP_RANGES
 
 
 # ========== 阶段一：通过 ASN 获取 IP 段 ==========
+def normalize_ip_ranges(ranges):
+    """
+    将 ipatel 返回的混合格式统一转换为 masscan 可接受的字符串格式。
+    支持：
+    - CIDR 字符串: "1.224.0.0/11"
+    - 元组 (start_ip, end_ip): 转为 "start_ip-end_ip"
+    """
+    normalized = []
+    for item in ranges:
+        if isinstance(item, tuple) and len(item) == 2:
+            normalized.append(f"{item[0]}-{item[1]}")
+        elif isinstance(item, str):
+            normalized.append(item)
+        else:
+            print(f"[WARN] 跳过未知格式: {item}", flush=True)
+    return normalized
 
 
 def get_ip_ranges_from_asn(asn_numbers, use_ipatel=True):
     """
-    通过 ASN 编号获取 IP 段列表。
-    支持两种后端：
-    - ipatel（离线数据库，快速，推荐）
-    - asnmap（ProjectDiscovery 工具，需单独安装）
+    通过 ASN 编号获取 IP 段列表，返回字符串列表（CIDR 或 start-end 格式）
     """
-    all_cidrs = []
+    all_ranges = []
 
     if use_ipatel:
-        # 使用 ipatel 库（需要先 pip install ipatel）
         try:
             import ipatel as ip
 
             for asn in asn_numbers:
-                # 确保 asn 是整数格式
-                asn_int = (
-                    int(asn)
-                    if isinstance(asn, str) and asn.startswith("AS")
-                    else int(asn)
-                )
-                ranges = ip.get_ip_ranges_for_asn(asn_int)
-                all_cidrs.extend(ranges)
-                print(f"[ASN] AS{asn_int} 提供 {len(ranges)} 个 IP 段", flush=True)
+                asn_str = str(asn).upper().replace("AS", "")
+                asn_int = int(asn_str)
+                result = ip.get_ip_ranges_for_asn(asn_int)
+
+                # 提取 ip_ranges 字段
+                if isinstance(result, dict):
+                    raw_ranges = result.get("ip_ranges", [])
+                elif isinstance(result, list):
+                    raw_ranges = result
+                else:
+                    print(
+                        f"[WARN] AS{asn_int} 返回未知格式: {type(result)}", flush=True
+                    )
+                    continue
+
+                # 规范化格式
+                ranges = normalize_ip_ranges(raw_ranges)
+
+                if ranges:
+                    all_ranges.extend(ranges)
+                    print(f"[ASN] AS{asn_int} 提供 {len(ranges)} 个 IP 段", flush=True)
+                else:
+                    print(f"[WARN] AS{asn_int} 未返回任何 IP 段", flush=True)
+
         except ImportError:
-            print("[WARN] ipatel 未安装，请执行 pip install ipatel", flush=True)
-            print("[WARN] 将尝试使用 asnmap 作为备选...", flush=True)
+            print("[WARN] ipatel 未安装，请执行: pip install ipatel", flush=True)
+            use_ipatel = False
+        except Exception as e:
+            print(f"[ERROR] ipatel 查询失败: {e}", flush=True)
             use_ipatel = False
 
+    # 备选：asnmap（输出 CIDR，无需额外转换）
     if not use_ipatel:
-        # 备选：使用 asnmap 命令行工具（需提前安装）
         for asn in asn_numbers:
-            cmd = ["asnmap", "-a", f"AS{asn}", "-silent"]
+            asn_str = str(asn).upper().replace("AS", "")
+            cmd = ["asnmap", "-a", f"AS{asn_str}", "-silent"]
             try:
                 result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
                 if result.returncode == 0 and result.stdout:
                     lines = result.stdout.strip().split("\n")
-                    all_cidrs.extend([line.strip() for line in lines if line.strip()])
+                    ranges = [line.strip() for line in lines if line.strip()]
+                    all_ranges.extend(ranges)
                     print(
-                        f"[ASN] AS{asn} 通过 asnmap 获取 {len(lines)} 个 IP 段",
+                        f"[ASN] AS{asn_str} 通过 asnmap 获取 {len(ranges)} 个 IP 段",
                         flush=True,
                     )
+            except FileNotFoundError:
+                print(
+                    "[ERROR] asnmap 未安装，请从 https://github.com/projectdiscovery/asnmap 安装",
+                    flush=True,
+                )
+                break
             except Exception as e:
-                print(f"[ERROR] asnmap 执行失败 (AS{asn}): {e}", flush=True)
+                print(f"[ERROR] asnmap 执行失败: {e}", flush=True)
 
-    return list(set(all_cidrs))  # 去重
+    # 去重
+    unique_ranges = list(set(all_ranges))
+    print(f"[ASN] 共获取 {len(unique_ranges)} 个唯一 IP 段", flush=True)
+    return unique_ranges
 
 
 # ========== 阶段二：masscan 快速端口扫描 ==========
@@ -176,16 +216,23 @@ def run_masscan_scan(cidr_list, ports, rate=10000, timeout=300):
     # -oJ: JSON 格式输出，便于解析
     # --rate: 发包速率（包/秒），根据网络环境调整
     cmd = [
+        "sudo",
         "masscan",
         targets,
         "-p",
         ports_arg,
         "--rate",
-        str(rate),
+        "100",  # 降低扫描速率，如 100
+        "--source-port",
+        "40000-41023",  # 指定源端口范围
+        "--retries",
+        "2",  # 增加重试次数
+        "-e",
+        "eth0",  # 指定物理网卡，确保是本机网络出口
+        "--wait",
+        "20",  # 增加扫描结束后的等待时间，防止漏包
         "-oJ",
         output_file,
-        "--wait",
-        "0",  # 扫描完成后立即退出，不等待
     ]
 
     print(
