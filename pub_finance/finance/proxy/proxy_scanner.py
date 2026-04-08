@@ -14,6 +14,36 @@ import re
 import threading
 from ipaddress import IPv4Network, IPv4Address
 
+"""
+ASN 驱动的代理扫描器
+1. 获取指定宽带服务商的ASN编号（以中国电信 AS45057 为例）
+2. 通过下面命令获取指定服务商的ASN对应的IP段列表（CIDR格式）：
+whois -h whois.radb.net -- '-i origin AS45057' | grep -Eo '([0-9.]+/[0-9]+)'>as45057_cidrs.txt
+3. 执行脚本扫描这些IP段的常见代理端口（80, 443, 8080等），并验证哪些是有效的HTTP代理，最后输出到CSV文件中。
+python -u proxy_scanner.py --cidr-file as9341_cidrs.txt --masscan-rate 1000 --targets 50000
+# 更新系统并安装系统工具
+sudo apt update
+sudo apt install -y masscan whois
+
+# 安装 Python 包
+pip install aiohttp ipatel
+
+# 安装 asnmap（需要先安装 Go）
+# 如果不需要 asnmap 可以跳过
+# 安装 Go（如果尚未安装）
+wget https://go.dev/dl/go1.21.5.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.21.5.linux-amd64.tar.gz
+export PATH=$PATH:/usr/local/go/bin
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
+source ~/.bashrc
+# 安装 asnmap
+go install -v github.com/projectdiscovery/asnmap/cmd/asnmap@latest
+# 将 asnmap 添加到 PATH
+export PATH=$PATH:$HOME/go/bin
+echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.bashrc
+
+"""
+
 # 强制标准输出行缓冲
 sys.stdout.reconfigure(line_buffering=True)
 
