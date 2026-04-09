@@ -18,7 +18,7 @@ from ipaddress import IPv4Network, IPv4Address
 ASN 驱动的代理扫描器
 1. 获取指定宽带服务商的ASN编号（以中国电信 AS45057 为例）
 2. 通过下面命令获取指定服务商的ASN对应的IP段列表（CIDR格式）：
-whois -h whois.radb.net -- '-i origin AS45057' | grep -Eo '([0-9.]+/[0-9]+)'>as45057_cidrs.txt
+whois -h whois.radb.net -- '-i origin AS7018' | grep -Eo '([0-9.]+/(23|24))'>as7018_cidrs.txt
 3. 执行脚本扫描这些IP段的常见代理端口（80, 443, 8080等），并验证哪些是有效的HTTP代理，最后输出到CSV文件中。
 python -u proxy_scanner.py --cidr-file as9341_cidrs.txt --masscan-rate 1000 --targets 50000
 # 更新系统并安装系统工具
@@ -263,7 +263,7 @@ def get_ip_ranges_from_asn(asn_numbers, source="ipatel", whois_timeout=120):
 
 # ========== 阶段二：masscan 快速端口扫描 ==========
 def run_masscan_scan(
-    cidr_list, ports, rate=10000, timeout=300, batch_size=100, verbose=False
+    cidr_list, ports, rate=10000, timeout=600, batch_size=100, verbose=False
 ):
     if not cidr_list:
         print("[ERROR] 没有提供 IP 段，无法进行 masscan 扫描", flush=True)
