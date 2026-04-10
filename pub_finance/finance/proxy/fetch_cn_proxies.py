@@ -29,7 +29,7 @@ PROXIES_JSON = SCRIPT_DIR / "china_proxies.json"
 
 REQUEST_TIMEOUT = 5
 TEST_TIMEOUT = 3
-MAX_WORKERS = 100
+MAX_WORKERS = 2
 MAX_FAILURES = 3
 
 
@@ -136,23 +136,26 @@ def fetch_proxifly():
 
 
 def is_china_ip(ip, timeout=2):
-    """使用 ipapi.co API 验证 IP 是否为中国大陆代理"""
+    """使用 IP-API 验证 IP 是否为中国大陆代理"""
     try:
-        geo_url = f"https://ipapi.co/{ip}/json/"
-        geo_resp = requests.get(geo_url, timeout=timeout, verify=False)
-
-        if geo_resp.status_code != 200:
+        # 使用 http://ip-api.com/json/{ip} 接口
+        resp = requests.get(f"http://ip-api.com/json/{ip}", timeout=timeout)
+        if resp.status_code != 200:
             return False, None
 
-        geo = geo_resp.json()
-        country = geo.get("country_code", "")
+        data = resp.json()
+        if data.get("status") != "success":
+            return False, None
 
+        country = data.get("countryCode", "")
+        print(f"      IP-API 查询: {ip} -> {country}")
         if country == "CN":
             return True, country
         else:
             return False, country
 
     except Exception as e:
+        print(f"IP-API 查询失败: {e}")
         return False, None
 
 

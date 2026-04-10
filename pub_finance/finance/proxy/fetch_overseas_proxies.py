@@ -160,14 +160,16 @@ def test_proxy_yfinance(proxy, symbols, timeout=2):
         ip = resp.text.strip()
 
         # 测试 2: 检查 IP 地理位置（验证是否为海外 IP）
-        geo_url = f"https://ipapi.co/{ip}/json/"
-        geo_resp = requests.get(geo_url, timeout=timeout, verify=False)
-
-        if geo_resp.status_code != 200:
+        # 使用 http://ip-api.com/json/{ip} 接口
+        resp = requests.get(f"http://ip-api.com/json/{ip}", timeout=timeout)
+        if resp.status_code != 200:
             return False
 
-        geo = geo_resp.json()
-        country = geo.get("country_code", "")
+        data = resp.json()
+        if data.get("status") != "success":
+            return False
+
+        country = data.get("countryCode", "")
 
         # 非中国 IP 即为有效海外 HTTP 代理
         if country and country != "CN":
@@ -178,7 +180,7 @@ def test_proxy_yfinance(proxy, symbols, timeout=2):
             return False
 
     except Exception as e:
-        logger.debug(f"❌ {str(e)[:30]}")
+        logger.debug(f"IP-API 查询失败: {e}")
         return False
 
 
@@ -187,7 +189,7 @@ def test_proxies_batch(proxies, target_count, config):
     validation = config.get("validation", {})
     symbols = validation.get("test_symbols", ["AAPL", "GOOGL", "MSFT"])
     timeout = validation.get("timeout", 2)
-    max_workers = validation.get("max_workers", 4)
+    max_workers = validation.get("max_workers", 2)
 
     valid = []
     total = len(proxies)
