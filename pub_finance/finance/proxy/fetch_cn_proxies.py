@@ -148,7 +148,7 @@ def is_china_ip(ip, timeout=2):
             return False, None
 
         country = data.get("countryCode", "")
-        print(f"      IP-API 查询: {ip} -> {country}")
+        # print(f"      IP-API 查询: {ip} -> {country}")
         if country == "CN":
             return True, country
         else:
