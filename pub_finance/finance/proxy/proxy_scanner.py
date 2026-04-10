@@ -549,7 +549,7 @@ async def main_async(args):
         print("[ERROR] 无可用 IP 段", flush=True)
         return
 
-    cidr_list = filter_cidr_by_mask(cidr_list, min_mask=23)
+    cidr_list = filter_cidr_by_mask(cidr_list, min_mask=args.min_mask)
     if not cidr_list:
         print("[ERROR] 过滤后无可用 IP 段", flush=True)
         return
@@ -633,6 +633,7 @@ def main():
     parser.add_argument("--targets", type=int, default=100, help="目标代理数量")
     parser.add_argument("--concurrency", type=int, default=50, help="验证并发数")
     parser.add_argument("--timeout", type=int, default=5, help="HTTP 验证超时（秒）")
+    parser.add_argument("--min-mask", type=int, default=23, help="最小 CIDR 掩码")
     parser.add_argument(
         "--masscan-rate", type=int, default=5000, help="masscan 发包速率（包/秒）"
     )
