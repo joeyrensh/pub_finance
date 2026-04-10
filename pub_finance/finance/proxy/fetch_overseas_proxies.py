@@ -1,62 +1,46 @@
 #!/usr/bin/env python3
 """
-海外代理 IP 获取与测试工具（独立版 v12 - 单次验证优化）
+海外代理 IP 获取与测试工具（异步版 v14）
 - 代理源：OpenProxyList + Geonode API（中国大陆直连可用）
-- 验证：yfinance + 环境变量代理（单次验证，固定 AAPL）
-- 配置：并发 2 个，超时 2 秒，不重试
-- 进度：每 10 个显示，实时更新
+- 验证：通过代理获取出口 IP → 查询地理位置（非中国即有效）
+- 异步并发测试，支持自定义并发数和超时
+- 代理池维护：3 次失效自动清理
+- 进度条：实时显示测试进度，达到目标提前终止
+
+用法：
+    python3 fetch_overseas_proxies.py --target 10 --timeout 3 --workers 5
 """
 
 import os
-import random
-import requests
-import concurrent.futures
+import sys
 import json
 import time
+import asyncio
+import aiohttp
 import argparse
-import logging
+import requests
 import threading
 from datetime import datetime
 from pathlib import Path
 import urllib3
 
-### free proxy links:
-# https://github.com/proxifly/free-proxy-list?tab=readme-ov-file
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+# 尝试导入 yfinance（保留原逻辑，但实际未使用）
 try:
     import yfinance as yf
 
     YF_AVAILABLE = True
-except ImportError as e:
+except ImportError:
     YF_AVAILABLE = False
-    print(f"⚠️ 警告：缺少依赖，请运行：pip3 install yfinance --break-system-packages")
-
-logging.basicConfig(level=logging.INFO, format="%(message)s")
-logger = logging.getLogger(__name__)
+    print("⚠️ 警告：缺少 yfinance，但本版本已不再依赖，可忽略")
 
 SCRIPT_DIR = Path(__file__).parent
 CONFIG_FILE = SCRIPT_DIR / "overseas_proxy_sources.json"
 PROXIES_TXT = SCRIPT_DIR / "overseas_proxies.txt"
 PROXIES_JSON = SCRIPT_DIR / "overseas_proxies.json"
 
-
-# 线程安全的计数器
-class ProgressCounter:
-    def __init__(self):
-        self.lock = threading.Lock()
-        self.tested = 0
-        self.valid = 0
-
-    def increment(self, is_valid):
-        with self.lock:
-            self.tested += 1
-            if is_valid:
-                self.valid += 1
-            return self.tested, self.valid
-
-
-progress = ProgressCounter()
+MAX_FAILURES = 3
 
 
 def load_config():
@@ -81,9 +65,7 @@ def save_proxy_pool(pool):
     return len(valid)
 
 
-# ===== 代理获取函数 =====
-
-
+# ===== 代理获取函数（同步，与原逻辑完全相同）=====
 def fetch_text_source(url, source_name):
     proxies = []
     try:
@@ -92,14 +74,11 @@ def fetch_text_source(url, source_name):
         if resp.status_code == 200:
             for line in resp.text.strip().split("\n"):
                 line = line.strip()
-                # 跳过注释和空行
                 if not line or line.startswith("#"):
                     continue
-                # 提取 IP:PORT 格式（支持多种格式）
                 if ":" in line:
                     parts = line.split(":")
                     if len(parts) >= 2 and parts[-1].isdigit():
-                        # 处理可能的额外字段（如：IP:PORT:country:protocol）
                         ip_port = f"{parts[0]}:{parts[1]}"
                         proxies.append(ip_port)
             print(f"   {source_name}: {len(proxies)} 个")
@@ -126,117 +105,107 @@ def fetch_geonode_api(url, source_name):
     return proxies
 
 
-# ===== 代理测试函数（yfinance + 环境变量代理）=====
-
-
-def test_proxy_yfinance(proxy, symbols, timeout=3):
-    """
-    使用 ip.sb API 测试 HTTP 代理
-    验证标准：
-    1. 能作为 HTTP 代理使用
-    2. 成功获取 IP 且为非中国 IP
-    """
+# ===== 异步验证函数（抽象步骤）=====
+async def fetch_exit_ip_via_proxy(proxy, timeout):
+    """通过代理访问 ip.sb，获取出口 IP"""
     try:
-        # 明确设置 HTTP 代理格式（确保是 HTTP/HTTPS 协议，不是 SOCKS）
-        # proxy 格式应为 "IP:PORT"，我们添加 http:// 前缀
-        if not proxy.startswith("http://"):
-            proxy_http = f"http://{proxy}"
-        else:
-            proxy_http = proxy
-
-        proxies = {"http": proxy_http, "https": proxy_http}
-
-        # 测试 1: 使用 HTTP 代理访问 ip.sb（HTTP 测试）
-        url = "https://api.ip.sb/ip"
-        headers = {"User-Agent": "curl/7.68.0"}
-
-        resp = requests.get(
-            url, headers=headers, proxies=proxies, timeout=timeout, verify=False
-        )
-
-        if resp.status_code != 200:
-            return False
-
-        ip = resp.text.strip()
-
-        # 测试 2: 检查 IP 地理位置（验证是否为海外 IP）
-        # 使用 http://ip-api.com/json/{ip} 接口
-        resp = requests.get(f"http://ip-api.com/json/{ip}", timeout=timeout)
-        if resp.status_code != 200:
-            return False
-
-        data = resp.json()
-        if data.get("status") != "success":
-            return False
-
-        country = data.get("countryCode", "")
-
-        # 非中国 IP 即为有效海外 HTTP 代理
-        if country and country != "CN":
-            logger.debug(f"✅ {ip} ({country}) HTTP")
-            return True
-        else:
-            logger.debug(f"❌ {ip} (CN)")
-            return False
-
-    except Exception as e:
-        # logger.debug(f"IP-API 查询失败: {e}")
-        return False
+        conn = aiohttp.TCPConnector(ssl=False)
+        async with aiohttp.ClientSession(connector=conn) as session:
+            async with session.get(
+                "https://api.ip.sb/ip",
+                proxy=f"http://{proxy}",
+                timeout=aiohttp.ClientTimeout(total=timeout),
+                headers={"User-Agent": "curl/7.68.0"},
+            ) as resp:
+                if resp.status == 200:
+                    ip = await resp.text()
+                    return ip.strip()
+    except:
+        pass
+    return None
 
 
-def test_proxies_batch(proxies, target_count, config):
-    """批量测试代理（线程安全进度显示）"""
-    validation = config.get("validation", {})
-    symbols = validation.get("test_symbols", ["AAPL", "GOOGL", "MSFT"])
-    timeout = validation.get("timeout", 3)
-    max_workers = validation.get("max_workers", 2)
+async def check_ip_country(ip, timeout):
+    """通过 ip-api.com 查询 IP 所属国家（不使用代理）"""
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"http://ip-api.com/json/{ip}",
+                timeout=aiohttp.ClientTimeout(total=timeout),
+            ) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    if data.get("status") == "success":
+                        return data.get("countryCode", "")
+    except:
+        pass
+    return None
 
+
+async def test_proxy_async(proxy, timeout):
+    """完整测试单个代理：获取出口 IP → 检查是否为非中国 IP"""
+    start = time.time()
+
+    # 1. 通过代理获取出口 IP
+    exit_ip = await fetch_exit_ip_via_proxy(proxy, timeout)
+    if not exit_ip:
+        return proxy, False, time.time() - start
+
+    # 2. 查询该 IP 的国家（本地请求）
+    country = await check_ip_country(exit_ip, timeout)
+    if country and country != "CN":
+        return proxy, True, time.time() - start
+    else:
+        return proxy, False, time.time() - start
+
+
+# ===== 批量异步测试 =====
+async def test_proxies_async(proxies, target, timeout, workers):
+    """异步并发测试代理，返回有效的代理列表"""
     valid = []
+    tested = 0
     total = len(proxies)
-    stop_flag = False
-    local_progress = ProgressCounter()
+    start_time = time.time()
+    semaphore = asyncio.Semaphore(workers)
 
-    def test_and_check(proxy):
-        nonlocal stop_flag
-        if stop_flag:
-            return False, False
+    async def test_with_semaphore(proxy):
+        nonlocal tested, valid
+        async with semaphore:
+            proxy, passed, elapsed = await test_proxy_async(proxy, timeout)
+            tested += 1
+            if passed:
+                valid.append(proxy)
 
-        result = test_proxy_yfinance(proxy, symbols, timeout)
-        tested, valid_count = local_progress.increment(result)
+            # 进度显示（每 5 个或最后一个）
+            if tested % 5 == 0 or tested == total:
+                percent = int(100 * tested / total)
+                bar_length = 40
+                filled = int(bar_length * tested / total)
+                bar = "█" * filled + "░" * (bar_length - filled)
+                sys.stdout.write(
+                    f"\r   进度：[{bar}] {tested}/{total} ({percent}%) | 通过：{len(valid)} | 耗时：{time.time() - start_time:.1f}s"
+                )
+                sys.stdout.flush()
 
-        if result:
-            valid.append(proxy)
-            if len(valid) >= target_count:
-                stop_flag = True
+            # 提前达到目标则取消剩余任务
+            if len(valid) >= target:
+                raise asyncio.CancelledError
+            return proxy, passed, elapsed
 
-        # 每 5 个显示一次进度
-        if tested % 5 == 0 or tested == total:
-            progress_pct = tested / total * 100
-            print(
-                f"\r   进度：{tested}/{total} ({progress_pct:.1f}%) | 通过：{valid_count} | 失败：{tested-valid_count}",
-                end="",
-                flush=True,
-            )
-
-        return result, stop_flag
-
-    print(f"   开始测试 {total} 个代理...")
-    print(f"   并发：{max_workers} | 超时：{timeout}秒 | 目标：{target_count}个")
-    print(f"   进度：0/{total} (0.0%) | 通过：0 | 失败：0", end="", flush=True)
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(test_and_check, p) for p in proxies]
-        for future in concurrent.futures.as_completed(futures):
-            if stop_flag:
-                break
-
-    print()  # 换行
+    tasks = [test_with_semaphore(p) for p in proxies]
+    try:
+        await asyncio.gather(*tasks)
+    except asyncio.CancelledError:
+        # 达到目标后取消剩余任务
+        pass
+    except Exception as e:
+        print(f"\n   测试异常: {e}")
+    finally:
+        print()  # 换行
     return valid
 
 
-# ===== 代理池维护 =====
-
-
+# ===== 代理池维护（与原逻辑完全相同）=====
 def update_proxy_pool(valid_proxies, existing_pool, max_failures=3):
     new_pool = {}
     new_count = 0
@@ -258,23 +227,17 @@ def update_proxy_pool(valid_proxies, existing_pool, max_failures=3):
 
 
 # ===== 主函数 =====
-
-
 def main():
-    parser = argparse.ArgumentParser(description="海外代理 IP 获取与测试")
-    parser.add_argument("--target", type=int, default=5, help="目标代理数量")
+    parser = argparse.ArgumentParser(description="海外代理 IP 获取与测试（异步版）")
+    parser.add_argument("--target", type=int, default=20, help="目标代理数量")
+    parser.add_argument("--timeout", type=int, default=3, help="测试超时（秒）")
+    parser.add_argument("--workers", type=int, default=4, help="并发数")
     parser.add_argument("--skip-verify", action="store_true", help="跳过验证，仅获取")
     args = parser.parse_args()
 
-    if not YF_AVAILABLE:
-        print(
-            "❌ 错误：缺少依赖，请运行：pip3 install yfinance --break-system-packages"
-        )
-        return 0
-
     print("=" * 60)
-    print("🌏 海外代理 IP 获取（独立工具版 v11）")
-    print("验证：yfinance + 环境变量 | 并发：2 | 超时：2 秒")
+    print("🌏 海外代理 IP 获取（异步版 v14）")
+    print(f"验证：出口 IP → 非中国 | 并发：{args.workers} | 超时：{args.timeout} 秒")
     print("=" * 60)
 
     config = load_config()
@@ -292,26 +255,32 @@ def main():
     for key, source in sources.items():
         if not source.get("enabled", True):
             continue
-
         name = source["name"]
         url = source.get("url")
         if not url:
             continue
-
         if "geonode" in key.lower():
             all_proxies.extend(fetch_geonode_api(url, name))
         else:
             all_proxies.extend(fetch_text_source(url, name))
 
+    all_proxies = list(set(all_proxies))
     print(f"\n   总计：{len(all_proxies)} 个")
 
     if args.skip_verify:
         print(f"\n[跳过验证] 直接保存所有代理")
         valid_proxies = all_proxies
     else:
-        print(f"\n[步骤 4] yfinance 验证（目标：{args.target}个）...")
-        valid_proxies = test_proxies_batch(all_proxies, args.target, config)
-        print(f"\n总计：{len(valid_proxies)} 个可用代理")
+        print(
+            f"\n[步骤 4] 异步验证代理（目标：{args.target}个，并发：{args.workers}）..."
+        )
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        valid_proxies = loop.run_until_complete(
+            test_proxies_async(all_proxies, args.target, args.timeout, args.workers)
+        )
+        loop.close()
+        print(f"\n   总计：{len(valid_proxies)} 个可用代理")
 
     print(f"\n[步骤 5] 更新代理池...")
     maintenance = config.get("maintenance", {})
@@ -325,8 +294,6 @@ def main():
     else:
         print(f"⚠️ 可用代理：{valid_count} 个（目标：{args.target}个）")
     print(f"{'=' * 60}")
-
-    return valid_count
 
 
 if __name__ == "__main__":

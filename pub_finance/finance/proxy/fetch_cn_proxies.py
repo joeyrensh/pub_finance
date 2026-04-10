@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 """
-中国大陆代理 IP 获取与测试工具（独立版 - v3.2 进度条版）
-- 代理源：站大爷 + OpenProxyList + Geonode + Proxifly（纯 requests，无需 agent-browser）
-- 验证：ipapi.co 地理位置 + 百度访问 + 东方财富 API
+中国大陆代理 IP 获取与测试工具（异步版 v4.0）
+- 代理源：站大爷 + OpenProxyList + Geonode + Proxifly
+- 验证顺序：IP 地理位置（先）→ 百度访问 → 东方财富 API
+- 异步并发测试，支持自定义并发数
 - 代理池维护：3 次失效自动清理
 - 进度条：实时显示测试进度
 
 用法：
-    python3 fetch_cn_proxies.py [--target 20] [--max-pages 3] [--timeout 3]
+    python3 fetch_cn_proxies.py --target 20 --max-pages 3 --timeout 3 --workers 10
 """
 
+import asyncio
+import aiohttp
 import requests
-import concurrent.futures
 import re
 import json
 import time
@@ -22,14 +24,13 @@ from pathlib import Path
 import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 SCRIPT_DIR = Path(__file__).parent
 CONFIG_FILE = SCRIPT_DIR / "cn_proxy_sources.json"
 PROXIES_TXT = SCRIPT_DIR / "china_proxies.txt"
 PROXIES_JSON = SCRIPT_DIR / "china_proxies.json"
 
-REQUEST_TIMEOUT = 5
-TEST_TIMEOUT = 3
-MAX_WORKERS = 2
+REQUEST_TIMEOUT = 5  # 抓取代理时的超时
 MAX_FAILURES = 3
 
 
@@ -67,7 +68,7 @@ def fetch_zdaye(max_pages=3):
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
             }
-            resp = requests.get(url, headers=headers, timeout=30)
+            resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
             if resp.status_code == 200:
                 ips = re.findall(r'class="proxy_ip">([\d\.]+)</p>', resp.text)
                 ports = re.findall(r"Port：(\d+)", resp.text)
@@ -84,7 +85,7 @@ def fetch_openproxylist():
     proxies = []
     try:
         url = "https://api.openproxylist.xyz/http.txt"
-        resp = requests.get(url, timeout=15)
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
         if resp.status_code == 200:
             for line in resp.text.strip().split("\n"):
                 line = line.strip()
@@ -102,7 +103,7 @@ def fetch_geonode(limit=500):
         url = (
             f"https://proxylist.geonode.com/api/proxy-list?limit={limit}&protocols=http"
         )
-        resp = requests.get(url, timeout=15)
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
         if resp.status_code == 200:
             data = resp.json()
             if "data" in data:
@@ -121,7 +122,7 @@ def fetch_proxifly():
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         }
-        resp = requests.get(url, headers=headers, timeout=15)
+        resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
         if resp.status_code == 200:
             for line in resp.text.strip().split("\n"):
                 line = line.strip()
@@ -135,43 +136,49 @@ def fetch_proxifly():
     return proxies
 
 
-def is_china_ip(ip, timeout=3, retries=3):
-    """使用 IP-API 验证 IP 是否为中国大陆代理，支持重试"""
-    for attempt in range(retries):
+# ========== 异步验证函数 ==========
+
+
+async def check_ip_location(ip, timeout):
+    """通过 ip-api.com 判断 IP 是否在中国大陆（不使用代理）"""
+    for attempt in range(2):  # 最多重试 1 次
         try:
-            resp = requests.get(f"http://ip-api.com/json/{ip}", timeout=timeout)
-            if resp.status_code != 200:
-                continue
-
-            data = resp.json()
-            if data.get("status") != "success":
-                continue
-
-            country = data.get("countryCode", "")
-            if country == "CN":
-                return True, country
-            else:
-                return False, country
-
-        except Exception as e:
-            # print(f"IP-API 查询失败 (尝试 {attempt+1}/{retries}): {e}")
-            if attempt < retries - 1:
-                time.sleep(1)  # 重试前等待
-            continue
-
-    return False, None
+            async with aiohttp.ClientSession() as session:
+                async with session.get(
+                    f"http://ip-api.com/json/{ip}",
+                    timeout=aiohttp.ClientTimeout(total=timeout),
+                ) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        if (
+                            data.get("status") == "success"
+                            and data.get("countryCode") == "CN"
+                        ):
+                            return True
+            await asyncio.sleep(0.5)
+        except:
+            await asyncio.sleep(0.5)
+    return False
 
 
-def test_proxy_strict(proxy, timeout=3):
-    """
-    三级验证：
-    1. ipapi.co 地理位置验证（确认中国大陆 IP）
-    2. 百度访问测试（确认中国大陆网络可达）
-    3. 东方财富 API 验证（确认代理可用 + 数据完整性）
-    """
-    BAIDU_URL = "http://www.baidu.com"
-    EASTMONEY_URL = "http://push2.eastmoney.com/api/qt/clist/get"
-    EASTMONEY_PARAMS = {
+async def check_baidu_via_proxy(proxy, timeout):
+    """通过代理访问百度，返回是否成功"""
+    try:
+        conn = aiohttp.TCPConnector(ssl=False)
+        async with aiohttp.ClientSession(connector=conn) as session:
+            async with session.get(
+                "http://www.baidu.com",
+                proxy=f"http://{proxy}",
+                timeout=aiohttp.ClientTimeout(total=timeout),
+            ) as resp:
+                return resp.status == 200
+    except:
+        return False
+
+
+async def check_eastmoney_via_proxy(proxy, timeout):
+    """通过代理访问东方财富 API，返回是否成功且 total > 1000"""
+    params = {
         "pn": "1",
         "pz": "5",
         "po": "1",
@@ -183,63 +190,101 @@ def test_proxy_strict(proxy, timeout=3):
         "fs": "m:0 t:6,m:0 t:80",
         "fields": "f12,f13,f14,f2",
     }
-
-    start = time.time()
     try:
-        ip = proxy.split(":")[0]
+        conn = aiohttp.TCPConnector(ssl=False)
+        async with aiohttp.ClientSession(connector=conn) as session:
+            async with session.get(
+                "http://push2.eastmoney.com/api/qt/clist/get",
+                params=params,
+                proxy=f"http://{proxy}",
+                timeout=aiohttp.ClientTimeout(total=timeout),
+            ) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    if data.get("data") and data["data"].get("total", 0) > 1000:
+                        return True
+        return False
+    except:
+        return False
 
-        # 1. ipapi.co 地理位置验证
-        is_china, country = is_china_ip(ip, timeout=timeout)
-        if not is_china:
-            return proxy, False, time.time() - start
 
-        # 2. 百度访问测试
-        try:
-            resp_baidu = requests.get(
-                BAIDU_URL, proxies={"http": f"http://{proxy}"}, timeout=timeout
-            )
-            if resp_baidu.status_code != 200:
-                return proxy, False, time.time() - start
-        except:
-            return proxy, False, time.time() - start
+async def test_single_proxy(proxy, timeout):
+    """完整测试单个代理：顺序为 IP 地理位置 -> 百度 -> 东方财富"""
+    start = time.time()
+    ip = proxy.split(":")[0]
 
-        # 3. 东方财富 API 验证
-        try:
-            resp_em = requests.get(
-                EASTMONEY_URL,
-                params=EASTMONEY_PARAMS,
-                proxies={"http": f"http://{proxy}"},
-                timeout=timeout,
-            )
-            elapsed = time.time() - start
-            if resp_em.status_code == 200:
-                data = resp_em.json()
-                if data.get("data") and data["data"].get("total", 0) > 1000:
-                    return proxy, True, elapsed
-        except:
-            pass
-
+    # 1. IP 地理位置（先，不通过代理）
+    if not await check_ip_location(ip, timeout):
         return proxy, False, time.time() - start
 
+    # 2. 百度访问测试（通过代理）
+    if not await check_baidu_via_proxy(proxy, timeout):
+        return proxy, False, time.time() - start
+
+    # 3. 东方财富 API 测试（通过代理）
+    if await check_eastmoney_via_proxy(proxy, timeout):
+        return proxy, True, time.time() - start
+    else:
+        return proxy, False, time.time() - start
+
+
+async def test_proxies_async(proxies, target, timeout, workers):
+    """异步并发测试代理，返回有效的代理列表"""
+    valid = []
+    tested = 0
+    total = len(proxies)
+    start_time = time.time()
+    semaphore = asyncio.Semaphore(workers)
+
+    async def test_with_semaphore(proxy):
+        nonlocal tested, valid
+        async with semaphore:
+            proxy, passed, elapsed = await test_single_proxy(proxy, timeout)
+            tested += 1
+            if passed:
+                valid.append(proxy)
+            # 进度显示（每 10 个或最后一个）
+            if tested % 10 == 0 or tested == total:
+                percent = int(100 * tested / total)
+                bar_length = 40
+                filled = int(bar_length * tested / total)
+                bar = "█" * filled + "░" * (bar_length - filled)
+                sys.stdout.write(
+                    f"\r   [{bar}] {tested}/{total} ({percent}%) | 通过：{len(valid)} | 耗时：{time.time() - start_time:.1f}s"
+                )
+                sys.stdout.flush()
+            # 提前达到目标则取消剩余任务
+            if len(valid) >= target:
+                raise asyncio.CancelledError
+            return proxy, passed, elapsed
+
+    tasks = [test_with_semaphore(p) for p in proxies]
+    try:
+        await asyncio.gather(*tasks)
+    except asyncio.CancelledError:
+        # 达到目标后取消剩余任务
+        pass
     except Exception as e:
-        return proxy, False, time.time() - start
+        print(f"\n   测试异常: {e}")
+    finally:
+        print()  # 换行
+    return valid
 
 
-def print_progress(tested, total, passed, start_time):
-    """打印进度条"""
-    percent = int(100 * tested / total) if total > 0 else 0
+def print_progress_bar(current, total, passed, elapsed):
+    percent = int(100 * current / total) if total else 0
     bar_length = 40
-    filled_length = int(bar_length * tested / total) if total > 0 else 0
-    bar = "█" * filled_length + "░" * (bar_length - filled_length)
-    elapsed = time.time() - start_time
+    filled = int(bar_length * current / total) if total else 0
+    bar = "█" * filled + "░" * (bar_length - filled)
     sys.stdout.write(
-        f"\r   [{bar}] {tested}/{total} ({percent}%) | 通过：{passed} | 耗时：{elapsed:.1f}s"
+        f"\r   [{bar}] {current}/{total} ({percent}%) | 通过：{passed} | 耗时：{elapsed:.1f}s"
     )
     sys.stdout.flush()
 
 
+# ========== 主函数 ==========
 def main():
-    parser = argparse.ArgumentParser(description="中国大陆代理 IP 获取与测试")
+    parser = argparse.ArgumentParser(description="中国大陆代理 IP 获取与测试（异步版）")
     parser.add_argument(
         "--target", type=int, default=20, help="目标代理数量 (默认：20)"
     )
@@ -247,15 +292,15 @@ def main():
         "--max-pages", type=int, default=3, help="站大爷最大页数 (默认：3)"
     )
     parser.add_argument("--timeout", type=int, default=3, help="测试超时 (秒)")
+    parser.add_argument("--workers", type=int, default=2, help="并发数 (默认：10)")
     args = parser.parse_args()
 
     print("=" * 60)
-    print("🇨🇳 中国大陆代理获取与测试（v3.2 - 进度条版）")
+    print("🇨🇳 中国大陆代理获取与测试（异步版 v4.0）")
     print("=" * 60)
 
     config = load_config()
     pool = load_proxy_pool()
-
     print(f"\n[步骤 1] 加载现有代理池：{len(pool)} 个")
 
     print(f"\n[步骤 2] 获取代理...")
@@ -268,31 +313,15 @@ def main():
     all_proxies = list(set(all_proxies))
     print(f"   总计获取：{len(all_proxies)} 个")
 
-    print(f"\n[步骤 3] 测试代理（目标：{args.target} 个）...")
-    valid_proxies = []
-    tested = 0
-    test_start = time.time()
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        futures = {
-            executor.submit(test_proxy_strict, p, args.timeout): p for p in all_proxies
-        }
-        for future in concurrent.futures.as_completed(futures):
-            proxy, passed, elapsed = future.result()
-            tested += 1
-            if passed:
-                valid_proxies.append(proxy)
-
-            # 每 10 个更新一次进度条
-            if tested % 10 == 0 or tested == len(all_proxies):
-                print_progress(tested, len(all_proxies), len(valid_proxies), test_start)
-
-            if len(valid_proxies) >= args.target:
-                break
-
-    print(
-        f"\n\n   测试完成：{tested} 个，通过：{len(valid_proxies)} 个，耗时：{time.time() - test_start:.1f}s"
+    print(f"\n[步骤 3] 测试代理（目标：{args.target} 个，并发数：{args.workers}）...")
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    valid_proxies = loop.run_until_complete(
+        test_proxies_async(all_proxies, args.target, args.timeout, args.workers)
     )
+    loop.close()
+
+    print(f"\n   测试完成：通过 {len(valid_proxies)} 个")
 
     print(f"\n[步骤 4] 更新代理池...")
     for p in valid_proxies:
