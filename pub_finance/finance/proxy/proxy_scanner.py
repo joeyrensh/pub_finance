@@ -55,7 +55,6 @@ import os
 import re
 from ipaddress import ip_network, ip_address
 
-# 尝试导入 tqdm
 try:
     from tqdm import tqdm
 
@@ -71,20 +70,29 @@ GEO_API = "http://ip-api.com/json/{ip}"
 COMMON_PORTS = [
     80,
     443,
+    999,
     8080,
     8081,
     8082,
+    8085,
     3128,
+    4090,
     8000,
     8118,
     8123,
     8181,
+    8443,
+    8449,
     8888,
+    9091,
+    9002,
     9999,
     10000,
+    10001,
     18080,
 ]
 
+# 备选住宅 IP 段（回退用）
 RESIDENTIAL_IP_RANGES = [
     "1.224.0.0/11",
     "39.7.0.0/16",
@@ -237,8 +245,7 @@ def get_ip_ranges_from_asn(asn_numbers, source="whois", whois_timeout=120):
         raise ValueError(f"不支持的 source: {source}")
 
 
-# ========== 辅助函数 ==========
-def filter_cidr_by_mask(cidr_list, min_mask=20):
+def filter_cidr_by_mask(cidr_list, min_mask=23):
     filtered = []
     for cidr in cidr_list:
         try:
@@ -291,7 +298,7 @@ def generate_fallback_targets(n):
     return out
 
 
-# ========== Masscan 生产者（带进度条）==========
+# ========== Masscan 生产者（JSON 输出到 stdout）==========
 async def run_masscan_producer(
     cidr_list,
     ports,
@@ -300,26 +307,28 @@ async def run_masscan_producer(
     batch_size=100,
     progress_callback=None,
     masscan_pbar=None,
+    verbose=False,
 ):
     if not cidr_list:
+        await result_queue.put(None)
         return
     total_batches = (len(cidr_list) + batch_size - 1) // batch_size
     ports_arg = ",".join(str(p) for p in ports)
+
+    # 设置进度条总数为批次数（如果使用批次进度）
+    if masscan_pbar is not None:
+        # 将 total 改为批次数，而不是 100
+        masscan_pbar.total = total_batches
+        masscan_pbar.desc = "Masscan批次"
+        masscan_pbar.refresh()
 
     for i in range(0, len(cidr_list), batch_size):
         batch = cidr_list[i : i + batch_size]
         batch_num = i // batch_size + 1
         targets = ",".join(batch)
-        print(
-            f"\n[MASSCAN] 批次 {batch_num}/{total_batches}，扫描 {len(batch)} 个段",
-            flush=True,
+        tqdm.write(
+            f"[MASSCAN] 批次 {batch_num}/{total_batches}，扫描 {len(batch)} 个段"
         )
-
-        with tempfile.NamedTemporaryFile(
-            mode="w+", suffix=".json", delete=False
-        ) as tmp:
-            output_file = tmp.name
-
         cmd = [
             "sudo",
             "masscan",
@@ -336,33 +345,16 @@ async def run_masscan_producer(
             "--source-port",
             "40000-41023",
             "-oJ",
-            output_file,
+            "-",
         ]
 
         proc = await asyncio.create_subprocess_exec(
             *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
 
-        # 解析 stderr 获取进度百分比
-        last_percent = 0
-        async for line in proc.stderr:
-            line = line.decode().strip()
-            if "rate:" in line.lower() or "found=" in line:
-                print(f"[MASSCAN] {line}", flush=True)
-            # 提取百分比，例如 "0.13% done"
-            percent_match = re.search(r"([0-9.]+)% done", line)
-            if percent_match and masscan_pbar is not None:
-                percent = float(percent_match.group(1))
-                if percent - last_percent >= 1:
-                    masscan_pbar.update(percent - last_percent)
-                    last_percent = percent
-
-        await proc.wait()
-
-        # 解析 JSON 输出
-        with open(output_file, "r") as f:
-            for line in f:
-                line = line.strip()
+        async def read_stdout():
+            async for line in proc.stdout:
+                line = line.decode().strip()
                 if not line:
                     continue
                 try:
@@ -374,13 +366,27 @@ async def run_masscan_producer(
                             await result_queue.put((ip, port))
                             if progress_callback:
                                 progress_callback()
-                except:
-                    pass
-        os.unlink(output_file)
+                except json.JSONDecodeError:
+                    if verbose:
+                        print(f"[WARN] 无效 JSON: {line}", flush=True)
 
-    await result_queue.put(None)
+        async def read_stderr():
+            async for line in proc.stderr:
+                line = line.decode().strip()
+                if verbose:
+                    print(f"[MASSCAN_STDERR] {line}", flush=True)
+
+        await asyncio.gather(read_stdout(), read_stderr())
+        await proc.wait()
+
+        # 每完成一个批次，更新进度条（如果使用批次进度）
+        if masscan_pbar is not None:
+            masscan_pbar.update(1)
+
     if masscan_pbar is not None:
         masscan_pbar.close()
+
+    await result_queue.put(None)
 
 
 # ========== 代理验证消费者（带进度条）==========
@@ -395,13 +401,17 @@ async def verify_single_proxy(session, proxy, timeout, retries=2):
                     continue
                 data = await resp.json()
             origin = data.get("origin", "")
-            if "," in origin:
+            # 分割 IP 列表，取最后一个作为代理出口 IP
+            ip_list = [ip.strip() for ip in origin.split(",")]
+            exit_ip = ip_list[-1]  # 代理 IP
+
+            if len(ip_list) > 1:
                 level = "transparent"
             elif proxy.split(":")[0] in origin:
                 level = "anonymous"
             else:
                 level = "elite"
-            exit_ip = origin.split(",")[0].strip()
+
             async with session.get(
                 GEO_API.format(ip=exit_ip), timeout=timeout
             ) as geo_resp:
@@ -419,48 +429,51 @@ async def verify_single_proxy(session, proxy, timeout, retries=2):
 
 
 async def verify_consumer(
-    result_queue, valid_queue, target, concurrency, timeout, use_progress=True
+    result_queue,
+    valid_queue,
+    target,
+    concurrency,
+    timeout,
+    use_progress=True,
+    verbose=False,
 ):
     valid = []
+    valid_set = set()
+    valid_lock = asyncio.Lock()
     semaphore = asyncio.Semaphore(concurrency)
     stop_flag = False
     tested = 0
     start_time = time.time()
-    # 用于统计发现的端口总数（从 producer 统计）
     total_discovered = 0
+    stop_event = asyncio.Event()
 
+    pbar = None
     if use_progress and TQDM_AVAILABLE:
-        # 初始总数未知，先设为 None，等 masscan 结束后更新
         pbar = tqdm(desc="验证代理", unit="个", total=None, ncols=80)
-    else:
-        pbar = None
 
-    def update_progress(valid_count, tested_count, discovered=None):
-        if pbar:
-            if discovered is not None and pbar.total != discovered:
-                pbar.total = discovered
-                pbar.refresh()
-            pbar.set_postfix({"有效": valid_count, "已测": tested_count})
-            pbar.update(0)  # 刷新显示
-        elif use_progress and tested_count % 10 == 0:
-            elapsed = time.time() - start_time
-            print(
-                f"\r验证代理: 已测 {tested_count} 个, 有效 {valid_count} 个, 发现端口 {discovered or '?'}, 耗时 {elapsed:.1f}s",
-                end="",
-                flush=True,
-            )
+    def update_progress(unique_valid, tested_count, discovered=None):
+        if pbar is None:
+            return
+        pbar.set_postfix(
+            {
+                "有效": unique_valid,
+                "已测": tested_count,
+                "发现端口": discovered if discovered is not None else total_discovered,
+            }
+        )
 
     async def worker():
         nonlocal stop_flag, tested, total_discovered
         async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(ssl=False)
         ) as session:
-            while not stop_flag:
+            while not stop_flag and not stop_event.is_set():
                 try:
                     item = await asyncio.wait_for(result_queue.get(), timeout=1.0)
                 except asyncio.TimeoutError:
                     continue
-                if item is None:  # 结束标记
+                if item is None:
+                    stop_event.set()
                     break
                 ip, port = item
                 total_discovered += 1
@@ -468,23 +481,40 @@ async def verify_consumer(
                 async with semaphore:
                     result = await verify_single_proxy(session, proxy, timeout)
                     tested += 1
+                    if pbar is not None:
+                        pbar.update(1)
+
                     if result:
-                        valid.append(result)
-                        await valid_queue.put(result)
-                    if len(valid) >= target:
-                        stop_flag = True
-                        break
-                    # 更新进度条
-                    update_progress(len(valid), tested, total_discovered)
+                        async with valid_lock:
+                            if proxy not in valid_set:
+                                valid_set.add(proxy)
+                                valid.append(result)
+                                await valid_queue.put(result)
+                        async with valid_lock:
+                            current_valid = len(valid_set)
+                        update_progress(current_valid, tested, total_discovered)
+                        if current_valid >= target:
+                            stop_flag = True
+                            stop_event.set()
+                            break
+                    else:
+                        async with valid_lock:
+                            current_valid = len(valid_set)
+                        update_progress(current_valid, tested, total_discovered)
 
     workers = [asyncio.create_task(worker()) for _ in range(concurrency)]
     await asyncio.gather(*workers)
-    if pbar:
+
+    if total_discovered == 0:
+        if pbar is not None:
+            pbar.set_description("验证代理 (无端口)")
+        print("\n[INFO] masscan 未发现任何开放端口，无需验证", flush=True)
+
+    if pbar is not None:
         pbar.close()
-    else:
-        if use_progress:
-            print()  # 换行
     await valid_queue.put(None)
+    if verbose:
+        print("[CONSUMER] 所有 worker 退出，已发送结束信号", flush=True)
     return valid
 
 
@@ -504,6 +534,7 @@ async def main_async(args):
         except Exception as e:
             print(f"[ERROR] ASN 查询失败: {e}", flush=True)
             if args.fallback:
+                print("[MAIN] 回退到预定义 IP 段", flush=True)
                 cidr_list = IP_RANGES
             else:
                 return
@@ -518,7 +549,7 @@ async def main_async(args):
         print("[ERROR] 无可用 IP 段", flush=True)
         return
 
-    cidr_list = filter_cidr_by_mask(cidr_list, min_mask=20)
+    cidr_list = filter_cidr_by_mask(cidr_list, min_mask=23)
     if not cidr_list:
         print("[ERROR] 过滤后无可用 IP 段", flush=True)
         return
@@ -528,11 +559,8 @@ async def main_async(args):
     port_queue = asyncio.Queue(maxsize=5000)
     valid_queue = asyncio.Queue()
 
-    # 进度条：masscan 扫描进度（总进度 100%）
     use_progress = not args.no_progress
     masscan_pbar = None
-    if use_progress and TQDM_AVAILABLE:
-        masscan_pbar = tqdm(total=100, desc="Masscan扫描", unit="%", ncols=80)
 
     producer = asyncio.create_task(
         run_masscan_producer(
@@ -542,6 +570,7 @@ async def main_async(args):
             rate=args.masscan_rate,
             batch_size=100,
             masscan_pbar=masscan_pbar,
+            verbose=args.verbose,
         )
     )
     consumer = asyncio.create_task(
@@ -552,10 +581,13 @@ async def main_async(args):
             args.concurrency,
             args.timeout,
             use_progress=use_progress,
+            verbose=args.verbose,
         )
     )
 
+    # 等待消费者完成（消费者会在收到 None 后退出）
     await consumer
+    # 取消生产者（如果还未完成）
     if not producer.done():
         producer.cancel()
         try:
@@ -564,40 +596,50 @@ async def main_async(args):
             pass
 
     # 收集结果
-    results = []
+    results_dict = {}
+
     while True:
         try:
             item = valid_queue.get_nowait()
             if item is None:
                 break
-            results.append(item)
+            proxy, country, level = item
+            if proxy not in results_dict:
+                results_dict[proxy] = (country, level)
         except asyncio.QueueEmpty:
             break
 
+    # 写入 CSV
     with open(args.out, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["proxy", "country", "anonymity"])
-        writer.writerows(results)
+        for proxy, (country, level) in results_dict.items():
+            writer.writerow([proxy, country, level])
 
-    print(f"\n✅ 扫描完成 | 有效代理: {len(results)}", flush=True)
-    return results
+    print(f"\n✅ 扫描完成 | 有效代理: {len(results_dict)}", flush=True)
+    return results_dict
 
 
 def main():
-    parser = argparse.ArgumentParser(description="ASN 代理扫描器（双进度条）")
-    parser.add_argument("--asn", type=str, default="")
+    parser = argparse.ArgumentParser(description="ASN 代理扫描器（双进度条修复）")
+    parser.add_argument("--asn", type=str, default="", help="ASN 编号，多个用逗号分隔")
     parser.add_argument(
         "--asn-source", type=str, default="whois", choices=["whois", "asnmap", "ipatel"]
     )
-    parser.add_argument("--whois-timeout", type=int, default=120)
-    parser.add_argument("--cidr-file", type=str)
-    parser.add_argument("--targets", type=int, default=100)
-    parser.add_argument("--concurrency", type=int, default=50)
-    parser.add_argument("--timeout", type=int, default=5)
-    parser.add_argument("--masscan-rate", type=int, default=5000)
-    parser.add_argument("--out", default="proxies_ok.csv")
-    parser.add_argument("--fallback", action="store_true")
+    parser.add_argument(
+        "--whois-timeout", type=int, default=120, help="whois 查询超时（秒）"
+    )
+    parser.add_argument("--cidr-file", type=str, help="CIDR 列表文件")
+    parser.add_argument("--targets", type=int, default=100, help="目标代理数量")
+    parser.add_argument("--concurrency", type=int, default=50, help="验证并发数")
+    parser.add_argument("--timeout", type=int, default=5, help="HTTP 验证超时（秒）")
+    parser.add_argument(
+        "--masscan-rate", type=int, default=5000, help="masscan 发包速率（包/秒）"
+    )
+    parser.add_argument("--out", default="proxies_ok.csv", help="输出 CSV 文件名")
+    parser.add_argument("--fallback", action="store_true", help="回退到随机生成模式")
     parser.add_argument("--no-progress", action="store_true", help="禁用进度条")
+    parser.add_argument("--verbose", action="store_true", help="显示调试信息")
     args = parser.parse_args()
     asyncio.run(main_async(args))
 
