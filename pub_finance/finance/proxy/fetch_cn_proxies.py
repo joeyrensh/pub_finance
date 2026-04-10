@@ -135,31 +135,34 @@ def fetch_proxifly():
     return proxies
 
 
-def is_china_ip(ip, timeout=2):
-    """使用 IP-API 验证 IP 是否为中国大陆代理"""
-    try:
-        # 使用 http://ip-api.com/json/{ip} 接口
-        resp = requests.get(f"http://ip-api.com/json/{ip}", timeout=timeout)
-        if resp.status_code != 200:
-            return False, None
+def is_china_ip(ip, timeout=3, retries=3):
+    """使用 IP-API 验证 IP 是否为中国大陆代理，支持重试"""
+    for attempt in range(retries):
+        try:
+            resp = requests.get(f"http://ip-api.com/json/{ip}", timeout=timeout)
+            if resp.status_code != 200:
+                continue
 
-        data = resp.json()
-        if data.get("status") != "success":
-            return False, None
+            data = resp.json()
+            if data.get("status") != "success":
+                continue
 
-        country = data.get("countryCode", "")
-        # print(f"      IP-API 查询: {ip} -> {country}")
-        if country == "CN":
-            return True, country
-        else:
-            return False, country
+            country = data.get("countryCode", "")
+            if country == "CN":
+                return True, country
+            else:
+                return False, country
 
-    except Exception as e:
-        print(f"IP-API 查询失败: {e}")
-        return False, None
+        except Exception as e:
+            # print(f"IP-API 查询失败 (尝试 {attempt+1}/{retries}): {e}")
+            if attempt < retries - 1:
+                time.sleep(1)  # 重试前等待
+            continue
+
+    return False, None
 
 
-def test_proxy_strict(proxy, timeout=1):
+def test_proxy_strict(proxy, timeout=3):
     """
     三级验证：
     1. ipapi.co 地理位置验证（确认中国大陆 IP）

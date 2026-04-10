@@ -129,7 +129,7 @@ def fetch_geonode_api(url, source_name):
 # ===== 代理测试函数（yfinance + 环境变量代理）=====
 
 
-def test_proxy_yfinance(proxy, symbols, timeout=2):
+def test_proxy_yfinance(proxy, symbols, timeout=3):
     """
     使用 ip.sb API 测试 HTTP 代理
     验证标准：
@@ -180,7 +180,7 @@ def test_proxy_yfinance(proxy, symbols, timeout=2):
             return False
 
     except Exception as e:
-        logger.debug(f"IP-API 查询失败: {e}")
+        # logger.debug(f"IP-API 查询失败: {e}")
         return False
 
 
@@ -188,7 +188,7 @@ def test_proxies_batch(proxies, target_count, config):
     """批量测试代理（线程安全进度显示）"""
     validation = config.get("validation", {})
     symbols = validation.get("test_symbols", ["AAPL", "GOOGL", "MSFT"])
-    timeout = validation.get("timeout", 2)
+    timeout = validation.get("timeout", 3)
     max_workers = validation.get("max_workers", 2)
 
     valid = []
