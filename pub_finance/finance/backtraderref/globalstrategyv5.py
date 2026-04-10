@@ -413,7 +413,7 @@ class GlobalStrategy(bt.Strategy):
                 self.signals[d._name]["deviant"] = bt.And(
                     (d.close - self.inds[d._name]["sma_short"])
                     / self.inds[d._name]["sma_short"]
-                    <= 0.10,
+                    <= 0.20,
                 )
             except Exception as e:
                 print(f"❌ 初始化失败 - 辅助指标 4: {d._name}, {e}")
