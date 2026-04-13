@@ -60,6 +60,8 @@ def save_proxy_pool(pool):
         json.dump(pool, f, indent=2, ensure_ascii=False)
     valid = [p for p, info in pool.items() if info.get("failures", 0) == 0]
     with open(PROXIES_TXT, "w", encoding="utf-8") as f:
+        f.write(f"# 海外代理 IP 池 - {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
+        f.write(f"# 总数：{len(valid)}\n#\n")
         for p in valid:
             f.write(p + "\n")
     return len(valid)
