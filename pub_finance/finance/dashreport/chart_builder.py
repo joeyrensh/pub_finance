@@ -829,7 +829,7 @@ class ChartBuilder:
         fig.update_layout(
             xaxis=dict(
                 mirror=True,
-                ticks="outside",
+                # ticks="outside",
                 tickfont=dict(
                     family=self.font_family,
                     size=base_font_size,
@@ -846,7 +846,7 @@ class ChartBuilder:
             yaxis=dict(
                 side="left",
                 mirror=True,
-                ticks="inside",
+                # ticks="inside",
                 tickfont=dict(
                     family=self.font_family,
                     size=base_font_size,
@@ -995,7 +995,7 @@ class ChartBuilder:
             title="",
             xaxis=dict(
                 mirror=True,
-                ticks="outside",
+                # ticks="outside",
                 tickfont=dict(
                     size=font_size,
                     color=text_color,
@@ -1012,7 +1012,7 @@ class ChartBuilder:
             yaxis=dict(
                 side="left",
                 mirror=True,
-                ticks="outside",
+                # ticks="outside",
                 tickfont=dict(
                     size=font_size,
                     color=text_color,
@@ -1103,8 +1103,8 @@ class ChartBuilder:
 
         fig.update_xaxes(
             mirror=True,
-            ticks="inside",
-            ticklabelposition="inside",
+            # ticks="inside",
+            ticklabelposition="outside",
             tickfont=dict(
                 size=font_size,
                 color=text_color,
@@ -1130,7 +1130,7 @@ class ChartBuilder:
 
         fig.update_yaxes(
             mirror=True,
-            ticks="outside",
+            # ticks="outside",
             tickfont=dict(
                 size=font_size,
                 color=text_color,
@@ -2210,7 +2210,7 @@ class ChartBuilder:
 
         fig.update_yaxes(
             mirror=True,
-            ticks="outside",
+            # ticks="outside",
             tickfont=dict(
                 size=font_size,
                 color=cfg["text_color"],
