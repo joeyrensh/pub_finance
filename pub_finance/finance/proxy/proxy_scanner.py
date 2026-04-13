@@ -421,7 +421,7 @@ async def verify_single_proxy(session, proxy, timeout, retries=2):
                 else:
                     country = "Unknown"
             return (proxy, country, level)
-        except:
+        except Exception as e:
             if attempt == retries - 1:
                 return None
             await asyncio.sleep(0.5 * (attempt + 1))

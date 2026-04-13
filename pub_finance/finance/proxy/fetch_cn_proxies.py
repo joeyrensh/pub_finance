@@ -292,7 +292,7 @@ def main():
         "--max-pages", type=int, default=3, help="站大爷最大页数 (默认：3)"
     )
     parser.add_argument("--timeout", type=int, default=3, help="测试超时 (秒)")
-    parser.add_argument("--workers", type=int, default=2, help="并发数 (默认：10)")
+    parser.add_argument("--workers", type=int, default=4, help="并发数 (默认：10)")
     args = parser.parse_args()
 
     print("=" * 60)

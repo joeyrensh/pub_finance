@@ -169,11 +169,15 @@ class BacktestPage:
                 Output("backtest-page", "data"),
                 Output("backtest-refresh", "children"),
             ],
-            Input("backtest-market", "value"),
+            [
+                Input("backtest-market", "value"),
+                Input("backtest-date", "date"),
+            ],
             prevent_initial_call=False,
         )
-        def load_stock_list(market):
-            """市场切换时：加载完整股票列表，重置页码，显示前三支，并更新按钮文本"""
+        def load_stock_list(market, date_str):
+            """市场或日期变化时：加载完整股票列表，若存在对应日期的 stock 文件则按 PE、总市值排序，否则保持原顺序"""
+            # 1. 读取所有股票代码
             file_path = FINANCE_ROOT / (
                 "cnstockinfo/dynamic_list.csv"
                 if market == "cn"
@@ -195,11 +199,68 @@ class BacktestPage:
                 else:
                     symbols = ["AAPL", "MSFT", "GOOGL"]
 
+            # 2. 尝试根据日期读取股票信息文件（PE、总市值）
+            stock_file_exists = False
+            if date_str:
+                try:
+                    dt = datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
+                    stock_file = FINANCE_ROOT / (
+                        f"cnstockinfo/stock_{dt}.csv"
+                        if market == "cn"
+                        else f"usstockinfo/stock_{dt}.csv"
+                    )
+                    if stock_file.exists():
+                        stock_file_exists = True
+                        df_stock = pd.read_csv(
+                            stock_file,
+                            usecols=["symbol", "pe", "total_value"],
+                            dtype=str,
+                        )
+                        pe_dict = {}
+                        tv_dict = {}
+                        for _, row in df_stock.iterrows():
+                            sym = row["symbol"]
+                            pe = row.get("pe")
+                            tv = row.get("total_value")
+                            if pe and pe != "nan":
+                                try:
+                                    pe_dict[sym] = float(pe)
+                                except:
+                                    pass
+                            if tv and tv != "nan":
+                                try:
+                                    tv_dict[sym] = float(tv)
+                                except:
+                                    pass
+
+                        # 排序函数：PE 升序，总市值升序，缺失值排最后
+                        def sort_key(symbol):
+                            pe = pe_dict.get(symbol)
+                            tv = tv_dict.get(symbol)
+                            pe_rank = (
+                                pe if (pe is not None and pe > 0) else float("inf")
+                            )
+                            tv_rank = (
+                                tv if (tv is not None and tv > 0) else float("inf")
+                            )
+                            return (pe_rank, tv_rank)
+
+                        symbols.sort(key=sort_key)
+                        print(
+                            f"已按 {stock_file} 中的 PE/总市值排序，共 {len(pe_dict)} 条数据"
+                        )
+                except Exception as e:
+                    print(f"读取股票信息文件失败: {e}")
+
+            if not stock_file_exists:
+                print(f"未找到对应日期的股票文件，保持 dynamic_list 原始顺序")
+
+            # 3. 分页（每页3个）
             total = len(symbols)
             page = 0
             start = page * 3
             end = min(start + 3, total)
-            if start >= total:  # 边界处理
+            if start >= total:
                 start = 0
                 end = min(3, total)
             current_stocks = symbols[start:end]
