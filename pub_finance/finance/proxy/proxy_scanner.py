@@ -386,7 +386,8 @@ async def run_masscan_producer(
     if masscan_pbar is not None:
         masscan_pbar.close()
 
-    await result_queue.put(None)
+    # 退出信号由 main 统一广播
+    return
 
 
 # ========== 代理验证消费者（带进度条）==========
@@ -585,15 +586,15 @@ async def main_async(args):
         )
     )
 
-    # 等待消费者完成（消费者会在收到 None 后退出）
+    # 1️⃣ 等待 producer 完成（masscan 已结束）
+    await producer
+
+    # 2️⃣ 广播退出信号：每个 worker 一个 None
+    for _ in range(args.concurrency):
+        await port_queue.put(None)
+
+    # 3️⃣ 等待 consumer 正常退出
     await consumer
-    # 取消生产者（如果还未完成）
-    if not producer.done():
-        producer.cancel()
-        try:
-            await producer
-        except asyncio.CancelledError:
-            pass
 
     # 收集结果
     results_dict = {}
