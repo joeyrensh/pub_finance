@@ -349,7 +349,7 @@ async def run_masscan_producer(
         ]
 
         proc = await asyncio.create_subprocess_exec(
-            *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+            *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL
         )
 
         async def read_stdout():
@@ -370,13 +370,7 @@ async def run_masscan_producer(
                     if verbose:
                         print(f"[WARN] 无效 JSON: {line}", flush=True)
 
-        async def read_stderr():
-            async for line in proc.stderr:
-                line = line.decode().strip()
-                if verbose:
-                    print(f"[MASSCAN_STDERR] {line}", flush=True)
-
-        await asyncio.gather(read_stdout(), read_stderr())
+        await read_stdout()
         await proc.wait()
 
         # 每完成一个批次，更新进度条（如果使用批次进度）
