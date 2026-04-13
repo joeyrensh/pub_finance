@@ -322,8 +322,9 @@ body {
   white-space: nowrap;
   transition: all 0.25s ease;
   border-color: var(--border-left-color);
-  background-color: #91959924;
+  /* background-color: #91959924; */
   border-radius: 4px;
+  height: 40px;
 }
 
 .tab .icon {
@@ -947,6 +948,7 @@ a:active {
     padding: 4px 3px;
     gap: 6px;
     border-left: 2px solid #D9534F;
+    height: 30px;
   }
   
   .tab .icon {
