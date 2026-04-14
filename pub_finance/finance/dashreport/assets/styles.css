@@ -285,7 +285,6 @@ body {
   background-size: contain;
   z-index: -1;
   margin-left: 10px;
-  filter: contrast(150%) saturate(200%);
 }
 
 .loading-dot {
@@ -904,7 +903,7 @@ a:active {
   }
   
   .background-header::before {
-    width: 25%;
+    width: 30%;
   }
   
   .company-logo {
