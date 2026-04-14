@@ -514,11 +514,19 @@ class BacktestPage:
                 "INDUSTRY": ("text",),
                 "PE": ("text",),
             }
+            # === 注入 stock_list 顺序 ===
+            stock_list = data.get("s", [])
+            symbol_order = {sym: i for i, sym in enumerate(stock_list)}
+            df["_order"] = df["SYMBOL"].map(symbol_order)
+
+            # === 排序 + 分组 ===
             df = (
-                df.sort_values(["SYMBOL", "DATE"], ascending=[True, False])
-                .groupby("SYMBOL", as_index=False)
+                df.sort_values(["_order", "DATE"], ascending=[True, False])
+                .groupby("SYMBOL", sort=False, as_index=False)
                 .head(2)
             )
+
+            df = df.drop(columns=["_order"])
             # 从回测数据中获取市场，默认为 cn
             market = data.get("market", "cn")
             trade_date = get_default_date(market)
