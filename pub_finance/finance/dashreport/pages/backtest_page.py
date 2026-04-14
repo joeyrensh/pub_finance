@@ -274,22 +274,42 @@ class BacktestPage:
                 Output("backtest-page", "data", allow_duplicate=True),
                 Output("backtest-refresh", "children", allow_duplicate=True),
             ],
-            Input("backtest-refresh", "n_clicks"),
+            [
+                Input("backtest-refresh", "n_clicks"),
+                Input("backtest-next", "n_clicks"),
+                Input("backtest-prev", "n_clicks"),
+            ],
             State("backtest-full-list", "data"),
             State("backtest-page", "data"),
             prevent_initial_call=True,
         )
-        def refresh_stocks(n_clicks, full_list, current_page):
-            """刷新按钮：滚动到下一组股票，循环"""
+        def refresh_stocks(n_clicks, next_clicks, prev_clicks, full_list, current_page):
+            ctx = dash.callback_context
+            trigger = (
+                ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
+            )
             if not full_list:
                 return "", 0, "0-0"
+
             total = len(full_list)
-            max_page = (total - 1) // 3
-            next_page = (current_page + 1) % (max_page + 1) if max_page >= 0 else 0
-            start = next_page * 3
-            end = min(start + 3, total)
+            page_size = 3
+            max_page = (total - 1) // page_size
+
+            if trigger == "backtest-next":
+                next_page = min(current_page + 1, max_page)
+
+            elif trigger == "backtest-prev":
+                next_page = max(current_page - 1, 0)
+
+            else:
+                next_page = current_page  # 中间按钮不动
+
+            start = next_page * page_size
+            end = min(start + page_size, total)
+
             current_stocks = full_list[start:end]
             button_text = f"{start+1}-{end} / {total}"
+
             return ",".join(current_stocks), next_page, button_text
 
         # 回测 callback（增强：按钮锁定 + 进度条）
@@ -617,14 +637,50 @@ class BacktestPage:
                                                 "minWidth": "30%",
                                             },
                                         ),
-                                        html.Button(
-                                            "刷新",
-                                            id="backtest-refresh",
-                                            n_clicks=0,
-                                            className="kpi-label btn btn-secondary",
+                                        html.Div(
+                                            [
+                                                html.Button(
+                                                    "◀",
+                                                    id="backtest-prev",
+                                                    n_clicks=0,
+                                                    className="btn btn-light kpi-label",
+                                                    style={
+                                                        "background": "transparent",
+                                                        "border": "none",
+                                                        "padding": "0",
+                                                        "marginRight": "6px",
+                                                        "fontSize": "12px",
+                                                        "lineHeight": "1",
+                                                        "cursor": "pointer",
+                                                        "color": "#666",
+                                                    },
+                                                ),
+                                                html.Button(
+                                                    "刷新",
+                                                    id="backtest-refresh",
+                                                    n_clicks=0,
+                                                    className="btn btn-secondary kpi-label",
+                                                    style={"marginRight": "5px"},
+                                                ),
+                                                html.Button(
+                                                    "▶",
+                                                    id="backtest-next",
+                                                    n_clicks=0,
+                                                    className="btn btn-light kpi-label",
+                                                    style={
+                                                        "background": "transparent",
+                                                        "border": "none",
+                                                        "padding": "0",
+                                                        "fontSize": "12px",
+                                                        "lineHeight": "1",
+                                                        "cursor": "pointer",
+                                                        "color": "#666",
+                                                    },
+                                                ),
+                                            ],
                                             style={
+                                                "display": "flex",
                                                 "flex": "0 0 auto",
-                                                "minWidth": "20%",
                                             },
                                         ),
                                     ],
