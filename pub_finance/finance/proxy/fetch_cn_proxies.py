@@ -252,21 +252,26 @@ async def test_proxies_async(proxies, target, timeout, workers):
                     f"\r   [{bar}] {tested}/{total} ({percent}%) | 通过：{len(valid)} | 耗时：{time.time() - start_time:.1f}s"
                 )
                 sys.stdout.flush()
-            # 提前达到目标则取消剩余任务
-            if len(valid) >= target:
-                raise asyncio.CancelledError
+
             return proxy, passed, elapsed
 
-    tasks = [test_with_semaphore(p) for p in proxies]
+    tasks = [asyncio.create_task(test_with_semaphore(p)) for p in proxies]
+
     try:
-        await asyncio.gather(*tasks)
-    except asyncio.CancelledError:
-        # 达到目标后取消剩余任务
-        pass
-    except Exception as e:
-        print(f"\n   测试异常: {e}")
+        for coro in asyncio.as_completed(tasks):
+            await coro
+            if len(valid) >= target:
+                break
     finally:
-        print()  # 换行
+        # 🚨 关键：显式取消未完成任务
+        for t in tasks:
+            if not t.done():
+                t.cancel()
+
+        # 🚨 等待所有任务真正退出，吞掉 CancelledError
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+    print()  # 换行
     return valid
 
 
@@ -291,7 +296,7 @@ def main():
         "--max-pages", type=int, default=3, help="站大爷最大页数 (默认：3)"
     )
     parser.add_argument("--timeout", type=int, default=3, help="测试超时 (秒)")
-    parser.add_argument("--workers", type=int, default=4, help="并发数 (默认：10)")
+    parser.add_argument("--workers", type=int, default=10, help="并发数 (默认：10)")
     args = parser.parse_args()
 
     print("=" * 60)

@@ -63,6 +63,8 @@ except ImportError:
     TQDM_AVAILABLE = False
 
 sys.stdout.reconfigure(line_buffering=True)
+# ===== 新增：全局停止信号 =====
+GLOBAL_STOP_EVENT = asyncio.Event()
 
 # ========== 配置参数 ==========
 TEST_URL = "http://httpbin.org/get"
@@ -323,6 +325,10 @@ async def run_masscan_producer(
         masscan_pbar.refresh()
 
     for i in range(0, len(cidr_list), batch_size):
+        # ===== 新增：target 达标立即停止 producer =====
+        if GLOBAL_STOP_EVENT.is_set():
+            print("[MASSCAN] stop signal received, exiting producer")
+            break
         batch = cidr_list[i : i + batch_size]
         batch_num = i // batch_size + 1
         targets = ",".join(batch)
@@ -354,6 +360,10 @@ async def run_masscan_producer(
 
         async def read_stdout():
             async for line in proc.stdout:
+                # ===== 新增：立即终止 masscan =====
+                if GLOBAL_STOP_EVENT.is_set():
+                    proc.kill()
+                    return
                 line = line.decode().strip()
                 if not line:
                     continue
@@ -491,6 +501,8 @@ async def verify_consumer(
                         if current_valid >= target:
                             stop_flag = True
                             stop_event.set()
+                            # ===== 新增：通知 producer / masscan 停止 =====
+                            GLOBAL_STOP_EVENT.set()
                             break
                     else:
                         async with valid_lock:
