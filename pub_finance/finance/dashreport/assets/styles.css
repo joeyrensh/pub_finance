@@ -285,6 +285,7 @@ body {
   background-size: contain;
   z-index: -1;
   margin-left: 10px;
+  filter: contrast(150%) saturate(200%);
 }
 
 .loading-dot {
