@@ -643,32 +643,19 @@ class BacktestPage:
                                                     "◀",
                                                     id="backtest-prev",
                                                     n_clicks=0,
-                                                    className="btn btn-light kpi-label btn-left",
-                                                    style={
-                                                        "background": "transparent",
-                                                        "border": "none",
-                                                        "cursor": "pointer",
-                                                        "color": "#666",
-                                                    },
+                                                    className="btn btn-light kpi-label nav-btn left",
                                                 ),
                                                 html.Button(
                                                     "刷新",
                                                     id="backtest-refresh",
                                                     n_clicks=0,
-                                                    className="btn btn-secondary kpi-label btn-refresh",
-                                                    style={"marginRight": "5px"},
+                                                    className="btn btn-secondary kpi-label nav-btn middle",
                                                 ),
                                                 html.Button(
                                                     "▶",
                                                     id="backtest-next",
                                                     n_clicks=0,
-                                                    className="btn btn-light kpi-label btn-right",
-                                                    style={
-                                                        "background": "transparent",
-                                                        "border": "none",
-                                                        "cursor": "pointer",
-                                                        "color": "#666",
-                                                    },
+                                                    className="btn btn-light kpi-label nav-btn right",
                                                 ),
                                             ],
                                             style={
@@ -690,7 +677,7 @@ class BacktestPage:
                             md=8,
                             lg=9,
                             style={
-                                "marginTop": "-10px",
+                                "marginTop": "-10px",  # ✅ 已恢复原始样式
                             },
                         ),
                         dbc.Col(
