@@ -146,6 +146,7 @@ body {
 
 .custom-date-picker .DateInput_input {
     height: 38px;
+    line-height: 38px;
     font-size: 1.3rem !important;
     font-weight: 500 !important;
     color: #333 !important;
@@ -173,12 +174,18 @@ body {
 .kpi-date {
   font-weight: 500;
 }
+.custom-input{
+  height: 38px;
+  line-height: 38px;
+}
 
 .btn-refresh {
   height: 38px;
+  line-height: 38px;
 }
 .btn-backtest {
   height: 38px;
+  line-height: 38px;
 }
 .btn-right {
   margin-right: 5px;
@@ -901,6 +908,26 @@ a:active {
   /* 日历弹窗中的日期数字字体 */
   .custom-date-picker .CalendarDay__default {
       font-size: 1.2rem !important;
+  }
+
+  .custom-input{
+    height: 30px !important;
+    line-height: 30px !important;
+  }
+
+  .btn-refresh {
+    height: 30px !important;
+    line-height: 30px !important;
+  }
+  .btn-backtest {
+    height: 30px !important;
+    line-height: 30px !important;
+  }
+  .btn-right {
+    line-height: 30px !important;
+  }
+  .btn-left {
+    line-height: 30px !important;
   }
 
   .page {

@@ -630,7 +630,7 @@ class BacktestPage:
                                             id="backtest-stocks",
                                             type="text",
                                             value="SZ002077,SZ002119",
-                                            className="kpi-label",
+                                            className="kpi-label custom-input",
                                             style={
                                                 "flex": "1",
                                                 "marginRight": "12px",
