@@ -181,6 +181,7 @@ body {
 .btn-backtest {
   height: 38px;
   line-height: 38px;
+  border: 1px solid var(--gridcolor);
 }
 .nav-btn {
     transition: all 0.2s ease;
@@ -196,13 +197,13 @@ body {
     cursor: pointer;
     color: #666;
     border-radius: 4px 0 0 4px;
-    border-right: 1px solid #dee2e6;
+    border-right: 1px solid var(--gridcolor);
     margin: 0;
     padding: 0 12px;
     /* 添加上下左边框 */
-    border-top: 1px solid #dee2e6;
-    border-bottom: 1px solid #dee2e6;
-    border-left: 1px solid #dee2e6;
+    border-top: 1px solid var(--gridcolor);
+    border-bottom: 1px solid var(--gridcolor);
+    border-left: 1px solid var(--gridcolor);
     border-right: none;
     height: 38px;
     line-height: 38px;       
@@ -218,9 +219,9 @@ body {
     margin: 0;
     padding: 0 12px;   
     /* 添加上下右边框，不添加左边框 */
-    border-top: 1px solid #dee2e6;
-    border-bottom: 1px solid #dee2e6;
-    border-right: 1px solid #dee2e6;
+    border-top: 1px solid var(--gridcolor);
+    border-bottom: 1px solid var(--gridcolor);
+    border-right: 1px solid var(--gridcolor);
     border-left: none;     
     height: 38px;
     line-height: 38px;    
@@ -229,12 +230,11 @@ body {
     border-radius: 0;
     border-left: none;
     border-right: none;
-    border-top: 1px solid #dee2e6;
-    border-bottom: 1px solid #dee2e6;
+    border-top: 1px solid var(--gridcolor);
+    border-bottom: 1px solid var(--gridcolor);
     margin: 0;
     padding: 0 16px;
-    background: #f8f9fa;
-    color: #007bff;
+    background: transparent;
     font-weight: 500;
     height: 38px;
     line-height: 38px;    
