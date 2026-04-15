@@ -689,6 +689,9 @@ class BacktestPage:
                             sm=8,
                             md=8,
                             lg=9,
+                            style={
+                                "marginTop": "-10px",
+                            },
                         ),
                         dbc.Col(
                             [
