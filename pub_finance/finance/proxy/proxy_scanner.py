@@ -406,6 +406,8 @@ async def verify_single_proxy(session, proxy, timeout, retries=2):
                     continue
                 data = await resp.json()
             origin = data.get("origin", "")
+            if not origin:
+                return None
             # 分割 IP 列表，取最后一个作为代理出口 IP
             ip_list = [ip.strip() for ip in origin.split(",")]
             exit_ip = ip_list[-1]  # 代理 IP

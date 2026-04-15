@@ -109,8 +109,11 @@ def fetch_geonode_api(url, source_name):
 
 # ===== 异步验证函数（抽象步骤）=====
 async def fetch_exit_ip_via_proxy(proxy, timeout):
-    """通过代理访问 ip.sb，获取出口 IP"""
+    """
+    通过代理访问 ip.sb，若返回的出口 IP 与代理 IP 相同则返回该 IP，否则返回 None
+    """
     try:
+        proxy_ip = proxy.split(":")[0]  # 提取代理的 IP 地址
         conn = aiohttp.TCPConnector(ssl=False)
         async with aiohttp.ClientSession(connector=conn) as session:
             async with session.get(
@@ -120,10 +123,14 @@ async def fetch_exit_ip_via_proxy(proxy, timeout):
                 headers={"User-Agent": "curl/7.68.0"},
             ) as resp:
                 if resp.status == 200:
-                    ip = await resp.text()
-                    return ip.strip()
+                    exit_ip = (await resp.text()).strip()
+                    # 只有出口 IP 与代理 IP 完全一致时才视为成功
+                    if exit_ip == proxy_ip:
+                        return exit_ip
+                    else:
+                        return None
     except:
-        pass
+        return None
     return None
 
 
