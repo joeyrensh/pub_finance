@@ -184,90 +184,94 @@ body {
   border: 1px solid var(--gridcolor);
 }
 .nav-btn {
-    transition: all 0.2s ease;
+  transition: all 0.2s ease;
 }
 .nav-btn:hover {
-    background-color: #e9ecef !important;
-    color: #333 !important;
+  background-color: #e9ecef !important;
+  color: #333 !important;
 }
 .nav-btn.left {
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-    background: transparent;
-    cursor: pointer;
-    color: #666;
-    border-radius: 4px 0 0 4px;
-    border-right: 1px solid var(--gridcolor);
-    margin: 0;
-    padding: 0 12px;
-    /* 添加上下左边框 */
-    border-top: 1px solid var(--gridcolor);
-    border-bottom: 1px solid var(--gridcolor);
-    border-left: 1px solid var(--gridcolor);
-    border-right: none;
-    height: 38px;
-    line-height: 38px;       
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  color: #666;
+  border-radius: 4px 0 0 4px;
+  border-right: 1px solid var(--gridcolor);
+  margin: 0;
+  padding: 0 12px;
+  /* 添加上下左边框 */
+  border-top: 1px solid var(--gridcolor);
+  border-bottom: 1px solid var(--gridcolor);
+  border-left: 1px solid var(--gridcolor);
+  border-right: none;
+  height: 38px;
+  line-height: 38px;
 }
 .nav-btn.right {
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: #666;
-    border-radius: 0 4px 4px 0;
-    margin: 0;
-    padding: 0 12px;   
-    /* 添加上下右边框，不添加左边框 */
-    border-top: 1px solid var(--gridcolor);
-    border-bottom: 1px solid var(--gridcolor);
-    border-right: 1px solid var(--gridcolor);
-    border-left: none;     
-    height: 38px;
-    line-height: 38px;    
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  border-radius: 0 4px 4px 0;
+  margin: 0;
+  padding: 0 12px;   
+  /* 添加上下右边框，不添加左边框 */
+  border-top: 1px solid var(--gridcolor);
+  border-bottom: 1px solid var(--gridcolor);
+  border-right: 1px solid var(--gridcolor);
+  border-left: none;     
+  height: 38px;
+  line-height: 38px;    
 }
 .nav-btn.middle {
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    border-top: 1px solid var(--gridcolor);
-    border-bottom: 1px solid var(--gridcolor);
-    margin: 0;
-    padding: 0 16px;
-    background: transparent;
-    font-weight: 500;
-    height: 38px;
-    line-height: 38px;    
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: 1px solid var(--gridcolor);
+  border-bottom: 1px solid var(--gridcolor);
+  margin: 0;
+  padding: 0 16px;
+  background: transparent;
+  font-weight: 500;
+  height: 38px;
+  line-height: 38px;
 }
 .nav-btn.middle:hover {
-    background-color: #e2e6ea !important;
+  background-color: #e2e6ea !important;
+}
+
+.progress-btn{
+  border: 1px solid var(--gridcolor);
 }
 
 .progress-btn.running {
-    position: relative;
-    overflow: hidden;
-    background-color: transparent; /* 按钮底色固定 */
-    color: var(--text-color);
+  position: relative;
+  overflow: hidden;
+  background-color: transparent; /* 按钮底色固定 */
+  color: var(--text-color);
 }
 
 /* 文案在最上层 */
 .progress-btn.running span,
 .progress-btn.running {
-    position: relative;
-    z-index: 1;
+  position: relative;
+  z-index: 1;
 }
 
 /* 默认 light mode 进度条 */
 .progress-btn.running::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 0%;
-    background-color: rgba(87, 160, 236, 0.45);
-    animation: queue-fill 12s linear infinite;
-    z-index: 0;
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0%;
+  background-color: rgba(87, 160, 236, 0.45);
+  animation: queue-fill 12s linear infinite;
+  z-index: 0;
 }
 
 /* 动画：进度条从左向右填充 */
