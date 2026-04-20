@@ -889,7 +889,7 @@ class ToolKit:
 
         # 对加权平均收益率进行单边归一化（越高越好）
         weighted_return_score = rank_score(
-            df["weighted_return"], higher_is_better=True, mid=None
+            df["weighted_return"], higher_is_better=True, mid=0
         )
         df["pnl_score"] = 0.5 * pnl_daily_score + 0.5 * weighted_return_score
 
