@@ -370,8 +370,10 @@ body {
   gap: 8px;
   width: 100%;
   box-sizing: border-box;
-  border-bottom-style: dashed;
+  border-bottom-style: solid;
   border-bottom-width: thin;
+  margin-bottom: 5px;
+  margin-top: -5px;
   /* background: transparent; */
   /* background-color: #2196f312; */
 }

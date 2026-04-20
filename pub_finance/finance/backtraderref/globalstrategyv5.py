@@ -1022,6 +1022,11 @@ class GlobalStrategy(bt.Strategy):
                         "adjbase": pos.adjbase,
                         "pnl": pos.size * (pos.adjbase - pos.price),
                         "volume": d.volume[0],
+                        "daily_return": (
+                            self.daily_returns[d._name][-1]
+                            if self.daily_returns[d._name]
+                            else None
+                        ),
                         "sharpe_ratio": self.sharpe_ratios[d._name],
                         "sortino_ratio": self.sortino_ratios[d._name],
                         "max_drawdown": self.max_drawdowns[d._name],

@@ -125,6 +125,7 @@ class StockProposal:
             "adjbase",
             "pnl",
             "volume",
+            "daily_return",
             "sharpe_ratio",
             "sortino_ratio",
             "max_drawdown",
@@ -910,6 +911,7 @@ class StockProposal:
                 , t5.sharpe_ratio    
                 , t5.sortino_ratio
                 , t5.max_drawdown
+                , t6.daily_return_array
                 , t1.buy_date
                 , t1.price
                 , t1.adjbase
@@ -964,6 +966,7 @@ class StockProposal:
                 ) t5 ON t1.symbol = t5.symbol
                 LEFT JOIN (
                     SELECT symbol,
+                        COLLECT_LIST(daily_return) AS daily_return_array,
                         COLLECT_LIST(sortino_ratio) AS sortino_ratio_array,
                         COLLECT_LIST(max_drawdown) AS max_drawdown_array,
                         COLLECT_LIST(adjbase) AS adjbase_array,
@@ -971,6 +974,7 @@ class StockProposal:
                     FROM (
                         SELECT
                             t2.symbol,
+                            t2.daily_return,
                             t2.sortino_ratio,
                             t2.max_drawdown,
                             t2.adjbase,
@@ -980,6 +984,7 @@ class StockProposal:
                             SELECT 
                                 symbol,
                                 date,
+                                daily_return,
                                 sharpe_ratio,
                                 sortino_ratio,
                                 max_drawdown,
@@ -1058,7 +1063,11 @@ class StockProposal:
             },
             inplace=True,
         )
-        pd_position_history.to_csv(
+        exclude_cols = ["daily_return_array"]
+        keep_cols = [
+            col for col in pd_position_history.columns if col not in exclude_cols
+        ]
+        pd_position_history[keep_cols].to_csv(
             FINANCE_ROOT / f"data/{self.market}_stockdetail.csv", header=True
         )
         print("持仓明细生成完成...")
@@ -3975,6 +3984,7 @@ class StockProposal:
             "adjbase",
             "pnl",
             "volume",
+            "daily_return",
             "sharpe_ratio",
             "sortino_ratio",
             "max_drawdown",
