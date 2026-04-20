@@ -1768,7 +1768,7 @@ class ChartBuilder:
         table_domain_right = 1.0
 
         chart_width = chart_domain_right - chart_domain_left
-        legend_absolute_x = chart_domain_left + (0.04 * chart_width)
+        legend_absolute_x = chart_domain_left + (0.01 * chart_width)
 
         # =========================
         # 14. 添加右侧表格
@@ -1839,7 +1839,7 @@ class ChartBuilder:
             font=dict(size=base_font, color=text_color, family=self.font_family),
             legend=dict(
                 x=legend_absolute_x,
-                y=0.98,
+                y=1,
                 xanchor="left",
                 yanchor="top",
                 bgcolor="rgba(0,0,0,0)",

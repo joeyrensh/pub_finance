@@ -153,7 +153,7 @@ def get_menu():
                     ),
                     dcc.Link(
                         [
-                            html.I(className="fa-solid fa-rocket icon"),
+                            html.I(className="fa-solid fa-rotate-right icon"),
                             html.Span("B.test"),
                         ],
                         href="/dash-financial-report/backtest",

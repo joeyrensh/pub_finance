@@ -725,6 +725,7 @@ a:active {
 .fa-chart-line,
 .fa-flag-usa,
 .fa-rocket,
+.fa-rotate-right,
 .fa-newspaper {
   color: var(--flag-color);
 }
