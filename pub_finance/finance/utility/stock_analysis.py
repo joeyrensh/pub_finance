@@ -1126,7 +1126,7 @@ class StockProposal:
             # 生成表格 HTML
             table_html = "<h2>Open Position List</h2>" + page_data.style.hide(
                 axis=1,
-                subset=["PNL", "pnl_growth"],
+                subset=["PNL", "pnl_growth", "daily_return_array"],
             ).format(
                 {
                     "TOTAL VALUE": "{:.2f}",
