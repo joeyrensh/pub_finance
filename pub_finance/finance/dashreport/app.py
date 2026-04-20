@@ -465,7 +465,7 @@ if __name__ == "__main__":
     app.run_server(
         host="0.0.0.0",
         port=80,
-        debug=False,
+        debug=True,
         dev_tools_hot_reload=False,  # 禁用热重载，减少资源占用
         dev_tools_ui=False,  # 禁用调试面板
         processes=1,  # 核心：单进程，避免全局数据多进程重复加载

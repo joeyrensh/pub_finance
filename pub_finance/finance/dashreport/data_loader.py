@@ -60,6 +60,7 @@ class ReportDataLoader:
             "SHARPE RATIO",
             "SORTINO RATIO",
             "MAX DD",
+            "DAILY RETURN",
             "OPEN DATE",
             "BASE",
             "ADJBASE",
@@ -436,7 +437,7 @@ class ReportDataLoader:
 
         df = pd.read_csv(
             path,
-            usecols=range(1, 19),
+            usecols=range(1, 20),
             dtype={
                 "SYMBOL": "string",
                 "IND": "string",
@@ -446,6 +447,7 @@ class ReportDataLoader:
                 "SHARPE RATIO": "float64",
                 "SORTINO RATIO": "float64",
                 "MAX DD": "float64",
+                "DAILY RETURN": "string",
                 "OPEN DATE": "string",
                 "BASE": "float64",
                 "ADJBASE": "float64",

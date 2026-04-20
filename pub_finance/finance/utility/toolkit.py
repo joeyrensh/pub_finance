@@ -856,16 +856,42 @@ class ToolKit:
             ),
         )
 
-        # ===== PNL =====
+        # ===== PNL（修改部分开始）=====
         trade_dt = pd.to_datetime(trade_date)
         open_dt = pd.to_datetime(df[c["open_date"]], errors="coerce")
-
         days = (trade_dt - open_dt).dt.days.clip(lower=1)
         pnl_daily_score = rank_score(
             df[c["pnl_ratio"]] / days, higher_is_better=True, mid=0
         )
-        days_score = rank_score(days, higher_is_better=False)
-        df["pnl_score"] = 0.5 * days_score + 0.5 * pnl_daily_score
+
+        def weighted_avg_return(returns_list):
+            # 如果是字符串，尝试解析为 Python 列表
+            if isinstance(returns_list, str):
+                try:
+                    import ast
+
+                    returns_list = ast.literal_eval(returns_list)
+                except Exception:
+                    return np.nan
+            if (
+                not isinstance(returns_list, (list, np.ndarray))
+                or len(returns_list) == 0
+            ):
+                return np.nan
+            arr = np.asarray(returns_list, dtype=float)
+            if len(arr) == 0:
+                return np.nan
+            weights = np.arange(1, len(arr) + 1)
+            return np.average(arr, weights=weights)
+
+        # 计算每个资产的加权平均收益率
+        df["weighted_return"] = df[c["daily_return_array"]].apply(weighted_avg_return)
+
+        # 对加权平均收益率进行单边归一化（越高越好）
+        weighted_return_score = rank_score(
+            df["weighted_return"], higher_is_better=True, mid=None
+        )
+        df["pnl_score"] = 0.5 * pnl_daily_score + 0.5 * weighted_return_score
 
         # ===== 稳定性 =====
         df["win_rate_score"] = rank_score(df[c["win_rate"]], mid=0.5)

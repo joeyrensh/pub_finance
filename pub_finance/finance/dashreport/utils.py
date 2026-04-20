@@ -506,6 +506,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
             "industry": "IND",
             "erp": "ERP",
             "open_date": "OPEN DATE",
+            "daily_return_array": "DAILY RETURN",
             "pnl_ratio": "PNL RATIO",
             "win_rate": "WIN RATE",
             "avg_trans": "AVG TRANS",
@@ -622,6 +623,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
             "maxdd_score",
             "stability_score",
             "total_score",
+            "DAILY RETURN",
         ]
     ]
 

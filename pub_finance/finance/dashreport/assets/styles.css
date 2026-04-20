@@ -371,6 +371,7 @@ body {
   width: 100%;
   box-sizing: border-box;
   border-bottom-style: solid;
+  border-color: var(--gridcolor);
   border-bottom-width: thin;
   margin-bottom: 5px;
   margin-top: -5px;

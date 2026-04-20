@@ -1047,6 +1047,7 @@ class StockProposal:
                 "name": "NAME",
                 "total_value": "TOTAL VALUE",
                 "erp": "ERP",
+                "daily_return_array": "DAILY RETURN",
                 "sharpe_ratio": "SHARPE RATIO",
                 "sortino_ratio": "SORTINO RATIO",
                 "max_drawdown": "MAX DD",
@@ -1063,11 +1064,7 @@ class StockProposal:
             },
             inplace=True,
         )
-        exclude_cols = ["daily_return_array"]
-        keep_cols = [
-            col for col in pd_position_history.columns if col not in exclude_cols
-        ]
-        pd_position_history[keep_cols].to_csv(
+        pd_position_history.to_csv(
             FINANCE_ROOT / f"data/{self.market}_stockdetail.csv", header=True
         )
         print("持仓明细生成完成...")
@@ -1079,6 +1076,7 @@ class StockProposal:
             "industry": "IND",
             "erp": "ERP",
             "open_date": "OPEN DATE",
+            "daily_return_array": "DAILY RETURN",
             "pnl_ratio": "PNL RATIO",
             "win_rate": "WIN RATE",
             "avg_trans": "AVG TRANS",
@@ -1126,7 +1124,7 @@ class StockProposal:
             # 生成表格 HTML
             table_html = "<h2>Open Position List</h2>" + page_data.style.hide(
                 axis=1,
-                subset=["PNL", "pnl_growth", "daily_return_array"],
+                subset=["PNL", "pnl_growth", "DAILY RETURN"],
             ).format(
                 {
                     "TOTAL VALUE": "{:.2f}",
