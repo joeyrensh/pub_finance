@@ -46,7 +46,7 @@
     --learn-more-button-color: #9fa6b7;
     --dash-table-border-color: rgba(255, 255, 255, 0.2);
     --main-title-color: #ffffffc5;
-    --flag-color: #ffffffc5;
+    --flag-color: #D9534F;
     --full-view-link-bg-color: #00a85aa2;
   }
 }
@@ -370,6 +370,8 @@ body {
   gap: 8px;
   width: 100%;
   box-sizing: border-box;
+  border-bottom-style: dashed;
+  border-bottom-width: thin;
   /* background: transparent; */
   /* background-color: #2196f312; */
 }
@@ -388,9 +390,10 @@ body {
   color: #333;
   white-space: nowrap;
   transition: all 0.25s ease;
-  border-color: var(--border-left-color);
+  /* border-color: var(--border-left-color); */
   /* background-color: #91959924; */
-  border-radius: 4px;
+  /* border-radius: 4px; */
+  border-style: none;
   height: 40px;
 }
 
@@ -1038,7 +1041,7 @@ a:active {
     font-size: 1.05rem;
     padding: 4px 3px;
     gap: 6px;
-    border-left: 2px solid #D9534F;
+    /* border-left: 2px solid #D9534F; */
     height: 30px;
   }
   
