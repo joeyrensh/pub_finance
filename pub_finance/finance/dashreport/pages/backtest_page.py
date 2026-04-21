@@ -12,6 +12,7 @@ from finance.utility.toolkit import ToolKit
 from finance.utility.backtrader_exec import BacktraderExec
 from finance.utility.tickerinfo import TickerInfo
 from finance.paths import FINANCE_ROOT
+from finance.dashreport.data_loader import ReportDataLoader
 from threading import Lock
 
 BACKTEST_LOCK = Lock()
@@ -131,15 +132,43 @@ def load_hist(stocks, dt, m):
     )
 
 
+def get_end_date_from_prefix(prefix: str) -> str:
+    """
+    从数据加载器获取指定前缀的 end_date（交易日）
+    """
+    data = ReportDataLoader.load(prefix=prefix, datasets=("overall",))
+    df_overall = data.get("overall")
+    if df_overall is not None and not df_overall.empty:
+        end_date = df_overall.at[0, "end_date"]
+        # 如果 end_date 是 Timestamp 或 datetime，转换为字符串 YYYYMMDD
+        if isinstance(end_date, pd.Timestamp):
+            return end_date.strftime("%Y%m%d")
+        else:
+            return str(end_date).replace("-", "")
+    # 降级方案：返回当前日期
+    from datetime import datetime
+
+    return datetime.now().strftime("%Y%m%d")
+
+
 def get_default_date(market="cn"):
+    """
+    获取默认交易日期，优先从数据文件读取 end_date
+    prefix: 市场前缀，如 "cn", "us" 等
+    """
     try:
-        return (
-            ToolKit.get_us_latest_trade_date(0)
-            if market == "us"
-            else ToolKit.get_cn_latest_trade_date(0)
-        )
-    except:
-        return datetime.now().strftime("%Y%m%d")
+        return get_end_date_from_prefix(market)
+    except Exception:
+        # 降级：使用原逻辑或当前日期
+        try:
+            if market == "us":
+                return ToolKit.get_us_latest_trade_date(0)
+            else:
+                return ToolKit.get_cn_latest_trade_date(0)
+        except:
+            from datetime import datetime
+
+            return datetime.now().strftime("%Y%m%d")
 
 
 class BacktestPage:
