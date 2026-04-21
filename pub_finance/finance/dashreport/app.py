@@ -51,6 +51,29 @@ app = dash.Dash(
 )
 app.title = "Financial Report"
 
+# 自定义 HTML 模板，添加图标
+app.index_string = """
+<!DOCTYPE html>
+<html>
+    <head>
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+        <link rel="icon" type="image/png" href="/assets/cartoon1.png">
+        <link rel="apple-touch-icon" href="/assets/cartoon1.png">
+    </head>
+    <body>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
+</html>
+"""
+
 # 列出应用中允许的页面路径，用于登录后验证并决定是否重定向
 ALLOWED_PATHS = {
     "/dash-financial-report/overview",
