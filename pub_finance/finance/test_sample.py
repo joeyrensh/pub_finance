@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-
 import progressbar
 from pathlib import Path
 import sys
@@ -10,17 +9,17 @@ from finance.utility.toolkit import ToolKit
 from finance.utility.stock_analysis import StockProposal
 import gc
 from finance.utility.em_stock_uti import EMWebCrawlerUti
-from finance.uscrawler.ak_incre_crawler import AKUSWebCrawler
+from finance.cncrawler.ak_incre_crawler import AKCNWebCrawler
 from finance.utility.backtrader_exec import BacktraderExec
 import sys
 
 # 主程序入口
 if __name__ == "__main__":
-    """美股交易日期 utc-4"""
-    trade_date = ToolKit("获取最新交易日").get_us_latest_trade_date(1)
+    """美股交易日期 utc+8"""
+    trade_date = ToolKit("获取最新交易日").get_cn_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
-    if ToolKit("判断是否休市").is_us_trade_date(trade_date):
+    if ToolKit("判断是否休市").is_cn_trade_date(trade_date):
         pass
     else:
         sys.exit()
@@ -41,10 +40,13 @@ if __name__ == "__main__":
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
     # em = EMWebCrawlerUti()
-    # em.get_daily_stock_info("us", trade_date)
+    # em.get_daily_stock_info("cn", trade_date)
 
-    # ak_daily_crawler = AKUSWebCrawler()
-    # df_stock_daily = ak_daily_crawler.get_us_daily_stock_info_ak(trade_date)
+    # em = AKCNWebCrawler()
+    # em.get_cn_daily_stock_info_ak(trade_date)
+
+    # em = EMWebCrawlerUti()
+    # em.get_daily_gz_info("cn", trade_date)
 
     """ 执行bt相关策略 """
 
@@ -99,17 +101,17 @@ if __name__ == "__main__":
         else:
             proposal.send_btstrategy_by_email(cash, final_value)
 
-    # 美股主要策略执行
-    print("-----------美股主策略执行-----------")
-    run_backtest_and_send("us", trade_date)
+    # A股主要策略执行
+    print("-----------A股主策略执行-----------")
+    run_backtest_and_send("cn", trade_date)
 
-    # # 固定列表追踪
-    # print("-----------美股固定列表策略执行-----------")
-    # run_backtest_and_send("us_special", trade_date)
+    # ETF主要策略执行
+    # print("-----------A股ETF策略执行-----------")
+    # run_backtest_and_send("cnetf", trade_date)
 
-    # # 动态列表追踪
-    # print("-----------美股动态列表策略执行-----------")
-    run_backtest_and_send("us_dynamic", trade_date, force_run=True)
+    # A股动态列表执行
+    print("-----------A股动态列表策略执行-----------")
+    run_backtest_and_send("cn_dynamic", trade_date, force_run=True)
 
     """ 结束进度条 """
     pbar.finish()

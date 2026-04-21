@@ -2024,7 +2024,10 @@ class ChartBuilder:
                 x=df["datetime"],
                 y=df["volume"],
                 name="成交量",
-                marker=dict(color=colors, line=dict(width=0)),  # 取消边框
+                marker=dict(
+                    color=colors,
+                    line=dict(color=colors),
+                ),
                 opacity=1.0,
                 showlegend=True,
             ),
