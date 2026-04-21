@@ -838,12 +838,13 @@ class ToolKit:
             df["IND_BRACKET_NUM"], higher_is_better=False
         )
 
-        industry_score = (
+        df["industry_score"] = (
             0.5 * df["industry_arrow_score"] + 0.5 * df["industry_bracket_score"]
         )
 
         # ===== ERP =====
         df[c["erp"]] = pd.to_numeric(df[c["erp"]], errors="coerce")
+        df[c["erp"]] = df[c["erp"]].fillna(-99999)
 
         ind_cnt = df.groupby(c["industry"])[sym_col].transform("count")
         invalid_ind = ind_cnt < 3
@@ -860,7 +861,7 @@ class ToolKit:
         trade_dt = pd.to_datetime(trade_date)
         open_dt = pd.to_datetime(df[c["open_date"]], errors="coerce")
         days = (trade_dt - open_dt).dt.days.clip(lower=1)
-        pnl_daily_score = rank_score(
+        df["pnl_daily_score"] = rank_score(
             df[c["pnl_ratio"]] / days, higher_is_better=True, mid=0
         )
 
@@ -888,10 +889,12 @@ class ToolKit:
         df["weighted_return"] = df[c["daily_return_array"]].apply(weighted_avg_return)
 
         # 对加权平均收益率进行单边归一化（越高越好）
-        weighted_return_score = rank_score(
+        df["weighted_return_score"] = rank_score(
             df["weighted_return"], higher_is_better=True, mid=0
         )
-        df["pnl_score"] = 0.5 * pnl_daily_score + 0.5 * weighted_return_score
+        df["pnl_score"] = (
+            0.5 * df["pnl_daily_score"] + 0.5 * df["weighted_return_score"]
+        )
 
         # ===== 稳定性 =====
         df["win_rate_score"] = rank_score(df[c["win_rate"]], mid=0.5)
@@ -899,7 +902,7 @@ class ToolKit:
         df["sortino_score"] = rank_score(df[c["sortino"]], mid=1)
         df["maxdd_score"] = rank_score(df[c["max_dd"]])
 
-        stability_score = (
+        df["stability_score"] = (
             0.3 * df["win_rate_score"]
             + 0.2 * df["avg_trans_score"]
             + 0.2 * df["sortino_score"]
@@ -908,9 +911,9 @@ class ToolKit:
 
         # ===== 总分 =====
         df["total_score"] = (
-            0.25 * industry_score
+            0.25 * df["industry_score"]
             + 0.25 * df["pnl_score"]
-            + 0.40 * stability_score
+            + 0.40 * df["stability_score"]
             + 0.10 * df["erp_score"]
         )
 
