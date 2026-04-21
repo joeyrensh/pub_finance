@@ -12,6 +12,7 @@ import pandas as pd
 import hashlib
 import os
 from finance.paths import FINANCE_ROOT
+import json
 
 
 class ToolKit:
@@ -821,6 +822,13 @@ class ToolKit:
 
         df = df.copy()
 
+        # -----读取权重配置-----#
+        config_path = FINANCE_ROOT / "utility" / "scoring_weights.json"
+        with open(config_path, "r", encoding="utf-8") as f:
+            weights_cfg = json.load(f)
+        w = weights_cfg["weights"]
+        sw = weights_cfg["sub_weights"]
+
         # ===== 列映射 =====
         c = column_map
         sym_col = c["symbol"]
@@ -839,7 +847,8 @@ class ToolKit:
         )
 
         df["industry_score"] = (
-            0.2 * df["industry_arrow_score"] + 0.8 * df["industry_bracket_score"]
+            sw["industry"]["arrow"] * df["industry_arrow_score"]
+            + sw["industry"]["bracket"] * df["industry_bracket_score"]
         )
 
         # ===== ERP =====
@@ -893,7 +902,8 @@ class ToolKit:
             df["weighted_return"], higher_is_better=True, mid=0
         )
         df["pnl_score"] = (
-            0.8 * df["pnl_daily_score"] + 0.2 * df["weighted_return_score"]
+            sw["pnl"]["daily"] * df["pnl_daily_score"]
+            + sw["pnl"]["weighted_return"] * df["weighted_return_score"]
         )
 
         # ===== 稳定性 =====
@@ -903,18 +913,18 @@ class ToolKit:
         df["maxdd_score"] = rank_score(df[c["max_dd"]])
 
         df["stability_score"] = (
-            0.20 * df["win_rate_score"]
-            + 0.20 * df["avg_trans_score"]
-            + 0.30 * df["sortino_score"]
-            + 0.30 * df["maxdd_score"]
+            sw["stability"]["win_rate"] * df["win_rate_score"]
+            + sw["stability"]["avg_trans"] * df["avg_trans_score"]
+            + sw["stability"]["sortino"] * df["sortino_score"]
+            + sw["stability"]["maxdd"] * df["maxdd_score"]
         )
 
         # ===== 总分 =====
         df["total_score"] = (
-            0.20 * df["industry_score"]
-            + 0.30 * df["pnl_score"]
-            + 0.30 * df["stability_score"]
-            + 0.20 * df["erp_score"]
+            w["industry"] * df["industry_score"]
+            + w["pnl"] * df["pnl_score"]
+            + w["stability"] * df["stability_score"]
+            + w["erp"] * df["erp_score"]
         )
 
         # ===== 筛选 =====
