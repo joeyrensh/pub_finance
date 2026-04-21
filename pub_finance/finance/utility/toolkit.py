@@ -742,7 +742,7 @@ class ToolKit:
         market: str,
         trade_date: str,
         *,
-        quantile: float = 0.9,
+        quantile: float = 0.95,
     ) -> set[str]:
         """
         执行打分逻辑 + 筛选 symbol
@@ -903,18 +903,18 @@ class ToolKit:
         df["maxdd_score"] = rank_score(df[c["max_dd"]])
 
         df["stability_score"] = (
-            0.3 * df["win_rate_score"]
-            + 0.2 * df["avg_trans_score"]
-            + 0.2 * df["sortino_score"]
-            + 0.3 * df["maxdd_score"]
+            0.20 * df["win_rate_score"]
+            + 0.20 * df["avg_trans_score"]
+            + 0.30 * df["sortino_score"]
+            + 0.30 * df["maxdd_score"]
         )
 
         # ===== 总分 =====
         df["total_score"] = (
-            0.25 * df["industry_score"]
-            + 0.25 * df["pnl_score"]
-            + 0.40 * df["stability_score"]
-            + 0.10 * df["erp_score"]
+            0.30 * df["industry_score"]
+            + 0.20 * df["pnl_score"]
+            + 0.30 * df["stability_score"]
+            + 0.20 * df["erp_score"]
         )
 
         # ===== 筛选 =====
