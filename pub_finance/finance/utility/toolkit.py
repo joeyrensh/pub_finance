@@ -893,7 +893,7 @@ class ToolKit:
             df["weighted_return"], higher_is_better=True, mid=0
         )
         df["pnl_score"] = (
-            0.5 * df["pnl_daily_score"] + 0.5 * df["weighted_return_score"]
+            0.8 * df["pnl_daily_score"] + 0.2 * df["weighted_return_score"]
         )
 
         # ===== 稳定性 =====
@@ -911,9 +911,9 @@ class ToolKit:
 
         # ===== 总分 =====
         df["total_score"] = (
-            0.30 * df["industry_score"]
-            + 0.20 * df["pnl_score"]
-            + 0.30 * df["stability_score"]
+            0.25 * df["industry_score"]
+            + 0.30 * df["pnl_score"]
+            + 0.25 * df["stability_score"]
             + 0.20 * df["erp_score"]
         )
 
