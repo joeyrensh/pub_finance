@@ -839,7 +839,7 @@ class ToolKit:
         )
 
         df["industry_score"] = (
-            0.5 * df["industry_arrow_score"] + 0.5 * df["industry_bracket_score"]
+            0.2 * df["industry_arrow_score"] + 0.8 * df["industry_bracket_score"]
         )
 
         # ===== ERP =====
@@ -911,9 +911,9 @@ class ToolKit:
 
         # ===== 总分 =====
         df["total_score"] = (
-            0.25 * df["industry_score"]
+            0.20 * df["industry_score"]
             + 0.30 * df["pnl_score"]
-            + 0.25 * df["stability_score"]
+            + 0.30 * df["stability_score"]
             + 0.20 * df["erp_score"]
         )
 
