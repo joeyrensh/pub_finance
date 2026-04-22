@@ -1,8 +1,8 @@
 {
     "weights": {
         "industry": 0.20,
-        "pnl": 0.30,
-        "stability": 0.30,
+        "pnl": 0.20,
+        "stability": 0.40,
         "erp": 0.20
     },
     "sub_weights": {
@@ -11,14 +11,14 @@
             "bracket": 0.8
         },
         "pnl": {
-            "daily": 0.8,
-            "weighted_return": 0.2
+            "daily": 0.2,
+            "weighted_return": 0.8
         },
         "stability": {
             "win_rate": 0.20,
             "avg_trans": 0.20,
-            "sortino": 0.30,
-            "maxdd": 0.30
+            "sortino": 0.20,
+            "maxdd": 0.40
         }
     }
 }
