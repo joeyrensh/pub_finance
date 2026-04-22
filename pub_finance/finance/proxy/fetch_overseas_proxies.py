@@ -253,6 +253,15 @@ def main():
     print(f"验证：出口 IP → 非中国 | 并发：{args.workers} | 超时：{args.timeout} 秒")
     print("=" * 60)
 
+    def merge_proxies(pool, new_proxies):
+        # 获取现有代理的集合
+        existing = set(pool.keys())
+        # 新代理中未存在的
+        unique_new = set(new_proxies) - existing
+        # 合并所有待测试的代理（包括现有和新代理，但现有代理可能已经测试过，这里可以重新测试或只测试新的）
+        all_to_test = list(existing | set(new_proxies))
+        return all_to_test
+
     config = load_config()
     print(f"\n[步骤 1] 加载配置...")
     print(f"   配置文件：{CONFIG_FILE.name}")
@@ -276,7 +285,7 @@ def main():
             all_proxies.extend(fetch_geonode_api(url, name))
         else:
             all_proxies.extend(fetch_text_source(url, name))
-
+    all_proxies = merge_proxies(existing_pool, all_proxies)
     all_proxies = list(set(all_proxies))
     print(f"\n   总计：{len(all_proxies)} 个")
 
