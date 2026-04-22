@@ -20,6 +20,8 @@ import time
 import sys
 import argparse
 from datetime import datetime
+import random
+import hashlib
 from pathlib import Path
 import urllib3
 
@@ -175,19 +177,110 @@ async def check_baidu_via_proxy(proxy, timeout):
         return False
 
 
-async def check_eastmoney_via_proxy(proxy, timeout):
-    """通过代理访问东方财富 API，返回是否成功且 total > 1000"""
-    params = {
-        "pn": "1",
-        "pz": "5",
+def generate_ut_param():
+    """生成基于中国地区随机IP的32位十六进制格式ut参数"""
+
+    # 生成随机中国IP地址
+    def generate_china_ip():
+        # 中国IP地址的主要A类、B类网络号
+        china_networks = [
+            (58, random.randint(0, 255)),  # 58.x.x.x - 中国电信
+            (59, random.randint(0, 255)),  # 59.x.x.x - 中国电信
+            (60, random.randint(0, 255)),  # 60.x.x.x - 中国联通
+            (61, random.randint(0, 255)),  # 61.x.x.x - 中国电信
+            (106, random.randint(0, 255)),  # 106.x.x.x - 中国教育网
+            (110, random.randint(0, 255)),  # 110.x.x.x - 中国电信
+            (111, random.randint(0, 255)),  # 111.x.x.x - 中国联通
+            (112, random.randint(0, 255)),  # 112.x.x.x - 中国移动
+            (113, random.randint(0, 255)),  # 113.x.x.x - 中国电信
+            (114, random.randint(0, 255)),  # 114.x.x.x - 中国电信
+            (115, random.randint(0, 255)),  # 115.x.x.x - 中国电信
+            (116, random.randint(0, 255)),  # 116.x.x.x - 中国移动
+            (117, random.randint(0, 255)),  # 117.x.x.x - 中国移动
+            (118, random.randint(0, 255)),  # 118.x.x.x - 中国电信
+            (119, random.randint(0, 255)),  # 119.x.x.x - 中国电信
+            (120, random.randint(0, 255)),  # 120.x.x.x - 中国联通
+            (121, random.randint(0, 255)),  # 121.x.x.x - 中国联通
+            (122, random.randint(0, 255)),  # 122.x.x.x - 中国电信
+            (123, random.randint(0, 255)),  # 123.x.x.x - 中国联通
+            (124, random.randint(0, 255)),  # 124.x.x.x - 中国联通
+            (125, random.randint(0, 255)),  # 125.x.x.x - 中国电信
+            (171, random.randint(0, 255)),  # 171.x.x.x - 中国电信
+            (175, random.randint(0, 255)),  # 175.x.x.x - 中国电信
+            (180, random.randint(0, 255)),  # 180.x.x.x - 中国移动
+            (182, random.randint(0, 255)),  # 182.x.x.x - 中国电信
+            (183, random.randint(0, 255)),  # 183.x.x.x - 中国电信
+            (202, random.randint(0, 255)),  # 202.x.x.x - 中国教育和科研网
+            (210, random.randint(0, 255)),  # 210.x.x.x - 中国教育和科研网
+            (211, random.randint(0, 255)),  # 211.x.x.x - 中国教育和科研网
+            (218, random.randint(0, 255)),  # 218.x.x.x - 中国联通
+            (219, random.randint(0, 255)),  # 219.x.x.x - 中国联通
+            (220, random.randint(0, 255)),  # 220.x.x.x - 中国电信
+            (221, random.randint(0, 255)),  # 221.x.x.x - 中国联通
+            (222, random.randint(0, 255)),  # 222.x.x.x - 中国电信
+            (223, random.randint(0, 255)),  # 223.x.x.x - 中国移动
+        ]
+
+        network = random.choice(china_networks)
+        ip_parts = [
+            network[0],
+            network[1],
+            random.randint(1, 254),
+            random.randint(1, 254),
+        ]
+        return ".".join(map(str, ip_parts))
+
+    # 生成随机IP并用于ut参数
+    random_ip = generate_china_ip()
+    timestamp = int(time.time() * 1000)
+    random_num = random.randint(1000000000, 9999999999)
+
+    # 将IP地址加入基础字符串
+    base_str = f"{timestamp}{random_num}{random_ip}"
+
+    # 使用MD5生成32位十六进制字符串
+    ut_hash = hashlib.md5(base_str.encode()).hexdigest()
+    return ut_hash
+
+
+def build_params(market, mkt_code, page_num):
+    """统一的参数构建函数"""
+    base_params = {
+        "pn": f"{page_num}",
+        "pz": 100,
         "po": "1",
         "np": "1",
-        "ut": "",
+        # "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+        "ut:": generate_ut_param(),
         "fltt": "2",
         "invt": "2",
         "fid": "f12",
-        "fs": "m:0 t:6,m:0 t:80",
-        "fields": "f12,f13,f14,f2",
+        "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
+    }
+
+    if market == "us":
+        base_params["fs"] = f"m:{mkt_code}"
+    elif market == "cn":
+        # 简化的A股参数设置
+        if mkt_code == "0":  # 深交所
+            base_params["fs"] = "m:0 t:6,m:0 t:80"
+        elif mkt_code == "1":  # 上交所
+            base_params["fs"] = "m:1 t:2,m:1 t:23"
+        elif mkt_code == "etf":  # ETF
+            base_params["fs"] = "b:MK0021,b:MK0022,b:MK0023,b:MK0024,b:MK0827"
+            base_params["wbp2u"] = "|0|0|0|web"
+
+    return base_params
+
+
+async def check_eastmoney_via_proxy(proxy, timeout):
+    """通过代理访问东方财富 API，返回是否成功且 total > 1000"""
+    params = build_params("cn", "0", 1)
+    headers = {
+        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+        "Referer": "https://quote.eastmoney.com/center/gridlist.html",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
     }
     try:
         conn = aiohttp.TCPConnector(ssl=False)
@@ -195,6 +288,7 @@ async def check_eastmoney_via_proxy(proxy, timeout):
             async with session.get(
                 "http://push2.eastmoney.com/api/qt/clist/get",
                 params=params,
+                headers=headers,
                 proxy=f"http://{proxy}",
                 timeout=aiohttp.ClientTimeout(total=timeout),
             ) as resp:
