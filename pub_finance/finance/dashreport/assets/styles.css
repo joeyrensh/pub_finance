@@ -141,7 +141,6 @@ body {
 
 .dash-input {
   color: #333 !important;
-  
 }
 
 .custom-date-picker .DateInput_input {
@@ -152,8 +151,8 @@ body {
     color: #333 !important;
     margin: 0 !important;
     border: 0 !important;
+    border-radius: 0;
     width: 100%;
-
 }
 
 /* 日历弹窗中的日期数字字体 */
@@ -177,6 +176,7 @@ body {
 .custom-input{
   height: 38px;
   line-height: 38px;
+  border-radius: 0 !important;
 }
 .btn-backtest {
   height: 38px;
