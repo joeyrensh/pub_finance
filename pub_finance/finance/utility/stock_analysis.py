@@ -424,7 +424,7 @@ class StockProposal:
             )
         )
 
-        spark_industry_history_tracking_lst5days = spark.sql(
+        spark_industry_history_tracking_lstndays = spark.sql(
             """
             WITH tmp AS (
                 SELECT t2.industry
@@ -453,7 +453,7 @@ class StockProposal:
             ORDER BY tmp.pnl - COALESCE(tmp1.pnl, 0) DESC
             """
         )
-        spark_industry_history_tracking_5daysbeforeyesterday = spark.sql(
+        spark_industry_history_tracking_ndaysbeforeyesterday = spark.sql(
             """
             WITH tmp AS (
                 SELECT t2.industry
@@ -495,17 +495,17 @@ class StockProposal:
             ORDER BY COALESCE(tmp1.pnl, 0) - COALESCE(tmp2.pnl, 0) DESC
             """
         )
-        pd_industry_history_tracking_lst5days = (
-            spark_industry_history_tracking_lst5days.toPandas()
+        pd_industry_history_tracking_lstndays = (
+            spark_industry_history_tracking_lstndays.toPandas()
         )
-        pd_industry_history_tracking_5daysbeforeyesterday = (
-            spark_industry_history_tracking_5daysbeforeyesterday.toPandas()
+        pd_industry_history_tracking_ndaysbeforeyesterday = (
+            spark_industry_history_tracking_ndaysbeforeyesterday.toPandas()
         )
         pd_industry_history_tracking = spark_industry_history_tracking.toPandas()
 
         result_df = (
             pd_industry_history_tracking.merge(
-                pd_industry_history_tracking_lst5days, on="industry", how="left"
+                pd_industry_history_tracking_lstndays, on="industry", how="left"
             )
             .sort_values(by="pnl_growth", ascending=False)
             .reset_index(drop=True)
@@ -534,11 +534,11 @@ class StockProposal:
 
             if (
                 industry
-                in pd_industry_history_tracking_5daysbeforeyesterday["industry"].values
+                in pd_industry_history_tracking_ndaysbeforeyesterday["industry"].values
             ):
                 index_diff = (
-                    pd_industry_history_tracking_5daysbeforeyesterday[
-                        pd_industry_history_tracking_5daysbeforeyesterday["industry"]
+                    pd_industry_history_tracking_ndaysbeforeyesterday[
+                        pd_industry_history_tracking_ndaysbeforeyesterday["industry"]
                         == industry
                     ].index.values
                     - index
@@ -1605,8 +1605,8 @@ class StockProposal:
 
         pd_position_reduction = None
         # pd_industry_history_tracking = None
-        pd_industry_history_tracking_lst5days = None
-        pd_industry_history_tracking_5daysbeforeyesterday = None
+        pd_industry_history_tracking_lstndays = None
+        pd_industry_history_tracking_ndaysbeforeyesterday = None
         gc.collect()
 
         # 样式变量
@@ -1696,8 +1696,8 @@ class StockProposal:
             "rgba(234, 112, 52, 0.3)",
             "rgba(214, 10, 34, 0.9)",
         ]
-        # TOP20热门行业
-        spark_top20_industry = spark.sql(
+        # TOPN热门行业
+        spark_topn_industry = spark.sql(
             """ 
             SELECT industry, cnt 
             FROM (
@@ -1706,19 +1706,19 @@ class StockProposal:
             """
         )
 
-        pd_top20_industry = spark_top20_industry.toPandas()
+        pd_topn_industry = spark_topn_industry.toPandas()
         replace_dict = pd_industry_history_tracking.set_index("industry_new")[
             "combined"
         ].to_dict()
-        pd_top20_industry["industry"] = (
-            pd_top20_industry["industry"]
+        pd_topn_industry["industry"] = (
+            pd_topn_industry["industry"]
             .map(replace_dict)
-            .combine_first(pd_top20_industry["industry"])
+            .combine_first(pd_topn_industry["industry"])
         )
         # 导出 CSV 供 Dash 使用（带 market 前缀和不带前缀）
         try:
-            pd_top20_industry.to_csv(
-                FINANCE_ROOT / f"data/{self.market}_pd_top20_industry.csv", index=False
+            pd_topn_industry.to_csv(
+                FINANCE_ROOT / f"data/{self.market}_pd_topn_industry.csv", index=False
             )
         except Exception:
             pass
@@ -1767,7 +1767,7 @@ class StockProposal:
                 rgba_colors.append(f"rgba({r}, {g}, {b}, {alpha})")
         # 文本颜色
         text_colors = [get_text_color(color, "light") for color in rgba_colors]
-        total = pd_top20_industry["cnt"].sum()
+        total = pd_topn_industry["cnt"].sum()
 
         def smart_wrap_html(label: str, max_chinese_first_line: int = 5) -> str:
             # 处理 None/NaN 或非字符串输入，确保后续正则操作安全
@@ -1825,11 +1825,11 @@ class StockProposal:
 
         # 应用换行函数
         if self.market in ("us", "us_special", "us_dynamic"):
-            labels_wrapped_industry = pd_top20_industry["industry"].apply(
+            labels_wrapped_industry = pd_topn_industry["industry"].apply(
                 lambda x: smart_wrap_html(x, max_chinese_first_line=5)
             )
         elif self.market in ("cn", "cn_dynamic"):
-            labels_wrapped_industry = pd_top20_industry["industry"].apply(
+            labels_wrapped_industry = pd_topn_industry["industry"].apply(
                 lambda x: smart_wrap_html(x, max_chinese_first_line=5)
             )
 
@@ -1837,8 +1837,8 @@ class StockProposal:
         fig = go.Figure(
             go.Treemap(
                 labels=labels_wrapped_industry,
-                parents=[""] * len(pd_top20_industry),  # 顶层节点为空
-                values=pd_top20_industry["cnt"],
+                parents=[""] * len(pd_topn_industry),  # 顶层节点为空
+                values=pd_topn_industry["cnt"],
                 texttemplate="%{label}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
                 insidetextfont=dict(
                     size=font_size, color=dark_text_color, family="Arial"
@@ -1896,12 +1896,12 @@ class StockProposal:
             height=fig_height,
             scale=scale_factor,
         )
-        pd_top20_industry = None
+        pd_topn_industry = None
         gc.collect()
         print("Tree Map-Position生成完成...")
 
-        # TOP20盈利行业
-        spark_top20_profit_industry = spark.sql(
+        # TOPN盈利行业
+        spark_topn_profit_industry = spark.sql(
             """ 
             SELECT industry, ROUND(pl,2) AS pl 
             FROM (
@@ -1910,16 +1910,16 @@ class StockProposal:
             """
         )
 
-        pd_top20_profit_industry = spark_top20_profit_industry.toPandas()
-        pd_top20_profit_industry["industry"] = (
-            pd_top20_profit_industry["industry"]
+        pd_topn_profit_industry = spark_topn_profit_industry.toPandas()
+        pd_topn_profit_industry["industry"] = (
+            pd_topn_profit_industry["industry"]
             .map(replace_dict)
-            .combine_first(pd_top20_profit_industry["industry"])
+            .combine_first(pd_topn_profit_industry["industry"])
         )
         # 导出 CSV 供 Dash 使用
         try:
-            pd_top20_profit_industry.to_csv(
-                FINANCE_ROOT / f"data/{self.market}_pd_top20_profit_industry.csv",
+            pd_topn_profit_industry.to_csv(
+                FINANCE_ROOT / f"data/{self.market}_pd_topn_profit_industry.csv",
                 index=False,
             )
         except Exception:
@@ -1928,19 +1928,19 @@ class StockProposal:
         text_colors = [get_text_color(color, "light") for color in rgba_colors]
         # 应用换行函数
         if self.market in ("us", "us_special", "us_dynamic"):
-            labels_wrapped_profit = pd_top20_profit_industry["industry"].apply(
+            labels_wrapped_profit = pd_topn_profit_industry["industry"].apply(
                 lambda x: smart_wrap_html(x, max_chinese_first_line=5)
             )
         elif self.market in ("cn", "cn_dynamic"):
-            labels_wrapped_profit = pd_top20_profit_industry["industry"].apply(
+            labels_wrapped_profit = pd_topn_profit_industry["industry"].apply(
                 lambda x: smart_wrap_html(x, max_chinese_first_line=5)
             )
         # 创建 Treemap 图
         fig = go.Figure(
             go.Treemap(
                 labels=labels_wrapped_profit,
-                parents=[""] * len(pd_top20_profit_industry),  # 顶层节点为空
-                values=pd_top20_profit_industry["pl"],
+                parents=[""] * len(pd_topn_profit_industry),  # 顶层节点为空
+                values=pd_topn_profit_industry["pl"],
                 texttemplate="%{label}<br>%{percentParent:.0%}",  # 自定义文本模板，强制换行
                 insidetextfont=dict(
                     size=font_size, color=dark_text_color, family="Arial"
@@ -2000,12 +2000,12 @@ class StockProposal:
             scale=scale_factor,
         )
 
-        pd_top20_profit_industry = None
+        pd_topn_profit_industry = None
         gc.collect()
         print("Tree Map-PnL生成完成...")
 
-        # 180天内策略交易概率
-        spark_strategy_tracking_lst180days = spark.sql(
+        # N天内策略交易概率
+        spark_strategy_tracking_lstndays = spark.sql(
             """ 
             WITH tmp1 AS (
                 SELECT t1.date
@@ -2040,35 +2040,34 @@ class StockProposal:
                 start_date_200
             )
         )
-        pd_strategy_tracking_lst180days = spark_strategy_tracking_lst180days.toPandas()
-        pd_strategy_tracking_lst180days["date"] = pd.to_datetime(
-            pd_strategy_tracking_lst180days["date"]
+        pd_strategy_tracking_lstndays = spark_strategy_tracking_lstndays.toPandas()
+        pd_strategy_tracking_lstndays["date"] = pd.to_datetime(
+            pd_strategy_tracking_lstndays["date"]
         ).dt.date
-        pd_strategy_tracking_lst180days["ema_success_rate"] = (
-            pd_strategy_tracking_lst180days["success_rate"]
+        pd_strategy_tracking_lstndays["ema_success_rate"] = (
+            pd_strategy_tracking_lstndays["success_rate"]
             .ewm(span=20, adjust=False)
             .mean()
         )
-        pd_strategy_tracking_lst180days = pd_strategy_tracking_lst180days[
-            pd_strategy_tracking_lst180days["date"] >= pd.to_datetime(start_date).date()
+        pd_strategy_tracking_lstndays = pd_strategy_tracking_lstndays[
+            pd_strategy_tracking_lstndays["date"] >= pd.to_datetime(start_date).date()
         ]
-        pd_strategy_tracking_lst180days_group = (
-            pd_strategy_tracking_lst180days.groupby("date")["pnl"].sum().reset_index()
+        pd_strategy_tracking_lstndays_group = (
+            pd_strategy_tracking_lstndays.groupby("date")["pnl"].sum().reset_index()
         )  # 按日期分组并求和
         # 导出 CSV 供 Dash 使用
         try:
-            pd_strategy_tracking_lst180days.to_csv(
-                FINANCE_ROOT
-                / f"data/{self.market}_pd_strategy_tracking_lst180days.csv",
+            pd_strategy_tracking_lstndays.to_csv(
+                FINANCE_ROOT / f"data/{self.market}_pd_strategy_tracking_lstndays.csv",
                 index=False,
             )
         except Exception:
             pass
-        max_pnl = pd_strategy_tracking_lst180days_group["pnl"].max()
-        min_pnl = pd_strategy_tracking_lst180days_group["pnl"].min()
-        threshold = pd_strategy_tracking_lst180days["success_rate"].quantile(0.1)
-        min_success_rate = pd_strategy_tracking_lst180days.loc[
-            pd_strategy_tracking_lst180days["success_rate"] >= threshold, "success_rate"
+        max_pnl = pd_strategy_tracking_lstndays_group["pnl"].max()
+        min_pnl = pd_strategy_tracking_lstndays_group["pnl"].min()
+        threshold = pd_strategy_tracking_lstndays["success_rate"].quantile(0.1)
+        min_success_rate = pd_strategy_tracking_lstndays.loc[
+            pd_strategy_tracking_lstndays["success_rate"] >= threshold, "success_rate"
         ].min()
         safe_rate = max(min_success_rate, 0.2)  # 至少 5%
         max_range = min(2 * max_pnl, max_pnl * 2 / safe_rate)
@@ -2122,7 +2121,7 @@ class StockProposal:
             "成交量放大",
             "红三兵",
         ]
-        groups = dict(list(pd_strategy_tracking_lst180days.groupby("strategy")))
+        groups = dict(list(pd_strategy_tracking_lstndays.groupby("strategy")))
 
         # 创建带有两个 y 轴的子图布局
         fig = go.Figure()
@@ -2364,12 +2363,12 @@ class StockProposal:
             scale=scale_factor,
         )
 
-        pd_strategy_tracking_lst180days = None
+        pd_strategy_tracking_lstndays = None
         gc.collect()
         print("Strategy Chart生成完成...")
 
-        # 180天内交易明细分析
-        spark_trade_info_lst180days = spark.sql(
+        # N天内交易明细分析
+        spark_trade_info_lstndays = spark.sql(
             """ 
             WITH tmp1 AS (
                 SELECT date
@@ -2399,17 +2398,17 @@ class StockProposal:
                 start_date, start_date
             )
         )
-        pd_trade_info_lst180days = spark_trade_info_lst180days.toPandas()
+        pd_trade_info_lstndays = spark_trade_info_lstndays.toPandas()
 
         # 导出 CSV 供 Dash 使用 (duplicate section for other market blocks)
         try:
-            pd_trade_info_lst180days.to_csv(
-                FINANCE_ROOT / f"data/{self.market}_pd_trade_info_lst180days.csv",
+            pd_trade_info_lstndays.to_csv(
+                FINANCE_ROOT / f"data/{self.market}_pd_trade_info_lstndays.csv",
                 index=False,
             )
         except Exception:
             pass
-        # df_grouped = pd_trade_info_lst180days.groupby("buy_date")[
+        # df_grouped = pd_trade_info_lstndays.groupby("buy_date")[
         #     ["buy_cnt", "sell_cnt"]
         # ].sum()
         # 导出 CSV 供 Dash 使用
@@ -2418,8 +2417,8 @@ class StockProposal:
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
-                x=pd_trade_info_lst180days["buy_date"],
-                y=pd_trade_info_lst180days["total_cnt"],
+                x=pd_trade_info_lstndays["buy_date"],
+                y=pd_trade_info_lstndays["total_cnt"],
                 mode="lines+markers",
                 name="Total",
                 line=dict(color="#e01c3a", width=3),
@@ -2428,8 +2427,8 @@ class StockProposal:
         )
         fig.add_trace(
             go.Bar(
-                x=pd_trade_info_lst180days["buy_date"],
-                y=pd_trade_info_lst180days["buy_cnt"],
+                x=pd_trade_info_lstndays["buy_date"],
+                y=pd_trade_info_lstndays["buy_cnt"],
                 name="Long",
                 marker_color="#e01c3a",
                 marker_line_color="#e01c3a",
@@ -2438,8 +2437,8 @@ class StockProposal:
         )
         fig.add_trace(
             go.Bar(
-                x=pd_trade_info_lst180days["buy_date"],
-                y=pd_trade_info_lst180days["sell_cnt"],
+                x=pd_trade_info_lstndays["buy_date"],
+                y=pd_trade_info_lstndays["sell_cnt"],
                 name="Short",
                 marker_color="#0d876d",
                 marker_line_color="#0d876d",
@@ -2449,7 +2448,7 @@ class StockProposal:
         # light mode
         fig.update_layout(
             title={
-                "text": "Last 180 days trade info",
+                "text": "Last N days trade info",
                 "y": 0.9,
                 "x": 0.5,
                 "font": dict(
@@ -2515,8 +2514,8 @@ class StockProposal:
             width=fig_width,
             height=fig_height,
         )
-        xmin = pd.to_datetime(pd_trade_info_lst180days["buy_date"].min())
-        xmax = pd.to_datetime(pd_trade_info_lst180days["buy_date"].max())
+        xmin = pd.to_datetime(pd_trade_info_lstndays["buy_date"].min())
+        xmax = pd.to_datetime(pd_trade_info_lstndays["buy_date"].max())
         fig.update_xaxes(
             range=[
                 xmin - timedelta(days=0.5),
@@ -2563,12 +2562,12 @@ class StockProposal:
             scale=scale_factor,
         )
 
-        pd_trade_info_lst180days = None
+        pd_trade_info_lstndays = None
         gc.collect()
         print("Trade Trend生成完成...")
 
-        # TOP5行业仓位变化趋势
-        spark_top5_industry_position_trend = spark.sql(
+        # TOPN行业仓位变化趋势
+        spark_topn_industry_position_trend = spark.sql(
             """
             WITH tmp AS ( 
                 SELECT industry
@@ -2598,13 +2597,13 @@ class StockProposal:
                 start_date
             )
         )
-        pd_top5_industry_position_trend = spark_top5_industry_position_trend.toPandas()
-        pd_top5_industry_position_trend.sort_values(
+        pd_topn_industry_position_trend = spark_topn_industry_position_trend.toPandas()
+        pd_topn_industry_position_trend.sort_values(
             by=["buy_date", "total_cnt"], ascending=[False, False], inplace=True
         )
 
         fig = px.line(
-            pd_top5_industry_position_trend,
+            pd_topn_industry_position_trend,
             x="buy_date",
             y="total_cnt",
             color="industry",
@@ -2636,7 +2635,7 @@ class StockProposal:
             tickangle=0,  # 确保刻度标签水平显示
         )
         fig.update_layout(
-            title="Last 180 days top5 Positions",
+            title="Last N days topN Positions",
             title_font=dict(
                 size=title_font_size, color=dark_text_color, family="Arial"
             ),
@@ -2707,14 +2706,14 @@ class StockProposal:
             scale=scale_factor,
         )
 
-        pd_top5_industry_position_trend = None
+        pd_topn_industry_position_trend = None
         gc.collect()
-        print("Top5 Position Trend生成完成...")
-        # TOP5行业PnL变化趋势
-        spark_industry_history_tracking_lst5days.createOrReplaceTempView(
-            "temp_industry_history_tracking_lst5days"
+        print("TopN Position Trend生成完成...")
+        # TOPN行业PnL变化趋势
+        spark_industry_history_tracking_lstndays.createOrReplaceTempView(
+            "temp_industry_history_tracking_lstndays"
         )
-        spark_top5_industry_profit_trend = spark.sql(
+        spark_topn_industry_profit_trend = spark.sql(
             """
             WITH tmp AS ( 
                 SELECT industry
@@ -2743,28 +2742,28 @@ class StockProposal:
             )  SELECT t2.buy_date
                 ,t1.industry
                 ,t2.pnl
-            FROM (SELECT * FROM temp_industry_history_tracking_lst5days ORDER BY pnl_growth DESC LIMIT 5) t1
+            FROM (SELECT * FROM temp_industry_history_tracking_lstndays ORDER BY pnl_growth DESC LIMIT 5) t1
             LEFT JOIN tmp3 t2 ON t1.industry = t2.industry
             ORDER BY t2.buy_date ASC, t1.pnl_growth DESC
             """.format(
                 start_date
             )
         )
-        pd_top5_industry_profit_trend = spark_top5_industry_profit_trend.toPandas()
-        pd_top5_industry_profit_trend.sort_values(
+        pd_topn_industry_profit_trend = spark_topn_industry_profit_trend.toPandas()
+        pd_topn_industry_profit_trend.sort_values(
             by=["buy_date", "pnl"], ascending=[False, False], inplace=True
         )
         # 导出 CSV 供 Dash 使用
         try:
-            pd_top5_industry_profit_trend.to_csv(
-                FINANCE_ROOT / f"data/{self.market}_pd_top5_industry_profit_trend.csv",
+            pd_topn_industry_profit_trend.to_csv(
+                FINANCE_ROOT / f"data/{self.market}_pd_topn_industry_profit_trend.csv",
                 index=False,
             )
         except Exception:
             pass
 
         fig = px.line(
-            pd_top5_industry_profit_trend,
+            pd_topn_industry_profit_trend,
             x="buy_date",
             y="pnl",
             color="industry",
@@ -2797,7 +2796,7 @@ class StockProposal:
             autorange=True,
         )
         fig.update_layout(
-            title="Last 180 days top5 pnl",
+            title="Last N days topN pnl",
             title_font=dict(
                 size=title_font_size, color=dark_text_color, family="Arial"
             ),
@@ -2843,7 +2842,7 @@ class StockProposal:
         )
         # dark mode
         fig = px.line(
-            pd_top5_industry_profit_trend,
+            pd_topn_industry_profit_trend,
             x="buy_date",
             y="pnl",
             color="industry",
@@ -2877,7 +2876,7 @@ class StockProposal:
             tickangle=0,  # 确保刻度标签水平显示
         )
         fig.update_layout(
-            title="Last 180 days top5 pnl",
+            title="Last N days topN pnl",
             title_font=dict(
                 size=title_font_size, color=light_text_color, family="Arial"
             ),
@@ -2922,9 +2921,9 @@ class StockProposal:
             height=fig_height,
             scale=scale_factor,
         )
-        pd_top5_industry_profit_trend = None
+        pd_topn_industry_profit_trend = None
         gc.collect()
-        print("Top5 Pnl Trend生成完成...")
+        print("TopN Pnl Trend生成完成...")
 
         spark_calendar_heatmap = spark.sql(
             """
@@ -3844,23 +3843,23 @@ class StockProposal:
                             <div class="image-container">
                                 <picture>
                                     <!-- 深色模式下的图片 -->
-                                    <source srcset="cid:image7" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top5 industry position info:" style="width:100%"/>
+                                    <source srcset="cid:image7" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days topN industry position info:" style="width:100%"/>
                                     <!-- 默认模式下的图片 -->
-                                    <img src="cid:image6" alt="The diagram shows the last x days top5 industry position info:" style="width:100%">
+                                    <img src="cid:image6" alt="The diagram shows the last x days topN industry position info:" style="width:100%">
                                 </picture>
-                                <figcaption>The diagram shows the last x days top5 industry position trend, to stat last x days
-                                            the top5 industry positions change status
+                                <figcaption>The diagram shows the last x days topN industry position trend, to stat last x days
+                                            the topN industry positions change status
                                 </figcaption>
                             </div>
                             <div class="image-container">
                                 <picture>
                                     <!-- 深色模式下的图片 -->
-                                    <source srcset="cid:image9" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days top5 industry pnl info:" style="width:100%"/>
+                                    <source srcset="cid:image9" media="(prefers-color-scheme: dark)" alt="The diagram shows the last x days topN industry pnl info:" style="width:100%"/>
                                     <!-- 默认模式下的图片 -->
-                                    <img src="cid:image8" alt="The diagram shows the last x days top5 industry pnl info:" style="width:100%">
+                                    <img src="cid:image8" alt="The diagram shows the last x days topN industry pnl info:" style="width:100%">
                                 </picture>
-                                <figcaption>The diagram shows the last x days top5 industry pnl trend, to stat last x days
-                                            the top5 industry pnl change status
+                                <figcaption>The diagram shows the last x days topN industry pnl trend, to stat last x days
+                                            the topN industry pnl change status
                                 </figcaption>
                             </div>
                         </div>
@@ -4653,8 +4652,8 @@ class StockProposal:
         pd_position_history = None
         gc.collect()
 
-        # 180天内交易明细分析
-        spark_trade_info_lst180days = spark.sql(
+        # N天内交易明细分析
+        spark_trade_info_lstndays = spark.sql(
             """ 
             WITH tmp1 AS (
                 SELECT date
@@ -4685,7 +4684,7 @@ class StockProposal:
                 start_date, start_date
             )
         )
-        pd_trade_info_lst180days = spark_trade_info_lst180days.toPandas()
+        pd_trade_info_lstndays = spark_trade_info_lstndays.toPandas()
 
         # 设置图像的宽度和高度（例如，1920x1080像素）
         fig_width, fig_height = 1440, 900
@@ -4695,8 +4694,8 @@ class StockProposal:
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
-                x=pd_trade_info_lst180days["buy_date"],
-                y=pd_trade_info_lst180days["total_cnt"],
+                x=pd_trade_info_lstndays["buy_date"],
+                y=pd_trade_info_lstndays["total_cnt"],
                 mode="lines+markers",
                 name="total stock",
                 line=dict(color="#e01c3a", width=3),
@@ -4705,8 +4704,8 @@ class StockProposal:
         )
         fig.add_trace(
             go.Bar(
-                x=pd_trade_info_lst180days["buy_date"],
-                y=pd_trade_info_lst180days["buy_cnt"],
+                x=pd_trade_info_lstndays["buy_date"],
+                y=pd_trade_info_lstndays["buy_cnt"],
                 name="long",
                 marker_color="#e01c3a",
                 marker_line_color="#e01c3a",
@@ -4715,8 +4714,8 @@ class StockProposal:
         )
         fig.add_trace(
             go.Bar(
-                x=pd_trade_info_lst180days["buy_date"],
-                y=pd_trade_info_lst180days["sell_cnt"],
+                x=pd_trade_info_lstndays["buy_date"],
+                y=pd_trade_info_lstndays["sell_cnt"],
                 name="short",
                 marker_color="#0d876d",
                 marker_line_color="#0d876d",
@@ -4726,7 +4725,7 @@ class StockProposal:
         # light mode
         fig.update_layout(
             title={
-                "text": "Last 180 days trade info",
+                "text": "Last N days trade info",
                 "y": 0.9,
                 "x": 0.5,
                 "font": dict(size=title_font_size, color="black", family="Arial"),
@@ -4785,8 +4784,8 @@ class StockProposal:
             width=fig_width,
             height=fig_height,
         )
-        xmin = pd.to_datetime(pd_trade_info_lst180days["buy_date"].min())
-        xmax = pd.to_datetime(pd_trade_info_lst180days["buy_date"].max())
+        xmin = pd.to_datetime(pd_trade_info_lstndays["buy_date"].min())
+        xmax = pd.to_datetime(pd_trade_info_lstndays["buy_date"].max())
         fig.update_xaxes(
             range=[
                 xmin - timedelta(days=0.5),
@@ -4805,7 +4804,7 @@ class StockProposal:
         text_color = "rgba(255, 255, 255, 0.77)"
         fig.update_layout(
             title={
-                "text": "Last 180 days trade info",
+                "text": "Last N days trade info",
                 "y": 0.9,
                 "x": 0.5,
                 "font": dict(size=title_font_size, color="white", family="Arial"),
@@ -4880,7 +4879,7 @@ class StockProposal:
             scale=scale_factor,
         )
 
-        pd_trade_info_lst180days = None
+        pd_trade_info_lstndays = None
         gc.collect()
 
         spark.stop()
