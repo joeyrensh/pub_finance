@@ -1986,8 +1986,8 @@ class ChartBuilder:
         fig = make_subplots(
             rows=2,
             cols=1,
-            row_heights=[0.7, 0.3],
-            vertical_spacing=0.03,
+            row_heights=[0.8, 0.2],
+            vertical_spacing=0,
             shared_xaxes=True,
         )
 
@@ -2235,4 +2235,6 @@ class ChartBuilder:
             tickangle=0,
             autorange=True,
         )
+        fig.update_xaxes(showline=False, row=1, col=1)
+
         return fig
