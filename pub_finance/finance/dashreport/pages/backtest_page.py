@@ -110,10 +110,10 @@ def load_logs(stocks, dt, m):
     )
     if pos_path.exists():
         df_pos = pd.read_csv(
-            pos_path, header=None, names=[f"col{i}" for i in range(1, 12)]
+            pos_path, header=None, names=[f"col{i}" for i in range(1, 13)]
         )
         df_pos = df_pos.rename(
-            columns={"col2": "symbol", "col3": "date", "col11": "strategy"}
+            columns={"col2": "symbol", "col3": "date", "col12": "strategy"}
         )[["symbol", "date", "strategy"]]
         df_pos["date"] = pd.to_datetime(df_pos["date"])
         # 排序并去除完全重复的行（同一天同一策略）
