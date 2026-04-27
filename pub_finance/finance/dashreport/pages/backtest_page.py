@@ -322,19 +322,27 @@ class BacktestPage:
 
             total = len(full_list)
             page_size = 3
-            max_page = (total - 1) // page_size
+            max_page = (total - 1) // page_size if total > 0 else 0
 
             if trigger == "backtest-next":
-                next_page = min(current_page + 1, max_page)
-
+                if current_page == max_page:
+                    next_page = 0  # 循环到首页
+                else:
+                    next_page = current_page + 1
             elif trigger == "backtest-prev":
-                next_page = max(current_page - 1, 0)
-
+                if current_page == 0:
+                    next_page = max_page  # 循环到末页
+                else:
+                    next_page = current_page - 1
             else:
-                next_page = current_page  # 中间按钮不动
+                next_page = current_page  # 刷新按钮
 
             start = next_page * page_size
             end = min(start + page_size, total)
+            if start >= total:
+                start = 0
+                end = min(page_size, total)
+                next_page = 0
 
             current_stocks = full_list[start:end]
             button_text = f"{start+1}-{end} / {total}"
