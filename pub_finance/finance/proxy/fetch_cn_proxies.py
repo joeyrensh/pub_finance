@@ -69,7 +69,11 @@ def fetch_zdaye(max_pages=3):
             headers = {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
             }
-            resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
+            resp = requests.get(
+                url,
+                headers=headers,
+                timeout=REQUEST_TIMEOUT,
+            )
             if resp.status_code == 200:
                 ips = re.findall(r'class="proxy_ip">([\d\.]+)</p>', resp.text)
                 ports = re.findall(r"Port：(\d+)", resp.text)
@@ -85,7 +89,7 @@ def fetch_zdaye(max_pages=3):
 def fetch_openproxylist():
     proxies = []
     try:
-        url = "https://api.openproxylist.xyz/http.txt"
+        url = "https://api.openproxylist.xyz/https.txt"
         resp = requests.get(url, timeout=REQUEST_TIMEOUT)
         if resp.status_code == 200:
             for line in resp.text.strip().split("\n"):
@@ -101,9 +105,7 @@ def fetch_openproxylist():
 def fetch_geonode(limit=500):
     proxies = []
     try:
-        url = (
-            f"https://proxylist.geonode.com/api/proxy-list?limit={limit}&protocols=http"
-        )
+        url = f"https://proxylist.geonode.com/api/proxy-list?limit={limit}&protocols=http&country=CN"
         resp = requests.get(url, timeout=REQUEST_TIMEOUT)
         if resp.status_code == 200:
             data = resp.json()
