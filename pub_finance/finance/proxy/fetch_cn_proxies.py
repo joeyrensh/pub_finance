@@ -33,7 +33,7 @@ PROXIES_TXT = SCRIPT_DIR / "china_proxies.txt"
 PROXIES_JSON = SCRIPT_DIR / "china_proxies.json"
 
 REQUEST_TIMEOUT = 5  # 抓取代理时的超时
-MAX_FAILURES = 7 
+MAX_FAILURES = 7
 
 
 def load_config():
@@ -65,9 +65,9 @@ def fetch_zdaye(max_pages=3):
     print("   获取站大爷（仅匿名代理）...")
     for page in range(1, max_pages + 1):
         try:
-            url = f"https://www.zdaye.com/free/{page}/?ip_adr=&checktime=&sleep=1&cunhuo=&dengji=3&protocol=http&yys=&px="
+            url = f"https://www.zdaye.com/free/{page}/?ip_adr=&checktime=&sleep=1&cunhuo=2&dengji=&protocol=http&yys=&px="
             headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
             }
             resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
             if resp.status_code == 200:
@@ -119,7 +119,7 @@ def fetch_geonode(limit=500):
 def fetch_proxifly():
     proxies = []
     try:
-        url = "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt"
+        url = "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/countries/CN/data.txt"
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         }
