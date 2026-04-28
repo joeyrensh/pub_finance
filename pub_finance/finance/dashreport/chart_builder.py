@@ -230,29 +230,25 @@ class ChartBuilder:
         max_size_increase = 10
 
         def compute_font_size(s_pnl, base_font_size):
-            # 正收益
-            if s_pnl >= 0 and pos_max > pos_median:
-                ratio = (s_pnl - pos_median) / (pos_max - pos_median)
-                ratio = min(max(ratio, 0), 1)
-                ratio_real = (s_pnl - 0) / (pos_max - 0)
-                if s_pnl <= pos_median:
+            if s_pnl >= 0:
+                if pos_max > pos_median and pos_max != 0:
+                    ratio = max(
+                        0, min(1, (s_pnl - pos_median) / (pos_max - pos_median))
+                    )
+                    ratio_real = s_pnl / pos_max
+                    if s_pnl > pos_median:
+                        return base_font_size + ratio * max_size_increase, ratio_real
                     return base_font_size, ratio_real
-
-                return base_font_size + ratio * max_size_increase, ratio_real
-
-            # 负收益
-            if s_pnl < 0 and neg_max > neg_median:
-                abs_v = abs(s_pnl)
-                ratio = (abs_v - neg_median) / (neg_max - neg_median)
-                ratio = min(max(ratio, 0), 1)
-                ratio_real = (s_pnl - 0) / (neg_max - 0)
-                if abs_v <= neg_median:
+            elif s_pnl < 0:
+                if neg_max > neg_median and neg_max != 0:
+                    ratio = max(
+                        0, min(1, (-s_pnl - neg_median) / (neg_max - neg_median))
+                    )
+                    ratio_real = s_pnl / neg_max
+                    if -s_pnl > neg_median:
+                        return base_font_size + ratio * max_size_increase, ratio_real
                     return base_font_size, ratio_real
-
-                return base_font_size + ratio * max_size_increase, ratio_real
-
-            # 0 或异常情况
-            return base_font_size, ratio_real
+            return base_font_size, 0
 
         # 创建图表
         fig = go.Figure()
