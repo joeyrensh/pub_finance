@@ -2232,5 +2232,6 @@ class ChartBuilder:
             autorange=True,
         )
         fig.update_xaxes(showline=False, row=1, col=1)
+        fig.update_yaxes(type="log", row=1, col=1)
 
         return fig
