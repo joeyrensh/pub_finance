@@ -292,11 +292,11 @@ class ReportDataLoader:
         mapping = {
             "overall": [D / f"{prefix}_df_result.csv"],
             "heatmap": [D / f"{prefix}_pd_calendar_heatmap.csv"],
-            "strategy": [D / f"{prefix}_pd_strategy_tracking_lst180days.csv"],
-            "trade": [D / f"{prefix}_pd_trade_info_lst180days.csv"],
-            "pnl_trend": [D / f"{prefix}_pd_top5_industry_profit_trend.csv"],
-            "industry_position": [D / f"{prefix}_pd_top20_industry.csv"],
-            "industry_profit": [D / f"{prefix}_pd_top20_profit_industry.csv"],
+            "strategy": [D / f"{prefix}_pd_strategy_tracking_lstndays.csv"],
+            "trade": [D / f"{prefix}_pd_trade_info_lstndays.csv"],
+            "pnl_trend": [D / f"{prefix}_pd_topn_industry_profit_trend.csv"],
+            "industry_position": [D / f"{prefix}_pd_topn_industry.csv"],
+            "industry_profit": [D / f"{prefix}_pd_topn_profit_industry.csv"],
             "category": [D / f"{prefix}_category.csv"],
             "detail": [D / f"{prefix}_stockdetail.csv"],
             "detail_short": [D / f"{prefix}_stockdetail_short.csv"],
@@ -373,25 +373,23 @@ class ReportDataLoader:
 
     @staticmethod
     def _load_strategy(prefix: str) -> pd.DataFrame:
-        return ReportDataLoader._safe_csv(
-            f"{prefix}_pd_strategy_tracking_lst180days.csv"
-        )
+        return ReportDataLoader._safe_csv(f"{prefix}_pd_strategy_tracking_lstndays.csv")
 
     @staticmethod
     def _load_trade_info(prefix: str) -> pd.DataFrame:
-        return ReportDataLoader._safe_csv(f"{prefix}_pd_trade_info_lst180days.csv")
+        return ReportDataLoader._safe_csv(f"{prefix}_pd_trade_info_lstndays.csv")
 
     @staticmethod
     def _load_pnl_trend(prefix: str) -> pd.DataFrame:
-        return ReportDataLoader._safe_csv(f"{prefix}_pd_top5_industry_profit_trend.csv")
+        return ReportDataLoader._safe_csv(f"{prefix}_pd_topn_industry_profit_trend.csv")
 
     @staticmethod
     def _load_industry_position(prefix: str) -> pd.DataFrame:
-        return ReportDataLoader._safe_csv(f"{prefix}_pd_top20_industry.csv")
+        return ReportDataLoader._safe_csv(f"{prefix}_pd_topn_industry.csv")
 
     @staticmethod
     def _load_industry_profit(prefix: str) -> pd.DataFrame:
-        return ReportDataLoader._safe_csv(f"{prefix}_pd_top20_profit_industry.csv")
+        return ReportDataLoader._safe_csv(f"{prefix}_pd_topn_profit_industry.csv")
 
     @staticmethod
     def _load_category(prefix: str) -> Dict[str, object]:
