@@ -719,6 +719,22 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         + [
             {
                 "if": {
+                    "filter_query": "{{{column}}} = {value} and {{{column}}} != 'nan'".format(
+                        column=col + "_o", value="买入"
+                    ),
+                    "column_id": col,
+                },
+                "backgroundColor": ("""var(--flag-color)"""),
+            }
+            for col in df.columns
+            if col in cols_format
+            and len(cols_format[col]) > 1
+            and cols_format[col][0] == "text"
+            and cols_format[col][1] == "format"
+        ]
+        + [
+            {
+                "if": {
                     "filter_query": "{{{}}} < 0".format(col + "_o"),
                     "column_id": col,
                 },

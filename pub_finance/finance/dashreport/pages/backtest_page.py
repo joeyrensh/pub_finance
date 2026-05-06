@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """回测分析页面 - 优化版"""
+
 from dash import dcc, html, Input, Output, State
 import dash_bootstrap_components as dbc
 import dash
@@ -570,6 +571,7 @@ class BacktestPage:
                 "VOLUME": ("float",),
                 "INDUSTRY": ("text",),
                 "PE": ("text",),
+                "TYPE": ("text", "format"),
             }
             # === 注入 stock_list 顺序 ===
             stock_list = data.get("s", [])
