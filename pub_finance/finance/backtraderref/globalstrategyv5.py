@@ -406,7 +406,7 @@ class GlobalStrategy(bt.Strategy):
                 print(f"❌ 初始化失败 - 辅助指标 3: {d._name}, {e}")
 
             """ 
-            辅助指标 4：乖离率判断（优化版：收紧到 5%）
+            辅助指标 4：乖离率判断（优化版：放宽到 20%）
             """
             try:
                 # 收紧：从 20% 改为 5%，同时增加下限 -10% 防止超跌
@@ -466,9 +466,9 @@ class GlobalStrategy(bt.Strategy):
                         )
                         == 1,
                         self.signals[d._name]["golden_cross"] == 1,
-                        d.close > d.open,
                         self.signals[d._name]["deviant"] == 1,
                         self.inds[d._name]["is_net_inflow_long"] > 0,
+                        d.close > d.open,
                     ),
                     bt.And(
                         self.inds[d._name]["ema_mid"]
@@ -479,9 +479,9 @@ class GlobalStrategy(bt.Strategy):
                         )
                         == 1,
                         self.signals[d._name]["golden_cross"] == 1,
-                        d.close > d.open,
                         self.signals[d._name]["deviant"] == 1,
                         self.inds[d._name]["is_net_inflow_long"] > 0,
+                        d.close > d.open,
                     ),
                 )
             except Exception as e:
@@ -493,7 +493,6 @@ class GlobalStrategy(bt.Strategy):
             try:
                 self.signals[d._name]["close_rising"] = bt.And(
                     self.signals[d._name]["price_higher"] == 1,
-                    d.close > d.open,
                     self.signals[d._name]["deviant"] == 1,
                     bt.Or(
                         bt.indicators.crossover.CrossUp(
@@ -507,6 +506,7 @@ class GlobalStrategy(bt.Strategy):
                         self.signals[d._name]["golden_cross"] == 1,
                     ),
                     self.inds[d._name]["is_net_inflow_mid"] > 0,
+                    d.close > d.open,
                 )
             except Exception as e:
                 print(f"❌ 初始化失败 - 买入 2: {d._name}, {e}")
@@ -538,6 +538,7 @@ class GlobalStrategy(bt.Strategy):
                     d.volume > self.inds[d._name]["emavol_short"] * 1.5,
                     self.signals[d._name]["price_higher"] == 1,
                     self.signals[d._name]["deviant"] == 1,
+                    d.close > d.open,
                 )
             except Exception as e:
                 print(f"❌ 初始化失败 - 买入 4: {d._name}, {e}")
@@ -559,6 +560,7 @@ class GlobalStrategy(bt.Strategy):
                     > self.inds[d._name]["sma_annual"](-1),
                     self.signals[d._name]["deviant"] == 1,
                     self.inds[d._name]["is_net_inflow_long"] > 0,
+                    d.close > d.open,
                 )
             except Exception as e:
                 print(f"❌ 初始化失败 - 买入 5: {d._name}, {e}")
@@ -579,6 +581,7 @@ class GlobalStrategy(bt.Strategy):
                     self.inds[d._name]["sma_long"] > self.inds[d._name]["sma_long"](-1),
                     self.signals[d._name]["deviant"] == 1,
                     self.inds[d._name]["is_net_inflow_long"] > 0,
+                    d.close > d.open,
                 )
             except Exception as e:
                 print(f"❌ 初始化失败 - 买入 6: {d._name}, {e}")
@@ -596,8 +599,8 @@ class GlobalStrategy(bt.Strategy):
                             self.inds[d._name]["sma_mid"],
                         )
                         == 1,
-                        d.close < d.open,
                         self.signals[d._name]["death_cross"] == 1,
+                        d.close < d.open,
                     ),
                     bt.And(
                         self.inds[d._name]["ema_mid"]
@@ -607,8 +610,8 @@ class GlobalStrategy(bt.Strategy):
                             self.inds[d._name]["ema_mid"],
                         )
                         == 1,
-                        d.close < d.open,
                         self.signals[d._name]["death_cross"] == 1,
+                        d.close < d.open,
                     ),
                 )
             except Exception as e:
@@ -620,7 +623,6 @@ class GlobalStrategy(bt.Strategy):
                 self.signals[d._name]["close_falling"] = bt.And(
                     self.inds[d._name]["sma_short"]
                     < self.inds[d._name]["sma_short"](-1),
-                    d.close < d.open,
                     self.signals[d._name]["price_lower"] == 1,
                     bt.Or(
                         bt.indicators.crossover.CrossDown(
@@ -633,6 +635,7 @@ class GlobalStrategy(bt.Strategy):
                         == 1,
                         self.signals[d._name]["death_cross"] == 1,
                     ),
+                    d.close < d.open,
                 )
             except Exception as e:
                 print(f"❌ 初始化失败 - 卖出 2: {d._name}, {e}")
@@ -664,6 +667,7 @@ class GlobalStrategy(bt.Strategy):
                         self.signals[d._name]["price_lower"] == 1,
                         self.signals[d._name]["death_cross"] == 1,
                     ),
+                    d.close < d.open,
                 )
             except Exception as e:
                 print(f"❌ 初始化失败 - 卖出 4: {d._name}, {e}")
@@ -680,6 +684,7 @@ class GlobalStrategy(bt.Strategy):
                         self.signals[d._name]["price_lower"] == 1,
                         self.signals[d._name]["death_cross"] == 1,
                     ),
+                    d.close < d.open,
                 )
             except Exception as e:
                 print(f"❌ 初始化失败 - 卖出 5: {d._name}, {e}")
