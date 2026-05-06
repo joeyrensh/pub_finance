@@ -4,6 +4,8 @@
 import progressbar
 from pathlib import Path
 import sys
+import time
+import functools
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from finance.utility.toolkit import ToolKit
@@ -13,6 +15,31 @@ from finance.utility.em_stock_uti import EMWebCrawlerUti
 from finance.uscrawler.ak_incre_crawler import AKUSWebCrawler
 from finance.utility.backtrader_exec import BacktraderExec
 import sys
+
+
+# ------------------- 重试机制 -------------------
+def retry_call(func, max_retries=3, delay=1, backoff=2, exceptions=(Exception,)):
+    """
+    通用重试函数
+    :param func: 待执行的函数（无参）
+    :param max_retries: 最大重试次数
+    :param delay: 初始延迟（秒）
+    :param backoff: 延迟倍数
+    :param exceptions: 需重试的异常类型
+    :return: 函数返回值
+    """
+    for attempt in range(max_retries):
+        try:
+            return func()
+        except exceptions as e:
+            if attempt == max_retries - 1:
+                raise  # 最后一次失败则抛出异常
+            wait = delay * (backoff**attempt)
+            print(f"⚠️ 重试第 {attempt+1} 次，等待 {wait:.1f} 秒后重试，错误: {e}")
+            time.sleep(wait)
+    # 理论上不会执行到这里
+    raise RuntimeError("重试失败")
+
 
 # 主程序入口
 if __name__ == "__main__":
@@ -43,8 +70,15 @@ if __name__ == "__main__":
     # em = EMWebCrawlerUti()
     # em.get_daily_stock_info("us", trade_date)
 
+    # ========== 1. 爬虫重试 ==========
+    # print("开始爬取美股日线数据...")
     # ak_daily_crawler = AKUSWebCrawler()
-    # df_stock_daily = ak_daily_crawler.get_us_daily_stock_info_ak(trade_date)
+
+    # def crawl():
+    #     return ak_daily_crawler.get_us_daily_stock_info_ak(trade_date)
+
+    # df_stock_daily = retry_call(crawl, max_retries=3, delay=2)
+    # print("爬取完成")
 
     """ 执行bt相关策略 """
 
@@ -99,17 +133,26 @@ if __name__ == "__main__":
         else:
             proposal.send_btstrategy_by_email(cash, final_value)
 
+    # ========== 2. 策略执行与邮件发送重试 ==========
+    def retry_backtest_and_send(market, trade_date, force_run=False, max_retries=3):
+        """带重试的 backtest 封装"""
+
+        def do_task():
+            run_backtest_and_send(market, trade_date, force_run)
+
+        retry_call(do_task, max_retries=max_retries, delay=3)
+
     # 美股主要策略执行
-    # print("-----------美股主策略执行-----------")
-    # run_backtest_and_send("us", trade_date)
+    print("-----------美股主策略执行-----------")
+    retry_backtest_and_send("us", trade_date)
 
     # 固定列表追踪
-    # print("-----------美股固定列表策略执行-----------")
-    # run_backtest_and_send("us_special", trade_date)
+    print("-----------美股固定列表策略执行-----------")
+    retry_backtest_and_send("us_special", trade_date)
 
     # 动态列表追踪
     print("-----------美股动态列表策略执行-----------")
-    run_backtest_and_send("us_dynamic", trade_date, force_run=True)
+    retry_backtest_and_send("us_dynamic", trade_date)
 
     """ 结束进度条 """
     pbar.finish()
