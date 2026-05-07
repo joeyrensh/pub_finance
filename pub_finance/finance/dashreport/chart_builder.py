@@ -2076,7 +2076,7 @@ class ChartBuilder:
                             symbol="circle",
                             size=6 * scale,
                             color="white",
-                            line=dict(color=color, width=2.5 * scale),
+                            line=dict(color=color, width=3 * scale),
                         ),
                         showlegend=False,
                         hovertemplate=f"<b>{tt}</b><br>"
@@ -2163,7 +2163,7 @@ class ChartBuilder:
                         symbol="circle",
                         size=6 * scale,
                         color="white",
-                        line=dict(color=strategy_colors[2], width=2.5 * scale),
+                        line=dict(color=strategy_colors[2], width=3 * scale),
                     ),
                     showlegend=False,
                     hovertemplate=f"<b>策略升级</b><br>日期：%{{x|%Y-%m-%d}}<br>新策略：{up['strategy']}<extra></extra>",
