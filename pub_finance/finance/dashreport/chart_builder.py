@@ -2009,7 +2009,7 @@ class ChartBuilder:
                 name=symbol,
                 increasing=dict(line_color=cfg["long"], fillcolor=cfg["long"]),
                 decreasing=dict(line_color=cfg["short"], fillcolor=cfg["short"]),
-                line=dict(width=1),
+                line=dict(width=1 * scale),
                 showlegend=True,
                 hovertemplate=(
                     "<b>%{x|%Y-%m-%d}</b><br>开盘: %{open:.2f}<br>最高: %{high:.2f}<br>"
@@ -2058,7 +2058,7 @@ class ChartBuilder:
                         x=[td, td],
                         y=[min_price, max_price],
                         mode="lines",
-                        line=dict(color=color, width=1, dash="dash"),
+                        line=dict(color=color, width=1 * scale, dash="dash"),
                         opacity=0.7,
                         showlegend=False,
                         hoverinfo="skip",
@@ -2074,9 +2074,9 @@ class ChartBuilder:
                         mode="markers",
                         marker=dict(
                             symbol="circle",
-                            size=6,
+                            size=6 * scale,
                             color="white",
-                            line=dict(color=color, width=2.5),
+                            line=dict(color=color, width=2.5 * scale),
                         ),
                         showlegend=False,
                         hovertemplate=f"<b>{tt}</b><br>"
@@ -2161,9 +2161,9 @@ class ChartBuilder:
                     mode="markers",
                     marker=dict(
                         symbol="circle",
-                        size=6,
+                        size=6 * scale,
                         color="white",
-                        line=dict(color=strategy_colors[2], width=2.5),
+                        line=dict(color=strategy_colors[2], width=2.5 * scale),
                     ),
                     showlegend=False,
                     hovertemplate=f"<b>策略升级</b><br>日期：%{{x|%Y-%m-%d}}<br>新策略：{up['strategy']}<extra></extra>",
