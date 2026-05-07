@@ -32,9 +32,9 @@ class GlobalStrategy(bt.Strategy):
         "跌破半年线": 2,
         "均线收敛": 2,
         # 短线策略 (级别 3)
-        "连续上涨": 3,
         "成交量放大": 3,
         "红三兵": 3,
+        "连续上涨": 3,
         "连续下跌": 3,
         # 止损止盈 (级别 0 - 最高优先级，任何时候都可以卖出)
         "移动止盈": 0,
@@ -51,9 +51,9 @@ class GlobalStrategy(bt.Strategy):
         "均线收敛": "ma_crossover_bearish",
         "突破半年线": "closs_crossdown_halfannualline",
         # 短线买入信号 → 对应的短线卖出信号
-        "连续上涨": "close_falling",
         "成交量放大": "close_falling",
         "红三兵": "close_falling",
+        "连续上涨": "close_falling",
     }
 
     @staticmethod
@@ -955,19 +955,19 @@ class GlobalStrategy(bt.Strategy):
                 elif self.check_signal(d._name, "close_crossup_halfannualline"):
                     self.execute_buy(d, "突破半年线", 2)
 
-                # 优先级 6: 连续上涨（短期动量）
-                elif self.check_signal(d._name, "close_rising"):
-                    self.execute_buy(d, "连续上涨", 3)
-
-                # 优先级 7: 成交量放大（量能确认）
+                # 优先级 6: 成交量放大（量能确认）
                 elif self.check_signal(d._name, "volume_breakout"):
                     self.execute_buy(d, "成交量放大", 3)
 
-                # 优先级 8: 红三兵（短期形态 - 已放宽条件）
+                # 优先级 7: 红三兵（短期形态 - 已放宽条件）
                 elif self.check_signal(
                     d._name, "red_three_soldiers"
                 ) and self.check_signal(d._name, "deviant"):
                     self.execute_buy(d, "红三兵", 3)
+
+                # 优先级 8: 连续上涨（短期动量）
+                elif self.check_signal(d._name, "close_rising"):
+                    self.execute_buy(d, "连续上涨", 3)
             else:
                 # ===== 持仓期间：每日检查并更新当前满足的最高级别买入信号 =====
                 # 检查所有买入信号，找到当前满足的最高级别（数字越小级别越高）
@@ -1002,14 +1002,14 @@ class GlobalStrategy(bt.Strategy):
 
                 # 检查短线信号 (级别 3)
                 if current_level == 3:
-                    if self.check_signal(d._name, "close_rising"):
-                        self.current_signal[d._name] = (3, "连续上涨", "updated")
-                    elif self.check_signal(d._name, "volume_breakout"):
+                    if self.check_signal(d._name, "volume_breakout"):
                         self.current_signal[d._name] = (3, "成交量放大", "updated")
                     elif self.check_signal(
                         d._name, "red_three_soldiers"
                     ) and self.check_signal(d._name, "deviant"):
                         self.current_signal[d._name] = (3, "红三兵", "updated")
+                    elif self.check_signal(d._name, "close_rising"):
+                        self.current_signal[d._name] = (3, "连续上涨", "updated")
 
                 # 更新当前满足的最高级别买入信号
                 current_level, current_strategy, current_status = (
