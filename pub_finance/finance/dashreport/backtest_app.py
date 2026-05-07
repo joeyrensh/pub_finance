@@ -18,7 +18,6 @@ import os
 from datetime import timedelta
 from finance.paths import FINANCE_ROOT
 
-
 server = Flask(__name__)
 Compress(
     server,
@@ -443,5 +442,5 @@ def update_row_count(indices):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8050, debug=True)
+    app.run(host="0.0.0.0", port=8050, debug=True, use_reloader=False)
     # app.run_server()
