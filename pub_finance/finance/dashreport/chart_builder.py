@@ -822,6 +822,8 @@ class ChartBuilder:
         # =========================
         # Layout
         # =========================
+        xmin = pd.to_datetime(df["date"].min())
+        xmax = pd.to_datetime(df["date"].max())
         fig.update_layout(
             xaxis=dict(
                 mirror=True,
@@ -838,10 +840,15 @@ class ChartBuilder:
                 dtick="M1",
                 tickformat="%Y-%m",
                 hoverformat="%Y-%m-%d",
+                range=[
+                    xmin - timedelta(days=0.5),
+                    xmax + timedelta(days=0.5),
+                ],
             ),
             yaxis=dict(
                 side="left",
                 mirror=True,
+                ticklabelposition="inside",
                 # ticks="inside",
                 tickfont=dict(
                     family=self.font_family,
@@ -874,7 +881,7 @@ class ChartBuilder:
             ),
             legend=dict(
                 orientation="v",
-                x=-0.05,
+                x=0,
                 y=1,
                 xanchor="left",
                 yanchor="top",
@@ -973,6 +980,9 @@ class ChartBuilder:
             )
         )
 
+        xmin = pd.to_datetime(df["buy_date"].min())
+        xmax = pd.to_datetime(df["buy_date"].max())
+
         fig.update_layout(
             # title=dict(
             #     # text="Last 180 days trade info",
@@ -1004,6 +1014,10 @@ class ChartBuilder:
                 dtick="M1",
                 tickformat="%Y-%m",
                 hoverformat="%Y-%m-%d",
+                range=[
+                    xmin - timedelta(days=0.5),
+                    xmax + timedelta(days=0.5),
+                ],
             ),
             yaxis=dict(
                 side="left",
@@ -1016,13 +1030,13 @@ class ChartBuilder:
                 ),
                 showline=False,
                 gridcolor=grid_color,
-                ticklabelposition="outside",
+                ticklabelposition="inside",
                 tickangle=0,
                 zeroline=False,
             ),
             legend=dict(
                 orientation="v",
-                x=-0.05,
+                x=0,
                 y=1,
                 xanchor="left",
                 yanchor="top",
@@ -1045,16 +1059,6 @@ class ChartBuilder:
             dragmode=False,
             hovermode="x",
             hoverlabel=dict(font_size=font_size),
-        )
-
-        xmin = pd.to_datetime(df["buy_date"].min())
-        xmax = pd.to_datetime(df["buy_date"].max())
-
-        fig.update_xaxes(
-            range=[
-                xmin - timedelta(days=0.5),
-                xmax + timedelta(days=0.5),
-            ]
         )
 
         return fig
@@ -1097,10 +1101,13 @@ class ChartBuilder:
             ),
         )
 
+        xmin = pd.to_datetime(df["buy_date"].min())
+        xmax = pd.to_datetime(df["buy_date"].max())
+
         fig.update_xaxes(
             mirror=True,
             # ticks="inside",
-            ticklabelposition="outside",
+            # ticklabelposition="outside",
             tickfont=dict(
                 size=font_size,
                 color=text_color,
@@ -1122,6 +1129,10 @@ class ChartBuilder:
             dtick="M1",
             tickformat="%Y-%m",
             hoverformat="%Y-%m-%d",
+            range=[
+                xmin - timedelta(days=0.5),
+                xmax + timedelta(days=0.5),
+            ],
         )
 
         fig.update_yaxes(
@@ -1144,7 +1155,7 @@ class ChartBuilder:
             linecolor=cfg["grid"],
             zeroline=False,
             gridcolor=cfg["grid"],
-            ticklabelposition="outside",
+            ticklabelposition="inside",
             tickangle=0,
             autorange=True,
         )
@@ -1168,7 +1179,7 @@ class ChartBuilder:
             legend_title_text=None,
             legend=dict(
                 orientation="v",
-                x=-0.05,
+                x=0,
                 xanchor="left",
                 y=1,
                 yanchor="top",
