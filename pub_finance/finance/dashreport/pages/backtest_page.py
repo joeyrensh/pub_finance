@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""回测分析页面 - 优化版"""
+"""回测分析页面 - 异步轮询版（单任务，30秒轮询，页面刷新状态恢复）"""
 
 from dash import dcc, html, Input, Output, State
 import dash_bootstrap_components as dbc
 import dash
 import pandas as pd
 from datetime import datetime
+import multiprocessing
+from multiprocessing import Manager
+import uuid
 
 from finance.dashreport.chart_builder import ChartBuilder
 from finance.dashreport.utils import Header, make_dash_format_table
@@ -18,7 +21,69 @@ from threading import Lock
 
 BACKTEST_LOCK = Lock()
 
+# 固定任务ID (单任务模式)
+SINGLE_TASK_ID = "SINGLE_BACKTEST_TASK"
 
+# 跨进程任务状态存储 (使用 Manager)
+_manager = Manager()
+task_state = _manager.dict()
+task_state["status"] = "idle"  # idle, running, done, failed
+task_state["result"] = None
+task_state["error"] = None
+
+
+# ---------- 耗时任务函数 ----------
+def run_bt_task(stock_list, date_str, market):
+    """在子进程中执行回测并更新 task_state"""
+    try:
+        pnl, c, tv = run_bt(stock_list, date_str, market)
+        tr, pos_detail_df = load_logs(stock_list, date_str, market)
+
+        h = []
+        for sym in stock_list:
+            hist_data = load_hist([sym], date_str, market)
+            if hist_data and len(hist_data) > 0:
+                h.append(hist_data[0])
+            else:
+                h.append(pd.DataFrame())
+
+        pnl_data = (
+            {
+                "index": [str(x) for x in pnl.index.tolist()],
+                "values": pnl.values.tolist(),
+            }
+            if pnl is not None and len(pnl) > 0
+            else {}
+        )
+        returns = (
+            ((1 + pnl).cumprod().iloc[-1] - 1) * 100
+            if pnl is not None and len(pnl) > 0
+            else 0
+        )
+        data = {
+            "pnl": pnl_data,
+            "tr": tr,
+            "pos_detail": (
+                pos_detail_df.to_dict("records") if not pos_detail_df.empty else []
+            ),
+            "h": [x.to_dict("records") if not x.empty else [] for x in h],
+            "s": stock_list,
+            "c": c,
+            "tv": tv,
+            "returns": returns,
+            "market": market,
+        }
+        task_state["status"] = "done"
+        task_state["result"] = data
+    except Exception as e:
+        import traceback
+
+        traceback.print_exc()
+        task_state["status"] = "failed"
+        task_state["error"] = str(e)
+
+
+# ---------- 原有业务函数（保持不变）----------
 def run_bt(stocks, dt, m):
     return BacktraderExec(
         f"{m}_backtest", dt, test=True, stocklist=stocks
@@ -38,40 +103,27 @@ def load_logs(stocks, dt, m):
         )
     else:
         df_logs = pd.DataFrame(columns=["i", "s", "d", "t", "p", "v", "st"])
-    # -----------------------------
-    # 读取行业信息，只取相关股票
+    # 行业信息
     f_industry = FINANCE_ROOT / (
         "cnstockinfo/industry.csv" if m == "cn" else "usstockinfo/industry.csv"
     )
     if f_industry.exists():
-        df_industry = pd.read_csv(
-            f_industry,
-            usecols=["symbol", "industry"],
-            dtype=str,
-        )
+        df_industry = pd.read_csv(f_industry, usecols=["symbol", "industry"], dtype=str)
         df_industry = df_industry[df_industry["symbol"].isin(stocks)]
     else:
         df_industry = pd.DataFrame(columns=["symbol", "industry"])
-
-    # -----------------------------
-    # 读取最新股票信息，只取相关股票
+    # 最新股票信息
     f_latest_info = FINANCE_ROOT / (
         f"cnstockinfo/stock_{dt}.csv" if m == "cn" else f"usstockinfo/stock_{dt}.csv"
     )
     if f_latest_info.exists():
         df_latest = pd.read_csv(
-            f_latest_info,
-            usecols=["symbol", "name", "total_value", "pe"],
-            dtype=str,
+            f_latest_info, usecols=["symbol", "name", "total_value", "pe"], dtype=str
         )
         df_latest = df_latest[df_latest["symbol"].isin(stocks)]
     else:
         df_latest = pd.DataFrame(columns=["symbol", "name", "total_value", "pe"])
-
-    # -----------------------------
-    # --- 新增字段合并 ---
     if not df_logs.empty:
-        # 先把 logs 转成 DataFrame
         df_logs = df_logs.rename(
             columns={
                 "s": "symbol",
@@ -85,14 +137,9 @@ def load_logs(stocks, dt, m):
         df_logs["type"] = (
             df_logs["type"].map({"buy": "买入", "sell": "卖出"}).fillna(df_logs["type"])
         )
-
-        # 左连接行业信息和最新信息
         df_logs = df_logs.merge(df_industry, on="symbol", how="left")
         df_logs = df_logs.merge(df_latest, on="symbol", how="left")
-
-        # 处理缺失值
         df_logs["industry"] = df_logs["industry"].fillna("-")
-        # total_value 转为亿，非数值或缺失不报错
         df_logs["total_value"] = (
             pd.to_numeric(df_logs["total_value"], errors="coerce") / 100000000
         ).round(2)
@@ -101,9 +148,7 @@ def load_logs(stocks, dt, m):
             pd.to_numeric(df_logs["pe"], errors="coerce").round(2).fillna("-")
         )
         logs = df_logs.to_dict("records")
-
-    # -----------------------------
-    # 新增持仓明细加载
+    # 持仓明细
     pos_path = FINANCE_ROOT / (
         "cnstockinfo/cn_backtest_position_detail.csv"
         if m == "cn"
@@ -117,13 +162,11 @@ def load_logs(stocks, dt, m):
             columns={"col2": "symbol", "col3": "date", "col12": "strategy"}
         )[["symbol", "date", "strategy"]]
         df_pos["date"] = pd.to_datetime(df_pos["date"])
-        # 排序并去除完全重复的行（同一天同一策略）
         df_pos = df_pos.sort_values(["symbol", "date"]).drop_duplicates(
             subset=["symbol", "date", "strategy"], keep="first"
         )
     else:
         df_pos = pd.DataFrame(columns=["symbol", "date", "strategy"])
-
     return logs, df_pos
 
 
@@ -134,41 +177,27 @@ def load_hist(stocks, dt, m):
 
 
 def get_end_date_from_prefix(prefix: str) -> str:
-    """
-    从数据加载器获取指定前缀的 end_date（交易日）
-    """
     data = ReportDataLoader.load(prefix=prefix, datasets=("overall",))
     df_overall = data.get("overall")
     if df_overall is not None and not df_overall.empty:
         end_date = df_overall.at[0, "end_date"]
-        # 如果 end_date 是 Timestamp 或 datetime，转换为字符串 YYYYMMDD
         if isinstance(end_date, pd.Timestamp):
             return end_date.strftime("%Y%m%d")
         else:
             return str(end_date).replace("-", "")
-    # 降级方案：返回当前日期
-    from datetime import datetime
-
     return datetime.now().strftime("%Y%m%d")
 
 
 def get_default_date(market="cn"):
-    """
-    获取默认交易日期，优先从数据文件读取 end_date
-    prefix: 市场前缀，如 "cn", "us" 等
-    """
     try:
         return get_end_date_from_prefix(market)
     except Exception:
-        # 降级：使用原逻辑或当前日期
         try:
             if market == "us":
                 return ToolKit.get_us_latest_trade_date(0)
             else:
                 return ToolKit.get_cn_latest_trade_date(0)
         except:
-            from datetime import datetime
-
             return datetime.now().strftime("%Y%m%d")
 
 
@@ -180,18 +209,19 @@ class BacktestPage:
         self.register_callbacks()
 
     def register_callbacks(self):
+        # ---------- 1. 初始化日期 ----------
         @self.app.callback(
-            Output("backtest-date", "date"),  # 改为 date
+            Output("backtest-date", "date"),
             Input("backtest-market", "value"),
             prevent_initial_call=False,
         )
         def init_date(market):
             default = get_default_date(market or "cn")
             if default:
-                # 转换为 YYYY-MM-DD 格式
                 return datetime.strptime(default, "%Y%m%d").strftime("%Y-%m-%d")
             return None
 
+        # ---------- 2. 加载股票列表 ----------
         @self.app.callback(
             [
                 Output("backtest-stocks", "value"),
@@ -206,8 +236,6 @@ class BacktestPage:
             prevent_initial_call=False,
         )
         def load_stock_list(market, date_str):
-            """市场或日期变化时：加载完整股票列表，若存在对应日期的 stock 文件则按 PE、总市值排序，否则保持原顺序"""
-            # 1. 读取所有股票代码
             file_path = FINANCE_ROOT / (
                 "cnstockinfo/dynamic_list.csv"
                 if market == "cn"
@@ -223,13 +251,12 @@ class BacktestPage:
                     print(f"读取股票列表失败: {e}")
                     symbols = []
             if not symbols:
-                # 默认股票列表（回退）
-                if market == "cn":
-                    symbols = ["SZ002077", "SZ002119"]
-                else:
-                    symbols = ["AAPL", "MSFT", "GOOGL"]
-
-            # 2. 尝试根据日期读取股票信息文件（PE、总市值）
+                symbols = (
+                    ["SZ002077", "SZ002119"]
+                    if market == "cn"
+                    else ["AAPL", "MSFT", "GOOGL"]
+                )
+            # 排序（按PE、市值）
             stock_file_exists = False
             if date_str:
                 try:
@@ -263,17 +290,13 @@ class BacktestPage:
                                 except:
                                     pass
 
-                        # 排序函数：PE 升序，总市值升序，缺失值排最后
                         def sort_key(symbol):
                             pe = pe_dict.get(symbol)
                             tv = tv_dict.get(symbol)
-                            pe_rank = (
-                                pe if (pe is not None and pe > 0) else float("inf")
+                            return (
+                                pe if (pe is not None and pe > 0) else float("inf"),
+                                tv if (tv is not None and tv > 0) else float("inf"),
                             )
-                            tv_rank = (
-                                tv if (tv is not None and tv > 0) else float("inf")
-                            )
-                            return (pe_rank, tv_rank)
 
                         symbols.sort(key=sort_key)
                         print(
@@ -281,23 +304,17 @@ class BacktestPage:
                         )
                 except Exception as e:
                     print(f"读取股票信息文件失败: {e}")
-
             if not stock_file_exists:
                 print(f"未找到对应日期的股票文件，保持 dynamic_list 原始顺序")
-
-            # 3. 分页（每页3个）
+            # 分页每页3个
             total = len(symbols)
-            page = 0
-            start = page * 3
-            end = min(start + 3, total)
-            if start >= total:
-                start = 0
-                end = min(3, total)
+            start = 0
+            end = min(3, total)
             current_stocks = symbols[start:end]
-            button_text = f"{start+1}-{end} / {total}"
+            button_text = f"{1}-{end} / {total}"
+            return ",".join(current_stocks), symbols, 0, button_text
 
-            return ",".join(current_stocks), symbols, page, button_text
-
+        # ---------- 3. 分页翻页 ----------
         @self.app.callback(
             [
                 Output("backtest-stocks", "value", allow_duplicate=True),
@@ -320,127 +337,281 @@ class BacktestPage:
             )
             if not full_list:
                 return "", 0, "0-0"
-
             total = len(full_list)
             page_size = 3
             max_page = (total - 1) // page_size if total > 0 else 0
-
             if trigger == "backtest-next":
-                if current_page == max_page:
-                    next_page = 0  # 循环到首页
-                else:
-                    next_page = current_page + 1
+                next_page = 0 if current_page == max_page else current_page + 1
             elif trigger == "backtest-prev":
-                if current_page == 0:
-                    next_page = max_page  # 循环到末页
-                else:
-                    next_page = current_page - 1
+                next_page = max_page if current_page == 0 else current_page - 1
             else:
-                next_page = current_page  # 刷新按钮
-
+                next_page = current_page
             start = next_page * page_size
             end = min(start + page_size, total)
             if start >= total:
                 start = 0
                 end = min(page_size, total)
                 next_page = 0
-
             current_stocks = full_list[start:end]
             button_text = f"{start+1}-{end} / {total}"
-
             return ",".join(current_stocks), next_page, button_text
 
-        # 回测 callback（增强：按钮锁定 + 进度条）
+        # ---------- 4. 页面刷新恢复状态（单次触发）----------
         @self.app.callback(
-            Output("backtest-data", "data"),
-            Output("backtest-status", "children"),
-            Input("backtest-run", "n_clicks"),
-            State("backtest-market", "value"),
-            State("backtest-date", "date"),  # 注意这里是 date
-            State("backtest-stocks", "value"),
-            prevent_initial_call=True,
-            running=[
-                (Output("backtest-run", "disabled"), True, False),
-                (Output("backtest-run", "children"), "回测中…", "执行回测"),
-                (
-                    Output("backtest-run", "className"),
-                    "btn btn-primary kpi-label progress-btn running",
-                    "btn btn-primary kpi-label progress-btn",
-                ),
-                (
-                    Output("backtest-progress", "style"),
-                    {"display": "block"},
-                    {"display": "none"},
-                ),
+            [
+                Output("backtest-task-id", "data"),
+                Output("backtest-run", "disabled"),
+                Output("backtest-run", "children"),
+                Output("backtest-run", "className"),
+                Output("backtest-progress", "style"),
+                Output("backtest-status", "children"),
+                Output("backtest-poll-interval", "disabled"),
+                Output("backtest-data", "data"),
             ],
+            Input("backtest-recover-trigger", "n_intervals"),
+            prevent_initial_call=False,
         )
-        def run_backtest(n_clicks, market, date, stocks):
+        def recover_state(n):
+            status = task_state.get("status", "idle")
+            # 锁清理：如果任务不在运行中，但锁被意外占用，则强制释放
+            if status != "running" and BACKTEST_LOCK.locked():
+                BACKTEST_LOCK.release()
+                print("WARNING: 检测到残留锁，已强制释放")
+            if status == "running":
+                # 任务仍在运行中
+                return (
+                    SINGLE_TASK_ID,
+                    True,
+                    "回测中…",
+                    "btn btn-primary kpi-label progress-btn running",
+                    {"display": "block"},
+                    "回测任务已提交，后台运行中...",
+                    False,
+                    None,
+                )
+            elif status == "done":
+                result = task_state.get("result")
+                if result:
+                    returns = result.get("returns", 0)
+                    status_text = f"回测完成 | 收益率：{returns:+.2f}% | 现金：{result['c']:,.0f} | 总值：{result['tv']:,.0f}"
+                    # 任务已完成，重置状态为 idle（便于下次提交）
+                    task_state["status"] = "idle"
+                    return (
+                        None,
+                        False,
+                        "执行回测",
+                        "btn btn-primary kpi-label progress-btn",
+                        {"display": "none"},
+                        status_text,
+                        True,
+                        result,
+                    )
+            elif status == "failed":
+                error = task_state.get("error", "未知错误")
+                task_state["status"] = "idle"
+                return (
+                    None,
+                    False,
+                    "执行回测",
+                    "btn btn-primary kpi-label progress-btn",
+                    {"display": "none"},
+                    f"回测失败: {error}",
+                    True,
+                    None,
+                )
+            # idle 或其他
+            return (
+                None,
+                False,
+                "执行回测",
+                "btn btn-primary kpi-label progress-btn",
+                {"display": "none"},
+                "",
+                True,
+                None,
+            )
+
+        # ---------- 5. 提交回测任务 ----------
+        @self.app.callback(
+            [
+                Output("backtest-task-id", "data", allow_duplicate=True),
+                Output("backtest-run", "disabled", allow_duplicate=True),
+                Output("backtest-run", "children", allow_duplicate=True),
+                Output("backtest-run", "className", allow_duplicate=True),
+                Output("backtest-progress", "style", allow_duplicate=True),
+                Output("backtest-status", "children", allow_duplicate=True),
+                Output("backtest-poll-interval", "disabled", allow_duplicate=True),
+            ],
+            Input("backtest-run", "n_clicks"),
+            [
+                State("backtest-market", "value"),
+                State("backtest-date", "date"),
+                State("backtest-stocks", "value"),
+            ],
+            prevent_initial_call=True,
+        )
+        def submit_backtest(n_clicks, market, date, stocks):
             if not n_clicks or not stocks:
-                return None, "请输入股票代码"
+                return (
+                    dash.no_update,
+                    dash.no_update,
+                    dash.no_update,
+                    dash.no_update,
+                    dash.no_update,
+                    dash.no_update,
+                    dash.no_update,
+                )
+            # 防御：如果锁被占用但任务状态不是 running，强制释放锁
+            if BACKTEST_LOCK.locked() and task_state.get("status") != "running":
+                BACKTEST_LOCK.release()
+                print("WARNING: 提交前清理残留锁")
             if not BACKTEST_LOCK.acquire(blocking=False):
-                return None, "⚠️ 系统正在执行回测，请稍后"
+                return (
+                    None,
+                    False,
+                    "执行回测",
+                    "btn btn-primary kpi-label progress-btn",
+                    {"display": "none"},
+                    "⚠️ 系统正在执行回测，请稍后",
+                    True,
+                )
             stock_list = [s.strip() for s in stocks.split(",") if s.strip()]
             if not stock_list:
-                return None, "请输入有效的股票代码"
+                BACKTEST_LOCK.release()
+                return (
+                    None,
+                    False,
+                    "执行回测",
+                    "btn btn-primary kpi-label progress-btn",
+                    {"display": "none"},
+                    "请输入有效的股票代码",
+                    True,
+                )
             try:
                 date_obj = datetime.strptime(date, "%Y-%m-%d")
                 date_str = date_obj.strftime("%Y%m%d")
-                pnl, c, tv = run_bt(stock_list, date_str, market)
-                tr, pos_detail_df = load_logs(stock_list, date_str, market)
-
-                # ----- 修复历史数据顺序：逐股票获取 -----
-                h = []
-                for sym in stock_list:
-                    hist_data = load_hist([sym], date_str, market)
-                    if hist_data and len(hist_data) > 0:
-                        h.append(hist_data[0])
-                    else:
-                        h.append(pd.DataFrame())  # 空DataFrame
-
-                pnl_data = (
-                    {
-                        "index": [str(x) for x in pnl.index.tolist()],
-                        "values": pnl.values.tolist(),
-                    }
-                    if pnl is not None and len(pnl) > 0
-                    else {}
+                # 重置任务状态
+                task_state["status"] = "running"
+                task_state["result"] = None
+                task_state["error"] = None
+                # 启动子进程
+                p = multiprocessing.Process(
+                    target=run_bt_task, args=(stock_list, date_str, market)
                 )
-                returns = (
-                    ((1 + pnl).cumprod().iloc[-1] - 1) * 100
-                    if pnl is not None and len(pnl) > 0
-                    else 0
+                p.start()
+                # 注意：锁不释放，等待任务完成后释放
+                return (
+                    SINGLE_TASK_ID,
+                    True,
+                    "回测中…",
+                    "btn btn-primary kpi-label progress-btn running",
+                    {"display": "block"},
+                    "回测任务已提交，后台运行中...",
+                    False,
                 )
-                data = {
-                    "pnl": pnl_data,
-                    "tr": tr,
-                    "pos_detail": (
-                        pos_detail_df.to_dict("records")
-                        if not pos_detail_df.empty
-                        else []
-                    ),
-                    "h": [x.to_dict("records") if not x.empty else [] for x in h],
-                    "s": stock_list,
-                    "c": c,
-                    "tv": tv,
-                    "returns": returns,
-                    "market": market,
-                }
-                status = f"回测完成 | 收益率：{returns:+.2f}% | 现金：{c:,.0f} | 总值：{tv:,.0f}"
-                return data, status
             except Exception as e:
-                import traceback
-
-                traceback.print_exc()
-                return None, f"错误：{e}"
-            finally:
                 BACKTEST_LOCK.release()
+                print(f"提交任务失败: {e}")
+                return (
+                    None,
+                    False,
+                    "执行回测",
+                    "btn btn-primary kpi-label progress-btn",
+                    {"display": "none"},
+                    f"提交失败: {e}",
+                    True,
+                )
 
+        # ---------- 6. 轮询任务状态（30秒）----------
+        @self.app.callback(
+            [
+                Output("backtest-data", "data", allow_duplicate=True),
+                Output("backtest-status", "children", allow_duplicate=True),
+                Output("backtest-run", "disabled", allow_duplicate=True),
+                Output("backtest-run", "children", allow_duplicate=True),
+                Output("backtest-run", "className", allow_duplicate=True),
+                Output("backtest-progress", "style", allow_duplicate=True),
+                Output("backtest-poll-interval", "disabled", allow_duplicate=True),
+                Output("backtest-task-id", "data", allow_duplicate=True),
+            ],
+            Input("backtest-poll-interval", "n_intervals"),
+            State("backtest-task-id", "data"),
+            prevent_initial_call=True,
+        )
+        def poll_backtest_result(n_intervals, stored_task_id):
+            if stored_task_id != SINGLE_TASK_ID:
+                return (
+                    None,
+                    "",
+                    False,
+                    "执行回测",
+                    "btn btn-primary kpi-label progress-btn",
+                    {"display": "none"},
+                    True,
+                    dash.no_update,
+                )
+            status = task_state.get("status", "idle")
+            if status == "running":
+                return (
+                    None,
+                    "回测任务已提交，后台运行中...",
+                    True,
+                    "回测中…",
+                    "btn btn-primary kpi-label progress-btn running",
+                    {"display": "block"},
+                    False,
+                    dash.no_update,
+                )
+            elif status == "done":
+                result = task_state.get("result")
+                if result:
+                    returns = result.get("returns", 0)
+                    status_text = f"回测完成 | 收益率：{returns:+.2f}% | 现金：{result['c']:,.0f} | 总值：{result['tv']:,.0f}"
+                    BACKTEST_LOCK.release()
+                    task_state["status"] = "idle"
+                    return (
+                        result,
+                        status_text,
+                        False,
+                        "执行回测",
+                        "btn btn-primary kpi-label progress-btn",
+                        {"display": "none"},
+                        True,
+                        None,
+                    )
+            elif status == "failed":
+                error = task_state.get("error", "未知错误")
+                BACKTEST_LOCK.release()
+                task_state["status"] = "idle"
+                return (
+                    None,
+                    f"回测失败: {error}",
+                    False,
+                    "执行回测",
+                    "btn btn-primary kpi-label progress-btn",
+                    {"display": "none"},
+                    True,
+                    None,
+                )
+            # 其他情况，禁用轮询
+            return (
+                None,
+                "",
+                False,
+                "执行回测",
+                "btn btn-primary kpi-label progress-btn",
+                {"display": "none"},
+                True,
+                dash.no_update,
+            )
+
+        # ---------- 7. 收益与回撤图表 ----------
         @self.app.callback(
             Output("backtest-pnl-chart", "children"),
             Input("backtest-data", "data"),
             Input("current-theme", "data"),
             Input("client-width", "data"),
-            prevent_initial_call=True,  # 添加
+            prevent_initial_call=True,
         )
         def up_pnl(d, theme, client_width):
             if not d or not d.get("pnl") or not d["pnl"].get("index"):
@@ -458,7 +629,7 @@ class BacktestPage:
                 ),
                 config={
                     "displayModeBar": False,
-                    "doubleClick": False,  # 禁用双击缩放
+                    "doubleClick": False,
                     "responsive": True,
                 },
                 style={
@@ -471,12 +642,13 @@ class BacktestPage:
                 mathjax=True,
             )
 
+        # ---------- 8. K线图 ----------
         @self.app.callback(
             Output("backtest-kline-charts", "children"),
             Input("backtest-data", "data"),
             Input("current-theme", "data"),
             Input("client-width", "data"),
-            prevent_initial_call=True,  # 添加
+            prevent_initial_call=True,
         )
         def uk(d, theme, client_width):
             if not d or not d.get("h"):
@@ -487,8 +659,7 @@ class BacktestPage:
             stocks = d.get("s", [])
             histories = d.get("h", [])
             tr = d.get("tr", [])
-            pos_detail = d.get("pos_detail", [])  # 获取持仓明细
-
+            pos_detail = d.get("pos_detail", [])
             charts = []
             width = client_width or 1440
             for i in range(min(6, len(histories))):
@@ -508,8 +679,8 @@ class BacktestPage:
                             figure=fig,
                             config={
                                 "displayModeBar": False,
-                                "scrollZoom": False,  # 禁用滚轮缩放
-                                "doubleClick": False,  # 禁用双击缩放
+                                "scrollZoom": False,
+                                "doubleClick": False,
                                 "responsive": True,
                             },
                         ),
@@ -526,16 +697,15 @@ class BacktestPage:
                 charts, style={"display": "block", "width": "100%", "height": "auto"}
             )
 
-        # ========== 修正后的交易记录回调 ==========
+        # ---------- 9. 交易记录 ----------
         @self.app.callback(
             Output("backtest-trade-table", "children"),
-            Input("backtest-data", "data"),  # 依赖回测数据
-            Input("current-theme", "data"),  # 主题
-            Input("client-width", "data"),  # 宽度（可保留，未使用）
-            prevent_initial_call=True,  # 避免空数据时触发
+            Input("backtest-data", "data"),
+            Input("current-theme", "data"),
+            Input("client-width", "data"),
+            prevent_initial_call=True,
         )
         def update_trade_table(data, theme, client_width):
-            """使用 make_dash_format_table 格式化交易记录表格"""
             if not data or not data.get("tr"):
                 return html.Div(
                     "暂无交易记录",
@@ -548,7 +718,6 @@ class BacktestPage:
                     "暂无交易记录",
                     style={"color": "#999", "padding": "60px", "textAlign": "center"},
                 )
-            # --- 字段重命名 & 顺序 ---
             rename_map = {
                 "symbol": "SYMBOL",
                 "industry": "INDUSTRY",
@@ -562,8 +731,6 @@ class BacktestPage:
                 "strategy": "STRATEGY",
             }
             df = df.rename(columns=rename_map)
-
-            # 保留指定字段顺序，剔除其它字段
             df = df[[v for k, v in rename_map.items() if v in df.columns]]
             cols_format = {
                 "DATE": ("date", "format"),
@@ -573,24 +740,20 @@ class BacktestPage:
                 "PE": ("text",),
                 "TYPE": ("text", "format"),
             }
-            # === 注入 stock_list 顺序 ===
             stock_list = data.get("s", [])
             symbol_order = {sym: i for i, sym in enumerate(stock_list)}
             df["_order"] = df["SYMBOL"].map(symbol_order)
-
-            # === 排序 + 分组 ===
             df = (
                 df.sort_values(["_order", "DATE"], ascending=[True, False])
                 .groupby("SYMBOL", sort=False, as_index=False)
                 .head(2)
             )
-
             df = df.drop(columns=["_order"])
-            # 从回测数据中获取市场，默认为 cn
             market = data.get("market", "cn")
             trade_date = get_default_date(market)
             return make_dash_format_table(df, cols_format, market, trade_date)
 
+    # ---------- 布局构建 ----------
     def build_control_panel(self):
         default_date_str = get_default_date("cn")
         default_date = (
@@ -598,11 +761,9 @@ class BacktestPage:
             if default_date_str
             else None
         )
-
         return dbc.Container(
             [
                 html.H6("回测分析", className="subtitle padded"),
-                # 第一行：市场 + 回测日期（强制同行，横向滚动）
                 html.Div(
                     [
                         html.Div(
@@ -621,8 +782,6 @@ class BacktestPage:
                             style={
                                 "display": "inline-flex",
                                 "alignItems": "baseline",
-                                "align-content": "flex-end",
-                                "flex-direction": "row",
                                 "marginRight": "20px",
                                 "flexShrink": 0,
                             },
@@ -639,7 +798,7 @@ class BacktestPage:
                                     style={
                                         "width": "auto",
                                         "minWidth": "160px",
-                                        "margin-left": "5px",
+                                        "marginLeft": "5px",
                                         "zIndex": 1050,
                                     },
                                 ),
@@ -651,13 +810,9 @@ class BacktestPage:
                             },
                         ),
                     ],
-                    style={
-                        "flexWrap": "nowrap",
-                        # "overflowX": "auto",
-                    },
+                    style={"flexWrap": "nowrap"},
                     className="kpi-label",
                 ),
-                # 第二行：股票代码区域 + 回测按钮（原样保留）
                 dbc.Row(
                     [
                         dbc.Col(
@@ -715,9 +870,7 @@ class BacktestPage:
                             sm=8,
                             md=8,
                             lg=9,
-                            style={
-                                "marginTop": "-10px",  # ✅ 已恢复原始样式
-                            },
+                            style={"marginTop": "-10px"},
                         ),
                         dbc.Col(
                             [
@@ -739,8 +892,27 @@ class BacktestPage:
                     className="kpi-label",
                 ),
                 html.Div(
-                    id="backtest-status",
-                    style={"marginTop": "10px", "color": "#666"},
+                    id="backtest-status", style={"marginTop": "10px", "color": "#666"}
+                ),
+                html.Div(
+                    id="backtest-progress", style={"display": "none"}
+                ),  # 隐藏进度条容器
+                html.Div(
+                    [
+                        dcc.Store(
+                            id="backtest-task-id", storage_type="local", data=None
+                        ),
+                        dcc.Interval(
+                            id="backtest-poll-interval", interval=10000, disabled=True
+                        ),
+                        dcc.Interval(
+                            id="backtest-recover-trigger",
+                            interval=100,
+                            n_intervals=0,
+                            max_intervals=1,
+                        ),
+                    ],
+                    style={"display": "none"},
                 ),
             ],
             fluid=True,
@@ -844,9 +1016,7 @@ class BacktestPage:
     def get_layout(self):
         return html.Div(
             [
-                # 添加数据存储组件（关键！）
-                dcc.Store(id="backtest-data", data=None),  # 初始为空，回测后填充
-                # 新增两个 Store
+                dcc.Store(id="backtest-data", data=None),
                 dcc.Store(id="backtest-full-list", data=[]),
                 dcc.Store(id="backtest-page", data=0),
                 Header(self.app),
