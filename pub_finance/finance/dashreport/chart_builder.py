@@ -2074,9 +2074,12 @@ class ChartBuilder:
                         mode="markers",
                         marker=dict(
                             symbol="circle",
-                            size=8 * scale,
+                            size=6,
                             color="white",
-                            line=dict(color=color, width=3 * scale),
+                            line=dict(
+                                color=color,
+                                width=2 if scale >= 1 else 3 * scale,
+                            ),
                         ),
                         showlegend=False,
                         hovertemplate=f"<b>{tt}</b><br>"
@@ -2161,9 +2164,12 @@ class ChartBuilder:
                     mode="markers",
                     marker=dict(
                         symbol="circle",
-                        size=8 * scale,
+                        size=6,
                         color="white",
-                        line=dict(color=strategy_colors[2], width=3 * scale),
+                        line=dict(
+                            color=strategy_colors[2],
+                            width=2 if scale >= 1 else 3 * scale,
+                        ),
                     ),
                     showlegend=False,
                     hovertemplate=f"<b>策略升级</b><br>日期：%{{x|%Y-%m-%d}}<br>新策略：{up['strategy']}<extra></extra>",
