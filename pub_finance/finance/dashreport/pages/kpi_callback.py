@@ -29,8 +29,12 @@ class KpiCallback:
             datasets = ["overall"]
             data = ReportDataLoader.load(prefix=page, datasets=datasets)
             df_overall = data.get("overall")
+            # ========== 新增：无数据时返回占位文本 ==========
             if df_overall is None or df_overall.empty:
-                return []  # 无数据时返回空列表（不显示卡片）
+                return html.Div(
+                    "请执行回测",
+                    style={"color": "#999", "padding": "20px", "textAlign": "center"},
+                )
 
             # 取第一行数据
             row = df_overall.iloc[0]

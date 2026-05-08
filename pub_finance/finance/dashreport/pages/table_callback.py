@@ -1,6 +1,6 @@
 # finance/dashreport/table_callback.py
 
-from dash import callback, Output, Input, MATCH
+from dash import callback, Output, Input, MATCH, html
 import dash
 
 from finance.dashreport.data_loader import ReportDataLoader
@@ -78,6 +78,15 @@ class TableCallback:
 
                 # ===== 构造具体 table =====
                 if table_name == "category":
+                    if data["category"]["df"].empty:
+                        return html.Div(
+                            "请执行回测",
+                            style={
+                                "color": "#999",
+                                "padding": "20px",
+                                "textAlign": "center",
+                            },
+                        )
                     return make_dash_format_table(
                         data["category"]["df"],
                         data["category"]["formats"],
@@ -86,6 +95,15 @@ class TableCallback:
                     )
 
                 if table_name == "detail":
+                    if data["detail"]["df"].empty:
+                        return html.Div(
+                            "请执行回测",
+                            style={
+                                "color": "#999",
+                                "padding": "20px",
+                                "textAlign": "center",
+                            },
+                        )
                     return make_dash_format_table(
                         data["detail"]["df"],
                         data["detail"]["formats"],
@@ -94,6 +112,15 @@ class TableCallback:
                     )
 
                 if table_name == "detail_short":
+                    if data["detail_short"]["df"].empty:
+                        return html.Div(
+                            "请执行回测",
+                            style={
+                                "color": "#999",
+                                "padding": "20px",
+                                "textAlign": "center",
+                            },
+                        )
                     return make_dash_format_table(
                         data["detail_short"]["df"],
                         data["detail_short"]["formats"],
@@ -102,6 +129,15 @@ class TableCallback:
                     )
 
                 if table_name == "cn_etf":
+                    if data["cn_etf"]["df"].empty:
+                        return html.Div(
+                            "请执行回测",
+                            style={
+                                "color": "#999",
+                                "padding": "20px",
+                                "textAlign": "center",
+                            },
+                        )
                     return make_dash_format_table(
                         data["cn_etf"]["df"],
                         data["cn_etf"]["formats"],

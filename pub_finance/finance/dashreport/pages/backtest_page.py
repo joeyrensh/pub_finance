@@ -552,16 +552,8 @@ class BacktestPage:
                 )
             status = task_state.get("status", "idle")
             if status == "running":
-                return (
-                    None,
-                    "回测任务已提交，后台运行中...",
-                    True,
-                    "回测中…",
-                    "btn btn-primary kpi-label progress-btn running",
-                    {"display": "block"},
-                    False,
-                    dash.no_update,
-                )
+                # 任务未完成：无需更新任何前端组件（提示文本保持不变）
+                return [dash.no_update] * 8
             elif status == "done":
                 result = task_state.get("result")
                 if result:
@@ -903,7 +895,7 @@ class BacktestPage:
                             id="backtest-task-id", storage_type="local", data=None
                         ),
                         dcc.Interval(
-                            id="backtest-poll-interval", interval=10000, disabled=True
+                            id="backtest-poll-interval", interval=5000, disabled=True
                         ),
                         dcc.Interval(
                             id="backtest-recover-trigger",
