@@ -378,8 +378,11 @@ class ChartBuilder:
                         industry_text_top, 12
                     )
 
-                if rank_text_top > 0:
-                    industry_text_top = f"<b>{industry_text_top}</b>"
+                rank_symbols = {1: "①", 2: "②", 3: "③"}
+                if rank_text_top in rank_symbols:
+                    industry_text_top = (
+                        f"{rank_symbols[rank_text_top]} {industry_text_top}"
+                    )
 
                 font_size_top = (
                     rank_mapping.get(rank_text_top, 0)
@@ -394,7 +397,8 @@ class ChartBuilder:
                     showarrow=False,
                     font=dict(
                         family=self.font_family,
-                        size=(base_font_size + font_size_top),
+                        # size=(base_font_size + font_size_top),
+                        size=base_font_size,
                         color=config["text_color"],
                     ),
                     align="center",
@@ -424,8 +428,10 @@ class ChartBuilder:
                     )
 
                 # ⭐ Top3 行业加粗
-                if rank_text_bottom > 0:
-                    industry_text_bottom = f"<b>{industry_text_bottom}</b>"
+                if rank_text_bottom in rank_symbols:
+                    industry_text_bottom = (
+                        f"{rank_symbols[rank_text_bottom]} {industry_text_bottom}"
+                    )
 
                 font_size_bottom = (
                     rank_mapping.get(rank_text_bottom, 0)
@@ -440,7 +446,8 @@ class ChartBuilder:
                     showarrow=False,
                     font=dict(
                         family=self.font_family,
-                        size=(base_font_size + font_size_bottom),
+                        # size=(base_font_size + font_size_bottom),
+                        size=base_font_size,
                         color=config["text_color"],
                     ),
                     align="center",
