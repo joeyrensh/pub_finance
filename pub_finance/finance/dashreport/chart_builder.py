@@ -2009,7 +2009,7 @@ class ChartBuilder:
                 name=symbol,
                 increasing=dict(line_color=cfg["long"], fillcolor=cfg["long"]),
                 decreasing=dict(line_color=cfg["short"], fillcolor=cfg["short"]),
-                line=dict(width=1.2 * scale),
+                line=dict(width=1 * scale),
                 showlegend=True,
                 hovertemplate=(
                     "<b>%{x|%Y-%m-%d}</b><br>开盘: %{open:.2f}<br>最高: %{high:.2f}<br>"
@@ -2189,8 +2189,8 @@ class ChartBuilder:
             hovermode="x",
             dragmode=False,
             showlegend=True,
-            bargap=0.25 / scale,
-            bargroupgap=0.25 / scale,
+            bargap=0.2 / scale,
+            bargroupgap=0.2 / scale,
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
