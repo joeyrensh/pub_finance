@@ -2074,7 +2074,7 @@ class ChartBuilder:
                         mode="markers",
                         marker=dict(
                             symbol="circle",
-                            size=6,
+                            size=8 * scale,
                             color="white",
                             line=dict(color=color, width=3 * scale),
                         ),
@@ -2161,7 +2161,7 @@ class ChartBuilder:
                     mode="markers",
                     marker=dict(
                         symbol="circle",
-                        size=6,
+                        size=8 * scale,
                         color="white",
                         line=dict(color=strategy_colors[2], width=3 * scale),
                     ),
