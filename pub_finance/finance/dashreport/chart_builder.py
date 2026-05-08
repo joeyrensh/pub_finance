@@ -16,7 +16,7 @@ class ChartBuilder:
                 "positive_int": "#ff4444",  # 红色 - 正数
                 "negative_int": "#0d876d",  # 绿色 - 负数
                 "text_color": "#000000",  # 黑色
-                "grid": "rgba(0, 0, 0, 0.2)",  # 网格线
+                "grid": "#D1D5DB",  # 网格线
                 "background": "rgba(255, 255, 255, 0)",  # 透明背景
                 "legend_bg": "rgba(246, 248, 249, 0.8)",
                 "strategy_colors": [
@@ -39,7 +39,7 @@ class ChartBuilder:
                     "#ffa700",
                     "#d50b3e",
                 ],
-                "border": "rgba(200, 200, 200, 0.8)",
+                "border": "#D1D5DB",
                 "outside_text": "#777777",
                 "cumret": "#ff4444",
                 "drawdown": "#0d876d",
@@ -54,7 +54,7 @@ class ChartBuilder:
                 "positive_int": "#ff4444",  # 亮红色 - 正数
                 "negative_int": "#00a859",  # 亮绿色 - 负数
                 "text_color": "#ffffff",  # 白色
-                "grid": "rgba(255, 255, 255, 0.2)",  # 网格线
+                "grid": "#2D3748",  # 网格线
                 "background": "rgba(0, 0, 0, 0)",  # 透明背景
                 "legend_bg": "rgba(20, 20, 20, 0.6)",
                 "strategy_colors": [
@@ -77,7 +77,7 @@ class ChartBuilder:
                     "#ffa700",
                     "#e90c4a",
                 ],
-                "border": "rgba(255, 255, 255, 0.4)",
+                "border": "#2D3748",
                 "outside_text": "#aaaaaa",
                 "cumret": "#ff4444",
                 "drawdown": "#00a859",
@@ -89,10 +89,7 @@ class ChartBuilder:
                 "hover_border": "#666666",
             },
         }
-        self.font_family = (
-            '-apple-system, BlinkMacSystemFont, "PingFang SC", '
-            '"Helvetica Neue", Arial, sans-serif'
-        )
+        self.font_family = '"SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif'
 
     def _get_scale(
         self,
@@ -542,7 +539,10 @@ class ChartBuilder:
         for week in range(1, total_weeks):
             fig.add_hline(
                 y=week - 0.5,
-                line=dict(color=config["grid"], width=1),
+                line=dict(
+                    color=config["grid"],
+                    width=1,
+                ),
                 opacity=0.6,
                 layer="below",
             )
@@ -552,7 +552,10 @@ class ChartBuilder:
         for day in range(1, 5):
             fig.add_vline(
                 x=day - 0.5,
-                line=dict(color=config["grid"], width=1),
+                line=dict(
+                    color=config["grid"],
+                    width=1,
+                ),
                 opacity=0.6,
                 layer="below",
             )

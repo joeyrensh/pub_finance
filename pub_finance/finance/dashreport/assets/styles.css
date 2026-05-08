@@ -10,7 +10,7 @@
   --track-color: #ecf0f1;
   --positive-databar-color: #ff444482;
   --negative-databar-color: #00a859bf;
-  --gridcolor: rgba(0, 0, 0, 0.2);
+  --gridcolor: #D1D5DB;
   
   /* 通用样式变量 */
   --background-color: #f6f8f9;
@@ -35,7 +35,7 @@
     --date-bg-color: #3078c291;
     --positive-databar-color: #ff444482;
     --negative-databar-color: #0d876cd9;
-    --gridcolor: rgba(255, 255, 255, 0.2);
+    --gridcolor: #2D3748;
     
     /* 通用样式变量 */
     --background-color: #171b26;
@@ -54,11 +54,7 @@
 /* dash app交互图表配置 */
 .js-plotly-plot,
 .js-plotly-plot * {
-    font-family: -apple-system, BlinkMacSystemFont,
-                 "PingFang SC",
-                 "Helvetica Neue",
-                 Arial,
-                 sans-serif !important;
+    font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
     font-variant-numeric: tabular-nums !important;
     -webkit-font-smoothing: antialiased !important;
     text-rendering: optimizeLegibility;
@@ -84,11 +80,7 @@
   width: 100%;
   height: 100%;
   margin: 0 auto;
-  font-family: -apple-system, BlinkMacSystemFont,
-                 "PingFang SC",
-                 "Helvetica Neue",
-                 Arial,
-                 sans-serif !important;
+  font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
 }
 
 .js-plotly-plot .hoverlayer { overflow: visible !important; z-index: 9999; }
@@ -106,7 +98,7 @@ body {
   font-size: 1.3rem;
   line-height: 1.0;
   font-weight: 400;
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif !important;
+  font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
   letter-spacing: -.03rem !important;
   -webkit-font-smoothing: antialiased !important;
   text-rendering: optimizeLegibility;
@@ -493,7 +485,7 @@ body {
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
   background: none;
   --hover: #d3d3d382;
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif !important;
+  font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
 }
 
 .default-table .dash-filter {
@@ -523,7 +515,7 @@ body {
 
 .default-table .dash-spreadsheet-container .dash-spreadsheet-inner .column-header-name {
   font-weight: 400 !important;
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif !important;
+  font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
 }
 
 .dash-table-container .dash-spreadsheet-container th {
@@ -617,7 +609,7 @@ h6 { font-size: 1.4rem; }
   padding-left: 30px;
   padding-right: 60px;
   text-transform: uppercase;
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif !important;
+  font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
 }
 
 .text_color { color: var(--text-color); }
@@ -704,7 +696,7 @@ li::before {
   border-color: lightgrey;
   border-style: solid;
   color: var(--learn-more-button-color);
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif !important;
+  font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
 }
 
 a:link {
