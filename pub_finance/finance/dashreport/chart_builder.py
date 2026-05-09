@@ -397,12 +397,13 @@ class ChartBuilder:
                     )
 
                 # rank_symbols = {1: "①", 2: "②", 3: "③"}
-                rank_symbols = {1: "¹", 2: "²", 3: "³"}
+                # rank_symbols = {1: "¹", 2: "²", 3: "³"}
+                rank_symbols = {1: "#1", 2: "#2", 3: "#3"}
 
                 if rank_text_top in rank_symbols:
                     industry_text_top = (
                         f"<span style='font-size:120%; font-weight:bold;'>{rank_symbols[rank_text_top]}</span>"
-                        f"{industry_text_top}"
+                        f" {industry_text_top}"
                     )
 
                 font_size_top = (
