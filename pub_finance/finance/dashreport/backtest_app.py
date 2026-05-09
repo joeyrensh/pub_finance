@@ -442,5 +442,10 @@ def update_row_count(indices):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8050, debug=True, use_reloader=False)
+    app.run(
+        host="0.0.0.0",
+        port=8050,
+        debug=True,
+        # use_reloader=False,  # 关闭自动重载
+    )
     # app.run_server()

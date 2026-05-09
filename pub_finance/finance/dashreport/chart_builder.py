@@ -859,7 +859,8 @@ class ChartBuilder:
                 side="left",
                 mirror=True,
                 ticklabelposition="inside",
-                # ticks="inside",
+                showticklabels=False,  # 关闭刻度标签
+                ticks="",  # 关闭刻度线
                 tickfont=dict(
                     family=self.font_family,
                     size=base_font_size,
@@ -868,9 +869,10 @@ class ChartBuilder:
                 showline=False,
                 zeroline=False,
                 gridcolor=grid_color,
-                dtick=0.1,
+                # dtick=0.1,
                 fixedrange=True,
                 range=[0, 1],
+                dtick=1 / 3,
             ),
             yaxis2=dict(
                 side="right",
@@ -888,6 +890,8 @@ class ChartBuilder:
                 anchor="free",
                 position=0.95,
                 layer="below traces",
+                showticklabels=False,  # 关闭刻度标签
+                ticks="",  # 关闭刻度线
             ),
             legend=dict(
                 orientation="v",
@@ -992,6 +996,7 @@ class ChartBuilder:
 
         xmin = pd.to_datetime(df["buy_date"].min())
         xmax = pd.to_datetime(df["buy_date"].max())
+        ymax = df["total_cnt"].max()
 
         fig.update_layout(
             # title=dict(
@@ -1032,7 +1037,8 @@ class ChartBuilder:
             yaxis=dict(
                 side="left",
                 mirror=True,
-                # ticks="outside",
+                showticklabels=False,  # 关闭刻度标签
+                ticks="",  # 关闭刻度线
                 tickfont=dict(
                     size=font_size,
                     color=text_color,
@@ -1043,6 +1049,7 @@ class ChartBuilder:
                 ticklabelposition="inside",
                 tickangle=0,
                 zeroline=False,
+                dtick=ymax / 3,
             ),
             legend=dict(
                 orientation="v",
@@ -1113,6 +1120,7 @@ class ChartBuilder:
 
         xmin = pd.to_datetime(df["buy_date"].min())
         xmax = pd.to_datetime(df["buy_date"].max())
+        ymax = df["pnl"].max()
 
         fig.update_xaxes(
             mirror=True,
@@ -1147,7 +1155,8 @@ class ChartBuilder:
 
         fig.update_yaxes(
             mirror=True,
-            # ticks="outside",
+            showticklabels=False,  # 关闭刻度标签
+            ticks="",  # 关闭刻度线
             tickfont=dict(
                 size=font_size,
                 color=text_color,
@@ -1168,6 +1177,7 @@ class ChartBuilder:
             ticklabelposition="inside",
             tickangle=0,
             autorange=True,
+            dtick=ymax / 3,
         )
 
         fig.update_layout(
@@ -1460,11 +1470,15 @@ class ChartBuilder:
         cum_max = cumulative.max()
         # cum_range = [cum_min * 0.95, cum_max * 1.05]
         cum_range = [cum_min, cum_max]
+        cum_q1 = cum_min + (cum_max - cum_min) * 0.33
+        cum_q2 = cum_min + (cum_max - cum_min) * 0.66
 
         dd_min = drawdown.min()
         dd_max = 0
         # dd_range = [dd_min * 1.05, 0.0]
         dd_range = [dd_min, 0.0]
+        dd_q1 = dd_min + (dd_max - dd_min) * 0.33
+        dd_q2 = dd_min + (dd_max - dd_min) * 0.66
 
         # =========================
         # 10. 添加回撤曲线
@@ -1890,8 +1904,11 @@ class ChartBuilder:
                 tickfont=dict(
                     size=base_font, color=text_color, family=self.font_family
                 ),
-                tickformat=".0%",
+                # tickformat=".0%",
                 range=dd_range,
+                tickmode="array",
+                tickvals=[dd_q1, dd_q2],
+                ticktext=[f"{dd_q1:.0%}", f"{dd_q2:.0%}"],
                 showticklabels=True,
                 automargin=False,
                 ticklabelposition="inside",
@@ -1912,7 +1929,10 @@ class ChartBuilder:
                 tickfont=dict(
                     size=base_font, color=text_color, family=self.font_family
                 ),
-                tickformat=".2f",
+                # tickformat=".2f",
+                tickmode="array",
+                tickvals=[cum_q1, cum_q2],
+                ticktext=[f"{cum_q1:.2f}", f"{cum_q2:.2f}"],
                 range=cum_range,
                 showticklabels=True,
                 automargin=False,
