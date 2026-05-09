@@ -322,6 +322,34 @@ class ChartBuilder:
         # 定义排名映射：原始排名 → 显示值
         rank_mapping = {1: 2, 2: 1.5, 3: 1}
 
+        # 生成带并列排名的列表（按计数值排序，相同计数排名相同）
+        def get_ranked_industries(counter, top_n=3):
+            # 按计数降序排序
+            sorted_items = sorted(counter.items(), key=lambda x: x[1], reverse=True)
+            ranked = []
+            i = 0
+            rank = 1
+            while i < len(sorted_items) and len(ranked) < top_n:
+                count = sorted_items[i][1]
+                # 找出所有相同计数的行业
+                same_count = []
+                j = i
+                while j < len(sorted_items) and sorted_items[j][1] == count:
+                    same_count.append(sorted_items[j][0])
+                    j += 1
+                # 如果当前排名还在 top_n 范围内，添加这批行业（可能超出 top_n，但只取前 top_n 个行业）
+                for industry in same_count:
+                    if len(ranked) < top_n:
+                        ranked.append((industry, rank))
+                i = j
+                rank += 1
+            return ranked
+
+        ranked_industries = get_ranked_industries(industry_counter, top_n=3)
+
+        # 第三步：构建行业名称 → 排名字典（用于快速查询）
+        industry_rank_map = {ind: r for ind, r in ranked_industries}
+
         # ===============================
         # 2️⃣ 为每个数据点添加 annotation
         # ===============================
@@ -358,30 +386,23 @@ class ChartBuilder:
                 str(item).strip() if item else "" for item in industry_items
             ]
 
-            # ===============================
-            # 上方行业（第二大行业）
-            # ===============================
-            if len(industry_items) >= 2:
-                industry_text_top = industry_items[1]
+            if len(industry_items) >= 1:
+                industry_text_top = industry_items[0]
 
-                rank_text_top = next(
-                    (
-                        i + 1
-                        for i, (ind, _) in enumerate(industry_counter.most_common(3))
-                        if ind == industry_text_top
-                    ),
-                    0,
-                )
+                rank_text_top = industry_rank_map.get(industry_text_top, 0)
 
                 if len(industry_text_top) > 6:
                     industry_text_top = truncate_text_by_display_width(
                         industry_text_top, 12
                     )
 
-                rank_symbols = {1: "①", 2: "②", 3: "③"}
+                # rank_symbols = {1: "①", 2: "②", 3: "③"}
+                rank_symbols = {1: "⁽¹⁾", 2: "⁽²⁾", 3: "⁽³⁾"}
+
                 if rank_text_top in rank_symbols:
                     industry_text_top = (
-                        f"{rank_symbols[rank_text_top]} {industry_text_top}"
+                        f"<span style='font-size:120%; font-weight:bold;'>{rank_symbols[rank_text_top]}</span>"
+                        f"{industry_text_top}"
                     )
 
                 font_size_top = (
@@ -391,7 +412,7 @@ class ChartBuilder:
                 )
 
                 fig.add_annotation(
-                    x=day_of_week + 0.1,
+                    x=day_of_week,
                     y=week_order,
                     text=industry_text_top,
                     showarrow=False,
@@ -403,88 +424,71 @@ class ChartBuilder:
                     ),
                     align="center",
                     xanchor="center",
-                    yanchor="top",
-                    opacity=0.9,
-                )
-
-            # ===============================
-            # 下方行业（第一大行业）
-            # ===============================
-            if len(industry_items) >= 1:
-                industry_text_bottom = industry_items[0]
-
-                rank_text_bottom = next(
-                    (
-                        i + 1
-                        for i, (ind, _) in enumerate(industry_counter.most_common(3))
-                        if ind == industry_text_bottom
-                    ),
-                    0,
-                )
-
-                if len(industry_text_bottom) > 6:
-                    industry_text_bottom = truncate_text_by_display_width(
-                        industry_text_bottom, 12
-                    )
-
-                # ⭐ Top3 行业加粗
-                if rank_text_bottom in rank_symbols:
-                    industry_text_bottom = (
-                        f"{rank_symbols[rank_text_bottom]} {industry_text_bottom}"
-                    )
-
-                font_size_bottom = (
-                    rank_mapping.get(rank_text_bottom, 0)
-                    if page.startswith("cn")
-                    else rank_mapping.get(rank_text_bottom, 0) * 0.2
-                )
-
-                fig.add_annotation(
-                    x=day_of_week + 0.1,
-                    y=week_order,
-                    text=industry_text_bottom,
-                    showarrow=False,
-                    font=dict(
-                        family=self.font_family,
-                        # size=(base_font_size + font_size_bottom),
-                        size=base_font_size,
-                        color=config["text_color"],
-                    ),
-                    align="center",
-                    xanchor="center",
                     yanchor="bottom",
                     opacity=0.9,
                 )
+
+            # # ===============================
+            # # 下方行业（第一大行业）
+            # # ===============================
+            # if len(industry_items) >= 1:
+            #     industry_text_bottom = industry_items[0]
+
+            #     rank_text_bottom = next(
+            #         (
+            #             i + 1
+            #             for i, (ind, _) in enumerate(industry_counter.most_common(3))
+            #             if ind == industry_text_bottom
+            #         ),
+            #         0,
+            #     )
+
+            #     if len(industry_text_bottom) > 6:
+            #         industry_text_bottom = truncate_text_by_display_width(
+            #             industry_text_bottom, 12
+            #         )
+
+            #     # ⭐ Top3 行业加粗
+            #     if rank_text_bottom in rank_symbols:
+            #         industry_text_bottom = (
+            #             f"{rank_symbols[rank_text_bottom]} {industry_text_bottom}"
+            #         )
+
+            #     font_size_bottom = (
+            #         rank_mapping.get(rank_text_bottom, 0)
+            #         if page.startswith("cn")
+            #         else rank_mapping.get(rank_text_bottom, 0) * 0.2
+            #     )
+
+            #     fig.add_annotation(
+            #         x=day_of_week + 0.1,
+            #         y=week_order,
+            #         text=industry_text_bottom,
+            #         showarrow=False,
+            #         font=dict(
+            #             family=self.font_family,
+            #             # size=(base_font_size + font_size_bottom),
+            #             size=base_font_size,
+            #             color=config["text_color"],
+            #         ),
+            #         align="center",
+            #         xanchor="center",
+            #         yanchor="bottom",
+            #         opacity=0.9,
+            #     )
 
             # ===============================
             # 日期（月 / 日）
             # ===============================
             fig.add_annotation(
-                x=day_of_week - 0.52,
+                x=day_of_week,
                 y=week_order,
-                text=month,
+                text=month + day,
                 showarrow=False,
-                align="left",
-                xanchor="left",
-                yanchor="middle",
+                align="center",
+                xanchor="center",
+                yanchor="top",
                 yshift=int(dynamic_font_size * scale * 0.48),
-                font=dict(
-                    family=self.font_family,
-                    size=dynamic_font_size,
-                    color=dynamic_text_color,
-                ),
-                opacity=0.9,
-            )
-
-            fig.add_annotation(
-                x=day_of_week - 0.52,
-                y=week_order,
-                text=day,
-                showarrow=False,
-                align="left",
-                xanchor="left",
-                yanchor="middle",
-                yshift=-int(dynamic_font_size * scale * 0.48),
                 font=dict(
                     family=self.font_family,
                     size=dynamic_font_size,
