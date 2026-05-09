@@ -397,7 +397,7 @@ class ChartBuilder:
                     )
 
                 # rank_symbols = {1: "①", 2: "②", 3: "③"}
-                rank_symbols = {1: "⁽¹⁾", 2: "⁽²⁾", 3: "⁽³⁾"}
+                rank_symbols = {1: "¹", 2: "²", 3: "³"}
 
                 if rank_text_top in rank_symbols:
                     industry_text_top = (
