@@ -769,6 +769,7 @@ class BacktestPage:
                                     ],
                                     value="cn",
                                     inline=True,
+                                    className="custom-date-picker kpi-label",
                                 ),
                             ],
                             style={

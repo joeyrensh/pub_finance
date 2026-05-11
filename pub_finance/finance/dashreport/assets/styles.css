@@ -128,23 +128,24 @@ body {
   color: var(--text-color);
   margin-bottom: 4px;
   font-size: 1.3rem;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .dash-input {
-  color: #333 !important;
+  color: var(--text-color) !important;
 }
 
 .custom-date-picker .DateInput_input {
     height: 38px;
     line-height: 38px;
     font-size: 1.3rem !important;
-    font-weight: 500 !important;
-    color: #333 !important;
+    font-weight: 400 !important;
+    color: var(--text-color) !important;
     margin: 0 !important;
     border: 0 !important;
     border-radius: 0;
     width: 100%;
+    background-color: transparent !important;
 }
 
 /* 日历弹窗中的日期数字字体 */
@@ -153,9 +154,15 @@ body {
 }
 
 .custom-date-picker .DayPicker_weekHeaders__horizontal{
-  padding: 5px;
+    padding: 5px;
 }
 
+.custom-date-picker .SingleDatePickerInput,
+.custom-date-picker .SingleDatePickerInput .DateInput {
+  background-color: transparent !important;
+  border: 0.5px solid var(--gridcolor);
+
+}
 
 .kpi-value {
   font-weight: 600;
@@ -169,6 +176,9 @@ body {
   height: 38px;
   line-height: 38px;
   border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--gridcolor) !important;
 }
 .btn-backtest {
   height: 38px;
