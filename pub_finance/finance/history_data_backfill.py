@@ -231,23 +231,24 @@ class StockDataUpdater:
 # 使用示例
 if __name__ == "__main__":
     # 配置参数
-    DATA_DIR = FINANCE_ROOT / "usstockinfo"  # 数据文件目录
+    DATA_DIR = FINANCE_ROOT / "cnstockinfo"  # 数据文件目录
     UPDATE_COLS = ["open", "close", "high", "low", "volume"]  # 需要更新的列
     NEW_DATA_PATH = (
-        FINANCE_ROOT / "usstockinfo" / "new_stock_data.csv"
+        FINANCE_ROOT / "cnstockinfo" / "new_stock_data.csv"
     )  # 新爬取的数据文件
     BATCH_SIZE = 10000  # 每批处理的行数
     """每股列表，需要重新匹配market code"""
     # 美股如下
     # https://92.push2his.eastmoney.com/api/qt/stock/kline/get?secid=106.BABA&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20210101&end=20500101&smplmt=755&lmt=1000000
-    symbol_list = [{"symbol": "BKNG", "mkt_code": 105}]  # 示例股票代码列表
+    # symbol_list = [{"symbol": "BKNG", "mkt_code": 105}]  # 示例股票代码列表
     # A股如下 - SZ:0 / SH:1
-    # 例如：symbol_list = [{"symbol": "000001", "mkt_code": 0}, {"symbol": "600000", "mkt_code": 1}]
+    # 例如：symbol_list = [{"symbol": "SZ000001", "mkt_code": 0}, {"symbol": "SH600000", "mkt_code": 1}]
+    symbol_list = [{"symbol": "SH688256", "mkt_code": 1}]  # 示例股票代码列表
 
     # # 创建更新器
     updater = StockDataUpdater(DATA_DIR, UPDATE_COLS, batch_size=BATCH_SIZE)
     updater.get_latest_updated_data(
-        symbol_list, "20240101", "20260507", NEW_DATA_PATH, market="us"
+        symbol_list, "20240101", "20260511", NEW_DATA_PATH, market="cn"
     )
 
     # 加载新数据到字典
