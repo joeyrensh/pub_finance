@@ -195,7 +195,7 @@ body {
 .nav-btn.left {
   background: transparent;
   cursor: pointer;
-  color: #666;
+  color: var(--text-color);
   border-right: 1px solid var(--gridcolor);
   margin: 0;
   padding: 0 12px;
@@ -211,7 +211,7 @@ body {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #666;
+  color: var(--text-color);
   margin: 0;
   padding: 0 12px;   
   /* 添加上下右边框，不添加左边框 */
@@ -231,7 +231,7 @@ body {
   margin: 0;
   padding: 0 16px;
   background: transparent;
-  font-weight: 500;
+  font-weight: 400;
   height: 38px;
   line-height: 38px;
 }
