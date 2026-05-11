@@ -132,7 +132,7 @@ body {
 }
 
 .dash-input {
-  color: var(--text-color) !important;
+  color: #000 !important;
 }
 
 .custom-date-picker .DateInput_input {
