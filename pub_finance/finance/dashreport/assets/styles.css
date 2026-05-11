@@ -160,9 +160,11 @@ body {
 .custom-date-picker .SingleDatePickerInput,
 .custom-date-picker .SingleDatePickerInput .DateInput {
   background-color: transparent !important;
-  border: 0.5px solid var(--gridcolor);
-
 }
+.custom-date-picker .SingleDatePickerInput {
+  border: 1px solid var(--gridcolor);
+}
+
 
 .kpi-value {
   font-weight: 600;
