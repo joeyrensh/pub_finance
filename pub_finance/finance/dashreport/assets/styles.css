@@ -523,6 +523,10 @@ body {
   border-width: 0px !important;
   font-size: 0px !important;
 }
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th.dash-filter input.dash-filter--case
+{
+  display: none !important;
+}
 
 .default-table .dash-spreadsheet-container .dash-spreadsheet-inner .column-header-name {
   font-weight: 400 !important;
