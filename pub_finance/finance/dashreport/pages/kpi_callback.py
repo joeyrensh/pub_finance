@@ -70,7 +70,7 @@ class KpiCallback:
                     html.Div(
                         [
                             html.Div(label, className="kpi-label"),
-                            html.Div(value, className=f"kpi-value{extra_class}"),
+                            html.Div(value, className=f"kpi-value {extra_class}"),
                         ],
                         className="kpi-card",
                     )

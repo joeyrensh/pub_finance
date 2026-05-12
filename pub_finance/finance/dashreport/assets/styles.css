@@ -171,8 +171,13 @@ body {
   font-variant-numeric: tabular-nums;
   color: #ff4444;
 }
+@media (prefers-color-scheme: dark) {
+  .kpi-value {
+    color: #ff4444;
+  }
+}
 .kpi-date {
-  font-weight: 500;
+  font-weight: 600;
 }
 .custom-input{
   height: 38px;
@@ -277,12 +282,6 @@ body {
     0%   { width: 0%; }
     90%  { width: 100%; }
     100% { width: 100%; }
-}
-
-@media (prefers-color-scheme: dark) {
-  .kpi-value {
-    color: #ff4444;
-  }
 }
 
 /* ==================== 布局与容器样式 ==================== */
