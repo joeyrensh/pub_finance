@@ -475,7 +475,7 @@ class BacktestPage:
                     "⚠️ 系统正在执行回测，请稍后",
                     True,
                 )
-            stock_list = [s.strip() for s in stocks.split(",") if s.strip()]
+            stock_list = [s.strip().upper() for s in stocks.split(",") if s.strip()]
             if not stock_list:
                 BACKTEST_LOCK.release()
                 return (
