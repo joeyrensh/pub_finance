@@ -405,7 +405,7 @@ def main():
         # 新代理中未存在的
         unique_new = set(new_proxies) - existing
         # 合并所有待测试的代理（包括现有和新代理，但现有代理可能已经测试过，这里可以重新测试或只测试新的）
-        all_to_test = list(existing | set(new_proxies))
+        all_to_test = list(unique_new | set(new_proxies))
         return all_to_test
 
     config = load_config()
