@@ -56,16 +56,16 @@ class KpiCallback:
 
             # 构建 KPI 卡片
             kpis = [
-                ("SWDI 指数", swdi),
-                ("总资产", f"{final_value/10000:,.2f} 万"),
-                ("Cash", f"{cash/10000:,.2f} 万"),
-                ("股票数量", f"{stock_cnt}"),
-                ("数据日期", end_date),
+                ("SWDI IDX", swdi),
+                ("ASSETS", f"{final_value/10000:,.2f} 万"),
+                ("CASH", f"{cash/10000:,.2f} 万"),
+                ("COUNT", f"{stock_cnt}"),
+                ("DATE", end_date),
             ]
 
             cards = []
             for label, value in kpis:
-                extra_class = "kpi-date" if label == "数据日期" else ""
+                extra_class = "kpi-date" if label == "DATE" else ""
                 cards.append(
                     html.Div(
                         [

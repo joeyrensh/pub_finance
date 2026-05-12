@@ -946,7 +946,7 @@ class BacktestPage:
     def build_kline_card(self):
         return html.Div(
             [
-                html.H6(["K 线图与买卖点 ‹"], className="subtitle padded"),
+                html.H6(["K线图与买卖点 ‹"], className="subtitle padded"),
                 html.Div(
                     className="chart-container",
                     children=[

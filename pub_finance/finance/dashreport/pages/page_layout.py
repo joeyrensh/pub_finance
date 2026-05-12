@@ -67,9 +67,7 @@ class PageLayout:
     def build_kpi_section(self):
         return html.Div(
             [
-                html.H6(
-                    ["Market Trends and Index Summary"], className="subtitle padded"
-                ),
+                html.H6(["Backtest Data & Metrics"], className="subtitle padded"),
                 html.Div(
                     [
                         dcc.Loading(
