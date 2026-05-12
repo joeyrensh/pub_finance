@@ -764,7 +764,7 @@ class BacktestPage:
                                 dcc.RadioItems(
                                     id="backtest-market",
                                     options=[
-                                        {"label": "A 股", "value": "cn"},
+                                        {"label": "A股", "value": "cn"},
                                         {"label": "美股", "value": "us"},
                                     ],
                                     value="cn",
