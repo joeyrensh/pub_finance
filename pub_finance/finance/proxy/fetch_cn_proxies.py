@@ -256,7 +256,6 @@ def fetch_openproxylist():
                 line = line.strip()
                 if line and ":" in line:
                     proxies.append(line)
-            print(f"   OpenProxyList: {len(proxies)} 个")
     except Exception as e:
         print(f"   ⚠️ OpenProxyList: {e}")
     print(f"   OpenProxyList: {len(proxies)} 个")
@@ -273,7 +272,6 @@ def fetch_geonode(limit=500):
             if "data" in data:
                 for p in data["data"]:
                     proxies.append(f"{p['ip']}:{p['port']}")
-                print(f"   Geonode: {len(proxies)} 个")
     except Exception as e:
         print(f"   ⚠️ Geonode: {e}")
     print(f"   Geonode: {len(proxies)} 个")
@@ -295,7 +293,6 @@ def fetch_proxifly():
                     parts = line.split(":")
                     if len(parts) >= 2 and parts[-1].isdigit():
                         proxies.append(f"{parts[0]}:{parts[1]}")
-            print(f"   Proxifly-GitHub: {len(proxies)} 个")
     except Exception as e:
         print(f"   ⚠️ Proxifly-GitHub: {e}")
     print(f"   Proxifly-GitHub: {len(proxies)} 个")
