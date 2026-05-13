@@ -24,6 +24,7 @@ import random
 import hashlib
 from pathlib import Path
 import urllib3
+from lxml import html
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -86,6 +87,165 @@ def fetch_zdaye(max_pages=3):
     return proxies
 
 
+def fetch_3366net_proxies(max_pages=10):
+    """
+    从 http://www.ip3366.net/free/ 抓取免费 HTTP 代理。
+    参数:
+        max_pages (int): 要抓取的页数（最多不超过 10 页）。
+    返回:
+        list: 包含 "ip:port" 格式代理地址的列表。
+    """
+    base_url = "http://www.ip3366.net/free/"
+    proxies = []
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+
+    for page in range(1, max_pages + 1):
+        url = (
+            base_url
+            if page == 1
+            else f"http://www.ip3366.net/free/?stype=1&page={page}"
+        )
+        try:
+            resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
+            resp.encoding = "utf-8"
+            if resp.status_code != 200:
+                continue
+
+            # 正则匹配 IP 和端口：IP 在 <td> 内，端口在相邻 <td> 内
+            # 模式说明：捕获 IP 地址（数字+点）和端口（数字），它们之间用 </td><td> 分隔
+            pattern = r"<td>(\d+\.\d+\.\d+\.\d+)</td>\s*<td>(\d+)</td>"
+            matches = re.findall(pattern, resp.text)
+            for ip, port in matches:
+                proxies.append(f"{ip}:{port}")
+
+            time.sleep(1)  # 礼貌抓取
+        except Exception as e:
+            print(f"第 {page} 页抓取出错: {e}")
+            continue
+    print(f"   3366net：{len(proxies)} 个")
+    return proxies
+
+
+def fetch_66daili_proxies(num=100):
+    """
+    从 66daili 免费代理 API 获取 HTTP 代理列表。
+    参数:
+        num (int): 请求的代理数量，默认 100。
+        timeout (int): 请求超时时间（秒），默认 10。
+    返回:
+        list: 包含 "ip:port" 格式代理地址的列表，请求失败返回空列表。
+    """
+    url = (
+        f"http://api.66daili.com/?num={num}&anonymity=%E6%99%AE%E5%8C%BF"
+        f"&response_time=3000&format=text"
+    )
+    proxies = []
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+    try:
+        resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
+        resp.encoding = "utf-8"
+        if resp.status_code == 200:
+            lines = resp.text.strip().splitlines()
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                # 去除 @HTTP 或 @HTTPS 后缀（如果存在）
+                if "@" in line:
+                    line = line.split("@")[0]
+                proxies.append(line)
+    except Exception as e:
+        print(f"抓取代理出错: {e}")
+
+    print(f"   66daili：{len(proxies)} 个")
+    return proxies
+
+
+def fetch_89ip_proxies(num=1000):
+    """
+    从 89ip 代理 API 获取代理列表（如果返回 HTML 则尝试提取 IP:PORT）
+    返回格式: ["ip:port", ...]
+    """
+    url = f"http://api.89ip.cn/tqdl.html?api=1&num={num}&port=&address=&isp="
+    proxies = []
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    }
+    try:
+        resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
+        resp.encoding = "utf-8"
+        if resp.status_code == 200:
+            text = resp.text
+            # 使用正则提取所有 IP:PORT 格式
+            pattern = r"\b(?:\d{1,3}\.){3}\d{1,3}:\d{1,5}\b"
+            matches = re.findall(pattern, text)
+            # 去重并返回
+            proxies_list = list(set(matches))
+            proxies.extend(proxies_list)
+    except Exception as e:
+        print(f"抓取代理出错: {e}")
+    print(f"   89ip：{len(proxies)} 个")
+    return proxies
+
+
+def fetch_kuaidaili_proxies(max_pages=20):
+    """
+    从快代理免费代理页面抓取代理列表。
+    参数:
+        max_pages (int): 要抓取的最大页数，默认抓取10页。
+    返回:
+        list: 包含 "ip:port" 格式代理地址的列表。
+    """
+    # 代理列表存储处
+    proxies_list = []
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+
+    for page in range(1, max_pages + 1):
+        # 构造页面URL
+        url = f"https://www.kuaidaili.com/free/inha/{page}/"
+        try:
+            # 发送HTTP GET请求
+            response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
+            response.encoding = "utf-8"
+            response.raise_for_status()  # 检查HTTP请求状态，如果不是200，会抛出异常
+
+            # 使用lxml解析HTML
+            tree = html.fromstring(response.content)
+
+            # 使用XPath定位包含代理信息的行
+            # '//tbody/tr' 选取代表每一行代理数据的 <tr> 元素
+            proxy_rows = tree.xpath("//tbody/tr")
+
+            for row in proxy_rows:
+                # 通过XPath提取该行中IP和端口所在的第四列数据
+                # 'td[1]' 代表第一个单元格（IP地址），'td[2]' 代表第二个单元格（端口号）
+                ip = row.xpath("./td[1]/text()")
+                port = row.xpath("./td[2]/text()")
+                # 检查提取的数据是否有效
+                if ip and port:
+                    proxy = f"{ip[0]}:{port[0]}"
+                    proxies_list.append(proxy)
+
+            # 模拟人类行为，抓取页面后暂停一秒，避免给服务器造成过大压力
+            time.sleep(1)
+
+        except requests.exceptions.RequestException as e:
+            print(f"第 {page} 页抓取失败: {e}")
+            continue
+        except Exception as e:
+            print(f"第 {page} 页解析失败: {e}")
+            continue
+    print(f"   快代理：{len(proxies_list)} 个")
+    return proxies_list
+
+
 def fetch_openproxylist():
     proxies = []
     try:
@@ -99,6 +259,7 @@ def fetch_openproxylist():
             print(f"   OpenProxyList: {len(proxies)} 个")
     except Exception as e:
         print(f"   ⚠️ OpenProxyList: {e}")
+    print(f"   OpenProxyList: {len(proxies)} 个")
     return proxies
 
 
@@ -115,6 +276,7 @@ def fetch_geonode(limit=500):
                 print(f"   Geonode: {len(proxies)} 个")
     except Exception as e:
         print(f"   ⚠️ Geonode: {e}")
+    print(f"   Geonode: {len(proxies)} 个")
     return proxies
 
 
@@ -136,6 +298,7 @@ def fetch_proxifly():
             print(f"   Proxifly-GitHub: {len(proxies)} 个")
     except Exception as e:
         print(f"   ⚠️ Proxifly-GitHub: {e}")
+    print(f"   Proxifly-GitHub: {len(proxies)} 个")
     return proxies
 
 
@@ -416,6 +579,10 @@ def main():
     print(f"\n[步骤 2] 获取代理...")
     all_proxies = []
     all_proxies.extend(fetch_zdaye(args.max_pages))
+    all_proxies.extend(fetch_3366net_proxies(args.max_pages))
+    all_proxies.extend(fetch_66daili_proxies())
+    all_proxies.extend(fetch_89ip_proxies())
+    all_proxies.extend(fetch_kuaidaili_proxies(args.max_pages))
     all_proxies.extend(fetch_openproxylist())
     all_proxies.extend(fetch_geonode())
     all_proxies.extend(fetch_proxifly())

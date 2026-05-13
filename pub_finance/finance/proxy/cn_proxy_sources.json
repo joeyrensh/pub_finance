@@ -1,5 +1,5 @@
 {
-  "description": "中国大陆代理源配置（requests 版 - 无需 agent-browser）",
+  "description": "中国大陆代理源配置（支持 requests 方式抓取）",
   "sources": {
     "zdaye": {
       "name": "站大爷",
@@ -7,14 +7,60 @@
       "type": "requests",
       "params": {
         "max_pages": 3,
-        "dengji": 3
+        "cunhuo": 2,
+        "dengji": "",
+        "protocol": "http"
+      },
+      "enabled": true
+    },
+    "ip3366": {
+      "name": "IP3366",
+      "url": "http://www.ip3366.net/free/",
+      "type": "requests",
+      "params": {
+        "max_pages": 10
+      },
+      "enabled": true
+    },
+    "66daili": {
+      "name": "66代理",
+      "url": "http://api.66daili.com/",
+      "type": "requests",
+      "params": {
+        "num": 100,
+        "anonymity": "普匿",
+        "response_time": 3000,
+        "format": "text"
+      },
+      "enabled": true
+    },
+    "89ip": {
+      "name": "89代理",
+      "url": "http://api.89ip.cn/tqdl.html",
+      "type": "requests",
+      "params": {
+        "api": 1,
+        "num": 100,
+        "port": "",
+        "address": "",
+        "isp": ""
+      },
+      "enabled": true
+    },
+    "kuaidaili": {
+      "name": "快代理",
+      "url": "https://www.kuaidaili.com/free/inha/",
+      "type": "requests",
+      "params": {
+        "max_pages": 10
       },
       "enabled": true
     },
     "openproxylist": {
       "name": "OpenProxyList",
-      "url": "https://api.openproxylist.xyz/http.txt",
+      "url": "https://api.openproxylist.xyz/https.txt",
       "type": "requests",
+      "params": {},
       "enabled": true
     },
     "geonode": {
@@ -22,26 +68,28 @@
       "url": "https://proxylist.geonode.com/api/proxy-list",
       "type": "requests",
       "params": {
-        "limit": 500
+        "limit": 500,
+        "protocols": "http",
+        "country": "CN"
       },
       "enabled": true
     },
     "proxifly": {
       "name": "Proxifly-GitHub",
-      "url": "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt",
+      "url": "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/countries/CN/data.txt",
       "type": "requests",
-      "enabled": true,
-      "note": "✅ GitHub 仓库，约 8000+ 代理"
+      "params": {},
+      "enabled": true
     }
   },
-  "github_sources": [],
   "validation": {
     "test_url": "http://www.baidu.com",
     "timeout": 3,
-    "max_workers": 20
+    "max_workers": 20,
+    "target_proxies": 20
   },
   "maintenance": {
-    "max_failures": 3,
+    "max_failures": 7,
     "proxies_file": "china_proxies.txt",
     "proxies_json": "china_proxies.json"
   }
