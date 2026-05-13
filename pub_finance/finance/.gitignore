@@ -29,6 +29,7 @@ check_logs.sh*
 #例外文件 - 特殊txt文件
 !requirements.txt
 !readme.txt
+!README.md
 !china_proxies.txt
 !overseas_proxies.txt
 !utility/backup_proxy.txt
