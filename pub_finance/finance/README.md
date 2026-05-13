@@ -16,13 +16,13 @@
 
 ### 回测分析界面
 
-<img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Qanalysis1.jpg" alt="回测分析" style="width: 50%;">
+<img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Qanalysis1.jpg" alt="回测分析" width="600">
 
 *图 1: 回测分析主界面 - 支持 A 股/美股选择、股票代码输入、回测日期设置*
 
 ### 买卖点分析
 
-<img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Qanalysis2.jpg" alt="买卖点分析" style="width: 50%;">
+<img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Qanalysis2.jpg" alt="买卖点分析" width="600">
 
 *图 2: 买卖点分析 - K 线图与买卖信号标记*
 
