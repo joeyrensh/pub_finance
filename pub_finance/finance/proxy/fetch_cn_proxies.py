@@ -165,7 +165,7 @@ def fetch_66daili_proxies(num=100):
     return proxies
 
 
-def fetch_89ip_proxies(num=1000):
+def fetch_89ip_proxies(num=500):
     """
     从 89ip 代理 API 获取代理列表（如果返回 HTML 则尝试提取 IP:PORT）
     返回格式: ["ip:port", ...]

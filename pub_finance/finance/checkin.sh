@@ -29,7 +29,7 @@ for special in cnstockinfo usstockinfo; do
         find "$src" -mindepth 1 -type d -exec mkdir -p "$dst"/{} \;
     fi
 done
-echo -e "mail_name,mail_password\nmail_name1" > ./git-repo/pub_finance/pub_finance/finance/mail.conf
+printf "mail_name,mail_password\nmail_name1\n" > ./git-repo/pub_finance/pub_finance/finance/mail.conf
 cd ./git-repo/pub_finance/pub_finance/
 git add *
 git status
