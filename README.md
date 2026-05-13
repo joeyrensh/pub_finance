@@ -16,14 +16,17 @@
 
 ### 回测分析界面
 
-![回测分析](https://github.com/joeyrensh/pub_finance/blob/master/pub_finance/finance/Qanalysis1.jpg)
+<p align="center">
+  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Qanalysis1.jpg" alt="回测分析" style="width:80%;">
+</p>
 
 *图 1: 回测分析主界面 - 支持 A 股/美股选择、股票代码输入、回测日期设置*
 
-
 ### 买卖点分析
 
-![买卖点分析](https://github.com/joeyrensh/pub_finance/blob/master/pub_finance/finance/Qanalysis2.jpg)
+<p align="center">
+  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Qanalysis2.jpg" alt="买卖点分析" style="width:80%;">
+</p>
 
 *图 2: 买卖点分析 - K 线图与买卖信号标记*
 
@@ -121,4 +124,3 @@ PYSPARK_DRIVER_PYTHON = /home/ubuntu/miniconda3/bin/python
 **⭐ 如果这个项目对你有帮助，请给一个 Star!**
 
 [⬆ 返回顶部](#-量化分析框架)
-
