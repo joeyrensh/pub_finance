@@ -198,13 +198,18 @@ class PageLayout:
                         html.H6(display_name, className="subtitle padded"),
                         html.Div(
                             [
-                                html.Div(
-                                    id={
-                                        "type": "dynamic-table",
-                                        "page": self.prefix,
-                                        "table": table_id,
-                                    },
-                                    className=table_class,
+                                dcc.Loading(
+                                    type="circle",
+                                    delay_hide=1000,
+                                    color="#119DFF",
+                                    children=html.Div(
+                                        id={
+                                            "type": "dynamic-table",
+                                            "page": self.prefix,
+                                            "table": table_id,
+                                        },
+                                        className=table_class,
+                                    ),
                                 )
                             ],
                             className="table",
