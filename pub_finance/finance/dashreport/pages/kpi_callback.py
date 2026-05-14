@@ -59,7 +59,7 @@ class KpiCallback:
                 ("SWDI", swdi),
                 ("ASSETS", f"{final_value/10000:,.2f} 万"),
                 ("CASH", f"{cash/10000:,.2f} 万"),
-                ("QUANTITY", f"{stock_cnt}"),
+                ("SHARES", f"{stock_cnt}"),
                 ("DATE", end_date),
             ]
 
