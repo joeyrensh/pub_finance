@@ -2032,6 +2032,9 @@ class ChartBuilder:
             vertical_spacing=0,
             shared_xaxes=True,
         )
+        name = next(
+            (t["name"] for t in reversed(trades) if t["symbol"] == symbol), None
+        )
 
         # K线
         fig.add_trace(
@@ -2041,7 +2044,8 @@ class ChartBuilder:
                 high=df["high"],
                 low=df["low"],
                 close=df["close"],
-                name=symbol,
+                # name=symbol,
+                name=f"{symbol}#{name}",
                 increasing=dict(line_color=cfg["long"], fillcolor=cfg["long"]),
                 decreasing=dict(line_color=cfg["short"], fillcolor=cfg["short"]),
                 line=dict(width=1 * scale),
