@@ -44,7 +44,7 @@ def retry_call(func, max_retries=3, delay=1, backoff=2, exceptions=(Exception,))
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc-4"""
-    trade_date = ToolKit("获取最新交易日").get_us_latest_trade_date(0)
+    trade_date = ToolKit("获取最新交易日").get_us_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断是否休市").is_us_trade_date(trade_date):
@@ -143,8 +143,8 @@ if __name__ == "__main__":
         retry_call(do_task, max_retries=max_retries, delay=3)
 
     # 美股主要策略执行
-    # print("-----------美股主策略执行-----------")
-    # retry_backtest_and_send("us", trade_date, force_run=True)
+    print("-----------美股主策略执行-----------")
+    retry_backtest_and_send("us", trade_date, force_run=True)
 
     # # 固定列表追踪
     # print("-----------美股固定列表策略执行-----------")

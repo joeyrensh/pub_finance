@@ -85,9 +85,9 @@ class BacktraderExec:
                 ).get_backtrader_data_feed_testonly(stocklist=self.stocklist)
         # 初始资金100M
         start_cash = (
-            len(list) * 10000
-            if self.test == False or self.market in ("cn_dynamic", "us_dynamic")
-            else len(list) * 20000
+            len(list) * 20000
+            if self.test == True or self.market in ("cn_dynamic", "us_dynamic")
+            else len(list) * 10000
         )
         cerebro.broker.setcash(start_cash)
         # 循环初始化数据进入cerebro
@@ -96,7 +96,7 @@ class BacktraderExec:
             data = BTPandasDataExt(
                 dataname=h,
                 name=h["symbol"][0],
-                fromdate=datetime(2024, 1, 1),
+                fromdate=datetime(2025, 1, 1),
                 # todate=datetime.strptime(date, "%Y%m%d"),
                 datetime=-1,
                 timeframe=bt.TimeFrame.Days,

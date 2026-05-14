@@ -976,8 +976,6 @@ class GlobalStrategy(bt.Strategy):
                     *(self.current_signal.get(d._name) or (None, None))[:2],
                     "initial",
                 )
-                if current_level is None:
-                    continue
                 self.current_signal[d._name] = (
                     current_level,
                     current_strategy,
@@ -1069,7 +1067,10 @@ class GlobalStrategy(bt.Strategy):
                     if self.check_signal(d._name, "close_falling"):
                         self.execute_sell(d, "连续下跌")
                 # 止盈逻辑：如果价格从峰值回落超过一定比例（如 20%），且回落幅度超过买入价的一定比例（如 50%），则止盈卖出
-                if self.peak_price[d._name] is not None:
+                if (
+                    self.peak_price[d._name] is not None
+                    and self.current_signal[d._name] is not None
+                ):
                     if (
                         self.peak_price[d._name] >= pos.price * 1.2
                         and pos.adjbase
