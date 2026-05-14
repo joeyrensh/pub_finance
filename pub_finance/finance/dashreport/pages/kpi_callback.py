@@ -56,10 +56,10 @@ class KpiCallback:
 
             # 构建 KPI 卡片
             kpis = [
-                ("SWDI IDX", swdi),
+                ("SWDI", swdi),
                 ("ASSETS", f"{final_value/10000:,.2f} 万"),
                 ("CASH", f"{cash/10000:,.2f} 万"),
-                ("COUNT", f"{stock_cnt}"),
+                ("QUANTITY", f"{stock_cnt}"),
                 ("DATE", end_date),
             ]
 
