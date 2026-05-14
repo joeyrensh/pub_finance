@@ -973,9 +973,11 @@ class GlobalStrategy(bt.Strategy):
                 # 检查所有买入信号，找到当前满足的最高级别（数字越小级别越高）
                 # 注意：只升级不降级，符合投资逻辑（仓位级别只升不降）
                 current_level, current_strategy, current_status = (
-                    *self.current_signal.get(d._name, (None, None))[:2],
+                    *(self.current_signal.get(d._name) or (None, None))[:2],
                     "initial",
                 )
+                if current_level is None:
+                    continue
                 self.current_signal[d._name] = (
                     current_level,
                     current_strategy,

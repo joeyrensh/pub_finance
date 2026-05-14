@@ -268,7 +268,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     file_pattern = "stock_*.csv"
-    data_dir = FINANCE_ROOT / "usstockinfo"
+    data_dir = FINANCE_ROOT / "cnstockinfo"
     stock_files = glob.glob(os.path.join(data_dir, file_pattern))
 
     # 显示文件统计信息
