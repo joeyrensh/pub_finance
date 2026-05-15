@@ -994,7 +994,7 @@ class BacktestPage:
                                     children=html.Div(id="backtest-trade-table"),
                                 )
                             ],
-                            className="table",
+                            className="table_custom",
                             style={
                                 "overflow-x": "auto",
                                 "max-height": 400,
