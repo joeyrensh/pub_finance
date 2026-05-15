@@ -32,9 +32,21 @@ SCRIPT_DIR = Path(__file__).parent
 CONFIG_FILE = SCRIPT_DIR / "cn_proxy_sources.json"
 PROXIES_TXT = SCRIPT_DIR / "china_proxies.txt"
 PROXIES_JSON = SCRIPT_DIR / "china_proxies.json"
-
+COOKIE_DIR = Path(__file__).parent.parent
 REQUEST_TIMEOUT = 5  # 抓取代理时的超时
 MAX_FAILURES = 100
+
+
+def parse_cookie_string():
+    # 读取 JSON 格式的 cookie 文件
+    with open(COOKIE_DIR / "utility/eastmoney_cookie.json", "r", encoding="utf-8") as f:
+        cookie_data = json.load(f)
+        print("已加载 JSON cookie 信息")
+    # 直接返回解析后的字典
+    return cookie_data
+
+
+cookies = parse_cookie_string()
 
 
 def load_config():
@@ -449,11 +461,12 @@ async def check_eastmoney_via_proxy(proxy, timeout):
                 params=params,
                 headers=headers,
                 proxy=f"http://{proxy}",
+                cookies=cookies,
                 timeout=aiohttp.ClientTimeout(total=timeout),
             ) as resp:
                 if resp.status == 200:
                     data = await resp.json()
-                    if data.get("data") and data["data"].get("total", 0) > 1000:
+                    if data.get("data") and data["data"].get("total", 0) >= 1000:
                         return True
         return False
     except:
@@ -477,6 +490,7 @@ async def test_single_proxy(proxy, timeout):
     if await check_eastmoney_via_proxy(proxy, timeout):
         return proxy, True, time.time() - start
     else:
+        print(f"   ⚠️ 代理 {proxy} 通过百度但未通过东方财富 API 测试")
         return proxy, False, time.time() - start
 
 
@@ -562,7 +576,7 @@ def main():
         # 新代理中未存在的
         unique_new = set(new_proxies) - existing
         # 合并所有待测试的代理（包括现有和新代理，但现有代理可能已经测试过，这里可以重新测试或只测试新的）
-        all_to_test = list(unique_new | set(new_proxies))
+        all_to_test = list(unique_new | existing)
         return all_to_test
 
     config = load_config()

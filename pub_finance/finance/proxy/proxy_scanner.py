@@ -11,6 +11,7 @@ ASN 驱动的代理扫描器（优化版，双进度条）
 用法：
     python proxy_scanner.py --asn 7018 --targets 100 --concurrency 50
 """
+
 """
 ASN 驱动的代理扫描器
 1. 获取指定宽带服务商的ASN编号（以中国电信 AS45057 为例）
@@ -68,7 +69,7 @@ GLOBAL_STOP_EVENT = asyncio.Event()
 
 # ========== 配置参数 ==========
 TEST_URL = "http://httpbin.org/get"
-GEO_API = "http://ip-api.com/json/{ip}"
+GEO_API = "https://api.ip.sb/geoip/{ip}"
 COMMON_PORTS = [
     80,
     443,
@@ -424,7 +425,7 @@ async def verify_single_proxy(session, proxy, timeout, retries=2):
             ) as geo_resp:
                 if geo_resp.status == 200:
                     geo = await geo_resp.json()
-                    country = geo.get("countryCode", "Unknown")
+                    country = geo.get("country_code", "Unknown")
                 else:
                     country = "Unknown"
             return (proxy, country, level)
