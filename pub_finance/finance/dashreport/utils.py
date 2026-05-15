@@ -894,7 +894,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         className="default-table",
         style={
             "position": "relative",
-            "display": "inline-block",
+            # "display": "inline-block",
             "width": "100%",
         },
     )
