@@ -467,12 +467,15 @@ body {
   line-height: 1.0 !important;
   padding-bottom: 20px !important;
 }
+.table_custom {
+  margin-top: -10px;
+}
 
 .default-table table {
   border-collapse: separate !important;
   border-spacing: 0 !important;
   border: 0.1px solid var(--dash-table-border-color) !important;
-  margin-top: -10px;
+  margin-top: -10px ;
 }
 
 .default-table table td, 
@@ -550,7 +553,8 @@ table {
   margin: 0;
   padding: 0;
   border: 0.1px solid var(--dash-table-border-color) !important;
-  margin-top: -10px;
+  margin-top: 0px;
+
 }
 
 td, th {
@@ -1199,10 +1203,6 @@ p.padded {
   padding: 2px 5px;
   margin-top: 0px;
   margin-bottom: 0px;
-}
-
-.table {
-  margin-top: -10px;
 }
 
 table.tiny-header tr:first-child {

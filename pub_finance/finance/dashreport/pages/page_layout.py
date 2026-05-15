@@ -212,7 +212,7 @@ class PageLayout:
                                     ),
                                 )
                             ],
-                            className="table",
+                            className="table_custom",
                             style=style,
                         ),
                     ],
