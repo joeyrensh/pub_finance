@@ -34,7 +34,7 @@ PROXIES_TXT = SCRIPT_DIR / "china_proxies.txt"
 PROXIES_JSON = SCRIPT_DIR / "china_proxies.json"
 
 REQUEST_TIMEOUT = 5  # 抓取代理时的超时
-MAX_FAILURES = 7
+MAX_FAILURES = 100
 
 
 def load_config():
