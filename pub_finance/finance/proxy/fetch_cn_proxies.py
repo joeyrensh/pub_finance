@@ -308,15 +308,12 @@ async def check_ip_location(ip, timeout):
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(
-                    f"http://ip-api.com/json/{ip}",
+                    f"https://api.ip.sb/geoip/{ip}",
                     timeout=aiohttp.ClientTimeout(total=timeout),
                 ) as resp:
                     if resp.status == 200:
                         data = await resp.json()
-                        if (
-                            data.get("status") == "success"
-                            and data.get("countryCode") == "CN"
-                        ):
+                        if data.get("country_code") == "CN":
                             return True
             await asyncio.sleep(0.5)
         except:
@@ -468,12 +465,12 @@ async def test_single_proxy(proxy, timeout):
     start = time.time()
     ip = proxy.split(":")[0]
 
-    # 1. IP 地理位置（先，不通过代理）
-    if not await check_ip_location(ip, timeout):
+    # 1. 百度访问测试（通过代理）
+    if not await check_baidu_via_proxy(proxy, timeout):
         return proxy, False, time.time() - start
 
-    # 2. 百度访问测试（通过代理）
-    if not await check_baidu_via_proxy(proxy, timeout):
+    # 2. IP 地理位置（先，不通过代理）
+    if not await check_ip_location(ip, timeout):
         return proxy, False, time.time() - start
 
     # 3. 东方财富 API 测试（通过代理）

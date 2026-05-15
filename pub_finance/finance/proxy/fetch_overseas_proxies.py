@@ -139,13 +139,12 @@ async def check_ip_country(ip, timeout):
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"http://ip-api.com/json/{ip}",
+                f"https://api.ip.sb/geoip/{ip}",
                 timeout=aiohttp.ClientTimeout(total=timeout),
             ) as resp:
                 if resp.status == 200:
                     data = await resp.json()
-                    if data.get("status") == "success":
-                        return data.get("countryCode", "")
+                    return data.get("country_code", "")
     except:
         pass
     return None
