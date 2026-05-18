@@ -16,7 +16,7 @@
 
 ### 回测分析界面
 
-<p align="center">
+<p align="left">
   <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Cover1.jpg" alt="回测分析" style="width:80%;">
 </p>
 
@@ -24,7 +24,7 @@
 
 ### 买卖点分析
 
-<p align="center">
+<p align="left">
   <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Cover2.jpg" alt="买卖点分析" style="width:80%;">
 </p>
 
