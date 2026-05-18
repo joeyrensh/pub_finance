@@ -490,7 +490,7 @@ async def test_single_proxy(proxy, timeout):
     if await check_eastmoney_via_proxy(proxy, timeout):
         return proxy, True, time.time() - start
     else:
-        print(f" ⚠️ 代理{proxy}通过东方财富API测试")
+        print(f" ⚠️ 代理{proxy}未通过东方财富API测试")
         return proxy, False, time.time() - start
 
 
