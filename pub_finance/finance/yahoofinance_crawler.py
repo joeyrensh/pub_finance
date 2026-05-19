@@ -202,7 +202,7 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
                 logger.info(
                     f"已处理 {idx}/{len(symbols)} | 耗时: {time.time() - start_time:.2f}s"
                 )
-                time.sleep(random.uniform(0.5, 1))
+                time.sleep(random.uniform(0.2, 0.5))
 
             except KeyboardInterrupt:
                 logger.info("用户中断，保存已处理数据...")
@@ -245,29 +245,58 @@ def convert_industry(source_file: str, map_file: str, target_file: str) -> None:
 if __name__ == "__main__":
     # 代理列表（请自行替换为有效的代理）
     proxy_list = [
-        "http://1.231.81.166:3128",
-        "http://102.0.17.74:8080",
-        "http://103.156.224.66:8080",
-        "http://103.18.232.4:8080",
-        "http://116.80.65.76:3172",
-        "http://147.161.239.240:8800",
-        "http://147.161.210.140:8800",
-        "http://103.178.21.104:3125",
-        "http://103.191.254.134:8080",
-        "http://113.160.132.26:8080",
-        "http://83.219.250.8:62920",
-        "http://95.213.217.168:52004",
-        "http://208.87.243.199:7878",
-        "http://34.101.184.164:3128",
-        "http://8.213.151.128:3128",
-        "http://202.183.236.219:8080",
+        # "http://185.200.188.234:10001",
+        # "http://106.10.55.212:1121",
+        # "http://161.117.231.88:8100",
+        # "http://34.87.80.221:30000",
+        # "http://161.117.225.78:8100",
+        "http://138.2.78.251:8100",
+        "http://8.210.132.233:8100",
+        "http://89.58.50.94:11140",
+        "http://103.68.214.164:8080",
+        "http://161.117.86.53:8100",
+        "http://197.164.101.14:1976",
+        "http://103.170.22.145:8080",
+        "http://138.2.92.70:8100",
+        "http://183.88.231.188:34599",
+        "http://45.239.48.98:999",
+        "http://5.187.9.10:8080",
+        "http://203.175.103.91:8485",
+        "http://47.241.16.163:8100",
+        "http://103.184.167.66:8080",
+        "http://43.154.90.238:9527",
+        "http://8.217.126.41:8100",
+        "http://38.22.94.223:2025",
+        "http://45.95.203.47:6699",
+        "http://168.138.171.204:8100",
+        "http://103.76.91.166:2020",
+        "http://190.60.57.43:3128",
+        "http://176.111.37.216:39811",
+        "http://138.2.105.231:8100",
+        "http://176.111.37.5:39811",
+        "http://8.210.138.49:8100",
+        "http://137.59.47.73:3128",
+        "http://152.67.191.232:6800",
+        "http://47.241.32.135:8100",
+        "http://103.189.116.20:8080",
+        "http://52.140.3.27:3333",
+        "http://185.253.61.251:3310",
+        "http://8.217.78.60:8100",
+        "http://202.28.194.139:31280",
+        "http://116.80.96.162:3172",
+        "http://197.164.101.11:1976",
+        "http://103.187.226.52:8082",
+        "http://186.226.167.191:3128",
+        "http://103.235.34.38:3888",
+        "http://8.218.153.104:8100",
+        "http://207.148.124.152:6868",
     ]
     CACHE_FILE = FINANCE_ROOT / "usstockinfo" / "symbol_list_cache.csv"
     OUTPUT_FILE = FINANCE_ROOT / "usstockinfo" / "industry_yfinance.csv"
 
     main(proxy_list, CACHE_FILE, OUTPUT_FILE)
-    # convert_industry(
-    #     source_file=OUTPUT_FILE,
-    #     map_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_mapping.csv",
-    #     target_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_cn.csv",
-    # )
+    convert_industry(
+        source_file=OUTPUT_FILE,
+        map_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_mapping.csv",
+        target_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_cn.csv",
+    )
