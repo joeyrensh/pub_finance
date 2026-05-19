@@ -117,7 +117,6 @@ def sync_valid_proxies():
     ]
     for proxy in sorted(new_proxies):
         new_content_parts.append(f"{proxy}\n")
-    new_content_parts.append("# ===== 添加结束 =====\n")
     # 如果原有内容非空，添加一个空行分隔
     if original_content:
         new_content_parts.append("\n")
