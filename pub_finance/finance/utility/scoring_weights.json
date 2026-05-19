@@ -7,8 +7,8 @@
     },
     "sub_weights": {
         "industry": {
-            "arrow": 0.4,
-            "bracket": 0.6
+            "arrow": 0.3,
+            "bracket": 0.7
         },
         "pnl": {
             "daily": 0.3,
