@@ -33,6 +33,7 @@ CONFIG_FILE = SCRIPT_DIR / "cn_proxy_sources.json"
 PROXIES_TXT = SCRIPT_DIR / "china_proxies.txt"
 PROXIES_JSON = SCRIPT_DIR / "china_proxies.json"
 COOKIE_DIR = Path(__file__).parent.parent
+PROXIES_USED_TXT = COOKIE_DIR / "utility/proxy.txt"
 REQUEST_TIMEOUT = 5  # 抓取代理时的超时
 MAX_FAILURES = 100
 
@@ -71,6 +72,63 @@ def save_proxy_pool(pool):
         for p in valid:
             f.write(p + "\n")
     return len(valid)
+
+
+def sync_valid_proxies():
+    """
+    将 PROXIES_TXT 中的有效代理同步到 PROXIES_USED_TXT 文件中。
+    - 只追加新增的代理（不重复）
+    - 每次追加操作前写入时间注释标记
+    """
+
+    # 1. 读取源文件中的有效代理（忽略注释和空行）
+    source_proxies = set()
+    if PROXIES_TXT.exists():
+        with open(PROXIES_TXT, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    source_proxies.add(line)
+    else:
+        print(f"源文件 {PROXIES_TXT} 不存在，无法同步")
+        return
+
+    # 2. 读取目标文件中已有的代理（忽略注释和空行）
+    existing_proxies = set()
+    original_content = ""
+    if PROXIES_USED_TXT.exists():
+        with open(PROXIES_USED_TXT, "r", encoding="utf-8") as f:
+            original_content = f.read()  # 保存原有全部内容
+            for line in original_content.splitlines():
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    existing_proxies.add(line)
+
+    # 3. 计算需要新增的代理
+    new_proxies = source_proxies - existing_proxies
+    if not new_proxies:
+        print("没有需要新增的代理")
+        return
+
+    # 4. 构造要插入到文件开头的新内容（包含时间注释和代理列表）
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    new_content_parts = [
+        f"# ===== 添加时间：{timestamp}，共 {len(new_proxies)} 个新代理 =====\n"
+    ]
+    for proxy in sorted(new_proxies):
+        new_content_parts.append(f"{proxy}\n")
+    new_content_parts.append("# ===== 添加结束 =====\n")
+    # 如果原有内容非空，添加一个空行分隔
+    if original_content:
+        new_content_parts.append("\n")
+    new_content = "".join(new_content_parts)
+
+    # 5. 将新内容 + 原内容写回文件
+    with open(PROXIES_USED_TXT, "w", encoding="utf-8") as f:
+        f.write(new_content)
+        f.write(original_content)
+
+    print(f"已成功将 {len(new_proxies)} 个新代理同步到 {PROXIES_USED_TXT} 的开头")
 
 
 def fetch_zdaye(max_pages=3):
@@ -626,6 +684,7 @@ def main():
     print(f"\n{'=' * 60}")
     print(f"✅ 完成！可用代理：{count} 个")
     print(f"{'=' * 60}")
+    sync_valid_proxies()  # 同步到 proxy.txt
 
 
 if __name__ == "__main__":
