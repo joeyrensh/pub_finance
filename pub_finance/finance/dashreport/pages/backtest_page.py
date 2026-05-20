@@ -634,7 +634,6 @@ class BacktestPage:
                 mathjax=True,
             )
 
-        # ---------- 8. K线图 ----------
         @self.app.callback(
             Output("backtest-kline-charts", "children"),
             Input("backtest-data", "data"),
@@ -650,17 +649,23 @@ class BacktestPage:
                 )
             stocks = d.get("s", [])
             histories = d.get("h", [])
-            tr = d.get("tr", [])
-            pos_detail = d.get("pos_detail", [])
+            all_tr = d.get("tr", [])  # 所有交易记录
+            all_pos = d.get("pos_detail", [])  # 所有持仓明细
             charts = []
             width = client_width or 1440
+
             for i in range(min(6, len(histories))):
                 stock_data = pd.DataFrame(histories[i])
                 symbol = stocks[i] if i < len(stocks) else f"S{i}"
+
+                # 预先过滤当前股票的交易记录和持仓明细
+                filtered_tr = [t for t in all_tr if t.get("symbol") == symbol]
+                filtered_pos = [p for p in all_pos if p.get("symbol") == symbol]
+
                 fig = self.cb.kl_fig(
-                    stock_data,
-                    tr,
-                    pos_detail=pos_detail,
+                    his=stock_data,
+                    trades=filtered_tr,
+                    pos_detail=filtered_pos,
                     symbol=symbol,
                     theme=theme,
                     client_width=width,

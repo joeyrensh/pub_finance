@@ -1987,9 +1987,9 @@ class ChartBuilder:
 
         Args:
             his: pd.DataFrame, 历史行情，必须包含 ['datetime','open','high','low','close','volume']
-            trades: list[dict], 交易记录，每条 dict 至少包含 {'symbol','date','price','type'}
-            pos_detail: pd.DataFrame, 持仓明细
-            symbol: str, 股票代码
+            trades: list[dict], 交易记录，每条 dict 应已过滤为当前股票，至少包含 {'date','price','type','strategy'}
+            pos_detail: pd.DataFrame, 持仓明细（已过滤为当前股票）
+            symbol: str, 股票代码（仅用于图例名称）
             theme: str, 'light' 或 'dark'
             client_width: int, 客户端宽度
 
@@ -1998,7 +1998,7 @@ class ChartBuilder:
         """
         df = his.copy()
         if df.empty:
-            return go.Figure()  # 没有历史数据，返回空 Figure
+            return go.Figure()
 
         if "datetime" in df.columns:
             df["datetime"] = pd.to_datetime(df["datetime"])
@@ -2008,12 +2008,9 @@ class ChartBuilder:
         if df.empty:
             return go.Figure()
 
-        # 过滤只属于当前股票的交易记录
-        trades_filtered = [
-            t
-            for t in trades
-            if t.get("symbol") == symbol
-            and pd.to_datetime(t["date"]) >= df["datetime"].min()
+        # 可选：进一步过滤交易记录，只保留在K线时间范围内的
+        trades = [
+            t for t in trades if pd.to_datetime(t["date"]) >= df["datetime"].min()
         ]
 
         # 主题配置
@@ -2032,9 +2029,10 @@ class ChartBuilder:
             vertical_spacing=0,
             shared_xaxes=True,
         )
-        name = next(
-            (t["name"] for t in reversed(trades) if t["symbol"] == symbol), None
-        )
+
+        # 图例名称：股票代码 + 名称（取最后一次买入时的名称）
+        name = next((t["name"] for t in reversed(trades) if t.get("name")), None)
+        legend_name = f"{symbol}#{name}" if name else symbol
 
         # K线
         fig.add_trace(
@@ -2044,8 +2042,7 @@ class ChartBuilder:
                 high=df["high"],
                 low=df["low"],
                 close=df["close"],
-                # name=symbol,
-                name=f"{symbol}#{name}",
+                name=legend_name,
                 increasing=dict(line_color=cfg["long"], fillcolor=cfg["long"]),
                 decreasing=dict(line_color=cfg["short"], fillcolor=cfg["short"]),
                 line=dict(width=1 * scale),
@@ -2060,7 +2057,7 @@ class ChartBuilder:
             col=1,
         )
 
-        # 成交量
+        # 成交量（颜色与K线涨跌一致）
         colors = [
             cfg["long"] if df["close"].iloc[i] >= df["open"].iloc[i] else cfg["short"]
             for i in range(len(df))
@@ -2070,10 +2067,7 @@ class ChartBuilder:
                 x=df["datetime"],
                 y=df["volume"],
                 name="成交量",
-                marker=dict(
-                    color=colors,
-                    line=dict(color=colors),
-                ),
+                marker=dict(color=colors, line=dict(color=colors)),
                 opacity=1.0,
                 showlegend=True,
             ),
@@ -2081,15 +2075,13 @@ class ChartBuilder:
             col=1,
         )
 
-        # 买卖点标记
-        for t in trades_filtered:
+        # ----- 买卖点标记 -----
+        for t in trades:
             try:
-                td, tp, tt, ts = (
-                    pd.to_datetime(t["date"]),
-                    t["price"],
-                    t["type"],
-                    t["strategy"],
-                )
+                td = pd.to_datetime(t["date"])
+                tp = t["price"]
+                tt = t["type"]
+                ts = t["strategy"]
                 color = cfg["long"] if tt == "买入" else cfg["short"]
                 # 虚线
                 fig.add_trace(
@@ -2116,13 +2108,13 @@ class ChartBuilder:
                             size=6,
                             color="white",
                             line=dict(
-                                color=color,
-                                width=2 if scale >= 1 else 3 * scale,
+                                color=color, width=2 if scale >= 1 else 3 * scale
                             ),
                         ),
                         showlegend=False,
-                        hovertemplate=f"<b>{tt}</b><br>"
-                        f"价格：{tp:.2f}<br>策略：{ts}<br>日期：%{{x|%Y-%m-%d}}<extra></extra>",
+                        hovertemplate=(
+                            f"<b>{tt}</b><br>价格：{tp:.2f}<br>策略：{ts}<br>日期：%{{x|%Y-%m-%d}}<extra></extra>"
+                        ),
                         hoverlabel=dict(
                             font_size=font_size,
                             font_family=self.font_family,
@@ -2135,49 +2127,39 @@ class ChartBuilder:
             except:
                 pass
 
-        # ========== 计算策略升级点 ==========
+        # ----- 策略升级点计算 -----
         strategy_colors = cfg["strategy_colors"]
         upgrade_points = []
-        if pos_detail is not None and len(pos_detail) > 0:
-            # 转换为 DataFrame 并过滤当前股票
+        if pos_detail:
             df_pos = pd.DataFrame(pos_detail)
-            df_pos = df_pos[df_pos["symbol"] == symbol].copy()
             df_pos["date"] = pd.to_datetime(df_pos["date"], errors="coerce")
             df_pos = df_pos.dropna(subset=["date"])
             df_pos = df_pos.sort_values("date").reset_index(drop=True)
 
             if not df_pos.empty:
-                # 获取该股票的所有买入交易（在K线范围内），按日期排序
+                # 获取该股票的所有买入交易（在K线范围内）
                 buy_trades = [
                     t
                     for t in trades
-                    if t.get("symbol") == symbol
-                    and t.get("type") == "买入"
+                    if t.get("type") == "买入"
                     and pd.to_datetime(t["date"]) >= df["datetime"].min()
                 ]
-                # 按买入日期升序排序
                 buy_trades.sort(key=lambda x: pd.to_datetime(x["date"]))
                 buy_dates = [pd.to_datetime(b["date"]) for b in buy_trades]
                 buy_strategies = [b.get("strategy", "") for b in buy_trades]
 
-                # 对每个买入交易，确定其有效区间（买入点日期到下一个买入点日期）
                 for idx, buy_date in enumerate(buy_dates):
                     buy_strategy = buy_strategies[idx]
-                    # 确定区间结束日期：下一个买入点日期（如果有），否则无穷大
                     next_buy_date = (
                         buy_dates[idx + 1] if idx + 1 < len(buy_dates) else None
                     )
-                    # 从买入日期之后开始筛选候选记录
                     candidates = df_pos[df_pos["date"] > buy_date]
-                    if next_buy_date is not None:
+                    if next_buy_date:
                         candidates = candidates[candidates["date"] < next_buy_date]
-                    # 按日期升序
                     candidates = candidates.sort_values("date")
                     if candidates.empty:
                         continue
-                    # 从买入策略开始，迭代查找策略变化
                     current_strategy = buy_strategy
-                    # 遍历候选记录，按顺序检查策略是否变化
                     for _, rec in candidates.iterrows():
                         if rec["strategy"] != current_strategy:
                             upgrade_points.append(
@@ -2188,7 +2170,7 @@ class ChartBuilder:
                             )
                             current_strategy = rec["strategy"]
 
-        # ========== 添加策略升级点标记 ==========
+        # ----- 绘制策略升级标记 -----
         for up in upgrade_points:
             td = up["date"]
             price_row = df[df["datetime"] == td]
@@ -2211,7 +2193,9 @@ class ChartBuilder:
                         ),
                     ),
                     showlegend=False,
-                    hovertemplate=f"<b>策略升级</b><br>日期：%{{x|%Y-%m-%d}}<br>新策略：{up['strategy']}<extra></extra>",
+                    hovertemplate=(
+                        f"<b>策略升级</b><br>日期：%{{x|%Y-%m-%d}}<br>新策略：{up['strategy']}<extra></extra>"
+                    ),
                     hoverlabel=dict(
                         font_size=font_size,
                         font_family=self.font_family,
@@ -2222,9 +2206,8 @@ class ChartBuilder:
                 col=1,
             )
 
-        # 布局
+        # ----- 布局设置 -----
         fig.update_layout(
-            # height=int(420 * scale),
             margin=dict(l=0, r=0, t=0, b=0),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
@@ -2246,10 +2229,8 @@ class ChartBuilder:
             ),
         )
 
-        xmin = pd.to_datetime(df["datetime"].min())
-        xmax = pd.to_datetime(df["datetime"].max())
-
-        # x 轴（主图）
+        xmin = df["datetime"].min()
+        xmax = df["datetime"].max()
         fig.update_xaxes(
             rangeslider_visible=False,
             showgrid=True,
@@ -2259,28 +2240,17 @@ class ChartBuilder:
             linecolor=cfg["grid"],
             linewidth=1,
             automargin=False,
-            range=[
-                xmin - timedelta(days=0.5),
-                xmax + timedelta(days=0.5),
-            ],
+            range=[xmin - timedelta(days=0.5), xmax + timedelta(days=0.5)],
         )
 
         fig.update_yaxes(
             mirror=True,
-            # ticks="outside",
             tickfont=dict(
                 size=font_size,
                 color=cfg["text_color"],
                 family=self.font_family,
             ),
-            title=dict(
-                text=None,
-                font=dict(
-                    size=font_size,
-                    color=cfg["text_color"],
-                    family=self.font_family,
-                ),
-            ),
+            title=dict(text=None),
             showline=False,
             linecolor=cfg["grid"],
             zeroline=False,
