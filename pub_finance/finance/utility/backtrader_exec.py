@@ -83,13 +83,30 @@ class BacktraderExec:
                 list = TickerInfo(
                     self.trade_date, self.market
                 ).get_backtrader_data_feed_testonly(stocklist=self.stocklist)
-        # 初始资金100M
-        start_cash = (
-            len(list) * 20000
-            if self.test == True or self.market in ("cn_dynamic", "us_dynamic")
-            else len(list) * 10000
-        )
-        cerebro.broker.setcash(start_cash)
+        # 计算每只股票所需最低资金，并汇总初始总资金
+        total_cash_needed = 0
+        for h in list:
+            # 获取最新收盘价（DataFrame 的 close 列最后一值）
+            last_price = h["close"].iloc[-1]
+            if self.market in ("cn", "cn_dynamic", "cn_backtest"):
+                if last_price > 100:
+                    cash_per_stock = last_price * 100
+                else:
+                    cash_per_stock = 10000
+            else:
+                # 美股及ETF保持原逻辑（每只1万）
+                cash_per_stock = 10000
+            print(
+                f"股票 {h['symbol'][0]} 最新价: {last_price:.2f}, 每只资金需求: {cash_per_stock:.2f}"
+            )
+            total_cash_needed += cash_per_stock
+
+        # 动态列表或测试模式下，原逻辑是 len(list) * 20000，即每只2倍资金
+        if self.test == True or self.market in ("cn_dynamic", "us_dynamic"):
+            total_cash_needed *= 1.5
+
+        cerebro.broker.setcash(total_cash_needed)
+        print(f"初始资金设置为: {total_cash_needed:.2f}")
         # 循环初始化数据进入cerebro
         for h in list:
             # 历史数据最早不超过2021-01-01
