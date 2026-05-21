@@ -659,6 +659,11 @@ class BacktestPage:
             for i in range(min(6, len(histories))):
                 stock_data = pd.DataFrame(histories[i])
                 symbol = stocks[i] if i < len(stocks) else f"S{i}"
+                if not stock_data.empty and "datetime" in stock_data.columns:
+                    stock_data["datetime"] = pd.to_datetime(stock_data["datetime"])
+                    stock_data = stock_data.sort_values("datetime")
+                    cutoff = stock_data["datetime"].max() - pd.Timedelta(days=360)
+                    stock_data = stock_data[stock_data["datetime"] >= cutoff]
 
                 # 预先过滤当前股票的交易记录和持仓明细
                 filtered_tr = [t for t in all_tr if t.get("symbol") == symbol]

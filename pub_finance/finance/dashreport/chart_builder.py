@@ -2003,10 +2003,6 @@ class ChartBuilder:
         if "datetime" in df.columns:
             df["datetime"] = pd.to_datetime(df["datetime"])
         df = df.sort_values("datetime")
-        cutoff = df["datetime"].max() - pd.Timedelta(days=360)
-        df = df[df["datetime"] >= cutoff]
-        if df.empty:
-            return go.Figure()
 
         # 可选：进一步过滤交易记录，只保留在K线时间范围内的
         trades = [
