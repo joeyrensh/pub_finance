@@ -321,7 +321,10 @@ class TickerInfo:
             #     base_cond, df_recent, n_groups=5, top_n_per_group=100
             # )
             filtered_top = self._top_by_activity(
-                base_cond, df_recent, group_bins=bins, top_n_per_group=100
+                base_cond,
+                df_recent,
+                group_bins=bins,
+                top_n_per_group=100,
             )
 
             # 合并三组的 top20% symbol

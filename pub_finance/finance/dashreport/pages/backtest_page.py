@@ -43,6 +43,8 @@ def run_bt_task(stock_list, date_str, market):
         for sym in stock_list:
             hist_data = load_hist([sym], date_str, market)
             if hist_data and len(hist_data) > 0:
+                if "datetime" in hist_data[0].columns:
+                    hist_data[0] = hist_data[0].sort_values("datetime").iloc[:-1]
                 h.append(hist_data[0])
             else:
                 h.append(pd.DataFrame())
