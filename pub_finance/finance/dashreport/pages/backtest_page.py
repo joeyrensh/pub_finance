@@ -750,7 +750,7 @@ class BacktestPage:
             df = (
                 df.sort_values(["_order", "DATE"], ascending=[True, False])
                 .groupby("SYMBOL", sort=False, as_index=False)
-                .head(2)
+                .head(1)
             )
             df = df.drop(columns=["_order"])
             market = data.get("market", "cn")

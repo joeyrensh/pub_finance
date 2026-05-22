@@ -2004,11 +2004,6 @@ class ChartBuilder:
             df["datetime"] = pd.to_datetime(df["datetime"])
         df = df.sort_values("datetime")
 
-        # 可选：进一步过滤交易记录，只保留在K线时间范围内的
-        trades = [
-            t for t in trades if pd.to_datetime(t["date"]) >= df["datetime"].min()
-        ]
-
         # 主题配置
         cfg = self.theme_config.get(theme, self.theme_config["light"])
         scale, font_size = self._get_font_sizes(
@@ -2029,6 +2024,12 @@ class ChartBuilder:
         # 图例名称：股票代码 + 名称（取最后一次买入时的名称）
         name = next((t["name"] for t in reversed(trades) if t.get("name")), None)
         legend_name = f"{symbol}#{name}" if name else symbol
+        trades = [
+            t for t in trades if pd.to_datetime(t["date"]) >= df["datetime"].min()
+        ]
+        pos_detail = [
+            t for t in pos_detail if pd.to_datetime(t["date"]) >= df["datetime"].min()
+        ]
 
         # K线
         fig.add_trace(
