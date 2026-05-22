@@ -697,7 +697,6 @@ li::before {
   border-style: solid;
   color: var(--text-color);
   font-size: 1.4rem;
-  font-weight: 400;
   padding: 10px 5px;
   margin-right: 10px;
   margin-top: -10px;
@@ -846,6 +845,7 @@ a:active {
 .all-tabs {
   text-align: center;
   font-size: 1.4rem;
+  font-weight: 500;
   margin-top: -30px;
   text-transform: uppercase;
 }

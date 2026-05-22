@@ -43,7 +43,7 @@ def get_header(app):
                                         "borderRadius": "6px",
                                         "cursor": "pointer",
                                         # "fontSize": "15px",
-                                        "fontWeight": "400",
+                                        "fontWeight": "500",
                                     },
                                 ),
                                 href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
@@ -86,7 +86,7 @@ def get_header(app):
                                             "borderRadius": "6px",
                                             "cursor": "pointer",
                                             # "fontSize": "15px",
-                                            "fontWeight": "400",
+                                            "fontWeight": "500",
                                             "textDecoration": "none",
                                         },
                                     )
