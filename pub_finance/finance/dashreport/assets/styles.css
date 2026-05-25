@@ -842,6 +842,10 @@ a:active {
   padding-left: 0px;
 }
 
+.menu-name {
+  text-decoration: underline;
+}
+
 .all-tabs {
   text-align: center;
   font-size: 1.4rem;
