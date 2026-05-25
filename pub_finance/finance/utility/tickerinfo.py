@@ -116,7 +116,19 @@ class TickerInfo:
         # 方法A：简单计算日内资金流动
         factor = 100 if self.market.startswith("cn") else 1
         df_g["activity"] = (df_g["close"] - df_g["open"]) * df_g["volume"] * factor
+        df_g["up"] = (df_g["close"] > df_g["open"]).astype(int)  # 上涨日标记
+
+        # 分组聚合
         sym_act = df_g.groupby("symbol")["activity"].mean()
+        sym_up = df_g.groupby("symbol")["up"].sum()  # 0~10
+
+        # 归一化（Min-Max）
+        act_norm = (sym_act - sym_act.min()) / (sym_act.max() - sym_act.min() + 1e-6)
+        up_norm = sym_up / 10.0
+
+        # 综合得分：资金流权重0.6，上涨天数权重0.4（可调）
+        score = 0.6 * act_norm + 0.4 * up_norm
+        sym_act = score.sort_values(ascending=False)
 
         # 检查 activity <= 0
         for sym in list(target_set):
