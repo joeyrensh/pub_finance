@@ -702,14 +702,14 @@ li::before {
   margin-top: -10px;
   text-align: center;
   transition-duration: 1s;
-  text-decoration: underline;
+  /* text-decoration: underline; */
 }
 
 #learn-more-button {
   float: right;
   padding-left: 15px;
   padding-right: 0px !important;
-  text-decoration: underline;
+  /* text-decoration: underline; */
   margin: 10px 10px 8px 5px;
   line-height: 30px;
   border: 0.5px;
@@ -844,9 +844,9 @@ a:active {
   padding-left: 0px;
 }
 
-.menu-name {
+/* .menu-name {
   text-decoration: underline;
-}
+} */
 
 .all-tabs {
   text-align: center;

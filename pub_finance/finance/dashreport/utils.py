@@ -27,7 +27,8 @@ def get_header(app):
                                 html.Button(
                                     [
                                         html.I(
-                                            className="fa-brands fa-github",
+                                            # className="fa-brands fa-github",
+                                            className="fa-solid fa-code",
                                             style={
                                                 "marginRight": "6px",
                                                 "textDecoration": "none",
