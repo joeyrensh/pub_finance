@@ -28,7 +28,10 @@ def get_header(app):
                                     [
                                         html.I(
                                             className="fa-brands fa-github",
-                                            style={"marginRight": "6px"},
+                                            style={
+                                                "marginRight": "6px",
+                                                "textDecoration": "none",
+                                            },
                                         ),
                                         "Source Code",
                                     ],
@@ -87,7 +90,7 @@ def get_header(app):
                                             "cursor": "pointer",
                                             # "fontSize": "15px",
                                             "fontWeight": "500",
-                                            "textDecoration": "none",
+                                            # "textDecoration": "none",
                                         },
                                     )
                                 ],
