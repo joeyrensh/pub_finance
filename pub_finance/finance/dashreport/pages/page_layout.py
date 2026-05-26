@@ -223,52 +223,50 @@ class PageLayout:
     def get_layout(self):
         kpi_section = self.build_kpi_section()
 
-        # Annual return chart
+        # 1. 固定独占一行的图表
         annual_return_card = self.build_chart_card("annual_return", 0, "Annual Return")
 
-        # Heatmap + Strategy row
-        heatmap_card = self.build_chart_card("heatmap", 1, "Industries Tracking")
-        strategy_card = self.build_chart_card("strategy", 2, "Strategy Tracking")
-        row1 = (
-            html.Div([heatmap_card, strategy_card], className="row")
-            if any([heatmap_card, strategy_card])
-            else html.Div()
-        )
+        # 2. 所有半宽图表 + 固定 index 映射
+        half_chart_config = [
+            ("heatmap", 1, "Industries Tracking"),
+            ("strategy", 2, "Strategy Tracking"),
+            ("trade", 5, "Position Trend"),
+            ("pnl_trend", 6, "Earnings Trend"),
+            ("industry_position", 3, "Position Weight"),
+            ("industry_profit", 4, "Earnings Weight"),
+        ]
 
-        # Row2: Position trend + Earnings trend
-        trade_card = self.build_chart_card("trade", 5, "Position Trend")
-        pnl_card = self.build_chart_card("pnl_trend", 6, "Earnings Trend")
-        row2 = (
-            html.Div([trade_card, pnl_card], className="row")
-            if any([trade_card, pnl_card])
-            else html.Div()
-        )
+        # 3. 只收集【已启用】的图表卡片
+        enabled_half_cards = []
+        for chart_type, index, title in half_chart_config:
+            if chart_type in self.show_charts:
+                card = self.build_chart_card(chart_type, index, title)
+                enabled_half_cards.append(card)
 
-        # Row3: Position weight + Earnings weight
-        pos_weight_card = self.build_chart_card(
-            "industry_position", 3, "Position Weight"
-        )
-        earn_weight_card = self.build_chart_card(
-            "industry_profit", 4, "Earnings Weight"
-        )
-        row3 = (
-            html.Div([pos_weight_card, earn_weight_card], className="row")
-            if any([pos_weight_card, earn_weight_card])
-            else html.Div()
-        )
+        # 4. 核心：动态两两分组（不修改任何card，保证折叠正常）
+        dynamic_half_rows = []
+        for i in range(0, len(enabled_half_cards), 2):
+            pair = enabled_half_cards[i : i + 2]
+            dynamic_half_rows.append(html.Div(pair, className="row"))
 
-        # Tables
+        # 5. 表格
         table_cards = []
         for i, t in enumerate(self.show_tables):
             table_cards.append(
                 self.build_table_card(t, is_last=(i == len(self.show_tables) - 1))
             )
 
+        # 最终布局
         return html.Div(
             [
                 Header(self.app),
                 html.Div(
-                    [kpi_section, annual_return_card, row1, row2, row3] + table_cards,
+                    [
+                        kpi_section,
+                        annual_return_card,
+                    ]
+                    + dynamic_half_rows
+                    + table_cards,
                     className="sub_page",
                 ),
             ],
