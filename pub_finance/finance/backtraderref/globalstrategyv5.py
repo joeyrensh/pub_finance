@@ -969,6 +969,40 @@ class GlobalStrategy(bt.Strategy):
                 elif self.check_signal(d._name, "close_rising"):
                     self.execute_buy(d, "连续上涨", 3)
             else:
+
+                def _get_position_record(d, pos):
+                    """
+                    优雅子函数：获取单只股票的当日持仓明细字典
+                    支持在 next() 任意位置多次调用
+                    """
+                    # 过滤：数据长度不足 / 当日已下单 → 返回 None
+                    if len(d) > d.buflen() - 1:
+                        return None
+
+                    dt = self.datas[0].datetime.date(0).isoformat()
+                    symbol = d._name
+
+                    # 计算收益率
+                    daily_return = (
+                        self.daily_returns[symbol][-1]
+                        if self.daily_returns[symbol]
+                        else None
+                    )
+
+                    return {
+                        "symbol": symbol,
+                        "date": dt,
+                        "price": pos.price,
+                        "adjbase": pos.adjbase,
+                        "pnl": pos.size * (pos.adjbase - pos.price),
+                        "volume": d.volume[0],
+                        "daily_return": daily_return,
+                        "sharpe_ratio": self.sharpe_ratios[symbol],
+                        "sortino_ratio": self.sortino_ratios[symbol],
+                        "max_drawdown": self.max_drawdowns[symbol],
+                        "strategy": self.myorder[symbol].get("strategy", ""),
+                    }
+
                 # ===== 持仓期间：每日检查并更新当前满足的最高级别买入信号 =====
                 # 检查所有买入信号，找到当前满足的最高级别（数字越小级别越高）
                 # 注意：只升级不降级，符合投资逻辑（仓位级别只升不降）
@@ -1017,28 +1051,6 @@ class GlobalStrategy(bt.Strategy):
                 )
                 self.myorder[d._name]["strategy"] = current_strategy
 
-                # ===== 持仓数据处理 =====
-                if len(d) <= d.buflen() - 1:
-                    dt = self.datas[0].datetime.date(0)
-                    dict = {
-                        "symbol": d._name,
-                        "date": dt.isoformat(),
-                        "price": pos.price,
-                        "adjbase": pos.adjbase,
-                        "pnl": pos.size * (pos.adjbase - pos.price),
-                        "volume": d.volume[0],
-                        "daily_return": (
-                            self.daily_returns[d._name][-1]
-                            if self.daily_returns[d._name]
-                            else None
-                        ),
-                        "sharpe_ratio": self.sharpe_ratios[d._name],
-                        "sortino_ratio": self.sortino_ratios[d._name],
-                        "max_drawdown": self.max_drawdowns[d._name],
-                        "strategy": self.myorder[d._name].get("strategy", ""),
-                    }
-                    list.append(dict)
-
                 # 更新持仓期间最高价（用于移动止盈）
                 if self.peak_price[d._name] is None:
                     self.peak_price[d._name] = d.close[0]
@@ -1048,6 +1060,10 @@ class GlobalStrategy(bt.Strategy):
                 # ===== 卖出逻辑（基于当前级别，检查该级别所有卖出信号）=====
                 # 如果当前最高级别信号不再满足，检查是否需要卖出
                 if current_status == "updated":
+                    # ===== 持仓数据状态记录 =====
+                    record = _get_position_record(d, pos)
+                    if record is not None:
+                        list.append(record)
                     continue  # 升级后不立即检查卖出信号，等下一周期再检查，避免过度交易
                 if current_level == 1:  # 长线信号不满足，检查长线卖出信号
                     if self.check_signal(d._name, "short_position"):
@@ -1080,6 +1096,10 @@ class GlobalStrategy(bt.Strategy):
                     # 兜底止损（只在未卖出时检查）
                     elif d.close[0] <= pos.price * 0.85:
                         self.execute_sell(d, "低于买入价15%")
+                # ===== 持仓数据状态记录 =====
+                record = _get_position_record(d, pos)
+                if record is not None and self.current_signal[d._name] is not None:
+                    list.append(record)
 
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)

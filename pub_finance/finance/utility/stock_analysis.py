@@ -220,8 +220,7 @@ class StockProposal:
         """ 
         行业板块历史数据分析
         """
-        spark_industry_history_tracking = spark.sql(
-            """
+        spark_industry_history_tracking = spark.sql("""
             WITH tmp AS (
                 SELECT industry
                     ,SUM(IF(`p&l` >= 0, 1, 0)) AS pos_cnt
@@ -419,13 +418,9 @@ class StockProposal:
             LEFT JOIN tmp5 t5 ON t1.industry = t5.industry
             WHERE t2.p_cnt > 0
             ORDER BY COALESCE(t2.p_pnl,0) DESC
-            """.format(
-                start_date, end_date
-            )
-        )
+            """.format(start_date, end_date))
 
-        spark_industry_history_tracking_lstndays = spark.sql(
-            """
+        spark_industry_history_tracking_lstndays = spark.sql("""
             WITH tmp AS (
                 SELECT t2.industry
                     ,SUM(t1.pnl) AS pnl
@@ -451,10 +446,9 @@ class StockProposal:
                 ,tmp.pnl - COALESCE(tmp1.pnl, 0) AS pnl_growth
             FROM tmp LEFT JOIN tmp1 ON tmp.industry = tmp1.industry
             ORDER BY tmp.pnl - COALESCE(tmp1.pnl, 0) DESC
-            """
-        )
-        spark_industry_history_tracking_ndaysbeforeyesterday = spark.sql(
-            """
+            """)
+
+        spark_industry_history_tracking_ndaysbeforeyesterday = spark.sql("""
             WITH tmp AS (
                 SELECT t2.industry
                     ,SUM(t1.pnl) AS pnl
@@ -493,8 +487,7 @@ class StockProposal:
             LEFT JOIN tmp1 ON tmp.industry = tmp1.industry
             LEFT JOIN tmp2 ON tmp.industry = tmp2.industry
             ORDER BY COALESCE(tmp1.pnl, 0) - COALESCE(tmp2.pnl, 0) DESC
-            """
-        )
+            """)
         pd_industry_history_tracking_lstndays = (
             spark_industry_history_tracking_lstndays.toPandas()
         )
@@ -821,8 +814,7 @@ class StockProposal:
             "temp_cur_position_with_latest_stock_info"
         )
 
-        spark_position_history = spark.sql(
-            """ 
+        spark_position_history = spark.sql(""" 
             WITH tmp1 AS (
                 SELECT symbol
                     ,date
@@ -995,10 +987,7 @@ class StockProposal:
                         ORDER BY t2.symbol, t1.buy_date ASC
                     )   GROUP BY symbol
                 ) t6 ON t1.symbol = t6.symbol                  
-            """.format(
-                start_date, end_date
-            )
-        )
+            """.format(start_date, end_date))
 
         pd_position_history = spark_position_history.toPandas()
 
@@ -1283,8 +1272,7 @@ class StockProposal:
         """
         减仓情况分析
         """
-        spark_position_reduction = spark.sql(
-            """ 
+        spark_position_reduction = spark.sql(""" 
             WITH tmp1 AS (
                 SELECT symbol
                     ,date
@@ -1392,10 +1380,7 @@ class StockProposal:
                     FROM temp_latest_stock_info
                 ) t4 ON t1.symbol = t4.symbol
                 LEFT JOIN temp_gz t5 ON 1=1             
-            """.format(
-                start_date
-            )
-        )
+            """.format(start_date))
 
         pd_position_reduction = spark_position_reduction.toPandas()
 
@@ -1697,14 +1682,12 @@ class StockProposal:
             "rgba(214, 10, 34, 0.9)",
         ]
         # TOPN热门行业
-        spark_topn_industry = spark.sql(
-            """ 
+        spark_topn_industry = spark.sql(""" 
             SELECT industry, cnt 
             FROM (
                 SELECT industry, count(symbol) AS cnt FROM temp_cur_position GROUP BY industry)
             ORDER BY cnt DESC LIMIT 10
-            """
-        )
+            """)
 
         pd_topn_industry = spark_topn_industry.toPandas()
         replace_dict = pd_industry_history_tracking.set_index("industry_new")[
@@ -1901,14 +1884,12 @@ class StockProposal:
         print("Tree Map-Position生成完成...")
 
         # TOPN盈利行业
-        spark_topn_profit_industry = spark.sql(
-            """ 
+        spark_topn_profit_industry = spark.sql(""" 
             SELECT industry, ROUND(pl,2) AS pl 
             FROM (
                 SELECT industry, sum(`p&l`) as pl FROM temp_cur_position GROUP BY industry)
             ORDER BY pl DESC LIMIT 10
-            """
-        )
+            """)
 
         pd_topn_profit_industry = spark_topn_profit_industry.toPandas()
         pd_topn_profit_industry["industry"] = (
@@ -2005,8 +1986,7 @@ class StockProposal:
         print("Tree Map-PnL生成完成...")
 
         # N天内策略交易概率
-        spark_strategy_tracking_lstndays = spark.sql(
-            """ 
+        spark_strategy_tracking_lstndays = spark.sql(""" 
             WITH tmp1 AS (
                 SELECT t1.date
                     ,t1.symbol
@@ -2036,10 +2016,7 @@ class StockProposal:
             WHERE rn = 1
             GROUP BY date, strategy
             ORDER BY date, pnl
-            """.format(
-                start_date_200
-            )
-        )
+            """.format(start_date_200))
         pd_strategy_tracking_lstndays = spark_strategy_tracking_lstndays.toPandas()
         pd_strategy_tracking_lstndays["date"] = pd.to_datetime(
             pd_strategy_tracking_lstndays["date"]
@@ -2368,8 +2345,7 @@ class StockProposal:
         print("Strategy Chart生成完成...")
 
         # N天内交易明细分析
-        spark_trade_info_lstndays = spark.sql(
-            """ 
+        spark_trade_info_lstndays = spark.sql(""" 
             WITH tmp1 AS (
                 SELECT date
                     ,COUNT(symbol) AS total_cnt
@@ -2394,10 +2370,7 @@ class StockProposal:
                 ,t2.buy_cnt AS buy_cnt
                 ,t2.sell_cnt AS sell_cnt
             FROM tmp11 t1 LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
-            """.format(
-                start_date, start_date
-            )
-        )
+            """.format(start_date, start_date))
         pd_trade_info_lstndays = spark_trade_info_lstndays.toPandas()
 
         # 导出 CSV 供 Dash 使用 (duplicate section for other market blocks)
@@ -2567,8 +2540,7 @@ class StockProposal:
         print("Trade Trend生成完成...")
 
         # TOPN行业仓位变化趋势
-        spark_topn_industry_position_trend = spark.sql(
-            """
+        spark_topn_industry_position_trend = spark.sql("""
             WITH tmp AS ( 
                 SELECT industry
                     ,cnt 
@@ -2593,10 +2565,7 @@ class StockProposal:
                 ,SUM(IF(t2.symbol IS NOT NULL, 1, 0)) AS total_cnt
             FROM tmp1 t1 LEFT JOIN tmp2 t2 ON t1.industry = t2.industry AND t1.buy_date = t2.date
             GROUP BY t1.buy_date, t1.industry
-            """.format(
-                start_date
-            )
-        )
+            """.format(start_date))
         pd_topn_industry_position_trend = spark_topn_industry_position_trend.toPandas()
         pd_topn_industry_position_trend.sort_values(
             by=["buy_date", "total_cnt"], ascending=[False, False], inplace=True
@@ -2713,8 +2682,7 @@ class StockProposal:
         spark_industry_history_tracking_lstndays.createOrReplaceTempView(
             "temp_industry_history_tracking_lstndays"
         )
-        spark_topn_industry_profit_trend = spark.sql(
-            """
+        spark_topn_industry_profit_trend = spark.sql("""
             WITH tmp AS ( 
                 SELECT industry
                     ,pl 
@@ -2745,10 +2713,7 @@ class StockProposal:
             FROM (SELECT * FROM temp_industry_history_tracking_lstndays ORDER BY pnl_growth DESC LIMIT 5) t1
             LEFT JOIN tmp3 t2 ON t1.industry = t2.industry
             ORDER BY t2.buy_date ASC, t1.pnl_growth DESC
-            """.format(
-                start_date
-            )
-        )
+            """.format(start_date))
         pd_topn_industry_profit_trend = spark_topn_industry_profit_trend.toPandas()
         pd_topn_industry_profit_trend.sort_values(
             by=["buy_date", "pnl"], ascending=[False, False], inplace=True
@@ -2925,8 +2890,7 @@ class StockProposal:
         gc.collect()
         print("TopN Pnl Trend生成完成...")
 
-        spark_calendar_heatmap = spark.sql(
-            """
+        spark_calendar_heatmap = spark.sql("""
             WITH tmp AS (
                 SELECT 
                     t1.date
@@ -2989,8 +2953,7 @@ class StockProposal:
                 ,MAX(s_pnl) AS s_pnl
             FROM (SELECT * FROM tmp3 WHERE rn <= 3 ORDER BY date, rn) t
             GROUP BY date
-            """
-        )
+            """)
 
         pd_calendar_heatmap = spark_calendar_heatmap.toPandas()
 
@@ -4059,8 +4022,7 @@ class StockProposal:
             "temp_cur_position_with_latest_stock_info"
         )
 
-        spark_position_history = spark.sql(
-            """ 
+        spark_position_history = spark.sql(""" 
             WITH tmp1 AS (
                 SELECT symbol
                     ,date
@@ -4166,10 +4128,7 @@ class StockProposal:
                 , IF(adjbase < price, 1, 0) AS neg_cnt
                 FROM tmp3
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol
-            """.format(
-                start_date, end_date
-            )
-        )
+            """.format(start_date, end_date))
 
         pd_position_history = spark_position_history.toPandas()
 
@@ -4383,8 +4342,7 @@ class StockProposal:
         """
         减仓情况分析
         """
-        spark_position_reduction = spark.sql(
-            """ 
+        spark_position_reduction = spark.sql(""" 
             WITH tmp1 AS (
                 SELECT symbol
                     ,date
@@ -4473,10 +4431,7 @@ class StockProposal:
                                                 ) tt WHERE row_num = 5)
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol AND t1.sell_date = t2.sell_date
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
-            """.format(
-                start_date
-            )
-        )
+            """.format(start_date))
 
         pd_position_reduction = spark_position_reduction.toPandas()
 
@@ -4653,8 +4608,7 @@ class StockProposal:
         gc.collect()
 
         # N天内交易明细分析
-        spark_trade_info_lstndays = spark.sql(
-            """ 
+        spark_trade_info_lstndays = spark.sql(""" 
             WITH tmp1 AS (
                 SELECT date
                     ,COUNT(symbol) AS total_cnt
@@ -4680,10 +4634,7 @@ class StockProposal:
                 ,t2.buy_cnt AS buy_cnt
                 ,t2.sell_cnt AS sell_cnt
             FROM tmp11 t1 LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
-            """.format(
-                start_date, start_date
-            )
-        )
+            """.format(start_date, start_date))
         pd_trade_info_lstndays = spark_trade_info_lstndays.toPandas()
 
         # 设置图像的宽度和高度（例如，1920x1080像素）
@@ -5048,9 +4999,7 @@ class StockProposal:
             </div>
         </body>
         </html>
-        """.format(
-            cash=cash, final_value=final_value
-        )
+        """.format(cash=cash, final_value=final_value)
 
         final_html = f"""
         <!DOCTYPE html>
