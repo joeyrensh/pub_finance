@@ -191,10 +191,12 @@ class StockProposal:
 
         # 生成时间序列，用于时间序列补齐
         end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
-        start_date = pd.to_datetime(end_date) - pd.DateOffset(days=180)
-        start_date_200 = pd.to_datetime(end_date) - pd.DateOffset(days=220)
         date_range = pd.date_range(
-            start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
+            start=(pd.to_datetime(end_date) - pd.DateOffset(days=360)).strftime(
+                "%Y-%m-%d"
+            ),
+            end=end_date,
+            freq="D",
         )
         pd_timeseries = pd.DataFrame({"buy_date": date_range})
         # 将日期转换为字符串格式 'YYYYMMDD'
@@ -210,6 +212,10 @@ class StockProposal:
             pd_timeseries = pd_timeseries[
                 pd_timeseries["trade_date"].apply(toolkit.is_cn_trade_date)
             ]
+        pd_timeseries = pd_timeseries.sort_values("buy_date").reset_index(drop=True)
+        start_date = pd_timeseries.iloc[-120]["buy_date"]
+        start_date_200 = pd_timeseries.iloc[-160]["buy_date"]
+        pd_timeseries = pd_timeseries.tail(120)
 
         spark_timeseries = spark.createDataFrame(
             pd_timeseries.astype({"buy_date": "string"})
@@ -3982,9 +3988,12 @@ class StockProposal:
 
         # 生成时间序列，用于时间序列补齐
         end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
-        start_date = pd.to_datetime(end_date) - pd.DateOffset(days=180)
         date_range = pd.date_range(
-            start=start_date.strftime("%Y-%m-%d"), end=end_date, freq="D"
+            start=(pd.to_datetime(end_date) - pd.DateOffset(days=360)).strftime(
+                "%Y-%m-%d"
+            ),
+            end=end_date,
+            freq="D",
         )
         pd_timeseries = pd.DataFrame({"buy_date": date_range})
         # 将日期转换为字符串格式 'YYYYMMDD'
@@ -3992,7 +4001,6 @@ class StockProposal:
 
         # 根据市场类型过滤非交易日
         toolkit = ToolKit("identify trade date")
-
         if self.market == "us":
             pd_timeseries = pd_timeseries[
                 pd_timeseries["trade_date"].apply(toolkit.is_us_trade_date)
@@ -4001,6 +4009,9 @@ class StockProposal:
             pd_timeseries = pd_timeseries[
                 pd_timeseries["trade_date"].apply(toolkit.is_cn_trade_date)
             ]
+        pd_timeseries = pd_timeseries.sort_values("buy_date").reset_index(drop=True)
+        start_date = pd_timeseries.iloc[-120]["buy_date"]
+        pd_timeseries = pd_timeseries.tail(120)
 
         spark_timeseries = spark.createDataFrame(
             pd_timeseries.astype({"buy_date": "string"})
