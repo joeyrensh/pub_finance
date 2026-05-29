@@ -7,7 +7,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 
 
 def clean_stock_data_pandas_batch(

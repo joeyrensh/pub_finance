@@ -30,7 +30,7 @@ from finance.utility.em_stock_uti import EMWebCrawlerUti
 import numpy as np
 import os
 import pickle
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 
 
 class BacktraderExec:

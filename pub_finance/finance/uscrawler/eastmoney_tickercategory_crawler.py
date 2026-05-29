@@ -9,7 +9,7 @@ import requests
 import json
 from finance.utility.fileinfo import FileInfo
 from finance.utility.em_stock_uti import EMWebCrawlerUti
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 
 """ 东方财经美股股票对应行业板块数据获取接口 """
 

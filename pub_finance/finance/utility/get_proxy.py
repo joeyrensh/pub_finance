@@ -7,7 +7,7 @@ import pandas as pd
 import random
 import hashlib
 import time
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 
 
 class ProxyManager:

@@ -4,7 +4,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from finance.utility.em_stock_uti import EMWebCrawlerUti
 from finance.cncrawler.ak_history_crawler import AKCNHistoryDataCrawler
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 
 # 历史数据起始时间，结束时间
 # 文件名称定义

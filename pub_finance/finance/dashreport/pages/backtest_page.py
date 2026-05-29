@@ -15,7 +15,7 @@ from finance.dashreport.utils import Header, make_dash_format_table
 from finance.utility.toolkit import ToolKit
 from finance.utility.backtrader_exec import BacktraderExec
 from finance.utility.tickerinfo import TickerInfo
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 from finance.dashreport.data_loader import ReportDataLoader
 from threading import Lock
 

@@ -11,7 +11,7 @@ from matplotlib import colors as mcolors
 import pandas as pd
 import hashlib
 import os
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 import json
 
 

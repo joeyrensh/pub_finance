@@ -9,7 +9,7 @@ import numpy as np
 import hashlib
 import os
 from finance.utility.toolkit import ToolKit
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 
 
 def Header(app):

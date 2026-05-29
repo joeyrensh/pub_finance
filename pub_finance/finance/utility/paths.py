@@ -2,4 +2,4 @@
 from pathlib import Path
 
 # 统一 finance 根目录
-FINANCE_ROOT = Path(__file__).resolve().parent  # finance/
+FINANCE_ROOT = Path(__file__).resolve().parent.parent  # finance/

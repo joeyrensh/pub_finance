@@ -18,7 +18,7 @@ from fake_useragent import UserAgent
 from finance.utility.emcookie_generation import CookieGeneration
 import json
 from finance.utility.get_proxy import ProxyManager
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 
 
 class EMWebCrawlerUti:

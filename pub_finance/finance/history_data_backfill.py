@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from finance.utility.em_stock_uti import EMWebCrawlerUti
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 
 
 class StockDataUpdater:

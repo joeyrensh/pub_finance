@@ -18,7 +18,7 @@ import re
 from plotly.colors import sample_colorscale
 from datetime import datetime, timedelta
 import os
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 
 # mpl.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
 

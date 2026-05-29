@@ -8,7 +8,7 @@ import json
 import tempfile
 import chromedriver_autoinstaller
 from selenium.webdriver.chrome.service import Service
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 
 
 class CookieGeneration(object):

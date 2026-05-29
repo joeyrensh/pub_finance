@@ -2,8 +2,7 @@
 # -*- coding: UTF-8 -*-
 import os
 import re
-from finance.paths import FINANCE_ROOT
-
+from finance import FINANCE_ROOT
 
 """ 获取文件相关信息 """
 

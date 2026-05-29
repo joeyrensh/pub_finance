@@ -143,8 +143,8 @@ if __name__ == "__main__":
         retry_call(do_task, max_retries=max_retries, delay=3)
 
     # 美股主要策略执行
-    print("-----------美股主策略执行-----------")
-    retry_backtest_and_send("us", trade_date)
+    # print("-----------美股主策略执行-----------")
+    # retry_backtest_and_send("us", trade_date)
 
     # # 固定列表追踪
     # print("-----------美股固定列表策略执行-----------")

@@ -5,7 +5,7 @@ from typing import Dict, Iterable, Optional, Tuple
 from functools import lru_cache
 import copy
 import os
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 
 
 class ReportDataLoader:

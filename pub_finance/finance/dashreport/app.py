@@ -16,7 +16,7 @@ import configparser
 from flask import session
 import os
 from datetime import timedelta
-from finance.paths import FINANCE_ROOT
+from finance import FINANCE_ROOT
 
 server = Flask(__name__)
 Compress(
