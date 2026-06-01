@@ -33,3 +33,5 @@ check_logs.sh*
 !china_proxies.txt
 !overseas_proxies.txt
 !utility/proxy.txt
+!Backtest.png
+!Frontpage.png
