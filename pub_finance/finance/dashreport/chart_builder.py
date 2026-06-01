@@ -1746,7 +1746,7 @@ class ChartBuilder:
         # =========================
         # 13. 布局设置（上下结构：图占上部，表占下部，中间留间距）
         # =========================
-        CHART_DOMAIN_Y = [0.3, 1.0]
+        CHART_DOMAIN_Y = [0.32, 1.0]
         TABLE_DOMAIN_Y = [0.0, 0.25]
 
         legend_absolute_x = 0.02
@@ -1768,13 +1768,11 @@ class ChartBuilder:
                         weight="bold",
                     ),
                     align=["left"] * len(header_values),
-                    height=int(50 * (scale if scale >= 1 else 0.65 * scale)),
+                    height=int(50 * (scale if scale >= 1 else 0.62 * scale)),
                 ),
                 cells=dict(
                     values=cell_values,
-                    fill_color=cfg[
-                        "table_cell"
-                    ],  # 注意：cell_colors 是二维列表，与 cells.values 的维度对应
+                    fill_color=cfg["table_cell"],
                     line=dict(color=cfg["border"], width=1),
                     font=dict(
                         size=table_font,
@@ -1782,7 +1780,7 @@ class ChartBuilder:
                         family=self.font_family,
                     ),
                     align=["left"] * len(header_values),
-                    height=int(50 * (scale if scale >= 1 else 0.65 * scale)),
+                    height=int(50 * (scale if scale >= 1 else 0.62 * scale)),
                 ),
             )
         )
