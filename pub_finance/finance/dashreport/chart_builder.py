@@ -1873,7 +1873,7 @@ class ChartBuilder:
                 position=0.0,
                 range=[
                     pnl.index.min() - timedelta(days=0.5),
-                    pnl.index.max() + timedelta(days=10),
+                    pnl.index.max() + timedelta(days=0.5),
                 ],
             ),
         )
