@@ -1364,7 +1364,7 @@ class ChartBuilder:
 
     def annual_return(self, page, pnl: pd.Series, theme="light", client_width=1440):
         """
-        生成年度收益图表
+        生成年度收益图表（上：图，下：表格）
         """
         # =========================
         # 0. 基本校验
@@ -1426,41 +1426,60 @@ class ChartBuilder:
             perf_fmt[col] = perf_fmt[col].apply(lambda x: f"{x*100:.2f}%")
 
         # =========================
-        # 5. 表格数据
+        # 5. 表格数据（转置：年份为行，指标为列，并按年份降序排列）
         # =========================
-        table_labels = ["ANN.R", "CUM.R", "MX.DD", "D.RISK"]
+        df_transposed = perf_fmt.reset_index().rename(columns={"index": "YEAR"})
+        df_transposed = df_transposed.sort_values("YEAR", ascending=False).reset_index(
+            drop=True
+        )
 
-        table_data = {" ": table_labels}
-        for year in perf_fmt.index:
-            table_data[year] = perf_fmt.loc[
-                year, ["ANN.R", "CUM.R", "MX.DD", "D.RISK"]
-            ].tolist()
-
-        table_df = pd.DataFrame(table_data)
+        table_columns = ["YEAR"] + list(perf_fmt.columns)
+        table_data = df_transposed.values.tolist()
+        table_df = pd.DataFrame(table_data, columns=table_columns)
 
         # =========================
-        # 6. 表格颜色
+        # 6. 表格颜色（仅最新年份行（第一行）的指标根据正负着色）
         # =========================
-        last_column = table_df.columns[-1]
+        latest_year = table_df.iloc[0]["YEAR"]  # 最新年份
+        print("Latest year for coloring:", latest_year)
 
         font_colors = []
-        for col in table_df.columns:
-            column_colors = []
-            for i, val in enumerate(table_df[col]):
-                if col == last_column and i >= 0 and val and val != "":
-                    try:
-                        num_val = float(val.replace("%", ""))
-                        color = (
-                            cfg["positive_int"] if num_val >= 0 else cfg["negative_int"]
-                        )
-                    except:
-                        color = text_color
+        for i, row in table_df.iterrows():
+            row_colors = []
+            for j, col in enumerate(table_columns):
+                if j == 0:
+                    row_colors.append(text_color)
                 else:
-                    color = text_color
-                column_colors.append(color)
-            font_colors.append(column_colors)
+                    val_str = row[col]
+                    if val_str and val_str != "":
+                        try:
+                            num_val = float(val_str.replace("%", ""))
+                            if row["YEAR"] == latest_year:
+                                color = (
+                                    cfg["positive_int"]
+                                    if num_val >= 0
+                                    else cfg["negative_int"]
+                                )
+                            else:
+                                color = text_color
+                        except:
+                            color = text_color
+                    else:
+                        color = text_color
+                    row_colors.append(color)
+            font_colors.append(row_colors)
 
-        cell_colors = [cfg["table_cell"]] * len(table_df.columns)
+        # 转换为列优先（与 cell_values 的列顺序一致）
+        font_colors_by_col = [
+            [font_colors[i][j] for i in range(len(table_df))]
+            for j in range(len(table_columns))
+        ]
+
+        # 准备表格单元格数据（列优先）
+        cell_values = [table_df[col].tolist() for col in table_columns]
+
+        # 表头颜色（原 header 部分）
+        header_values = table_columns
 
         # =========================
         # 7. 创建图表
@@ -1473,14 +1492,12 @@ class ChartBuilder:
         # =========================
         cum_min = cumulative.min()
         cum_max = cumulative.max()
-        # cum_range = [cum_min * 0.95, cum_max * 1.05]
         cum_range = [cum_min, cum_max]
         cum_q1 = cum_min + (cum_max - cum_min) * 0.33
         cum_q2 = cum_min + (cum_max - cum_min) * 0.66
 
         dd_min = drawdown.min()
         dd_max = 0
-        # dd_range = [dd_min * 1.05, 0.0]
         dd_range = [dd_min, 0.0]
         dd_q1 = dd_min + (dd_max - dd_min) * 0.33
         dd_q2 = dd_min + (dd_max - dd_min) * 0.66
@@ -1497,11 +1514,7 @@ class ChartBuilder:
                 name="Drawdown",
                 line=dict(color=cfg["drawdown"], width=1 * scale),
                 fillcolor=cfg["drawdown_fill"],
-                hovertemplate=(
-                    # "<b>Date</b>: %{x|%Y-%m-%d}<br>"
-                    "<b>Drawdown</b>: %{y:.2%}<br>"
-                    "<extra></extra>"
-                ),
+                hovertemplate=("<b>Drawdown</b>: %{y:.2%}<br>" "<extra></extra>"),
                 hoverlabel=dict(
                     bgcolor=hover_config["drawdown"],
                 ),
@@ -1519,11 +1532,7 @@ class ChartBuilder:
                 mode="lines",
                 name="Cum. Return",
                 line=dict(color=cfg["cumret"], width=2 * scale),
-                hovertemplate=(
-                    # "<b>Date</b>: %{x|%Y-%m-%d}<br>"
-                    "<b>Cum. Return</b>: %{y:.4f}<br>"
-                    "<extra></extra>"
-                ),
+                hovertemplate=("<b>Cum. Return</b>: %{y:.4f}<br>" "<extra></extra>"),
                 hoverlabel=dict(
                     bgcolor=hover_config["cumret"],
                 ),
@@ -1532,25 +1541,19 @@ class ChartBuilder:
         )
 
         # =========================
-        # 11. 关键点标注函数
+        # 11. 关键点标注函数（保持原样，未改动）
         # =========================
         def get_label_position(
             index: Any,
-            data_series: pd.Series,  # 主 series，用于默认位置判断
+            data_series: pd.Series,
             current_value: Any,
             is_near_right_threshold: float = 0.2,
             avoid_indices: list | None = None,
             avoid_days: int = 20,
             avoid_y_threshold: float = 0.02,
             avoid_scale_map: dict | None = None,
-            data_series_map: dict | None = None,  # 新增：索引 -> series 映射
+            data_series_map: dict | None = None,
         ) -> Literal["top left", "top right", "bottom left", "bottom right"]:
-            """
-            返回文本标注位置，默认根据是否靠近右侧选择左右。
-            当传入 avoid_indices（索引列表）且有靠近的索引时，
-            会检查该点与当前点在时间和数值上是否接近，若接近则翻转上下位置。
-            支持不同 series 混合（data_series_map）。
-            """
             try:
                 right_threshold_idx = data_series.index[
                     -int(len(data_series) * is_near_right_threshold)
@@ -1558,35 +1561,24 @@ class ChartBuilder:
             except Exception:
                 right_threshold_idx = data_series.index[0]
 
-            # 默认位于右侧附近时放在左上，否则右上
             pos = "top left" if index > right_threshold_idx else "top right"
 
-            # 若提供了需要避让的索引，则在时间和数值上都接近时翻转上下位置
             if avoid_indices:
                 for ai in avoid_indices:
                     try:
-                        # x 轴距离（天数）
                         delta_days = abs(
                             (pd.to_datetime(ai) - pd.to_datetime(index)).days
                         )
-
-                        # 判断 other_value 来自哪个 series
                         if data_series_map and ai in data_series_map:
                             series = data_series_map[ai]
                         else:
-                            series = data_series  # 默认回退到主 series
-
+                            series = data_series
                         other_value = series.loc[ai]
-
                         if avoid_scale_map and ai in avoid_scale_map:
                             other_value = other_value / avoid_scale_map[ai]
-
-                        # y 轴距离
                         delta_y = abs(abs(current_value) - abs(other_value))
                     except Exception:
                         continue
-
-                    # 如果 x 接近或者 y 接近，则翻转
                     if delta_days <= avoid_days or delta_y <= avoid_y_threshold:
                         pos = (
                             pos.replace("top", "bottom")
@@ -1594,7 +1586,6 @@ class ChartBuilder:
                             else pos.replace("bottom", "top")
                         )
                         break
-
             return pos
 
         def get_compact_label(text, value, client_width):
@@ -1609,9 +1600,8 @@ class ChartBuilder:
                     return f"{text[:3]}: {value:.1%}"
 
         # =========================
-        # 12. 关键点标注
+        # 12. 关键点标注（完全保持原样）
         # =========================
-        # 最大累计收益
         if len(cumulative) > 0:
             cum_max_idx = cumulative.idxmax()
             cum_max_val = cumulative.max()
@@ -1625,13 +1615,8 @@ class ChartBuilder:
                     mode="markers+text",
                     marker=dict(symbol="circle", size=8 * scale, color=cfg["cumret"]),
                     showlegend=False,
-                    hovertemplate=(
-                        f"<b>Latest Cum. Return</b>: {last_y:.4f}<br>"
-                        f"<extra></extra>"
-                    ),
-                    hoverlabel=dict(
-                        bgcolor=hover_config["cumret"],
-                    ),
+                    hovertemplate=f"<b>Latest Cum. Return</b>: {last_y:.4f}<br><extra></extra>",
+                    hoverlabel=dict(bgcolor=hover_config["cumret"]),
                     yaxis="y2",
                 )
             )
@@ -1651,31 +1636,18 @@ class ChartBuilder:
                     ),
                     cliponaxis=False,
                     showlegend=False,
-                    hovertemplate=(
-                        f"<b>Max Cum. Return</b>: {cum_max_val:.4f}<br>"
-                        f"<extra></extra>"
-                    ),
-                    hoverlabel=dict(
-                        bgcolor=hover_config["cumret"],
-                    ),
+                    hovertemplate=f"<b>Max Cum. Return</b>: {cum_max_val:.4f}<br><extra></extra>",
+                    hoverlabel=dict(bgcolor=hover_config["cumret"]),
                     yaxis="y2",
                 )
             )
 
-        # 在处理回撤注释前准备需要规避的索引列表（例如累计最大值与最新日期）
         avoid_list = []
         avoid_list.append(cum_max_idx)
         avoid_list.append(cumulative.index[-1])
-        avoid_scale_map = {
-            cum_max_idx: 100,
-            cumulative.index[-1]: 100,
-        }
-        data_series_map = {
-            cum_max_idx: cumulative,
-            cumulative.index[-1]: cumulative,
-        }
+        avoid_scale_map = {cum_max_idx: 100, cumulative.index[-1]: 100}
+        data_series_map = {cum_max_idx: cumulative, cumulative.index[-1]: cumulative}
 
-        # 最大回撤
         if len(drawdown) > 0:
             max_dd_idx = drawdown.idxmin()
             max_dd_val = drawdown.min()
@@ -1700,23 +1672,17 @@ class ChartBuilder:
                     textfont=dict(size=base_font, color=text_color),
                     cliponaxis=False,
                     showlegend=False,
-                    hovertemplate=(
-                        f"<b>Max Drawdown</b>: {max_dd_val:.2%}<br>" f"<extra></extra>"
-                    ),
-                    hoverlabel=dict(
-                        bgcolor=hover_config["drawdown"],
-                    ),
+                    hovertemplate=f"<b>Max Drawdown</b>: {max_dd_val:.2%}<br><extra></extra>",
+                    hoverlabel=dict(bgcolor=hover_config["drawdown"]),
                     yaxis="y",
                 )
             )
             avoid_list.append(max_dd_idx)
 
-            # 30D最大回撤
             if len(drawdown) >= 30:
                 w_30 = drawdown.iloc[-30:]
                 idx_30 = w_30.idxmin()
                 val_30 = w_30.loc[idx_30]
-
                 if idx_30 != max_dd_idx:
                     fig.add_trace(
                         go.Scatter(
@@ -1739,24 +1705,17 @@ class ChartBuilder:
                             ),
                             textfont=dict(size=base_font, color=text_color),
                             showlegend=False,
-                            hovertemplate=(
-                                f"<b>30D Max Drawdown</b>: {val_30:.2%}<br>"
-                                f"<extra></extra>"
-                            ),
-                            hoverlabel=dict(
-                                bgcolor=hover_config["drawdown"],
-                            ),
+                            hovertemplate=f"<b>30D Max Drawdown</b>: {val_30:.2%}<br><extra></extra>",
+                            hoverlabel=dict(bgcolor=hover_config["drawdown"]),
                             yaxis="y",
                         )
                     )
                 avoid_list.append(idx_30)
 
-            # 120D最大回撤
             if len(drawdown) >= 120:
                 w_120 = drawdown.iloc[-120:]
                 idx_120 = w_120.idxmin()
                 val_120 = w_120.loc[idx_120]
-
                 if idx_120 != max_dd_idx and (len(drawdown) < 30 or idx_120 != idx_30):
                     fig.add_trace(
                         go.Scatter(
@@ -1778,60 +1737,28 @@ class ChartBuilder:
                             ),
                             textfont=dict(size=base_font, color=text_color),
                             showlegend=False,
-                            hovertemplate=(
-                                f"<b>120D Max Drawdown</b>: {val_120:.2%}<br>"
-                                f"<extra></extra>"
-                            ),
-                            hoverlabel=dict(
-                                bgcolor=hover_config["drawdown"],
-                            ),
+                            hovertemplate=f"<b>120D Max Drawdown</b>: {val_120:.2%}<br><extra></extra>",
+                            hoverlabel=dict(bgcolor=hover_config["drawdown"]),
                             yaxis="y",
                         )
                     )
 
         # =========================
-        # 13. 布局设置
+        # 13. 布局设置（上下结构：图占上部，表占下部，中间留间距）
         # =========================
-        TABLE_WIDTH_RATIO = 0.35
-        CHART_WIDTH_RATIO = 0.65
-        HORIZONTAL_SPACING = 0.005
-        # 计算图表区域（左侧）
-        chart_domain_left = 0.0
-        chart_domain_right = 1.0 - TABLE_WIDTH_RATIO - HORIZONTAL_SPACING
+        CHART_DOMAIN_Y = [0.3, 1.0]
+        TABLE_DOMAIN_Y = [0.0, 0.25]
 
-        # 计算表格区域（右侧）
-        table_domain_left = chart_domain_right + HORIZONTAL_SPACING
-        table_domain_right = 1.0
+        legend_absolute_x = 0.02
 
-        chart_width = chart_domain_right - chart_domain_left
-        legend_absolute_x = chart_domain_left + (0.01 * chart_width)
-
-        # =========================
-        # 14. 添加右侧表格
-        # =========================
-        scale_adj = self._get_scale(
-            base_fig_width=630, client_width=client_width, min_scale=0.1, max_scale=0.8
-        )
-        header_height = int(table_font * 4.8) * (scale if scale == 1.0 else scale_adj)
-        cell_height = int(table_font * 8) * (scale if scale == 1.0 else scale_adj)
-
-        TABLE_Y_BOTTOM = 0.0
-        TABLE_Y_TOP = 1.0
-        cell_values = []
-        for i, col in enumerate(table_df.columns):
-            if i == 0:
-                cell_values.append([f"<b>{v}</b>" for v in table_df[col]])
-            else:
-                cell_values.append(table_df[col])
+        # 准备表格单元格数据（转置后的）
+        cell_values = [table_df[col].tolist() for col in table_columns]  # 按列提取
 
         fig.add_trace(
             go.Table(
-                domain=dict(
-                    x=[table_domain_left, table_domain_right],  # 表格在右侧
-                    y=[TABLE_Y_BOTTOM, TABLE_Y_TOP],
-                ),
+                domain=dict(x=[0.0, 1.0], y=TABLE_DOMAIN_Y),
                 header=dict(
-                    values=list(table_df.columns),
+                    values=header_values,
                     fill_color=cfg["table_header"],
                     line=dict(color=cfg["border"], width=1),
                     font=dict(
@@ -1840,37 +1767,29 @@ class ChartBuilder:
                         family=self.font_family,
                         weight="bold",
                     ),
-                    align=["center"] * len(table_df.columns),
-                    height=header_height,
+                    align=["left"] * len(header_values),
+                    height=int(50 * (scale if scale >= 1 else 0.65 * scale)),
                 ),
                 cells=dict(
                     values=cell_values,
-                    fill_color=cell_colors,
+                    fill_color=cfg[
+                        "table_cell"
+                    ],  # 注意：cell_colors 是二维列表，与 cells.values 的维度对应
                     line=dict(color=cfg["border"], width=1),
                     font=dict(
                         size=table_font,
-                        color=font_colors,
+                        color=font_colors_by_col,  # font_colors 是二维列表
                         family=self.font_family,
                     ),
-                    align=["center"] * len(table_df.columns),
-                    height=cell_height,
+                    align=["left"] * len(header_values),
+                    height=int(50 * (scale if scale >= 1 else 0.65 * scale)),
                 ),
-                # columnwidth=[1.0] + [1.0] * (len(table_df.columns) - 1),
             )
         )
 
-        # =========================
-        # 15. 更新图表布局
-        # =========================
-        # 从pnl的索引中获取最小和最大日期
-        data_start_date = pnl.index.min()  # 最小日期
-        data_end_date = pnl.index.max()  # 最大日期
-
+        # 更新图表布局
         fig.update_layout(
-            # autosize=True,
             dragmode=False,
-            width=None,
-            # height=None,
             margin=dict(l=0, r=1, t=0, b=0),
             font=dict(size=base_font, color=text_color, family=self.font_family),
             legend=dict(
@@ -1888,28 +1807,19 @@ class ChartBuilder:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             hovermode="x",
-            hoverlabel=dict(
-                # bgcolor=cfg["hover_bg"],
-                # bgcolor=hover_config["cumret"],
-                font_size=base_font,
-                font_family=self.font_family,
-                # font_color=cfg["hover_text"],
-                # bordercolor=cfg["hover_border"],
-            ),
+            hoverlabel=dict(font_size=base_font, font_family=self.font_family),
             bargap=0,
             bargroupgap=0,
             boxgap=0,
             boxgroupgap=0,
-            # Y轴设置
+            # Y轴（右）设置
             yaxis=dict(
                 title="",
                 side="right",
-                position=chart_domain_right,
                 showgrid=False,
                 tickfont=dict(
                     size=base_font, color=text_color, family=self.font_family
                 ),
-                # tickformat=".0%",
                 range=dd_range,
                 tickmode="array",
                 tickvals=[dd_q1, dd_q2],
@@ -1921,20 +1831,18 @@ class ChartBuilder:
                 linewidth=1,
                 linecolor=cfg["border"],
                 zeroline=False,
-                anchor="x",
+                domain=CHART_DOMAIN_Y,  # 图表垂直区域
             ),
-            # Y2轴设置
+            # Y2轴（左）设置
             yaxis2=dict(
                 title="",
                 side="left",
                 overlaying="y",
-                position=chart_domain_left,
                 showgrid=True,
                 gridcolor=cfg["grid"],
                 tickfont=dict(
                     size=base_font, color=text_color, family=self.font_family
                 ),
-                # tickformat=".2f",
                 tickmode="array",
                 tickvals=[cum_q1, cum_q2],
                 ticktext=[f"{cum_q1:.2f}", f"{cum_q2:.2f}"],
@@ -1946,6 +1854,7 @@ class ChartBuilder:
                 linewidth=1,
                 linecolor=cfg["border"],
                 zeroline=False,
+                domain=CHART_DOMAIN_Y,  # 与yaxis共享相同垂直区域
             ),
             # X轴设置
             xaxis=dict(
@@ -1953,7 +1862,7 @@ class ChartBuilder:
                 tickfont=dict(
                     size=base_font, color=text_color, family=self.font_family
                 ),
-                domain=[chart_domain_left, chart_domain_right],  # 图表区域
+                domain=[0.0, 1.0],  # 图表横向占满
                 rangeslider=dict(visible=False),
                 showline=False,
                 linewidth=1,
@@ -1965,9 +1874,9 @@ class ChartBuilder:
                 showgrid=True,
                 position=0.0,
                 range=[
-                    data_start_date - timedelta(days=0.5),
-                    data_end_date + timedelta(days=10),
-                ],  # 使用计算的范围
+                    pnl.index.min() - timedelta(days=0.5),
+                    pnl.index.max() + timedelta(days=10),
+                ],
             ),
         )
 

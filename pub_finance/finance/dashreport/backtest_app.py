@@ -323,14 +323,10 @@ def update_page_content(pathname):
             "cn_dynamic",
             show_charts=[
                 "annual_return",
-                "heatmap",
                 "strategy",
                 "trade",
-                "pnl_trend",
-                "industry_position",
-                "industry_profit",
             ],
-            show_tables=["category", "detail"],
+            show_tables=["detail"],
         ).get_layout()
     elif pathname == "/dash-financial-report/us-dynamic-stock-performance":
         return page_creater(
@@ -338,14 +334,10 @@ def update_page_content(pathname):
             "us_dynamic",
             show_charts=[
                 "annual_return",
-                "heatmap",
                 "strategy",
                 "trade",
-                "pnl_trend",
-                "industry_position",
-                "industry_profit",
             ],
-            show_tables=["category", "detail"],
+            show_tables=["detail"],
         ).get_layout()
     elif pathname == "/dash-financial-report/slogans":
         return slogans.create_layout(app)
