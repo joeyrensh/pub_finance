@@ -1749,7 +1749,7 @@ class ChartBuilder:
         CHART_DOMAIN_Y = [0.32, 1.0]
         TABLE_DOMAIN_Y = [0.0, 0.25]
 
-        legend_absolute_x = 0.02
+        legend_absolute_x = 0
         fig.add_trace(
             go.Table(
                 domain=dict(x=[0.0, 1.0], y=TABLE_DOMAIN_Y),
@@ -1868,6 +1868,7 @@ class ChartBuilder:
                 hoverformat="%Y-%m-%d",
                 showgrid=True,
                 position=0.0,
+                side="bottom",
                 range=[
                     pnl.index.min() - timedelta(days=0.5),
                     pnl.index.max() + timedelta(days=0.5),
