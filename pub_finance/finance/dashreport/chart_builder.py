@@ -1586,6 +1586,15 @@ class ChartBuilder:
                             else pos.replace("bottom", "top")
                         )
                         break
+            data_min = data_series.min()
+            data_max = data_series.max()
+            # 如果当前值距离底部小于总范围的 2%（可调整阈值），且 pos 包含 "bottom"
+            if (current_value - data_min) <= 0.02 * (data_max - data_min):
+                if "bottom" in pos:
+                    pos = pos.replace("bottom", "top")
+            if (data_max - current_value) <= 0.02 * (data_max - data_min):
+                if "top" in pos:
+                    pos = pos.replace("top", "bottom")
             return pos
 
         def get_compact_label(text, value, client_width):
