@@ -1551,6 +1551,7 @@ class ChartBuilder:
             avoid_indices: list | None = None,
             avoid_days: int = 20,
             avoid_y_threshold: float = 0.02,
+            avoid_overflow: bool = True,
             avoid_scale_map: dict | None = None,
             data_series_map: dict | None = None,
         ) -> Literal["top left", "top right", "bottom left", "bottom right"]:
@@ -1589,10 +1590,14 @@ class ChartBuilder:
             data_min = data_series.min()
             data_max = data_series.max()
             # 如果当前值距离底部小于总范围的 2%（可调整阈值），且 pos 包含 "bottom"
-            if (current_value - data_min) <= 0.02 * (data_max - data_min):
+            if (current_value - data_min) <= 0.02 * (
+                data_max - data_min
+            ) and avoid_overflow:
                 if "bottom" in pos:
                     pos = pos.replace("bottom", "top")
-            if (data_max - current_value) <= 0.02 * (data_max - data_min):
+            if (data_max - current_value) <= 0.02 * (
+                data_max - data_min
+            ) and avoid_overflow:
                 if "top" in pos:
                     pos = pos.replace("top", "bottom")
             return pos
@@ -1638,7 +1643,7 @@ class ChartBuilder:
                     marker=dict(symbol="circle", size=8 * scale, color=cfg["cumret"]),
                     text=[f"Max: {cum_max_val:.2f}"],
                     textposition=get_label_position(
-                        cum_max_idx, cumulative, cum_max_val
+                        cum_max_idx, cumulative, cum_max_val, avoid_overflow=False
                     ),
                     textfont=dict(
                         size=base_font, color=text_color, family=self.font_family
