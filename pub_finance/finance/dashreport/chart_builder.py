@@ -1441,7 +1441,6 @@ class ChartBuilder:
         # 6. 表格颜色（仅最新年份行（第一行）的指标根据正负着色）
         # =========================
         latest_year = table_df.iloc[0]["YEAR"]  # 最新年份
-        print("Latest year for coloring:", latest_year)
 
         font_colors = []
         for i, row in table_df.iterrows():
@@ -1474,6 +1473,7 @@ class ChartBuilder:
             [font_colors[i][j] for i in range(len(table_df))]
             for j in range(len(table_columns))
         ]
+        font_weights_by_col = ["bold"] + ["normal"] * (len(table_columns) - 1)
 
         # 准备表格单元格数据（列优先）
         cell_values = [table_df[col].tolist() for col in table_columns]
@@ -1750,10 +1750,6 @@ class ChartBuilder:
         TABLE_DOMAIN_Y = [0.0, 0.25]
 
         legend_absolute_x = 0.02
-
-        # 准备表格单元格数据（转置后的）
-        cell_values = [table_df[col].tolist() for col in table_columns]  # 按列提取
-
         fig.add_trace(
             go.Table(
                 domain=dict(x=[0.0, 1.0], y=TABLE_DOMAIN_Y),
@@ -1778,6 +1774,7 @@ class ChartBuilder:
                         size=table_font,
                         color=font_colors_by_col,  # font_colors 是二维列表
                         family=self.font_family,
+                        weight=font_weights_by_col,
                     ),
                     align=["left"] * len(header_values),
                     height=int(50 * (scale if scale >= 1 else 0.62 * scale)),
