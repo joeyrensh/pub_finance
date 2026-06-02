@@ -471,6 +471,24 @@ body {
   margin-top: -10px;
 }
 
+.dash-table-tooltip,
+.dash-tooltip,
+.dash-cell-tooltip {
+    max-width: 150px !important;
+    width: auto !important;
+    min-width: 60px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    white-space: pre-wrap !important;
+    overflow: visible !important;
+    z-index: 99999 !important;
+    background: var(--background-color) !important;
+    color: var(--text-color) !important;
+    border: none !important;
+    font-size: inherit !important;
+    transform: none !important;
+}
+
 .default-table table {
   border-collapse: separate !important;
   border-spacing: 0 !important;

@@ -1080,7 +1080,7 @@ class StockProposal:
         }
         if self.market in ("cn", "us"):
             toolkit = ToolKit("股票排名导出")
-            selected_symbols = toolkit.score_and_select_symbols(
+            selected_symbols, _ = toolkit.score_and_select_symbols(
                 pd_position_history,
                 column_map_default,
                 self.market,

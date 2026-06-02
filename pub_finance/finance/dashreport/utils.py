@@ -482,6 +482,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
     original_df = df.copy()
     required_cols = [
         "IND",
+        "SYMBOL",
         "ERP",
         "OPEN DATE",
         "PNL RATIO",
@@ -503,6 +504,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         df["ERP"] = pd.to_numeric(df["ERP"], errors="coerce")
         df["ERP"] = df["ERP"].fillna(-99999)
 
+    tooltip_data = []
     if has_all_required_cols:
         column_map_default = {
             "symbol": "SYMBOL",
@@ -517,7 +519,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
             "sortino": "SORTINO RATIO",
             "max_dd": "MAX DD",
         }
-        selected_symbols = ToolKit.score_and_select_symbols(
+        selected_symbols, score_dict = ToolKit.score_and_select_symbols(
             df,
             column_map_default,
             market,
@@ -527,6 +529,32 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         if market in ("us", "cn", "us_special"):
             mask = df["SYMBOL"].isin(selected_symbols)
             df.loc[mask, "NAME"] = "88+" + df.loc[mask, "NAME"].astype(str)
+            # 构建 tooltip_data：为每一行添加 symbol 列上的 score 提示
+            score_fields = [
+                "total_score",
+                "industry_score",
+                "erp_score",
+                "pnl_score",
+                "stability_score",
+            ]
+            for _, row in df.iterrows():
+                symbol = row["SYMBOL"]  # 注意列名与实际一致
+                values = [score_dict[field].get(symbol) for field in score_fields]
+
+                if values[0] is not None:  # 至少总分存在
+                    tooltip_text = (
+                        f"总分: {values[0]:.4f}\n"
+                        f"行业: {values[1]:.4f}\n"
+                        f"ERP: {values[2]:.4f}\n"
+                        f"收益: {values[3]:.4f}\n"
+                        f"稳定性: {values[4]:.4f}"
+                    )
+                else:
+                    tooltip_text = ""
+
+                tooltip_data.append(
+                    {"SYMBOL": {"value": tooltip_text, "type": "markdown"}}
+                )
 
     def create_link(symbol, market):
         if market in ("cn", "cn_dynamic") and symbol.startswith(("SH", "SZ")):
@@ -852,6 +880,8 @@ def make_dash_format_table(df, cols_format, market, trade_date):
                 data=data,
                 page_size=50,
                 columns=columns,
+                tooltip_data=tooltip_data,
+                tooltip_duration=None,
                 filter_action="native",
                 sort_action="native",
                 sort_mode="single",

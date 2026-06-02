@@ -932,8 +932,18 @@ class ToolKit:
         selected = df.loc[df["total_score"] > threshold, sym_col]
 
         selected_symbols = set(selected.astype(str).str.strip().unique())
-
-        return selected_symbols
+        # 构建 symbol -> score 字典
+        score_fields = [
+            "total_score",
+            "industry_score",
+            "erp_score",
+            "pnl_score",
+            "stability_score",
+        ]
+        score_dict = {
+            field: df.set_index(sym_col)[field].to_dict() for field in score_fields
+        }
+        return selected_symbols, score_dict
 
     @staticmethod
     def export_if_changed(selected_symbols, market):
