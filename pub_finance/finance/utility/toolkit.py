@@ -772,52 +772,46 @@ class ToolKit:
 
             return arrow_num, bracket_num
 
-        # 分位函数
         def rank_score(
             s: pd.Series,
             *,
             higher_is_better: bool = True,
             mid: float | None = None,
         ) -> pd.Series:
-            """
-            统一评分函数（最终版）
-            - mid=None → 单边归一化 [0,1]，最大值=1，最小值=0
-            - mid=float → 双边归一 [-1,1]，value==mid → score=0
-            - higher_is_better=True → 值越大越好
-            - NaN → 返回0
-            """
             s_num = pd.to_numeric(s, errors="coerce")
             score = pd.Series(0.0, index=s.index)
             valid = s_num.dropna()
             if valid.empty:
                 return score
 
-            # ---------- 单边归一化 ----------
+            # ---------- 单边归一化 (百分位秩) ----------
             if mid is None:
                 vals = valid.copy()
                 if not higher_is_better:
-                    vals = -vals  # 负指标统一方向
-                vmin, vmax = vals.min(), vals.max()
-                if vmin == vmax:
-                    score.loc[valid.index] = 1.0
-                else:
-                    score.loc[valid.index] = (vals - vmin) / (vmax - vmin)
+                    vals = -vals
+                rank_pct = vals.rank(pct=True)
+                score.loc[valid.index] = rank_pct
                 return score
 
-            # ---------- 双边归一化 ----------
+            # ---------- 双边归一化 (百分位秩 + 微小偏移) ----------
             aligned = valid - mid
             pos = aligned[aligned > 0]
             neg = aligned[aligned < 0]
+            eps = 0.001  # 可根据需要调整，例如 1e-4
 
             if not pos.empty:
-                max_pos = pos.max()
-                if max_pos != 0:
-                    score.loc[pos.index] = pos / max_pos
+                pos_rank = pos.rank(pct=True)  # 范围 (0,1]
+                # 映射到 [eps, 1]
+                pos_score = eps + (1 - eps) * pos_rank
+                score.loc[pos.index] = pos_score
+
             if not neg.empty:
-                min_neg = neg.min()
-                if min_neg != 0:
-                    score.loc[neg.index] = neg / abs(min_neg)
-            # aligned==0 → score保持0
+                neg_rank = neg.rank(pct=True)  # 范围 (0,1]
+                # 映射到 [-1, -eps]：负值越接近 0 得分越接近 -eps
+                neg_score = -(eps + (1 - eps) * (1 - neg_rank))
+                score.loc[neg.index] = neg_score
+
+            # aligned == 0 的得分保持 0
             return score
 
         df = df.copy()

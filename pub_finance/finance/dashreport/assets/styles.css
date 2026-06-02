@@ -509,7 +509,7 @@ body {
     transform: none !important;
     position: absolute !important;
     top: 65% !important;
-    left: 10% !important;
+    left: 2% !important;
 }
 /* 隐藏 tooltip 箭头 */
 .dash-table-tooltip::before,
