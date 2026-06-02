@@ -3,7 +3,7 @@
 > 🌟 开源免费量化分析框架 | 支持 A股 / 美股 | 策略回测 + 可视化分析
 
 [![GitHub Stars](https://img.shields.io/github/stars/joeyrensh/pub_finance?style=flat-square)](https://github.com/joeyrensh/pub_finance)
-[![Package Size](https://img.shields.io/github/languages/code-size/joeyrensh/pub_finance)]()
+[![Package Size](https://img.shields.io/github/languages/code-size/joeyrensh/pub_finance)](https://github.com/joeyrensh/pub_finance)
 
 ## 简介
 Pub Finance 是一套**全流程开源量化分析框架**，覆盖数据采集、本地存储、策略回测、风险收益评估与可视化报表全链路。
