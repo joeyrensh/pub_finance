@@ -553,7 +553,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
                     tooltip_text = ""
 
                 tooltip_data.append(
-                    {"SYMBOL": {"value": tooltip_text, "type": "markdown"}}
+                    {"NAME": {"value": tooltip_text, "type": "markdown"}}
                 )
 
     def create_link(symbol, market):

@@ -471,24 +471,6 @@ body {
   margin-top: -10px;
 }
 
-.dash-table-tooltip,
-.dash-tooltip,
-.dash-cell-tooltip {
-    max-width: 150px !important;
-    width: auto !important;
-    min-width: 60px !important;
-    white-space: normal !important;
-    word-break: break-word !important;
-    white-space: pre-wrap !important;
-    overflow: visible !important;
-    z-index: 99999 !important;
-    background: var(--background-color) !important;
-    color: var(--text-color) !important;
-    border: none !important;
-    font-size: inherit !important;
-    transform: none !important;
-}
-
 .default-table table {
   border-collapse: separate !important;
   border-spacing: 0 !important;
@@ -508,6 +490,36 @@ body {
   border-spacing: 0 !important;
   border-width: 0.1px !important;
   border-color: var(--dash-table-border-color) !important;
+}
+
+.dash-table-tooltip,
+.dash-tooltip,
+.dash-cell-tooltip {
+    max-width: 200px !important;
+    width: fit-content !important;
+    min-width: unset !important;
+    white-space: pre !important;
+    word-break: normal !important;
+    overflow: visible !important;
+    z-index: 99999 !important;
+    background: var(--background-color) !important;
+    color: var(--text-color) !important;
+    border: none !important;
+    font-size: inherit !important;
+    transform: none !important;
+    position: absolute !important;
+    top: 65% !important;
+    left: 10% !important;
+}
+/* 隐藏 tooltip 箭头 */
+.dash-table-tooltip::before,
+.dash-table-tooltip::after,
+.dash-tooltip::before,
+.dash-tooltip::after,
+.dash-cell-tooltip::before,
+.dash-cell-tooltip::after {
+    display: none !important;
+    content: none !important;
 }
 
 .dash-table-container .dash-spreadsheet-container {
