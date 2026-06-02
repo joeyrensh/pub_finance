@@ -629,6 +629,7 @@ h6 { font-size: 1.4rem; }
   padding-right: 60px;
   text-transform: uppercase;
   font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
+  font-weight: 500;
 }
 
 .text_color { color: var(--text-color); }
