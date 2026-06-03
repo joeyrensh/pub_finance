@@ -25,6 +25,7 @@
   --full-view-link-bg-color: #3498dbc4;
   --border-left-color: #D9534F;
   --bubble-background-color: linear-gradient(135deg, rgb(255, 68, 0), #fb0, #fb0);
+  --hover-text-color: #186EAC;
 }
 
 /* 深色主题变量定义 */
@@ -48,6 +49,7 @@
     --main-title-color: #ffffffc5;
     --flag-color: #D9534F;
     --full-view-link-bg-color: #00a85aa2;
+    --hover-text-color: #186EAC;
   }
 }
 
@@ -502,14 +504,18 @@ body {
     word-break: normal !important;
     overflow: visible !important;
     z-index: 99999 !important;
-    background: var(--background-color) !important;
-    color: var(--text-color) !important;
+    background: rgba(145, 149, 153, 0.14) !important;
+    color: var(--hover-text-color) !important;
     border: none !important;
     font-size: inherit !important;
     transform: none !important;
     position: absolute !important;
-    top: 65% !important;
-    left: 2% !important;
+    top: 30% !important;
+    left: 0% !important;
+    font-weight: 500;
+    text-align: left ;
+    align-items: center ;
+    display: grid;
 }
 /* 隐藏 tooltip 箭头 */
 .dash-table-tooltip::before,
