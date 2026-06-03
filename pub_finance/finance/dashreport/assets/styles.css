@@ -504,7 +504,7 @@ body {
     word-break: normal !important;
     overflow: visible !important;
     z-index: 99999 !important;
-    background: rgba(145, 149, 153, 0.14) !important;
+    background: var(--background-color) !important;
     color: var(--hover-text-color) !important;
     border: none !important;
     font-size: inherit !important;
