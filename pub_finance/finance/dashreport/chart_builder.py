@@ -1590,12 +1590,12 @@ class ChartBuilder:
             data_min = data_series.min()
             data_max = data_series.max()
             # 如果当前值距离底部小于总范围的 2%（可调整阈值），且 pos 包含 "bottom"
-            if (current_value - data_min) <= 0.02 * (
+            if (current_value - data_min) <= 0.05 * (
                 data_max - data_min
             ) and avoid_overflow:
                 if "bottom" in pos:
                     pos = pos.replace("bottom", "top")
-            if (data_max - current_value) <= 0.02 * (
+            if (data_max - current_value) <= 0.05 * (
                 data_max - data_min
             ) and avoid_overflow:
                 if "top" in pos:
