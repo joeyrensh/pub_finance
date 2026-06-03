@@ -903,7 +903,7 @@ class ToolKit:
         # ===== 稳定性 =====
         df["win_rate_score"] = rank_score(df[c["win_rate"]], mid=0.5)
         df["avg_trans_score"] = rank_score(df[c["avg_trans"]], higher_is_better=False)
-        df["sortino_score"] = rank_score(df[c["sortino"]], mid=1)
+        df["sortino_score"] = rank_score(df[c["sortino"]], mid=0.5)
         df["maxdd_score"] = rank_score(df[c["max_dd"]])
 
         df["stability_score"] = (
