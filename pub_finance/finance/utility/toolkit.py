@@ -832,9 +832,7 @@ class ToolKit:
             lambda x: pd.Series(extract_arrow_num(x))
         )
 
-        df["industry_arrow_score"] = rank_score(
-            df["IND_ARROW_NUM"], higher_is_better=True, mid=0
-        )
+        df["industry_arrow_score"] = rank_score(df["IND_ARROW_NUM"], mid=0)
 
         df["industry_bracket_score"] = rank_score(
             df["IND_BRACKET_NUM"], higher_is_better=False
@@ -854,9 +852,9 @@ class ToolKit:
 
         df["erp_score"] = np.where(
             invalid_ind,
-            rank_score(df[c["erp"]], higher_is_better=True, mid=0),
+            rank_score(df[c["erp"]], mid=0),
             df.groupby(c["industry"])[c["erp"]].transform(
-                lambda x: rank_score(x, higher_is_better=True, mid=0)
+                lambda x: rank_score(x, mid=0)
             ),
         )
 
@@ -864,9 +862,7 @@ class ToolKit:
         trade_dt = pd.to_datetime(trade_date)
         open_dt = pd.to_datetime(df[c["open_date"]], errors="coerce")
         days = (trade_dt - open_dt).dt.days.clip(lower=1)
-        df["pnl_daily_score"] = rank_score(
-            df[c["pnl_ratio"]] / days, higher_is_better=True, mid=0
-        )
+        df["pnl_daily_score"] = rank_score(df[c["pnl_ratio"]] / days, mid=0)
 
         def weighted_avg_return(returns_list):
             # 如果是字符串，尝试解析为 Python 列表
@@ -892,9 +888,7 @@ class ToolKit:
         df["weighted_return"] = df[c["daily_return_array"]].apply(weighted_avg_return)
 
         # 对加权平均收益率进行单边归一化（越高越好）
-        df["weighted_return_score"] = rank_score(
-            df["weighted_return"], higher_is_better=True, mid=0
-        )
+        df["weighted_return_score"] = rank_score(df["weighted_return"], mid=0)
         df["pnl_score"] = (
             sw["pnl"]["daily"] * df["pnl_daily_score"]
             + sw["pnl"]["weighted_return"] * df["weighted_return_score"]
