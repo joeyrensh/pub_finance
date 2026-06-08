@@ -132,7 +132,7 @@ class ChartBuilder:
             交互式图表对象
         """
         scale, base_font_size = self._get_font_sizes(
-            client_width, base_font=12, min_scale=0.9, max_scale=1.0
+            client_width, base_font=12, min_scale=0.9, max_scale=1.05
         )
 
         # 获取当前主题配置
@@ -1239,7 +1239,7 @@ class ChartBuilder:
         cfg = self.theme_config.get(theme, self.theme_config["light"])
         text_color = cfg["text_color"]
         scale, font_size = self._get_font_sizes(
-            client_width, base_font=12, min_scale=0.9, max_scale=1.0
+            client_width, base_font=12, min_scale=0.9, max_scale=1.05
         )
 
         labels_wrapped_industry = df["industry"]
