@@ -1017,14 +1017,14 @@ class GlobalStrategy(bt.Strategy):
                 )
 
                 # 检查长线信号 (级别 1)
-                if current_level >= 1:
+                if current_level and current_level >= 1:
                     if self.check_signal(d._name, "long_position"):
                         self.current_signal[d._name] = (1, "多头排列", "updated")
                     elif self.check_signal(d._name, "close_crossup_annualline"):
                         self.current_signal[d._name] = (1, "突破年线", "updated")
 
                 # 检查趋势信号 (级别 2)
-                if current_level >= 2:
+                if current_level and current_level >= 2:
                     if self.check_signal(d._name, "ma_crossover_bullish"):
                         self.current_signal[d._name] = (2, "均线金叉", "updated")
                     elif self.check_signal(
@@ -1035,7 +1035,7 @@ class GlobalStrategy(bt.Strategy):
                         self.current_signal[d._name] = (2, "突破半年线", "updated")
 
                 # 检查短线信号 (级别 3)
-                if current_level == 3:
+                if current_level and current_level == 3:
                     if self.check_signal(d._name, "volume_breakout"):
                         self.current_signal[d._name] = (3, "成交量放大", "updated")
                     elif self.check_signal(
@@ -1065,7 +1065,9 @@ class GlobalStrategy(bt.Strategy):
                     if record is not None:
                         list.append(record)
                     continue  # 升级后不立即检查卖出信号，等下一周期再检查，避免过度交易
-                if current_level == 1:  # 长线信号不满足，检查长线卖出信号
+                if (
+                    current_level and current_level == 1
+                ):  # 长线信号不满足，检查长线卖出信号
                     if self.check_signal(d._name, "short_position"):
                         self.execute_sell(d, "空头排列")
                     elif self.check_signal(d._name, "ma_crossover_bearish"):
@@ -1074,12 +1076,16 @@ class GlobalStrategy(bt.Strategy):
                         self.execute_sell(d, "跌破年线")
                     elif self.check_signal(d._name, "closs_crossdown_halfannualline"):
                         self.execute_sell(d, "跌破半年线")
-                elif current_level == 2:  # 趋势信号不满足，检查趋势卖出信号
+                elif (
+                    current_level and current_level == 2
+                ):  # 趋势信号不满足，检查趋势卖出信号
                     if self.check_signal(d._name, "ma_crossover_bearish"):
                         self.execute_sell(d, "均线死叉")
                     elif self.check_signal(d._name, "closs_crossdown_halfannualline"):
                         self.execute_sell(d, "跌破半年线")
-                elif current_level == 3:  # 短线信号不满足，检查短线级别卖出信号
+                elif (
+                    current_level and current_level == 3
+                ):  # 短线信号不满足，检查短线级别卖出信号
                     if self.check_signal(d._name, "close_falling"):
                         self.execute_sell(d, "连续下跌")
                 # 止盈逻辑：如果价格从峰值回落超过一定比例（如 20%），且回落幅度超过买入价的一定比例（如 50%），则止盈卖出
@@ -1138,7 +1144,7 @@ class GlobalStrategy(bt.Strategy):
                 5 天内累计上涨 10 个点以上
                 5 天以上累计上 15 个点以上
                 """
-                if dict["buy_date"] is None:
+                if dict.get("buy_date") is None:
                     continue
                 list.append(dict)
                 pos_share = pos_share + pos.size * pos.adjbase
