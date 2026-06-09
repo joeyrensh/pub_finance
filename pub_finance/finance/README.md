@@ -63,6 +63,13 @@ pub_finance/
     │   ├── us_stockdetail.csv  # 美股持仓数据
     │   └── cn_stockdetail.csv  # A股持仓数据
     ├── utility/             # 工具脚本、代理池、数据采集工具
+    ├── backtraderref/       # backtrader主策略
+    ├── cncrawler/           # A股爬虫
+    ├── uscralwer/           # 美股爬虫
+    ├── proxy/               # 代理池维护工具
+    ├── cnstockinfo/         # A股主数据存储
+    ├── usstockinfo/         # 美股主数据存储
+    ├── dashreport/          # 可视化工程
     ├── usstock_main.py      # 美股主程序
     ├── cnstock_main.py      # A股主程序
     ├── us.log               # 美股运行日志
@@ -82,6 +89,12 @@ PYSPARK_DRIVER_PYTHON=/home/ubuntu/miniconda3/bin/python
 
 # 每日 15:30 执行 A 股策略
 30 15 * * * cd /home/ubuntu/pub_finance/finance ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/cnstock_main.py > /home/ubuntu/pub_finance/finance/cn.log 2>&1
+
+# 每日 07:30 执行中国大陆IP池维护
+30 7 * * * cd /home/ubuntu/pub_finance/finance/proxy ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/proxy/fetch_cn_proxies.py --target 200 --workers 20 > /home/ubuntu/pub_finance/finance/proxy/cn_proxy.log 2>&1
+
+# 每日 08:30 执行海外IP池维护
+30 8 * * * cd /home/ubuntu/pub_finance/finance/proxy ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/proxy/fetch_overseas_proxies.py --target 100 --workers 20 > /home/ubuntu/pub_finance/finance/proxy/overseas_proxy.log 2>&1
 ```
 ## 参与贡献
 欢迎大家提交 Issue 和 Pull Request，共同完善项目：
