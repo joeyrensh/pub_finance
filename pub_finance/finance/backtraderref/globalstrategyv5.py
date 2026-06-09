@@ -724,19 +724,15 @@ class GlobalStrategy(bt.Strategy):
     def execute_buy(self, data, strategy_name, level):
         """统一买入执行逻辑"""
         symbol = data._name
-        self.broker.cancel(self.order[symbol])
-        self.order[symbol] = self.buy(data=data)
-        self.myorder[symbol]["strategy"] = strategy_name
-        self.current_signal[symbol] = (level, strategy_name, "initial")
+        self.order[symbol] = self.buy(
+            data=data, info={"strategy": strategy_name, "level": level}
+        )
 
     # ===== 新增：统一卖出执行方法 =====
     def execute_sell(self, data, strategy_name):
         """统一卖出执行逻辑"""
         symbol = data._name
-        self.order[symbol] = self.close(data=data)
-        self.myorder[symbol]["strategy"] = strategy_name
-        self.peak_price[symbol] = None
-        self.current_signal[symbol] = None
+        self.order[symbol] = self.close(data=data, info={"strategy": strategy_name})
 
     """ 订单状态改变回调方法 """
 
@@ -750,7 +746,7 @@ class GlobalStrategy(bt.Strategy):
             if order.isbuy():
                 """订单购入成功"""
                 print(
-                    "{}, Buy {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {} SortinoRatio: {} MaxDrawDown: {}".format(
+                    "{}, Buy {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {} SortinoRatio: {} MaxDrawDown: {} Strategy: {}".format(
                         bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
                         order.data._name,
                         order.executed.price,
@@ -758,11 +754,20 @@ class GlobalStrategy(bt.Strategy):
                         self.sharpe_ratios[order.data._name],
                         self.sortino_ratios[order.data._name],
                         self.max_drawdowns[order.data._name],
+                        order.info.get("info", {}).get("strategy"),
                     )
                 )
                 self.last_deal_date[order.data._name] = bt.num2date(
                     order.executed.dt
                 ).strftime("%Y-%m-%d")
+                self.myorder[order.data._name]["strategy"] = order.info.get(
+                    "info", {}
+                ).get("strategy")
+                self.current_signal[order.data._name] = (
+                    order.info.get("info", {}).get("level"),
+                    order.info.get("info", {}).get("strategy"),
+                    "initial",
+                )
                 dict = {
                     "symbol": order.data._name,
                     "trade_date": bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
@@ -774,7 +779,7 @@ class GlobalStrategy(bt.Strategy):
             elif order.issell():
                 """订单卖出成功"""
                 print(
-                    "{} Sell {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {} SortinoRatio: {} MaxDrawDown: {}".format(
+                    "{} Sell {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {} SortinoRatio: {} MaxDrawDown: {} Strategy: {}".format(
                         bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
                         order.data._name,
                         order.executed.price,
@@ -782,9 +787,15 @@ class GlobalStrategy(bt.Strategy):
                         self.sharpe_ratios[order.data._name],
                         self.sortino_ratios[order.data._name],
                         self.max_drawdowns[order.data._name],
+                        order.info.get("info", {}).get("strategy"),
                     )
                 )
                 self.last_deal_date[order.data._name] = None
+                self.myorder[order.data._name]["strategy"] = order.info.get(
+                    "info", {}
+                ).get("strategy")
+                self.peak_price[order.data._name] = None
+                self.current_signal[order.data._name] = None
                 dict = {
                     "symbol": order.data._name,
                     "trade_date": bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
@@ -1000,7 +1011,7 @@ class GlobalStrategy(bt.Strategy):
                         "sharpe_ratio": self.sharpe_ratios[symbol],
                         "sortino_ratio": self.sortino_ratios[symbol],
                         "max_drawdown": self.max_drawdowns[symbol],
-                        "strategy": self.myorder[symbol].get("strategy", ""),
+                        "strategy": self.myorder[symbol].get("strategy", None),
                     }
 
                 # ===== 持仓期间：每日检查并更新当前满足的最高级别买入信号 =====
@@ -1017,14 +1028,14 @@ class GlobalStrategy(bt.Strategy):
                 )
 
                 # 检查长线信号 (级别 1)
-                if current_level and current_level >= 1:
+                if current_level >= 1:
                     if self.check_signal(d._name, "long_position"):
                         self.current_signal[d._name] = (1, "多头排列", "updated")
                     elif self.check_signal(d._name, "close_crossup_annualline"):
                         self.current_signal[d._name] = (1, "突破年线", "updated")
 
                 # 检查趋势信号 (级别 2)
-                if current_level and current_level >= 2:
+                if current_level >= 2:
                     if self.check_signal(d._name, "ma_crossover_bullish"):
                         self.current_signal[d._name] = (2, "均线金叉", "updated")
                     elif self.check_signal(
@@ -1035,7 +1046,7 @@ class GlobalStrategy(bt.Strategy):
                         self.current_signal[d._name] = (2, "突破半年线", "updated")
 
                 # 检查短线信号 (级别 3)
-                if current_level and current_level == 3:
+                if current_level == 3:
                     if self.check_signal(d._name, "volume_breakout"):
                         self.current_signal[d._name] = (3, "成交量放大", "updated")
                     elif self.check_signal(
@@ -1065,43 +1076,63 @@ class GlobalStrategy(bt.Strategy):
                     if record is not None:
                         list.append(record)
                     continue  # 升级后不立即检查卖出信号，等下一周期再检查，避免过度交易
-                if (
-                    current_level and current_level == 1
-                ):  # 长线信号不满足，检查长线卖出信号
-                    if self.check_signal(d._name, "short_position"):
-                        self.execute_sell(d, "空头排列")
-                    elif self.check_signal(d._name, "ma_crossover_bearish"):
-                        self.execute_sell(d, "均线死叉")
-                    elif self.check_signal(d._name, "closs_crossdown_annualline"):
-                        self.execute_sell(d, "跌破年线")
-                    elif self.check_signal(d._name, "closs_crossdown_halfannualline"):
-                        self.execute_sell(d, "跌破半年线")
-                elif (
-                    current_level and current_level == 2
-                ):  # 趋势信号不满足，检查趋势卖出信号
-                    if self.check_signal(d._name, "ma_crossover_bearish"):
-                        self.execute_sell(d, "均线死叉")
-                    elif self.check_signal(d._name, "closs_crossdown_halfannualline"):
-                        self.execute_sell(d, "跌破半年线")
-                elif (
-                    current_level and current_level == 3
-                ):  # 短线信号不满足，检查短线级别卖出信号
-                    if self.check_signal(d._name, "close_falling"):
-                        self.execute_sell(d, "连续下跌")
-                # 止盈逻辑：如果价格从峰值回落超过一定比例（如 20%），且回落幅度超过买入价的一定比例（如 50%），则止盈卖出
-                if (
-                    self.peak_price[d._name] is not None
-                    and self.current_signal[d._name] is not None
-                ):
+                # 根据 current_level 构建需要检查的卖出条件列表
+                conds = []
+                if current_level == 1:
+                    conds = [
+                        (self.check_signal(d._name, "short_position"), "空头排列"),
+                        (
+                            self.check_signal(d._name, "ma_crossover_bearish"),
+                            "均线死叉",
+                        ),
+                        (
+                            self.check_signal(d._name, "closs_crossdown_annualline"),
+                            "跌破年线",
+                        ),
+                        (
+                            self.check_signal(
+                                d._name, "closs_crossdown_halfannualline"
+                            ),
+                            "跌破半年线",
+                        ),
+                    ]
+                elif current_level == 2:
+                    conds = [
+                        (
+                            self.check_signal(d._name, "ma_crossover_bearish"),
+                            "均线死叉",
+                        ),
+                        (
+                            self.check_signal(
+                                d._name, "closs_crossdown_halfannualline"
+                            ),
+                            "跌破半年线",
+                        ),
+                    ]
+                elif current_level == 3:
+                    conds = [
+                        (self.check_signal(d._name, "close_falling"), "连续下跌"),
+                    ]
+
+                # 遍历条件，命中第一个就卖出并退出循环
+                for cond, reason in conds:
+                    if cond:
+                        self.execute_sell(d, reason)
+                        break
+                else:
+                    # 当 for 循环未被 break（即没有分级卖出条件命中）时，进入兜底止盈止损
                     if (
-                        self.peak_price[d._name] >= pos.price * 1.2
-                        and pos.adjbase
-                        <= pos.price + (self.peak_price[d._name] - pos.price) * 0.5
+                        self.peak_price[d._name] is not None
+                        and self.current_signal[d._name] is not None
                     ):
-                        self.execute_sell(d, "移动止盈")
-                    # 兜底止损（只在未卖出时检查）
-                    elif d.close[0] <= pos.price * 0.85:
-                        self.execute_sell(d, "低于买入价15%")
+                        if (
+                            self.peak_price[d._name] >= pos.price * 1.2
+                            and pos.adjbase
+                            <= pos.price + (self.peak_price[d._name] - pos.price) * 0.5
+                        ):
+                            self.execute_sell(d, "移动止盈")
+                        elif d.close[0] <= pos.price * 0.85:
+                            self.execute_sell(d, "低于买入价15%")
                 # ===== 持仓数据状态记录 =====
                 record = _get_position_record(d, pos)
                 if record is not None and self.current_signal[d._name] is not None:

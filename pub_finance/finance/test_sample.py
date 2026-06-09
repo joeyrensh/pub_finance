@@ -43,7 +43,7 @@ def retry_call(func, max_retries=3, delay=1, backoff=2, exceptions=(Exception,))
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc+8"""
-    trade_date = ToolKit("获取最新交易日").get_cn_latest_trade_date(0)
+    trade_date = ToolKit("获取最新交易日").get_cn_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断是否休市").is_cn_trade_date(trade_date):
@@ -145,15 +145,15 @@ if __name__ == "__main__":
         retry_call(do_task, max_retries=max_retries, delay=3)
 
     # A股主要策略执行
-    print("-----------A股主策略执行-----------")
+    # print("-----------A股主策略执行-----------")
     retry_backtest_and_send("cn", trade_date, force_run=True)
 
     # ETF主要策略执行
     print("-----------A股ETF策略执行-----------")
-    retry_backtest_and_send("cnetf", trade_date, force_run=True)
+    BacktraderExec("cnetf", trade_date).exec_btstrategy(force_run=True)
 
     # A股动态列表执行
-    print("-----------A股动态列表策略执行-----------")
+    # print("-----------A股动态列表策略执行-----------")
     retry_backtest_and_send("cn_dynamic", trade_date, force_run=True)
 
     """ 结束进度条 """
