@@ -1077,71 +1077,69 @@ class GlobalStrategy(bt.Strategy):
                         list.append(record)
                     continue  # 升级后不立即检查卖出信号，等下一周期再检查，避免过度交易
                 # 根据 current_level 构建需要检查的卖出条件列表
-                conds = []
-                if current_level == 1:
-                    conds = [
-                        (self.check_signal(d._name, "short_position"), "空头排列"),
-                        (
-                            self.check_signal(d._name, "ma_crossover_bearish"),
-                            "均线死叉",
-                        ),
-                        (
-                            self.check_signal(d._name, "closs_crossdown_annualline"),
-                            "跌破年线",
-                        ),
-                        (
-                            self.check_signal(
-                                d._name, "closs_crossdown_halfannualline"
-                            ),
-                            "跌破半年线",
-                        ),
-                    ]
-                elif current_level == 2:
-                    conds = [
-                        (
-                            self.check_signal(d._name, "ma_crossover_bearish"),
-                            "均线死叉",
-                        ),
-                        (
-                            self.check_signal(
-                                d._name, "closs_crossdown_halfannualline"
-                            ),
-                            "跌破半年线",
-                        ),
-                    ]
-                elif current_level == 3:
-                    conds = [
-                        (self.check_signal(d._name, "close_falling"), "连续下跌"),
-                    ]
+                symbol = d._name
+                sell_conditions = self._build_sell_conditions(symbol, current_level)
 
-                # 遍历条件，命中第一个就卖出并退出循环
-                for cond, reason in conds:
+                for cond, reason in sell_conditions:
                     if cond:
                         self.execute_sell(d, reason)
                         break
                 else:
-                    # 当 for 循环未被 break（即没有分级卖出条件命中）时，进入兜底止盈止损
-                    if (
-                        self.peak_price[d._name] is not None
-                        and self.current_signal[d._name] is not None
-                    ):
-                        if (
-                            self.peak_price[d._name] >= pos.price * 1.2
-                            and pos.adjbase
-                            <= pos.price + (self.peak_price[d._name] - pos.price) * 0.5
-                        ):
-                            self.execute_sell(d, "移动止盈")
-                        elif d.close[0] <= pos.price * 0.85:
-                            self.execute_sell(d, "低于买入价15%")
+                    self._apply_stop_profit_loss(d, pos)
+
                 # ===== 持仓数据状态记录 =====
                 record = _get_position_record(d, pos)
-                if record is not None and self.current_signal[d._name] is not None:
+                if record is not None and self.current_signal[symbol] is not None:
                     list.append(record)
 
         df = pd.DataFrame(list)
         df.reset_index(inplace=True, drop=True)
         df.to_csv(self.file_path_position_detail, header=False, mode="a")
         t.progress_bar(self.data.buflen(), len(self))
+
+    def _build_sell_conditions(self, symbol, current_level):
+        """返回当前仓位级别对应的卖出条件列表。"""
+        if current_level == 1:
+            return [
+                (self.check_signal(symbol, "short_position"), "空头排列"),
+                (self.check_signal(symbol, "ma_crossover_bearish"), "均线死叉"),
+                (self.check_signal(symbol, "closs_crossdown_annualline"), "跌破年线"),
+                (
+                    self.check_signal(symbol, "closs_crossdown_halfannualline"),
+                    "跌破半年线",
+                ),
+            ]
+        if current_level == 2:
+            return [
+                (self.check_signal(symbol, "ma_crossover_bearish"), "均线死叉"),
+                (
+                    self.check_signal(symbol, "closs_crossdown_halfannualline"),
+                    "跌破半年线",
+                ),
+            ]
+        if current_level == 3:
+            return [(self.check_signal(symbol, "close_falling"), "连续下跌")]
+        return []
+
+    def _apply_stop_profit_loss(self, data, pos):
+        """执行兜底止盈止损逻辑。"""
+        symbol = data._name
+        if (
+            self.peak_price.get(symbol) is None
+            or self.current_signal.get(symbol) is None
+        ):
+            return
+
+        entry_price = pos.price
+        peak_price = self.peak_price[symbol]
+
+        if (
+            peak_price >= entry_price * 1.2
+            and pos.adjbase <= entry_price + (peak_price - entry_price) * 0.5
+        ):
+            self.execute_sell(data, "移动止盈")
+        elif data.close[0] <= entry_price * 0.85:
+            self.execute_sell(data, "低于买入价15%")
 
     def stop(self):
         list = []
