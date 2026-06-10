@@ -60,51 +60,86 @@ class StockDataUpdater:
             self._process_single_file(file_path, new_file_path, new_data_dict)
 
     def _process_single_file(self, input_path, output_path, new_data_dict):
-        """处理单个文件，分批读取、更新、排序和保存"""
-        # 创建临时文件用于存储更新后的数据
+        # 1. 读取文件头
+        with open(input_path, "r") as f:
+            try:
+                header = next(csv.reader(f))
+            except StopIteration:
+                print(f"文件 {input_path} 为空，已跳过。")
+                return
+
+        # 2. 获取文件中所有的键集合以及日期集合
+        existing_keys = set()
+        file_dates = set()  # 该文件中出现的所有日期
+        for chunk in self._read_csv_in_chunks(input_path):
+            if chunk is None:
+                continue
+            keys = set(zip(chunk[self.key_cols[0]], chunk[self.key_cols[1]]))
+            existing_keys.update(keys)
+            # 提取日期列的唯一值
+            dates_in_chunk = set(chunk[self.key_cols[1]].dropna().unique())
+            file_dates.update(dates_in_chunk)
+
+        if not file_dates:
+            print(f"文件 {input_path} 没有有效日期，跳过")
+            return
+
+        # 3. 只处理新数据中日期属于 file_dates 的记录
+        filtered_data = {}
+        for (symbol, date_str), values in new_data_dict.items():
+            if date_str in file_dates:
+                filtered_data[(symbol, date_str)] = values
+
+        if not filtered_data:
+            print(f"文件 {os.path.basename(input_path)} 没有与文件日期匹配的新数据")
+            return
+
+        # 4. 拆分更新和追加
+        update_dict = {}
+        append_dict = {}
+        for key, values in filtered_data.items():
+            if key in existing_keys:
+                update_dict[key] = values
+            else:
+                append_dict[key] = values
+
+        print(
+            f"文件 {os.path.basename(input_path)}: 待更新 {len(update_dict)} 行, 待追加 {len(append_dict)} 行"
+        )
+
+        # 5. 创建临时文件，写入更新后的数据
         temp_file = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".csv")
         temp_path = temp_file.name
-
         try:
-            # 读取文件头
-            with open(input_path, "r") as f:
-                try:
-                    header = next(csv.reader(f))
-                except Exception:
-                    print(f"文件 {input_path} 为空，已跳过。")
-                    return
-
-            # 写入临时文件头
             temp_writer = csv.DictWriter(temp_file, fieldnames=header)
             temp_writer.writeheader()
 
-            # 分批读取输入文件
-            processed_rows = 0
+            # 分批更新已有行
+            processed = 0
             for chunk in self._read_csv_in_chunks(input_path):
-                # 更新当前批次
-                updated_chunk = self._update_chunk(chunk, new_data_dict)
-
-                # 修正列名：如果 header[0] == ""，则将 'Unnamed: 0' 列重命名为 ''
-                if header[0] == "" and "Unnamed: 0" in updated_chunk.columns:
-                    updated_chunk = updated_chunk.rename(columns={"Unnamed: 0": ""})
-
-                # 写入更新后的批次到临时文件
+                if chunk is None:
+                    continue
+                updated_chunk = self._update_chunk_with_dict(chunk, update_dict)
                 for _, row in updated_chunk.iterrows():
-                    temp_writer.writerow(row.to_dict())
+                    row_dict = row.to_dict()
+                    filtered_dict = {k: v for k, v in row_dict.items() if k in header}
+                    temp_writer.writerow(filtered_dict)
+                processed += len(chunk)
+                print(f"已处理 {processed} 行...", end="\r")
 
-                processed_rows += len(chunk)
-                print(f"已处理 {processed_rows} 行...", end="\r")
+            # 追加缺失的行
+            if append_dict:
+                new_rows_df = self._build_new_rows_df(append_dict, header)
+                for _, row in new_rows_df.iterrows():
+                    row_dict = row.to_dict()
+                    filtered_dict = {k: v for k, v in row_dict.items() if k in header}
+                    temp_writer.writerow(filtered_dict)
 
-            # 关闭临时文件
             temp_file.close()
-
-            # 读取临时文件，排序并重置索引
             self._sort_and_save(temp_path, output_path, header)
-
             print(f"\n文件 {os.path.basename(input_path)} 处理完成")
 
         finally:
-            # 确保删除临时文件
             if os.path.exists(temp_path):
                 os.remove(temp_path)
 
@@ -134,31 +169,35 @@ class StockDataUpdater:
                 dtype={col: str for col in self.key_cols},
             )
 
-    def _update_chunk(self, chunk_df, new_data_dict):
+    def _update_chunk_with_dict(self, chunk_df, update_dict):
         """更新数据块中的行（不新增行）"""
-        # 创建临时键列
+        """更新数据块中的行（只更新，不追加）"""
+        if not update_dict:
+            return chunk_df
         chunk_df["temp_key"] = chunk_df.apply(
             lambda row: (str(row[self.key_cols[0]]), str(row[self.key_cols[1]])), axis=1
         )
-
-        # 标记需要更新的行
-        chunk_df["needs_update"] = chunk_df["temp_key"].isin(new_data_dict.keys())
-
-        # 更新标记的行
-        for idx, row in chunk_df.iterrows():
-            if row["needs_update"]:
-                key = row["temp_key"]
-                for col in self.update_cols:
-                    # 只更新存在的列
+        for key, values in update_dict.items():
+            mask = chunk_df["temp_key"] == key
+            if mask.any():
+                idx = chunk_df[mask].index[0]
+                for col, new_val in values.items():
                     if col in chunk_df.columns:
-                        chunk_df.at[idx, col] = new_data_dict[key].get(col, row[col])
-
-        # 清理临时列
-        chunk_df.drop(
-            columns=["temp_key", "needs_update"], inplace=True, errors="ignore"
-        )
-
+                        chunk_df.at[idx, col] = new_val
+        chunk_df.drop(columns=["temp_key"], inplace=True, errors="ignore")
         return chunk_df
+
+    def _build_new_rows_df(self, append_dict, header):
+        rows = []
+        for (symbol, date), values in append_dict.items():
+            row = {col: None for col in header}
+            row[self.key_cols[0]] = symbol
+            row[self.key_cols[1]] = date
+            for col, val in values.items():
+                if col in row:
+                    row[col] = val
+            rows.append(row)
+        return pd.DataFrame(rows)
 
     def _sort_and_save(self, temp_path, output_path, header):
         """读取临时文件，排序并保存最终结果"""
@@ -231,10 +270,10 @@ class StockDataUpdater:
 # 使用示例
 if __name__ == "__main__":
     # 配置参数
-    DATA_DIR = FINANCE_ROOT / "cnstockinfo"  # 数据文件目录
+    DATA_DIR = FINANCE_ROOT / "usstockinfo"  # 数据文件目录
     UPDATE_COLS = ["open", "close", "high", "low", "volume"]  # 需要更新的列
     NEW_DATA_PATH = (
-        FINANCE_ROOT / "cnstockinfo" / "new_stock_data.csv"
+        FINANCE_ROOT / "usstockinfo" / "new_stock_data.csv"
     )  # 新爬取的数据文件
     BATCH_SIZE = 10000  # 每批处理的行数
     """每股列表，需要重新匹配market code"""
@@ -243,13 +282,13 @@ if __name__ == "__main__":
     # symbol_list = [{"symbol": "BKNG", "mkt_code": 105}]  # 示例股票代码列表
     # A股如下 - SZ:0 / SH:1
     # 例如：symbol_list = [{"symbol": "SZ000001", "mkt_code": 0}, {"symbol": "SH600000", "mkt_code": 1}]
-    symbol_list = [{"symbol": "SH688531", "mkt_code": 1}]  # 示例股票代码列表
+    symbol_list = [{"symbol": "PRKS", "mkt_code": 106}]  # 示例股票代码列表
 
     # # 创建更新器
     updater = StockDataUpdater(DATA_DIR, UPDATE_COLS, batch_size=BATCH_SIZE)
-    updater.get_latest_updated_data(
-        symbol_list, "20240101", "20260520", NEW_DATA_PATH, market="cn"
-    )
+    # updater.get_latest_updated_data(
+    #     symbol_list, "20240101", "20260609", NEW_DATA_PATH, market="cn"
+    # )
 
     # 加载新数据到字典
     try:
