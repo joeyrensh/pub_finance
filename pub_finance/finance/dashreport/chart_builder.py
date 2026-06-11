@@ -2199,7 +2199,7 @@ class ChartBuilder:
         if "date" in df.columns:
             df["date"] = pd.to_datetime(df["date"])
         if "day_of_week" in df.columns:
-            df = df[df["day_of_week"] <= 4].copy()
+            df = df[(df["day_of_week"] <= 4) & (df["week_order"] >= 1)].copy()
         df = df.sort_values("date").reset_index(drop=True)
 
         if df.empty:
@@ -2356,6 +2356,8 @@ class ChartBuilder:
                 font=dict(size=font_size, color=text_color),
                 xanchor=xanchors[i],
                 yanchor="bottom" if ay_offsets[i] < 0 else "top",
+                borderpad=0,  # 内边距设为0
+                borderwidth=0,  # 可选：去掉边框
             )
 
         # ------------------------------
@@ -2373,6 +2375,7 @@ class ChartBuilder:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             hovermode="x",
+            hoverlabel=dict(font_size=font_size, font_family=self.font_family),
             xaxis=dict(
                 tickfont=dict(size=font_size, color=text_color),
                 title=None,
