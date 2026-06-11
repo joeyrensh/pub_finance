@@ -2329,7 +2329,7 @@ class ChartBuilder:
                 name="每日盈亏",
                 mode="lines+markers",
                 line=dict(color=cfg.get("cumret"), width=2),
-                marker=dict(size=6, color=cfg.get("cumret")),
+                marker=dict(size=8, color=cfg.get("cumret")),
                 hovertemplate="<b>%{x|%Y-%m-%d}</b><br>盈亏: %{y:,.2f}<extra></extra>",
                 yaxis="y",
             )
@@ -2345,11 +2345,11 @@ class ChartBuilder:
                 x=row["date"],
                 y=row["s_pnl"],
                 text=row["annotation_text"],
-                showarrow=True,
-                arrowhead=2,
-                arrowsize=1,
-                arrowwidth=1,
-                arrowcolor=cfg.get("grid"),
+                showarrow=True,  # 仍然显示箭头（线段）
+                arrowhead=0,  # 设置箭头样式为 0（无箭头）
+                arrowsize=0.3,
+                arrowwidth=0.3,
+                arrowcolor=text_color,
                 ax=ax_offsets[i],
                 ay=ay_offsets[i],
                 bgcolor=cfg.get("legend_bg"),
