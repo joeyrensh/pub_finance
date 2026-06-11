@@ -282,13 +282,13 @@ if __name__ == "__main__":
     # symbol_list = [{"symbol": "BKNG", "mkt_code": 105}]  # 示例股票代码列表
     # A股如下 - SZ:0 / SH:1
     # 例如：symbol_list = [{"symbol": "SZ000001", "mkt_code": 0}, {"symbol": "SH600000", "mkt_code": 1}]
-    symbol_list = [{"symbol": "PRKS", "mkt_code": 106}]  # 示例股票代码列表
+    symbol_list = [{"symbol": "BABA", "mkt_code": 106}]  # 示例股票代码列表
 
     # # 创建更新器
     updater = StockDataUpdater(DATA_DIR, UPDATE_COLS, batch_size=BATCH_SIZE)
-    # updater.get_latest_updated_data(
-    #     symbol_list, "20240101", "20260609", NEW_DATA_PATH, market="cn"
-    # )
+    updater.get_latest_updated_data(
+        symbol_list, "20240101", "20260609", NEW_DATA_PATH, market="cn"
+    )
 
     # 加载新数据到字典
     try:

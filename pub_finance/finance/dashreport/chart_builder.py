@@ -1777,7 +1777,7 @@ class ChartBuilder:
                         family=self.font_family,
                         weight="bold",
                     ),
-                    align=["left"] * len(header_values),
+                    align=["center"] * len(header_values),
                     height=int(50 * (scale if scale >= 1 else 0.62 * scale)),
                 ),
                 cells=dict(
@@ -1790,7 +1790,7 @@ class ChartBuilder:
                         family=self.font_family,
                         weight=font_weights_by_col,
                     ),
-                    align=["left"] * len(header_values),
+                    align=["center"] * len(header_values),
                     height=int(50 * (scale if scale >= 1 else 0.62 * scale)),
                 ),
             )
