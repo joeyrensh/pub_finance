@@ -2328,8 +2328,8 @@ class ChartBuilder:
                 y=df["s_pnl"],
                 name="每日盈亏",
                 mode="lines+markers",
-                line=dict(color=cfg.get("cumret"), width=2),
-                marker=dict(size=8, color=cfg.get("cumret")),
+                line=dict(color=cfg.get("cumret"), width=2 * scale),
+                marker=dict(size=6 * scale, color=cfg.get("cumret")),
                 hovertemplate="<b>%{x|%Y-%m-%d}</b><br>盈亏: %{y:,.2f}<extra></extra>",
                 yaxis="y",
             )
