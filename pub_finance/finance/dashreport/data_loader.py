@@ -210,6 +210,7 @@ class ReportDataLoader:
             "overall": ReportDataLoader._load_overall,
             "annual_return": ReportDataLoader._load_annual_return,
             "heatmap": ReportDataLoader._load_heatmap,
+            "industry_strength": ReportDataLoader._load_heatmap,  # 注意：复用 heatmap 的文件和 loader
             "strategy": ReportDataLoader._load_strategy,
             "trade": ReportDataLoader._load_trade_info,
             "pnl_trend": ReportDataLoader._load_pnl_trend,

@@ -53,6 +53,7 @@ class PageLayout:
             ("industry_profit", 4),
             ("trade", 5),
             ("pnl_trend", 6),
+            ("industry_strength", 7),
         ]
         for chart_type, index in chart_map:
             if chart_type in self.show_charts:
@@ -170,6 +171,7 @@ class PageLayout:
                     "pnl_trend",
                     "industry_position",
                     "industry_profit",
+                    "industry_strength",
                 ]
                 else "twelve columns"
             ),
@@ -228,6 +230,7 @@ class PageLayout:
 
         # 2. 所有半宽图表 + 固定 index 映射
         half_chart_config = [
+            ("industry_strength", 7, "Industry Strength"),
             ("heatmap", 1, "Industries Tracking"),
             ("strategy", 2, "Strategy Tracking"),
             ("trade", 5, "Position Trend"),

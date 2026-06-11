@@ -261,7 +261,8 @@ def update_page_content(pathname):
             "cn",
             show_charts=[
                 "annual_return",
-                "heatmap",
+                # "heatmap",
+                "industry_strength",
                 "strategy",
                 "trade",
                 "pnl_trend",
@@ -276,7 +277,8 @@ def update_page_content(pathname):
             "cn",
             show_charts=[
                 "annual_return",
-                "heatmap",
+                # "heatmap",
+                "industry_strength",
                 "strategy",
                 "trade",
                 "pnl_trend",
@@ -291,7 +293,8 @@ def update_page_content(pathname):
             "us",
             show_charts=[
                 "annual_return",
-                "heatmap",
+                # "heatmap",
+                "industry_strength",
                 "strategy",
                 "trade",
                 "pnl_trend",
@@ -348,7 +351,8 @@ def update_page_content(pathname):
                 "cn",
                 show_charts=[
                     "annual_return",
-                    "heatmap",
+                    # "heatmap",
+                    "industry_strength",
                     "strategy",
                     "trade",
                     "pnl_trend",
@@ -362,7 +366,8 @@ def update_page_content(pathname):
                 "us",
                 show_charts=[
                     "annual_return",
-                    "heatmap",
+                    # "heatmap",
+                    "industry_strength",
                     "strategy",
                     "trade",
                     "pnl_trend",
@@ -380,7 +385,8 @@ def update_page_content(pathname):
                 "cn",
                 show_charts=[
                     "annual_return",
-                    "heatmap",
+                    # "heatmap",
+                    "industry_strength",
                     "strategy",
                     "trade",
                     "pnl_trend",

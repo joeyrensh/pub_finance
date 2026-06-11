@@ -1777,7 +1777,7 @@ class ChartBuilder:
                         family=self.font_family,
                         weight="bold",
                     ),
-                    align=["center"] * len(header_values),
+                    align=["left"] * len(header_values),
                     height=int(50 * (scale if scale >= 1 else 0.62 * scale)),
                 ),
                 cells=dict(
@@ -1790,7 +1790,7 @@ class ChartBuilder:
                         family=self.font_family,
                         weight=font_weights_by_col,
                     ),
-                    align=["center"] * len(header_values),
+                    align=["left"] * len(header_values),
                     height=int(50 * (scale if scale >= 1 else 0.62 * scale)),
                 ),
             )
@@ -2176,5 +2176,239 @@ class ChartBuilder:
             autorange=True,
         )
         fig.update_xaxes(showline=False, row=1, col=1)
+
+        return fig
+
+    def industry_strength_chart(
+        self,
+        page: str,
+        df: pd.DataFrame,
+        theme: str = "light",
+        client_width: int = 1440,
+    ) -> go.Figure:
+        # ------------------------------
+        # 1. 基础配置与数据预处理
+        # ------------------------------
+        cfg = self.theme_config.get(theme, self.theme_config["light"])
+        text_color = cfg["text_color"]
+        scale, font_size = self._get_font_sizes(
+            client_width, base_font=12, min_scale=0.9, max_scale=1.05
+        )
+
+        df = df.copy()
+        if "date" in df.columns:
+            df["date"] = pd.to_datetime(df["date"])
+        if "day_of_week" in df.columns:
+            df = df[df["day_of_week"] <= 4].copy()
+        df = df.sort_values("date").reset_index(drop=True)
+
+        if df.empty:
+            return go.Figure()
+
+        # 解析行业前三列
+        if "industry_top3" in df.columns:
+
+            def parse(x):
+                if pd.isna(x) or x == "":
+                    return []
+                return [item.strip() for item in str(x).split(",") if item.strip()]
+
+            df["industry_top3_parsed"] = df["industry_top3"].apply(parse)
+        else:
+            df["industry_top3_parsed"] = [[] for _ in range(len(df))]
+
+        # ------------------------------
+        # 2. 计算全局热度排名
+        # ------------------------------
+        from collections import Counter
+
+        industry_counter = Counter()
+        for items in df["industry_top3_parsed"]:
+            for item in items:
+                if item:
+                    industry_counter[item] += 1
+
+        sorted_industries = [ind for ind, _ in industry_counter.most_common()]
+        rank_map = {ind: i + 1 for i, ind in enumerate(sorted_industries)}
+
+        # ------------------------------
+        # 3. 准备标注文本
+        # ------------------------------
+        df["top1_industry"] = df["industry_top3_parsed"].apply(
+            lambda lst: lst[0] if len(lst) > 0 else None
+        )
+
+        def format_label(ind):
+            if ind is None:
+                return ""
+            rank = rank_map.get(ind, 999)
+            if rank <= 3:
+                return f"#{rank} {ind}"
+            return ind
+
+        df["annotation_text"] = df["top1_industry"].apply(format_label)
+        df_annot = df[df["annotation_text"] != ""].copy()
+
+        if df_annot.empty:
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=df["date"], y=df["s_pnl"], mode="lines+markers"))
+            return fig
+
+        # ------------------------------
+        # 4. 水平方向：仅调整文本对齐，箭头垂直（ax=0）
+        # ------------------------------
+        dates_ts = df_annot["date"].apply(lambda x: x.timestamp())
+        min_ts = dates_ts.min()
+        max_ts = dates_ts.max()
+        range_ts = max_ts - min_ts
+        left_boundary = min_ts + range_ts * 0.3
+        right_boundary = min_ts + range_ts * 0.7
+
+        xanchors = []
+        for ts in dates_ts:
+            if ts < left_boundary:
+                xanchors.append("left")
+            elif ts > right_boundary:
+                xanchors.append("right")
+            else:
+                xanchors.append("center")
+        ax_offsets = [0] * len(df_annot)
+
+        # ------------------------------
+        # 5. 垂直方向动态递增偏移防重叠（基于所有已分配标注）
+        # ------------------------------
+        y_vals = df_annot["s_pnl"].values
+        y_min, y_max = y_vals.min(), y_vals.max()
+        y_range = y_max - y_min if y_max > y_min else 1.0
+        threshold = max(y_range * 0.05, 10)  # 冲突阈值
+
+        assigned = []  # (y_value, offset)
+        ay_offsets = []
+
+        for y_val in y_vals:
+            step = 25
+            max_step = 5
+            selected = None
+            # 尝试向上偏移（负值）
+            for level in range(1, max_step + 1):
+                off = -step * level
+                conflict = False
+                for y_other, off_other in assigned:
+                    if (
+                        abs(y_val - y_other) < threshold and off_other * off > 0
+                    ):  # 同向且接近
+                        conflict = True
+                        break
+                if not conflict:
+                    selected = off
+                    break
+            if selected is None:
+                # 再尝试向下偏移
+                for level in range(1, max_step + 1):
+                    off = step * level
+                    conflict = False
+                    for y_other, off_other in assigned:
+                        if abs(y_val - y_other) < threshold and off_other * off > 0:
+                            conflict = True
+                            break
+                    if not conflict:
+                        selected = off
+                        break
+            if selected is None:
+                selected = -step  # 降级：最小向上偏移
+            ay_offsets.append(selected)
+            assigned.append((y_val, selected))
+        # ------------------------------
+        # 6. 创建折线图
+        # ------------------------------
+        fig = go.Figure()
+        fig.add_trace(
+            go.Scatter(
+                x=df["date"],
+                y=df["s_pnl"],
+                name="每日盈亏",
+                mode="lines+markers",
+                line=dict(color=cfg.get("cumret"), width=2),
+                marker=dict(size=6, color=cfg.get("cumret")),
+                hovertemplate="<b>%{x|%Y-%m-%d}</b><br>盈亏: %{y:,.2f}<extra></extra>",
+                yaxis="y",
+            )
+        )
+        ymax = df["s_pnl"].max()
+        ymin = df["s_pnl"].min()
+
+        # ------------------------------
+        # 7. 添加标注
+        # ------------------------------
+        for i, row in df_annot.iterrows():
+            fig.add_annotation(
+                x=row["date"],
+                y=row["s_pnl"],
+                text=row["annotation_text"],
+                showarrow=True,
+                arrowhead=2,
+                arrowsize=1,
+                arrowwidth=1,
+                arrowcolor=cfg.get("grid"),
+                ax=ax_offsets[i],
+                ay=ay_offsets[i],
+                bgcolor=cfg.get("legend_bg"),
+                font=dict(size=font_size, color=text_color),
+                xanchor=xanchors[i],
+                yanchor="bottom" if ay_offsets[i] < 0 else "top",
+            )
+
+        # ------------------------------
+        # 8. 布局设置
+        # ------------------------------
+        x_range = [
+            df["date"].min() - pd.Timedelta(days=0.5),
+            df["date"].max() + pd.Timedelta(days=0.5),
+        ]
+
+        fig.update_layout(
+            dragmode=False,
+            margin=dict(l=0, r=0, t=0, b=0),
+            font=dict(family=self.font_family, size=font_size, color=text_color),
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            hovermode="x",
+            xaxis=dict(
+                tickfont=dict(size=font_size, color=text_color),
+                title=None,
+                showline=False,
+                linecolor=cfg["grid"],
+                zeroline=False,
+                gridcolor=cfg["grid"],
+                tickmode="auto",
+                tickformat="%Y-%m-%d",
+                hoverformat="%Y-%m-%d",
+                range=x_range,
+                showgrid=True,
+                gridwidth=0.5,
+            ),
+            yaxis=dict(
+                title=None,
+                showticklabels=False,
+                showgrid=True,
+                gridcolor=cfg["grid"],
+                side="left",
+                zeroline=False,
+                showline=False,
+                dtick=(ymax - ymin) / 3,
+            ),
+            legend=dict(
+                orientation="v",
+                x=0,
+                xanchor="left",
+                y=1,
+                yanchor="top",
+                font=dict(size=font_size, color=text_color, family=self.font_family),
+                bgcolor=cfg["legend_bg"],
+                borderwidth=0,
+                tracegroupgap=0,
+            ),
+            showlegend=True,
+        )
 
         return fig

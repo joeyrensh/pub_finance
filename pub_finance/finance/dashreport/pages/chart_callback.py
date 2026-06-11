@@ -184,7 +184,6 @@ class ChartCallback:
                         theme=theme,
                         client_width=client_width,
                     )
-
                 elif chart_type == "heatmap":
                     df = data_bundle["heatmap"]
                     if df is None or df.empty:
@@ -197,7 +196,18 @@ class ChartCallback:
                         theme=theme,
                         client_width=client_width,
                     )
-
+                elif chart_type == "industry_strength":
+                    df = data_bundle["industry_strength"]
+                    if df is None or df.empty:
+                        return self._placeholder_figure(
+                            "请执行回测", theme, client_width
+                        )
+                    fig = builder.industry_strength_chart(
+                        page=page,
+                        df=df,
+                        theme=theme,
+                        client_width=client_width,
+                    )
                 elif chart_type == "strategy":
                     df = data_bundle["strategy"]
                     if df is None or df.empty:
