@@ -2378,7 +2378,7 @@ class ChartBuilder:
             hoverlabel=dict(font_size=font_size, font_family=self.font_family),
             xaxis=dict(
                 tickfont=dict(size=font_size, color=text_color),
-                title=None,
+                mirror=True,
                 showline=False,
                 linecolor=cfg["grid"],
                 zeroline=False,
@@ -2389,16 +2389,22 @@ class ChartBuilder:
                 range=x_range,
                 showgrid=True,
                 gridwidth=0.5,
+                ticklabelposition="inside",  # 日期文字放到坐标轴内侧
             ),
             yaxis=dict(
-                title=None,
                 showticklabels=False,
+                mirror=True,
                 showgrid=True,
                 gridcolor=cfg["grid"],
                 side="left",
                 zeroline=False,
                 showline=False,
                 dtick=(ymax - ymin) / 3,
+                ticklabelposition="inside",
+                ticks="",
+                automargin=False,
+                tickangle=0,
+                autorange=True,
             ),
             legend=dict(
                 orientation="v",
