@@ -2162,7 +2162,7 @@ class ChartBuilder:
         )
         # ----- 布局设置 -----
         fig.update_layout(
-            margin=dict(l=0, r=0, t=0, b=10 * scale),
+            margin=dict(l=0, r=0, t=0, b=12 * scale),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
