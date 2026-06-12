@@ -668,6 +668,18 @@ class BacktestPage:
                 # 预先过滤当前股票的交易记录和持仓明细
                 filtered_tr = [t for t in all_tr if t.get("symbol") == symbol]
                 filtered_pos = [p for p in all_pos if p.get("symbol") == symbol]
+                # 判断是否是最后一张图表
+                is_last = i == min(6, len(histories)) - 1
+                base_style = {
+                    "margin": 0,
+                    "padding": 0,
+                    "width": "100%",
+                    "height": "100%",
+                    "aspectRatio": 1.6,
+                }
+                # 最后一个额外增加底部margin 5px
+                if is_last:
+                    base_style["marginBottom"] = "10px"
 
                 fig = self.cb.kl_fig(
                     his=stock_data,
@@ -688,13 +700,7 @@ class BacktestPage:
                                 "responsive": True,
                             },
                         ),
-                        style={
-                            "marginBottom": "30px",
-                            "padding": 0,
-                            "width": "100%",
-                            "height": "100%",
-                            "aspectRatio": 1.6,
-                        },
+                        style=base_style,
                     )
                 )
             return html.Div(

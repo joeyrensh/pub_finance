@@ -2125,9 +2125,44 @@ class ChartBuilder:
                 col=1,
             )
 
+        xmin = df["datetime"].min()
+        xmax = df["datetime"].max()
+        # 1. 蜡烛图 X轴
+        fig.update_xaxes(
+            mirror=True,
+            tickangle=0,
+            rangeslider_visible=False,
+            showgrid=True,
+            gridcolor=cfg["grid"],
+            gridwidth=1,
+            showline=False,  # 你原本单独设置的
+            linecolor=cfg["grid"],
+            linewidth=1,
+            automargin=False,
+            ticks="",  # 刻度线向内
+            range=[xmin - timedelta(days=0.5), xmax + timedelta(days=0.5)],
+            zeroline=False,
+        )
+
+        fig.update_yaxes(
+            mirror=True,
+            tickfont=dict(
+                size=font_size,
+                color=cfg["text_color"],
+                family=self.font_family,
+            ),
+            title=dict(text=None),
+            showline=False,
+            linecolor=cfg["grid"],
+            zeroline=False,
+            gridcolor=cfg["grid"],
+            ticklabelposition="inside",
+            tickangle=0,
+            autorange=True,
+        )
         # ----- 布局设置 -----
         fig.update_layout(
-            margin=dict(l=0, r=0, t=0, b=0),
+            margin=dict(l=0, r=0, t=0, b=10 * scale),
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -2147,38 +2182,6 @@ class ChartBuilder:
                 font=dict(size=font_size),
             ),
         )
-
-        xmin = df["datetime"].min()
-        xmax = df["datetime"].max()
-        fig.update_xaxes(
-            rangeslider_visible=False,
-            showgrid=True,
-            gridcolor=cfg["grid"],
-            gridwidth=1,
-            showline=True,
-            linecolor=cfg["grid"],
-            linewidth=1,
-            automargin=False,
-            range=[xmin - timedelta(days=0.5), xmax + timedelta(days=0.5)],
-        )
-
-        fig.update_yaxes(
-            mirror=True,
-            tickfont=dict(
-                size=font_size,
-                color=cfg["text_color"],
-                family=self.font_family,
-            ),
-            title=dict(text=None),
-            showline=False,
-            linecolor=cfg["grid"],
-            zeroline=False,
-            gridcolor=cfg["grid"],
-            ticklabelposition="inside",
-            tickangle=0,
-            autorange=True,
-        )
-        fig.update_xaxes(showline=False, row=1, col=1)
 
         return fig
 
