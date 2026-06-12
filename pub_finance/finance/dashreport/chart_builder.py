@@ -842,6 +842,8 @@ class ChartBuilder:
         fig.update_layout(
             xaxis=dict(
                 mirror=True,
+                automargin=False,
+                tickangle=0,
                 # ticks="outside",
                 tickfont=dict(
                     family=self.font_family,
@@ -919,7 +921,7 @@ class ChartBuilder:
             bargroupgap=0.25 / scale,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            margin=dict(t=0, b=0, l=0, r=0),
+            margin=dict(t=0, b=5, l=0, r=0),
             autosize=True,
             dragmode=False,
             hovermode="x",
@@ -1021,7 +1023,8 @@ class ChartBuilder:
             title="",
             xaxis=dict(
                 mirror=True,
-                # ticks="outside",
+                automargin=False,
+                tickangle=0,
                 tickfont=dict(
                     size=font_size,
                     color=text_color,
@@ -1076,7 +1079,7 @@ class ChartBuilder:
             bargroupgap=0.25 / scale,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            margin=dict(t=0, b=0, l=0, r=0),
+            margin=dict(t=0, b=5, l=0, r=0),
             autosize=True,
             dragmode=False,
             hovermode="x",
@@ -1129,8 +1132,8 @@ class ChartBuilder:
 
         fig.update_xaxes(
             mirror=True,
-            # ticks="inside",
-            # ticklabelposition="outside",
+            automargin=False,
+            tickangle=0,
             tickfont=dict(
                 size=font_size,
                 color=text_color,
@@ -1219,7 +1222,7 @@ class ChartBuilder:
             ),
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            margin=dict(t=0, b=0, l=0, r=0),
+            margin=dict(t=0, b=5, l=0, r=0),
             autosize=True,
             dragmode=False,
             hovermode="x",
@@ -2369,8 +2372,10 @@ class ChartBuilder:
         ]
 
         fig.update_layout(
+            title="",
             dragmode=False,
-            margin=dict(l=0, r=0, t=0, b=0),
+            autosize=True,
+            margin=dict(l=0, r=0, t=0, b=5),
             font=dict(family=self.font_family, size=font_size, color=text_color),
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -2381,15 +2386,15 @@ class ChartBuilder:
                 mirror=True,
                 showline=False,
                 linecolor=cfg["grid"],
-                zeroline=False,
+                zeroline=True,
                 gridcolor=cfg["grid"],
                 tickmode="auto",
                 tickformat="%Y-%m-%d",
                 hoverformat="%Y-%m-%d",
                 range=x_range,
                 showgrid=True,
-                gridwidth=0.5,
-                ticklabelposition="inside",  # 日期文字放到坐标轴内侧
+                automargin=False,
+                tickangle=0,
             ),
             yaxis=dict(
                 showticklabels=False,
@@ -2403,7 +2408,6 @@ class ChartBuilder:
                 ticklabelposition="inside",
                 ticks="",
                 automargin=False,
-                tickangle=0,
                 autorange=True,
             ),
             legend=dict(

@@ -27,6 +27,7 @@ class PageLayout:
                 "overall",
                 "annual_return",
                 "heatmap",
+                "industry_strength",
                 "strategy",
                 "trade",
                 "pnl_trend",
