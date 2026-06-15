@@ -147,6 +147,10 @@ kpi_callback.setup_callback(app)
 app.kpi_callback = kpi_callback
 
 backtestpage = BacktestPage(app)
+
+slogans.register_callbacks(app)
+
+
 # ======================================================
 
 app.clientside_callback(

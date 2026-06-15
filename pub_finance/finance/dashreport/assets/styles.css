@@ -931,6 +931,125 @@ a:active {
   margin: auto;
 }
 
+/* ========== slogans页面 ========== */
+
+/* ========== 标题文本 ========== */
+.page-sub-desc {
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+.card-header-title {
+    color: #212529;
+}
+.preview-header {
+    color: #212529;
+}
+
+/* ========== 权重卡片 ========== */
+.weight-config-card {
+    height: 100%;
+}
+
+/* ========== 滑块核心美化（三套样式可切换class） ========== */
+/* 样式1：商务细蓝条（默认） */
+.weight-slider-primary .rc-slider-track {
+    background-color:#0d6efd;
+    height:4px;
+    border-radius:2px;
+}
+.weight-slider-primary .rc-slider-rail {
+    background-color:#e2e8f0;
+    height:4px;
+    border-radius:2px;
+}
+.weight-slider-primary .rc-slider-handle {
+    width:16px;
+    height:16px;
+    border:2px solid #0d6efd;
+    background:#fff;
+    margin-top:-6px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.12);
+}
+
+.weight-slider-primary {
+    padding: 0px 5px 5px !important;
+}
+
+/* 样式2：实心填充蓝（替换class为 weight-slider-solid） */
+.weight-slider-solid .rc-slider-track {
+    background:#0d6efd;
+    height:6px;
+    border-radius:3px;
+}
+.weight-slider-solid .rc-slider-rail {
+    background:#f1f5f9;
+    height:6px;
+    border-radius:3px;
+}
+.weight-slider-solid .rc-slider-handle {
+    width:18px;
+    height:18px;
+    background:#0d6efd;
+    border:none;
+    margin-top:-6px;
+}
+
+/* 样式3：低调灰色（替换class为 weight-slider-gray） */
+.weight-slider-gray .rc-slider-track {
+    background:#495057;
+    height:4px;
+}
+.weight-slider-gray .rc-slider-rail {
+    background:#dee2e6;
+    height:4px;
+}
+.weight-slider-gray .rc-slider-handle {
+    border-color:#495057;
+    background:#fff;
+}
+
+/* ========== 按钮 ========== */
+.weight-btn-reset {
+    border-color:#6c757d;
+    margin-top: 20px;
+    font-size: inherit;
+    line-height: 30px;
+    font-weight: 400;
+    font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
+}
+.weight-btn-save {
+    border-color:#6c757d;
+    font-size: inherit;
+    line-height: 30px;
+    font-weight: 400;
+    font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
+}
+
+.card-body {
+    padding: 0px 10px;
+    font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
+}
+
+/* ========== JSON预览输入框 ========== */
+.json-preview-box {
+    width:100%;
+    height:320px;
+    background: transparent;
+    color: var(--text-color);
+    font-size: inherit;
+    font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
+}
+
+/* ========== 保存提示文字 ========== */
+.save-message-tip span[style*="color:#198754"] {
+    font-weight:500;
+}
+.save-message-tip span[style*="color:#dc3545"] {
+    font-weight:500;
+}
+
+
+
 /* ==================== 响应式设计 ==================== */
 /* 中等屏幕设备 */
 @media (max-width: 1200px) and (min-width: 550px),

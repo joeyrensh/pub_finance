@@ -171,6 +171,9 @@ kpi_callback.setup_callback(app)
 app.kpi_callback = kpi_callback
 
 backtestpage = BacktestPage(app)
+
+# ===== 注册配置页面回调 =====
+slogans.register_callbacks(app)
 # ======================================================
 
 app.clientside_callback(
