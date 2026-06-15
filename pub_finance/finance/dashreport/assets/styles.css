@@ -1029,6 +1029,11 @@ a:active {
     padding: 0px 10px;
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
 }
+.rc-slider-tooltip-inner {
+    font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
+    font-size: 1rem !important;
+    padding: 5px;
+}
 
 /* ========== JSON预览输入框 ========== */
 .json-preview-box {

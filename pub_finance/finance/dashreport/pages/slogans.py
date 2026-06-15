@@ -24,7 +24,7 @@ DEFAULT_CONFIG = {
 
 # 【新增：界面名称映射，只改展示，不改动底层key】
 LABEL_MAPPING = {
-    # 一级权重
+    # 全局权重
     "industry": "行业因子",
     "pnl": "盈亏因子",
     "stability": "稳定性因子",
@@ -106,7 +106,7 @@ def build_root_card():
     return dbc.Card(
         [
             dbc.CardHeader(
-                html.Label("一级权重", className="fs-5 fw-bold text-dark"),
+                html.Label("全局权重", className="fs-5 fw-bold text-dark"),
             ),
             dbc.CardBody(row_list, className="py-3 card-body"),
         ],
@@ -188,7 +188,7 @@ def build_pnl_card():
     return dbc.Card(
         [
             dbc.CardHeader(
-                html.Label("收益子权重", className="fs-5 fw-bold text-dark")
+                html.Label("损益子权重", className="fs-5 fw-bold text-dark")
             ),
             dbc.CardBody(row_list, className="py-3 card-body"),
         ],
