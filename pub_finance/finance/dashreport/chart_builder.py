@@ -1501,7 +1501,7 @@ class ChartBuilder:
                 mode="lines",
                 fill="tozeroy",
                 name="Drawdown",
-                line=dict(color=cfg["drawdown"], width=1 * scale),
+                line=dict(color=cfg["drawdown"], width=1.5 * scale),
                 fillcolor=cfg["drawdown_fill"],
                 hovertemplate=("<b>Drawdown</b>: %{y:.2%}<br>" "<extra></extra>"),
                 hoverlabel=dict(
