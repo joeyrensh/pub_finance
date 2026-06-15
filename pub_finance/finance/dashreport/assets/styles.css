@@ -956,11 +956,15 @@ a:active {
     background-color:#0d6efd;
     height:4px;
     border-radius:2px;
+    touch-action: pan-y;
+    pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */    
 }
 .weight-slider-primary .rc-slider-rail {
     background-color:#e2e8f0;
     height:4px;
     border-radius:2px;
+    touch-action: pan-y;
+    pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */    
 }
 .weight-slider-primary .rc-slider-handle {
     width:16px;
@@ -969,6 +973,7 @@ a:active {
     background:#fff;
     margin-top:-6px;
     box-shadow:0 1px 3px rgba(0,0,0,0.12);
+    touch-action: pan-y;
 }
 
 .weight-slider-primary {
@@ -980,11 +985,15 @@ a:active {
     background:#0d6efd;
     height:6px;
     border-radius:3px;
+    touch-action: pan-y;
+    pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */        
 }
 .weight-slider-solid .rc-slider-rail {
     background:#f1f5f9;
     height:6px;
     border-radius:3px;
+    touch-action: pan-y;
+    pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */        
 }
 .weight-slider-solid .rc-slider-handle {
     width:18px;
@@ -992,20 +1001,26 @@ a:active {
     background:#0d6efd;
     border:none;
     margin-top:-6px;
+    touch-action: pan-y;
 }
 
 /* 样式3：低调灰色（替换class为 weight-slider-gray） */
 .weight-slider-gray .rc-slider-track {
     background:#495057;
     height:4px;
+    touch-action: pan-y;
+    pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */            
 }
 .weight-slider-gray .rc-slider-rail {
     background:#dee2e6;
     height:4px;
+    touch-action: pan-y;
+    pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */            
 }
 .weight-slider-gray .rc-slider-handle {
     border-color:#495057;
     background:#fff;
+    touch-action: pan-y;
 }
 
 /* ========== 按钮 ========== */
@@ -1325,6 +1340,17 @@ a:active {
   #us_dynamic-annual-return-dark {
     width: 100%;
   }
+
+  /* 仅移动端禁止触摸交互 */
+  .weight-slider-primary .rc-slider-handle {
+      pointer-events: none !important;
+      touch-action: none !important;
+  }
+  /* 保留按钮可点击 */
+  .weight-btn-reset, .weight-btn-save {
+      pointer-events: auto !important;
+      touch-action: manipulation;
+  }  
   
 }
 
