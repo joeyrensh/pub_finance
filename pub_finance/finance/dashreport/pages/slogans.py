@@ -62,18 +62,15 @@ def save_config(config: dict):
         json.dump(config, f, ensure_ascii=False, indent=4)
 
 
-init_json_file()
-init_cfg = load_config()
-
-# -------------------------- 静态键名定义 --------------------------
-ROOT_KEYS = list(init_cfg["weights"].keys())
-IND_KEYS = list(init_cfg["sub_weights"]["industry"].keys())
-PNL_KEYS = list(init_cfg["sub_weights"]["pnl"].keys())
-STA_KEYS = list(init_cfg["sub_weights"]["stability"].keys())
+# -------------------------- 静态键名定义（修复：从DEFAULT_CONFIG读取，不依赖init_cfg） --------------------------
+ROOT_KEYS = list(DEFAULT_CONFIG["weights"].keys())
+IND_KEYS = list(DEFAULT_CONFIG["sub_weights"]["industry"].keys())
+PNL_KEYS = list(DEFAULT_CONFIG["sub_weights"]["pnl"].keys())
+STA_KEYS = list(DEFAULT_CONFIG["sub_weights"]["stability"].keys())
 
 
 # -------------------------- 卡片构建函数（替换Label展示名称） --------------------------
-def build_root_card():
+def build_root_card(cfg):
     row_list = []
     for k in ROOT_KEYS:
         display_text = LABEL_MAPPING[k]
@@ -87,7 +84,7 @@ def build_root_card():
                             min=0,
                             max=1,
                             step=0.01,
-                            value=init_cfg["weights"][k],
+                            value=cfg["weights"][k],
                             marks={
                                 0.25: "0.25",
                                 0.5: "0.5",
@@ -116,7 +113,7 @@ def build_root_card():
     )
 
 
-def build_industry_card():
+def build_industry_card(cfg):
     row_list = []
     for k in IND_KEYS:
         display_text = LABEL_MAPPING[k]
@@ -130,7 +127,7 @@ def build_industry_card():
                             min=0,
                             max=1,
                             step=0.01,
-                            value=init_cfg["sub_weights"]["industry"][k],
+                            value=cfg["sub_weights"]["industry"][k],
                             marks={
                                 0.25: "0.25",
                                 0.5: "0.5",
@@ -159,7 +156,7 @@ def build_industry_card():
     )
 
 
-def build_pnl_card():
+def build_pnl_card(cfg):
     row_list = []
     for k in PNL_KEYS:
         display_text = LABEL_MAPPING[k]
@@ -173,7 +170,7 @@ def build_pnl_card():
                             min=0,
                             max=1,
                             step=0.01,
-                            value=init_cfg["sub_weights"]["pnl"][k],
+                            value=cfg["sub_weights"]["pnl"][k],
                             marks={
                                 0.25: "0.25",
                                 0.5: "0.5",
@@ -202,7 +199,7 @@ def build_pnl_card():
     )
 
 
-def build_stability_card():
+def build_stability_card(cfg):
     row_list = []
     for k in STA_KEYS:
         display_text = LABEL_MAPPING[k]
@@ -216,7 +213,7 @@ def build_stability_card():
                             min=0,
                             max=1,
                             step=0.01,
-                            value=init_cfg["sub_weights"]["stability"][k],
+                            value=cfg["sub_weights"]["stability"][k],
                             marks={
                                 0.25: "0.25",
                                 0.5: "0.5",
@@ -247,6 +244,9 @@ def build_stability_card():
 
 # -------------------------- 页面区块拆分（对齐项目示例结构） --------------------------
 def create_layout(app: Dash):
+    # 每次访问页面，实时校验文件、读取最新磁盘配置
+    init_json_file()
+    init_cfg = load_config()
     # 标题区块
     title_section = html.Div(
         [
@@ -261,14 +261,14 @@ def create_layout(app: Dash):
     # 双列卡片行
     card_row_1 = dbc.Row(
         [
-            dbc.Col(build_root_card(), lg=6, md=12),
-            dbc.Col(build_industry_card(), lg=6, md=12),
+            dbc.Col(build_root_card(init_cfg), lg=6, md=12),
+            dbc.Col(build_industry_card(init_cfg), lg=6, md=12),
         ]
     )
     card_row_2 = dbc.Row(
         [
-            dbc.Col(build_pnl_card(), lg=6, md=12),
-            dbc.Col(build_stability_card(), lg=6, md=12),
+            dbc.Col(build_pnl_card(init_cfg), lg=6, md=12),
+            dbc.Col(build_stability_card(init_cfg), lg=6, md=12),
         ]
     )
 

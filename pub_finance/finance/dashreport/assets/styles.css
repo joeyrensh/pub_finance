@@ -976,6 +976,10 @@ a:active {
     touch-action: pan-y;
 }
 
+.weight-slider-primary .rc-slider-mark-text {
+    color: #0d6efd !important; /* 自定义你想要的颜色 */
+}
+
 .weight-slider-primary {
     padding: 0px 5px 5px !important;
 }
@@ -1046,8 +1050,10 @@ a:active {
 }
 .rc-slider-tooltip-inner {
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
-    font-size: 1rem !important;
+    font-size: 1.1rem !important;
     padding: 5px;
+    background: var(--background-color);
+    color: var(--text-color);
 }
 
 /* ========== JSON预览输入框 ========== */
@@ -1342,15 +1348,10 @@ a:active {
   }
 
   /* 仅移动端禁止触摸交互 */
-  .weight-slider-primary .rc-slider-handle {
+  .weight-slider-primary{
       pointer-events: none !important;
       touch-action: none !important;
   }
-  /* 保留按钮可点击 */
-  .weight-btn-reset, .weight-btn-save {
-      pointer-events: auto !important;
-      touch-action: manipulation;
-  }  
   
 }
 
