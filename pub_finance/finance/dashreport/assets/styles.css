@@ -953,78 +953,42 @@ a:active {
 /* ========== 滑块核心美化（三套样式可切换class） ========== */
 /* 样式1：商务细蓝条（默认） */
 .weight-slider-primary .rc-slider-track {
-    background-color:#0d6efd;
+    /* background-color:#0d6efd; */
+    background-color: var(--positive-databar-color);
     height:4px;
-    border-radius:2px;
     touch-action: pan-y;
     pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */    
 }
 .weight-slider-primary .rc-slider-rail {
     background-color:#e2e8f0;
-    height:4px;
-    border-radius:2px;
+    height:2px;
     touch-action: pan-y;
     pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */    
 }
 .weight-slider-primary .rc-slider-handle {
-    width:16px;
-    height:16px;
-    border:2px solid #0d6efd;
+    width:8px;
+    height:8px;
+    /* border:2px solid #0d6efd; */
+    border: 2px solid var(--positive-databar-color);
     background:#fff;
-    margin-top:-6px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.12);
+    margin-top:-2px;
     touch-action: pan-y;
+}
+.weight-slider-primary .rc-slider-dot {
+    width: 6px;
+    height: 6px;
+    /* border: 1px solid #0d6efd; */
+    border: 1px solid var(--positive-databar-color);
+    bottom: 0px;
 }
 
 .weight-slider-primary .rc-slider-mark-text {
-    color: #0d6efd !important; /* 自定义你想要的颜色 */
+    /* color: #0d6efd !important; 自定义你想要的颜色 */
+    color: var(--positive-databar-color) !important;
 }
 
 .weight-slider-primary {
     padding: 0px 5px 5px !important;
-}
-
-/* 样式2：实心填充蓝（替换class为 weight-slider-solid） */
-.weight-slider-solid .rc-slider-track {
-    background:#0d6efd;
-    height:6px;
-    border-radius:3px;
-    touch-action: pan-y;
-    pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */        
-}
-.weight-slider-solid .rc-slider-rail {
-    background:#f1f5f9;
-    height:6px;
-    border-radius:3px;
-    touch-action: pan-y;
-    pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */        
-}
-.weight-slider-solid .rc-slider-handle {
-    width:18px;
-    height:18px;
-    background:#0d6efd;
-    border:none;
-    margin-top:-6px;
-    touch-action: pan-y;
-}
-
-/* 样式3：低调灰色（替换class为 weight-slider-gray） */
-.weight-slider-gray .rc-slider-track {
-    background:#495057;
-    height:4px;
-    touch-action: pan-y;
-    pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */            
-}
-.weight-slider-gray .rc-slider-rail {
-    background:#dee2e6;
-    height:4px;
-    touch-action: pan-y;
-    pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */            
-}
-.weight-slider-gray .rc-slider-handle {
-    border-color:#495057;
-    background:#fff;
-    touch-action: pan-y;
 }
 
 /* ========== 按钮 ========== */
