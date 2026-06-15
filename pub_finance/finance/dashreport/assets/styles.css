@@ -960,7 +960,7 @@ a:active {
     pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */    
 }
 .weight-slider-primary .rc-slider-rail {
-    background-color:#e2e8f0;
+    background-color: var(--gridcolor);
     height:2px;
     touch-action: pan-y;
     pointer-events: none; /* 轨道整条不可点击，只有小圆点能拖动 */    
@@ -999,13 +999,16 @@ a:active {
     line-height: 30px;
     font-weight: 400;
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
+    border: 1px solid var(--gridcolor);
 }
 .weight-btn-save {
+    margin-left: 2px;
     border-color:#6c757d;
     font-size: inherit;
     line-height: 30px;
     font-weight: 400;
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
+    border: 1px solid var(--gridcolor);
 }
 
 .card-body {
@@ -1028,6 +1031,7 @@ a:active {
     color: var(--text-color);
     font-size: inherit;
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
+    border: 1px solid var(--gridcolor);
 }
 
 /* ========== 保存提示文字 ========== */
