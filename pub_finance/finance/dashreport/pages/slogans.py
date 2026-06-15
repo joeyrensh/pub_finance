@@ -26,15 +26,15 @@ DEFAULT_CONFIG = {
 LABEL_MAPPING = {
     # 全局权重
     "industry": "行业因子",
-    "pnl": "盈亏因子",
+    "pnl": "损益因子",
     "stability": "稳定性因子",
     "erp": "股权溢价因子",
     # industry子项
     "arrow": "上升趋势",
     "bracket": "行业排名",
     # pnl子项
-    "daily": "日度收益",
-    "weighted_return": "加权收益",
+    "daily": "日度损益",
+    "weighted_return": "加权损益",
     # stability子项
     "win_rate": "交易胜率",
     "avg_trans": "交易频次",
