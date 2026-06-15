@@ -715,14 +715,14 @@ class ChartBuilder:
         # 线型样式
         # =========================
         line_styles = [
-            {"dash": "solid", "width": 2.2 * unified_scale},
-            {"dash": "solid", "width": 2.2 * unified_scale},
-            {"dash": "dashdot", "width": 2.0 * unified_scale},
-            {"dash": "dash", "width": 1.8 * unified_scale},
-            {"dash": "6,3", "width": 1.6 * unified_scale},
-            {"dash": "5,5", "width": 1.4 * unified_scale},
-            {"dash": "4,6", "width": 1.2 * unified_scale},
-            {"dash": "2,8", "width": 1.0 * unified_scale},
+            {"dash": "solid", "width": 3 * unified_scale},
+            {"dash": "solid", "width": 3 * unified_scale},
+            {"dash": "dashdot", "width": 2.5 * unified_scale},
+            {"dash": "dash", "width": 2.2 * unified_scale},
+            {"dash": "6,3", "width": 2 * unified_scale},
+            {"dash": "5,5", "width": 1.8 * unified_scale},
+            {"dash": "4,6", "width": 1.6 * unified_scale},
+            {"dash": "2,8", "width": 1.4 * unified_scale},
         ]
 
         # =========================
@@ -917,8 +917,8 @@ class ChartBuilder:
                 tracegroupgap=0,
             ),
             barmode="relative",
-            bargap=0.25 / unified_scale,
-            bargroupgap=0.25 / unified_scale,
+            bargap=0.15 / unified_scale,
+            bargroupgap=0.15 / unified_scale,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=5, l=0, r=0),
@@ -959,7 +959,7 @@ class ChartBuilder:
                 y=df["total_cnt"],
                 mode="lines",
                 name="Total",
-                line=dict(color=cfg["long2"], width=2 * unified_scale),
+                line=dict(color=cfg["long2"], width=3 * unified_scale),
                 yaxis="y",
                 hovertemplate=(
                     # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
@@ -1118,7 +1118,7 @@ class ChartBuilder:
             color_discrete_sequence=cfg["pnl_colors"],
         )
         fig.update_traces(
-            line=dict(width=2 * unified_scale),
+            line=dict(width=3 * unified_scale),
             hovertemplate=(
                 # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
                 "<b>收益</b>: %{fullData.name} %{y}<br>"
@@ -1520,7 +1520,7 @@ class ChartBuilder:
                 y=cumulative,
                 mode="lines",
                 name="Cum. Return",
-                line=dict(color=cfg["cumret"], width=2 * scale),
+                line=dict(color=cfg["cumret"], width=3 * scale),
                 hovertemplate=("<b>Cum. Return</b>: %{y:.4f}<br>" "<extra></extra>"),
                 hoverlabel=dict(
                     bgcolor=hover_config["cumret"],
@@ -2323,7 +2323,7 @@ class ChartBuilder:
                 y=df["s_pnl"],
                 name="每日盈亏",
                 mode="lines+markers",
-                line=dict(color=cfg.get("cumret"), width=2 * unified_scale),
+                line=dict(color=cfg.get("cumret"), width=3 * unified_scale),
                 marker=dict(size=6 * unified_scale, color=cfg.get("cumret")),
                 hovertemplate="<b>%{x|%Y-%m-%d}</b><br>盈亏: %{y:,.2f}<extra></extra>",
                 yaxis="y",
