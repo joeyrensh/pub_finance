@@ -652,8 +652,8 @@ class ChartBuilder:
         scale, base_font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.05
         )
-        scale, title_font_size = self._get_font_sizes(
-            client_width, base_font=14, min_scale=0.9, max_scale=1.05
+        unified_scale, unified_font_size = self._get_font_sizes(
+            client_width, base_font=16, min_scale=0.65, max_scale=1.05
         )
 
         # =========================
@@ -715,14 +715,14 @@ class ChartBuilder:
         # 线型样式
         # =========================
         line_styles = [
-            {"dash": "solid", "width": 2.2 * scale},
-            {"dash": "solid", "width": 2.2 * scale},
-            {"dash": "dashdot", "width": 2.0 * scale},
-            {"dash": "dash", "width": 1.8 * scale},
-            {"dash": "6,3", "width": 1.6 * scale},
-            {"dash": "5,5", "width": 1.4 * scale},
-            {"dash": "4,6", "width": 1.2 * scale},
-            {"dash": "2,8", "width": 1.0 * scale},
+            {"dash": "solid", "width": 2.2 * unified_scale},
+            {"dash": "solid", "width": 2.2 * unified_scale},
+            {"dash": "dashdot", "width": 2.0 * unified_scale},
+            {"dash": "dash", "width": 1.8 * unified_scale},
+            {"dash": "6,3", "width": 1.6 * unified_scale},
+            {"dash": "5,5", "width": 1.4 * unified_scale},
+            {"dash": "4,6", "width": 1.2 * unified_scale},
+            {"dash": "2,8", "width": 1.0 * unified_scale},
         ]
 
         # =========================
@@ -917,8 +917,8 @@ class ChartBuilder:
                 tracegroupgap=0,
             ),
             barmode="relative",
-            bargap=0.25 / scale,
-            bargroupgap=0.25 / scale,
+            bargap=0.25 / unified_scale,
+            bargroupgap=0.25 / unified_scale,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=5, l=0, r=0),
@@ -944,8 +944,8 @@ class ChartBuilder:
         scale, font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.05
         )
-        scale, title_font_size = self._get_font_sizes(
-            client_width, base_font=14, min_scale=0.9, max_scale=1.05
+        unified_scale, unified_font_size = self._get_font_sizes(
+            client_width, base_font=16, min_scale=0.65, max_scale=1.05
         )
 
         # =========================
@@ -959,7 +959,7 @@ class ChartBuilder:
                 y=df["total_cnt"],
                 mode="lines",
                 name="Total",
-                line=dict(color=cfg["long2"], width=2 * scale),
+                line=dict(color=cfg["long2"], width=2 * unified_scale),
                 yaxis="y",
                 hovertemplate=(
                     # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
@@ -1075,8 +1075,8 @@ class ChartBuilder:
                 tracegroupgap=0,
             ),
             barmode="stack",
-            bargap=0.25 / scale,
-            bargroupgap=0.25 / scale,
+            bargap=0.25 / unified_scale,
+            bargroupgap=0.25 / unified_scale,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=5, l=0, r=0),
@@ -1102,8 +1102,8 @@ class ChartBuilder:
         scale, font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.05
         )
-        scale, title_font_size = self._get_font_sizes(
-            client_width, base_font=14, min_scale=0.9, max_scale=1.05
+        unified_scale, unified_font_size = self._get_font_sizes(
+            client_width, base_font=16, min_scale=0.65, max_scale=1.05
         )
 
         # =========================
@@ -1118,7 +1118,7 @@ class ChartBuilder:
             color_discrete_sequence=cfg["pnl_colors"],
         )
         fig.update_traces(
-            line=dict(width=2 * scale),
+            line=dict(width=2 * unified_scale),
             hovertemplate=(
                 # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
                 "<b>收益</b>: %{fullData.name} %{y}<br>"
@@ -1131,6 +1131,7 @@ class ChartBuilder:
         ymax = df["pnl"].max()
 
         fig.update_xaxes(
+            title=None,
             mirror=True,
             automargin=False,
             tickangle=0,
@@ -1138,14 +1139,6 @@ class ChartBuilder:
                 size=font_size,
                 color=text_color,
                 family=self.font_family,
-            ),
-            title=dict(
-                text=None,
-                font=dict(
-                    size=title_font_size,
-                    color=text_color,
-                    family=self.font_family,
-                ),
             ),
             showline=False,
             linecolor=cfg["grid"],
@@ -1162,6 +1155,7 @@ class ChartBuilder:
         )
 
         fig.update_yaxes(
+            title=None,
             mirror=True,
             showticklabels=False,  # 关闭刻度标签
             ticks="",  # 关闭刻度线
@@ -1169,14 +1163,6 @@ class ChartBuilder:
                 size=font_size,
                 color=text_color,
                 family=self.font_family,
-            ),
-            title=dict(
-                text=None,
-                font=dict(
-                    size=title_font_size,
-                    color=text_color,
-                    family=self.font_family,
-                ),
             ),
             showline=False,
             linecolor=cfg["grid"],
@@ -2200,6 +2186,9 @@ class ChartBuilder:
         scale, font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.05
         )
+        unified_scale, unified_font_size = self._get_font_sizes(
+            client_width, base_font=16, min_scale=0.65, max_scale=1.05
+        )
 
         df = df.copy()
         if "date" in df.columns:
@@ -2334,8 +2323,8 @@ class ChartBuilder:
                 y=df["s_pnl"],
                 name="每日盈亏",
                 mode="lines+markers",
-                line=dict(color=cfg.get("cumret"), width=2 * scale),
-                marker=dict(size=6 * scale, color=cfg.get("cumret")),
+                line=dict(color=cfg.get("cumret"), width=2 * unified_scale),
+                marker=dict(size=6 * unified_scale, color=cfg.get("cumret")),
                 hovertemplate="<b>%{x|%Y-%m-%d}</b><br>盈亏: %{y:,.2f}<extra></extra>",
                 yaxis="y",
             )
