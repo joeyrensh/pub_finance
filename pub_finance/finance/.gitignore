@@ -35,3 +35,4 @@ check_logs.sh*
 !utility/proxy.txt
 !Backtest.png
 !Frontpage.png
+!Config.png
