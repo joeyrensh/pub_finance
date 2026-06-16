@@ -2387,6 +2387,7 @@ class ChartBuilder:
                 showgrid=True,
                 automargin=False,
                 tickangle=0,
+                nticks=4,
             ),
             yaxis=dict(
                 showticklabels=False,
