@@ -518,6 +518,8 @@ def make_dash_format_table(df, cols_format, market, trade_date):
             "avg_trans": "AVG TRANS",
             "sortino": "SORTINO RATIO",
             "max_dd": "MAX DD",
+            "strategy_cnt": "STRATEGY CNT",
+            "strategy": "STRATEGY",
         }
         selected_symbols, score_dict = ToolKit.score_and_select_symbols(
             df,
@@ -536,6 +538,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
                 "erp_score",
                 "pnl_score",
                 "stability_score",
+                "strategy_score",
             ]
             for _, row in df.iterrows():
                 symbol = row["SYMBOL"]  # 注意列名与实际一致
@@ -547,7 +550,8 @@ def make_dash_format_table(df, cols_format, market, trade_date):
                         f"行业: {values[1]:.4f}\n"
                         f"ERP: {values[2]:.4f}\n"
                         f"收益: {values[3]:.4f}\n"
-                        f"稳定性: {values[4]:.4f}"
+                        f"稳定性: {values[4]:.4f}\n"
+                        f"策略: {values[5]:.4f}"
                     )
                 else:
                     tooltip_text = ""
@@ -656,6 +660,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
             "stability_score",
             "total_score",
             "DAILY RETURN",
+            "STRATEGY CNT",
         ]
     ]
 

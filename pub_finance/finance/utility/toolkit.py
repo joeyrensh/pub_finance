@@ -753,23 +753,16 @@ class ToolKit:
         def extract_arrow_num(s):
             # 去除 HTML 标签
             clean_text = re.sub(r"<[^<]+?>", "", s)
-
-            arrow_num = 0  # 默认：没有箭头 → 0
-
-            # 向上箭头 ↑
+            arrow_num = 0
             up_match = re.search(r"↑(\d+)", clean_text)
             if up_match:
                 arrow_num = int(up_match.group(1))
             else:
-                # 向下箭头 ↓
                 down_match = re.search(r"↓(\d+)", clean_text)
                 if down_match:
                     arrow_num = -int(down_match.group(1))
-
-            # 斜杠后的数字（如 ↑7/4）
             bracket_match = re.search(r"/(\d+)", clean_text)
             bracket_num = int(bracket_match.group(1)) if bracket_match else None
-
             return arrow_num, bracket_num
 
         def rank_score(
@@ -783,8 +776,6 @@ class ToolKit:
             valid = s_num.dropna()
             if valid.empty:
                 return score
-
-            # ---------- 单边归一化 (百分位秩) ----------
             if mid is None:
                 vals = valid.copy()
                 if not higher_is_better:
@@ -792,26 +783,18 @@ class ToolKit:
                 rank_pct = vals.rank(pct=True)
                 score.loc[valid.index] = rank_pct
                 return score
-
-            # ---------- 双边归一化 (百分位秩 + 微小偏移) ----------
             aligned = valid - mid
             pos = aligned[aligned > 0]
             neg = aligned[aligned < 0]
-            eps = 0.001  # 可根据需要调整，例如 1e-4
-
+            eps = 0.001
             if not pos.empty:
-                pos_rank = pos.rank(pct=True)  # 范围 (0,1]
-                # 映射到 [eps, 1]
+                pos_rank = pos.rank(pct=True)
                 pos_score = eps + (1 - eps) * pos_rank
                 score.loc[pos.index] = pos_score
-
             if not neg.empty:
-                neg_rank = neg.rank(pct=True)  # 范围 (0,1]
-                # 映射到 [-1, -eps]：负值越接近 0 得分越接近 -eps
+                neg_rank = neg.rank(pct=True)
                 neg_score = -(eps + (1 - eps) * (1 - neg_rank))
                 score.loc[neg.index] = neg_score
-
-            # aligned == 0 的得分保持 0
             return score
 
         df = df.copy()
@@ -827,29 +810,24 @@ class ToolKit:
         c = column_map
         sym_col = c["symbol"]
 
-        # ===== 行业解析 =====
+        # ===== 行业解析（保持不变） =====
         df[["IND_ARROW_NUM", "IND_BRACKET_NUM"]] = df[c["industry"]].apply(
             lambda x: pd.Series(extract_arrow_num(x))
         )
-
         df["industry_arrow_score"] = rank_score(df["IND_ARROW_NUM"], mid=0)
-
         df["industry_bracket_score"] = rank_score(
             df["IND_BRACKET_NUM"], higher_is_better=False
         )
-
         df["industry_score"] = (
             sw["industry"]["arrow"] * df["industry_arrow_score"]
             + sw["industry"]["bracket"] * df["industry_bracket_score"]
         )
 
-        # ===== ERP =====
+        # ===== ERP（保持不变） =====
         df[c["erp"]] = pd.to_numeric(df[c["erp"]], errors="coerce")
         df[c["erp"]] = df[c["erp"]].fillna(-99999)
-
         ind_cnt = df.groupby(c["industry"])[sym_col].transform("count")
         invalid_ind = ind_cnt < 3
-
         df["erp_score"] = np.where(
             invalid_ind,
             rank_score(df[c["erp"]], mid=0),
@@ -858,14 +836,13 @@ class ToolKit:
             ),
         )
 
-        # ===== PNL（修改部分开始）=====
+        # ===== PNL（保持不变） =====
         trade_dt = pd.to_datetime(trade_date)
         open_dt = pd.to_datetime(df[c["open_date"]], errors="coerce")
         days = (trade_dt - open_dt).dt.days.clip(lower=1)
         df["pnl_daily_score"] = rank_score(df[c["pnl_ratio"]] / days, mid=0)
 
         def weighted_avg_return(returns_list):
-            # 如果是字符串，尝试解析为 Python 列表
             if isinstance(returns_list, str):
                 try:
                     import ast
@@ -884,27 +861,53 @@ class ToolKit:
             weights = np.arange(1, len(arr) + 1)
             return np.average(arr, weights=weights)
 
-        # 计算每个资产的加权平均收益率
         df["weighted_return"] = df[c["daily_return_array"]].apply(weighted_avg_return)
-
-        # 对加权平均收益率进行单边归一化（越高越好）
         df["weighted_return_score"] = rank_score(df["weighted_return"], mid=0)
         df["pnl_score"] = (
             sw["pnl"]["daily"] * df["pnl_daily_score"]
             + sw["pnl"]["weighted_return"] * df["weighted_return_score"]
         )
 
-        # ===== 稳定性 =====
+        # ===== 稳定性（保持不变） =====
         df["win_rate_score"] = rank_score(df[c["win_rate"]], mid=0.5)
         df["avg_trans_score"] = rank_score(df[c["avg_trans"]], higher_is_better=False)
         df["sortino_score"] = rank_score(df[c["sortino"]], mid=0.5)
         df["maxdd_score"] = rank_score(df[c["max_dd"]])
-
         df["stability_score"] = (
             sw["stability"]["win_rate"] * df["win_rate_score"]
             + sw["stability"]["avg_trans"] * df["avg_trans_score"]
             + sw["stability"]["sortino"] * df["sortino_score"]
             + sw["stability"]["maxdd"] * df["maxdd_score"]
+        )
+
+        # ===== 新增：策略因子（strategy_cnt + strategy） =====
+        # 1. strategy_cnt（越高越好）
+        df["strategy_cnt_score"] = rank_score(
+            df[c["strategy_cnt"]], higher_is_better=True
+        )
+
+        # 2. strategy 有序映射
+        strategy_level_map = {
+            "多头排列": 3,
+            "突破年线": 3,
+            "均线金叉": 2,
+            "突破半年线": 2,
+            "均线收敛": 2,
+            "成交量放大": 1,
+            "红三兵": 1,
+            "连续上涨": 1,
+        }
+        df["strategy_signal_num"] = (
+            df[c["strategy"]].map(strategy_level_map).fillna(1)
+        )  # 缺失或未知默认为最低级
+        df["strategy_signal_score"] = rank_score(
+            df["strategy_signal_num"], higher_is_better=True
+        )
+
+        # 策略综合得分（子权重需在配置中定义）
+        df["strategy_score"] = (
+            sw["strategy"]["cnt"] * df["strategy_cnt_score"]
+            + sw["strategy"]["signal"] * df["strategy_signal_score"]
         )
 
         # ===== 总分 =====
@@ -913,20 +916,24 @@ class ToolKit:
             + w["pnl"] * df["pnl_score"]
             + w["stability"] * df["stability_score"]
             + w["erp"] * df["erp_score"]
+            + w["strategy"] * df["strategy_score"]  # 新增主权重
         )
 
         # ===== 筛选 =====
         threshold = df["total_score"].quantile(quantile)
         selected = df.loc[df["total_score"] > threshold, sym_col]
-
         selected_symbols = set(selected.astype(str).str.strip().unique())
-        # 构建 symbol -> score 字典
+
+        # ===== 返回得分字典（包含新因子） =====
         score_fields = [
             "total_score",
             "industry_score",
             "erp_score",
             "pnl_score",
             "stability_score",
+            "strategy_score",  # 新增综合得分
+            "strategy_cnt_score",  # 新增子得分
+            "strategy_signal_score",  # 新增子得分
         ]
         score_dict = {
             field: df.set_index(sym_col)[field].to_dict() for field in score_fields

@@ -3,7 +3,8 @@
         "industry": 0.25,
         "pnl": 0.3,
         "stability": 0.25,
-        "erp": 0.2
+        "erp": 0.2,
+        "strategy": 0.2
     },
     "sub_weights": {
         "industry": {
@@ -19,6 +20,10 @@
             "avg_trans": 0.1,
             "sortino": 0.35,
             "maxdd": 0.35
+        },
+        "strategy": {
+            "cnt": 0.75,
+            "signal": 0.25
         }
     }
 }

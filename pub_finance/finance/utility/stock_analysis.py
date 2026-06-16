@@ -909,6 +909,7 @@ class StockProposal:
                 , t5.sharpe_ratio    
                 , t5.sortino_ratio
                 , t5.max_drawdown
+                , t5.strategy_cnt
                 , t6.daily_return_array
                 , t1.buy_date
                 , t1.price
@@ -950,15 +951,30 @@ class StockProposal:
                 ) t3 ON t1.symbol = t3.symbol
                 LEFT JOIN temp_gz t4 ON 1=1
                 LEFT JOIN (
-                    SELECT symbol, sharpe_ratio, sortino_ratio, max_drawdown
+                    SELECT 
+                        symbol,
+                        COALESCE(sharpe_ratio, 0) AS sharpe_ratio,
+                        COALESCE(sortino_ratio, 0) AS sortino_ratio,
+                        COALESCE(max_drawdown, 0) AS max_drawdown,
+                        COALESCE(strategy_cnt, 0) AS strategy_cnt
                     FROM (
-                        SELECT 
-                            symbol,
-                            sharpe_ratio,
-                            sortino_ratio,
-                            max_drawdown,
-                            ROW_NUMBER() OVER (PARTITION BY symbol ORDER BY date DESC) AS rn
-                        FROM temp_position_detail
+                        SELECT
+                            c.symbol,
+                            p.sharpe_ratio,
+                            p.sortino_ratio,
+                            p.max_drawdown,
+                            ROW_NUMBER() OVER (PARTITION BY c.symbol ORDER BY p.date DESC NULLS LAST) AS rn,
+                            SUM(
+                                CASE 
+                                    WHEN p.strategy IS NULL THEN 0
+                                    WHEN LAG(p.strategy) OVER (PARTITION BY c.symbol ORDER BY p.date ASC NULLS FIRST) = p.strategy 
+                                    THEN 0 
+                                    ELSE 1 
+                                END
+                            ) OVER (PARTITION BY c.symbol ORDER BY p.date ASC NULLS FIRST ROWS UNBOUNDED PRECEDING) AS strategy_cnt
+                        FROM temp_cur_position_with_latest_stock_info c
+                        LEFT JOIN temp_position_detail p
+                            ON p.symbol = c.symbol AND p.date >= c.buy_date
                     ) t
                     WHERE rn = 1
                 ) t5 ON t1.symbol = t5.symbol
@@ -1046,6 +1062,7 @@ class StockProposal:
                 "sharpe_ratio": "SHARPE RATIO",
                 "sortino_ratio": "SORTINO RATIO",
                 "max_drawdown": "MAX DD",
+                "strategy_cnt": "STRATEGY CNT",
                 "buy_date": "OPEN DATE",
                 "price": "BASE",
                 "adjbase": "ADJBASE",
@@ -1077,6 +1094,8 @@ class StockProposal:
             "avg_trans": "AVG TRANS",
             "sortino": "SORTINO RATIO",
             "max_dd": "MAX DD",
+            "strategy_cnt": "STRATEGY CNT",
+            "strategy": "STRATEGY",
         }
         if self.market in ("cn", "us"):
             toolkit = ToolKit("股票排名导出")

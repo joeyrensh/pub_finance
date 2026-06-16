@@ -9,7 +9,13 @@ from finance.dashreport.utils import Header
 JSON_FILE_PATH = os.path.join(FINANCE_ROOT, "utility", "scoring_weights.json")
 
 DEFAULT_CONFIG = {
-    "weights": {"industry": 0.25, "pnl": 0.3, "stability": 0.25, "erp": 0.2},
+    "weights": {
+        "industry": 0.25,
+        "pnl": 0.3,
+        "stability": 0.25,
+        "erp": 0.2,
+        "strategy": 0.1,
+    },
     "sub_weights": {
         "industry": {"arrow": 0.3, "bracket": 0.7},
         "pnl": {"daily": 0.3, "weighted_return": 0.7},
@@ -19,6 +25,7 @@ DEFAULT_CONFIG = {
             "sortino": 0.35,
             "maxdd": 0.35,
         },
+        "strategy": {"cnt": 0.6, "signal": 0.4},
     },
 }
 
@@ -29,6 +36,7 @@ LABEL_MAPPING = {
     "pnl": "损益因子",
     "stability": "稳定性因子",
     "erp": "股权溢价因子",
+    "strategy": "策略因子",
     # industry子项
     "arrow": "上升趋势",
     "bracket": "行业排名",
@@ -40,6 +48,9 @@ LABEL_MAPPING = {
     "avg_trans": "交易频次",
     "sortino": "索提诺比率",
     "maxdd": "最大回撤",
+    # strategy子项
+    "cnt": "策略强度",
+    "signal": "策略等级",
 }
 
 
@@ -67,6 +78,7 @@ ROOT_KEYS = list(DEFAULT_CONFIG["weights"].keys())
 IND_KEYS = list(DEFAULT_CONFIG["sub_weights"]["industry"].keys())
 PNL_KEYS = list(DEFAULT_CONFIG["sub_weights"]["pnl"].keys())
 STA_KEYS = list(DEFAULT_CONFIG["sub_weights"]["stability"].keys())
+STR_KEYS = list(DEFAULT_CONFIG["sub_weights"]["strategy"].keys())
 
 
 # -------------------------- 卡片构建函数（替换Label展示名称） --------------------------
@@ -250,6 +262,52 @@ def build_stability_card(cfg):
     )
 
 
+# 【新增：策略因子子权重卡片】
+def build_strategy_card(cfg):
+    row_list = []
+    for k in STR_KEYS:
+        display_text = LABEL_MAPPING[k]
+        row_list.append(
+            dbc.Row(
+                [
+                    dbc.Label(
+                        display_text, width=2, className="mb-0 fw-normal l2_label"
+                    ),
+                    dbc.Col(
+                        dcc.Slider(
+                            id=f"slider_str_{k}",
+                            min=0,
+                            max=1,
+                            step=0.01,
+                            value=cfg["sub_weights"]["strategy"][k],
+                            marks={
+                                0.25: "0.25",
+                                0.5: "0.5",
+                                0.75: "0.75",
+                                1: "1",
+                            },
+                            tooltip={"placement": "bottom", "always_visible": True},
+                            className="mb-0 weight-slider-primary",
+                            drag_value=0,
+                            disabled=False,
+                        ),
+                        width=8,
+                    ),
+                ],
+                className="mb-3 align-items-center",
+            )
+        )
+    return dbc.Card(
+        [
+            dbc.CardHeader(
+                html.Label("策略子权重", className="fs-5 fw-bold text-dark l1_label")
+            ),
+            dbc.CardBody(row_list, className="py-3 card-body"),
+        ],
+        className="h-100 shadow-sm border-0 rounded-3 mb-4 weight-config-card",
+    )
+
+
 # -------------------------- 页面区块拆分（对齐项目示例结构） --------------------------
 def create_layout(app: Dash):
     # 每次访问页面，实时校验文件、读取最新磁盘配置
@@ -277,6 +335,12 @@ def create_layout(app: Dash):
         [
             dbc.Col(build_pnl_card(init_cfg), lg=6, md=12),
             dbc.Col(build_stability_card(init_cfg), lg=6, md=12),
+        ]
+    )
+    # 新增第三行：策略子权重卡片
+    card_row_3 = dbc.Row(
+        [
+            dbc.Col(build_strategy_card(init_cfg), lg=6, md=12),
         ]
     )
 
@@ -320,6 +384,7 @@ def create_layout(app: Dash):
         title_section,
         card_row_1,
         card_row_2,
+        card_row_3,
         button_section,
         msg_section,
         preview_section,
@@ -374,18 +439,29 @@ def register_callbacks(app: Dash):
     def show_sta_vals(*vals):
         return [f"{v:.2f}" for v in vals]
 
+    # 新增策略子项数值显示回调
+    @app.callback(
+        [Output(f"val_str_{k}", "children") for k in STR_KEYS],
+        [Input(f"slider_str_{k}", "value") for k in STR_KEYS],
+        allow_duplicate=True,
+    )
+    def show_str_vals(*vals):
+        return [f"{v:.2f}" for v in vals]
+
     # 重置按钮回调
     reset_outputs = (
         [Output(f"slider_root_{k}", "value") for k in ROOT_KEYS]
         + [Output(f"slider_ind_{k}", "value") for k in IND_KEYS]
         + [Output(f"slider_pnl_{k}", "value") for k in PNL_KEYS]
         + [Output(f"slider_sta_{k}", "value") for k in STA_KEYS]
+        + [Output(f"slider_str_{k}", "value") for k in STR_KEYS]
     )
     all_slider_input_list = (
         [Input(f"slider_root_{k}", "value") for k in ROOT_KEYS]
         + [Input(f"slider_ind_{k}", "value") for k in IND_KEYS]
         + [Input(f"slider_pnl_{k}", "value") for k in PNL_KEYS]
         + [Input(f"slider_sta_{k}", "value") for k in STA_KEYS]
+        + [Input(f"slider_str_{k}", "value") for k in STR_KEYS]
     )
 
     @app.callback(
@@ -402,6 +478,8 @@ def register_callbacks(app: Dash):
         for v in DEFAULT_CONFIG["sub_weights"]["pnl"].values():
             out.append(v)
         for v in DEFAULT_CONFIG["sub_weights"]["stability"].values():
+            out.append(v)
+        for v in DEFAULT_CONFIG["sub_weights"]["strategy"].values():
             out.append(v)
         return out
 
@@ -423,6 +501,9 @@ def register_callbacks(app: Dash):
             ptr += 1
         for k in STA_KEYS:
             cfg["sub_weights"]["stability"][k] = all_values[ptr]
+            ptr += 1
+        for k in STR_KEYS:
+            cfg["sub_weights"]["strategy"][k] = all_values[ptr]
             ptr += 1
         return json.dumps(cfg, indent=4, ensure_ascii=False)
 

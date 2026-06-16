@@ -60,6 +60,7 @@ class ReportDataLoader:
             "SHARPE RATIO",
             "SORTINO RATIO",
             "MAX DD",
+            "STRATEGY CNT",
             "DAILY RETURN",
             "OPEN DATE",
             "BASE",
@@ -436,7 +437,7 @@ class ReportDataLoader:
 
         df = pd.read_csv(
             path,
-            usecols=range(1, 20),
+            usecols=range(1, 21),
             dtype={
                 "SYMBOL": "string",
                 "IND": "string",
