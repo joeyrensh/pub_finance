@@ -987,6 +987,8 @@ a:active {
 .weight-slider-primary .rc-slider-mark-text {
     /* color: #0d6efd !important; 自定义你想要的颜色 */
     color: var(--positive-databar-color) !important;
+    font-size : 0.9rem;
+    margin-top: -5px;
 }
 
 .weight-slider-primary {
@@ -1011,6 +1013,18 @@ a:active {
     font-weight: 400;
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
     border: 1px solid var(--gridcolor);
+}
+
+.l1_label {
+    font-weight: 500;
+}
+
+.row:first-child .l2_label {
+    margin-top: 10px;
+}
+
+.l2_label {
+    margin-bottom: 2px;
 }
 
 .card-body {

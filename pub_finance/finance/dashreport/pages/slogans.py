@@ -77,7 +77,9 @@ def build_root_card(cfg):
         row_list.append(
             dbc.Row(
                 [
-                    dbc.Label(display_text, width=2, className="mb-0 fw-normal"),
+                    dbc.Label(
+                        display_text, width=2, className="mb-0 fw-normal l2_label"
+                    ),
                     dbc.Col(
                         dcc.Slider(
                             id=f"slider_root_{k}",
@@ -105,7 +107,7 @@ def build_root_card(cfg):
     return dbc.Card(
         [
             dbc.CardHeader(
-                html.Label("全局权重", className="fs-5 fw-bold text-dark"),
+                html.Label("全局权重", className="fs-5 fw-bold text-dark l1_label"),
             ),
             dbc.CardBody(row_list, className="py-3 card-body"),
         ],
@@ -120,7 +122,9 @@ def build_industry_card(cfg):
         row_list.append(
             dbc.Row(
                 [
-                    dbc.Label(display_text, width=2, className="mb-0 fw-normal"),
+                    dbc.Label(
+                        display_text, width=2, className="mb-0 fw-normal l2_label"
+                    ),
                     dbc.Col(
                         dcc.Slider(
                             id=f"slider_ind_{k}",
@@ -148,7 +152,7 @@ def build_industry_card(cfg):
     return dbc.Card(
         [
             dbc.CardHeader(
-                html.Label("行业子权重", className="fs-5 fw-bold text-dark")
+                html.Label("行业子权重", className="fs-5 fw-bold text-dark l1_label")
             ),
             dbc.CardBody(row_list, className="py-3 card-body"),
         ],
@@ -163,7 +167,9 @@ def build_pnl_card(cfg):
         row_list.append(
             dbc.Row(
                 [
-                    dbc.Label(display_text, width=2, className="mb-0 fw-normal"),
+                    dbc.Label(
+                        display_text, width=2, className="mb-0 fw-normal l2_label"
+                    ),
                     dbc.Col(
                         dcc.Slider(
                             id=f"slider_pnl_{k}",
@@ -191,7 +197,7 @@ def build_pnl_card(cfg):
     return dbc.Card(
         [
             dbc.CardHeader(
-                html.Label("损益子权重", className="fs-5 fw-bold text-dark")
+                html.Label("损益子权重", className="fs-5 fw-bold text-dark l1_label")
             ),
             dbc.CardBody(row_list, className="py-3 card-body"),
         ],
@@ -206,7 +212,9 @@ def build_stability_card(cfg):
         row_list.append(
             dbc.Row(
                 [
-                    dbc.Label(display_text, width=2, className="mb-0 fw-normal"),
+                    dbc.Label(
+                        display_text, width=2, className="mb-0 fw-normal l2_label"
+                    ),
                     dbc.Col(
                         dcc.Slider(
                             id=f"slider_sta_{k}",
@@ -234,7 +242,7 @@ def build_stability_card(cfg):
     return dbc.Card(
         [
             dbc.CardHeader(
-                html.Label("稳定性子权重", className="fs-5 fw-bold text-dark")
+                html.Label("稳定性子权重", className="fs-5 fw-bold text-dark l1_label")
             ),
             dbc.CardBody(row_list, className="py-3 card-body"),
         ],
