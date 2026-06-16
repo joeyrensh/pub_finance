@@ -975,11 +975,13 @@ a:active {
     touch-action: pan-y;
 }
 .weight-slider-primary .rc-slider-dot {
-    width: 6px;
+    width: 1px;
     height: 6px;
     /* border: 1px solid #0d6efd; */
     border: 1px solid var(--positive-databar-color);
     bottom: 0px;
+    border-radius: 0;
+    background-color:transparent;
 }
 
 .weight-slider-primary .rc-slider-mark-text {
