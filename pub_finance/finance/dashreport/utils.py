@@ -483,14 +483,17 @@ def make_dash_format_table(df, cols_format, market, trade_date):
     required_cols = [
         "IND",
         "SYMBOL",
+        "NAME",
         "ERP",
         "OPEN DATE",
+        "DAILY RETURN",
         "PNL RATIO",
         "AVG TRANS",
         "WIN RATE",
-        "SHARPE RATIO",
         "SORTINO RATIO",
         "MAX DD",
+        "STRATEGY CNT",
+        "STRATEGY",
     ]
     has_all_required_cols = all(col in df.columns for col in required_cols)
     if market in ("us", "us_special", "us_dynamic"):
@@ -645,20 +648,6 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         for col in df.columns
         if col
         not in [
-            "IND_ARROW_NUM",
-            "IND_BRACKET_NUM",
-            "industry_arrow_score",
-            "industry_bracket_score",
-            "DAYS_FROM_OPEN",
-            "pnl_score",
-            "erp_clean",
-            "erp_score",
-            "win_rate_score",
-            "avg_trans_score",
-            "sortino_score",
-            "maxdd_score",
-            "stability_score",
-            "total_score",
             "DAILY RETURN",
             "STRATEGY CNT",
         ]

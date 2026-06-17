@@ -920,7 +920,7 @@ class StockProposal:
                 , COALESCE(t2.his_days, 0) / t2.his_trade_cnt AS avg_days
                 , (t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / ( COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0) + t1.pos_cnt + t1.neg_cnt) AS win_rate
                 , (COALESCE(t2.his_pnl,0) + (t1.adjbase - t1.price) * t1.size) / (COALESCE(t2.his_base_price,0) + t1.price * t1.size) AS total_pnl_ratio
-                , t2.buy_strategy
+                , COALESCE(t5.strategy, t2.buy_strategy) AS buy_strategy
             FROM (
                 SELECT symbol
                 , buy_date
@@ -956,13 +956,15 @@ class StockProposal:
                         COALESCE(sharpe_ratio, 0) AS sharpe_ratio,
                         COALESCE(sortino_ratio, 0) AS sortino_ratio,
                         COALESCE(max_drawdown, 0) AS max_drawdown,
-                        COALESCE(strategy_cnt, 0) AS strategy_cnt
+                        COALESCE(strategy_cnt, 0) AS strategy_cnt,
+                        strategy
                     FROM (
                         SELECT
                             c.symbol,
                             p.sharpe_ratio,
                             p.sortino_ratio,
                             p.max_drawdown,
+                            p.strategy,
                             ROW_NUMBER() OVER (PARTITION BY c.symbol ORDER BY p.date DESC NULLS LAST) AS rn,
                             SUM(
                                 CASE 

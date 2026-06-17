@@ -447,6 +447,7 @@ class ReportDataLoader:
                 "SHARPE RATIO": "float64",
                 "SORTINO RATIO": "float64",
                 "MAX DD": "float64",
+                "STRATEGY CNT": "float64",
                 "DAILY RETURN": "string",
                 "OPEN DATE": "string",
                 "BASE": "float64",
