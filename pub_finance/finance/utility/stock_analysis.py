@@ -4145,7 +4145,7 @@ class StockProposal:
                 , COALESCE(t2.his_days, 0) / t2.his_trade_cnt AS avg_days
                 , (t1.pos_cnt + COALESCE(t2.pos_cnt,0)) / ( COALESCE(t2.pos_cnt,0) + COALESCE(t2.neg_cnt,0) + t1.pos_cnt + t1.neg_cnt) AS win_rate
                 , (COALESCE(t2.his_pnl,0) + (t1.adjbase - t1.price) * t1.size) / (COALESCE(t2.his_base_price,0) + t1.price * t1.size) AS total_pnl_ratio
-                , t2.buy_strategy
+                , COALESCE(t3.strategy, t2.buy_strategy) AS buy_strategy
             FROM (
                 SELECT symbol
                 , buy_date
@@ -4160,6 +4160,37 @@ class StockProposal:
                 , IF(adjbase < price, 1, 0) AS neg_cnt
                 FROM tmp3
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol
+                LEFT JOIN
+                (
+                    SELECT 
+                        symbol,
+                        COALESCE(sharpe_ratio, 0) AS sharpe_ratio,
+                        COALESCE(sortino_ratio, 0) AS sortino_ratio,
+                        COALESCE(max_drawdown, 0) AS max_drawdown,
+                        COALESCE(strategy_cnt, 0) AS strategy_cnt,
+                        strategy
+                    FROM (
+                        SELECT
+                            c.symbol,
+                            p.sharpe_ratio,
+                            p.sortino_ratio,
+                            p.max_drawdown,
+                            p.strategy,
+                            ROW_NUMBER() OVER (PARTITION BY c.symbol ORDER BY p.date DESC NULLS LAST) AS rn,
+                            SUM(
+                                CASE 
+                                    WHEN p.strategy IS NULL THEN 0
+                                    WHEN LAG(p.strategy) OVER (PARTITION BY c.symbol ORDER BY p.date ASC NULLS FIRST) = p.strategy 
+                                    THEN 0 
+                                    ELSE 1 
+                                END
+                            ) OVER (PARTITION BY c.symbol ORDER BY p.date ASC NULLS FIRST ROWS UNBOUNDED PRECEDING) AS strategy_cnt
+                        FROM temp_cur_position_with_latest_stock_info c
+                        LEFT JOIN temp_position_detail p
+                            ON p.symbol = c.symbol AND p.date >= c.buy_date
+                    ) t
+                    WHERE rn = 1
+                ) t3 ON t1.symbol = t3.symbol
             """.format(start_date, end_date))
 
         pd_position_history = spark_position_history.toPandas()
