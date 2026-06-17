@@ -542,6 +542,7 @@ def make_dash_format_table(df, cols_format, market, trade_date):
                 "pnl_score",
                 "stability_score",
                 "strategy_score",
+                "rank",
             ]
             for _, row in df.iterrows():
                 symbol = row["SYMBOL"]  # 注意列名与实际一致
@@ -554,7 +555,8 @@ def make_dash_format_table(df, cols_format, market, trade_date):
                         f"ERP: {values[2]:.4f}\n"
                         f"收益: {values[3]:.4f}\n"
                         f"稳定性: {values[4]:.4f}\n"
-                        f"策略: {values[5]:.4f}"
+                        f"策略: {values[5]:.4f}\n"
+                        f"排名: {values[6]:.0f}"
                     )
                 else:
                     tooltip_text = ""

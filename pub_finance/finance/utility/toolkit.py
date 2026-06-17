@@ -938,6 +938,9 @@ class ToolKit:
         score_dict = {
             field: df.set_index(sym_col)[field].to_dict() for field in score_fields
         }
+        rank_series = df["total_score"].rank(ascending=False, method="min").astype(int)
+        score_dict["rank"] = rank_series.set_axis(df[sym_col]).to_dict()
+
         return selected_symbols, score_dict
 
     @staticmethod
