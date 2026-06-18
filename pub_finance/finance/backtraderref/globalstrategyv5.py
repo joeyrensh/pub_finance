@@ -1030,36 +1030,52 @@ class GlobalStrategy(bt.Strategy):
                 # 检查长线信号 (级别 1)
                 if current_level >= 1:
                     if self.check_signal(d._name, "long_position"):
-                        self.current_signal[d._name] = (1, "多头排列", "updated")
+                        current_level, current_strategy, current_status = (
+                            self._set_and_get_signal(d._name, 1, "多头排列", "updated")
+                        )
                     elif self.check_signal(d._name, "close_crossup_annualline"):
-                        self.current_signal[d._name] = (1, "突破年线", "updated")
+                        current_level, current_strategy, current_status = (
+                            self._set_and_get_signal(d._name, 1, "突破年线", "updated")
+                        )
 
                 # 检查趋势信号 (级别 2)
                 if current_level >= 2:
                     if self.check_signal(d._name, "ma_crossover_bullish"):
-                        self.current_signal[d._name] = (2, "均线金叉", "updated")
+                        current_level, current_strategy, current_status = (
+                            self._set_and_get_signal(d._name, 2, "均线金叉", "updated")
+                        )
                     elif self.check_signal(
                         d._name, "close_crossup_ema_short"
                     ) and self.check_convergence_signal(d._name):
-                        self.current_signal[d._name] = (2, "均线收敛", "updated")
+                        current_level, current_strategy, current_status = (
+                            self._set_and_get_signal(d._name, 2, "均线收敛", "updated")
+                        )
                     elif self.check_signal(d._name, "close_crossup_halfannualline"):
-                        self.current_signal[d._name] = (2, "突破半年线", "updated")
+                        current_level, current_strategy, current_status = (
+                            self._set_and_get_signal(
+                                d._name, 2, "突破半年线", "updated"
+                            )
+                        )
 
                 # 检查短线信号 (级别 3)
                 if current_level == 3:
                     if self.check_signal(d._name, "volume_breakout"):
-                        self.current_signal[d._name] = (3, "成交量放大", "updated")
+                        current_level, current_strategy, current_status = (
+                            self._set_and_get_signal(
+                                d._name, 3, "成交量放大", "updated"
+                            )
+                        )
                     elif self.check_signal(
                         d._name, "red_three_soldiers"
                     ) and self.check_signal(d._name, "deviant"):
-                        self.current_signal[d._name] = (3, "红三兵", "updated")
+                        current_level, current_strategy, current_status = (
+                            self._set_and_get_signal(d._name, 3, "红三兵", "updated")
+                        )
                     elif self.check_signal(d._name, "close_rising"):
-                        self.current_signal[d._name] = (3, "连续上涨", "updated")
+                        current_level, current_strategy, current_status = (
+                            self._set_and_get_signal(d._name, 3, "连续上涨", "updated")
+                        )
 
-                # 更新当前满足的最高级别买入信号
-                current_level, current_strategy, current_status = (
-                    self.current_signal.get(d._name, (None, None, None))
-                )
                 self.myorder[d._name]["strategy"] = current_strategy
 
                 # 更新持仓期间最高价（用于移动止盈）
@@ -1096,6 +1112,10 @@ class GlobalStrategy(bt.Strategy):
         df.reset_index(inplace=True, drop=True)
         df.to_csv(self.file_path_position_detail, header=False, mode="a")
         t.progress_bar(self.data.buflen(), len(self))
+
+    def _set_and_get_signal(self, symbol, level, strategy, status):
+        self.current_signal[symbol] = (level, strategy, status)
+        return self.current_signal.get(symbol, (None, None, None))
 
     def _build_sell_conditions(self, symbol, current_level):
         """返回当前仓位级别对应的卖出条件列表。"""
