@@ -2359,8 +2359,8 @@ class ChartBuilder:
         # 8. 布局设置
         # ------------------------------
         x_range = [
-            df["date"].min() - pd.Timedelta(days=0.5),
-            df["date"].max() + pd.Timedelta(days=0.5),
+            df["date"].min() - pd.Timedelta(days=0.05),
+            df["date"].max() + pd.Timedelta(days=0.05),
         ]
 
         fig.update_layout(
