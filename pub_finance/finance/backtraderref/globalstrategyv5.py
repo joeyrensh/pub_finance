@@ -691,12 +691,12 @@ class GlobalStrategy(bt.Strategy):
             """ indicators 以及 signals 初始化进度打印 """
             t.progress_bar(len(self.datas), i)
 
-    # ===== 新增：统一信号检查方法 =====
+    # ===== 统一信号检查方法 =====
     def check_signal(self, symbol, signal_name):
         """统一检查信号状态，避免重复 [0] == 1"""
         return self.signals[symbol][signal_name][0] == 1
 
-    # ===== 新增：均线收敛检查方法 =====
+    # ===== 均线收敛检查方法 =====
     def check_convergence_signal(self, symbol):
         """检查均线收敛信号（复杂逻辑提取）"""
         # 计算均线密集程度（近 20 日）
@@ -757,6 +757,7 @@ class GlobalStrategy(bt.Strategy):
                         order.info.get("info", {}).get("strategy"),
                     )
                 )
+                # 订单买入成功状态记录
                 self.last_deal_date[order.data._name] = bt.num2date(
                     order.executed.dt
                 ).strftime("%Y-%m-%d")
@@ -790,6 +791,7 @@ class GlobalStrategy(bt.Strategy):
                         order.info.get("info", {}).get("strategy"),
                     )
                 )
+                # 订单卖出成功状态记录
                 self.last_deal_date[order.data._name] = None
                 self.myorder[order.data._name]["strategy"] = order.info.get(
                     "info", {}
@@ -1016,15 +1018,10 @@ class GlobalStrategy(bt.Strategy):
 
                 # ===== 持仓期间：每日检查并更新当前满足的最高级别买入信号 =====
                 # 检查所有买入信号，找到当前满足的最高级别（数字越小级别越高）
-                # 注意：只升级不降级，符合投资逻辑（仓位级别只升不降）
+                # 买入信号只升级不降级，信号升级后，平仓需要判断对应级别的卖出信号
                 current_level, current_strategy, current_status = (
                     *(self.current_signal.get(d._name) or (None, None))[:2],
                     "initial",
-                )
-                self.current_signal[d._name] = (
-                    current_level,
-                    current_strategy,
-                    current_status,
                 )
 
                 # 检查长线信号 (级别 1)
@@ -1078,20 +1075,19 @@ class GlobalStrategy(bt.Strategy):
 
                 self.myorder[d._name]["strategy"] = current_strategy
 
-                # 更新持仓期间最高价（用于移动止盈）
+                # 更新持仓期间最高价（用于移动止盈信号判断）
                 if self.peak_price[d._name] is None:
                     self.peak_price[d._name] = d.close[0]
                 else:
                     self.peak_price[d._name] = max(self.peak_price[d._name], d.close[0])
 
                 # ===== 卖出逻辑（基于当前级别，检查该级别所有卖出信号）=====
-                # 如果当前最高级别信号不再满足，检查是否需要卖出
                 if current_status == "updated":
                     # ===== 持仓数据状态记录 =====
                     record = _get_position_record(d, pos)
                     if record is not None:
                         list.append(record)
-                    continue  # 升级后不立即检查卖出信号，等下一周期再检查，避免过度交易
+                    continue  # 买入信号升级后，不再检查当前周期的卖出信号
                 # 根据 current_level 构建需要检查的卖出条件列表
                 symbol = d._name
                 sell_conditions = self._build_sell_conditions(symbol, current_level)
