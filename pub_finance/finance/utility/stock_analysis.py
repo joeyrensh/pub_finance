@@ -431,8 +431,10 @@ class StockProposal:
         spark_industry_history_tracking_lstndays = spark.sql("""
             WITH tmp AS (
                 SELECT t2.industry
-                    ,SUM(t1.pnl)/COUNT(t1.symbol) AS pnl
+                    --,SUM(t1.pnl) / COUNT(t1.symbol) AS pnl --平均收益
+                    ,SUM((t1.adjbase - t1.price) * t3.total_value / t1.price) / SUM(t3.total_value) AS pnl --市值加权收益
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
+                LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
@@ -441,8 +443,10 @@ class StockProposal:
                 GROUP BY t2.industry
             ), tmp1 AS (
                 SELECT t2.industry
-                    ,SUM(t1.pnl)/COUNT(t1.symbol) AS pnl
+                    --,SUM(t1.pnl) / COUNT(t1.symbol) AS pnl --平均收益
+                    ,SUM((t1.adjbase - t1.price) * t3.total_value / t1.price) / SUM(t3.total_value) AS pnl --市值加权收益
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
+                LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
@@ -469,8 +473,10 @@ class StockProposal:
                 GROUP BY t2.industry
             ), tmp1 AS (
                 SELECT t2.industry
-                    ,SUM(t1.pnl)/COUNT(t1.symbol) AS pnl
+                    --,SUM(t1.pnl) / COUNT(t1.symbol) AS pnl --平均收益
+                    ,SUM((t1.adjbase - t1.price) * t3.total_value / t1.price) / SUM(t3.total_value) AS pnl --市值加权收益
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
+                LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
                 WHERE t1.date = (
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
@@ -480,8 +486,10 @@ class StockProposal:
             )
             , tmp2 AS (
                 SELECT t2.industry
-                    ,SUM(t1.pnl)/COUNT(t1.symbol) AS pnl
-                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol             
+                    --,SUM(t1.pnl) / COUNT(t1.symbol) AS pnl --平均收益
+                    ,SUM((t1.adjbase - t1.price) * t3.total_value / t1.price) / SUM(t3.total_value) AS pnl --市值加权收益
+                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol    
+                LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol         
                 WHERE t1.date = (
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
@@ -2935,8 +2943,10 @@ class StockProposal:
                 SELECT 
                     t1.date
                     ,t2.industry
-                    ,SUM(t1.pnl)/COUNT(t1.symbol) AS pnl
+                    --,SUM(t1.pnl) / COUNT(t1.symbol) AS pnl --平均收益
+                    ,SUM((t1.adjbase - t1.price) * t3.total_value / t1.price) / SUM(t3.total_value) AS pnl --市值加权收益
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
+                LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
                 WHERE t1.date >= (
                     SELECT buy_date FROM (
                     SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
