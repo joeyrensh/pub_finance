@@ -102,6 +102,28 @@ class GlobalStrategy(bt.Strategy):
         """ 板块文件地址 """
         self.file_industry = file.get_file_path_industry
 
+    def _load_rf_rate(self):
+        """
+        从文件加载国债收益率，返回浮点数（百分比形式，如 0.025 表示 2.5%）。
+        若读取失败或文件为空，返回 0.0。
+        """
+        file = FileInfo(self.trade_date, self.market)
+        file_gz = file.get_file_path_gz
+        cols = ["code", "name", "date", "new"]
+        try:
+            df_gz = pd.read_csv(file_gz, usecols=cols)
+            df_gz = df_gz.dropna(subset=["new"])
+            if not df_gz.empty:
+                rf = df_gz["new"].astype(float).iloc[-1] / 100.0
+                print(f"✅ 读取国债收益率：{rf:.2f}")
+                return rf
+            else:
+                print("⚠️ 国债收益率文件为空，使用默认值 0")
+                return 0.0
+        except Exception as e:
+            print(f"⚠️ 无法读取国债收益率{e}")
+            return 0.0
+
     def __init__(self, trade_date, market):
         """
         将每日回测完的持仓数据存储文件
@@ -132,18 +154,8 @@ class GlobalStrategy(bt.Strategy):
         )  # 记录当前满足的最高级别买入信号（动态更新，用于卖出决策）
         self.peak_price = {}  # 持仓期间最高价（用于移动止盈）
         # 读取国债收益率
-        file = FileInfo(trade_date, market)
-        file_gz = file.get_file_path_gz
-        cols = ["code", "name", "date", "new"]
-        self.rf_rate = 0
-        try:
-            df_gz = pd.read_csv(file_gz, usecols=cols)
-            df_gz = df_gz.dropna(subset=["new"])
-            if not df_gz.empty:
-                self.rf_rate = df_gz["new"].astype(float).iloc[-1] / 100.0
-                print(f"✅ 读取国债收益率：{self.rf_rate:.2f}")
-        except Exception as e:
-            print(f"⚠️ 无法读取国债收益率{e}")
+        self.rf_rate = self._load_rf_rate()
+
         """ 策略进度方法初始化 """
         t = ToolKit("策略初始化")
         """
@@ -737,83 +749,82 @@ class GlobalStrategy(bt.Strategy):
     """ 订单状态改变回调方法 """
 
     def notify_order(self, order):
-        list = []
-        dict = {}
+        trade_row = {}
         if order.status in [order.Submitted, order.Accepted]:
             """Buy/Sell order submitted/accepted to/by broker - Nothing to do"""
             return
         if order.status in [order.Completed]:
+            executed_dt = bt.num2date(order.executed.dt).strftime("%Y-%m-%d")
+            symbol = order.data._name
+            price = order.executed.price
+            size = order.executed.size
+            level = order.info.get("info", {}).get("level")
+            strategy = order.info.get("info", {}).get("strategy")
             if order.isbuy():
                 """订单购入成功"""
                 print(
                     "{}, Buy {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {} SortinoRatio: {} MaxDrawDown: {} Strategy: {}".format(
-                        bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
-                        order.data._name,
-                        order.executed.price,
-                        order.executed.size,
+                        executed_dt,
+                        symbol,
+                        price,
+                        size,
                         self.sharpe_ratios[order.data._name],
                         self.sortino_ratios[order.data._name],
                         self.max_drawdowns[order.data._name],
-                        order.info.get("info", {}).get("strategy"),
+                        strategy,
                     )
                 )
                 # 订单买入成功状态记录
-                self.last_deal_date[order.data._name] = bt.num2date(
-                    order.executed.dt
-                ).strftime("%Y-%m-%d")
-                self.myorder[order.data._name]["strategy"] = order.info.get(
-                    "info", {}
-                ).get("strategy")
+                self.last_deal_date[order.data._name] = executed_dt
+                self.myorder[order.data._name]["strategy"] = strategy
                 self.current_signal[order.data._name] = (
-                    order.info.get("info", {}).get("level"),
-                    order.info.get("info", {}).get("strategy"),
+                    level,
+                    strategy,
                     "initial",
                 )
-                dict = {
-                    "symbol": order.data._name,
-                    "trade_date": bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
+                trade_row = {
+                    "symbol": symbol,
+                    "trade_date": executed_dt,
                     "trade_type": "buy",
-                    "price": order.executed.price,
-                    "size": order.executed.size,
-                    "strategy": self.myorder[order.data._name]["strategy"],
+                    "price": price,
+                    "size": size,
+                    "strategy": strategy,
                 }
             elif order.issell():
                 """订单卖出成功"""
                 print(
                     "{} Sell {} Executed, Price: {:.2f} Size: {:.2f} SharpRatio: {} SortinoRatio: {} MaxDrawDown: {} Strategy: {}".format(
-                        bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
-                        order.data._name,
-                        order.executed.price,
-                        order.executed.size,
+                        executed_dt,
+                        symbol,
+                        price,
+                        size,
                         self.sharpe_ratios[order.data._name],
                         self.sortino_ratios[order.data._name],
                         self.max_drawdowns[order.data._name],
-                        order.info.get("info", {}).get("strategy"),
+                        strategy,
                     )
                 )
                 # 订单卖出成功状态记录
                 self.last_deal_date[order.data._name] = None
-                self.myorder[order.data._name]["strategy"] = order.info.get(
-                    "info", {}
-                ).get("strategy")
+                self.myorder[order.data._name]["strategy"] = strategy
                 self.peak_price[order.data._name] = None
                 self.current_signal[order.data._name] = None
-                dict = {
-                    "symbol": order.data._name,
-                    "trade_date": bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
+                trade_row = {
+                    "symbol": symbol,
+                    "trade_date": executed_dt,
                     "trade_type": "sell",
-                    "price": order.executed.price,
-                    "size": order.executed.size,
-                    "strategy": self.myorder[order.data._name]["strategy"],
+                    "price": price,
+                    "size": size,
+                    "strategy": strategy,
                 }
             elif order.alive():
                 """returns bool if order is in status Partial or Accepted"""
                 print(
                     "{} Partial {} Executed, Price: {:.2f} Size: {:.2f}".format(
-                        bt.num2date(order.executed.dt).strftime("%Y-%m-%d"),
-                        order.data._name,
-                        order.executed.price,
-                        order.executed.size,
+                        executed_dt,
+                        symbol,
+                        price,
+                        size,
                     )
                 )
                 self.last_deal_date[order.data._name] = None
@@ -824,9 +835,10 @@ class GlobalStrategy(bt.Strategy):
             else:
                 self.log("Sell %s Order Canceled/Margin/Rejected" % (order.data._name))
         self.order[order.data._name] = None
-        if dict:
-            df = pd.DataFrame([dict])
-            df.to_csv(self.file_path_trade, header=False, mode="a")
+        if trade_row:
+            pd.DataFrame([trade_row]).to_csv(
+                self.file_path_trade, header=False, mode="a"
+            )
 
     """
     交易状态改变回调方法
@@ -844,10 +856,85 @@ class GlobalStrategy(bt.Strategy):
         print("current period:", len(self), "current date", self.datetime.date())
         self.next()
 
+    def _update_risk_metrics(self, d):
+        """
+        更新单只股票的每日收益率、夏普比率、索提诺比率和最大回撤。
+        参数 d: 单个 data feed (股票)
+        """
+        symbol = d._name
+
+        # ---------- 初始化 ----------
+        if symbol not in self.daily_returns:
+            self.daily_returns[symbol] = []
+            self.sharpe_ratios[symbol] = 0
+            self.sortino_ratios[symbol] = 0
+            self.max_drawdowns[symbol] = 0.0
+
+        # ---------- 计算每日收益率 ----------
+        prev_close = d.close[-1]
+        curr_close = d.close[0]
+        if prev_close <= 0:
+            return  # 无法计算，保留原有指标值
+
+        ret = curr_close / prev_close - 1
+        self.daily_returns[symbol].append(ret)
+
+        # 只保留最近 rf_window 天数据
+        if len(self.daily_returns[symbol]) > self.params.rf_window:
+            self.daily_returns[symbol] = self.daily_returns[symbol][
+                -self.params.rf_window :
+            ]
+
+        # ---------- 检查是否有足够数据和无风险利率 ----------
+        enough_data = len(self.daily_returns[symbol]) >= min(
+            self.params.rf_window, self.params.annual_period
+        )
+        valid_rf = self.rf_rate is not None and self.rf_rate > 0
+
+        if not (enough_data and valid_rf):
+            self.sharpe_ratios[symbol] = None
+            self.sortino_ratios[symbol] = None
+            self.max_drawdowns[symbol] = None
+            return
+
+        # ---------- 计算超额收益 ----------
+        rf_daily = self.rf_rate / self.params.annual_period
+        excess_ret = np.array(self.daily_returns[symbol]) - rf_daily
+        mean_ret = np.mean(excess_ret)
+        std_ret = np.std(excess_ret, ddof=1)
+
+        # ---------- 夏普比率 ----------
+        if std_ret > 0:
+            sharpe = np.sqrt(self.params.annual_period) * mean_ret / std_ret
+            self.sharpe_ratios[symbol] = sharpe
+        else:
+            self.sharpe_ratios[symbol] = 0
+
+        # ---------- 索提诺比率 ----------
+        downside_returns = excess_ret[excess_ret < 0]
+        if len(downside_returns) > 5:
+            downside_std = np.std(downside_returns, ddof=1)
+            if downside_std > 0:
+                sortino = np.sqrt(self.params.annual_period) * mean_ret / downside_std
+                self.sortino_ratios[symbol] = sortino
+            else:
+                self.sortino_ratios[symbol] = 0
+        else:
+            # 没有足够下行波动，用夏普比率代替
+            self.sortino_ratios[symbol] = self.sharpe_ratios[symbol]
+
+        # ---------- 最大回撤 ----------
+        rets = np.array(self.daily_returns[symbol])
+        equity = np.cumprod(1.0 + rets)
+        peak = np.maximum.accumulate(equity)
+        drawdowns = equity / peak - 1.0
+        max_dd = np.min(drawdowns)
+        self.max_drawdowns[symbol] = max_dd
+
     def next(self):
         # 策略执行进度
         t = ToolKit("策略执行中")
-        list = []
+        position_detail_record = []
         for i, d in enumerate(self.datas):
             if self.order[d._name]:
                 continue
@@ -855,92 +942,8 @@ class GlobalStrategy(bt.Strategy):
             if len(d) < 2:
                 continue
 
-            # 夏普比率计算
-            if d._name not in self.daily_returns:
-                self.daily_returns[d._name] = []
-                self.sharpe_ratios[d._name] = 0
-                self.sortino_ratios[d._name] = 0
-
-            # ---- (1) 计算每日收益率 ----
-            prev_close = d.close[-1]
-            curr_close = d.close[0]
-            if prev_close > 0:
-                ret = curr_close / prev_close - 1
-                self.daily_returns[d._name].append(ret)
-
-                # 只保留最近 rf_window 天数据
-                if len(self.daily_returns[d._name]) > self.params.rf_window:
-                    self.daily_returns[d._name] = self.daily_returns[d._name][
-                        -self.params.rf_window :
-                    ]
-
-                # ---- (2) 夏普比率计算 ----
-                # 条件 1: 有足够天数
-                enough_data = len(self.daily_returns[d._name]) >= min(
-                    self.params.rf_window, self.params.annual_period
-                )
-                # 条件 2: 无风险利率有效
-                valid_rf = self.rf_rate is not None and self.rf_rate > 0
-
-                if enough_data and valid_rf:
-                    # 日化无风险收益
-                    rf_daily = self.rf_rate / self.params.annual_period
-
-                    # 超额收益
-                    excess_ret = np.array(self.daily_returns[d._name]) - rf_daily
-
-                    mean_ret = np.mean(excess_ret)
-                    std_ret = np.std(excess_ret, ddof=1)
-
-                    if std_ret > 0:
-                        sharpe = np.sqrt(self.params.annual_period) * mean_ret / std_ret
-                        self.sharpe_ratios[d._name] = sharpe
-                    else:
-                        self.sharpe_ratios[d._name] = 0
-
-                    # 只计算下行波动（只考虑负值）
-                    downside_returns = excess_ret[excess_ret < 0]
-                    if len(downside_returns) > 5:
-                        downside_std = np.std(downside_returns, ddof=1)
-                        mean_ret = np.mean(excess_ret)
-                        if downside_std > 0:
-                            sortino = (
-                                np.sqrt(self.params.annual_period)
-                                * mean_ret
-                                / downside_std
-                            )
-                            self.sortino_ratios[d._name] = sortino
-                        else:
-                            self.sortino_ratios[d._name] = 0
-                    else:
-                        # 没有下行波动，定义索提诺比率为年化平均收益除以小数值 1e-10 防止除零
-                        self.sortino_ratios[d._name] = self.sharpe_ratios[d._name]
-
-                    # ---- (3) 近 rf_window 日 Max Drawdown 计算 ----
-                    if d._name not in self.max_drawdowns:
-                        self.max_drawdowns[d._name] = 0.0
-
-                    rets = np.array(self.daily_returns[d._name])
-
-                    # 构造累计收益曲线（从 1 开始）
-                    equity = np.cumprod(1.0 + rets)
-
-                    # 历史最高点
-                    peak = np.maximum.accumulate(equity)
-
-                    # 回撤序列
-                    drawdowns = equity / peak - 1.0
-
-                    # 最大回撤（负值）
-                    max_dd = np.min(drawdowns)
-
-                    self.max_drawdowns[d._name] = max_dd
-
-                else:
-                    # 数据不足或无风险利率为 0 → 夏普比率置 0
-                    self.sharpe_ratios[d._name] = None
-                    self.sortino_ratios[d._name] = None
-                    self.max_drawdowns[d._name] = None
+            # 计算daily return/夏普比/索提诺/最大回撤
+            self._update_risk_metrics(d)
 
             pos = self.getposition(d)
             """ 如果没有仓位就判断是否买卖 """
@@ -1086,7 +1089,7 @@ class GlobalStrategy(bt.Strategy):
                     # ===== 持仓数据状态记录 =====
                     record = _get_position_record(d, pos)
                     if record is not None:
-                        list.append(record)
+                        position_detail_record.append(record)
                     continue  # 买入信号升级后，不再检查当前周期的卖出信号
                 # 根据 current_level 构建需要检查的卖出条件列表
                 symbol = d._name
@@ -1102,9 +1105,9 @@ class GlobalStrategy(bt.Strategy):
                 # ===== 持仓数据状态记录 =====
                 record = _get_position_record(d, pos)
                 if record is not None and self.current_signal[symbol] is not None:
-                    list.append(record)
+                    position_detail_record.append(record)
 
-        df = pd.DataFrame(list)
+        df = pd.DataFrame(position_detail_record)
         df.reset_index(inplace=True, drop=True)
         df.to_csv(self.file_path_position_detail, header=False, mode="a")
         t.progress_bar(self.data.buflen(), len(self))
@@ -1158,7 +1161,7 @@ class GlobalStrategy(bt.Strategy):
             self.execute_sell(data, "低于买入价15%")
 
     def stop(self):
-        list = []
+        position_record = []
         # 记录仓位情况，并打印明细
         pos_share = 0
         pos_loss = 0
@@ -1191,14 +1194,14 @@ class GlobalStrategy(bt.Strategy):
                 """
                 if dict.get("buy_date") is None:
                     continue
-                list.append(dict)
+                position_record.append(dict)
                 pos_share = pos_share + pos.size * pos.adjbase
                 if pos.adjbase - pos.price >= 0:
                     pos_earn = pos_earn + pos.size * (pos.adjbase - pos.price)
                 else:
                     pos_loss = pos_loss + pos.size * (pos.adjbase - pos.price)
         print("\n总持仓：%s, 浮盈：%s, 浮亏：%s" % (pos_share, pos_earn, pos_loss))
-        df = pd.DataFrame(list)
+        df = pd.DataFrame(position_record)
         try:
             if df.empty:
                 return  # 没有持仓数据，直接退出（但 finally 会执行关闭）
