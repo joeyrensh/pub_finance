@@ -2125,7 +2125,7 @@ class ChartBuilder:
             )
 
         # ========== 分位数支撑/阻力线 ==========
-        support_resistance_period = 200  # 分析周期
+        support_resistance_period = 120  # 分析周期
         min_slope_ratio = 0.001  # 最小斜率阈值（价格区间 * 该值）
         quantile_low = 0.05  # 支撑线分位数（取残差下分位数）
         quantile_high = 0.95  # 阻力线分位数（取残差上分位数）
