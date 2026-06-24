@@ -4,6 +4,7 @@ import os
 from dash import html, dcc, Input, Output, State, ctx, Dash
 import dash_bootstrap_components as dbc
 from finance.dashreport.utils import Header
+from flask import session
 
 # -------------------------- 路径与默认配置 --------------------------
 JSON_FILE_PATH = os.path.join(FINANCE_ROOT, "utility", "scoring_weights.json")
@@ -515,6 +516,12 @@ def register_callbacks(app: Dash):
         prevent_initial_call=True,
     )
     def save_btn(n, json_str):
+        # ----- 权限检查 -----
+        role = session.get("role")
+        if role != "admin":
+            return html.Span(
+                "⛔ 权限不足：仅超级管理员可修改配置", style={"color": "#dc3545"}
+            )
         try:
             d = json.loads(json_str)
             save_config(d)

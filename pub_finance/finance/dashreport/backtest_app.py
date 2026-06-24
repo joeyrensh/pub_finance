@@ -18,6 +18,7 @@ import os
 from datetime import timedelta
 from finance import FINANCE_ROOT
 
+
 server = Flask(__name__)
 Compress(
     server,
@@ -28,9 +29,6 @@ server.config["COMPRESS_MIN_SIZE"] = 1000
 # 读取配置文件
 config = configparser.ConfigParser()
 config.read(FINANCE_ROOT / "dashreport" / "login.ini")
-
-VALID_USERNAME = config["credentials"]["username"]
-VALID_PASSWORD = config["credentials"]["password"]
 
 # 设置flask session的密钥和过期时间
 server.secret_key = os.urandom(24)
@@ -229,29 +227,55 @@ def handle_login(n_clicks, username, password, auth_checked, current_pathname):
             )
 
     # 登录按钮被点击
-    if username == VALID_USERNAME and password == VALID_PASSWORD:
-        session.permanent = True
-        session["logged_in"] = True
-        # 登录成功：仅在当前 pathname 合法时保留，否则不修改 URL（不强制重定向）
-        target = (
-            current_pathname if current_pathname in ALLOWED_PATHS else dash.no_update
-        )
-        return (
-            "",
-            {"display": "none"},
-            {"display": "block"},
-            True,
-            target,
-        )
-    else:
-        session["logged_in"] = False
-        return (
-            html.Div("Invalid username or password", style={"color": "red"}),
-            {"display": "flex"},
-            {"display": "none"},
-            True,
-            dash.no_update,
-        )
+    # 1. 先检查超级管理员（superadmin 节）
+    if config.has_section("superadmin"):
+        for user, pwd in config.items("superadmin"):
+            if username == user and password == pwd:
+                session.permanent = True
+                session["logged_in"] = True
+                session["role"] = "admin"
+                target = (
+                    current_pathname
+                    if current_pathname in ALLOWED_PATHS
+                    else dash.no_update
+                )
+                return (
+                    "",
+                    {"display": "none"},
+                    {"display": "block"},
+                    True,
+                    target,
+                )
+
+    # 2. 再检查普通用户（credentials 节）
+    if config.has_section("credentials"):
+        for user, pwd in config.items("credentials"):
+            if username == user and password == pwd:
+                session.permanent = True
+                session["logged_in"] = True
+                session["role"] = "user"
+                target = (
+                    current_pathname
+                    if current_pathname in ALLOWED_PATHS
+                    else dash.no_update
+                )
+                return (
+                    "",
+                    {"display": "none"},
+                    {"display": "block"},
+                    True,
+                    target,
+                )
+
+    # 登录失败
+    session["logged_in"] = False
+    return (
+        html.Div("Invalid username or password", style={"color": "red"}),
+        {"display": "flex"},
+        {"display": "none"},
+        True,
+        dash.no_update,
+    )
 
 
 @app.callback(
