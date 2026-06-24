@@ -1696,7 +1696,7 @@ class ChartBuilder:
                 w_30 = drawdown.iloc[-30:]
                 idx_30 = w_30.idxmin()
                 val_30 = w_30.loc[idx_30]
-                if idx_30 != max_dd_idx:
+                if abs((idx_30 - max_dd_idx).days) > 10:
                     fig.add_trace(
                         go.Scatter(
                             x=[idx_30],
@@ -1729,7 +1729,10 @@ class ChartBuilder:
                 w_120 = drawdown.iloc[-120:]
                 idx_120 = w_120.idxmin()
                 val_120 = w_120.loc[idx_120]
-                if idx_120 != max_dd_idx and (len(drawdown) < 30 or idx_120 != idx_30):
+                if (
+                    abs((idx_120 - max_dd_idx).days) > 10
+                    and abs((idx_120 - idx_30).days) > 10
+                ):
                     fig.add_trace(
                         go.Scatter(
                             x=[idx_120],
@@ -2326,6 +2329,14 @@ class ChartBuilder:
         # ------------------------------
         # 6. 创建折线图
         # ------------------------------
+        df["hover_text"] = df.apply(
+            lambda row: (
+                f"<b>{row['date'].strftime('%Y-%m-%d')}</b><br>"
+                f"盈亏: {row['s_pnl']:,.2f}<br>"
+                f"行业: {'->'.join(row['industry_top3_parsed']) if row['industry_top3_parsed'] else '无'}"
+            ),
+            axis=1,
+        )
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
@@ -2336,7 +2347,8 @@ class ChartBuilder:
                 # line=dict(color=cfg.get("cumret"), width=3 * unified_scale),
                 line=dict(color=cfg.get("cumret"), width=1.5),
                 marker=dict(size=6 * unified_scale, color=cfg.get("cumret")),
-                hovertemplate="<b>%{x|%Y-%m-%d}</b><br>盈亏: %{y:,.2f}<extra></extra>",
+                text=df["hover_text"],
+                hovertemplate="%{text}<extra></extra>",
                 yaxis="y",
             )
         )
