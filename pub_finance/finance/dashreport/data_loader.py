@@ -248,6 +248,7 @@ class ReportDataLoader:
                         "overall",
                         "annual_return",
                         "heatmap",
+                        "industry_strength",
                         "strategy",
                         "trade",
                         "pnl_trend",
@@ -294,6 +295,7 @@ class ReportDataLoader:
         mapping = {
             "overall": [D / f"{prefix}_df_result.csv"],
             "heatmap": [D / f"{prefix}_pd_calendar_heatmap.csv"],
+            "industry_strength": [D / f"{prefix}_pd_calendar_heatmap.csv"],
             "strategy": [D / f"{prefix}_pd_strategy_tracking_lstndays.csv"],
             "trade": [D / f"{prefix}_pd_trade_info_lstndays.csv"],
             "pnl_trend": [D / f"{prefix}_pd_topn_industry_profit_trend.csv"],
