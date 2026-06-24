@@ -2333,7 +2333,8 @@ class ChartBuilder:
             lambda row: (
                 f"<b>{row['date'].strftime('%Y-%m-%d')}</b><br>"
                 f"盈亏: {row['s_pnl']:,.2f}<br>"
-                f"行业: {'->'.join(row['industry_top3_parsed']) if row['industry_top3_parsed'] else '无'}"
+                f"行业:<br>"
+                f"{'<br>'.join(row['industry_top3_parsed']) if row['industry_top3_parsed'] else '无'}"
             ),
             axis=1,
         )
