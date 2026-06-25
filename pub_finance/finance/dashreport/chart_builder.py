@@ -2133,8 +2133,6 @@ class ChartBuilder:
         if support_resistance_period > 0 and len(df) >= support_resistance_period:
             recent = df.iloc[-support_resistance_period:].copy().reset_index(drop=True)
             if not recent.empty:
-                import numpy as np
-
                 # 日期转为天数（浮点数）
                 base_date = recent["datetime"].min()
                 dates = (recent["datetime"] - base_date).dt.total_seconds() / (
@@ -2157,7 +2155,9 @@ class ChartBuilder:
                 # ----- 支撑线（基于最低价）-----
                 x = dates.values
                 y = recent["low"].values
-                coeffs = np.polyfit(x, y, 1)
+                # 定义线性衰减权重（近期权重高）
+                weights = np.linspace(0.3, 1.0, len(x))
+                coeffs = np.polyfit(x, y, 1, w=weights)
                 slope, intercept = coeffs[0], coeffs[1]
                 y_pred = slope * x + intercept
                 residuals = y - y_pred
@@ -2182,7 +2182,8 @@ class ChartBuilder:
 
                 # ----- 阻力线（基于最高价）-----
                 y = recent["high"].values
-                coeffs = np.polyfit(x, y, 1)
+                weights = np.linspace(0.3, 1.0, len(x))
+                coeffs = np.polyfit(x, y, 1, w=weights)
                 slope, intercept = coeffs[0], coeffs[1]
                 y_pred = slope * x + intercept
                 residuals = y - y_pred
