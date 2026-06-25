@@ -2124,22 +2124,35 @@ class ChartBuilder:
                 col=1,
             )
 
-        # ========== 分位数支撑/阻力线 ==========
-        support_resistance_period = 120  # 分析周期
-        min_slope_ratio = 0.001  # 最小斜率阈值（价格区间 * 该值）
+        # ========== 分位数支撑/阻力线（趋势强度判断） ==========
+        support_resistance_period = 120  # 分析周期（可调整）
+        strength_threshold = 0.05  # 趋势强度阈值（斜率占日均变动的比例）
         quantile_low = 0.05  # 支撑线分位数（取残差下分位数）
         quantile_high = 0.95  # 阻力线分位数（取残差上分位数）
 
         if support_resistance_period > 0 and len(df) >= support_resistance_period:
             recent = df.iloc[-support_resistance_period:].copy().reset_index(drop=True)
             if not recent.empty:
+                import numpy as np
+
                 # 日期转为天数（浮点数）
                 base_date = recent["datetime"].min()
                 dates = (recent["datetime"] - base_date).dt.total_seconds() / (
                     24 * 3600
                 )
                 price_range = recent["high"].max() - recent["low"].min()
-                slope_threshold = price_range * min_slope_ratio
+                # 防止价格区间为0（所有价格相同）
+                if price_range == 0:
+                    price_range = 1.0
+
+                # 计算每日平均变动（价格区间 / 周期天数）
+                avg_daily_change = price_range / support_resistance_period
+
+                # 计算起始点和终点的日期数值（用于画线）
+                x0 = recent["datetime"].iloc[0]
+                x1 = recent["datetime"].iloc[-1]
+                t0 = (x0 - base_date).total_seconds() / (24 * 3600)
+                t1 = (x1 - base_date).total_seconds() / (24 * 3600)
 
                 # ----- 支撑线（基于最低价）-----
                 x = dates.values
@@ -2148,15 +2161,12 @@ class ChartBuilder:
                 slope, intercept = coeffs[0], coeffs[1]
                 y_pred = slope * x + intercept
                 residuals = y - y_pred
-                # 取残差下分位数（使多数点在线之上）
                 offset = np.percentile(residuals, quantile_low * 100)
                 adjusted_intercept = intercept + offset
 
-                if abs(slope) > slope_threshold:
-                    x0 = recent["datetime"].iloc[0]
-                    x1 = recent["datetime"].iloc[-1]
-                    t0 = (x0 - base_date).total_seconds() / (24 * 3600)
-                    t1 = (x1 - base_date).total_seconds() / (24 * 3600)
+                # 判断趋势强度：斜率绝对值 / 每日平均变动
+                trend_strength = abs(slope) / avg_daily_change
+                if trend_strength > strength_threshold:
                     y0 = slope * t0 + adjusted_intercept
                     y1 = slope * t1 + adjusted_intercept
                     fig.add_shape(
@@ -2176,11 +2186,11 @@ class ChartBuilder:
                 slope, intercept = coeffs[0], coeffs[1]
                 y_pred = slope * x + intercept
                 residuals = y - y_pred
-                # 取残差上分位数（使多数点在线之下）
                 offset = np.percentile(residuals, quantile_high * 100)
                 adjusted_intercept = intercept + offset
 
-                if abs(slope) > slope_threshold:
+                trend_strength = abs(slope) / avg_daily_change
+                if trend_strength > strength_threshold:
                     y0 = slope * t0 + adjusted_intercept
                     y1 = slope * t1 + adjusted_intercept
                     fig.add_shape(
