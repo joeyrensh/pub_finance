@@ -2124,27 +2124,29 @@ class ChartBuilder:
                 col=1,
             )
 
-        # ========== 分位数支撑/阻力线（趋势强度判断） ==========
-        support_resistance_period = 120  # 分析周期（可调整）
-        strength_threshold = 0.05  # 趋势强度阈值（斜率占日均变动的比例）
-        quantile_low = 0.05  # 支撑线分位数（取残差下分位数）
-        quantile_high = 0.95  # 阻力线分位数（取残差上分位数）
+        # ========== 加权回归 + 平行通道（支撑/阻力线） ==========
+        support_resistance_period = 120  # 分析周期
+        strength_threshold = 0.05  # 趋势强度阈值
+        quantile_low = 0.05  # 支撑线分位数
+        quantile_high = 0.95  # 阻力线分位数
+        weight_start = 0.2  # 权重起始值（0~1）
 
         if support_resistance_period > 0 and len(df) >= support_resistance_period:
             recent = df.iloc[-support_resistance_period:].copy().reset_index(drop=True)
             if not recent.empty:
-                # 日期转为天数（浮点数）
+                import numpy as np
+
                 base_date = recent["datetime"].min()
                 dates = (recent["datetime"] - base_date).dt.total_seconds() / (
                     24 * 3600
                 )
                 price_range = recent["high"].max() - recent["low"].min()
-                # 防止价格区间为0（所有价格相同）
                 if price_range == 0:
                     price_range = 1.0
 
-                # 计算每日平均变动（价格区间 / 周期天数）
-                avg_daily_change = price_range / support_resistance_period
+                x = dates.values
+                # 生成权重（近期权重大）
+                weights = np.linspace(weight_start, 1.0, len(x))
 
                 # 计算起始点和终点的日期数值（用于画线）
                 x0 = recent["datetime"].iloc[0]
@@ -2153,53 +2155,63 @@ class ChartBuilder:
                 t1 = (x1 - base_date).total_seconds() / (24 * 3600)
 
                 # ----- 支撑线（基于最低价）-----
-                x = dates.values
-                y = recent["low"].values
-                # 定义线性衰减权重（近期权重高）
-                weights = np.linspace(0.3, 1.0, len(x))
-                coeffs = np.polyfit(x, y, 1, w=weights)
-                slope, intercept = coeffs[0], coeffs[1]
-                y_pred = slope * x + intercept
-                residuals = y - y_pred
-                offset = np.percentile(residuals, quantile_low * 100)
-                adjusted_intercept = intercept + offset
+                y_low = recent["low"].values
+                coeffs_low = np.polyfit(x, y_low, 1, w=weights)
+                slope_low, intercept_low = coeffs_low[0], coeffs_low[1]
+                y_pred_low = slope_low * x + intercept_low
+                residuals_low = y_low - y_pred_low
+                offset_low = np.percentile(residuals_low, quantile_low * 100)
+                adjusted_intercept_low = intercept_low + offset_low
 
-                # 判断趋势强度：斜率绝对值 / 每日平均变动
-                trend_strength = abs(slope) / avg_daily_change
+                # ----- 阻力线（基于最高价）-----
+                y_high = recent["high"].values
+                coeffs_high = np.polyfit(x, y_high, 1, w=weights)
+                slope_high, intercept_high = coeffs_high[0], coeffs_high[1]
+                y_pred_high = slope_high * x + intercept_high
+                residuals_high = y_high - y_pred_high
+                offset_high = np.percentile(residuals_high, quantile_high * 100)
+                adjusted_intercept_high = intercept_high + offset_high
+
+                # ----- 使用平均斜率（强制平行通道）-----
+                avg_slope = (slope_low + slope_high) / 2
+                x_mean = np.mean(x)
+                # 调整截距，使新直线在 x_mean 处与原调整线保持一致
+                intercept_low_adj = (
+                    adjusted_intercept_low - (slope_low - avg_slope) * x_mean
+                )
+                intercept_high_adj = (
+                    adjusted_intercept_high - (slope_high - avg_slope) * x_mean
+                )
+
+                # 计算每日平均变动（用于趋势强度）
+                avg_daily_change = price_range / support_resistance_period
+                # 趋势强度使用平均斜率的绝对值
+                trend_strength = abs(avg_slope) / avg_daily_change
+
                 if trend_strength > strength_threshold:
-                    y0 = slope * t0 + adjusted_intercept
-                    y1 = slope * t1 + adjusted_intercept
+                    # 支撑线（使用 avg_slope 和 intercept_low_adj）
+                    y0_low = avg_slope * t0 + intercept_low_adj
+                    y1_low = avg_slope * t1 + intercept_low_adj
                     fig.add_shape(
                         type="line",
                         x0=x0,
-                        y0=y0,
+                        y0=y0_low,
                         x1=x1,
-                        y1=y1,
+                        y1=y1_low,
                         line=dict(color=cfg.get("long"), width=0.6, dash="solid"),
                         row=1,
                         col=1,
                     )
 
-                # ----- 阻力线（基于最高价）-----
-                y = recent["high"].values
-                weights = np.linspace(0.3, 1.0, len(x))
-                coeffs = np.polyfit(x, y, 1, w=weights)
-                slope, intercept = coeffs[0], coeffs[1]
-                y_pred = slope * x + intercept
-                residuals = y - y_pred
-                offset = np.percentile(residuals, quantile_high * 100)
-                adjusted_intercept = intercept + offset
-
-                trend_strength = abs(slope) / avg_daily_change
-                if trend_strength > strength_threshold:
-                    y0 = slope * t0 + adjusted_intercept
-                    y1 = slope * t1 + adjusted_intercept
+                    # 阻力线（使用 avg_slope 和 intercept_high_adj）
+                    y0_high = avg_slope * t0 + intercept_high_adj
+                    y1_high = avg_slope * t1 + intercept_high_adj
                     fig.add_shape(
                         type="line",
                         x0=x0,
-                        y0=y0,
+                        y0=y0_high,
                         x1=x1,
-                        y1=y1,
+                        y1=y1_high,
                         line=dict(color=cfg.get("short"), width=0.6, dash="solid"),
                         row=1,
                         col=1,
