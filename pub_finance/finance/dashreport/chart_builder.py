@@ -2134,8 +2134,6 @@ class ChartBuilder:
         if support_resistance_period > 0 and len(df) >= support_resistance_period:
             recent = df.iloc[-support_resistance_period:].copy().reset_index(drop=True)
             if not recent.empty:
-                import numpy as np
-
                 base_date = recent["datetime"].min()
                 dates = (recent["datetime"] - base_date).dt.total_seconds() / (
                     24 * 3600

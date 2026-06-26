@@ -39,15 +39,8 @@ def run_bt_task(stock_list, date_str, market):
         pnl, c, tv = run_bt(stock_list, date_str, market)
         tr, pos_detail_df = load_logs(stock_list, date_str, market)
 
-        h = []
-        for sym in stock_list:
-            hist_data = load_hist([sym], date_str, market)
-            if hist_data and len(hist_data) > 0:
-                if "datetime" in hist_data[0].columns:
-                    hist_data[0] = hist_data[0].sort_values("datetime").iloc[:-1]
-                h.append(hist_data[0])
-            else:
-                h.append(pd.DataFrame())
+        hist_data = load_hist(stock_list, date_str, market)
+        h = hist_data if isinstance(hist_data, list) else [hist_data]
 
         pnl_data = (
             {
@@ -355,7 +348,7 @@ class BacktestPage:
                 end = min(page_size, total)
                 next_page = 0
             current_stocks = full_list[start:end]
-            button_text = f"{start+1}-{end} / {total}"
+            button_text = f"{start + 1}-{end} / {total}"
             return ",".join(current_stocks), next_page, button_text
 
         # ---------- 4. 页面刷新恢复状态（单次触发）----------
