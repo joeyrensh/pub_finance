@@ -40,7 +40,6 @@ def run_bt_task(stock_list, date_str, market):
         tr, pos_detail_df = load_logs(stock_list, date_str, market)
 
         hist_data = load_hist(stock_list, date_str, market)
-        h = hist_data if isinstance(hist_data, list) else [hist_data]
 
         pnl_data = (
             {
@@ -61,7 +60,9 @@ def run_bt_task(stock_list, date_str, market):
             "pos_detail": (
                 pos_detail_df.to_dict("records") if not pos_detail_df.empty else []
             ),
-            "h": [x.to_dict("records") if not x.empty else [] for x in h],
+            "h": [
+                x.iloc[:-1].to_dict("records") if len(x) > 1 else [] for x in hist_data
+            ],
             "s": stock_list,
             "c": c,
             "tv": tv,

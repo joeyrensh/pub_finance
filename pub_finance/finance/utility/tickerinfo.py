@@ -933,7 +933,7 @@ class TickerInfo:
                 row = df.iloc[0]
 
                 formatted_date = (
-                    f"{row["date"][:4]}-{row["date"][4:6]}-{row["date"][6:8]}"
+                    f"{row['date'][:4]}-{row['date'][4:6]}-{row['date'][6:8]}"
                 )
                 date_dt = pd.to_datetime(formatted_date)
 
