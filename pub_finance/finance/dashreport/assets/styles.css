@@ -275,7 +275,7 @@ body {
   height: 100%;
   width: 0%;
   background-color: rgba(87, 160, 236, 0.45);
-  animation: queue-fill 30s linear infinite;
+  animation: queue-fill 20s linear infinite;
   z-index: 0;
 }
 
