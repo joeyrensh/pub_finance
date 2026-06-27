@@ -54,6 +54,8 @@ def run_bt_task(stock_list, date_str, market):
             if pnl is not None and len(pnl) > 0
             else 0
         )
+        # 先构建 symbol -> 数据 的字典
+        hist_dict = {df["symbol"].iloc[0]: df for df in hist_data}
         data = {
             "pnl": pnl_data,
             "tr": tr,
@@ -61,7 +63,7 @@ def run_bt_task(stock_list, date_str, market):
                 pos_detail_df.to_dict("records") if not pos_detail_df.empty else []
             ),
             "h": [
-                x.iloc[:-1].to_dict("records") if len(x) > 1 else [] for x in hist_data
+                hist_dict[sym].iloc[:-1].to_dict("records") if len(hist_dict[sym]) > 1 else [] for sym in stock_list
             ],
             "s": stock_list,
             "c": c,
