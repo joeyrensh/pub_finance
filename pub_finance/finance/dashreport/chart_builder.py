@@ -780,7 +780,8 @@ class ChartBuilder:
                         ),
                         showlegend=False,
                         legendgroup=strategy,
-                        hovertemplate="<b>收益</b>: %{y:,.0f}<extra></extra>",
+                        # hovertemplate="<b>收益</b>: %{y:,.0f}<extra></extra>",
+                        hoverinfo="none",  # 关键：关闭悬浮提示
                     )
                 )
                 fig.add_trace(
@@ -794,7 +795,8 @@ class ChartBuilder:
                         ),
                         showlegend=False,
                         legendgroup=strategy,
-                        hovertemplate="<b>收益</b>: %{y:,.0f}<extra></extra>",
+                        # hovertemplate="<b>收益</b>: %{y:,.0f}<extra></extra>",
+                        hoverinfo="none",  # 关键：关闭悬浮提示
                     )
                 )
             elif bar_metric == "avg":  # 新增：平均收益（分正负显示）
@@ -811,7 +813,8 @@ class ChartBuilder:
                         ),
                         showlegend=False,
                         legendgroup=strategy,
-                        hovertemplate="<b>平均收益</b>: %{y:,.2f}<extra></extra>",
+                        # hovertemplate="<b>平均收益</b>: %{y:,.2f}<extra></extra>",
+                        hoverinfo="none",  # 关键：关闭悬浮提示
                     )
                 )
                 fig.add_trace(
@@ -825,7 +828,8 @@ class ChartBuilder:
                         ),
                         showlegend=False,
                         legendgroup=strategy,
-                        hovertemplate="<b>平均收益</b>: %{y:,.2f}<extra></extra>",
+                        # hovertemplate="<b>平均收益</b>: %{y:,.2f}<extra></extra>",
+                        hoverinfo="none",  # 关键：关闭悬浮提示
                     )
                 )
             else:  # cnt
@@ -840,7 +844,8 @@ class ChartBuilder:
                         ),
                         showlegend=False,
                         legendgroup=strategy,
-                        hovertemplate="<b>股数</b>: %{y}<extra></extra>",
+                        # hovertemplate="<b>股数</b>: %{y}<extra></extra>",
+                        hoverinfo="none",  # 关键：关闭悬浮提示
                     )
                 )
 

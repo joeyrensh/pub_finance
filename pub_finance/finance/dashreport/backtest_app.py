@@ -150,7 +150,6 @@ slogans.register_callbacks(app)
 
 
 # ======================================================
-
 app.clientside_callback(
     """
     function(n, currentTheme, currentWidth) {
