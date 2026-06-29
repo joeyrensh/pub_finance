@@ -223,6 +223,70 @@ class StockProposal:
 
         spark_timeseries.createOrReplaceTempView("temp_timeseries")
 
+        """
+        临时视图，方便复用
+        """
+        spark_transaction_logs = spark.sql(
+            """
+            WITH tmp AS (
+                SELECT symbol
+                    ,date
+                    ,trade_type
+                    ,price
+                    ,size
+                    ,strategy
+                    ,l_date
+                    ,l_trade_type
+                    ,l_price
+                    ,l_size
+                    ,l_strategy
+                FROM (
+                    SELECT symbol
+                        ,date
+                        ,trade_type
+                        ,price
+                        ,size
+                        ,strategy
+                        ,IF(trade_type = 'sell', LAG(date) OVER (PARTITION BY symbol ORDER BY date)  
+                            , LEAD(date) OVER (PARTITION BY symbol ORDER BY date)) AS l_date
+                        ,IF(trade_type = 'sell', LAG(trade_type) OVER (PARTITION BY symbol ORDER BY date) 
+                            , LEAD(trade_type) OVER (PARTITION BY symbol ORDER BY date)) AS l_trade_type
+                        ,IF(trade_type = 'sell', LAG(price) OVER (PARTITION BY symbol ORDER BY date)
+                            , LEAD(price) OVER (PARTITION BY symbol ORDER BY date)) AS l_price
+                        ,IF(trade_type = 'sell', LAG(size) OVER (PARTITION BY symbol ORDER BY date) 
+                            , LEAD(size) OVER (PARTITION BY symbol ORDER BY date)) AS l_size
+                        ,IF(trade_type = 'sell', LAG(strategy) OVER (PARTITION BY symbol ORDER BY date) 
+                            , LEAD(strategy) OVER (PARTITION BY symbol ORDER BY date)) AS l_strategy                               
+                    FROM temp_transaction_detail
+                    ORDER BY symbol
+                        ,date
+                        ,trade_type) t
+            )
+            SELECT symbol
+                ,l_date AS buy_date
+                ,l_price AS base_price
+                ,l_size AS base_size
+                ,l_strategy AS buy_strategy
+                ,date AS sell_date
+                ,price AS adj_price
+                ,size AS adj_size
+                ,strategy AS sell_strategy
+            FROM tmp WHERE trade_type = 'sell' AND l_date >= '{}'
+            UNION ALL
+            SELECT symbol
+                ,date AS buy_date
+                ,price AS base_price
+                ,size AS base_size
+                ,strategy AS buy_strategy
+                ,null AS sell_date
+                ,null AS adj_price
+                ,null AS adj_size
+                ,null AS sell_strategy
+            FROM tmp WHERE trade_type = 'buy' AND l_date IS NULL          
+            """.format(start_date)
+        )
+        spark_transaction_logs.createOrReplaceTempView("temp_transaction_logs")
+
         """ 
         行业板块历史数据分析
         """
@@ -240,54 +304,8 @@ class StockProposal:
                     ,SUM(price * size) AS base
                 FROM temp_cur_position
                 GROUP BY industry
-                ), tmp1 AS (
-                SELECT symbol
-                    ,date
-                    ,trade_type
-                    ,price
-                    ,size
-                    ,l_date
-                    ,l_trade_type
-                    ,l_price
-                    ,l_size
-                FROM (
-                    SELECT symbol
-                        ,date
-                        ,trade_type
-                        ,price
-                        ,size
-                        ,IF(trade_type = 'sell', LAG(date) OVER (PARTITION BY symbol ORDER BY date)  
-                            ,LEAD(date) OVER (PARTITION BY symbol ORDER BY date)) AS l_date
-                        ,IF(trade_type = 'sell', LAG(trade_type) OVER (PARTITION BY symbol ORDER BY date) 
-                            ,LEAD(trade_type) OVER (PARTITION BY symbol ORDER BY date)) AS l_trade_type
-                        ,IF(trade_type = 'sell', LAG(price) OVER (PARTITION BY symbol ORDER BY date)
-                            ,LEAD(price) OVER (PARTITION BY symbol ORDER BY date)) AS l_price
-                        ,IF(trade_type = 'sell', LAG(size) OVER (PARTITION BY symbol ORDER BY date) 
-                            ,LEAD(size) OVER (PARTITION BY symbol ORDER BY date)) AS l_size
-                    FROM temp_transaction_detail
-                    ORDER BY symbol
-                        ,date
-                        ,trade_type) t
             ), tmp11 AS (
-                SELECT symbol
-                    ,l_date AS buy_date
-                    ,l_price AS base_price
-                    ,l_size AS base_size
-                    ,date AS sell_date
-                    ,price AS adj_price
-                    ,size AS adj_size
-                FROM 
-                tmp1 WHERE trade_type = 'sell' AND l_date >= '{}'
-                UNION ALL
-                SELECT symbol
-                    ,date AS buy_date
-                    ,price AS base_price
-                    ,size AS base_size
-                    ,null AS sell_date
-                    ,null AS adj_price
-                    ,null AS adj_size
-                FROM 
-                tmp1 WHERE trade_type = 'buy' AND l_date IS NULL
+                SELECT * FROM temp_transaction_logs
             ), tmp2 AS (
                 SELECT t1.industry
                     ,COUNT(t2.symbol) * 1.00 AS his_trade_cnt
@@ -425,7 +443,7 @@ class StockProposal:
             LEFT JOIN tmp5 t5 ON t1.industry = t5.industry
             WHERE t2.p_cnt > 0
             ORDER BY COALESCE(t2.p_pnl,0) DESC
-            """.format(start_date, end_date)
+            """.format(end_date)
         )
 
         spark_industry_history_tracking_lstndays = spark.sql("""
@@ -830,61 +848,8 @@ class StockProposal:
 
         spark_position_history = spark.sql(
             """ 
-            WITH tmp1 AS (
-                SELECT symbol
-                    ,date
-                    ,trade_type
-                    ,price
-                    ,size
-                    ,strategy
-                    ,l_date
-                    ,l_trade_type
-                    ,l_price
-                    ,l_size
-                    ,l_strategy
-                FROM (
-                    SELECT symbol
-                        ,date
-                        ,trade_type
-                        ,price
-                        ,size
-                        ,strategy
-                        ,IF(trade_type = 'sell', LAG(date) OVER (PARTITION BY symbol ORDER BY date)  
-                            , LEAD(date) OVER (PARTITION BY symbol ORDER BY date)) AS l_date
-                        ,IF(trade_type = 'sell', LAG(trade_type) OVER (PARTITION BY symbol ORDER BY date) 
-                            , LEAD(trade_type) OVER (PARTITION BY symbol ORDER BY date)) AS l_trade_type
-                        ,IF(trade_type = 'sell', LAG(price) OVER (PARTITION BY symbol ORDER BY date)
-                            , LEAD(price) OVER (PARTITION BY symbol ORDER BY date)) AS l_price
-                        ,IF(trade_type = 'sell', LAG(size) OVER (PARTITION BY symbol ORDER BY date) 
-                            , LEAD(size) OVER (PARTITION BY symbol ORDER BY date)) AS l_size
-                        ,IF(trade_type = 'sell', LAG(strategy) OVER (PARTITION BY symbol ORDER BY date) 
-                            , LEAD(strategy) OVER (PARTITION BY symbol ORDER BY date)) AS l_strategy                               
-                    FROM temp_transaction_detail
-                    ORDER BY symbol
-                        ,date
-                        ,trade_type) t
-            ), tmp11 AS (
-                SELECT symbol
-                    ,l_date AS buy_date
-                    ,l_price AS base_price
-                    ,l_size AS base_size
-                    ,l_strategy AS buy_strategy
-                    ,date AS sell_date
-                    ,price AS adj_price
-                    ,size AS adj_size
-                    ,strategy AS sell_strategy
-                FROM tmp1 WHERE trade_type = 'sell' AND l_date >= '{}'
-                UNION ALL
-                SELECT symbol
-                    ,date AS buy_date
-                    ,price AS base_price
-                    ,size AS base_size
-                    ,strategy AS buy_strategy
-                    ,null AS sell_date
-                    ,null AS adj_price
-                    ,null AS adj_size
-                    ,null AS sell_strategy
-                FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL
+            WITH tmp11 AS (
+                SELECT * FROM temp_transaction_logs
             ), tmp2 AS (
                 SELECT symbol
                     ,COUNT(symbol) AS his_trade_cnt
@@ -1019,8 +984,8 @@ class StockProposal:
                         ) t2 ON t1.buy_date = t2.date
                         ORDER BY t2.symbol, t1.buy_date ASC
                     )   GROUP BY symbol
-                ) t6 ON t1.symbol = t6.symbol                  
-            """.format(start_date, end_date)
+                ) t6 ON t1.symbol = t6.symbol
+            """.format(end_date)
         )
 
         pd_position_history = spark_position_history.toPandas()
