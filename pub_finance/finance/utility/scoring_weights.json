@@ -1,10 +1,10 @@
 {
     "weights": {
-        "industry": 0.15,
+        "industry": 0.2,
         "pnl": 0.3,
-        "stability": 0.25,
-        "erp": 0.15,
-        "strategy": 0.15
+        "stability": 0.1,
+        "erp": 0.2,
+        "strategy": 0.2
     },
     "sub_weights": {
         "industry": {

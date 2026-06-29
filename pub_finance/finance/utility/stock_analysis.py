@@ -287,18 +287,58 @@ class StockProposal:
         )
         spark_transaction_logs.createOrReplaceTempView("temp_transaction_logs")
 
+        """
+        辅助日期函数，获取第N个交易日
+        """
+
+        def get_date_rank_subquery(rank_num):
+            return f"""
+            (SELECT buy_date FROM (
+                SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS rn
+                FROM (SELECT DISTINCT buy_date FROM temp_timeseries)
+            ) WHERE rn = {rank_num})
+            """
+
+        """
+        股票最新市值以及pe
+        """
+        spark_temp_symbol_pe = spark.sql(
+            """
+            SELECT t1.symbol
+                , t1.total_value
+                , t1.pe_double as pe                
+                , CASE WHEN t1.pe_double IS NULL OR t2.new IS NULL OR t1.pe_double = 0 THEN 0
+                    ELSE ROUND((1.0 / t1.pe_double - t2.new / 100.0) * 100, 1) END AS erp
+            FROM
+                (
+                SELECT symbol,
+                        total_value,
+                        COALESCE(
+                            TRY_CAST(
+                                CASE 
+                                    WHEN pe IS NULL OR TRIM(pe) IN ('', '-', 'NULL', 'N/A') THEN NULL
+                                    ELSE TRIM(pe)
+                                END AS DOUBLE
+                            ),
+                            NULL
+                        ) AS pe_double
+                FROM temp_latest_stock_info
+                ) t1 LEFT JOIN temp_gz t2 ON 1=1
+            """
+        )
+        spark_temp_symbol_pe.createOrReplaceTempView("temp_symbol_pe")
+
         """ 
         行业板块历史数据分析
         """
         spark_industry_history_tracking = spark.sql(
-            """
+            f"""
             WITH tmp AS (
                 SELECT industry
                     ,SUM(IF(`p&l` >= 0, 1, 0)) AS pos_cnt
                     ,SUM(IF(`p&l` < 0, 1, 0)) AS neg_cnt
                     ,COUNT(*) AS p_cnt
-                    ,SUM(IF(buy_date >= (SELECT buy_date FROM ( SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
-                                         FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt WHERE row_num = 5), 1, 0)) AS l5_p_cnt
+                    ,SUM(IF(buy_date >= {get_date_rank_subquery(5)}, 1, 0)) AS l5_p_cnt
                     ,SUM(`p&l`) AS p_pnl
                     ,SUM(adjbase * size) AS adjbase
                     ,SUM(price * size) AS base
@@ -308,9 +348,8 @@ class StockProposal:
                 SELECT t1.industry
                     ,COUNT(t2.symbol) * 1.00 AS his_trade_cnt
                     ,COUNT(DISTINCT t2.symbol) AS his_symbol_cnt
-                    ,COUNT(DISTINCT IF(t2.sell_date >= (SELECT buy_date FROM ( SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
-                                         FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt WHERE row_num = 5), t2.symbol, null)) AS l5_close
-                    ,SUM(IF(t2.sell_date IS NOT NULL, DATEDIFF(t2.sell_date, t2.buy_date), DATEDIFF('{}', t2.buy_date))) AS his_days
+                    ,COUNT(DISTINCT IF(t2.sell_date >= {get_date_rank_subquery(5)}, t2.symbol, null)) AS l5_close
+                    ,SUM(IF(t2.sell_date IS NOT NULL, DATEDIFF(t2.sell_date, t2.buy_date), DATEDIFF('{end_date}', t2.buy_date))) AS his_days
                     ,SUM(IF(t2.sell_date IS NOT NULL AND t2.adj_price - t2.base_price >=0, 1, 0)) AS pos_cnt
                     ,SUM(IF(t2.sell_date IS NOT NULL AND t2.adj_price - t2.base_price < 0, 1, 0)) AS neg_cnt
                     ,SUM(IF(t2.sell_date IS NOT NULL, t2.adj_price * (-t2.adj_size) - t2.base_price * t2.base_size, 0)) AS his_pnl
@@ -346,29 +385,7 @@ class StockProposal:
                         ELSE 0 
                     END AS industry_erp
                 FROM temp_industry_info 
-                LEFT JOIN 
-                    (
-                    SELECT t1.symbol
-                        , t1.total_value                
-                        , CASE WHEN t1.pe_double IS NULL OR t2.new IS NULL OR t1.pe_double = 0 THEN 0
-                            ELSE ROUND((1.0 / t1.pe_double - t2.new / 100.0) * 100, 1) END AS erp
-                    FROM
-                        (
-                        SELECT symbol,
-                                total_value,
-                                COALESCE(
-                                    TRY_CAST(
-                                        CASE 
-                                            WHEN pe IS NULL OR TRIM(pe) IN ('', '-', 'NULL', 'N/A') THEN NULL
-                                            ELSE TRIM(pe)
-                                        END AS DOUBLE
-                                    ),
-                                    NULL
-                                ) AS pe_double
-                        FROM temp_latest_stock_info
-                        ) t1
-                    LEFT JOIN temp_gz t2 ON 1=1 
-                    ) t3
+                LEFT JOIN temp_symbol_pe t3
                 ON temp_industry_info.symbol = t3.symbol
                 WHERE t3.erp > -50 and t3.erp < 50
                 GROUP BY temp_industry_info.industry
@@ -392,7 +409,7 @@ class StockProposal:
             LEFT JOIN tmp5 t5 ON t1.industry = t5.industry
             WHERE t2.p_cnt > 0
             ORDER BY COALESCE(t2.p_pnl,0) DESC
-            """.format(end_date)
+            """
         )
 
         spark_industry_history_tracking_lstndays = spark.sql("""
@@ -774,11 +791,11 @@ class StockProposal:
         )
 
         spark_position_history = spark.sql(
-            """ 
+            f""" 
             WITH tmp2 AS (
                 SELECT symbol
                     ,COUNT(symbol) AS his_trade_cnt
-                    ,SUM(IF(sell_date IS NOT NULL, DATEDIFF(sell_date, buy_date), DATEDIFF('{}', buy_date))) AS his_days
+                    ,SUM(IF(sell_date IS NOT NULL, DATEDIFF(sell_date, buy_date), DATEDIFF('{end_date}', buy_date))) AS his_days
                     ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price >=0, 1, 0)) AS pos_cnt
                     ,SUM(IF(sell_date IS NOT NULL AND adj_price - base_price < 0, 1, 0)) AS neg_cnt
                     ,SUM(IF(sell_date IS NOT NULL, adj_price * (-adj_size) - base_price * base_size, 0)) AS his_pnl
@@ -803,8 +820,7 @@ class StockProposal:
                 , t1.industry
                 , t1.name
                 , ROUND(t1.total_value / 100000000, 1) AS total_value
-                , CASE WHEN t3.pe_double IS NULL OR t4.new IS NULL OR t3.pe_double = 0 THEN null
-                  ELSE ROUND((1.0 / t3.pe_double - t4.new / 100.0) * 100, 1) END AS erp
+                , t3.erp
                 , t5.sharpe_ratio    
                 , t5.sortino_ratio
                 , t5.max_drawdown
@@ -835,20 +851,7 @@ class StockProposal:
                 , IF(adjbase < price, 1, 0) AS neg_cnt
                 FROM tmp3
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol
-                LEFT JOIN (
-                    SELECT symbol,
-                            COALESCE(
-                                TRY_CAST(
-                                    CASE 
-                                        WHEN pe IS NULL OR TRIM(pe) IN ('', '-', 'NULL', 'N/A') THEN NULL
-                                        ELSE TRIM(pe)
-                                    END AS DOUBLE
-                                ),
-                                NULL
-                            ) AS pe_double
-                    FROM temp_latest_stock_info
-                ) t3 ON t1.symbol = t3.symbol
-                LEFT JOIN temp_gz t4 ON 1=1
+                LEFT JOIN temp_symbol_pe t3 ON t1.symbol = t3.symbol
                 LEFT JOIN (
                     SELECT 
                         symbol,
@@ -910,7 +913,7 @@ class StockProposal:
                         ORDER BY t2.symbol, t1.buy_date ASC
                     )   GROUP BY symbol
                 ) t6 ON t1.symbol = t6.symbol
-            """.format(end_date)
+            """
         )
 
         pd_position_history = spark_position_history.toPandas()
@@ -1196,7 +1199,7 @@ class StockProposal:
         减仓情况分析
         """
         spark_position_reduction = spark.sql(
-            """ 
+            f""" 
             WITH tmp11 AS (
                 SELECT symbol
                     ,buy_date
@@ -1207,7 +1210,7 @@ class StockProposal:
                     ,adj_price
                     ,adj_size
                     ,sell_strategy
-                FROM temp_transaction_logs WHERE buy_date >= '{}'
+                FROM temp_transaction_logs WHERE buy_date >= '{start_date}'
                 AND  symbol NOT IN (SELECT symbol FROM temp_transaction_logs WHERE sell_date IS NULL)
             ), tmp2 AS (
                 SELECT symbol
@@ -1232,8 +1235,7 @@ class StockProposal:
                 , t3.industry
                 , t3.name
                 , t3.total_value
-                , CASE WHEN t4.pe_double IS NULL OR t5.new IS NULL OR t4.pe_double = 0 THEN null
-                  ELSE ROUND((1.0 / t4.pe_double - t5.new / 100.0) * 100, 1) END AS erp
+                , t4.erp
                 , t1.buy_date
                 , t1.sell_date
                 , t1.base_price AS price
@@ -1250,27 +1252,11 @@ class StockProposal:
                     , adj_price
                     , adj_price * (-adj_size) - base_price * base_size AS pnl
                     , (adj_price - base_price) / base_price AS pnl_ratio
-                FROM tmp11 WHERE sell_date >= (SELECT buy_date FROM (
-                                                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
-                                                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t 
-                                                ) tt WHERE row_num = 5)
+                FROM tmp11 WHERE sell_date >= {get_date_rank_subquery(5)}
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol AND t1.sell_date = t2.sell_date
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
-                LEFT JOIN (
-                    SELECT symbol,
-                            COALESCE(
-                                TRY_CAST(
-                                    CASE 
-                                        WHEN pe IS NULL OR TRIM(pe) IN ('', '-', 'NULL', 'N/A') THEN NULL
-                                        ELSE TRIM(pe)
-                                    END AS DOUBLE
-                                ),
-                                NULL
-                            ) AS pe_double
-                    FROM temp_latest_stock_info
-                ) t4 ON t1.symbol = t4.symbol
-                LEFT JOIN temp_gz t5 ON 1=1             
-            """.format(start_date)
+                LEFT JOIN temp_symbol_pe t4 ON t1.symbol = t4.symbol
+            """
         )
 
         pd_position_reduction = spark_position_reduction.toPandas()
@@ -2246,15 +2232,17 @@ class StockProposal:
         spark_trade_info_lstndays = spark.sql(
             """ 
             WITH tmp1 AS (
-                SELECT date
+                SELECT 
+                    date
                     ,COUNT(symbol) AS total_cnt
                 FROM temp_position_detail
                 WHERE date >='{}'
                 GROUP BY date
             ), tmp11 AS (
                 SELECT temp_timeseries.buy_date
-                    ,IF(tmp1.total_cnt > 0, tmp1.total_cnt
-                        ,LAST_VALUE(tmp1.total_cnt) IGNORE NULLS OVER (PARTITION BY temp_timeseries.partition_key ORDER BY temp_timeseries.buy_date)) AS total_cnt
+                    ,IF(tmp1.total_cnt > 0
+                    ,tmp1.total_cnt
+                    ,LAST_VALUE(tmp1.total_cnt) IGNORE NULLS OVER (PARTITION BY temp_timeseries.partition_key ORDER BY temp_timeseries.buy_date)) AS total_cnt
                 FROM (SELECT *, 1 AS partition_key FROM temp_timeseries) AS temp_timeseries LEFT JOIN tmp1 ON temp_timeseries.buy_date = tmp1.date
             ), tmp5 AS (
                 SELECT date
@@ -2794,7 +2782,8 @@ class StockProposal:
         gc.collect()
         print("TopN Pnl Trend生成完成...")
 
-        spark_calendar_heatmap = spark.sql("""
+        spark_calendar_heatmap = spark.sql(
+            f"""
             WITH tmp AS (
                 SELECT 
                     t1.date
@@ -2803,11 +2792,7 @@ class StockProposal:
                     ,SUM(t1.pnl * t3.total_value) / SUM(t3.total_value) AS pnl --市值加权收益
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
-                WHERE t1.date >= (
-                    SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
-                    WHERE row_num = 26 )
+                WHERE t1.date >= {get_date_rank_subquery(26)}
                 GROUP BY t1.date, t2.industry
             ), tmp1 AS (
             SELECT t.date
@@ -2822,11 +2807,7 @@ class StockProposal:
                     ,LAG(pnl) OVER (PARTITION BY industry ORDER BY date) AS l_pnl
                 FROM tmp
                 ORDER BY date, industry
-            ) t WHERE t.date >= (
-                    SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
-                    WHERE row_num = 25 )
+            ) t WHERE t.date >= {get_date_rank_subquery(25)}
             ), tmp2 AS (
             SELECT 
                 date
@@ -2859,7 +2840,8 @@ class StockProposal:
                 ,MAX(s_pnl) AS s_pnl
             FROM (SELECT * FROM tmp3 WHERE rn <= 3 ORDER BY date, rn) t
             GROUP BY date
-            """)
+            """
+        )
 
         pd_calendar_heatmap = spark_calendar_heatmap.toPandas()
 
@@ -3994,6 +3976,18 @@ class StockProposal:
         )
         spark_transaction_logs.createOrReplaceTempView("temp_transaction_logs")
 
+        """
+        辅助日期函数，获取第N个交易日
+        """
+
+        def get_date_rank_subquery(rank_num):
+            return f"""
+            (SELECT buy_date FROM (
+                SELECT buy_date, ROW_NUMBER() OVER(ORDER BY buy_date DESC) AS rn
+                FROM (SELECT DISTINCT buy_date FROM temp_timeseries)
+            ) WHERE rn = {rank_num})
+            """
+
         spark_position_history = spark.sql(
             """ 
             WITH tmp2 AS (
@@ -4289,7 +4283,7 @@ class StockProposal:
         减仓情况分析
         """
         spark_position_reduction = spark.sql(
-            """ 
+            f""" 
             WITH tmp11 AS (
                 SELECT symbol
                     ,buy_date
@@ -4300,7 +4294,7 @@ class StockProposal:
                     ,adj_price
                     ,adj_size
                     ,sell_strategy
-                FROM temp_transaction_logs WHERE buy_date >= '{}'
+                FROM temp_transaction_logs WHERE buy_date >= '{start_date}'
                 AND  symbol NOT IN (SELECT symbol FROM temp_transaction_logs WHERE sell_date IS NULL)
             ), tmp2 AS (
                 SELECT symbol
@@ -4338,13 +4332,10 @@ class StockProposal:
                     , adj_price
                     , adj_price * (-adj_size) - base_price * base_size AS pnl
                     , (adj_price - base_price) / base_price AS pnl_ratio
-                FROM tmp11 WHERE sell_date >= (SELECT buy_date FROM (
-                                                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
-                                                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t 
-                                                ) tt WHERE row_num = 5)
+                FROM tmp11 WHERE sell_date >= {get_date_rank_subquery(5)}
                 ) t1 LEFT JOIN tmp2 t2 ON t1.symbol = t2.symbol AND t1.sell_date = t2.sell_date
                 LEFT JOIN tmp3 t3 ON t1.symbol = t3.symbol
-            """.format(start_date)
+            """
         )
 
         pd_position_reduction = spark_position_reduction.toPandas()

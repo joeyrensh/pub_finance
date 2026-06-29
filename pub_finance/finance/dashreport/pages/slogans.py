@@ -11,21 +11,16 @@ JSON_FILE_PATH = os.path.join(FINANCE_ROOT, "utility", "scoring_weights.json")
 
 DEFAULT_CONFIG = {
     "weights": {
-        "industry": 0.25,
+        "industry": 0.2,
         "pnl": 0.3,
-        "stability": 0.25,
+        "stability": 0.1,
         "erp": 0.2,
-        "strategy": 0.1,
+        "strategy": 0.2,
     },
     "sub_weights": {
-        "industry": {"arrow": 0.3, "bracket": 0.7},
-        "pnl": {"daily": 0.3, "weighted_return": 0.7},
-        "stability": {
-            "win_rate": 0.2,
-            "avg_trans": 0.1,
-            "sortino": 0.35,
-            "maxdd": 0.35,
-        },
+        "industry": {"arrow": 0.6, "bracket": 0.4},
+        "pnl": {"daily": 0.4, "weighted_return": 0.6},
+        "stability": {"win_rate": 0.2, "avg_trans": 0.2, "sortino": 0.2, "maxdd": 0.4},
         "strategy": {"cnt": 0.6, "signal": 0.4},
     },
 }
