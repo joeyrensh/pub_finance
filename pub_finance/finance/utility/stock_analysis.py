@@ -304,8 +304,6 @@ class StockProposal:
                     ,SUM(price * size) AS base
                 FROM temp_cur_position
                 GROUP BY industry
-            ), tmp11 AS (
-                SELECT * FROM temp_transaction_logs
             ), tmp2 AS (
                 SELECT t1.industry
                     ,COUNT(t2.symbol) * 1.00 AS his_trade_cnt
@@ -318,7 +316,7 @@ class StockProposal:
                     ,SUM(IF(t2.sell_date IS NOT NULL, t2.adj_price * (-t2.adj_size) - t2.base_price * t2.base_size, 0)) AS his_pnl
                     ,SUM(IF(t2.sell_date IS NOT NULL, t2.adj_price * (-t2.adj_size), 0)) AS his_adjbase
                     ,SUM(IF(t2.sell_date IS NOT NULL, t2.base_price * t2.base_size, 0)) AS his_base
-                FROM temp_industry_info t1 JOIN tmp11 t2 ON t1.symbol = t2.symbol
+                FROM temp_industry_info t1 JOIN temp_transaction_logs t2 ON t1.symbol = t2.symbol
                 GROUP BY t1.industry
             ), tmp3 AS (
                 SELECT industry
@@ -374,55 +372,6 @@ class StockProposal:
                 ON temp_industry_info.symbol = t3.symbol
                 WHERE t3.erp > -50 and t3.erp < 50
                 GROUP BY temp_industry_info.industry
-            ), tmp6 AS (
-                SELECT
-                    t3.date AS date,
-                    temp_industry_info.industry AS industry,
-                    CASE 
-                        WHEN SUM(COALESCE(t3.total_value,0)) > 0 
-                        THEN ROUND(SUM(t3.erp * COALESCE(t3.total_value,0)) / SUM(COALESCE(t3.total_value,0)), 1)
-                        ELSE 0 
-                    END AS industry_erp
-                FROM temp_industry_info 
-                LEFT JOIN 
-                    (
-                    SELECT t1.symbol
-                        , t1.total_value                
-                        , CASE WHEN t1.pe_double IS NULL OR t2.new IS NULL OR t1.pe_double = 0 THEN 0
-                            ELSE ROUND((1.0 / t1.pe_double - t2.new / 100.0) * 100, 1) END AS erp
-                        , t1.date
-                    FROM
-                        (
-                        SELECT symbol,
-                                total_value,
-                                COALESCE(
-                                    TRY_CAST(
-                                        CASE 
-                                            WHEN pe IS NULL OR TRIM(pe) IN ('', '-', 'NULL', 'N/A') THEN NULL
-                                            ELSE TRIM(pe)
-                                        END AS DOUBLE
-                                    ),
-                                    NULL
-                                ) AS pe_double,
-                                date
-                        FROM temp_pe_trend
-                        ) t1
-                    LEFT JOIN temp_gz_trend t2 ON t1.date = t2.date 
-                    ) t3
-                ON temp_industry_info.symbol = t3.symbol
-                WHERE t3.erp > -50 and t3.erp < 50
-                GROUP BY temp_industry_info.industry, t3.date
-                ORDER BY temp_industry_info.industry, t3.date ASC
-            ), tmp7 AS (
-                SELECT industry,
-                    COLLECT_LIST(industry_erp) AS industry_erp_array
-                FROM (
-                    SELECT
-                        t2.industry,
-                        t2.industry_erp
-                    FROM temp_timeseries t1 LEFT JOIN tmp6 t2 ON t1.buy_date = t2.date
-                    ORDER BY t2.industry, t1.buy_date ASC
-                )   GROUP BY industry
             )
             SELECT t1.industry
                 ,COALESCE(t2.p_cnt,0) AS p_cnt
@@ -447,80 +396,58 @@ class StockProposal:
         )
 
         spark_industry_history_tracking_lstndays = spark.sql("""
-            WITH tmp AS (
-                SELECT t2.industry
-                    --,SUM(t1.pnl) / COUNT(t1.symbol) AS pnl --平均收益
-                    ,SUM(t1.pnl * t3.total_value) / SUM(t3.total_value) AS pnl --市值加权收益
-                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
+            WITH date_rank AS (
+                SELECT DISTINCT buy_date, ROW_NUMBER() OVER (ORDER BY buy_date DESC) AS rn
+                FROM temp_timeseries
+            ), daily_industry_pnl AS (
+                SELECT
+                    t2.industry,
+                    dr.rn,
+                    SUM(t1.pnl * t3.total_value) / SUM(t3.total_value) AS pnl
+                FROM temp_position_detail t1
+                JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
-                WHERE t1.date = (
-                    SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
-                    WHERE row_num = 1 )
-                GROUP BY t2.industry
-            ), tmp1 AS (
-                SELECT t2.industry
-                    --,SUM(t1.pnl) / COUNT(t1.symbol) AS pnl --平均收益
-                    ,SUM(t1.pnl * t3.total_value) / SUM(t3.total_value) AS pnl --市值加权收益
-                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
-                LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
-                WHERE t1.date = (
-                    SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date,1 AS partition_key FROM temp_timeseries) t ) tt
-                    WHERE row_num = 5 )
-                GROUP BY t2.industry
-            )   
-            SELECT tmp.industry
-                ,tmp.pnl - COALESCE(tmp1.pnl, 0) AS pnl_growth
-            FROM tmp LEFT JOIN tmp1 ON tmp.industry = tmp1.industry
-            ORDER BY tmp.pnl - COALESCE(tmp1.pnl, 0) DESC
+                JOIN date_rank dr ON t1.date = dr.buy_date
+                WHERE dr.rn IN (1, 5)   -- 只取最近的第1天和第5天
+                GROUP BY t2.industry, dr.rn
+            )
+            SELECT 
+                industry,
+                MAX(CASE WHEN rn = 1 THEN pnl END) 
+                - COALESCE(MAX(CASE WHEN rn = 5 THEN pnl END), 0) AS pnl_growth
+            FROM daily_industry_pnl
+            GROUP BY industry
+            ORDER BY pnl_growth DESC
             """)
 
         spark_industry_history_tracking_ndaysbeforeyesterday = spark.sql("""
-            WITH tmp AS (
-                SELECT t2.industry
-                    ,SUM(t1.pnl) AS pnl
-                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
-                WHERE t1.date = (
-                    SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
-                    WHERE row_num = 1 )
-                GROUP BY t2.industry
-            ), tmp1 AS (
-                SELECT t2.industry
-                    --,SUM(t1.pnl) / COUNT(t1.symbol) AS pnl --平均收益
-                    ,SUM(t1.pnl * t3.total_value) / SUM(t3.total_value) AS pnl --市值加权收益
-                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
+            WITH date_rank AS (
+                SELECT DISTINCT buy_date, ROW_NUMBER() OVER (ORDER BY buy_date DESC) AS rn
+                FROM temp_timeseries
+            ), daily_industry_pnl AS (
+                SELECT 
+                    t2.industry,
+                    dr.rn,
+                    SUM(t1.pnl * t3.total_value) / SUM(t3.total_value) AS pnl
+                FROM temp_position_detail t1
+                JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
-                WHERE t1.date = (
-                    SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
-                    WHERE row_num = 6)
-                GROUP BY t2.industry
+                JOIN date_rank dr ON t1.date = dr.buy_date
+                WHERE dr.rn IN (1, 6, 10)   -- 只取需要的三个日期排名
+                GROUP BY t2.industry, dr.rn
+            ),
+            industry_date1 AS (
+                SELECT DISTINCT industry
+                FROM daily_industry_pnl
+                WHERE rn = 1
             )
-            , tmp2 AS (
-                SELECT t2.industry
-                    --,SUM(t1.pnl) / COUNT(t1.symbol) AS pnl --平均收益
-                    ,SUM(t1.pnl * t3.total_value) / SUM(t3.total_value) AS pnl --市值加权收益
-                FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol    
-                LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol         
-                WHERE t1.date = (
-                    SELECT buy_date FROM (
-                    SELECT buy_date, ROW_NUMBER() OVER(PARTITION BY partition_key ORDER BY buy_date DESC) AS row_num
-                    FROM (SELECT DISTINCT buy_date, 1 AS partition_key FROM temp_timeseries) t ) tt
-                    WHERE row_num = 10)
-                GROUP BY t2.industry
-            )
-            SELECT tmp.industry
-                ,COALESCE(tmp1.pnl, 0) - COALESCE(tmp2.pnl, 0) AS pnl_growth
-            FROM tmp 
-            LEFT JOIN tmp1 ON tmp.industry = tmp1.industry
-            LEFT JOIN tmp2 ON tmp.industry = tmp2.industry
-            ORDER BY COALESCE(tmp1.pnl, 0) - COALESCE(tmp2.pnl, 0) DESC
+            SELECT
+                d1.industry,
+                COALESCE(p6.pnl, 0) - COALESCE(p10.pnl, 0) AS pnl_growth
+            FROM industry_date1 d1
+            LEFT JOIN daily_industry_pnl p6 ON d1.industry = p6.industry AND p6.rn = 6
+            LEFT JOIN daily_industry_pnl p10 ON d1.industry = p10.industry AND p10.rn = 10
+            ORDER BY pnl_growth DESC
             """)
         pd_industry_history_tracking_lstndays = (
             spark_industry_history_tracking_lstndays.toPandas()
@@ -848,9 +775,7 @@ class StockProposal:
 
         spark_position_history = spark.sql(
             """ 
-            WITH tmp11 AS (
-                SELECT * FROM temp_transaction_logs
-            ), tmp2 AS (
+            WITH tmp2 AS (
                 SELECT symbol
                     ,COUNT(symbol) AS his_trade_cnt
                     ,SUM(IF(sell_date IS NOT NULL, DATEDIFF(sell_date, buy_date), DATEDIFF('{}', buy_date))) AS his_days
@@ -859,7 +784,7 @@ class StockProposal:
                     ,SUM(IF(sell_date IS NOT NULL, adj_price * (-adj_size) - base_price * base_size, 0)) AS his_pnl
                     ,SUM(IF(sell_date IS NOT NULL, base_price * base_size, 0)) AS his_base_price
                     ,MAX(IF(sell_date IS NULL, buy_strategy, null)) AS buy_strategy
-                FROM  tmp11
+                FROM  temp_transaction_logs
                 GROUP BY symbol
             ), tmp3 AS (
                 SELECT symbol
@@ -1272,52 +1197,18 @@ class StockProposal:
         """
         spark_position_reduction = spark.sql(
             """ 
-            WITH tmp1 AS (
+            WITH tmp11 AS (
                 SELECT symbol
-                    ,date
-                    ,trade_type
-                    ,price
-                    ,size
-                    ,strategy
-                    ,l_date
-                    ,l_trade_type
-                    ,l_price
-                    ,l_size
-                    ,l_strategy
-                FROM (
-                    SELECT symbol
-                        ,date
-                        ,trade_type
-                        ,price
-                        ,size
-                        ,strategy
-                        ,IF(trade_type = 'sell', LAG(date) OVER (PARTITION BY symbol ORDER BY date)  
-                            , LEAD(date) OVER (PARTITION BY symbol ORDER BY date)) AS l_date
-                        ,IF(trade_type = 'sell', LAG(trade_type) OVER (PARTITION BY symbol ORDER BY date) 
-                            , LEAD(trade_type) OVER (PARTITION BY symbol ORDER BY date)) AS l_trade_type
-                        ,IF(trade_type = 'sell', LAG(price) OVER (PARTITION BY symbol ORDER BY date)
-                            , LEAD(price) OVER (PARTITION BY symbol ORDER BY date)) AS l_price
-                        ,IF(trade_type = 'sell', LAG(size) OVER (PARTITION BY symbol ORDER BY date) 
-                            , LEAD(size) OVER (PARTITION BY symbol ORDER BY date)) AS l_size
-                        ,IF(trade_type = 'sell', LAG(strategy) OVER (PARTITION BY symbol ORDER BY date) 
-                            , LEAD(strategy) OVER (PARTITION BY symbol ORDER BY date)) AS l_strategy                               
-                    FROM temp_transaction_detail
-                    ORDER BY symbol
-                        ,date
-                        ,trade_type) t
-            ), tmp11 AS (
-                SELECT symbol
-                    ,l_date AS buy_date
-                    ,l_price AS base_price
-                    ,l_size AS base_size
-                    ,l_strategy AS buy_strategy
-                    ,date AS sell_date
-                    ,price AS adj_price
-                    ,size AS adj_size
-                    ,strategy AS sell_strategy
-                    ,ROW_NUMBER() OVER(PARTITION BY symbol ORDER BY l_date DESC) AS row_num
-                FROM tmp1 WHERE trade_type = 'sell' AND l_date >= '{}'
-                AND  symbol NOT IN (SELECT symbol FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL)
+                    ,buy_date
+                    ,base_price
+                    ,base_size
+                    ,buy_strategy
+                    ,sell_date
+                    ,adj_price
+                    ,adj_size
+                    ,sell_strategy
+                FROM temp_transaction_logs WHERE buy_date >= '{}'
+                AND  symbol NOT IN (SELECT symbol FROM temp_transaction_logs WHERE sell_date IS NULL)
             ), tmp2 AS (
                 SELECT symbol
                     ,sell_date
@@ -4042,9 +3933,9 @@ class StockProposal:
             "temp_cur_position_with_latest_stock_info"
         )
 
-        spark_position_history = spark.sql(
-            """ 
-            WITH tmp1 AS (
+        spark_transaction_logs = spark.sql(
+            """
+            WITH tmp AS (
                 SELECT symbol
                     ,date
                     ,trade_type
@@ -4077,29 +3968,35 @@ class StockProposal:
                     ORDER BY symbol
                         ,date
                         ,trade_type) t
-            ), tmp11 AS (
-                SELECT symbol
-                    ,l_date AS buy_date
-                    ,l_price AS base_price
-                    ,l_size AS base_size
-                    ,l_strategy AS buy_strategy
-                    ,date AS sell_date
-                    ,price AS adj_price
-                    ,size AS adj_size
-                    ,strategy AS sell_strategy
-                FROM tmp1 WHERE trade_type = 'sell' AND l_date >= '{}'
-                UNION ALL
-                SELECT symbol
-                    ,date AS buy_date
-                    ,price AS base_price
-                    ,size AS base_size
-                    ,strategy AS buy_strategy
-                    ,null AS sell_date
-                    ,null AS adj_price
-                    ,null AS adj_size
-                    ,null AS sell_strategy
-                FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL
-            ), tmp2 AS (
+            )
+            SELECT symbol
+                ,l_date AS buy_date
+                ,l_price AS base_price
+                ,l_size AS base_size
+                ,l_strategy AS buy_strategy
+                ,date AS sell_date
+                ,price AS adj_price
+                ,size AS adj_size
+                ,strategy AS sell_strategy
+            FROM tmp WHERE trade_type = 'sell' AND l_date >= '{}'
+            UNION ALL
+            SELECT symbol
+                ,date AS buy_date
+                ,price AS base_price
+                ,size AS base_size
+                ,strategy AS buy_strategy
+                ,null AS sell_date
+                ,null AS adj_price
+                ,null AS adj_size
+                ,null AS sell_strategy
+            FROM tmp WHERE trade_type = 'buy' AND l_date IS NULL
+            """.format(start_date)
+        )
+        spark_transaction_logs.createOrReplaceTempView("temp_transaction_logs")
+
+        spark_position_history = spark.sql(
+            """ 
+            WITH tmp2 AS (
                 SELECT symbol
                     ,COUNT(symbol) AS his_trade_cnt
                     ,SUM(IF(sell_date IS NOT NULL, DATEDIFF(sell_date, buy_date), DATEDIFF('{}', buy_date))) AS his_days
@@ -4108,7 +4005,7 @@ class StockProposal:
                     ,SUM(IF(sell_date IS NOT NULL, adj_price * (-adj_size) - base_price * base_size, 0)) AS his_pnl
                     ,SUM(IF(sell_date IS NOT NULL, base_price * base_size, 0)) AS his_base_price
                     ,MAX(IF(sell_date IS NULL, buy_strategy, null)) AS buy_strategy
-                FROM  tmp11
+                FROM  temp_transaction_logs
                 GROUP BY symbol
             ), tmp3 AS (
                 SELECT symbol
@@ -4180,7 +4077,7 @@ class StockProposal:
                     ) t
                     WHERE rn = 1
                 ) t3 ON t1.symbol = t3.symbol
-            """.format(start_date, end_date)
+            """.format(end_date)
         )
 
         pd_position_history = spark_position_history.toPandas()
@@ -4393,52 +4290,18 @@ class StockProposal:
         """
         spark_position_reduction = spark.sql(
             """ 
-            WITH tmp1 AS (
+            WITH tmp11 AS (
                 SELECT symbol
-                    ,date
-                    ,trade_type
-                    ,price
-                    ,size
-                    ,strategy
-                    ,l_date
-                    ,l_trade_type
-                    ,l_price
-                    ,l_size
-                    ,l_strategy
-                FROM (
-                    SELECT symbol
-                        ,date
-                        ,trade_type
-                        ,price
-                        ,size
-                        ,strategy
-                        ,IF(trade_type = 'sell', LAG(date) OVER (PARTITION BY symbol ORDER BY date)  
-                            , LEAD(date) OVER (PARTITION BY symbol ORDER BY date)) AS l_date
-                        ,IF(trade_type = 'sell', LAG(trade_type) OVER (PARTITION BY symbol ORDER BY date) 
-                            , LEAD(trade_type) OVER (PARTITION BY symbol ORDER BY date)) AS l_trade_type
-                        ,IF(trade_type = 'sell', LAG(price) OVER (PARTITION BY symbol ORDER BY date)
-                            , LEAD(price) OVER (PARTITION BY symbol ORDER BY date)) AS l_price
-                        ,IF(trade_type = 'sell', LAG(size) OVER (PARTITION BY symbol ORDER BY date) 
-                            , LEAD(size) OVER (PARTITION BY symbol ORDER BY date)) AS l_size
-                        ,IF(trade_type = 'sell', LAG(strategy) OVER (PARTITION BY symbol ORDER BY date) 
-                            , LEAD(strategy) OVER (PARTITION BY symbol ORDER BY date)) AS l_strategy                               
-                    FROM temp_transaction_detail
-                    ORDER BY symbol
-                        ,date
-                        ,trade_type) t
-            ), tmp11 AS (
-                SELECT symbol
-                    ,l_date AS buy_date
-                    ,l_price AS base_price
-                    ,l_size AS base_size
-                    ,l_strategy AS buy_strategy
-                    ,date AS sell_date
-                    ,price AS adj_price
-                    ,size AS adj_size
-                    ,strategy AS sell_strategy
-                    ,ROW_NUMBER() OVER(PARTITION BY symbol ORDER BY l_date DESC) AS row_num
-                FROM tmp1 WHERE trade_type = 'sell' AND l_date >= '{}'
-                AND  symbol NOT IN (SELECT symbol FROM tmp1 WHERE trade_type = 'buy' AND l_date IS NULL)
+                    ,buy_date
+                    ,base_price
+                    ,base_size
+                    ,buy_strategy
+                    ,sell_date
+                    ,adj_price
+                    ,adj_size
+                    ,sell_strategy
+                FROM temp_transaction_logs WHERE buy_date >= '{}'
+                AND  symbol NOT IN (SELECT symbol FROM temp_transaction_logs WHERE sell_date IS NULL)
             ), tmp2 AS (
                 SELECT symbol
                     ,sell_date
