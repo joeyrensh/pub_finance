@@ -3,6 +3,7 @@ import dash_core_components as dcc
 from finance.dashreport.utils import Header
 from finance.dashreport.chart_builder import ChartBuilder
 from finance.dashreport.data_loader import ReportDataLoader
+from flask import session
 
 
 class PageLayout:
@@ -260,6 +261,10 @@ class PageLayout:
                 self.build_table_card(t, is_last=(i == len(self.show_tables) - 1))
             )
 
+        role = session.get("role")
+        is_admin = role == "admin"
+        display_style = "block" if is_admin else "none"
+
         # 最终布局
         return html.Div(
             [
@@ -272,6 +277,42 @@ class PageLayout:
                     + dynamic_half_rows
                     + table_cards,
                     className="sub_page",
+                ),
+                # 按钮与摘要容器同级，靠相对定位堆叠
+                html.Div(
+                    style={
+                        "position": "relative",
+                        "marginTop": "8px",
+                        "display": display_style,
+                    },
+                    children=[
+                        html.Button(
+                            "AI分析",
+                            id="global_btn_ai_summary",
+                            className="ai-analysis-btn",
+                            style={
+                                "display": "none",
+                                "cursor": "pointer",
+                            },
+                        ),
+                        dcc.Store(id="store_selected_cell_info", data=None),
+                        dcc.Loading(
+                            id="loading_ai_summary_wrapper",
+                            type="circle",
+                            color="#119DFF",
+                            children=html.Div(
+                                id="ai_summary_box",
+                                className="ai-analysis-panel",
+                                style={
+                                    "minHeight": "80px",
+                                    "whiteSpace": "pre-wrap",
+                                    "width": "100%",
+                                    "lineHeight": "1.6",
+                                },
+                                children="点击任意表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要",
+                            ),
+                        ),
+                    ],
                 ),
             ],
             className="page",

@@ -1058,6 +1058,38 @@ a:active {
     font-weight:500;
 }
 
+/* 仅局部样式，不污染全局 */
+.ai-analysis-panel {
+    border: 1px solid var(--gridcolor);
+    border-radius: 6px;
+    padding: 2px;
+    background: transparent;
+    color: var(--text-color);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    font-size: 1.2rem;
+}
+
+.ai-analysis-btn {
+    position: absolute;
+    top: 15px;
+    right: 8px;
+    z-index: 10;
+    background: var(--date-bg-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 3px;
+    padding: 2px 14px  !important;
+    font-size: 1.2rem;
+    transition: background 0.2s;
+    line-height: 30px;
+    margin-top: 25px !important;
+}
+.ai-analysis-btn:hover {
+    background: #4096ff;
+}
+.ai-analysis-btn:active {
+    background: #0958d9;
+}
 
 
 /* ==================== 响应式设计 ==================== */
@@ -1335,6 +1367,19 @@ a:active {
   .weight-slider-primary{
       pointer-events: none !important;
       touch-action: none !important;
+  }
+
+  .ai-analysis-btn{
+    font-size: 1rem;
+    padding: 2px 14px  !important;
+    position: absolute;
+    top: 12px !important;
+    right: 4px !important;
+    line-height: 25px;
+    margin-top: 35px !important
+  }
+  .ai-analysis-panel{
+    font-size: 1rem;
   }
   
 }

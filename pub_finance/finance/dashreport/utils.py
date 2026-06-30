@@ -340,9 +340,7 @@ def data_bars(df, column):
                     var(--positive-databar-color) {percentage}%,
                     transparent {percentage}%,
                     transparent 100%)
-                """.format(
-                    percentage=percentage
-                ),
+                """.format(percentage=percentage),
                 "borderRadius": "4px",
                 "backgroundSize": "100% 70%",
                 "backgroundRepeat": "no-repeat",
@@ -366,9 +364,7 @@ def data_bars(df, column):
                     transparent {transparent_percentage}%,
                     var(--negative-databar-color) {transparent_percentage}%,
                     var(--negative-databar-color) 100%)
-                """.format(
-                    transparent_percentage=100 - percentage
-                ),
+                """.format(transparent_percentage=100 - percentage),
                 "borderRadius": "4px",
                 "backgroundSize": "100% 70%",
                 "backgroundRepeat": "no-repeat",
@@ -458,7 +454,7 @@ def discrete_background_color_bins(df, column, n_bins=10, positive_is_red=False,
                 ),
                 "column_id": column,
             },
-            "background": f"color-mix(in srgb, {base_color} {intensity*100}%, transparent)",
+            "background": f"color-mix(in srgb, {base_color} {intensity * 100}%, transparent)",
         }
 
     # 负值区间：从vmin到mid
@@ -476,7 +472,7 @@ def discrete_background_color_bins(df, column, n_bins=10, positive_is_red=False,
     return styles
 
 
-def make_dash_format_table(df, cols_format, market, trade_date):
+def make_dash_format_table(df, cols_format, market, trade_date, table_name):
     """Return a dash_table.DataTable for a Pandas dataframe"""
     # 创建一个新的 DataFrame 来存储原始列的副本
     original_df = df.copy()
@@ -842,18 +838,19 @@ def make_dash_format_table(df, cols_format, market, trade_date):
         style_data_conditional.extend(
             discrete_background_color_bins(df, col, n_bins=10, positive_is_red=False)
         )
-    import uuid
+    # import uuid
 
-    table_key = str(uuid.uuid4())
+    # table_key = str(uuid.uuid4())
 
     table_id = {
         "type": "auto-table",
-        "table": table_key,
+        "page": market,
+        "table": table_name,
     }
 
     count_id = {
         "type": "auto-table-count",
-        "table": table_key,
+        "table": table_name,
     }
 
     return html.Div(
@@ -888,6 +885,8 @@ def make_dash_format_table(df, cols_format, market, trade_date):
                 markdown_options={"html": True, "link_target": "_blank"},
                 fill_width=True,
                 editable=False,
+                cell_selectable=True,
+                selected_cells=[],
                 style_header={
                     "position": "sticky",
                     "top": "0",
