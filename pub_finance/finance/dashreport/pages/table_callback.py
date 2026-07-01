@@ -169,6 +169,7 @@ class TableCallback:
         def capture_all_cell(
             all_selected_list, all_table_id_list, all_viewport_data, is_loading
         ):
+            # Loading 全程拦截所有单元格操作，什么都不改
             if is_loading:
                 return dash.no_update
 
@@ -176,7 +177,6 @@ class TableCallback:
             if not triggered_id:
                 return dash.no_update
 
-            # 只处理 detail 和 trade 表格
             target_tables = ["detail", "trade"]
             if triggered_id.get("table") not in target_tables:
                 return dash.no_update
@@ -190,18 +190,22 @@ class TableCallback:
                 return dash.no_update
 
             selected_cells = all_selected_list[target_index]
-            viewport_data = all_viewport_data[target_index]  # 当前页数据
+            viewport_data = all_viewport_data[target_index]
             if not selected_cells or not viewport_data:
-                return dash.no_update
+                # 点击空白处，清空选中，隐藏按钮
+                return None
 
             cell = selected_cells[0]
             col_id = cell.get("column_id", "")
+
+            # ========== 关键改动 ==========
             if col_id != "NAME":
-                return dash.no_update
+                # 点击非NAME列，主动清空选中，触发按钮隐藏
+                return None
 
             row_idx = cell["row"]
             if row_idx >= len(viewport_data):
-                return dash.no_update
+                return None
 
             row = viewport_data[row_idx]
             symbol = row.get("SYMBOL_o", row.get("SYMBOL", ""))
@@ -218,28 +222,30 @@ class TableCallback:
 
         @app.callback(
             Output("global_btn_ai_summary", "style"),
-            Output("ai_summary_box", "children", allow_duplicate=True),
             Input("store_selected_cell_info", "data"),
+            Input("ai_is_loading", "data"),
             prevent_initial_call=True,
         )
-        def toggle_ai_button_show(cell_info):
-            default_text = (
-                "点击持仓表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要"
-            )
-            hide_style = {"display": "none", "margin": "12px 0 6px 0"}
+        def toggle_ai_button_show(cell_info, is_loading):
+            hide_style = {"display": "none"}
             show_style = {
                 "display": "inline-block",
-                "margin": "12px 0 6px 0",
-                "padding": "7px 18px",
                 "cursor": "pointer",
             }
 
+            # 条件1：AI加载中 → 强制隐藏按钮
+            if is_loading:
+                return hide_style
+
+            # 条件2：没有选中有效NAME单元格 → 隐藏按钮
             if cell_info is None:
-                return hide_style, default_text
-            return show_style, ""
+                return hide_style
+
+            # 选中合法NAME行 → 显示按钮
+            return show_style
 
         @app.callback(
-            Output("ai_summary_box", "children", allow_duplicate=True),
+            Output("ai_summary_text", "children", allow_duplicate=True),
             Output("ai_is_loading", "data", allow_duplicate=True),
             Output("ai_trigger", "data"),
             Input("global_btn_ai_summary", "n_clicks"),
@@ -249,10 +255,10 @@ class TableCallback:
         def start_ai(n_clicks, cell_info):
             if not n_clicks or not cell_info:
                 return "未选中有效NAME列单元格", False, 0
-            # 立即显示加载提示，设置 loading=True，递增触发器
-            loading_text = "⏳ AI 分析进行中，请稍候..."
-            trigger_value = n_clicks or 0  # 用点击次数作为触发器值
-            return loading_text, True, trigger_value
+
+            trigger_value = n_clicks or 0
+
+            return "智能分析中，请稍候...", True, trigger_value
 
         @app.callback(
             Output("ai_summary_box", "children", allow_duplicate=True),

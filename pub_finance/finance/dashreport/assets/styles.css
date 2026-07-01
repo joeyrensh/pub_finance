@@ -286,6 +286,11 @@ body {
     100% { width: 100%; }
 }
 
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* ==================== 布局与容器样式 ==================== */
 .page {
   position: relative;
@@ -1067,6 +1072,7 @@ a:active {
     color: var(--text-color);
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     font-size: 1.3rem;
+    font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
 }
 
 .ai-analysis-btn {
@@ -1074,15 +1080,16 @@ a:active {
     top: 15px;
     right: 8px;
     z-index: 10;
-    background: var(--date-bg-color);
+    background: var(--gridcolor);
     color: var(--text-color);
     border: none;
     border-radius: 3px;
-    padding: 2px 14px  !important;
+    padding: 2px 20px  !important;
     font-size: 1.3rem;
     transition: background 0.2s;
     line-height: 30px;
     margin-top: 25px !important;
+    font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
 }
 .ai-analysis-btn:hover {
     background: #4096ff;
