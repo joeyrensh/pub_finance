@@ -157,14 +157,12 @@ class TableCallback:
 
         @app.callback(
             Output("store_selected_cell_info", "data"),
-            Input(
-                {"type": "auto-table", "page": ALL, "table": "detail"}, "selected_cells"
-            ),
-            State({"type": "auto-table", "page": ALL, "table": "detail"}, "id"),
+            Input({"type": "auto-table", "page": ALL, "table": ALL}, "selected_cells"),
+            State({"type": "auto-table", "page": ALL, "table": ALL}, "id"),
             State(
-                {"type": "auto-table", "page": ALL, "table": "detail"},
+                {"type": "auto-table", "page": ALL, "table": ALL},
                 "derived_viewport_data",
-            ),  # 当前页数据
+            ),
             State("ai_is_loading", "data"),
             prevent_initial_call=True,
         )
@@ -176,6 +174,11 @@ class TableCallback:
 
             triggered_id = ctx.triggered_id
             if not triggered_id:
+                return dash.no_update
+
+            # 只处理 detail 和 trade 表格
+            target_tables = ["detail", "trade"]
+            if triggered_id.get("table") not in target_tables:
                 return dash.no_update
 
             target_index = None

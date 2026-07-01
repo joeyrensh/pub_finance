@@ -18,6 +18,7 @@ from finance.utility.tickerinfo import TickerInfo
 from finance import FINANCE_ROOT
 from finance.dashreport.data_loader import ReportDataLoader
 from threading import Lock
+from flask import session
 
 BACKTEST_LOCK = Lock()
 
@@ -1024,6 +1025,10 @@ class BacktestPage:
         )
 
     def get_layout(self):
+
+        role = session.get("role")
+        is_admin = role == "admin"
+        display_style = "block" if is_admin else "none"
         return html.Div(
             [
                 dcc.Store(id="backtest-data", data=None),
@@ -1038,6 +1043,44 @@ class BacktestPage:
                         self.build_trade_log_card(),
                     ],
                     className="sub_page",
+                ),
+                # 按钮与摘要容器同级，靠相对定位堆叠
+                html.Div(
+                    style={
+                        "position": "relative",
+                        "marginTop": "8px",
+                        "display": display_style,
+                    },
+                    children=[
+                        html.Button(
+                            "AI分析",
+                            id="global_btn_ai_summary",
+                            className="ai-analysis-btn",
+                            style={
+                                "display": "none",
+                                "cursor": "pointer",
+                            },
+                        ),
+                        dcc.Store(id="store_selected_cell_info", data=None),
+                        dcc.Store(id="ai_is_loading", data=False),
+                        dcc.Store(id="ai_trigger", data=0),
+                        dcc.Loading(
+                            id="loading_ai_summary_wrapper",
+                            type="circle",
+                            color="#119DFF",
+                            children=html.Div(
+                                id="ai_summary_box",
+                                className="ai-analysis-panel",
+                                style={
+                                    "minHeight": "80px",
+                                    "whiteSpace": "pre-wrap",
+                                    "width": "100%",
+                                    "lineHeight": "1.6",
+                                },
+                                children="点击持仓表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要",
+                            ),
+                        ),
+                    ],
                 ),
             ],
             className="page",
