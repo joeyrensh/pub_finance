@@ -311,7 +311,7 @@ class PageLayout:
                                     "width": "100%",
                                     "lineHeight": "1.6",
                                 },
-                                children="点击任意表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要",
+                                children="点击持仓表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要",
                             ),
                         ),
                     ],

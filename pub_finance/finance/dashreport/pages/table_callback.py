@@ -221,7 +221,7 @@ class TableCallback:
         )
         def toggle_ai_button_show(cell_info):
             default_text = (
-                "点击任意表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要"
+                "点击持仓表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要"
             )
             hide_style = {"display": "none", "margin": "12px 0 6px 0"}
             show_style = {
@@ -278,9 +278,9 @@ class TableCallback:
                     api_key=api_key,
                     base_url="https://ws-uaeaan6mql1ieioa.cn-beijing.maas.aliyuncs.com/compatible-mode/v1",
                 )
-                prompt = f"你是一名专业的股票分析师，请查询美股'{symbol}'最新财报信息，分析公司财务状况(包括营收增长，现金流等)，利好消息，管理层动作，100字以内。"
+                prompt = f"你是一名专业的股票分析师，请查询美股'{symbol}'最新财报信息，分析公司财务状况(包括营收增长，现金流等)，利好/利空消息，管理层动作，100字以内。"
                 response = client.responses.create(
-                    model="qwen3.7-plus",
+                    model="qwen3.7-max",
                     input=prompt,
                     tools=[
                         {"type": "web_search"},

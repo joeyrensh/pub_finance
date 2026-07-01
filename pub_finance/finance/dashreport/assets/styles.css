@@ -1061,7 +1061,7 @@ a:active {
 /* 仅局部样式，不污染全局 */
 .ai-analysis-panel {
     border: 1px solid var(--gridcolor);
-    border-radius: 6px;
+    /* border-radius: 6px; */
     padding: 2px;
     background: transparent;
     color: var(--text-color);
