@@ -1100,7 +1100,7 @@ class BacktestPage:
                                         "margin": 0,  # 清除 Dash 默认的边距干扰
                                     },
                                     children=html.Div(
-                                        id="ai_summary_text",
+                                        id="ai_summary_box",
                                         style={
                                             "padding": "10px",  # 顺便给文字加点内边距，更美观
                                             "width": "100%",

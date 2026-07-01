@@ -245,7 +245,7 @@ class TableCallback:
             return show_style
 
         @app.callback(
-            Output("ai_summary_text", "children", allow_duplicate=True),
+            Output("ai_summary_box", "children", allow_duplicate=True),
             Output("ai_is_loading", "data", allow_duplicate=True),
             Output("ai_trigger", "data"),
             Input("global_btn_ai_summary", "n_clicks"),
