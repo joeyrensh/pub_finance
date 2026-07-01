@@ -296,6 +296,8 @@ class PageLayout:
                             },
                         ),
                         dcc.Store(id="store_selected_cell_info", data=None),
+                        dcc.Store(id="ai_is_loading", data=False),
+                        dcc.Store(id="ai_trigger", data=0),
                         dcc.Loading(
                             id="loading_ai_summary_wrapper",
                             type="circle",

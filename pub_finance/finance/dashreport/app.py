@@ -501,22 +501,6 @@ def toggle_collapse(n_clicks, current_style, btn_content):
     return new_style, new_title
 
 
-@app.callback(
-    Output(
-        {"type": "auto-table-count", "table": MATCH},
-        "children",
-    ),
-    Input(
-        {"type": "auto-table", "table": MATCH},
-        "derived_virtual_indices",
-    ),
-)
-def update_row_count(indices):
-    if indices is None:
-        return "Total 0 Rows"
-    return f"Total {len(indices)} Rows"
-
-
 if __name__ == "__main__":
     app.run_server(
         host="0.0.0.0",

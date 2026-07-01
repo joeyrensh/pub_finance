@@ -63,7 +63,10 @@ def run_bt_task(stock_list, date_str, market):
                 pos_detail_df.to_dict("records") if not pos_detail_df.empty else []
             ),
             "h": [
-                hist_dict[sym].iloc[:-1].to_dict("records") if len(hist_dict[sym]) > 1 else [] for sym in stock_list
+                hist_dict[sym].iloc[:-1].to_dict("records")
+                if len(hist_dict[sym]) > 1
+                else []
+                for sym in stock_list
             ],
             "s": stock_list,
             "c": c,
@@ -757,7 +760,7 @@ class BacktestPage:
             df = df.drop(columns=["_order"])
             market = data.get("market", "cn")
             trade_date = get_default_date(market)
-            return make_dash_format_table(df, cols_format, market, trade_date)
+            return make_dash_format_table(df, cols_format, market, trade_date, "trade")
 
     # ---------- 布局构建 ----------
     def build_control_panel(self):

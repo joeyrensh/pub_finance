@@ -838,9 +838,6 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
         style_data_conditional.extend(
             discrete_background_color_bins(df, col, n_bins=10, positive_is_red=False)
         )
-    # import uuid
-
-    # table_key = str(uuid.uuid4())
 
     table_id = {
         "type": "auto-table",
@@ -850,6 +847,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
 
     count_id = {
         "type": "auto-table-count",
+        "page": market,
         "table": table_name,
     }
 
