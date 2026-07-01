@@ -1377,7 +1377,7 @@ a:active {
   }
 
   .ai-analysis-btn{
-    font-size: 1.1rem;
+    font-size: 1rem;
     padding: 2px 14px  !important;
     position: absolute;
     top: 12px !important;
@@ -1386,7 +1386,7 @@ a:active {
     margin-top: 35px !important
   }
   .ai-analysis-panel{
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
   
 }
