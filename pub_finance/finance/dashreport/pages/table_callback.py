@@ -284,7 +284,7 @@ class TableCallback:
                     input=prompt,
                     tools=[
                         {"type": "web_search"},
-                        {"type": "code_interpreter"},
+                        # {"type": "code_interpreter"},
                         {"type": "web_extractor"},
                     ],
                 )
