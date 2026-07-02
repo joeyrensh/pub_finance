@@ -739,9 +739,9 @@ a:active { color: lightgrey; text-decoration: underline; }
 }
 
 /* --- 日期组件覆盖 (Date Picker) --- */
-.dash-input {
+/* .dash-input {
   color: #000 !important;
-}
+} */
 
 .custom-date-picker .DateInput_input {
     height: 38px;
