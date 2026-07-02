@@ -896,8 +896,8 @@ a:active { color: lightgrey; text-decoration: underline; }
     height: 30px !important;
     margin-top: 0 !important;     
     z-index: 10;
-    background: var(--gridcolor);
-    color: var(--text-color);
+    background: var(--gridcolor) !important;
+    color: var(--text-color) !important;
     border: none;
     border-radius: 3px;
     padding: 0 20px !important;
