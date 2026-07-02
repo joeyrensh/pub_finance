@@ -308,6 +308,9 @@ class PageLayout:
                                 "width": "100%",
                                 "lineHeight": "1.6",
                                 "position": "relative",  # 确保外层是相对定位基准
+                                "display": "flex",
+                                "justifyContent": "center",
+                                "alignItems": "center",
                             },
                             children=[
                                 dcc.Loading(
@@ -316,29 +319,14 @@ class PageLayout:
                                     color="#119DFF",
                                     delay_hide=1000,
                                     # 1. 关键：parent_style 控制包裹文本的外壳，让它和文本框一样大
-                                    parent_style={
-                                        "position": "absolute",
-                                        "top": 0,
-                                        "left": 0,
-                                        "right": 0,
-                                        "bottom": 0,
-                                        "width": "100%",
-                                        "height": "100%",
-                                    },
+                                    parent_style={"width": "100%"},
                                     # 2. 关键：style 在这里不再控制外壳，而是直接精准控制【蓝色转圈动画本身】
-                                    style={
-                                        "position": "absolute",
-                                        "top": "50%",
-                                        "left": "50%",
-                                        "transform": "translate(-50%, -50%)",
-                                        "margin": 0,  # 清除 Dash 默认的边距干扰
-                                    },
+                                    style={},
                                     children=html.Div(
                                         id="ai_summary_box",
                                         style={
-                                            "padding": "10px",  # 顺便给文字加点内边距，更美观
                                             "width": "100%",
-                                            "height": "100%",
+                                            "height": "auto",
                                         },
                                         children="点击持仓表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要",
                                     ),
