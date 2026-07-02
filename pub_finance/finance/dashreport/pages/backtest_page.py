@@ -1048,7 +1048,6 @@ class BacktestPage:
                 html.Div(
                     style={
                         "position": "relative",
-                        "marginTop": "8px",
                         "display": display_style,
                     },
                     children=[

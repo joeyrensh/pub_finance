@@ -472,7 +472,7 @@ body {
 /* Dash表格样式 */
 .dash-spreadsheet-container {
   line-height: 1.0 !important;
-  padding-bottom: 20px !important;
+  /* padding-bottom: 20px !important; */
 }
 .table_custom {
   margin-top: -10px;
