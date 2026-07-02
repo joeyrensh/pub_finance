@@ -246,6 +246,7 @@ class TableCallback:
 
         @app.callback(
             Output("ai_summary_box", "children", allow_duplicate=True),
+            Output("ai_summary_loading_trigger", "children", allow_duplicate=True),
             Output("ai_is_loading", "data", allow_duplicate=True),
             Output("ai_trigger", "data"),
             Input("global_btn_ai_summary", "n_clicks"),
@@ -254,14 +255,15 @@ class TableCallback:
         )
         def start_ai(n_clicks, cell_info):
             if not n_clicks or not cell_info:
-                return "未选中有效NAME列单元格", False, 0
+                return "未选中有效NAME列单元格", None, False, 0
 
             trigger_value = n_clicks or 0
 
-            return "智能分析中，请稍候...", True, trigger_value
+            return "智能分析中，请稍候...", None, True, trigger_value
 
         @app.callback(
             Output("ai_summary_box", "children", allow_duplicate=True),
+            Output("ai_summary_loading_trigger", "children", allow_duplicate=True),
             Output("ai_is_loading", "data", allow_duplicate=True),
             Input("ai_trigger", "data"),
             State("store_selected_cell_info", "data"),
@@ -306,7 +308,7 @@ class TableCallback:
             summary_content = (
                 f"股票代码：{symbol} 股票名称：{name.strip('88+')} {ai_result}"
             )
-            return summary_content, False
+            return summary_content, None, False
 
         @app.callback(
             Output({"type": "auto-table-count", "page": ALL, "table": ALL}, "children"),

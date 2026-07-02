@@ -1076,19 +1076,25 @@ a:active {
 }
 
 .ai-analysis-btn {
-    position: absolute;
-    top: 15px;
-    right: 8px;
+    position: absolute !important;
+    bottom: 8px !important;
+    right: 8px !important;
+    
+    /* ─── 核心修复：强行锁死高度，防止其随容器扩展而变形拉伸 ─── */
+    top: auto !important;         
+    height: 30px !important;
+    margin-top: 0 !important;     
+    
+    
     z-index: 10;
     background: var(--gridcolor);
     color: var(--text-color);
     border: none;
     border-radius: 3px;
-    padding: 2px 20px  !important;
+    padding: 0 20px !important;
     font-size: 1.3rem;
     transition: background 0.2s;
     line-height: 30px;
-    margin-top: 25px !important;
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
 }
 .ai-analysis-btn:hover {
@@ -1097,6 +1103,7 @@ a:active {
 .ai-analysis-btn:active {
     background: #0958d9;
 }
+
 
 
 /* ==================== 响应式设计 ==================== */
@@ -1379,11 +1386,9 @@ a:active {
   .ai-analysis-btn{
     font-size: 1rem;
     padding: 2px 14px  !important;
-    position: absolute;
-    top: 12px !important;
-    right: 4px !important;
     line-height: 25px;
-    margin-top: 35px !important
+    bottom: 4px !important;
+    right: 4px !important;
   }
   .ai-analysis-panel{
     font-size: 1rem;
