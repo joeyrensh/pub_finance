@@ -287,7 +287,7 @@ class TableCallback:
                     api_key=api_key,
                     base_url="https://ws-uaeaan6mql1ieioa.cn-beijing.maas.aliyuncs.com/compatible-mode/v1",
                 )
-                prompt = f"你是一名专业的股票分析师，请查询美股'{symbol}'最新财报信息，分析公司财务状况(包括营收增长，现金流等)，主营业务，利好/利空消息，管理层动作，限制在100字左右，直接输出结论，无需思考过程。"
+                prompt = f"你是一名专业的股票分析师，请查询美股'{symbol}'最新财报信息，分析公司财务状况(包括营收增长，毛利，现金流等)，主营业务，利好/利空消息，管理层动作等。注：1、限制在150字以内. 2、直接输出结论，无需思考过程。3、无论股票是A股或美股，不需要特别提醒'是A股或美股市场'，直接分析即可。"
                 response = client.responses.create(
                     model="qwen3.7-max",
                     input=prompt,
@@ -296,7 +296,7 @@ class TableCallback:
                         # {"type": "code_interpreter"},
                         {"type": "web_extractor"},
                     ],
-                    max_output_tokens=1000,
+                    max_output_tokens=300,
                     extra_body={"enable_thinking": True},
                 )
                 ai_result = response.output_text.strip()
