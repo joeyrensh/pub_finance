@@ -1097,8 +1097,10 @@ a:active {
     line-height: 30px;
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
 }
-.ai-analysis-btn:hover {
-    background: #4096ff;
+@media (hover: hover) {
+    .ai-analysis-btn:hover {
+        background: #4096ff;
+    }
 }
 
 /* ==================== 响应式设计 ==================== */
