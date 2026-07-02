@@ -1065,12 +1065,12 @@ a:active {
 
 /* 仅局部样式，不污染全局 */
 .ai-analysis-panel {
-    border: 1px solid var(--gridcolor);
+    border: 1px solid var(--dash-table-border-color);
     /* border-radius: 6px; */
     padding: 2px;
     background: transparent;
     color: var(--text-color);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    /* box-shadow: 0 1px 3px rgba(0,0,0,0.06); */
     font-size: 1.3rem;
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
 }

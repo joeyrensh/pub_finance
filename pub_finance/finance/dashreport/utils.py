@@ -906,7 +906,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                     "backgroundColor": "transparent",
                 },
                 style_table={
-                    "paddingBottom": "20px",
+                    "paddingBottom": "20px" if table_name != "trade" else "2px",
                     "position": "relative",
                     # "display": "flex",
                     # "flexDirection": "column",
