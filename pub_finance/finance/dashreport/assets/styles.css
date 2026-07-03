@@ -909,7 +909,7 @@ a:active { color: lightgrey; text-decoration: underline; }
 
 @media (hover: hover) {
     .ai-analysis-btn:hover {
-        background: #4096ff;
+        background: #4096ff !important;
     }
 }
 
