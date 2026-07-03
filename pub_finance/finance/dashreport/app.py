@@ -17,6 +17,7 @@ from flask import session
 import os
 from datetime import timedelta
 from finance import FINANCE_ROOT
+from werkzeug.security import check_password_hash
 
 server = Flask(__name__)
 Compress(
@@ -252,7 +253,7 @@ def handle_login(n_clicks, username, password, auth_checked, current_pathname):
     # 1. 先检查超级管理员（superadmin 节）
     if config.has_section("superadmin"):
         for user, pwd in config.items("superadmin"):
-            if username == user and password == pwd:
+            if username == user and check_password_hash(pwd, password):
                 session.permanent = True
                 session["logged_in"] = True
                 session["role"] = "admin"
@@ -272,7 +273,7 @@ def handle_login(n_clicks, username, password, auth_checked, current_pathname):
     # 2. 再检查普通用户（credentials 节）
     if config.has_section("credentials"):
         for user, pwd in config.items("credentials"):
-            if username == user and password == pwd:
+            if username == user and check_password_hash(pwd, password):
                 session.permanent = True
                 session["logged_in"] = True
                 session["role"] = "user"
