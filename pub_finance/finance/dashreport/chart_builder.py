@@ -2235,7 +2235,7 @@ class ChartBuilder:
             linewidth=1,
             automargin=False,
             ticks="",  # 刻度线向内
-            range=[xmin - timedelta(days=0.5), xmax + timedelta(days=0.5)],
+            range=[xmin - timedelta(days=0.5), xmax + timedelta(days=2)],
             zeroline=False,
         )
 
