@@ -473,8 +473,8 @@ table.tiny-header tr:first-child { font-size: 8px; }
     word-break: normal !important;
     overflow: visible !important;
     z-index: 99999 !important;
-    background: var(--background-color) !important;
-    color: var(--hover-text-color) !important;
+    background: var(--gridcolor) !important;
+    color: var(--text-color) !important;
     border: 0.1px solid var(--gridcolor);
     font-size: inherit !important;
     transform: none !important;
