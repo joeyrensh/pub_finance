@@ -10,7 +10,7 @@ class KpiCallback:
         注册 KPI 更新回调，直接加载数据并生成卡片。
         """
 
-        @app.callback(
+        @callback(
             Output({"type": "kpi-container", "page": MATCH}, "children"),
             Input("current-theme", "data"),
             Input({"type": "kpi-container", "page": MATCH}, "id"),
@@ -57,8 +57,8 @@ class KpiCallback:
             # 构建 KPI 卡片
             kpis = [
                 ("SWDI", swdi),
-                ("ASSETS", f"{final_value/10000:,.2f} 万"),
-                ("CASH", f"{cash/10000:,.2f} 万"),
+                ("ASSETS", f"{final_value / 10000:,.2f} 万"),
+                ("CASH", f"{cash / 10000:,.2f} 万"),
                 ("SHARES", f"{stock_cnt}"),
                 ("DATE", end_date),
             ]

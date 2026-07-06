@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """回测分析页面 - 异步轮询版（单任务，30秒轮询，页面刷新状态恢复）"""
 
-from dash import dcc, html, Input, Output, State
+from dash import dcc, html, Input, Output, State, callback, no_update, callback_context
 import dash_bootstrap_components as dbc
-import dash
 import pandas as pd
 from datetime import datetime
 import multiprocessing
 from multiprocessing import Manager
-import uuid
 
 from finance.dashreport.chart_builder import ChartBuilder
 from finance.dashreport.utils import Header, make_dash_format_table
@@ -212,7 +210,7 @@ class BacktestPage:
 
     def register_callbacks(self):
         # ---------- 1. 初始化日期 ----------
-        @self.app.callback(
+        @callback(
             Output("backtest-date", "date"),
             Input("backtest-market", "value"),
             prevent_initial_call=False,
@@ -224,7 +222,7 @@ class BacktestPage:
             return None
 
         # ---------- 2. 加载股票列表 ----------
-        @self.app.callback(
+        @callback(
             [
                 Output("backtest-stocks", "value"),
                 Output("backtest-full-list", "data"),
@@ -317,7 +315,7 @@ class BacktestPage:
             return ",".join(current_stocks), symbols, 0, button_text
 
         # ---------- 3. 分页翻页 ----------
-        @self.app.callback(
+        @callback(
             [
                 Output("backtest-stocks", "value", allow_duplicate=True),
                 Output("backtest-page", "data", allow_duplicate=True),
@@ -333,7 +331,7 @@ class BacktestPage:
             prevent_initial_call=True,
         )
         def refresh_stocks(n_clicks, next_clicks, prev_clicks, full_list, current_page):
-            ctx = dash.callback_context
+            ctx = callback_context
             trigger = (
                 ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
             )
@@ -359,7 +357,7 @@ class BacktestPage:
             return ",".join(current_stocks), next_page, button_text
 
         # ---------- 4. 页面刷新恢复状态（单次触发）----------
-        @self.app.callback(
+        @callback(
             [
                 Output("backtest-task-id", "data"),
                 Output("backtest-run", "disabled"),
@@ -434,7 +432,7 @@ class BacktestPage:
             )
 
         # ---------- 5. 提交回测任务 ----------
-        @self.app.callback(
+        @callback(
             [
                 Output("backtest-task-id", "data", allow_duplicate=True),
                 Output("backtest-run", "disabled", allow_duplicate=True),
@@ -455,13 +453,13 @@ class BacktestPage:
         def submit_backtest(n_clicks, market, date, stocks):
             if not n_clicks or not stocks:
                 return (
-                    dash.no_update,
-                    dash.no_update,
-                    dash.no_update,
-                    dash.no_update,
-                    dash.no_update,
-                    dash.no_update,
-                    dash.no_update,
+                    no_update,
+                    no_update,
+                    no_update,
+                    no_update,
+                    no_update,
+                    no_update,
+                    no_update,
                 )
             # 防御：如果锁被占用但任务状态不是 running，强制释放锁
             if BACKTEST_LOCK.locked() and task_state.get("status") != "running":
@@ -525,7 +523,7 @@ class BacktestPage:
                 )
 
         # ---------- 6. 轮询任务状态（30秒）----------
-        @self.app.callback(
+        @callback(
             [
                 Output("backtest-data", "data", allow_duplicate=True),
                 Output("backtest-status", "children", allow_duplicate=True),
@@ -550,12 +548,12 @@ class BacktestPage:
                     "btn btn-primary kpi-label progress-btn",
                     {"display": "none"},
                     True,
-                    dash.no_update,
+                    no_update,
                 )
             status = task_state.get("status", "idle")
             if status == "running":
                 # 任务未完成：无需更新任何前端组件（提示文本保持不变）
-                return [dash.no_update] * 8
+                return [no_update] * 8
             elif status == "done":
                 result = task_state.get("result")
                 if result:
@@ -596,11 +594,11 @@ class BacktestPage:
                 "btn btn-primary kpi-label progress-btn",
                 {"display": "none"},
                 True,
-                dash.no_update,
+                no_update,
             )
 
         # ---------- 7. 收益与回撤图表 ----------
-        @self.app.callback(
+        @callback(
             Output("backtest-pnl-chart", "children"),
             Input("backtest-data", "data"),
             Input("current-theme", "data"),
@@ -636,7 +634,7 @@ class BacktestPage:
                 mathjax=True,
             )
 
-        @self.app.callback(
+        @callback(
             Output("backtest-kline-charts", "children"),
             Input("backtest-data", "data"),
             Input("current-theme", "data"),
@@ -708,7 +706,7 @@ class BacktestPage:
             )
 
         # ---------- 9. 交易记录 ----------
-        @self.app.callback(
+        @callback(
             Output("backtest-trade-table", "children"),
             Input("backtest-data", "data"),
             Input("current-theme", "data"),

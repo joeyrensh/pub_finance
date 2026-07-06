@@ -2,8 +2,7 @@
 修正版：单个通用回调 + DataLoader 驱动
 """
 
-from dash import Output, Input, MATCH
-import dash
+from dash import Output, Input, MATCH, callback, no_update
 import plotly.graph_objects as go
 from finance.dashreport.data_loader import ReportDataLoader
 
@@ -119,7 +118,7 @@ class ChartCallback:
         if self._callback_registered:
             return
 
-        @app.callback(
+        @callback(
             Output(
                 {
                     "type": "dynamic-chart",
@@ -149,7 +148,7 @@ class ChartCallback:
 
             key = f"{chart_type}_{page}_{index}"
             if key not in self._charts:
-                return dash.no_update
+                return no_update
 
             info = self._charts[key]
             builder = info["builder"]
@@ -275,11 +274,11 @@ class ChartCallback:
                     )
 
                 else:
-                    return dash.no_update
+                    return no_update
 
                 return fig
             except Exception as e:
                 print(f"⚠️ 图表生成失败 {key}: {e}")
-                return dash.no_update
+                return no_update
 
         self._callback_registered = True

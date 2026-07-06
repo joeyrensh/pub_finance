@@ -1,8 +1,6 @@
 # finance/dashreport/table_callback.py
 
 from dash import callback, Output, Input, MATCH, html, State, no_update, ctx, ALL
-import dash
-import time
 from finance.dashreport.data_loader import ReportDataLoader
 from finance.dashreport.utils import Header, make_dash_format_table
 import threading
@@ -40,7 +38,7 @@ class TableCallback:
         if self._callback_registered:
             return
 
-        @app.callback(
+        @callback(
             Output(
                 {
                     "type": "dynamic-table",
@@ -75,7 +73,7 @@ class TableCallback:
                 elif table_name == "cn_etf":
                     datasets = ("overall", "cn_etf")
                 else:
-                    return dash.no_update
+                    return no_update
 
                 data = ReportDataLoader.load(
                     prefix=prefix,
@@ -159,14 +157,14 @@ class TableCallback:
 
             except Exception as e:
                 print(f"⚠️ Table render error [{table_name}]: {e}")
-                return dash.no_update
+                return no_update
 
-            return dash.no_update
+            return no_update
 
         def register_table_ai_callback(app, table_type):
             """为指定类型的表格创建并注册专用的 AI 摘要抓取回调"""
 
-            @app.callback(
+            @callback(
                 Output("store_selected_cell_info", "data", allow_duplicate=True),
                 Input(
                     {"type": "auto-table", "page": ALL, "table": table_type},
@@ -183,17 +181,17 @@ class TableCallback:
             def _capture_cell(
                 all_selected_list, all_table_id_list, all_virtual_data, is_loading
             ):
-                if is_loading or not dash.ctx.triggered_id:
-                    return dash.no_update
+                if is_loading or not ctx.triggered_id:
+                    return no_update
 
                 # 物理下标单点切片，绝不全量循环
-                triggered_id = dash.ctx.triggered_id
+                triggered_id = ctx.triggered_id
                 try:
                     idx = all_table_id_list.index(triggered_id)
                     selected_cells = all_selected_list[idx]
                     virtual_data = all_virtual_data[idx]
                 except (ValueError, IndexError):
-                    return dash.no_update
+                    return no_update
 
                 if not selected_cells or not virtual_data:
                     return None
@@ -217,7 +215,7 @@ class TableCallback:
 
         [register_table_ai_callback(app, t) for t in ["detail", "trade"]]
 
-        @app.callback(
+        @callback(
             Output("global_btn_ai_summary", "style"),
             Input("store_selected_cell_info", "data"),
             Input("ai_is_loading", "data"),
@@ -241,7 +239,7 @@ class TableCallback:
             # 选中合法NAME行 → 显示按钮
             return show_style
 
-        @app.callback(
+        @callback(
             Output("ai_summary_box", "children", allow_duplicate=True),
             Output("ai_summary_loading_trigger", "children", allow_duplicate=True),
             Output("ai_is_loading", "data", allow_duplicate=True),
@@ -314,7 +312,7 @@ class TableCallback:
 
             return "智能分析中，请稍候...", None, True, 0, False
 
-        @app.callback(
+        @callback(
             Output("ai_summary_box", "children", allow_duplicate=True),
             Output("ai_summary_loading_trigger", "children", allow_duplicate=True),
             Output("ai_is_loading", "data", allow_duplicate=True),
@@ -324,8 +322,8 @@ class TableCallback:
             prevent_initial_call=True,
         )
         def poll_ai_status(n_intervals, cell_info):
-            if not cell_info or not dash.ctx.triggered_id:
-                return dash.no_update, dash.no_update, dash.no_update, dash.no_update
+            if not cell_info or not ctx.triggered_id:
+                return no_update, no_update, no_update, no_update
 
             task_key = f"{cell_info.get('symbol', '')}"
 
@@ -336,7 +334,7 @@ class TableCallback:
                 if n_intervals > 120:  # 超时控制
                     return "⚠️ 分析超时，请确认网络并重试。", None, False, True
 
-                return dash.no_update, dash.no_update, dash.no_update, dash.no_update
+                return no_update, no_update, no_update, no_update
 
             if task_data.get("status") == "success":
                 final_text = task_data.get("result", "未获取到有效内容")
@@ -346,9 +344,9 @@ class TableCallback:
 
                 return final_text, None, False, True
 
-            return dash.no_update
+            return no_update
 
-        @app.callback(
+        @callback(
             Output({"type": "auto-table-count", "page": ALL, "table": ALL}, "children"),
             Input(
                 {"type": "auto-table", "page": ALL, "table": ALL},
