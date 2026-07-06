@@ -324,8 +324,8 @@ class TableCallback:
             prevent_initial_call=True,
         )
         def poll_ai_status(n_intervals, cell_info):
-            if not cell_info:
-                return "请选择股票", None, False, True
+            if not cell_info or not dash.ctx.triggered_id:
+                return dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
             task_key = f"{cell_info.get('symbol', '')}"
 
