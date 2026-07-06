@@ -344,7 +344,7 @@ class TableCallback:
                 task_data = AI_TASK_CACHE.get(task_key)
 
             if not task_data or task_data.get("status") == "loading":
-                if n_intervals > 60:  # 超时控制
+                if n_intervals > 120:  # 超时控制
                     return "⚠️ 分析超时，请确认网络并重试。", None, False, True
 
                 return "智能分析中，请稍候...", None, True, False

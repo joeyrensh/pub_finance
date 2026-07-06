@@ -292,7 +292,7 @@ class PageLayout:
                             id="loading_ai_summary_wrapper",
                             type="circle",
                             color="#119DFF",
-                            delay_hide=1000,
+                            delay_hide=2000,
                             parent_style={"display": "contents"},
                             style={"position": "static", "transform": "none"},
                             children=html.Div(id="ai_summary_loading_trigger"),
