@@ -202,7 +202,7 @@ li::before {
   position: relative;
   height: 15%;
   padding: 10px;
-  margin-bottom: 5px;
+  /* margin-bottom: 5px; */
   color: #FF4136;
   font-size: 1.4rem;
   filter: contrast(105%) saturate(105%);
