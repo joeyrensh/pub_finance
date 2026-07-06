@@ -5,6 +5,14 @@ import dash
 import time
 from finance.dashreport.data_loader import ReportDataLoader
 from finance.dashreport.utils import Header, make_dash_format_table
+import threading
+import os
+from openai import OpenAI
+from dotenv import load_dotenv
+import httpx
+
+AI_TASK_CACHE = {}
+cache_lock = threading.Lock()
 
 
 class TableCallback:
@@ -248,76 +256,108 @@ class TableCallback:
             Output("ai_summary_box", "children", allow_duplicate=True),
             Output("ai_summary_loading_trigger", "children", allow_duplicate=True),
             Output("ai_is_loading", "data", allow_duplicate=True),
-            Output("ai_trigger", "data"),
+            Output("ai_polling_timer", "n_intervals"),
+            Output("ai_polling_timer", "disabled", allow_duplicate=True),
             Input("global_btn_ai_summary", "n_clicks"),
             State("store_selected_cell_info", "data"),
             prevent_initial_call=True,
         )
         def start_ai(n_clicks, cell_info):
             if not n_clicks or not cell_info:
-                return "未选中有效NAME列单元格", None, False, 0
+                return "未选中有效NAME列单元格", None, False, 0, True
 
-            trigger_value = n_clicks or 0
+            symbol = cell_info.get("symbol", "")
+            name = cell_info.get("name", "")
+            task_key = f"{symbol}"
 
-            return "智能分析中，请稍候...", None, True, trigger_value
+            # 使用线程锁安全地写入初始化状态
+            with cache_lock:
+                AI_TASK_CACHE[task_key] = {"status": "loading", "result": None}
+
+            def async_openai_worker(sym, nm, key):
+                load_dotenv()
+                try:
+                    # 设定 20 秒超时
+                    http_client = httpx.Client(timeout=120)
+                    client = OpenAI(
+                        api_key=os.getenv("API_KEY"),
+                        base_url="https://ws-uaeaan6mql1ieioa.cn-beijing.maas.aliyuncs.com/compatible-mode/v1",
+                        http_client=http_client,
+                    )
+                    prompt = (
+                        f"你是专业股票分析师，联网检索股票{sym}最新财报与近期资讯。\n"
+                        f"请在 150 字以内直接输出针对该股的专业投资结论，严禁包含任何思考过程或客套引导语。\n\n"
+                        f"【核心分析要点】\n"
+                        f"1. 财务状况（营收增速、毛利、现金流关键特征）\n"
+                        f"2. 主营业务与行业排名/竞争力\n"
+                        f"3. 核心多空因素（利好/利空/管理层核心动向）\n\n"
+                        f"硬性红线（严格执行）：全文严禁出现A股、美股等任何市场归属描述，全程只分析企业经营基本面。"
+                    )
+                    response = client.responses.create(
+                        model="qwen3.7-max",
+                        input=prompt,
+                        tools=[{"type": "web_search"}, {"type": "web_extractor"}],
+                        max_output_tokens=300,
+                        extra_body={"enable_thinking": True},
+                    )
+                    ai_result = response.output_text.strip()
+                except httpx.TimeoutException:
+                    ai_result = "大模型联网检索检索超时，请稍后重试。"
+                except Exception as e:
+                    ai_result = f"AI分析调用异常：{str(e)}"
+                finally:
+                    if "http_client" in locals():
+                        http_client.close()
+
+                # 计算完毕，使用线程锁安全地更新结果
+                with cache_lock:
+                    AI_TASK_CACHE[key] = {
+                        "status": "success",
+                        "result": f"股票代码：{sym} 股票名称：{nm.strip('88+')} {ai_result}",
+                    }
+
+            # 异步启动
+            thread = threading.Thread(
+                target=async_openai_worker, args=(symbol, name, task_key)
+            )
+            thread.daemon = True
+            thread.start()
+
+            return "智能分析中，请稍候...", None, True, 0, False
 
         @app.callback(
             Output("ai_summary_box", "children", allow_duplicate=True),
             Output("ai_summary_loading_trigger", "children", allow_duplicate=True),
             Output("ai_is_loading", "data", allow_duplicate=True),
-            Input("ai_trigger", "data"),
+            Output("ai_polling_timer", "disabled", allow_duplicate=True),
+            Input("ai_polling_timer", "n_intervals"),
             State("store_selected_cell_info", "data"),
             prevent_initial_call=True,
         )
-        def execute_ai(trigger, cell_info):
-            if not trigger or not cell_info:
-                return "请选择股票", False
+        def poll_ai_status(n_intervals, cell_info):
+            if not cell_info:
+                return "请选择股票", None, False, True
 
-            symbol = cell_info.get("symbol", "")
-            name = cell_info.get("name", "")
+            task_key = f"{cell_info.get('symbol', '')}"
 
-            # ---------- 执行 AI 调用（直接使用 symbol 和 name） ----------
-            import os
-            from openai import OpenAI
-            from dotenv import load_dotenv
+            with cache_lock:
+                task_data = AI_TASK_CACHE.get(task_key)
 
-            load_dotenv()
-            api_key = os.getenv("API_KEY")
-            ai_result = ""
-            try:
-                client = OpenAI(
-                    api_key=api_key,
-                    base_url="https://ws-uaeaan6mql1ieioa.cn-beijing.maas.aliyuncs.com/compatible-mode/v1",
-                )
-                prompt = (
-                    f"你是专业股票分析师，联网检索股票{symbol}最新财报与近期资讯。\n"
-                    f"请在 150 字以内直接输出针对该股的专业投资结论，严禁包含任何思考过程或客套引导语。\n\n"
-                    f"【核心分析要点】\n"
-                    f"1. 财务状况（营收增速、毛利、现金流关键特征）\n"
-                    f"2. 主营业务与行业排名/竞争力\n"
-                    f"3. 核心多空因素（利好/利空/管理层核心动向）\n\n"
-                    f"硬性红线（严格执行）：全文严禁出现A股、美股、中国市场、美国市场、沪深、纳斯达克、纽交所等任何市场归属描述，"
-                    f"不要补充该股票所属市场相关注释、说明、备注，全程只分析企业经营基本面。"
-                )
-                response = client.responses.create(
-                    model="qwen3.7-max",
-                    input=prompt,
-                    tools=[
-                        {"type": "web_search"},
-                        # {"type": "code_interpreter"},
-                        {"type": "web_extractor"},
-                    ],
-                    max_output_tokens=300,
-                    extra_body={"enable_thinking": True},
-                )
-                ai_result = response.output_text.strip()
-            except Exception as e:
-                ai_result = f"AI分析调用异常：{str(e)}"
+            if not task_data or task_data.get("status") == "loading":
+                if n_intervals > 60:  # 超时控制
+                    return "⚠️ 分析超时，请确认网络并重试。", None, False, True
 
-            summary_content = (
-                f"股票代码：{symbol} 股票名称：{name.strip('88+')} {ai_result}"
-            )
-            return summary_content, None, False
+                return "智能分析中，请稍候...", None, True, False
+
+            if task_data.get("status") == "success":
+                final_text = task_data.get("result", "未获取到有效内容")
+
+                with cache_lock:
+                    AI_TASK_CACHE.pop(task_key, None)
+
+                return final_text, None, False, True
+
+            return dash.no_update
 
         @app.callback(
             Output({"type": "auto-table-count", "page": ALL, "table": ALL}, "children"),

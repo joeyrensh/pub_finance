@@ -312,6 +312,12 @@ class PageLayout:
                 dcc.Store(id="store_selected_cell_info", data=None),
                 dcc.Store(id="ai_is_loading", data=False),
                 dcc.Store(id="ai_trigger", data=0),
+                dcc.Interval(
+                    id="ai_polling_timer",
+                    interval=2000,
+                    n_intervals=0,
+                    disabled=True,  # 默认静默
+                ),
                 # ─── 3. 纯净文本框外层：普通文档流，天然向上对齐 ───
                 html.Div(
                     id="ai_summary_container",
@@ -325,11 +331,11 @@ class PageLayout:
                     },
                     children=[
                         html.Div(
-                            id="ai_summary_box",  # Callback 正常绑定渲染文本
+                            id="ai_summary_box",
                             style={
                                 "width": "100%",
                                 "height": "auto",
-                                "display": "block",  # 块级流，天然向上对齐
+                                "display": "block",
                             },
                             children="点击持仓表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要",
                         ),
