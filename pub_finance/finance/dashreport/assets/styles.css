@@ -885,7 +885,7 @@ a:active { color: lightgrey; text-decoration: underline; }
     color: var(--text-color);
     font-size: 1.3rem;
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
 }
 
 .ai-analysis-btn {
@@ -1361,7 +1361,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .ai-analysis-panel {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 }
 

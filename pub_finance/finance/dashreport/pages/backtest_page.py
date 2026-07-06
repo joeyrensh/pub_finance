@@ -1026,9 +1026,83 @@ class BacktestPage:
 
     def get_layout(self):
 
+        # 2. 权限与样式定义
         role = session.get("role")
         is_admin = role == "admin"
         display_style = "block" if is_admin else "none"
+
+        # 3. 构建 AI 分析文本框容器
+        ai_summary_section = html.Div(
+            style={
+                "position": "relative",
+                "display": display_style,  # 仅限 admin 显示，控制整个容器
+                "marginBottom": "20px",  # 与下方内容保持间距
+            },
+            children=[
+                # ─── 1. 独立动画层：绝对定位拉满，用 Flex 让转圈绝对居中 ───
+                html.Div(
+                    style={
+                        "position": "absolute",
+                        "top": 0,
+                        "left": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "display": "flex",
+                        "justifyContent": "center",
+                        "alignItems": "center",
+                        "zIndex": 20,
+                        "pointerEvents": "none",
+                    },
+                    children=[
+                        dcc.Loading(
+                            id="loading_ai_summary_wrapper",
+                            type="circle",
+                            color="#119DFF",
+                            delay_hide=1000,
+                            parent_style={"display": "contents"},
+                            style={"position": "static", "transform": "none"},
+                            children=html.Div(id="ai_summary_loading_trigger"),
+                        ),
+                    ],
+                ),
+                # ─── 2. 按钮：绝对定位跟随右下角 ───
+                html.Button(
+                    "AI分析",
+                    id="global_btn_ai_summary",
+                    className="ai-analysis-btn",
+                    style={
+                        "display": "none",
+                        "cursor": "pointer",
+                    },
+                ),
+                dcc.Store(id="store_selected_cell_info", data=None),
+                dcc.Store(id="ai_is_loading", data=False),
+                dcc.Store(id="ai_trigger", data=0),
+                # ─── 3. 纯净文本框外层：普通文档流，天然向上对齐 ───
+                html.Div(
+                    id="ai_summary_container",
+                    className="ai-analysis-panel",
+                    style={
+                        "minHeight": "80px",
+                        "height": "auto",  # 随内容垂直自动扩展高度
+                        "whiteSpace": "pre-wrap",
+                        "width": "100%",
+                        "lineHeight": "1.6",
+                    },
+                    children=[
+                        html.Div(
+                            id="ai_summary_box",  # Callback 正常绑定渲染文本
+                            style={
+                                "width": "100%",
+                                "height": "auto",
+                                "display": "block",  # 块级流，天然向上对齐
+                            },
+                            children="点击持仓表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要",
+                        ),
+                    ],
+                ),
+            ],
+        )
         return html.Div(
             [
                 dcc.Store(id="backtest-data", data=None),
@@ -1041,79 +1115,9 @@ class BacktestPage:
                         self.build_annual_return_card(),
                         self.build_kline_card(),
                         self.build_trade_log_card(),
+                        ai_summary_section,
                     ],
                     className="sub_page",
-                ),
-                # 按钮与摘要容器同级，靠相对定位堆叠
-                html.Div(
-                    style={
-                        "position": "relative",
-                        "display": display_style,
-                    },
-                    children=[
-                        # ─── 1. 独立动画层：绝对定位拉满，用 Flex 让转圈绝对居中 ───
-                        html.Div(
-                            style={
-                                "position": "absolute",
-                                "top": 0,
-                                "left": 0,
-                                "right": 0,
-                                "bottom": 0,
-                                "display": "flex",
-                                "justifyContent": "center",
-                                "alignItems": "center",
-                                "zIndex": 20,
-                                "pointerEvents": "none",
-                            },
-                            children=[
-                                dcc.Loading(
-                                    id="loading_ai_summary_wrapper",
-                                    type="circle",
-                                    color="#119DFF",
-                                    delay_hide=1000,
-                                    parent_style={"display": "contents"},
-                                    style={"position": "static", "transform": "none"},
-                                    children=html.Div(id="ai_summary_loading_trigger"),
-                                ),
-                            ],
-                        ),
-                        # ─── 2. 按钮：绝对定位跟随右下角 ───
-                        html.Button(
-                            "AI分析",
-                            id="global_btn_ai_summary",
-                            className="ai-analysis-btn",
-                            style={
-                                "display": "none",
-                                "cursor": "pointer",
-                            },
-                        ),
-                        dcc.Store(id="store_selected_cell_info", data=None),
-                        dcc.Store(id="ai_is_loading", data=False),
-                        dcc.Store(id="ai_trigger", data=0),
-                        # ─── 3. 纯净文本框外层：普通文档流，天然向上对齐 ───
-                        html.Div(
-                            id="ai_summary_container",
-                            className="ai-analysis-panel",
-                            style={
-                                "minHeight": "80px",
-                                "height": "auto",  # 随内容垂直自动扩展高度
-                                "whiteSpace": "pre-wrap",
-                                "width": "100%",
-                                "lineHeight": "1.6",
-                            },
-                            children=[
-                                html.Div(
-                                    id="ai_summary_box",  # Callback 正常绑定渲染文本
-                                    style={
-                                        "width": "100%",
-                                        "height": "auto",
-                                        "display": "block",  # 块级流，天然向上对齐
-                                    },
-                                    children="点击持仓表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要",
-                                ),
-                            ],
-                        ),
-                    ],
                 ),
             ],
             className="page",

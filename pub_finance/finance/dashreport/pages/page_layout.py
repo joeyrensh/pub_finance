@@ -254,100 +254,114 @@ class PageLayout:
             pair = enabled_half_cards[i : i + 2]
             dynamic_half_rows.append(html.Div(pair, className="row"))
 
-        # 5. 表格
-        table_cards = []
+        # 1. 区分生成表格卡片，并保留其 key 映射
+        table_cards_dict = {}
         for i, t in enumerate(self.show_tables):
-            table_cards.append(
-                self.build_table_card(t, is_last=(i == len(self.show_tables) - 1))
-            )
+            # t 通常是 "detail", "category" 等字符串（若 t 是对象，请改用 t.key 或对应属性）
+            card = self.build_table_card(t, is_last=(i == len(self.show_tables) - 1))
+            table_cards_dict[t] = card
 
+        # 2. 权限与样式定义
         role = session.get("role")
         is_admin = role == "admin"
         display_style = "block" if is_admin else "none"
 
-        # 最终布局
+        # 3. 构建 AI 分析文本框容器
+        ai_summary_section = html.Div(
+            style={
+                "position": "relative",
+                "display": display_style,  # 仅限 admin 显示，控制整个容器
+            },
+            children=[
+                # ─── 1. 独立动画层：绝对定位拉满，用 Flex 让转圈绝对居中 ───
+                html.Div(
+                    style={
+                        "position": "absolute",
+                        "top": 0,
+                        "left": 0,
+                        "right": 0,
+                        "bottom": 0,
+                        "display": "flex",
+                        "justifyContent": "center",
+                        "alignItems": "center",
+                        "zIndex": 20,
+                        "pointerEvents": "none",
+                    },
+                    children=[
+                        dcc.Loading(
+                            id="loading_ai_summary_wrapper",
+                            type="circle",
+                            color="#119DFF",
+                            delay_hide=1000,
+                            parent_style={"display": "contents"},
+                            style={"position": "static", "transform": "none"},
+                            children=html.Div(id="ai_summary_loading_trigger"),
+                        ),
+                    ],
+                ),
+                # ─── 2. 按钮：绝对定位跟随右下角 ───
+                html.Button(
+                    "AI分析",
+                    id="global_btn_ai_summary",
+                    className="ai-analysis-btn",
+                    style={
+                        "display": "none",
+                        "cursor": "pointer",
+                    },
+                ),
+                dcc.Store(id="store_selected_cell_info", data=None),
+                dcc.Store(id="ai_is_loading", data=False),
+                dcc.Store(id="ai_trigger", data=0),
+                # ─── 3. 纯净文本框外层：普通文档流，天然向上对齐 ───
+                html.Div(
+                    id="ai_summary_container",
+                    className="ai-analysis-panel",
+                    style={
+                        "minHeight": "80px",
+                        "height": "auto",  # 随内容垂直自动扩展高度
+                        "whiteSpace": "pre-wrap",
+                        "width": "100%",
+                        "lineHeight": "1.6",
+                    },
+                    children=[
+                        html.Div(
+                            id="ai_summary_box",  # Callback 正常绑定渲染文本
+                            style={
+                                "width": "100%",
+                                "height": "auto",
+                                "display": "block",  # 块级流，天然向上对齐
+                            },
+                            children="点击持仓表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要",
+                        ),
+                    ],
+                ),
+            ],
+        )
+
+        # 4. 核心：动态组装 sub_page 内部的组件流
+        # 基础卡片流（KPI + 收益率）
+        sub_page_children = [kpi_section, annual_return_card] + dynamic_half_rows
+
+        # 遍历原始 show_tables 列表，保证 category, detail 等完全按照你原定的顺序插入
+        last_table_type = self.show_tables[-1] if self.show_tables else None
+        if last_table_type == "detail":
+            ai_summary_section.style.update({"marginBottom": "20px"})
+        for t in self.show_tables:
+            if t in table_cards_dict:
+                # 放入当前表格卡片
+                sub_page_children.append(table_cards_dict[t])
+
+                # 【核心逻辑】只要当前渲染的是 detail 表格，紧接着就把 AI 文本框插在它后面
+                if t == "detail":
+                    sub_page_children.append(ai_summary_section)
+
+        # 5. 最终页面整体布局输出
         return html.Div(
             [
                 Header(self.app),
                 html.Div(
-                    [
-                        kpi_section,
-                        annual_return_card,
-                    ]
-                    + dynamic_half_rows
-                    + table_cards,
+                    sub_page_children,
                     className="sub_page",
-                ),
-                # 按钮与摘要容器同级，靠相对定位堆叠
-                html.Div(
-                    style={
-                        "position": "relative",
-                        "display": display_style,
-                    },
-                    children=[
-                        # ─── 1. 独立动画层：绝对定位拉满，用 Flex 让转圈绝对居中 ───
-                        html.Div(
-                            style={
-                                "position": "absolute",
-                                "top": 0,
-                                "left": 0,
-                                "right": 0,
-                                "bottom": 0,
-                                "display": "flex",
-                                "justifyContent": "center",
-                                "alignItems": "center",
-                                "zIndex": 20,
-                                "pointerEvents": "none",
-                            },
-                            children=[
-                                dcc.Loading(
-                                    id="loading_ai_summary_wrapper",
-                                    type="circle",
-                                    color="#119DFF",
-                                    delay_hide=1000,
-                                    parent_style={"display": "contents"},
-                                    style={"position": "static", "transform": "none"},
-                                    children=html.Div(id="ai_summary_loading_trigger"),
-                                ),
-                            ],
-                        ),
-                        # ─── 2. 按钮：绝对定位跟随右下角 ───
-                        html.Button(
-                            "AI分析",
-                            id="global_btn_ai_summary",
-                            className="ai-analysis-btn",
-                            style={
-                                "display": "none",
-                                "cursor": "pointer",
-                            },
-                        ),
-                        dcc.Store(id="store_selected_cell_info", data=None),
-                        dcc.Store(id="ai_is_loading", data=False),
-                        dcc.Store(id="ai_trigger", data=0),
-                        # ─── 3. 纯净文本框外层：普通文档流，天然向上对齐 ───
-                        html.Div(
-                            id="ai_summary_container",
-                            className="ai-analysis-panel",
-                            style={
-                                "minHeight": "80px",
-                                "height": "auto",  # 随内容垂直自动扩展高度
-                                "whiteSpace": "pre-wrap",
-                                "width": "100%",
-                                "lineHeight": "1.6",
-                            },
-                            children=[
-                                html.Div(
-                                    id="ai_summary_box",  # Callback 正常绑定渲染文本
-                                    style={
-                                        "width": "100%",
-                                        "height": "auto",
-                                        "display": "block",  # 块级流，天然向上对齐
-                                    },
-                                    children="点击持仓表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要",
-                                ),
-                            ],
-                        ),
-                    ],
                 ),
             ],
             className="page",
