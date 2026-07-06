@@ -336,7 +336,7 @@ class TableCallback:
                 if n_intervals > 120:  # 超时控制
                     return "⚠️ 分析超时，请确认网络并重试。", None, False, True
 
-                return "智能分析中，请稍候...", None, True, False
+                return dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
             if task_data.get("status") == "success":
                 final_text = task_data.get("result", "未获取到有效内容")
