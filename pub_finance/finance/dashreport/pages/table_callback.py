@@ -163,70 +163,59 @@ class TableCallback:
 
             return dash.no_update
 
-        @app.callback(
-            Output("store_selected_cell_info", "data"),
-            Input({"type": "auto-table", "page": ALL, "table": ALL}, "selected_cells"),
-            State({"type": "auto-table", "page": ALL, "table": ALL}, "id"),
-            State(
-                {"type": "auto-table", "page": ALL, "table": ALL},
-                "derived_viewport_data",
-            ),
-            State("ai_is_loading", "data"),
-            prevent_initial_call=True,
-        )
-        def capture_all_cell(
-            all_selected_list, all_table_id_list, all_viewport_data, is_loading
-        ):
-            # Loading 全程拦截所有单元格操作，什么都不改
-            if is_loading:
-                return dash.no_update
+        def register_table_ai_callback(app, table_type):
+            """为指定类型的表格创建并注册专用的 AI 摘要抓取回调"""
 
-            triggered_id = ctx.triggered_id
-            if not triggered_id:
-                return dash.no_update
+            @app.callback(
+                Output("store_selected_cell_info", "data", allow_duplicate=True),
+                Input(
+                    {"type": "auto-table", "page": ALL, "table": table_type},
+                    "selected_cells",
+                ),
+                State({"type": "auto-table", "page": ALL, "table": table_type}, "id"),
+                State(
+                    {"type": "auto-table", "page": ALL, "table": table_type},
+                    "derived_viewport_data",
+                ),
+                State("ai_is_loading", "data"),
+                prevent_initial_call=True,
+            )
+            def _capture_cell(
+                all_selected_list, all_table_id_list, all_virtual_data, is_loading
+            ):
+                if is_loading or not dash.ctx.triggered_id:
+                    return dash.no_update
 
-            target_tables = ["detail", "trade"]
-            if triggered_id.get("table") not in target_tables:
-                return dash.no_update
+                # 物理下标单点切片，绝不全量循环
+                triggered_id = dash.ctx.triggered_id
+                try:
+                    idx = all_table_id_list.index(triggered_id)
+                    selected_cells = all_selected_list[idx]
+                    virtual_data = all_virtual_data[idx]
+                except (ValueError, IndexError):
+                    return dash.no_update
 
-            target_index = None
-            for i, tid in enumerate(all_table_id_list):
-                if tid == triggered_id:
-                    target_index = i
-                    break
-            if target_index is None:
-                return dash.no_update
+                if not selected_cells or not virtual_data:
+                    return None
 
-            selected_cells = all_selected_list[target_index]
-            viewport_data = all_viewport_data[target_index]
-            if not selected_cells or not viewport_data:
-                # 点击空白处，清空选中，隐藏按钮
-                return None
+                cell = selected_cells[0]
+                if cell.get("column_id") != "NAME":
+                    return None
 
-            cell = selected_cells[0]
-            col_id = cell.get("column_id", "")
+                row_idx = cell.get("row")
+                if row_idx is None or row_idx >= len(virtual_data):
+                    return None
 
-            # ========== 关键改动 ==========
-            if col_id != "NAME":
-                # 点击非NAME列，主动清空选中，触发按钮隐藏
-                return None
+                row = virtual_data[row_idx]
+                return {
+                    "row": row_idx,
+                    "page": triggered_id["page"],
+                    "table": triggered_id["table"],
+                    "symbol": row.get("SYMBOL_o", row.get("SYMBOL", "")),
+                    "name": row.get("NAME_o", row.get("NAME", "")),
+                }
 
-            row_idx = cell["row"]
-            if row_idx >= len(viewport_data):
-                return None
-
-            row = viewport_data[row_idx]
-            symbol = row.get("SYMBOL_o", row.get("SYMBOL", ""))
-            name = row.get("NAME_o", row.get("NAME", ""))
-
-            payload = {
-                "row": row_idx,
-                "page": triggered_id["page"],
-                "table": triggered_id["table"],
-                "symbol": symbol,
-                "name": name,
-            }
-            return payload
+        [register_table_ai_callback(app, t) for t in ["detail", "trade"]]
 
         @app.callback(
             Output("global_btn_ai_summary", "style"),
