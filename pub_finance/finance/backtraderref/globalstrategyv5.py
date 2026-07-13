@@ -93,12 +93,17 @@ class GlobalStrategy(bt.Strategy):
         market = self.market
         file = FileInfo(trade_date, market)
         """ 仓位文件地址 """
-        file_path_position = file.get_file_path_position
-        self.file_path_position = open(file_path_position, "w")
-        file_path_position_detail = file.get_file_path_position_detail
-        self.file_path_position_detail = open(file_path_position_detail, "w")
-        file_path_trade = file.get_file_path_trade
-        self.file_path_trade = open(file_path_trade, "w")
+        self.file_path_position = file.get_file_path_position
+        self.file_path_position_detail = file.get_file_path_position_detail
+        self.file_path_trade = file.get_file_path_trade
+        # 🌟 启动时单纯执行清空动作（不写任何表头）
+        for path in [
+            self.file_path_position_detail,
+            self.file_path_trade,
+            self.file_path_position,
+        ]:
+            with open(path, "w", encoding="utf-8") as f:
+                pass
         """ 板块文件地址 """
         self.file_industry = file.get_file_path_industry
 
@@ -153,6 +158,10 @@ class GlobalStrategy(bt.Strategy):
         self.peak_price = {}  # 持仓期间最高价（用于移动止盈）
         # 读取国债收益率
         self.rf_rate = self._load_rf_rate()
+
+        """ 交易日志和持仓明细初始化"""
+        self.buffers = {"trade": [], "position_detail": []}
+        self.flush_threshold = 2000
 
         """ 策略进度方法初始化 """
         t = ToolKit("策略初始化")
@@ -744,6 +753,33 @@ class GlobalStrategy(bt.Strategy):
         symbol = data._name
         self.order[symbol] = self.close(data=data, info={"strategy": strategy_name})
 
+    # ===== 新增：交易日志和持仓明细分批次导出 =====
+    def _flush_records_to_csv(self, file_type):
+        """
+        🌟 核心函数：支持 2 种文件的独立批量写入（非合并）
+        file_type 可传入: "trade" 或 "position_detail"
+        """
+        data_list = self.buffers.get(file_type)
+        if not data_list:
+            return
+
+        # 1. 根据传入的文件类型，精准路由映射到对应的目标路径
+        if file_type == "trade":
+            target_path = self.file_path_trade
+        elif file_type == "position_detail":
+            target_path = self.file_path_position_detail
+        else:
+            return  # 未知类型直接拦截
+
+        # 2. 内存转 DataFrame
+        df = pd.DataFrame(data_list)
+
+        # 3. 核心：强行指定 header=False，以纯数据内容追加落盘
+        df.to_csv(target_path, index=True, header=False, mode="a", encoding="utf-8")
+
+        # 4. 释放当前文件的内存缓冲区
+        data_list.clear()
+
     """ 订单状态改变回调方法 """
 
     def notify_order(self, order):
@@ -834,9 +870,12 @@ class GlobalStrategy(bt.Strategy):
                 self.log("Sell %s Order Canceled/Margin/Rejected" % (order.data._name))
         self.order[order.data._name] = None
         if trade_row:
-            pd.DataFrame([trade_row]).to_csv(
-                self.file_path_trade, header=False, mode="a"
-            )
+            # 🌟 数据塞入 trade 专属缓冲区
+            self.buffers["trade"].append(trade_row)
+
+            # 🌟 仅检查 trade 的缓冲区，满了就独立对 trade 文件执行写盘
+            if len(self.buffers["trade"]) >= self.flush_threshold:
+                self._flush_records_to_csv("trade")
 
     """
     交易状态改变回调方法
@@ -1105,9 +1144,13 @@ class GlobalStrategy(bt.Strategy):
                 if record is not None and self.current_signal[symbol] is not None:
                     position_detail_record.append(record)
 
-        df = pd.DataFrame(position_detail_record)
-        df.reset_index(inplace=True, drop=True)
-        df.to_csv(self.file_path_position_detail, header=False, mode="a")
+        if position_detail_record:
+            # 🌟 数据塞入 position_detail 专属缓冲区
+            self.buffers["position_detail"].extend(position_detail_record)
+
+            # 🌟 仅检查 position_detail 的缓冲区，满了就独立对 position_detail 文件执行写盘
+            if len(self.buffers["position_detail"]) >= self.flush_threshold:
+                self._flush_records_to_csv("position_detail")
         t.progress_bar(self.data.buflen(), len(self))
 
     def _set_and_get_signal(self, symbol, level, strategy, status):
@@ -1159,6 +1202,9 @@ class GlobalStrategy(bt.Strategy):
             self.execute_sell(data, "低于买入价15%")
 
     def stop(self):
+        # 回测彻底结束时，把 2 种文件缓冲区里剩余的‘零头’各自独立刷盘
+        self._flush_records_to_csv("trade")
+        self._flush_records_to_csv("position_detail")
         position_record = []
         # 记录仓位情况，并打印明细
         pos_share = 0
@@ -1223,8 +1269,6 @@ class GlobalStrategy(bt.Strategy):
                 df_n = df.sort_values(by=["buy_date", "p&l_ratio"], ascending=False)
             df_n.reset_index(drop=True, inplace=True)
             df_n.to_csv(self.file_path_position, header=True, mode="w")
+
         finally:
-            # 无论是否出现异常或提前 return，都会关闭文件
-            self.file_path_position.close()
-            self.file_path_position_detail.close()
-            self.file_path_trade.close()
+            pass
