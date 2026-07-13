@@ -273,19 +273,16 @@ class TableCallback:
                     )
                     prompt = (
                         f"指令：联网检索股票【{sym}】最新财报与重大资讯，输出不超150字的纯正文投资结论。\n"
-                        f"内容融合：[财务]营收/利润/现金流特征，包括具体数字；[行业]主营业务壁垒与竞争地位；[多空]利好利空及管理层动作；[情绪]股价技术走势与资金表现。\n"
+                        f"内容融合：[财务]营收/利润/现金流特征，包括具体数字及财报日期；[行业]主营业务壁垒与竞争地位；[多空]利好利空及管理层动作；[情绪]股价技术走势与资金表现，包括具体时间如果有的话。\n"
                         f"硬性红线：仅输出一段流式连贯汉字，严禁出现序号、标题、括号分栏、思考推理、前缀引导或综上所述等客套话。严禁包含市场归属词（如A股、美股、交易所名称）。"
                     )
                     response = client.responses.create(
                         model="qwen3.7-max",
                         # model="qwen3.7-plus",
                         input=prompt,
-                        tools=[
-                            {"type": "web_search"},
-                            #    {"type": "web_extractor"}
-                        ],
+                        tools=[{"type": "web_search"}, {"type": "web_extractor"}],
                         max_output_tokens=200,
-                        extra_body={"enable_thinking": False},
+                        extra_body={"enable_thinking": True},
                     )
                     ai_result = response.output_text.strip()
                 except httpx.TimeoutException:
