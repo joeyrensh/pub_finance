@@ -272,26 +272,20 @@ class TableCallback:
                         http_client=http_client,
                     )
                     prompt = (
-                        f"#任务：你是专业的金融分析师，联网查询{sym}最新财报、经营资讯，撰写精简投资观点。\n"
-                        f"##输出要求\n"
-                        f"1.篇幅：总计≤150个汉字，超出自动精简\n"
-                        f"2.形式：仅输出一段连贯正文，**禁止输出任何条目标题、序号**\n"
-                        f"3.禁止内容：不要“下面为分析”“综上所述”等客套语句，禁止展示思考推理\n\n"
-                        f"##内容必须覆盖（自然融合行文，不要逐条列举）\n"
-                        f"1.营收、利润、经营性现金流核心财务特征\n"
-                        f"2.主营业务、行业竞争格局与行业地位\n"
-                        f"3.核心利好、利空要素，管理层重要经营动作\n"
-                        f"4.近期股价的技术面走势特征与资金情绪面表现。\n\n"
-                        f"##严格限制\n"
-                        f"严禁文字内提及任何市场归属词汇（A股、美股、交易所名称等），无需告知标的所属交易市场。"
+                        f"指令：联网检索股票【{sym}】最新财报与重大资讯，输出不超150字的纯正文投资结论。\n"
+                        f"内容融合：[财务]营收/利润/现金流特征；[行业]主营业务壁垒与竞争地位；[多空]利好利空及管理层动作；[情绪]股价技术走势与资金表现。\n"
+                        f"硬性红线：仅输出一段流式连贯汉字，严禁出现序号、标题、括号分栏、思考推理、前缀引导或综上所述等客套话。严禁包含市场归属词（如A股、美股、交易所名称）。"
                     )
                     response = client.responses.create(
-                        # model="qwen3.7-max",
-                        model="qwen3.7-plus",
+                        model="qwen3.7-max",
+                        # model="qwen3.7-plus",
                         input=prompt,
-                        tools=[{"type": "web_search"}, {"type": "web_extractor"}],
-                        max_output_tokens=300,
-                        extra_body={"enable_thinking": True},
+                        tools=[
+                            {"type": "web_search"},
+                            #    {"type": "web_extractor"}
+                        ],
+                        max_output_tokens=200,
+                        extra_body={"enable_thinking": False},
                     )
                     ai_result = response.output_text.strip()
                 except httpx.TimeoutException:
