@@ -236,13 +236,13 @@ class ProxyManager:
             print(f"❌ 代理测试失败：{e}")
             return False
 
-    def get_working_proxy(self, max_retries=3):
+    def get_working_proxy(self, max_retries=3, enable_proxy=True):
         """
         获取一个可用的代理。
         参数 max_retries: 轮询整个代理列表的最大次数（默认 3 轮）。
         返回代理字典，如果所有代理均不可用则返回 None。
         """
-        if not self.proxies_list:
+        if not self.proxies_list or not enable_proxy:
             return None
 
         total = len(self.proxies_list)
@@ -266,7 +266,7 @@ class ProxyManager:
                 break
 
             print(
-                f"测试进度：第{round_num}轮 {current_idx+1}/{total} - 测试代理：{proxy}"
+                f"测试进度：第{round_num}轮 {current_idx + 1}/{total} - 测试代理：{proxy}"
             )
 
             if self.test_proxy(proxy, self.validate_proxy):
@@ -308,7 +308,7 @@ class ProxyManager:
             # 显示进度
             progress = (i + 1) / total_proxies * 100
             print(
-                f"测试进度：{i+1}/{total_proxies} ({progress:.0f}%) - 测试代理：{proxy_str}"
+                f"测试进度：{i + 1}/{total_proxies} ({progress:.0f}%) - 测试代理：{proxy_str}"
             )
 
             # 测试代理
