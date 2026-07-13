@@ -227,10 +227,8 @@ li::before {
   gap: 8px;
   width: 100%;
   box-sizing: border-box;
-  border-bottom-style: solid;
-  border-color: var(--gridcolor);
-  border-bottom-width: thin;
-  margin-bottom: 5px;
+  border-bottom: 2px solid var(--gridcolor);
+  margin-bottom: 0px;
   margin-top: -5px;
 }
 
@@ -501,7 +499,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 .kpi-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(1rem, 1fr));
-  gap: 6px;
+  gap: 2px;
 }
 
 .kpi-card {
