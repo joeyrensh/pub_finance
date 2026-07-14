@@ -358,20 +358,43 @@ class StockProposal:
                     ,SUM(IF(t2.sell_date IS NOT NULL, t2.base_price * t2.base_size, 0)) AS his_base
                 FROM temp_industry_info t1 JOIN temp_transaction_logs t2 ON t1.symbol = t2.symbol
                 GROUP BY t1.industry
-            ), tmp3 AS (
-                SELECT industry
-                    , COLLECT_LIST(pnl) AS pnl_array
-                    , COLLECT_LIST(volume) AS volume_array
+            ),  industry_daily_pnl AS (
+                -- 1. 预先算出每个行业每天的 PNL 和成交量（干净的日线数据）
+                SELECT 
+                    t3.industry, 
+                    t2.date, 
+                    SUM(t2.pnl) AS pnl, 
+                    SUM(t2.volume) AS volume 
+                FROM temp_position_detail t2 
+                JOIN temp_industry_info t3 ON t2.symbol = t3.symbol 
+                GROUP BY t3.industry, t2.date
+            ),  industry_date_matrix AS (
+                -- 2. 核心对齐：用时间轴和行业做网格对齐，如果没有数据，用 0.0 兜底，确保每个行业都拥有完美的 180 天
+                SELECT 
+                    m.industry,
+                    t1.buy_date,
+                    COALESCE(i.pnl, 0.0) AS pnl,
+                    COALESCE(i.volume, 0.0) AS volume
+                FROM temp_timeseries t1
+                -- 交叉生成“所有行业 x 所有日期”的标本网格，这才是对齐时序的标准做法
+                CROSS JOIN (SELECT DISTINCT industry FROM temp_industry_info) m
+                LEFT JOIN industry_daily_pnl i ON m.industry = i.industry AND t1.buy_date = i.date
+            ),  tmp3 AS (
+                -- 3. 最终聚合：打包成结构体强行排序，彻底解决分布式乱序问题
+                SELECT 
+                    industry,
+                    transform(sort_array(collect_list(struct_data)), x -> x.pnl) AS pnl_array,
+                    transform(sort_array(collect_list(struct_data)), x -> x.volume) AS volume_array
                 FROM (
-                    SELECT t2.industry, t1.buy_date AS date
-                        , SUM(IF(t1.buy_date = t2.date, COALESCE(t2.pnl, 0), 0)) AS pnl
-                        , SUM(IF(t1.buy_date = t2.date, COALESCE(t2.volume, 0), 0)) AS volume
-                    FROM temp_timeseries t1 
-                    LEFT JOIN  (SELECT t3.industry, t2.date, SUM(t2.pnl) AS pnl, SUM(t2.volume) AS volume FROM temp_position_detail t2 JOIN temp_industry_info t3 ON t2.symbol = t3.symbol 
-                                GROUP BY t3.industry, t2.date) t2 ON 1 = 1
-                    GROUP BY t2.industry, t1.buy_date
-                    ORDER BY t2.industry, t1.buy_date ASC
-                    ) t
+                    SELECT 
+                        industry,
+                        NAMED_STRUCT(
+                            'buy_date', buy_date,
+                            'pnl', pnl,
+                            'volume', volume
+                        ) AS struct_data
+                    FROM industry_date_matrix
+                ) t
                 GROUP BY industry
             ), tmp4 AS (
                 SELECT temp_industry_info.industry, COUNT(temp_industry_info.symbol) AS ticker_cnt
@@ -990,35 +1013,34 @@ class StockProposal:
                     WHERE rn = 1
                 ) t5 ON t1.symbol = t5.symbol
                 LEFT JOIN (
-                    SELECT symbol,
-                        COLLECT_LIST(daily_return) AS daily_return_array,
-                        COLLECT_LIST(sortino_ratio) AS sortino_ratio_array,
-                        COLLECT_LIST(max_drawdown) AS max_drawdown_array,
-                        COLLECT_LIST(adjbase) AS adjbase_array,
-                        COLLECT_LIST(volume) AS volume_array
+                    SELECT 
+                        symbol,
+                        -- 3. 终极修复：使用 sort_array 依据结构体首个字段 (buy_date) 严格正序排列
+                        -- 排序完成后，再使用 transform 表达式将各个时序指标抽离为独立的单列 Array
+                        transform(sort_array(collect_list(struct_data)), x -> x.daily_return) AS daily_return_array,
+                        transform(sort_array(collect_list(struct_data)), x -> x.sortino_ratio) AS sortino_ratio_array,
+                        transform(sort_array(collect_list(struct_data)), x -> x.max_drawdown) AS max_drawdown_array,
+                        transform(sort_array(collect_list(struct_data)), x -> x.adjbase) AS adjbase_array,
+                        transform(sort_array(collect_list(struct_data)), x -> x.volume) AS volume_array
                     FROM (
                         SELECT
                             t2.symbol,
-                            t2.daily_return,
-                            t2.sortino_ratio,
-                            t2.max_drawdown,
-                            t2.adjbase,
-                            t2.volume
-                        FROM temp_timeseries t1 LEFT JOIN 
-                        (
-                            SELECT 
-                                symbol,
-                                date,
-                                daily_return,
-                                sharpe_ratio,
-                                sortino_ratio,
-                                max_drawdown,
-                                adjbase,
-                                volume
-                            FROM temp_position_detail
-                        ) t2 ON t1.buy_date = t2.date
-                        ORDER BY t2.symbol, t1.buy_date ASC
-                    )   GROUP BY symbol
+                            -- 1. 结构化绑定：将时间戳作为第一个字段打包进 Struct
+                            -- 当 Spark 对包含 Struct 的 List 进行排序时，会物理强制按字段定义的先后顺序（即 buy_date ASC）进行对齐
+                            NAMED_STRUCT(
+                                'buy_date', t1.buy_date,
+                                -- 2. 槽位对齐：通过 COALESCE 兜底 NULL 值，防止 collect_list 漏掉未建仓的日期，确保数组长度等长
+                                'daily_return', COALESCE(t2.daily_return, 0.0),
+                                'sortino_ratio', COALESCE(t2.sortino_ratio, 0.0),
+                                'max_drawdown', COALESCE(t2.max_drawdown, 0.0),
+                                'adjbase', COALESCE(t2.adjbase, 0.0),
+                                'volume', COALESCE(t2.volume, 0.0)
+                            ) AS struct_data
+                        FROM temp_timeseries t1
+                        JOIN temp_position_detail t2 ON t1.buy_date = t2.date
+                        JOIN temp_cur_position_with_latest_stock_info t3 ON t2.symbol = t3.symbol AND t2.date >= t3.buy_date
+                    ) t
+                    GROUP BY symbol
                 ) t6 ON t1.symbol = t6.symbol
             """
         )
