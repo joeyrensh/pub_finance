@@ -1047,6 +1047,7 @@ class GlobalStrategy(bt.Strategy):
                         "date": dt,
                         "price": pos.price,
                         "adjbase": pos.adjbase,
+                        "shares": pos.size,
                         "pnl": pos.size * (pos.adjbase - pos.price),
                         "volume": d.volume[0],
                         "daily_return": daily_return,

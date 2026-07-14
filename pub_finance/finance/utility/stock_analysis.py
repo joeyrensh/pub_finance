@@ -123,6 +123,7 @@ class StockProposal:
             "date",
             "price",
             "adjbase",
+            "shares",
             "pnl",
             "volume",
             "daily_return",
@@ -412,60 +413,115 @@ class StockProposal:
             """
         )
 
-        spark_industry_history_tracking_lstndays = spark.sql("""
-            WITH date_rank AS (
-                SELECT DISTINCT buy_date, ROW_NUMBER() OVER (ORDER BY buy_date DESC) AS rn
-                FROM temp_timeseries
-            ), daily_industry_pnl AS (
+        spark_industry_history_tracking_lstndays = spark.sql(
+            f"""
+            WITH stock_daily_flat AS (
+                -- 核心融合层：只查一次表，同时把单股在最新日（1天前）和5天前的 pnl、adjbase 拉平到同一行
                 SELECT
+                    t1.symbol,
                     t2.industry,
-                    dr.rn,
-                    SUM(t1.pnl * t3.total_value) / SUM(t3.total_value) AS pnl
+                    t3.total_value,
+                    -- 新逻辑所需字段（1天前是区间终点，5天前是区间起点）
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(1)} THEN t1.adjbase END) AS adjbase_1,
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(1)} THEN t1.price END) AS base_1, -- 1天前的买入价
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(5)} THEN t1.adjbase END) AS adjbase_5,
+                    -- 老逻辑所需字段
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(1)} THEN t1.pnl END) AS pnl_1,
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(5)} THEN t1.pnl END) AS pnl_5
                 FROM temp_position_detail t1
                 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
-                JOIN date_rank dr ON t1.date = dr.buy_date
-                WHERE dr.rn IN (1, 5)   -- 只取最近的第1天和第5天
-                GROUP BY t2.industry, dr.rn
+                WHERE t1.date IN ({get_date_rank_subquery(1)}, {get_date_rank_subquery(5)})
+                GROUP BY t1.symbol, t2.industry, t3.total_value
             )
-            SELECT 
-                industry,
-                MAX(CASE WHEN rn = 1 THEN pnl END) 
-                - COALESCE(MAX(CASE WHEN rn = 5 THEN pnl END), 0) AS pnl_growth
-            FROM daily_industry_pnl
-            GROUP BY industry
-            ORDER BY pnl_growth DESC
-            """)
-
-        spark_industry_history_tracking_ndaysbeforeyesterday = spark.sql("""
-            WITH date_rank AS (
-                SELECT DISTINCT buy_date, ROW_NUMBER() OVER (ORDER BY buy_date DESC) AS rn
-                FROM temp_timeseries
-            ), daily_industry_pnl AS (
-                SELECT 
-                    t2.industry,
-                    dr.rn,
-                    SUM(t1.pnl * t3.total_value) / SUM(t3.total_value) AS pnl
-                FROM temp_position_detail t1
-                JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
-                LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
-                JOIN date_rank dr ON t1.date = dr.buy_date
-                WHERE dr.rn IN (1, 6, 10)   -- 只取需要的三个日期排名
-                GROUP BY t2.industry, dr.rn
-            ),
-            industry_date1 AS (
-                SELECT DISTINCT industry
-                FROM daily_industry_pnl
-                WHERE rn = 1
-            )
+            -- 最终聚合层：直接在最外层按行业分组，分流输出新老两套指标
             SELECT
-                d1.industry,
-                COALESCE(p6.pnl, 0) - COALESCE(p10.pnl, 0) AS pnl_growth
-            FROM industry_date1 d1
-            LEFT JOIN daily_industry_pnl p6 ON d1.industry = p6.industry AND p6.rn = 6
-            LEFT JOIN daily_industry_pnl p10 ON d1.industry = p10.industry AND p10.rn = 10
+                industry,
+                -- 1. 老逻辑：(最新 1 天前总 pnl - 5 日前总 pnl) / 总市值
+                -- (SUM(pnl_1 * total_value) - COALESCE(SUM(pnl_5 * total_value), 0)) / SUM(total_value) AS pnl_growth,
+                
+                -- 2. 新逻辑：个股涨幅 (由5天前持有至1天前，新老股平替) 的市值加权平均
+                SUM(
+                  -- 修正此处：终点 (adjbase_1) 减去 起点 (COALESCE(adjbase_5, base_1)) 
+                  ( (adjbase_1 - COALESCE(adjbase_5, base_1)) / COALESCE(adjbase_5, base_1) ) 
+                  * total_value
+                ) / SUM(total_value) AS pnl_growth
+            FROM stock_daily_flat
+            -- 修正过滤：确保最新日有持仓，且计算起点的价格大于 0
+            WHERE adjbase_1 IS NOT NULL AND COALESCE(adjbase_5, base_1) > 0
+            GROUP BY industry
+            HAVING SUM(total_value) > 0
             ORDER BY pnl_growth DESC
-            """)
+            """
+        )
+
+        spark_industry_history_tracking_ndaysbeforeyesterday = spark.sql(
+            f"""
+            WITH stock_daily_flat AS (
+                -- 核心融合层：取出 1 天前(主轴)、6 天前、10 天前 的所有必备价格与 PNL 状态
+                SELECT
+                    t1.symbol,
+                    t2.industry,
+                    t3.total_value,
+                    -- 1 天前状态（最新日持仓，用于判定主轴）
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(1)} THEN 1 END) AS has_date_1,
+                    
+                    -- 6 天前状态（相对最新，即区间终点）
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(6)} THEN t1.adjbase END) AS adjbase_6,
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(6)} THEN t1.price END) AS base_6,
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(6)} THEN t1.pnl END) AS pnl_6,
+                    
+                    -- 10 天前状态（相对最远，即区间起点）
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(10)} THEN t1.adjbase END) AS adjbase_10,
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(10)} THEN t1.pnl END) AS pnl_10
+                FROM temp_position_detail t1
+                JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
+                LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
+                WHERE t1.date IN ({get_date_rank_subquery(1)}, {get_date_rank_subquery(6)}, {get_date_rank_subquery(10)})
+                GROUP BY t1.symbol, t2.industry, t3.total_value
+            )
+            -- 最终聚合层：直接按行业分组，分流输出两套指标
+            SELECT
+                industry,
+                -- 1. 老逻辑：(第6天前总pnl - 第10天前总pnl) / 总市值
+                -- (COALESCE(SUM(pnl_6 * total_value), 0) - COALESCE(SUM(pnl_10 * total_value), 0)) / SUM(total_value) AS pnl_growth,
+                
+                -- 2. 新逻辑：个股在 10天前至6天前 区间涨幅的市值加权平均
+                COALESCE(
+                    SUM(
+                      CASE 
+                        -- 情况 A：老股（6天前和10天前均有持仓记录）
+                        WHEN adjbase_6 IS NOT NULL AND adjbase_10 IS NOT NULL AND adjbase_10 > 0
+                          THEN ((adjbase_6 - adjbase_10) / adjbase_10) * total_value
+                        
+                        -- 情况 B：中期新股（6天前有持仓，但10天前无持仓 -> 10天前到6天前之间买入）
+                        -- 降级使用 6 天前记录里的买入成本价 base_6 
+                        WHEN adjbase_6 IS NOT NULL AND adjbase_10 IS NULL AND base_6 > 0
+                          THEN ((adjbase_6 - base_6) / base_6) * total_value
+                        
+                        -- 情况 C：近 5 日新股（6天前和10天前都没有持仓，对该区间无贡献）
+                        ELSE 0 
+                      END
+                    ) / NULLIF(
+                      SUM(
+                        CASE 
+                          -- 只有在此区间存在（6天前有持仓）的股票市值才参与分母的加权，防止近5日买入的新股稀释权重
+                          WHEN adjbase_6 IS NOT NULL AND COALESCE(adjbase_10, base_6) > 0 THEN total_value
+                          ELSE 0
+                        END
+                      ), 
+                      0
+                    ), 
+                    0
+                ) AS pnl_growth
+            FROM stock_daily_flat
+            GROUP BY industry
+            -- 过滤条件：强制以最新 1 天前有持仓的行业为主轴
+            HAVING MAX(has_date_1) = 1 
+               AND SUM(total_value) > 0
+            ORDER BY pnl_growth DESC
+            """
+        )
         pd_industry_history_tracking_lstndays = (
             spark_industry_history_tracking_lstndays.toPandas()
         )
@@ -3830,6 +3886,7 @@ class StockProposal:
             "date",
             "price",
             "adjbase",
+            "shares",
             "pnl",
             "volume",
             "daily_return",
