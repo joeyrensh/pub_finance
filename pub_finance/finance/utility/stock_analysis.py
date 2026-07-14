@@ -604,6 +604,12 @@ class StockProposal:
         pd_industry_history_tracking_ndaysbeforeyesterday = (
             spark_industry_history_tracking_ndaysbeforeyesterday.toPandas()
         )
+        pd_industry_history_tracking_ndaysbeforeyesterday = (
+            pd_industry_history_tracking_ndaysbeforeyesterday.sort_values(
+                by="pnl_growth", ascending=False
+            ).reset_index(drop=True)
+        )
+
         pd_industry_history_tracking = spark_industry_history_tracking.toPandas()
 
         result_df = (
@@ -639,13 +645,15 @@ class StockProposal:
                 industry
                 in pd_industry_history_tracking_ndaysbeforeyesterday["industry"].values
             ):
-                index_diff = (
-                    pd_industry_history_tracking_ndaysbeforeyesterday[
-                        pd_industry_history_tracking_ndaysbeforeyesterday["industry"]
-                        == industry
-                    ].index.values
-                    - index
-                )[0]
+                # 核心修正：颠倒相减顺序，改为 (现在索引 - 过去索引)
+                # 汽车行业：现在的 index 是 81（第82位），过去的 index 是 34（第35位）
+                # 计算结果：81 - 34 = +47 (正数) -> 完美触发红色上箭头 ↑47
+                past_index = pd_industry_history_tracking_ndaysbeforeyesterday[
+                    pd_industry_history_tracking_ndaysbeforeyesterday["industry"]
+                    == industry
+                ].index.values[0]
+
+                index_diff = index - past_index
                 index_diff_dict[index] = index_diff
 
         pd_industry_history_tracking["index_diff"] = (
