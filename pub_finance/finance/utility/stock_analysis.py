@@ -216,6 +216,7 @@ class StockProposal:
         pd_timeseries = pd_timeseries.sort_values("buy_date").reset_index(drop=True)
         start_date = pd_timeseries.iloc[-120]["buy_date"]
         start_date_200 = pd_timeseries.iloc[-160]["buy_date"]
+        start_date_60 = pd_timeseries.iloc[-60]["buy_date"]
         pd_timeseries = pd_timeseries.tail(120)
 
         spark_timeseries = spark.createDataFrame(
@@ -379,6 +380,7 @@ class StockProposal:
                 -- 交叉生成“所有行业 x 所有日期”的标本网格，这才是对齐时序的标准做法
                 CROSS JOIN (SELECT DISTINCT industry FROM temp_industry_info) m
                 LEFT JOIN industry_daily_pnl i ON m.industry = i.industry AND t1.buy_date = i.date
+                WHERE t1.buy_date >= '{start_date_60}'
             ),  tmp3 AS (
                 -- 3. 最终聚合：打包成结构体强行排序，彻底解决分布式乱序问题
                 SELECT 
