@@ -1476,7 +1476,7 @@ class ChartBuilder:
             for j in range(len(table_columns))
         ]
         # font_weights_by_col = ["bold"] + ["normal"] * (len(table_columns) - 1)
-        font_weights_by_col = ["normal"] * (len(table_columns) - 1)
+        font_weights_by_col = ["normal"] * (len(table_columns))
 
         # 准备表格单元格数据（列优先）
         cell_values = [table_df[col].tolist() for col in table_columns]
