@@ -9,7 +9,6 @@
 ## 📌 Introduction
 Pub Finance is a **full-lifecycle, open-source quantitative analysis framework** that provides an end-to-end closed loop spanning data pipelines, a backtesting engine, and interactive Web dashboards. Seamlessly supporting both the **A-Share** and **US Stock** markets, it is designed to help individual investors and quant enthusiasts rapidly validate, optimize, and deploy trading strategies.
 
----
 
 ## 🏗️ Architecture & Core Data Flow
 Pub Finance features a lightweight, decoupled modular design. The core pipeline is structured as follows:
@@ -21,6 +20,7 @@ Pub Finance features a lightweight, decoupled modular design. The core pipeline 
 [EastMoney/Sina ] ── (CN)  ──►           │                     ├── Interactive Candlestick
                                          ▼                     └── 🤖 LLM-Powered Stock Summary
                                 [   Backtrader   ] ── (Perf) ──┘
+```
 
 ## 界面预览
 <p align="center">
@@ -46,8 +46,109 @@ Pub Finance features a lightweight, decoupled modular design. The core pipeline 
 
 📄 LLM-Powered Stock Reports Generates fundamental profiles (sector, market cap, financial health) via AI with one click (API token required).
 
+## Performance Metrics
+| Metric | Description |
+| :--- | :--- |
+| **ANN.R** | Annualized Return |
+| **CUM.R** | Cumulative Return |
+| **MX.DD** | Maximum Drawdown (MDD) |
+| **D.RISK** | Daily Risk (Volatility) |
+| **30D/120D** | 30-Day / 120-Day Rolling Returns |
 
+## Visualization Highlights
+- **Linked Displays**: Syncs the cumulative return curve with drawdown area mappings.
+- **Standard Candlestick Charts**: Integrated alongside trading volume histograms.
+- **Signal Tracking**: Highlighting **Buy (Green)** / **Sell (Red)** execution points seamlessly.
+- **Annual Performance Tables**: Supports comprehensive year-over-year data cross-comparison.
+- **AI Analytics**: Generates fundamental asset insights with just one click.
 
+## ⚡ Quick Start (Get Started in 3 Mins)
+
+### 1. Prerequisites & Dependencies Installation
+Clone the repository and install the required quantitative base dependencies:
+```bash
+git clone [https://github.com/joeyrensh/pub_finance.git](https://github.com/joeyrensh/pub_finance.git)
+cd pub_finance
+pip install -r requirements.txt
+```
+### 2. Cold Start (Download Historical Data)
+Run the bootstrap script to pull and initialize the historical market database with a single click:
+```bash
+python -u finance/utility/history_data_download.py
+```
+### 3. Configure Scheduled Cron Jobs
+To maintain incremental updates for local data and enable automated strategy calculations, please refer to the Service Deployment (Crontab) section below to configure Linux scheduled tasks.
+
+### 4. Launch Interactive Web Dashboard
+Execute the following command to start the background daemon service and activate the fully-featured interactive Web visualization panel. Once successfully launched, open your browser and navigate to http://127.0.0.1:8050 to begin your analysis.
+```bash
+nohup python -m finance.dashreport.dash_wsgi > dash_server.log 2>&1 &
+```
+## Directory Structure
+```text
+pub_finance/
+└── finance/
+    ├── data/                # Data storage
+    │   ├── us_stockdetail.csv  # US stock positions data
+    │   └── cn_stockdetail.csv  # A-Share positions data
+    ├── utility/             # Utility scripts, proxy tools, and scrapers
+    ├── backtraderref/       # Backtrader core strategy templates
+    ├── cncrawler/           # Scrapers for A-Shares
+    ├── uscralwer/           # Scrapers for US Stocks
+    ├── proxy/               # IP proxy pool maintenance utilities
+    ├── cnstockinfo/         # Main database for A-Share data
+    ├── usstockinfo/         # Main database for US stock data
+    ├── dashreport/          # Dashboard engineering and UI layouts
+    ├── usstock_main.py      # US stock execution entry
+    ├── cnstock_main.py      # A-Share execution entry
+    ├── us.log               # US stock run logs
+    ├── cn.log               # A-Share run logs
+    └── README.md
+```
+
+## Service Deployment (Linux Scheduled Tasks)
+### Environment Variable Setup
+Ensure you configure your Spark python paths correctly:
+```
+PYSPARK_PYTHON=/home/ubuntu/miniconda3/bin/python
+PYSPARK_DRIVER_PYTHON=/home/ubuntu/miniconda3/bin/python
+```
+### Crontab Configuration
+```
+# Run US stock strategy daily at 07:00
+00 7 * * * cd /home/ubuntu/pub_finance/finance ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/usstock_main.py > /home/ubuntu/pub_finance/finance/us.log 2>&1
+
+# Run A-Share strategy daily at 15:30
+30 15 * * * cd /home/ubuntu/pub_finance/finance ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/cnstock_main.py > /home/ubuntu/pub_finance/finance/cn.log 2>&1
+
+# Maintain Mainland China proxy pool daily at 07:30
+30 7 * * * cd /home/ubuntu/pub_finance/finance/proxy ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/proxy/fetch_cn_proxies.py --target 200 --workers 20 > /home/ubuntu/pub_finance/finance/proxy/cn_proxy.log 2>&1
+
+# Maintain Overseas proxy pool daily at 08:30
+30 8 * * * cd /home/ubuntu/pub_finance/finance/proxy ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/proxy/fetch_overseas_proxies.py --target 100 --workers 20 > /home/ubuntu/pub_finance/finance/proxy/overseas_proxy.log 2>&1
+```
+
+## Contributing
+Contributions make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated:
+
+1. Fork the Project
+
+2. Create your Feature Branch: git checkout -b feature/your-feature
+
+3. Commit your Changes: git commit -m "feat: add some amazing feature"
+
+4. Push to the Branch: git push origin feature/your-feature
+
+5. Open a Pull Request
+
+## Contact & Feedback
+- Email: haifengreal@qq.com
+- Issues: https://github.com/joeyrensh/pub_finance/issues
+<div align="center">
+
+**⭐ If this project helped you, please give us a Star!**
+
+[⬆ Back to Top]
 
 
 
