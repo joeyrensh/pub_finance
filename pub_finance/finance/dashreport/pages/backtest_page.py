@@ -793,7 +793,7 @@ class BacktestPage:
                             style={
                                 "display": "inline-flex",
                                 "alignItems": "baseline",
-                                "marginRight": "20px",
+                                "marginRight": "10px",
                                 "flexShrink": 0,
                             },
                         ),
@@ -808,7 +808,7 @@ class BacktestPage:
                                     className="custom-date-picker kpi-label",
                                     style={
                                         "width": "auto",
-                                        "minWidth": "160px",
+                                        "minWidth": "120px",
                                         "marginLeft": "5px",
                                         "zIndex": 1050,
                                     },
