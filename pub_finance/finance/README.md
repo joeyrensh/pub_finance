@@ -1,5 +1,58 @@
 # Pub Finance
 
+> 🌟 Free & Open-Source Quantitative Analysis Framework | Supporting A-Shares & US Stocks | Strategy Backtesting + Dynamic Visual Analytics
+
+[![GitHub Stars](https://img.shields.io/github/stars/joeyrensh/pub_finance?style=flat-square)](https://github.com/joeyrensh/pub_finance)
+[![Package Size](https://img.shields.io/github/languages/code-size/joeyrensh/pub_finance)](https://github.com/joeyrensh/pub_finance)
+[![License](https://img.shields.io/github/license/joeyrensh/pub_finance?color=blue)](https://github.com/joeyrensh/pub_finance)
+
+## 📌 Introduction
+Pub Finance is a **full-lifecycle, open-source quantitative analysis framework** that provides an end-to-end closed loop spanning data pipelines, a backtesting engine, and interactive Web dashboards. Seamlessly supporting both the **A-Share** and **US Stock** markets, it is designed to help individual investors and quant enthusiasts rapidly validate, optimize, and deploy trading strategies.
+
+---
+
+## 🏗️ Architecture & Core Data Flow
+Pub Finance features a lightweight, decoupled modular design. The core pipeline is structured as follows:
+
+```text
+ 📊 Multi-Source Data           🧠 Backtesting Engine            🎨 Web Visualization
+[ Yahoo Finance ] ── (US)  ──► [  Local Data Storage  ]       [  Dash Interactive Report  ]
+                                (CSV / JSON Format)            ├── Performance Dashboard
+[EastMoney/Sina ] ── (CN)  ──►           │                     ├── Interactive Candlestick
+                                         ▼                     └── 🤖 LLM-Powered Stock Summary
+                                [   Backtrader   ] ── (Perf) ──┘
+
+## 界面预览
+<p align="center">
+  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Frontpage.png" height="320" alt="回测分析主界面">
+  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Backtest.png" height="320" alt="买卖点K线分析">
+  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Config.png" height="320" alt="自定义偏好">
+</p>
+<p align="center">
+  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/AI_Analysis.png" height="100" alt="AI智能摘要">
+</p>
+<p align="center">
+  left：Candlestick with Buy/Sell Signals | Trade Log &nbsp;&nbsp; Right: Weight Configuration & Returns & Drawdowns
+</p>
+
+## Key Features
+- 📥 Multi-Source Data Ingestion Seamlessly integrates with mainstream data providers (e.g., Yahoo Finance, EastMoney, Sina Finance) to automatically fetch market data.
+
+- 💾 Lightweight Local Storage Uses localized CSV / JSON formats supporting incremental updates and data integrity validation.
+
+- 🧠 Custom Strategy Backtesting Equipped with a highly flexible backtesting engine. Supports custom transaction logic for single assets as well as multi-asset portfolios.
+
+- 📊 Comprehensive Performance Analytics Automatically computes quant metrics including returns, drawdowns, and risk ratios to intuitively evaluate your strategies.
+
+📄 LLM-Powered Stock Reports Generates fundamental profiles (sector, market cap, financial health) via AI with one click (API token required).
+
+
+
+
+
+
+# Pub Finance [中文版]
+
 > 🌟 开源免费量化分析框架 | 支持 A股 / 美股 | 策略回测 + 动态可视化分析
 
 [![GitHub Stars](https://img.shields.io/github/stars/joeyrensh/pub_finance?style=flat-square)](https://github.com/joeyrensh/pub_finance)
