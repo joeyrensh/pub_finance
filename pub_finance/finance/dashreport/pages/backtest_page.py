@@ -1105,7 +1105,7 @@ class BacktestPage:
                                 "height": "auto",
                                 "display": "block",  # 块级流，天然向上对齐
                             },
-                            children="Click a cell in the NAME column, then click [AI Analysis] to generate quantitative summary.",
+                            children="Select a stock from the NAME column and click [AI Analysis] to view the summary.",
                         ),
                     ],
                 ),

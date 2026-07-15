@@ -307,7 +307,7 @@ class TableCallback:
             thread.daemon = True
             thread.start()
 
-            return "Performing analysis; please wait...", None, True, 0, False
+            return "Performing analysis, please wait...", None, True, 0, False
 
         @callback(
             Output("ai_summary_box", "children", allow_duplicate=True),

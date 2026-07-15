@@ -301,7 +301,7 @@ class PageLayout:
                 ),
                 # ─── 2. 按钮：绝对定位跟随右下角 ───
                 html.Button(
-                    "AI分析",
+                    "AI Analysis",
                     id="global_btn_ai_summary",
                     className="ai-analysis-btn",
                     style={
@@ -337,7 +337,7 @@ class PageLayout:
                                 "height": "auto",
                                 "display": "block",
                             },
-                            children="Click a cell in the NAME column, then click [AI Analysis] to generate quantitative summary.",
+                            children="Select a stock from the NAME column and click [AI Analysis] to view the summary.",
                         ),
                     ],
                 ),
