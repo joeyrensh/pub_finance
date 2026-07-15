@@ -174,7 +174,7 @@ class ChartCallback:
                     annual_data = data_bundle.get("annual_return")
                     if annual_data is None:
                         return self._placeholder_figure(
-                            "请执行回测", theme, client_width
+                            "Run Backtest", theme, client_width
                         )
                     pnl, cash, total_value = data_bundle["annual_return"]
                     fig = builder.annual_return(
@@ -187,7 +187,7 @@ class ChartCallback:
                     df = data_bundle["heatmap"]
                     if df is None or df.empty:
                         return self._placeholder_figure(
-                            "请执行回测", theme, client_width
+                            "Run Backtest", theme, client_width
                         )
                     fig = builder.calendar_heatmap(
                         page=page,
@@ -199,7 +199,7 @@ class ChartCallback:
                     df = data_bundle["industry_strength"]
                     if df is None or df.empty:
                         return self._placeholder_figure(
-                            "请执行回测", theme, client_width
+                            "Run Backtest", theme, client_width
                         )
                     fig = builder.industry_strength_chart(
                         page=page,
@@ -211,7 +211,7 @@ class ChartCallback:
                     df = data_bundle["strategy"]
                     if df is None or df.empty:
                         return self._placeholder_figure(
-                            "请执行回测", theme, client_width
+                            "Run Backtest", theme, client_width
                         )
                     fig = builder.strategy_chart(
                         page=page,
@@ -225,7 +225,7 @@ class ChartCallback:
                     df = data_bundle["trade"]
                     if df is None or df.empty:
                         return self._placeholder_figure(
-                            "请执行回测", theme, client_width
+                            "Run Backtest", theme, client_width
                         )
                     fig = builder.trade_info_chart(
                         page=page,
@@ -238,7 +238,7 @@ class ChartCallback:
                     df = data_bundle["pnl_trend"]
                     if df is None or df.empty:
                         return self._placeholder_figure(
-                            "请执行回测", theme, client_width
+                            "Run Backtest", theme, client_width
                         )
                     fig = builder.industry_pnl_trend(
                         page=page,
@@ -251,7 +251,7 @@ class ChartCallback:
                     df = data_bundle["industry_position"]
                     if df is None or df.empty:
                         return self._placeholder_figure(
-                            "请执行回测", theme, client_width
+                            "Run Backtest", theme, client_width
                         )
                     fig = builder.industry_position_treemap(
                         page=page,
@@ -264,7 +264,7 @@ class ChartCallback:
                     df = data_bundle["industry_profit"]
                     if df is None or df.empty:
                         return self._placeholder_figure(
-                            "请执行回测", theme, client_width
+                            "Run Backtest", theme, client_width
                         )
                     fig = builder.industry_profit_treemap(
                         page=page,
@@ -278,7 +278,7 @@ class ChartCallback:
 
                 return fig
             except Exception as e:
-                print(f"⚠️ 图表生成失败 {key}: {e}")
+                print(f"⚠️ Chart generation failed. {key}: {e}")
                 return no_update
 
         self._callback_registered = True

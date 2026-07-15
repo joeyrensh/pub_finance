@@ -86,7 +86,7 @@ class TableCallback:
                 if table_name == "category":
                     if data["category"]["df"].empty:
                         return html.Div(
-                            "请执行回测",
+                            "Run Backtest",
                             style={
                                 "color": "#999",
                                 "padding": "20px",
@@ -104,7 +104,7 @@ class TableCallback:
                 if table_name == "detail":
                     if data["detail"]["df"].empty:
                         return html.Div(
-                            "请执行回测",
+                            "Run Backtest",
                             style={
                                 "color": "#999",
                                 "padding": "20px",
@@ -122,7 +122,7 @@ class TableCallback:
                 if table_name == "detail_short":
                     if data["detail_short"]["df"].empty:
                         return html.Div(
-                            "请执行回测",
+                            "Run Backtest",
                             style={
                                 "color": "#999",
                                 "padding": "20px",
@@ -140,7 +140,7 @@ class TableCallback:
                 if table_name == "cn_etf":
                     if data["cn_etf"]["df"].empty:
                         return html.Div(
-                            "请执行回测",
+                            "Run Backtest",
                             style={
                                 "color": "#999",
                                 "padding": "20px",
@@ -251,7 +251,7 @@ class TableCallback:
         )
         def start_ai(n_clicks, cell_info):
             if not n_clicks or not cell_info:
-                return "未选中有效NAME列单元格", None, False, 0, True
+                return "No valid cell selected", None, False, 0, True
 
             symbol = cell_info.get("symbol", "")
             name = cell_info.get("name", "")
@@ -286,9 +286,9 @@ class TableCallback:
                     )
                     ai_result = response.output_text.strip()
                 except httpx.TimeoutException:
-                    ai_result = "大模型联网检索检索超时，请稍后重试。"
+                    ai_result = "web search timed out; please try again later."
                 except Exception as e:
-                    ai_result = f"AI分析调用异常：{str(e)}"
+                    ai_result = f"AI analysis call exception：{str(e)}"
                 finally:
                     if "http_client" in locals():
                         http_client.close()
@@ -297,7 +297,7 @@ class TableCallback:
                 with cache_lock:
                     AI_TASK_CACHE[key] = {
                         "status": "success",
-                        "result": f"股票代码：{sym} 股票名称：{nm.strip('88+')} 核心观点：{ai_result}",
+                        "result": f"Symbol: {sym} Name: {nm.strip('88+')} Core Insight: {ai_result}",
                     }
 
             # 异步启动
@@ -307,7 +307,7 @@ class TableCallback:
             thread.daemon = True
             thread.start()
 
-            return "智能分析中，请稍候...", None, True, 0, False
+            return "Performing analysis; please wait...", None, True, 0, False
 
         @callback(
             Output("ai_summary_box", "children", allow_duplicate=True),
@@ -329,12 +329,17 @@ class TableCallback:
 
             if not task_data or task_data.get("status") == "loading":
                 if n_intervals > 120:  # 超时控制
-                    return "⚠️ 分析超时，请确认网络并重试。", None, False, True
+                    return (
+                        "⚠️ Analysis timed out; please check and try again.",
+                        None,
+                        False,
+                        True,
+                    )
 
                 return no_update, no_update, no_update, no_update
 
             if task_data.get("status") == "success":
-                final_text = task_data.get("result", "未获取到有效内容")
+                final_text = task_data.get("result", "No valid content obtained")
 
                 with cache_lock:
                     AI_TASK_CACHE.pop(task_key, None)

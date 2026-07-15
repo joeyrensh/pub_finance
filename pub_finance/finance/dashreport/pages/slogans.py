@@ -28,25 +28,25 @@ DEFAULT_CONFIG = {
 # 【新增：界面名称映射，只改展示，不改动底层key】
 LABEL_MAPPING = {
     # 全局权重
-    "industry": "行业因子",
-    "pnl": "损益因子",
-    "stability": "稳定性因子",
-    "erp": "股权溢价因子",
-    "strategy": "策略因子",
+    "industry": "Industry Factor",
+    "pnl": "PnL Factor",
+    "stability": "Stability Factor",
+    "erp": "Equity Risk Premium Factor",
+    "strategy": "Strategy Factor",
     # industry子项
-    "arrow": "上升趋势",
-    "bracket": "行业排名",
+    "arrow": "Uptrend",
+    "bracket": "Industry Ranking",
     # pnl子项
-    "daily": "日度损益",
-    "weighted_return": "加权损益",
+    "daily": "Daily PnL",
+    "weighted_return": "Weighted PnL",
     # stability子项
-    "win_rate": "交易胜率",
-    "avg_trans": "交易频次",
-    "sortino": "索提诺比率",
-    "maxdd": "最大回撤",
+    "win_rate": "Win Rate",
+    "avg_trans": "Trade Frequency",
+    "sortino": "Sortino Ratio",
+    "maxdd": "Max Drawdown",
     # strategy子项
-    "cnt": "策略强度",
-    "signal": "策略等级",
+    "cnt": "Strategy Intensity",
+    "signal": "Strategy Tier",
 }
 
 
@@ -115,7 +115,9 @@ def build_root_card(cfg):
     return dbc.Card(
         [
             dbc.CardHeader(
-                html.Label("全局权重", className="fs-5 fw-bold text-dark l1_label"),
+                html.Label(
+                    "Global Weights", className="fs-5 fw-bold text-dark l1_label"
+                ),
             ),
             dbc.CardBody(row_list, className="py-3 card-body"),
         ],
@@ -160,7 +162,9 @@ def build_industry_card(cfg):
     return dbc.Card(
         [
             dbc.CardHeader(
-                html.Label("行业子权重", className="fs-5 fw-bold text-dark l1_label")
+                html.Label(
+                    "Industry Sub-weights", className="fs-5 fw-bold text-dark l1_label"
+                )
             ),
             dbc.CardBody(row_list, className="py-3 card-body"),
         ],
@@ -205,7 +209,9 @@ def build_pnl_card(cfg):
     return dbc.Card(
         [
             dbc.CardHeader(
-                html.Label("损益子权重", className="fs-5 fw-bold text-dark l1_label")
+                html.Label(
+                    "PnL Sub-weights", className="fs-5 fw-bold text-dark l1_label"
+                )
             ),
             dbc.CardBody(row_list, className="py-3 card-body"),
         ],
@@ -250,7 +256,9 @@ def build_stability_card(cfg):
     return dbc.Card(
         [
             dbc.CardHeader(
-                html.Label("稳定性子权重", className="fs-5 fw-bold text-dark l1_label")
+                html.Label(
+                    "Stability Sub-weights", className="fs-5 fw-bold text-dark l1_label"
+                )
             ),
             dbc.CardBody(row_list, className="py-3 card-body"),
         ],
@@ -296,7 +304,9 @@ def build_strategy_card(cfg):
     return dbc.Card(
         [
             dbc.CardHeader(
-                html.Label("策略子权重", className="fs-5 fw-bold text-dark l1_label")
+                html.Label(
+                    "Strategy Sub-weights", className="fs-5 fw-bold text-dark l1_label"
+                )
             ),
             dbc.CardBody(row_list, className="py-3 card-body"),
         ],
@@ -312,9 +322,9 @@ def create_layout(app: Dash):
     # 标题区块
     title_section = html.Div(
         [
-            html.H6("权重配置", className="subtitle padded"),
+            html.H6("Weight Configuration", className="subtitle padded"),
             html.P(
-                "自由拖拽调整权重数值，无强制归一约束，一键保存配置文件",
+                "Drag and drop to adjust weights freely.Save profile with one click.",
                 className="text-secondary text-center mb-5 small page-sub-desc",
             ),
         ]
@@ -344,14 +354,14 @@ def create_layout(app: Dash):
     button_section = html.Div(
         [
             dbc.Button(
-                "重置默认参数",
+                "Reset to Defaults",
                 id="btn-reset",
                 color="secondary",
                 outline=True,
                 className="py-2 rounded-2 weight-btn-reset flex-btn-item",
             ),
             dbc.Button(
-                "保存配置至JSON",
+                "Save Configuration to JSON",
                 id="btn-save",
                 color="primary",
                 className="py-2 rounded-2 weight-btn-save flex-btn-item",
@@ -368,7 +378,7 @@ def create_layout(app: Dash):
     # JSON预览区块
     preview_section = html.Div(
         [
-            html.H6("实时配置预览", className="subtitle padded"),
+            html.H6("Real-time Configuration Preview", className="subtitle padded"),
             dcc.Textarea(
                 id="json-preview", className="json-preview-box", readOnly=True
             ),
@@ -515,11 +525,14 @@ def register_callbacks(app: Dash):
         role = session.get("role")
         if role != "admin":
             return html.Span(
-                "⛔ 权限不足：仅超级管理员可修改配置", style={"color": "#dc3545"}
+                "⛔ Only super administrators can modify the configuration.",
+                style={"color": "#dc3545"},
             )
         try:
             d = json.loads(json_str)
             save_config(d)
-            return html.Span("✅ 配置文件保存成功", style={"color": "#198754"})
+            return html.Span(
+                "✅ Configuration file saved successfully.", style={"color": "#198754"}
+            )
         except Exception as e:
-            return html.Span(f"❌ 保存失败：{str(e)}", style={"color": "#dc3545"})
+            return html.Span(f"❌ Save failed: {str(e)}", style={"color": "#dc3545"})

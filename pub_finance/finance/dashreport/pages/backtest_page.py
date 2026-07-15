@@ -248,7 +248,7 @@ class BacktestPage:
                     symbols = df["symbol"].dropna().astype(str).str.strip().tolist()
                     symbols = [s for s in symbols if s]
                 except Exception as e:
-                    print(f"读取股票列表失败: {e}")
+                    print(f"Failed to load the stock list: {e}")
                     symbols = []
             if not symbols:
                 symbols = (
@@ -300,12 +300,14 @@ class BacktestPage:
 
                         symbols.sort(key=sort_key)
                         print(
-                            f"已按 {stock_file} 中的 PE/总市值排序，共 {len(pe_dict)} 条数据"
+                            f"Sorted by PE/total market cap based on {stock_file}; {len(pe_dict)} data entries in total."
                         )
                 except Exception as e:
-                    print(f"读取股票信息文件失败: {e}")
+                    print(f"Failed to read the stock information file: {e}")
             if not stock_file_exists:
-                print(f"未找到对应日期的股票文件，保持 dynamic_list 原始顺序")
+                print(
+                    f"No corresponding date stock file found, keeping the original order of dynamic_list"
+                )
             # 分页每页3个
             total = len(symbols)
             start = 0
@@ -376,16 +378,16 @@ class BacktestPage:
             # 锁清理：如果任务不在运行中，但锁被意外占用，则强制释放
             if status != "running" and BACKTEST_LOCK.locked():
                 BACKTEST_LOCK.release()
-                print("WARNING: 检测到残留锁，已强制释放")
+                print("WARNING: Residual lock detected; forcibly released.")
             if status == "running":
                 # 任务仍在运行中
                 return (
                     SINGLE_TASK_ID,
                     True,
-                    "回测中…",
+                    "Backtesting…",
                     "btn btn-primary kpi-label progress-btn running",
                     {"display": "block"},
-                    "回测任务已提交，后台运行中...",
+                    "Backtest task submitted, running in background...",
                     False,
                     None,
                 )
@@ -393,13 +395,13 @@ class BacktestPage:
                 result = task_state.get("result")
                 if result:
                     returns = result.get("returns", 0)
-                    status_text = f"回测完成 | 收益率：{returns:+.2f}% | 现金：{result['c']:,.0f} | 总值：{result['tv']:,.0f}"
+                    status_text = f"Backtest completed | Return: {returns:+.2f}% | Cash: {result['c']:,.0f} | Total Value: {result['tv']:,.0f}"
                     # 任务已完成，重置状态为 idle（便于下次提交）
                     task_state["status"] = "idle"
                     return (
                         None,
                         False,
-                        "执行回测",
+                        "Run Backtest",
                         "btn btn-primary kpi-label progress-btn",
                         {"display": "none"},
                         status_text,
@@ -407,15 +409,15 @@ class BacktestPage:
                         result,
                     )
             elif status == "failed":
-                error = task_state.get("error", "未知错误")
+                error = task_state.get("error", "unknown error")
                 task_state["status"] = "idle"
                 return (
                     None,
                     False,
-                    "执行回测",
+                    "Run Backtest",
                     "btn btn-primary kpi-label progress-btn",
                     {"display": "none"},
-                    f"回测失败: {error}",
+                    f"Backtest failed: {error}",
                     True,
                     None,
                 )
@@ -423,7 +425,7 @@ class BacktestPage:
             return (
                 None,
                 False,
-                "执行回测",
+                "Run Backtest",
                 "btn btn-primary kpi-label progress-btn",
                 {"display": "none"},
                 "",
@@ -464,15 +466,15 @@ class BacktestPage:
             # 防御：如果锁被占用但任务状态不是 running，强制释放锁
             if BACKTEST_LOCK.locked() and task_state.get("status") != "running":
                 BACKTEST_LOCK.release()
-                print("WARNING: 提交前清理残留锁")
+                print("WARNING: Clean up residual locks before committing.")
             if not BACKTEST_LOCK.acquire(blocking=False):
                 return (
                     None,
                     False,
-                    "执行回测",
+                    "Run Backtest",
                     "btn btn-primary kpi-label progress-btn",
                     {"display": "none"},
-                    "⚠️ 系统正在执行回测，请稍后",
+                    "⚠️ System is currently running backtest, please wait",
                     True,
                 )
             stock_list = [s.strip().upper() for s in stocks.split(",") if s.strip()]
@@ -481,10 +483,10 @@ class BacktestPage:
                 return (
                     None,
                     False,
-                    "执行回测",
+                    "Run Backtest",
                     "btn btn-primary kpi-label progress-btn",
                     {"display": "none"},
-                    "请输入有效的股票代码",
+                    "Please enter valid stock codes",
                     True,
                 )
             try:
@@ -503,22 +505,22 @@ class BacktestPage:
                 return (
                     SINGLE_TASK_ID,
                     True,
-                    "回测中…",
+                    "Backtesting…",
                     "btn btn-primary kpi-label progress-btn running",
                     {"display": "block"},
-                    "回测任务已提交，后台运行中...",
+                    "Backtest task submitted, running in background...",
                     False,
                 )
             except Exception as e:
                 BACKTEST_LOCK.release()
-                print(f"提交任务失败: {e}")
+                print(f"Failed to submit task: {e}")
                 return (
                     None,
                     False,
-                    "执行回测",
+                    "Run Backtest",
                     "btn btn-primary kpi-label progress-btn",
                     {"display": "none"},
-                    f"提交失败: {e}",
+                    f"Failed to submit task: {e}",
                     True,
                 )
 
@@ -544,7 +546,7 @@ class BacktestPage:
                     None,
                     "",
                     False,
-                    "执行回测",
+                    "Run Backtest",
                     "btn btn-primary kpi-label progress-btn",
                     {"display": "none"},
                     True,
@@ -558,28 +560,28 @@ class BacktestPage:
                 result = task_state.get("result")
                 if result:
                     returns = result.get("returns", 0)
-                    status_text = f"回测完成 | 收益率：{returns:+.2f}% | 现金：{result['c']:,.0f} | 总值：{result['tv']:,.0f}"
+                    status_text = f"Backtest completed | Return: {returns:+.2f}% | Cash: {result['c']:,.0f} | Total Value: {result['tv']:,.0f}"
                     BACKTEST_LOCK.release()
                     task_state["status"] = "idle"
                     return (
                         result,
                         status_text,
                         False,
-                        "执行回测",
+                        "Run Backtest",
                         "btn btn-primary kpi-label progress-btn",
                         {"display": "none"},
                         True,
                         None,
                     )
             elif status == "failed":
-                error = task_state.get("error", "未知错误")
+                error = task_state.get("error", "Unknown error")
                 BACKTEST_LOCK.release()
                 task_state["status"] = "idle"
                 return (
                     None,
-                    f"回测失败: {error}",
+                    f"Backtest failed: {error}",
                     False,
-                    "执行回测",
+                    "Run Backtest",
                     "btn btn-primary kpi-label progress-btn",
                     {"display": "none"},
                     True,
@@ -590,7 +592,7 @@ class BacktestPage:
                 None,
                 "",
                 False,
-                "执行回测",
+                "Run Backtest",
                 "btn btn-primary kpi-label progress-btn",
                 {"display": "none"},
                 True,
@@ -608,7 +610,7 @@ class BacktestPage:
         def up_pnl(d, theme, client_width):
             if not d or not d.get("pnl") or not d["pnl"].get("index"):
                 return html.Div(
-                    "请执行回测",
+                    "Run backtest",
                     style={"color": "#999", "padding": "60px", "textAlign": "center"},
                 )
             pnl = pd.Series(d["pnl"]["values"], index=pd.to_datetime(d["pnl"]["index"]))
@@ -644,7 +646,7 @@ class BacktestPage:
         def uk(d, theme, client_width):
             if not d or not d.get("h"):
                 return html.Div(
-                    "请执行回测",
+                    "Run backtest",
                     style={"color": "#999", "padding": "60px", "textAlign": "center"},
                 )
             stocks = d.get("s", [])
@@ -716,14 +718,14 @@ class BacktestPage:
         def update_trade_table(data, theme, client_width):
             if not data or not data.get("tr"):
                 return html.Div(
-                    "暂无交易记录",
+                    "No trade records available",
                     style={"color": "#999", "padding": "60px", "textAlign": "center"},
                 )
             tr = data.get("tr", [])
             df = pd.DataFrame(tr)
             if df.empty:
                 return html.Div(
-                    "暂无交易记录",
+                    "No trade records available",
                     style={"color": "#999", "padding": "60px", "textAlign": "center"},
                 )
             rename_map = {
@@ -771,17 +773,17 @@ class BacktestPage:
         )
         return dbc.Container(
             [
-                html.H6("回测分析", className="subtitle padded"),
+                html.H6("Backtest Analysis", className="subtitle padded"),
                 html.Div(
                     [
                         html.Div(
                             [
-                                html.Label("市场"),
+                                html.Label("Markets"),
                                 dcc.RadioItems(
                                     id="backtest-market",
                                     options=[
-                                        {"label": "A股", "value": "cn"},
-                                        {"label": "美股", "value": "us"},
+                                        {"label": "A-Shares", "value": "cn"},
+                                        {"label": "US Stocks", "value": "us"},
                                     ],
                                     value="cn",
                                     inline=True,
@@ -797,12 +799,12 @@ class BacktestPage:
                         ),
                         html.Div(
                             [
-                                html.Label("回测日期"),
+                                html.Label("Backtest Date"),
                                 dcc.DatePickerSingle(
                                     id="backtest-date",
                                     date=default_date,
                                     display_format="YYYY-MM-DD",
-                                    placeholder="选择日期",
+                                    placeholder="Select Date",
                                     className="custom-date-picker kpi-label",
                                     style={
                                         "width": "auto",
@@ -826,7 +828,7 @@ class BacktestPage:
                     [
                         dbc.Col(
                             [
-                                html.Label("股票代码"),
+                                html.Label("Symbol"),
                                 html.Div(
                                     [
                                         dcc.Input(
@@ -849,7 +851,7 @@ class BacktestPage:
                                                     className="btn btn-light kpi-label nav-btn left",
                                                 ),
                                                 html.Button(
-                                                    "刷新",
+                                                    "Refresh",
                                                     id="backtest-refresh",
                                                     n_clicks=0,
                                                     className="btn btn-secondary kpi-label nav-btn middle",
@@ -885,7 +887,7 @@ class BacktestPage:
                             [
                                 html.Label(" "),
                                 html.Button(
-                                    "执行回测",
+                                    "Run Backtest",
                                     id="backtest-run",
                                     n_clicks=0,
                                     className="btn btn-primary kpi-label progress-btn btn-backtest",
@@ -930,7 +932,7 @@ class BacktestPage:
     def build_annual_return_card(self):
         return html.Div(
             [
-                html.H6(["收益与回撤 ‹"], className="subtitle padded"),
+                html.H6(["Returns & Drawdowns ‹"], className="subtitle padded"),
                 html.Div(
                     className="chart-container",
                     children=[
@@ -962,7 +964,9 @@ class BacktestPage:
     def build_kline_card(self):
         return html.Div(
             [
-                html.H6(["K线图与买卖点 ‹"], className="subtitle padded"),
+                html.H6(
+                    ["Candlestick with Buy/Sell Signals ‹"], className="subtitle padded"
+                ),
                 html.Div(
                     className="chart-container",
                     children=[
@@ -999,7 +1003,7 @@ class BacktestPage:
                 html.Div(
                     className="twelve columns",
                     children=[
-                        html.H6("交易记录", className="subtitle padded"),
+                        html.H6("Trade Log", className="subtitle padded"),
                         html.Div(
                             [
                                 dcc.Loading(
@@ -1065,7 +1069,7 @@ class BacktestPage:
                 ),
                 # ─── 2. 按钮：绝对定位跟随右下角 ───
                 html.Button(
-                    "AI分析",
+                    "AI Analysis",
                     id="global_btn_ai_summary",
                     className="ai-analysis-btn",
                     style={
@@ -1101,7 +1105,7 @@ class BacktestPage:
                                 "height": "auto",
                                 "display": "block",  # 块级流，天然向上对齐
                             },
-                            children="点击持仓表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要",
+                            children="Click a cell in the NAME column, then click [AI Analysis] to generate quantitative summary.",
                         ),
                     ],
                 ),

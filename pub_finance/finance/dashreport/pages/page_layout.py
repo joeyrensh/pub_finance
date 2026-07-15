@@ -337,7 +337,7 @@ class PageLayout:
                                 "height": "auto",
                                 "display": "block",
                             },
-                            children="点击持仓表格 NAME 列单元格，再点击上方【AI分析】生成个股量化摘要",
+                            children="Click a cell in the NAME column, then click [AI Analysis] to generate quantitative summary.",
                         ),
                     ],
                 ),
