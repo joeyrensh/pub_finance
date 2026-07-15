@@ -9,6 +9,7 @@
 ## 📌 Introduction
 Pub Finance is a **full-lifecycle, open-source quantitative analysis framework** that provides an end-to-end closed loop spanning data pipelines, a backtesting engine, and interactive Web dashboards. Seamlessly supporting both the **A-Share** and **US Stock** markets, it is designed to help individual investors and quant enthusiasts rapidly validate, optimize, and deploy trading strategies.
 
+---
 
 ## 🏗️ Architecture & Core Data Flow
 Pub Finance features a lightweight, decoupled modular design. The core pipeline is structured as follows:
@@ -144,11 +145,10 @@ Contributions make the open-source community an amazing place to learn, inspire,
 ## Contact & Feedback
 - Email: haifengreal@qq.com
 - Issues: https://github.com/joeyrensh/pub_finance/issues
-<div align="center">
 
 **⭐ If this project helped you, please give us a Star!**
 
-[⬆ Back to Top]
+[⬆ Back to Top](#pub-finance)
 
 
 
@@ -296,7 +296,6 @@ PYSPARK_DRIVER_PYTHON=/home/ubuntu/miniconda3/bin/python
 ## 联系方式
 - Email: haifengreal@qq.com
 - Issues: https://github.com/joeyrensh/pub_finance/issues
-<div align="center">
 
 **⭐ 如果这个项目对你有帮助，请给一个 Star!**
 
