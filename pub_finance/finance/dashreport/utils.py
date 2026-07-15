@@ -748,7 +748,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                     ),
                     "column_id": col,
                 },
-                "backgroundColor": ("""var(--flag-color)"""),
+                "backgroundColor": ("""var(--positive-databar-color)"""),
             }
             for col in df.columns
             if col in cols_format
