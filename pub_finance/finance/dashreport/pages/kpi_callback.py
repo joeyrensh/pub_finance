@@ -32,7 +32,7 @@ class KpiCallback:
             # ========== 新增：无数据时返回占位文本 ==========
             if df_overall is None or df_overall.empty:
                 return html.Div(
-                    "请执行回测",
+                    "Run Backtest",
                     style={"color": "#999", "padding": "20px", "textAlign": "center"},
                 )
 

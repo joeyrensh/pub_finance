@@ -52,7 +52,7 @@ class ChartCallback:
 
     @staticmethod
     def _placeholder_figure(
-        text: str = "请执行回测", theme: str = "light", client_width: int = 1440
+        text: str = "Run Backtest", theme: str = "light", client_width: int = 1440
     ):
         """生成一个显示文本的占位图表"""
         bg_color = "rgba(255, 255, 255, 0)"

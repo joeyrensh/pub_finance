@@ -500,11 +500,11 @@ table.tiny-header tr:first-child { font-size: 8px; }
 .kpi-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(1rem, 1fr));
-  gap: 2px;
+  gap: 5px;
 }
 
 .kpi-card {
-  padding: 4px 3px;
+  padding: 15px 5px;
   border-radius: 4px;
   border: 0.2px solid var(--gridcolor);
   background-color: #91959924;
@@ -520,7 +520,8 @@ table.tiny-header tr:first-child { font-size: 8px; }
 .kpi-value {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: #ff4444;
+  /* color: #ff4444; */
+  color: var(--text-color);
 }
 
 .kpi-date {
