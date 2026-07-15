@@ -1362,6 +1362,14 @@ a:active { color: lightgrey; text-decoration: underline; }
   .ai-analysis-panel {
     font-size: 1rem;
   }
+
+  input,
+  textarea,
+  select,
+  fieldset {
+      margin-bottom: 0px;
+
+  }  
 }
 
 

@@ -361,7 +361,7 @@ def create_layout(app: Dash):
                 className="py-2 rounded-2 weight-btn-reset flex-btn-item",
             ),
             dbc.Button(
-                "Save Configuration to JSON",
+                "Save to JSON",
                 id="btn-save",
                 color="primary",
                 className="py-2 rounded-2 weight-btn-save flex-btn-item",
