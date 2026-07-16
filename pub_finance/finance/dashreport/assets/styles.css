@@ -612,6 +612,29 @@ table.tiny-header tr:first-child { font-size: 8px; }
     shape-rendering: auto !important; /* 防止文字被 crispEdges 强行像素化导致严重变形 */
 }
 
+/* 1. 强行激活高分屏超清渲染，消灭 Matplotlib 导出的 Base64 图片边缘毛虚感 */
+.js-plotly-plot img[src^="data:image/png;base64"],
+table img[src^="data:image/png;base64"] {
+    image-rendering: -webkit-optimize-contrast !important;
+    image-rendering: crisp-edges !important;
+    vertical-align: middle !important;
+    display: inline-block !important;
+    
+    /* 2. 赋予 TV 经典的轻微悬浮阴影，让表格里的微型趋势图具有实体质感 */
+    filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.04));
+    
+    /* 3. 微微拉伸画布呼吸感，修正 Matplotlib 紧凑裁剪带来的视觉压抑 */
+    padding: 2px 0;
+    transform: scale(0.96); /* 稍微内敛缩小 4%，让线条在单元格里显得极度高雅细致 */
+    transition: transform 0.2s ease;
+}
+
+/* 4. 互动特效：当鼠标悬停在表格这一行时，微型图轻轻放大交互，TV 终端感拉满 */
+table tr:hover img[src^="data:image/png;base64"] {
+    transform: scale(1.02);
+    filter: drop-shadow(0px 2px 4px rgba(41, 98, 255, 0.15)); /* 淡淡的金融蓝光晕 */
+}
+
 .xy2 .drag,
 .sdrag,
 .ndrag {
