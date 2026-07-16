@@ -115,7 +115,7 @@ class KpiCallback:
                 ("SHARES", f"{stock_cnt_today}", shares_pct),
                 (
                     "DATE",
-                    row_today.get("end_date", ""),
+                    row_today.get("end_date", "")[-5:],
                     "Today",
                 ),  # DATE 一栏不显示百分比，固定为 "Today"
             ]

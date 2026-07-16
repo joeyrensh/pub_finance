@@ -523,6 +523,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
   /* color: #ff4444; */
   color: var(--text-color);
   margin-bottom: 6px;
+  font-size: 1.5rem;
 }
 
 .kpi-date {
@@ -1189,6 +1190,9 @@ a:active { color: lightgrey; text-decoration: underline; }
   
   .kpi-label {
     font-size: 1rem;
+  }
+  .kpi-value {
+    font-size: 1.3rem;
   }
 
   .custom-date-picker .DateInput_input {
