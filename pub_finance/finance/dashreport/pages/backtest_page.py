@@ -156,10 +156,10 @@ def load_logs(stocks, dt, m):
     )
     if pos_path.exists():
         df_pos = pd.read_csv(
-            pos_path, header=None, names=[f"col{i}" for i in range(1, 13)]
+            pos_path, header=None, names=[f"col{i}" for i in range(1, 14)]
         )
         df_pos = df_pos.rename(
-            columns={"col2": "symbol", "col3": "date", "col12": "strategy"}
+            columns={"col2": "symbol", "col3": "date", "col13": "strategy"}
         )[["symbol", "date", "strategy"]]
         df_pos["date"] = pd.to_datetime(df_pos["date"])
         df_pos = df_pos.sort_values(["symbol", "date"]).drop_duplicates(
