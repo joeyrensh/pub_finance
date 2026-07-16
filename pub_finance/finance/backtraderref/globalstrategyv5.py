@@ -96,11 +96,13 @@ class GlobalStrategy(bt.Strategy):
         self.file_path_position = file.get_file_path_position
         self.file_path_position_detail = file.get_file_path_position_detail
         self.file_path_trade = file.get_file_path_trade
+        self.file_path_cash_asset = file.get_file_path_cash_asset
         # 🌟 启动时单纯执行清空动作（不写任何表头）
         for path in [
             self.file_path_position_detail,
             self.file_path_trade,
             self.file_path_position,
+            self.file_path_cash_asset,
         ]:
             with open(path, "w", encoding="utf-8") as f:
                 pass
@@ -160,7 +162,7 @@ class GlobalStrategy(bt.Strategy):
         self.rf_rate = self._load_rf_rate()
 
         """ 交易日志和持仓明细初始化"""
-        self.buffers = {"trade": [], "position_detail": []}
+        self.buffers = {"trade": [], "position_detail": [], "cash_asset": []}
         self.flush_threshold = 2000
 
         """ 策略进度方法初始化 """
@@ -768,6 +770,8 @@ class GlobalStrategy(bt.Strategy):
             target_path = self.file_path_trade
         elif file_type == "position_detail":
             target_path = self.file_path_position_detail
+        elif file_type == "cash_asset":
+            target_path = self.file_path_cash_asset
         else:
             return  # 未知类型直接拦截
 
@@ -972,6 +976,7 @@ class GlobalStrategy(bt.Strategy):
         # 策略执行进度
         t = ToolKit("策略执行中")
         position_detail_record = []
+        cash_asset_record = {}
         for i, d in enumerate(self.datas):
             if self.order[d._name]:
                 continue
@@ -1152,6 +1157,22 @@ class GlobalStrategy(bt.Strategy):
             # 🌟 仅检查 position_detail 的缓冲区，满了就独立对 position_detail 文件执行写盘
             if len(self.buffers["position_detail"]) >= self.flush_threshold:
                 self._flush_records_to_csv("position_detail")
+
+        # 1. 正常获取上一交易日的日期（将其作为我们的数据锚点）
+        cash_asset_record = {
+            "date": self.datas[0].datetime.date(0).isoformat(),
+            "cash": self.broker.get_cash(),
+            "value": self.broker.getvalue(),
+        }
+
+        # 2. 核心优化：识别并处理最后一个虚拟 Bar 的特殊逻辑
+        if len(self.data) == self.data.buflen():
+            self.buffers["cash_asset"][-1]["cash"] = cash_asset_record["cash"]
+            self.buffers["cash_asset"][-1]["value"] = cash_asset_record["value"]
+        else:
+            # 如果是正常的真实交易日，则按原逻辑正常追加记录
+            self.buffers["cash_asset"].append(cash_asset_record)
+
         t.progress_bar(self.data.buflen(), len(self))
 
     def _set_and_get_signal(self, symbol, level, strategy, status):
@@ -1206,6 +1227,7 @@ class GlobalStrategy(bt.Strategy):
         # 回测彻底结束时，把 2 种文件缓冲区里剩余的‘零头’各自独立刷盘
         self._flush_records_to_csv("trade")
         self._flush_records_to_csv("position_detail")
+        self._flush_records_to_csv("cash_asset")
         position_record = []
         # 记录仓位情况，并打印明细
         pos_share = 0

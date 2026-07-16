@@ -36,41 +36,103 @@ class KpiCallback:
                     style={"color": "#999", "padding": "20px", "textAlign": "center"},
                 )
 
-            # 取第一行数据
-            row = df_overall.iloc[0]
-            final_value = row.get("final_value", 0)
-            cash = row.get("cash", 0)
-            stock_cnt = row.get("stock_cnt", 1)
-            end_date = row.get("end_date", "")
+            # 2. 提取最新一日数据（第一行，索引 0）
+            row_today = df_overall.iloc[0]
+            val_today = row_today.get("final_value", 0.0)
+            cash_today = row_today.get("cash", 0.0)
+            stock_cnt_today = row_today.get("stock_cnt", 1)
 
-            # 处理股票数量异常值
-            if pd.isna(stock_cnt) or stock_cnt in [None, 0, ""]:
-                stock_cnt = 1
+            if pd.isna(stock_cnt_today) or stock_cnt_today in [None, 0, ""]:
+                stock_cnt_today = 1
 
-            # 计算 SWDI 指数
-            swdi = int(
+            # 计算最新一日的 SWDI
+            swdi_today = int(
                 round(
-                    ((final_value - cash) - (stock_cnt * 10000 - cash)) / stock_cnt, 0
+                    ((val_today - cash_today) - (stock_cnt_today * 10000 - cash_today))
+                    / stock_cnt_today,
+                    0,
                 )
             )
 
-            # 构建 KPI 卡片
+            # 3. 初始化环比计算的上一日默认变量
+            val_prev = None
+            cash_prev = None
+            stock_cnt_prev = None
+            swdi_prev = None
+
+            # 判断是否有第二行数据（即上一日，索引 1）
+            has_prev = len(df_overall) > 1
+
+            if has_prev:
+                row_prev = df_overall.iloc[1]
+                val_prev = row_prev.get("final_value", 0.0)
+                cash_prev = row_prev.get("cash", 0.0)
+                stock_cnt_prev = row_prev.get("stock_cnt", 1)
+
+                if pd.isna(stock_cnt_prev) or stock_cnt_prev in [None, 0, ""]:
+                    stock_cnt_prev = 1
+
+                # 计算上一日的 SWDI
+                swdi_prev = int(
+                    round(
+                        ((val_prev - cash_prev) - (stock_cnt_prev * 10000 - cash_prev))
+                        / stock_cnt_prev,
+                        0,
+                    )
+                )
+
+            # 4. 统一定义环比百分比计算闭包函数（防零、防空安全计算）
+            def calc_pct(today_val, prev_val):
+                if (
+                    not has_prev
+                    or prev_val is None
+                    or pd.isna(prev_val)
+                    or prev_val == 0
+                ):
+                    return "-"
+                pct = ((today_val - prev_val) / abs(prev_val)) * 100
+                # 格式化为带有正负号的2位小数百分比
+                return f"{pct:+.2f}%" if pct != 0 else "0.00%"
+
+            # 5. 计算各个指标的环比百分比
+            swdi_pct = calc_pct(swdi_today, swdi_prev)
+            assets_pct = calc_pct(val_today, val_prev)
+            cash_pct = calc_pct(cash_today, cash_prev)
+            shares_pct = calc_pct(stock_cnt_today, stock_cnt_prev)
+
+            # 6. 构建升级版的 KPI 结构 (格式: (指标名, 最新值, 环比值/补充说明))
             kpis = [
-                ("SWDI", swdi),
-                ("ASSETS", f"{final_value / 10000:,.2f} 万"),
-                ("CASH", f"{cash / 10000:,.2f} 万"),
-                ("SHARES", f"{stock_cnt}"),
-                ("DATE", end_date),
+                ("SWDI", swdi_today, swdi_pct),
+                ("ASSETS", f"{val_today / 10000:,.2f} 万", assets_pct),
+                ("CASH", f"{cash_today / 10000:,.2f} 万", cash_pct),
+                ("SHARES", f"{stock_cnt_today}", shares_pct),
+                (
+                    "DATE",
+                    row_today.get("end_date", ""),
+                    "Today",
+                ),  # DATE 一栏不显示百分比，固定为 "Today"
             ]
 
             cards = []
-            for label, value in kpis:
+            # 解包 3 个值 (label, value, pct)
+            for label, value, pct in kpis:
                 extra_class = "kpi-date" if label == "DATE" else ""
+
+                # 动态判断环比文字的颜色样式（A股红涨绿跌，Today保持中性）
+                if pct.startswith("+"):
+                    pct_class = "kpi-pct-up"  # A股红涨
+                elif pct.startswith("-"):
+                    pct_class = "kpi-pct-down"  # A股绿跌
+                else:
+                    pct_class = "kpi-pct-neutral"
+
                 cards.append(
                     html.Div(
                         [
                             html.Div(label, className="kpi-label"),
                             html.Div(value, className=f"kpi-value {extra_class}"),
+                            # 环比/说明文本展示层
+                            html.Div(pct, className=f"kpi-pct {pct_class}"),
                         ],
                         className="kpi-card",
                     )

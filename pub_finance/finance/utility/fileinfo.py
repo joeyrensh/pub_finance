@@ -65,6 +65,10 @@ class FileInfo:
         self._file_path_dynamic_list = (
             FINANCE_ROOT / f"{decode_market}stockinfo" / "dynamic_list.csv"
         )
+        # 每日现金和total asset记录
+        self._file_path_cash_asset = (
+            FINANCE_ROOT / f"{decode_market}stockinfo" / f"{market}_cash_asset.csv"
+        )
 
     """ 返回某日数据文件路径 """
 
@@ -148,3 +152,7 @@ class FileInfo:
     @property
     def get_file_path_dynamic_list(self):
         return self._file_path_dynamic_list
+
+    @property
+    def get_file_path_cash_asset(self):
+        return self._file_path_cash_asset

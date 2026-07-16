@@ -190,6 +190,20 @@ class StockProposal:
         spark_stock_list = spark.createDataFrame(stock_list_tuples, schema=["symbol"])
         spark_stock_list.createOrReplaceTempView("temp_stock_list")
 
+        # 现金资产日志记录
+        file_path_cash_asset = file.get_file_path_cash_asset
+        cols = [
+            "idx",
+            "date",
+            "cash",
+            "final_value",
+        ]
+        spark_cash_asset = spark.read.csv(
+            str(file_path_cash_asset), header=None, inferSchema=True
+        )
+        spark_cash_asset = spark_cash_asset.toDF(*cols)
+        spark_cash_asset.createOrReplaceTempView("temp_cash_asset")
+
         # 生成时间序列，用于时间序列补齐
         end_date = pd.to_datetime(self.trade_date).strftime("%Y-%m-%d")
         date_range = pd.date_range(
@@ -3571,6 +3585,44 @@ class StockProposal:
             scale=2,
         )
         print("Calendar Map生成完成...")
+        # 生成kpi section仪表盘最近2天的指标
+        spark_kpi_section = spark.sql(
+            f"""
+            WITH tmp AS (
+                SELECT 
+                    {get_date_rank_subquery(1)} AS date
+                    ,SUM(CASE WHEN buy_date <= {get_date_rank_subquery(1)} THEN 1 ELSE 0 END) AS total_cnt
+                FROM temp_cur_position
+                WHERE buy_date <= '{end_date}'
+                UNION
+                SELECT 
+                    {get_date_rank_subquery(2)} AS date
+                    ,SUM(CASE WHEN buy_date <= {get_date_rank_subquery(2)} THEN 1 ELSE 0 END) AS total_cnt
+                FROM temp_cur_position
+                WHERE buy_date <= '{end_date}'               
+            ), tmp1 AS (
+                SELECT
+                    date
+                    ,cash
+                    ,final_value
+                FROM temp_cash_asset
+                WHERE date >= {get_date_rank_subquery(2)}
+            )
+            SELECT
+                tmp1.cash
+                ,tmp1.final_value
+                ,tmp.total_cnt AS stock_cnt
+                ,tmp.date AS end_date
+                
+            FROM tmp JOIN tmp1 ON tmp.date = tmp1.date
+            ORDER BY tmp.date DESC
+            """
+        )
+        pd_kpi_section = spark_kpi_section.toPandas()
+
+        pd_kpi_section.to_csv(
+            FINANCE_ROOT / f"data/{self.market}_df_result.csv", header=True
+        )
 
         spark.stop()
         subject = f"""{self.market.upper()} Stock Market Trends - {end_date}""".format(
@@ -3857,19 +3909,6 @@ class StockProposal:
                     </html>
                     """.format(
             cash=cash, final_value=final_value, stock_cnt=len(stock_list)
-        )
-
-        result = [
-            {
-                "cash": cash,
-                "final_value": final_value,
-                "stock_cnt": len(stock_list),
-                "end_date": end_date,
-            }
-        ]
-        df_result = pd.DataFrame.from_dict(result)
-        df_result.to_csv(
-            FINANCE_ROOT / f"data/{self.market}_df_result.csv", header=True
         )
 
         final_html = f"""

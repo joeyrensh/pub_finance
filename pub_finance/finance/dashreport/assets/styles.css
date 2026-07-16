@@ -522,10 +522,23 @@ table.tiny-header tr:first-child { font-size: 8px; }
   font-variant-numeric: tabular-nums;
   /* color: #ff4444; */
   color: var(--text-color);
+  margin-bottom: 4px;
 }
 
 .kpi-date {
   font-weight: 600;
+}
+
+.kpi-pct-up{
+  font-variant-numeric: tabular-nums;
+  color: var(--positive-value-bg-color);
+}
+.kpi-pct-down{
+  font-variant-numeric: tabular-nums;
+  color: var(--negative-value-bg-color);    
+}
+.kpi-pct-neutral{
+  color: var(--text-color)
 }
 
 /* --- 图表外壳与特定视图 --- */
