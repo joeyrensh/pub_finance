@@ -512,7 +512,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 
 .kpi-label {
   color: var(--text-color);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   font-size: 1.3rem;
   font-weight: 400;
 }
@@ -522,7 +522,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
   font-variant-numeric: tabular-nums;
   /* color: #ff4444; */
   color: var(--text-color);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .kpi-date {
