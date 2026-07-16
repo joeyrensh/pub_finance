@@ -856,7 +856,7 @@ class ChartBuilder:
         xmax = pd.to_datetime(df["date"].max())
         fig.update_layout(
             xaxis=dict(
-                mirror=True,
+                mirror=False,
                 automargin=False,
                 tickangle=0,
                 # ticks="outside",
@@ -867,7 +867,10 @@ class ChartBuilder:
                 ),
                 showline=False,
                 zeroline=False,
+                linecolor=grid_color,  # 与网格同色，保持克制
+                linewidth=1,
                 gridcolor=grid_color,
+                gridwidth=0.5,
                 tickmode="linear",
                 dtick="M1",
                 tickformat="%Y-%m",
@@ -879,7 +882,7 @@ class ChartBuilder:
             ),
             yaxis=dict(
                 side="left",
-                mirror=True,
+                mirror=False,
                 ticklabelposition="inside",
                 showticklabels=False,  # 关闭刻度标签
                 ticks="",  # 关闭刻度线
@@ -891,6 +894,7 @@ class ChartBuilder:
                 showline=False,
                 zeroline=False,
                 gridcolor=grid_color,
+                gridwidth=0.5,
                 # dtick=0.1,
                 fixedrange=True,
                 range=[0, 1],
@@ -932,7 +936,7 @@ class ChartBuilder:
                 tracegroupgap=0,
             ),
             barmode="relative",
-            bargap=0.3,
+            bargap=0.4,
             bargroupgap=0.2,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1035,7 +1039,7 @@ class ChartBuilder:
             # ),
             title="",
             xaxis=dict(
-                mirror=True,
+                mirror=False,
                 automargin=False,
                 tickangle=0,
                 tickfont=dict(
@@ -1045,7 +1049,10 @@ class ChartBuilder:
                 ),
                 showline=False,
                 zeroline=False,
+                linecolor=grid_color,
+                linewidth=1,
                 gridcolor=grid_color,
+                gridwidth=0.5,
                 tickmode="linear",
                 dtick="M1",
                 tickformat="%Y-%m",
@@ -1057,7 +1064,7 @@ class ChartBuilder:
             ),
             yaxis=dict(
                 side="left",
-                mirror=True,
+                mirror=False,
                 showticklabels=False,  # 关闭刻度标签
                 ticks="",  # 关闭刻度线
                 tickfont=dict(
@@ -1067,6 +1074,7 @@ class ChartBuilder:
                 ),
                 showline=False,
                 gridcolor=grid_color,
+                gridwidth=0.5,
                 ticklabelposition="inside",
                 tickangle=0,
                 zeroline=False,
@@ -1088,7 +1096,7 @@ class ChartBuilder:
                 tracegroupgap=0,
             ),
             barmode="stack",
-            bargap=0.3,
+            bargap=0.4,
             bargroupgap=0.2,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
@@ -1145,7 +1153,7 @@ class ChartBuilder:
 
         fig.update_xaxes(
             title=None,
-            mirror=True,
+            mirror=False,
             automargin=False,
             tickangle=0,
             tickfont=dict(
@@ -1155,8 +1163,10 @@ class ChartBuilder:
             ),
             showline=False,
             linecolor=cfg["grid"],
+            linewidth=1,
             zeroline=False,
             gridcolor=cfg["grid"],
+            gridwidth=0.5,
             tickmode="linear",
             dtick="M1",
             tickformat="%Y-%m",
@@ -1169,7 +1179,7 @@ class ChartBuilder:
 
         fig.update_yaxes(
             title=None,
-            mirror=True,
+            mirror=False,
             showticklabels=False,  # 关闭刻度标签
             ticks="",  # 关闭刻度线
             tickfont=dict(
@@ -1179,8 +1189,10 @@ class ChartBuilder:
             ),
             showline=False,
             linecolor=cfg["grid"],
+            linewidth=1,
             zeroline=False,
             gridcolor=cfg["grid"],
+            gridwidth=0.5,
             ticklabelposition="inside",
             tickangle=0,
             autorange=True,
@@ -1857,6 +1869,7 @@ class ChartBuilder:
                 overlaying="y",
                 showgrid=True,
                 gridcolor=cfg["grid"],
+                gridwidth=0.5,
                 tickfont=dict(
                     size=base_font, color=text_color, family=self.font_family
                 ),
@@ -1884,11 +1897,12 @@ class ChartBuilder:
                 showline=False,
                 linewidth=1,
                 linecolor=cfg["border"],
-                mirror=True,
+                mirror=False,
                 anchor="y",
                 tickformat="%Y-%m",
                 hoverformat="%Y-%m-%d",
                 showgrid=True,
+                gridwidth=0.5,
                 position=0.0,
                 side="bottom",
                 range=[
@@ -2225,12 +2239,12 @@ class ChartBuilder:
         xmax = df["datetime"].max()
         # 1. 蜡烛图 X轴
         fig.update_xaxes(
-            mirror=True,
+            mirror=False,
             tickangle=0,
             rangeslider_visible=False,
             showgrid=True,
             gridcolor=cfg["grid"],
-            gridwidth=1,
+            gridwidth=0.5,
             showline=False,  # 你原本单独设置的
             linecolor=cfg["grid"],
             linewidth=1,
@@ -2241,7 +2255,7 @@ class ChartBuilder:
         )
 
         fig.update_yaxes(
-            mirror=True,
+            mirror=False,
             tickfont=dict(
                 size=font_size,
                 color=cfg["text_color"],
@@ -2250,8 +2264,10 @@ class ChartBuilder:
             title=dict(text=None),
             showline=False,
             linecolor=cfg["grid"],
+            linewidth=1,
             zeroline=False,
             gridcolor=cfg["grid"],
+            gridwidth=0.5,
             ticklabelposition="inside",
             tickangle=0,
             autorange=True,
@@ -2496,11 +2512,13 @@ class ChartBuilder:
             hoverlabel=dict(font_size=font_size, font_family=self.font_family),
             xaxis=dict(
                 tickfont=dict(size=font_size, color=text_color),
-                mirror=True,
+                mirror=False,
                 showline=False,
                 linecolor=cfg["grid"],
+                linewidth=1,
                 zeroline=True,
                 gridcolor=cfg["grid"],
+                gridwidth=0.5,
                 tickmode="auto",
                 tickformat="%Y-%m-%d",
                 hoverformat="%Y-%m-%d",
@@ -2515,6 +2533,7 @@ class ChartBuilder:
                 mirror=True,
                 showgrid=True,
                 gridcolor=cfg["grid"],
+                gridwidth=0.5,
                 side="left",
                 zeroline=False,
                 showline=False,

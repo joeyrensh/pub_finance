@@ -587,6 +587,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
     text-rendering: optimizeLegibility;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    shape-rendering: crispEdges !important;
 }
 
 .xy2 .drag,

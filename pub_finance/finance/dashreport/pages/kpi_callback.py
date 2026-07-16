@@ -2,6 +2,7 @@ import pandas as pd
 from dash import html, Input, Output, callback, MATCH
 from dash.exceptions import PreventUpdate
 from finance.dashreport.data_loader import ReportDataLoader
+import numpy as np
 
 
 class KpiCallback:
@@ -48,8 +49,11 @@ class KpiCallback:
             # 计算最新一日的 SWDI
             swdi_today = int(
                 round(
-                    ((val_today - cash_today) - (stock_cnt_today * 10000 - cash_today))
-                    / stock_cnt_today,
+                    ((val_today - cash_today) / 10000)
+                    * (
+                        2.0 - (cash_today / val_today if val_today > 0 else 1.0)
+                    )  # 资金利用率因子
+                    * (1.0 + np.log(stock_cnt_today)),  # 股票数量平滑因子
                     0,
                 )
             )
@@ -75,8 +79,11 @@ class KpiCallback:
                 # 计算上一日的 SWDI
                 swdi_prev = int(
                     round(
-                        ((val_prev - cash_prev) - (stock_cnt_prev * 10000 - cash_prev))
-                        / stock_cnt_prev,
+                        ((val_prev - cash_prev) / 10000)
+                        * (
+                            2.0 - (cash_prev / val_prev if val_prev > 0 else 1.0)
+                        )  # 资金利用率因子
+                        * (1.0 + np.log(stock_cnt_prev)),  # 股票数量平滑因子
                         0,
                     )
                 )
