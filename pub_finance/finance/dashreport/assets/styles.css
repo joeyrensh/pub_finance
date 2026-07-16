@@ -587,7 +587,28 @@ table.tiny-header tr:first-child { font-size: 8px; }
     text-rendering: optimizeLegibility;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+}
+
+/* 2. 极致锐利：只对网格线、坐标轴线、柱状图边缘进行硬边缘像素对齐 */
+.js-plotly-plot .gridline,
+.js-plotly-plot .xaxisline,
+.js-plotly-plot .yaxisline,
+.js-plotly-plot .zeroline,
+.js-plotly-plot .crisp {
     shape-rendering: crispEdges !important;
+}
+
+/* 3. 极致丝滑：让折线图的曲线、均线、趋势线保持最高级别的抗锯齿 */
+.js-plotly-plot .js-line,
+.js-plotly-plot .scatterpath,
+.js-plotly-plot .candlestick path {
+    shape-rendering: geometricPrecision !important; /* 强行启用高精度几何抗锯齿，让曲线如丝般顺滑 */
+}
+
+/* 4. 防止图表里的文本（如 Hover 数据、坐标轴文字）因为父级缩放而产生毛边 */
+.js-plotly-plot text {
+    text-rendering: optimizeLegibility !important;
+    shape-rendering: auto !important; /* 防止文字被 crispEdges 强行像素化导致严重变形 */
 }
 
 .xy2 .drag,
