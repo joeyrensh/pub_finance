@@ -1169,6 +1169,9 @@ class GlobalStrategy(bt.Strategy):
         if len(self.data) == self.data.buflen():
             self.buffers["cash_asset"][-1]["cash"] = cash_asset_record["cash"]
             self.buffers["cash_asset"][-1]["value"] = cash_asset_record["value"]
+        elif len(self.data) > 1:
+            self.buffers["cash_asset"][-1]["cash"] = cash_asset_record["cash"]
+            self.buffers["cash_asset"].append(cash_asset_record)
         else:
             # 如果是正常的真实交易日，则按原逻辑正常追加记录
             self.buffers["cash_asset"].append(cash_asset_record)
