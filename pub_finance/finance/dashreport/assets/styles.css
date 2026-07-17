@@ -683,8 +683,8 @@ a:active { color: lightgrey; text-decoration: underline; }
 }
 
 .custom-input {
-  height: 38px;
-  line-height: 38px;
+  height: 45px !important;
+  line-height: 45px;
   border-radius: 0 !important;
   background: transparent !important;
   color: var(--text-color) !important;
@@ -720,7 +720,7 @@ a:active { color: lightgrey; text-decoration: underline; }
 
 /* --- 回测控制按钮组 --- */
 .btn-backtest {
-  height: 38px;
+  height: 45px;
   line-height: 38px;
   border: 1px solid var(--gridcolor);
 }
@@ -745,8 +745,8 @@ a:active { color: lightgrey; text-decoration: underline; }
   border-bottom: 1px solid var(--gridcolor);
   border-left: 1px solid var(--gridcolor);
   border-right: none;
-  height: 38px;
-  line-height: 38px;
+  height: 45px;
+  line-height: 45px;
 }
 
 .nav-btn.right {
@@ -760,8 +760,8 @@ a:active { color: lightgrey; text-decoration: underline; }
   border-bottom: 1px solid var(--gridcolor);
   border-right: 1px solid var(--gridcolor);
   border-left: none;     
-  height: 38px;
-  line-height: 38px;    
+  height: 45px;
+  line-height: 45px;    
 }
 
 .nav-btn.middle {
@@ -774,8 +774,8 @@ a:active { color: lightgrey; text-decoration: underline; }
   padding: 0 16px;
   background: transparent;
   font-weight: 400;
-  height: 38px;
-  line-height: 38px;
+  height: 45px;
+  line-height: 45px;
 }
 
 .nav-btn.middle:hover {
@@ -785,6 +785,7 @@ a:active { color: lightgrey; text-decoration: underline; }
 /* --- 回测动态进度条按钮 --- */
 .progress-btn {
   border: 1px solid var(--gridcolor);
+  height: 48px;
 }
 
 .progress-btn.running {
@@ -848,7 +849,7 @@ a:active { color: lightgrey; text-decoration: underline; }
 }
 
 .symbol_summary_box{
-    min-height: 38px;
+    min-height: 45px;
     line-height: 1.2;
     border: 1px solid var(--gridcolor);
     padding: 6px 10px;
@@ -1258,7 +1259,7 @@ a:active { color: lightgrey; text-decoration: underline; }
 
   .custom-input{
     height: 35px !important;
-    line-height: 30px !important;
+    line-height: 35px !important;
   }
 
   .btn-backtest {
@@ -1268,17 +1269,21 @@ a:active { color: lightgrey; text-decoration: underline; }
 
   .nav-btn.middle {
     height: 35px;
-    line-height: 30px;
+    line-height: 35px;
     padding: 0 0;
   }
   .symbol_summary_box{
-    height: 35px;
+    min-height: 35px !important;
+  }
+
+  .progress-btn{
+    height: 40px !important;
   }
   
   .nav-btn.left,
   .nav-btn.right {
     height: 35px;
-    line-height: 30px;    
+    line-height: 35px;    
   }  
 
   .page {
