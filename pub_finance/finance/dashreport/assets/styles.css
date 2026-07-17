@@ -832,6 +832,14 @@ a:active { color: lightgrey; text-decoration: underline; }
   border: 1px solid var(--gridcolor);
 }
 
+.symbol_summary_box{
+    min-height: 38px;
+    line-height: 1.2;
+    border: 1px solid var(--gridcolor);
+    padding: 6px 10px;
+    align-content: center;
+}
+
 /* --- 权重滑块核心美化 (RC-Slider) --- */
 .card-body {
     padding: 0px 10px;

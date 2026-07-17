@@ -763,6 +763,78 @@ class BacktestPage:
             trade_date = get_default_date(market)
             return make_dash_format_table(df, cols_format, market, trade_date, "trade")
 
+        # ---------- 新增：更新股票摘要 ----------
+        @self.app.callback(
+            Output("backtest-stock-summary", "children"),
+            Input("backtest-stocks", "value"),
+            Input("backtest-market", "value"),
+            Input("backtest-date", "date"),
+            prevent_initial_call=False,
+        )
+        def update_stock_summary(stocks_str, market, date_str):
+            if not stocks_str:
+                return "Please enter stock symbols."
+            stock_list = [s.strip().upper() for s in stocks_str.split(",") if s.strip()]
+            if not stock_list:
+                return "Please enter valid stock symbols."
+
+            try:
+                dt = datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
+                # 读取行业信息
+                f_industry = FINANCE_ROOT / (
+                    "cnstockinfo/industry.csv"
+                    if market == "cn"
+                    else "usstockinfo/industry.csv"
+                )
+                df_industry = pd.DataFrame(columns=["symbol", "industry"])
+                if f_industry.exists():
+                    df_industry = pd.read_csv(
+                        f_industry, usecols=["symbol", "industry"], dtype=str
+                    )
+                    df_industry = df_industry[df_industry["symbol"].isin(stock_list)]
+
+                # 读取最新股票名称
+                f_latest = FINANCE_ROOT / (
+                    f"cnstockinfo/stock_{dt}.csv"
+                    if market == "cn"
+                    else f"usstockinfo/stock_{dt}.csv"
+                )
+                df_latest = pd.DataFrame(columns=["symbol", "name"])
+                if f_latest.exists():
+                    df_latest = pd.read_csv(
+                        f_latest, usecols=["symbol", "name"], dtype=str
+                    )
+                    df_latest = df_latest[df_latest["symbol"].isin(stock_list)]
+
+                # 合并并按输入顺序排列
+                df = pd.merge(df_industry, df_latest, on="symbol", how="outer")
+                sym_order = {sym: i for i, sym in enumerate(stock_list)}
+                df["_order"] = df["symbol"].map(sym_order)
+                df = df.sort_values("_order").dropna(subset=["symbol"])
+
+                # 构造显示字符串： symbol (name) [industry]
+                parts = []
+                for _, row in df.iterrows():
+                    sym = row["symbol"]
+                    name = row.get("name", "-") if pd.notna(row.get("name")) else "-"
+                    industry = (
+                        row.get("industry", "-")
+                        if pd.notna(row.get("industry"))
+                        else "-"
+                    )
+                    if name == "-" and industry == "-":
+                        parts.append(f"{sym}")
+                    else:
+                        parts.append(f"{sym} ({name}) [{industry}]")
+
+                if not parts:
+                    return "No information found for the given symbols."
+                return " | ".join(parts)
+
+            except Exception as e:
+                print(f"Error updating stock summary: {e}")
+                return f"⚠️ Error loading stock info: {e}"
+
     # ---------- 布局构建 ----------
     def build_control_panel(self):
         default_date_str = get_default_date("cn")
@@ -822,13 +894,31 @@ class BacktestPage:
                         ),
                     ],
                     style={"flexWrap": "nowrap"},
-                    className="kpi-label",
                 ),
+                # ---------- 新增：股票摘要栏 ----------
+                dbc.Row(
+                    dbc.Col(
+                        html.Div(
+                            id="backtest-stock-summary",
+                            className="kpi-label symbol_summary_box",
+                            style={
+                                "height": "auto",  # 随内容垂直自动扩展高度
+                                "whiteSpace": "pre-wrap",
+                                "width": "100%",
+                            },
+                            children="Loading stock info...",
+                        ),
+                        width=12,
+                    ),
+                    className="mb-1",
+                ),
+                # ------------------------------------
                 dbc.Row(
                     [
                         dbc.Col(
                             [
-                                html.Label("Symbol"),
+                                # html.Label("Symbol"),
+                                html.Label(" "),
                                 html.Div(
                                     [
                                         dcc.Input(
@@ -881,7 +971,7 @@ class BacktestPage:
                             sm=8,
                             md=8,
                             lg=9,
-                            style={"marginTop": "-10px"},
+                            style={"marginTop": "0px"},
                         ),
                         dbc.Col(
                             [
