@@ -1257,7 +1257,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
 
   .custom-input{
-    height: 30px !important;
+    height: 35px !important;
     line-height: 30px !important;
   }
 
@@ -1267,14 +1267,17 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
 
   .nav-btn.middle {
-    height: 30px;
+    height: 35px;
     line-height: 30px;
     padding: 0 0;
+  }
+  .symbol_summary_box{
+    height: 35px;
   }
   
   .nav-btn.left,
   .nav-btn.right {
-    height: 30px;
+    height: 35px;
     line-height: 30px;    
   }  
 
