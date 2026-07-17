@@ -552,7 +552,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 label,
 legend {
     display: block;
-    margin-bottom: 0;
+    margin-bottom: 1px;
     font-weight: 400;
 
 }
