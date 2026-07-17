@@ -823,13 +823,13 @@ class BacktestPage:
                         else "-"
                     )
                     if name == "-" and industry == "-":
-                        parts.append(f"{sym}")
+                        parts.append(f"[{sym}]")
                     else:
-                        parts.append(f"{sym} ({name}) [{industry}]")
+                        parts.append(f"[{sym}] {name} ({industry})")
 
                 if not parts:
                     return "No information found for the given symbols."
-                return " | ".join(parts)
+                return "    |    ".join(parts)
 
             except Exception as e:
                 print(f"Error updating stock summary: {e}")
