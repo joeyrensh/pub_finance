@@ -542,6 +542,21 @@ table.tiny-header tr:first-child { font-size: 8px; }
   color: var(--text-color)
 }
 
+/* --- 回测页面按钮/摘要/文字 */
+.backtest-label {
+  color: var(--text-color);
+  margin-bottom: 2px;
+  font-size: 1.3rem;
+  font-weight: 400;
+}
+label,
+legend {
+    display: block;
+    margin-bottom: 0;
+    font-weight: 400;
+
+}
+
 /* --- 图表外壳与特定视图 --- */
 .chart-container {
   position: relative;
@@ -1224,6 +1239,10 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   .kpi-value {
     font-size: 1.3rem;
+  }
+
+  .backtest-label{
+    font-size: 1rem;
   }
 
   .custom-date-picker .DateInput_input {
