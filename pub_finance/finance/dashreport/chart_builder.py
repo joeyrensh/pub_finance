@@ -1654,7 +1654,14 @@ class ChartBuilder:
 
             fig.add_trace(
                 go.Scatter(
-                    x=[cum_max_idx],
+                    x=[
+                        cumulative.index[
+                            max(
+                                int(len(cumulative) * (0.25 if scale >= 1 else 0.4)),
+                                cumulative.index.get_loc(cumulative.idxmax()),
+                            )
+                        ]
+                    ],
                     y=[cum_max_val],
                     mode="markers+text",
                     marker=dict(symbol="circle", size=8 * scale, color=cfg["cumret"]),
