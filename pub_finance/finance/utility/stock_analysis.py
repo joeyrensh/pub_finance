@@ -2391,25 +2391,36 @@ class StockProposal:
                 FROM temp_position_detail
                 WHERE date >='{}'
                 GROUP BY date
-            ), tmp11 AS (
-                SELECT temp_timeseries.buy_date
-                    ,IF(tmp1.total_cnt > 0
-                    ,tmp1.total_cnt
-                    ,LAST_VALUE(tmp1.total_cnt) IGNORE NULLS OVER (PARTITION BY temp_timeseries.partition_key ORDER BY temp_timeseries.buy_date)) AS total_cnt
-                FROM (SELECT *, 1 AS partition_key FROM temp_timeseries) AS temp_timeseries LEFT JOIN tmp1 ON temp_timeseries.buy_date = tmp1.date
-            ), tmp5 AS (
-                SELECT date
+            ), 
+            tmp11 AS (
+                -- 直接在外面套 LAST_VALUE，当 tmp1.total_cnt 为 NULL 时，会自动向前找最近的非空持仓数
+                SELECT 
+                    ts.buy_date
+                    ,LAST_VALUE(t1.total_cnt) IGNORE NULLS OVER (
+                        PARTITION BY ts.partition_key 
+                        ORDER BY ts.buy_date
+                    ) AS total_cnt
+                FROM (
+                    SELECT *, 1 AS partition_key FROM temp_timeseries
+                ) AS ts 
+                LEFT JOIN tmp1 t1 ON ts.buy_date = t1.date
+            ), 
+            tmp5 AS (
+                SELECT 
+                    date
                     ,SUM(IF(trade_type = 'buy', 1, 0)) AS buy_cnt
                     ,SUM(IF(trade_type = 'sell', 1, 0)) AS sell_cnt
                 FROM temp_transaction_detail
                 WHERE date >= '{}'
                 GROUP BY date
             )
-            SELECT t1.buy_date AS buy_date
-                ,t1.total_cnt AS total_cnt
-                ,t2.buy_cnt AS buy_cnt
-                ,t2.sell_cnt AS sell_cnt
-            FROM tmp11 t1 LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
+            SELECT 
+                t1.buy_date AS buy_date
+                ,IFNULL(t1.total_cnt, 0) + IFNULL(t2.buy_cnt, 0) - IFNULL(t2.sell_cnt, 0) AS total_cnt
+                ,IFNULL(t2.buy_cnt, 0) AS buy_cnt
+                ,IFNULL(t2.sell_cnt, 0) AS sell_cnt
+            FROM tmp11 t1 
+            LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
             """.format(start_date, start_date)
         )
         pd_trade_info_lstndays = spark_trade_info_lstndays.toPandas()
@@ -3590,31 +3601,33 @@ class StockProposal:
             f"""
             WITH tmp AS (
                 SELECT 
-                    {get_date_rank_subquery(1)} AS date
-                    ,SUM(CASE WHEN buy_date <= {get_date_rank_subquery(1)} THEN 1 ELSE 0 END) AS total_cnt
-                FROM temp_cur_position
-                WHERE buy_date <= '{end_date}'
-                UNION
-                SELECT 
-                    {get_date_rank_subquery(2)} AS date
-                    ,SUM(CASE WHEN buy_date <= {get_date_rank_subquery(2)} THEN 1 ELSE 0 END) AS total_cnt
-                FROM temp_cur_position
-                WHERE buy_date <= '{end_date}'               
+                    date
+                    ,COUNT(symbol) AS total_cnt
+                FROM temp_position_detail
+                WHERE date >= {get_date_rank_subquery(2)} AND date <= '{end_date}'
+                GROUP BY date             
             ), tmp1 AS (
                 SELECT
                     date
                     ,cash
                     ,final_value
                 FROM temp_cash_asset
-                WHERE date >= {get_date_rank_subquery(2)}
+                WHERE date >= {get_date_rank_subquery(2)} AND date <= '{end_date}'
+            ), tmp5 AS (
+                SELECT date
+                    ,SUM(IF(trade_type = 'buy', 1, 0)) AS buy_cnt
+                    ,SUM(IF(trade_type = 'sell', 1, 0)) AS sell_cnt
+                FROM temp_transaction_detail
+                WHERE date >= {get_date_rank_subquery(2)} AND date <= '{end_date}'
+                GROUP BY date
             )
             SELECT
                 tmp1.cash
                 ,tmp1.final_value
-                ,tmp.total_cnt AS stock_cnt
+                ,tmp.total_cnt + IFNULL(tmp5.buy_cnt, 0) - IFNULL(tmp5.sell_cnt, 0) AS stock_cnt
                 ,tmp.date AS end_date
-                
             FROM tmp JOIN tmp1 ON tmp.date = tmp1.date
+            LEFT JOIN tmp5 ON tmp.date = tmp5.date
             ORDER BY tmp.date DESC
             """
         )
@@ -4700,30 +4713,42 @@ class StockProposal:
         spark_trade_info_lstndays = spark.sql(
             """ 
             WITH tmp1 AS (
-                SELECT date
+                SELECT 
+                    date
                     ,COUNT(symbol) AS total_cnt
                 FROM temp_position_detail
-                WHERE date >= '{}'
+                WHERE date >='{}'
                 GROUP BY date
-            ), tmp11 AS (
-                SELECT temp_timeseries.buy_date
-                    ,IF(tmp1.total_cnt > 0
-                    ,tmp1.total_cnt
-                    ,LAST_VALUE(tmp1.total_cnt) IGNORE NULLS OVER (PARTITION BY temp_timeseries.partition_key ORDER BY temp_timeseries.buy_date)) AS total_cnt
-                FROM (SELECT *, 1 AS partition_key FROM temp_timeseries) AS temp_timeseries LEFT JOIN tmp1 ON temp_timeseries.buy_date = tmp1.date
-            ), tmp5 AS (
-                SELECT date
+            ), 
+            tmp11 AS (
+                -- 直接在外面套 LAST_VALUE，当 tmp1.total_cnt 为 NULL 时，会自动向前找最近的非空持仓数
+                SELECT 
+                    ts.buy_date
+                    ,LAST_VALUE(t1.total_cnt) IGNORE NULLS OVER (
+                        PARTITION BY ts.partition_key 
+                        ORDER BY ts.buy_date
+                    ) AS total_cnt
+                FROM (
+                    SELECT *, 1 AS partition_key FROM temp_timeseries
+                ) AS ts 
+                LEFT JOIN tmp1 t1 ON ts.buy_date = t1.date
+            ), 
+            tmp5 AS (
+                SELECT 
+                    date
                     ,SUM(IF(trade_type = 'buy', 1, 0)) AS buy_cnt
                     ,SUM(IF(trade_type = 'sell', 1, 0)) AS sell_cnt
                 FROM temp_transaction_detail
                 WHERE date >= '{}'
                 GROUP BY date
             )
-            SELECT t1.buy_date AS buy_date
-                ,t1.total_cnt AS total_cnt
-                ,t2.buy_cnt AS buy_cnt
-                ,t2.sell_cnt AS sell_cnt
-            FROM tmp11 t1 LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
+            SELECT 
+                t1.buy_date AS buy_date
+                ,IFNULL(t1.total_cnt, 0) + IFNULL(t2.buy_cnt, 0) - IFNULL(t2.sell_cnt, 0) AS total_cnt
+                ,IFNULL(t2.buy_cnt, 0) AS buy_cnt
+                ,IFNULL(t2.sell_cnt, 0) AS sell_cnt
+            FROM tmp11 t1 
+            LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
             """.format(start_date, start_date)
         )
         pd_trade_info_lstndays = spark_trade_info_lstndays.toPandas()
