@@ -850,7 +850,7 @@ class BacktestPage:
                     [
                         html.Div(
                             [
-                                html.Label("Markets"),
+                                html.Label("Markets", className="backtest_fst_label"),
                                 dcc.RadioItems(
                                     id="backtest-market",
                                     options=[

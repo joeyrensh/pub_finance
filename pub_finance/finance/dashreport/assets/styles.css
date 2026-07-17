@@ -556,6 +556,9 @@ legend {
     font-weight: 400;
 
 }
+.backtest_fst_label{
+    margin-left:10px;
+}
 
 /* --- 图表外壳与特定视图 --- */
 .chart-container {
