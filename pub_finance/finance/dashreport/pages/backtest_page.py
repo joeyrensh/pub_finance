@@ -995,7 +995,8 @@ class BacktestPage:
                     className="backtest-label",
                 ),
                 html.Div(
-                    id="backtest-status", style={"marginTop": "5px", "color": "#666"}
+                    id="backtest-status",
+                    style={"marginTop": "5px", "marginLeft": "2px", "color": "#666"},
                 ),
                 html.Div(
                     id="backtest-progress", style={"display": "none"}

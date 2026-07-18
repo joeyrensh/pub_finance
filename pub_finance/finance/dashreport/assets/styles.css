@@ -557,8 +557,8 @@ legend {
 
 }
 .backtest_fst_label{
-    /* margin-left:12px; */
-    margin-right:5px;
+    margin-left: 2px;
+    margin-right: 5px;
 }
 
 /* --- 图表外壳与特定视图 --- */
@@ -693,6 +693,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   background: transparent !important;
   color: var(--text-color) !important;
   border: 1px solid var(--gridcolor) !important;
+  padding: 6px 2px !important;
 }
 
 #full-view-link {
@@ -854,9 +855,9 @@ a:active { color: lightgrey; text-decoration: underline; }
 
 .symbol_summary_box{
     min-height: 45px;
-    line-height: 1.2;
+    line-height: 1.6;
     border: 1px solid var(--gridcolor);
-    padding: 6px 10px;
+    padding: 6px 2px;
     align-content: center;
 }
 
@@ -967,7 +968,7 @@ a:active { color: lightgrey; text-decoration: underline; }
 /* --- AI分析按钮及大模型文本框面板 --- */
 .ai-analysis-panel {
     border: 1px solid var(--dash-table-border-color);
-    padding: 2px;
+    padding: 6px 2px;
     background: transparent;
     color: var(--text-color);
     font-size: 1.3rem;
