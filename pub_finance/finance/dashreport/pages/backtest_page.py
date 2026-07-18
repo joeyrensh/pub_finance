@@ -871,7 +871,7 @@ class BacktestPage:
                         ),
                         html.Div(
                             [
-                                html.Label("Backtest Date"),
+                                html.Label("Date"),
                                 dcc.DatePickerSingle(
                                     id="backtest-date",
                                     date=default_date,
@@ -890,7 +890,7 @@ class BacktestPage:
                                 "display": "inline-flex",
                                 "alignItems": "center",
                                 "flexShrink": 0,
-                                "marginLeft": "0px",
+                                "marginLeft": "10px",
                             },
                         ),
                     ],
