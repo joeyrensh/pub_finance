@@ -1279,6 +1279,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   .symbol_summary_box{
     min-height: 35px !important;
+    font-size: 1.05rem;
   }
 
   .progress-btn{
