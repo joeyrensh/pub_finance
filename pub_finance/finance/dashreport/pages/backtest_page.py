@@ -865,13 +865,13 @@ class BacktestPage:
                             style={
                                 "display": "inline-flex",
                                 "alignItems": "baseline",
-                                "marginRight": "10px",
+                                "marginRight": "5px",
                                 "flexShrink": 0,
                             },
                         ),
                         html.Div(
                             [
-                                html.Label("Date"),
+                                html.Label("Backtest Date"),
                                 dcc.DatePickerSingle(
                                     id="backtest-date",
                                     date=default_date,
@@ -881,7 +881,7 @@ class BacktestPage:
                                     style={
                                         "width": "auto",
                                         "minWidth": "120px",
-                                        "marginLeft": "10px",
+                                        "marginLeft": "5px",
                                         "zIndex": 1050,
                                     },
                                 ),
@@ -890,7 +890,7 @@ class BacktestPage:
                                 "display": "inline-flex",
                                 "alignItems": "center",
                                 "flexShrink": 0,
-                                "marginLeft": "10px",
+                                "marginLeft": "0px",
                             },
                         ),
                     ],
@@ -906,6 +906,7 @@ class BacktestPage:
                                 "height": "auto",  # 随内容垂直自动扩展高度
                                 "whiteSpace": "pre-wrap",
                                 "width": "100%",
+                                "wordBreak": "break-all",
                             },
                             children="Loading stock info...",
                         ),
