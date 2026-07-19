@@ -859,6 +859,7 @@ a:active { color: lightgrey; text-decoration: underline; }
     border: 1px solid var(--gridcolor);
     padding: 6px 2px;
     align-content: center;
+    font-weight: 500;
 }
 
 /* --- 权重滑块核心美化 (RC-Slider) --- */
