@@ -850,7 +850,9 @@ class BacktestPage:
                     [
                         html.Div(
                             [
-                                html.Label("Markets", className="backtest_fst_label"),
+                                html.Label(
+                                    "Markets", className="backtest_fst_label label_text"
+                                ),
                                 dcc.RadioItems(
                                     id="backtest-market",
                                     options=[
@@ -871,7 +873,7 @@ class BacktestPage:
                         ),
                         html.Div(
                             [
-                                html.Label("Date"),
+                                html.Label("Date", className="label_text"),
                                 dcc.DatePickerSingle(
                                     id="backtest-date",
                                     date=default_date,

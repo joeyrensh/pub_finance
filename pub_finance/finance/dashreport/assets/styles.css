@@ -551,14 +551,16 @@ table.tiny-header tr:first-child { font-size: 8px; }
 }
 label,
 legend {
-    display: block;
-    margin-bottom: 1px;
-    font-weight: 400;
-
+  display: block;
+  margin-bottom: 1px;
+  font-weight: 400;
 }
 .backtest_fst_label{
-    margin-left: 2px;
-    margin-right: 5px;
+  margin-left: 2px;
+  margin-right: 5px;
+}
+.label_text{
+  color: #666;
 }
 
 /* --- 图表外壳与特定视图 --- */
