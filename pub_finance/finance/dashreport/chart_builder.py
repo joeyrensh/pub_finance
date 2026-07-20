@@ -1488,7 +1488,15 @@ class ChartBuilder:
             for j in range(len(table_columns))
         ]
         # font_weights_by_col = ["bold"] + ["normal"] * (len(table_columns) - 1)
-        font_weights_by_col = ["normal"] * (len(table_columns))
+        # font_weights_by_col = ["normal"] * (len(table_columns))
+        font_weights_by_col = ["normal", "normal", "bold", "normal", "normal"]
+        font_sizes_by_col = [
+            table_font,
+            table_font,
+            table_font + 2,
+            table_font,
+            table_font,
+        ]
 
         # 准备表格单元格数据（列优先）
         cell_values = [table_df[col].tolist() for col in table_columns]
@@ -1805,20 +1813,20 @@ class ChartBuilder:
                         # weight="bold",
                     ),
                     align=["left"] * len(header_values),
-                    height=int(50 * (scale if scale >= 1 else 0.62 * scale)),
+                    height=int(43 * (scale if scale >= 1 else 0.68 * scale)),
                 ),
                 cells=dict(
                     values=cell_values,
                     fill_color=cfg["table_cell"],
                     line=dict(color=cfg["border"], width=1),
                     font=dict(
-                        size=table_font,
+                        size=font_sizes_by_col,
                         color=font_colors_by_col,  # font_colors 是二维列表
                         family=self.font_family,
                         weight=font_weights_by_col,
                     ),
                     align=["left"] * len(header_values),
-                    height=int(50 * (scale if scale >= 1 else 0.62 * scale)),
+                    height=int(53 * (scale if scale >= 1 else 0.62 * scale)),
                 ),
             )
         )
