@@ -1795,8 +1795,26 @@ class ChartBuilder:
         # =========================
         # 13. 布局设置（上下结构：图占上部，表占下部，中间留间距）
         # =========================
-        CHART_DOMAIN_Y = [0.34, 1.0]
-        TABLE_DOMAIN_Y = [0.0, 0.27]
+        # CHART_DOMAIN_Y = [0.34, 1.0]
+        # TABLE_DOMAIN_Y = [0.0, 0.27]
+        # 1. 修正画布高度估算
+        estimated_total_height = 650 * (scale if scale >= 1 else 0.7 * scale)
+
+        # 2. 计算 Table 绝对像素高度
+        header_h = int(45 * (scale if scale >= 1 else 0.65 * scale))
+        cell_h = int(50 * scale) if scale >= 1 else max(22, int(50 * 0.65 * scale))
+        num_rows = len(cell_values[0]) if cell_values else 0
+        table_absolute_height = header_h + (cell_h * num_rows) + 15
+
+        # 3. 转化为画布百分比
+        table_y_ratio = min(0.65, table_absolute_height / estimated_total_height)
+
+        # 4. 绝对像素级间距（固定 15-20px 视觉留白）
+        gap_px = 22
+        gap_ratio = gap_px / estimated_total_height
+
+        TABLE_DOMAIN_Y = [0.0, float(f"{table_y_ratio:.3f}")]
+        CHART_DOMAIN_Y = [float(f"{min(1.0, table_y_ratio + gap_ratio):.3f}"), 1.0]
 
         legend_absolute_x = 0
         fig.add_trace(
@@ -1813,7 +1831,7 @@ class ChartBuilder:
                         # weight="bold",
                     ),
                     align=["left"] * len(header_values),
-                    height=int(45 * (scale if scale >= 1 else 0.65 * scale)),
+                    height=header_h,
                 ),
                 cells=dict(
                     values=cell_values,
@@ -1826,7 +1844,7 @@ class ChartBuilder:
                         weight=font_weights_by_col,
                     ),
                     align=["left"] * len(header_values),
-                    height=int(50 * (scale if scale >= 1 else 0.65 * scale)),
+                    height=cell_h,
                 ),
             )
         )
