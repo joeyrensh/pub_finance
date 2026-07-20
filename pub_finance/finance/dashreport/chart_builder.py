@@ -1795,8 +1795,8 @@ class ChartBuilder:
         # =========================
         # 13. 布局设置（上下结构：图占上部，表占下部，中间留间距）
         # =========================
-        CHART_DOMAIN_Y = [0.32, 1.0]
-        TABLE_DOMAIN_Y = [0.0, 0.25]
+        CHART_DOMAIN_Y = [0.34, 1.0]
+        TABLE_DOMAIN_Y = [0.0, 0.27]
 
         legend_absolute_x = 0
         fig.add_trace(
@@ -1813,7 +1813,7 @@ class ChartBuilder:
                         # weight="bold",
                     ),
                     align=["left"] * len(header_values),
-                    height=int(43 * (scale if scale >= 1 else 0.68 * scale)),
+                    height=int(45 * (scale if scale >= 1 else 0.65 * scale)),
                 ),
                 cells=dict(
                     values=cell_values,
@@ -1826,7 +1826,7 @@ class ChartBuilder:
                         weight=font_weights_by_col,
                     ),
                     align=["left"] * len(header_values),
-                    height=int(53 * (scale if scale >= 1 else 0.62 * scale)),
+                    height=int(50 * (scale if scale >= 1 else 0.65 * scale)),
                 ),
             )
         )
