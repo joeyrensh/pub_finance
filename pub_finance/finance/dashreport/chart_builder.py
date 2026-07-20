@@ -1810,7 +1810,7 @@ class ChartBuilder:
         table_y_ratio = min(0.65, table_absolute_height / estimated_total_height)
 
         # 4. 绝对像素级间距（固定 15-20px 视觉留白）
-        gap_px = 22
+        gap_px = 25 if scale >= 1 else 20
         gap_ratio = gap_px / estimated_total_height
 
         TABLE_DOMAIN_Y = [0.0, float(f"{table_y_ratio:.3f}")]
