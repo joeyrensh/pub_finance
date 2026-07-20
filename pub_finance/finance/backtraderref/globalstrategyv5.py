@@ -97,7 +97,7 @@ class GlobalStrategy(bt.Strategy):
         self.file_path_position_detail = file.get_file_path_position_detail
         self.file_path_trade = file.get_file_path_trade
         self.file_path_cash_asset = file.get_file_path_cash_asset
-        # 🌟 启动时单纯执行清空动作（不写任何表头）
+        # 启动时单纯执行清空动作（不写任何表头）
         for path in [
             self.file_path_position_detail,
             self.file_path_trade,
@@ -294,6 +294,13 @@ class GlobalStrategy(bt.Strategy):
             except Exception as e:
                 print(f"❌ 初始化失败 - 高低点指标：{d._name}, {e}")
 
+            """ ATR指标更新 """
+            try:
+                self.inds[d._name]["atr"] = bt.indicators.ATR(
+                    period=self.params.ma_short_period, movav=bt.indicators.SMA
+                )
+            except Exception as e:
+                print(f"❌ 初始化失败 - ATR指标：{d._name}, {e}")
             """
             红三兵（优化版：放宽到 50% 分位）
             """
@@ -758,7 +765,7 @@ class GlobalStrategy(bt.Strategy):
     # ===== 新增：交易日志和持仓明细分批次导出 =====
     def _flush_records_to_csv(self, file_type):
         """
-        🌟 核心函数：支持 2 种文件的独立批量写入（非合并）
+        核心函数：支持 2 种文件的独立批量写入（非合并）
         file_type 可传入: "trade" 或 "position_detail"
         """
         data_list = self.buffers.get(file_type)
@@ -874,10 +881,10 @@ class GlobalStrategy(bt.Strategy):
                 self.log("Sell %s Order Canceled/Margin/Rejected" % (order.data._name))
         self.order[order.data._name] = None
         if trade_row:
-            # 🌟 数据塞入 trade 专属缓冲区
+            # 数据塞入 trade 专属缓冲区
             self.buffers["trade"].append(trade_row)
 
-            # 🌟 仅检查 trade 的缓冲区，满了就独立对 trade 文件执行写盘
+            # 仅检查 trade 的缓冲区，满了就独立对 trade 文件执行写盘
             if len(self.buffers["trade"]) >= self.flush_threshold:
                 self._flush_records_to_csv("trade")
 
@@ -1151,10 +1158,10 @@ class GlobalStrategy(bt.Strategy):
                     position_detail_record.append(record)
 
         if position_detail_record:
-            # 🌟 数据塞入 position_detail 专属缓冲区
+            # 数据塞入 position_detail 专属缓冲区
             self.buffers["position_detail"].extend(position_detail_record)
 
-            # 🌟 仅检查 position_detail 的缓冲区，满了就独立对 position_detail 文件执行写盘
+            # 仅检查 position_detail 的缓冲区，满了就独立对 position_detail 文件执行写盘
             if len(self.buffers["position_detail"]) >= self.flush_threshold:
                 self._flush_records_to_csv("position_detail")
 
@@ -1215,14 +1222,45 @@ class GlobalStrategy(bt.Strategy):
         ):
             return
 
-        entry_price = pos.price
-        peak_price = self.peak_price[symbol]
+        # ============================================================
+        # 止盈逻辑（假设已在循环中获取了 symbol, data, pos）
+        # ============================================================
+
+        entry_price = pos.price  # 买入均价
+        current_close = data.close[0]  # 当前收盘价
+        peak_price = self.peak_price[symbol]  # 持仓期间最高收盘价
+
+        peak_profit = peak_price - entry_price
+        peak_profit_pct = peak_profit / entry_price
+
+        # ---- 计算持仓天数（从买入日期算起） ----
+        buy_date_str = self.last_deal_date.get(symbol)
+        buy_date = (
+            datetime.strptime(buy_date_str, "%Y-%m-%d").date() if buy_date_str else None
+        )
+        if buy_date is not None:
+            holding_days = (self.datas[0].datetime.date(0) - buy_date).days
+        else:
+            holding_days = 0
 
         if (
-            peak_price >= entry_price * 1.2
-            and pos.adjbase <= entry_price + (peak_price - entry_price) * 0.5
+            holding_days >= 20
+            and peak_profit_pct >= 1.0
+            and current_close <= entry_price + peak_profit * 0.80
         ):
-            self.execute_sell(data, "移动止盈")
+            self.execute_sell(data, "动态止盈(回撤20%)")
+        elif (
+            holding_days >= 20
+            and peak_profit_pct >= 0.50
+            and current_close <= entry_price + peak_profit * 0.70
+        ):
+            self.execute_sell(data, "动态止盈(回撤30%)")
+        elif (
+            holding_days >= 20
+            and peak_profit_pct >= 0.20
+            and current_close <= entry_price + peak_profit * 0.50
+        ):
+            self.execute_sell(data, "动态止盈(回撤50%)")
         elif data.close[0] <= entry_price * 0.85:
             self.execute_sell(data, "低于买入价15%")
 
