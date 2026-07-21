@@ -2202,26 +2202,27 @@ class ChartBuilder:
             base_date = recent["datetime"].min()
             recent["t"] = (recent["datetime"] - base_date).dt.total_seconds() / 86400.0
 
-            # 2. 识别真正的波峰与波谷
+            # 2. 识别基于 Close 的波峰与波谷（替换原先的 high 和 low）
             recent["is_pivot_low"] = (
-                recent["low"]
-                == recent["low"].rolling(2 * pivot_window + 1, center=True).min()
+                recent["close"]
+                == recent["close"].rolling(2 * pivot_window + 1, center=True).min()
             )
             recent["is_pivot_high"] = (
-                recent["high"]
-                == recent["high"].rolling(2 * pivot_window + 1, center=True).max()
+                recent["close"]
+                == recent["close"].rolling(2 * pivot_window + 1, center=True).max()
             )
 
-            p_lows = recent[recent["is_pivot_low"]][["t", "low"]].values
-            p_highs = recent[recent["is_pivot_high"]][["t", "high"]].values
+            # 提取波谷和波峰点阵 (t, close)
+            p_lows = recent[recent["is_pivot_low"]][["t", "close"]].values
+            p_highs = recent[recent["is_pivot_high"]][["t", "close"]].values
 
-            # 保底：若波谷/波峰太少，取全局前几名极值
+            # 保底逻辑同步改为 close
             if len(p_lows) < 2:
-                p_lows = recent.sort_values("low").head(4)[["t", "low"]].values
+                p_lows = recent.sort_values("close").head(4)[["t", "close"]].values
             if len(p_highs) < 2:
                 p_highs = (
-                    recent.sort_values("high", ascending=False)
-                    .head(4)[["t", "high"]]
+                    recent.sort_values("close", ascending=False)
+                    .head(4)[["t", "close"]]
                     .values
                 )
 
