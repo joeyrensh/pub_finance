@@ -108,6 +108,7 @@ class GlobalStrategy(bt.Strategy):
                 pass
         """ 板块文件地址 """
         self.file_industry = file.get_file_path_industry
+        self.tk = ToolKit("工具类启动")
 
     def _load_rf_rate(self):
         """
@@ -1226,12 +1227,13 @@ class GlobalStrategy(bt.Strategy):
         # 止盈逻辑（假设已在循环中获取了 symbol, data, pos）
         # ============================================================
 
-        entry_price = pos.price  # 买入均价
+        entry_price = pos.price  # 买入价
         current_close = data.close[0]  # 当前收盘价
-        peak_price = self.peak_price[symbol]  # 持仓期间最高收盘价
+        peak_price = self.peak_price.get(symbol)  # 持仓期间最高收盘价
 
         peak_profit = peak_price - entry_price
         peak_profit_pct = peak_profit / entry_price
+        current_date = self.datas[0].datetime.date(0)
 
         # ---- 计算持仓天数（从买入日期算起） ----
         buy_date_str = self.last_deal_date.get(symbol)
@@ -1239,30 +1241,48 @@ class GlobalStrategy(bt.Strategy):
             datetime.strptime(buy_date_str, "%Y-%m-%d").date() if buy_date_str else None
         )
         if buy_date is not None:
-            holding_days = (self.datas[0].datetime.date(0) - buy_date).days
+            if self.market.startswith("us"):
+                holding_days = (
+                    self.tk.get_us_trade_off_days(current_date, buy_date) or 365
+                )
+            elif self.market.startswith("cn"):
+                holding_days = (
+                    self.tk.get_cn_trade_off_days(current_date, buy_date) or 365
+                )
         else:
             holding_days = 0
 
+        # 第一档止盈，盈利超过100%，回吐20%
         if (
             holding_days >= 20
             and peak_profit_pct >= 1.0
-            and current_close <= entry_price + peak_profit * 0.80
+            and current_close <= entry_price + peak_profit * 0.8
         ):
-            self.execute_sell(data, "动态止盈(回撤20%)")
-        elif (
+            self.execute_sell(data, "动态止盈(20%)")
+            return
+
+        # 第二档止盈，盈利超过50%，回吐30%
+        if (
             holding_days >= 20
-            and peak_profit_pct >= 0.50
-            and current_close <= entry_price + peak_profit * 0.70
+            and peak_profit_pct >= 0.5
+            and current_close <= entry_price + peak_profit * 0.7
         ):
-            self.execute_sell(data, "动态止盈(回撤30%)")
-        elif (
+            self.execute_sell(data, "动态止盈(30%)")
+            return
+
+        # 第三档止盈，盈利超过20%，回吐50%
+        if (
             holding_days >= 20
-            and peak_profit_pct >= 0.20
-            and current_close <= entry_price + peak_profit * 0.50
+            and peak_profit_pct >= 0.2
+            and current_close <= entry_price + peak_profit * 0.5
         ):
-            self.execute_sell(data, "动态止盈(回撤50%)")
-        elif data.close[0] <= entry_price * 0.85:
-            self.execute_sell(data, "低于买入价15%")
+            self.execute_sell(data, "动态止盈(50%)")
+            return
+
+        # 止损逻辑，亏损10%
+        if current_close <= entry_price * 0.9:
+            self.execute_sell(data, "止损(10%)")
+            return
 
     def stop(self):
         # 回测彻底结束时，把 2 种文件缓冲区里剩余的‘零头’各自独立刷盘
