@@ -848,11 +848,11 @@ a:active { color: lightgrey; text-decoration: underline; }
 
 .custom-date-picker .SingleDatePickerInput,
 .custom-date-picker .SingleDatePickerInput .DateInput {
-  background-color: transparent !important;
+    background-color: transparent !important;
 }
 
 .custom-date-picker .SingleDatePickerInput {
-  border: 1px solid var(--gridcolor);
+    border: 1px solid var(--gridcolor);
 }
 
 .symbol_summary_box{
@@ -861,7 +861,7 @@ a:active { color: lightgrey; text-decoration: underline; }
     border: 1px solid var(--gridcolor);
     padding: 6px 2px;
     align-content: center;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 /* --- 权重滑块核心美化 (RC-Slider) --- */
@@ -879,7 +879,7 @@ a:active { color: lightgrey; text-decoration: underline; }
 }
 
 .weight-slider-primary .rc-slider-track {
-    background-color: var(--positive-databar-color);
+    background-color: var(--flag-color);
     height:4px;
     touch-action: pan-y;
     pointer-events: none; 
@@ -895,7 +895,7 @@ a:active { color: lightgrey; text-decoration: underline; }
 .weight-slider-primary .rc-slider-handle {
     width:8px;
     height:8px;
-    border: 2px solid var(--positive-databar-color);
+    border: 2px solid var(--flag-color);
     background:#fff;
     margin-top:-2px;
     touch-action: pan-y;
@@ -904,14 +904,14 @@ a:active { color: lightgrey; text-decoration: underline; }
 .weight-slider-primary .rc-slider-dot {
     width: 1px;
     height: 6px;
-    border: 1px solid var(--positive-databar-color);
+    border: 1px solid var(--flag-color);
     bottom: 0px;
     border-radius: 0;
     background-color:transparent;
 }
 
 .weight-slider-primary .rc-slider-mark-text {
-    color: var(--positive-databar-color) !important;
+    color: var(--flag-color) !important;
     font-size : 0.9rem;
     margin-top: -5px;
 }

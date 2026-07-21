@@ -823,13 +823,15 @@ class BacktestPage:
                         else "-"
                     )
                     if name == "-" and industry == "-":
-                        parts.append(f"[{sym}]")
+                        parts.append(f"**{sym}**")
                     else:
-                        parts.append(f"[{sym}] {name} ({industry})")
+                        parts.append(f"**{sym}** ({name} / *{industry}*)")
+                        # parts.append(f"* **`{sym}`** | **{name}** | *{industry}*")
 
                 if not parts:
                     return "No information found for the given symbols."
-                return "    |    ".join(parts)
+                return " &nbsp;─&nbsp; ".join(parts)
+                # return "\n".join(parts)
 
             except Exception as e:
                 print(f"Error updating stock summary: {e}")
@@ -901,7 +903,7 @@ class BacktestPage:
                 # ---------- 新增：股票摘要栏 ----------
                 dbc.Row(
                     dbc.Col(
-                        html.Div(
+                        dcc.Markdown(
                             id="backtest-stock-summary",
                             className="backtest-label symbol_summary_box",
                             style={
