@@ -2250,11 +2250,9 @@ class ChartBuilder:
                         # 支撑线：所有点应该在线上方 (diffs >= -eps)
                         # 阻力线：所有点应该在线下方 (diffs <= eps)
                         if is_upper:
-                            violations = np.sum(diffs > 1e-4)
                             penalty = np.sum(diffs[diffs > 1e-4]) * 100
                             fitting_loss = np.sum(np.abs(diffs))
                         else:
-                            violations = np.sum(diffs < -1e-4)
                             penalty = np.sum(np.abs(diffs[diffs < -1e-4])) * 100
                             fitting_loss = np.sum(np.abs(diffs))
 
