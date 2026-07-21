@@ -2280,6 +2280,22 @@ class ChartBuilder:
 
                 slope_high = avg_slope
                 slope_low = avg_slope
+            else:
+                # 【新增抗发散约束】：禁止“喇叭口”模式（上轨向上 + 下轨向下）
+                if slope_high > slope_low:
+                    # 当发生发散时，强制将负斜率的下轨/上轨纠正为平行，采用较贴合整体走势的斜率
+                    # 优先采用绝对值更小（更平稳）的斜率，防止任意一条线倾角过大飞天/崩塌
+                    m_slope = (
+                        slope_high if abs(slope_high) < abs(slope_low) else slope_low
+                    )
+
+                    # 如果平稳斜率太陡，限制最大斜率
+                    slope_high = m_slope
+                    slope_low = m_slope
+
+                    # 重新定位截距
+                    intercept_high = np.max(p_highs[:, 1] - slope_high * p_highs[:, 0])
+                    intercept_low = np.min(p_lows[:, 1] - slope_low * p_lows[:, 0])
 
             # 5. 画线
             x0_dt, x1_dt = recent["datetime"].iloc[0], recent["datetime"].iloc[-1]
