@@ -7,6 +7,7 @@ import empyrical as ep
 from datetime import timedelta
 from typing import Any, Literal
 from plotly.subplots import make_subplots
+import re
 
 
 class ChartBuilder:
@@ -112,6 +113,39 @@ class ChartBuilder:
         scale = self._get_scale(1440, client_width, min_scale, max_scale)
         font_size = int(base_font * scale)
         return scale, font_size
+
+    def _get_alpha_color(self, color_str: str, alpha: float = 0.5) -> str:
+        """兼容 Hex (#0d876d) 和 rgba(...) 格式，并统一覆盖为新的 alpha 透明度。
+
+        :param color_str: "#0d876d" 或 "rgba(13,135,109,0.3)" 或 "rgb(13,135,109)"
+        :param alpha: 透明度 (0.0 到 1.0)
+        """
+        if not color_str:
+            return f"rgba(150, 150, 150, {alpha})"
+
+        color_str = color_str.strip()
+
+        # 1. 匹配 rgba(...) 或 rgb(...) 格式
+        rgb_match = re.match(
+            r"^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)", color_str, re.IGNORECASE
+        )
+        if rgb_match:
+            r, g, b = rgb_match.groups()
+            return f"rgba({r}, {g}, {b}, {alpha})"
+
+        # 2. 匹配 #RRGGBB 或 #RGB 格式
+        if color_str.startswith("#"):
+            hex_str = color_str.lstrip("#")
+            if len(hex_str) == 3:  # 缩写格式如 #f00 -> #ff0000
+                hex_str = "".join([c * 2 for c in hex_str])
+            if len(hex_str) == 6:
+                r = int(hex_str[0:2], 16)
+                g = int(hex_str[2:4], 16)
+                b = int(hex_str[4:6], 16)
+                return f"rgba({r}, {g}, {b}, {alpha})"
+
+        # 3. 兜底处理 (若配置传的是特殊值)
+        return color_str
 
     def calendar_heatmap(
         self,
@@ -2054,13 +2088,20 @@ class ChartBuilder:
                 tt = t["type"]
                 ts = t["strategy"]
                 color = cfg["long"] if tt == "买入" else cfg["short"]
+                color_with_alpha = (
+                    self._get_alpha_color(cfg.get("long"), alpha=0.7)
+                    if tt == "买入"
+                    else self._get_alpha_color(cfg.get("short"), alpha=0.7)
+                )
                 # 虚线
                 fig.add_trace(
                     go.Scatter(
                         x=[td, td],
                         y=[min_price, max_price],
                         mode="lines",
-                        line=dict(color=color, width=1.2 * scale, dash="dash"),
+                        line=dict(
+                            color=color_with_alpha, width=1.2 * scale, dash="dash"
+                        ),
                         opacity=0.7,
                         showlegend=False,
                         hoverinfo="skip",
@@ -2410,7 +2451,11 @@ class ChartBuilder:
                     y0=res_p,
                     x1=x_end,
                     y1=res_p,
-                    line=dict(color=cfg.get("short"), width=0.6, dash="solid"),
+                    line=dict(
+                        color=self._get_alpha_color(cfg.get("short"), alpha=0.7),
+                        width=0.6,
+                        dash="solid",
+                    ),
                     row=row,
                     col=col,
                 )
@@ -2423,7 +2468,11 @@ class ChartBuilder:
                     y0=sup_p,
                     x1=x_end,
                     y1=sup_p,
-                    line=dict(color=cfg.get("long"), width=0.6, dash="solid"),
+                    line=dict(
+                        color=self._get_alpha_color(cfg.get("long"), alpha=0.7),
+                        width=0.6,
+                        dash="solid",
+                    ),
                     row=row,
                     col=col,
                 )
