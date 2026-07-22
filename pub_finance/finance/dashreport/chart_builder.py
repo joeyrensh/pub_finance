@@ -2176,159 +2176,259 @@ class ChartBuilder:
                 row=1,
                 col=1,
             )
+        """
+        斜向阻力和支撑通道线
+        """
+        # def _add_support_resistance_channel(
+        #     fig,
+        #     df,
+        #     support_resistance_period=100,
+        #     force_parallel=True,
+        #     pivot_window=5,
+        #     row=1,
+        #     col=1,
+        # ):
+        #     """绘制真正贴合波峰波谷的技术分析通道（基于凸包/最外侧包络几何算法）"""
+        #     if (
+        #         support_resistance_period <= 0
+        #         or len(df) < support_resistance_period
+        #         or df.empty
+        #     ):
+        #         return
 
-        def _add_support_resistance_channel(
+        #     recent = df.iloc[-support_resistance_period:].copy().reset_index(drop=True)
+        #     if len(recent) < pivot_window * 2 + 1:
+        #         return
+
+        #     # 1. 建立时间轴 t (天数)
+        #     base_date = recent["datetime"].min()
+        #     recent["t"] = (recent["datetime"] - base_date).dt.total_seconds() / 86400.0
+
+        #     # 2. 识别基于 Close 的波峰与波谷（替换原先的 high 和 low）
+        #     recent["is_pivot_low"] = (
+        #         recent["close"]
+        #         == recent["close"].rolling(2 * pivot_window + 1, center=True).min()
+        #     )
+        #     recent["is_pivot_high"] = (
+        #         recent["close"]
+        #         == recent["close"].rolling(2 * pivot_window + 1, center=True).max()
+        #     )
+
+        #     # 提取波谷和波峰点阵 (t, close)
+        #     p_lows = recent[recent["is_pivot_low"]][["t", "close"]].values
+        #     p_highs = recent[recent["is_pivot_high"]][["t", "close"]].values
+
+        #     # 保底逻辑同步改为 close
+        #     if len(p_lows) < 2:
+        #         p_lows = recent.sort_values("close").head(4)[["t", "close"]].values
+        #     if len(p_highs) < 2:
+        #         p_highs = (
+        #             recent.sort_values("close", ascending=False)
+        #             .head(4)[["t", "close"]]
+        #             .values
+        #         )
+
+        #     # 3. 寻找包络支撑线（寻找一条斜率，使得它穿过某个波谷，且所有波谷都在其上方或紧贴）
+        #     def find_envelope_line(points, is_upper=False):
+        #         """寻找最佳外包络切线 (Upper 为阻力线，Lower 为支撑线)"""
+        #         best_slope = 0
+        #         best_intercept = 0
+        #         min_error = float("inf")
+
+        #         # 遍历任意两点构成的候选直线，寻找能包住所有点且误差最小的线
+        #         n = len(points)
+        #         for i in range(n):
+        #             for j in range(i + 1, n):
+        #                 t1, y1 = points[i]
+        #                 t2, y2 = points[j]
+        #                 if t1 == t2:
+        #                     continue
+
+        #                 slope = (y2 - y1) / (t2 - t1)
+        #                 intercept = y1 - slope * t1
+
+        #                 # 计算所有点到这条线的垂直距离
+        #                 diffs = points[:, 1] - (slope * points[:, 0] + intercept)
+
+        #                 # 支撑线：所有点应该在线上方 (diffs >= -eps)
+        #                 # 阻力线：所有点应该在线下方 (diffs <= eps)
+        #                 if is_upper:
+        #                     penalty = np.sum(diffs[diffs > 1e-4]) * 100
+        #                     fitting_loss = np.sum(np.abs(diffs))
+        #                 else:
+        #                     penalty = np.sum(np.abs(diffs[diffs < -1e-4])) * 100
+        #                     fitting_loss = np.sum(np.abs(diffs))
+
+        #                 total_loss = fitting_loss + penalty
+        #                 if total_loss < min_error:
+        #                     min_error = total_loss
+        #                     best_slope = slope
+        #                     best_intercept = intercept
+
+        #         return best_slope, best_intercept
+
+        #     # 分别计算阻力线和支撑线的斜率截距
+        #     slope_high, intercept_high = find_envelope_line(p_highs, is_upper=True)
+        #     slope_low, intercept_low = find_envelope_line(p_lows, is_upper=False)
+
+        #     if force_parallel:
+        #         # 平行通道：统一采用波峰波谷斜率的平均值，并向外推至刚好切中极值点
+        #         avg_slope = (slope_high + slope_low) / 2
+
+        #         # 重新调整阻力线截距（使其刚好切住最高波峰）
+        #         intercept_high = np.max(p_highs[:, 1] - avg_slope * p_highs[:, 0])
+        #         # 重新调整支撑线截距（使其刚好切住最低波谷）
+        #         intercept_low = np.min(p_lows[:, 1] - avg_slope * p_lows[:, 0])
+
+        #         slope_high = avg_slope
+        #         slope_low = avg_slope
+        #     else:
+        #         # 【新增抗发散约束】：禁止“喇叭口”模式（上轨向上 + 下轨向下）
+        #         if slope_high > slope_low:
+        #             # 当发生发散时，强制将负斜率的下轨/上轨纠正为平行，采用较贴合整体走势的斜率
+        #             # 优先采用绝对值更小（更平稳）的斜率，防止任意一条线倾角过大飞天/崩塌
+        #             m_slope = (
+        #                 slope_high if abs(slope_high) < abs(slope_low) else slope_low
+        #             )
+        #             # 如果平稳斜率太陡，限制最大斜率
+        #             slope_high = m_slope
+        #             slope_low = m_slope
+
+        #             # 重新定位截距
+        #             intercept_high = np.max(p_highs[:, 1] - slope_high * p_highs[:, 0])
+        #             intercept_low = np.min(p_lows[:, 1] - slope_low * p_lows[:, 0])
+
+        #     # 5. 画线
+        #     x0_dt, x1_dt = recent["datetime"].iloc[0], recent["datetime"].iloc[-1]
+        #     t0, t1 = recent["t"].iloc[0], recent["t"].iloc[-1]
+
+        #     # 支撑线 (Bottom)
+        #     y0_low = slope_low * t0 + intercept_low
+        #     y1_low = slope_low * t1 + intercept_low
+        #     fig.add_shape(
+        #         type="line",
+        #         x0=x0_dt,
+        #         y0=y0_low,
+        #         x1=x1_dt,
+        #         y1=y1_low,
+        #         line=dict(color=cfg.get("long"), width=0.6, dash="solid"),
+        #         row=row,
+        #         col=col,
+        #     )
+
+        #     # 阻力线 (Top)
+        #     y0_high = slope_high * t0 + intercept_high
+        #     y1_high = slope_high * t1 + intercept_high
+        #     fig.add_shape(
+        #         type="line",
+        #         x0=x0_dt,
+        #         y0=y0_high,
+        #         x1=x1_dt,
+        #         y1=y1_high,
+        #         line=dict(color=cfg.get("short"), width=0.6, dash="solid"),
+        #         row=row,
+        #         col=col,
+        #     )
+
+        # _add_support_resistance_channel(fig, df, force_parallel=False)
+
+        """
+        水平阻力和支撑线
+        """
+
+        def add_horizontal_sr_levels(
             fig,
             df,
-            support_resistance_period=100,
-            force_parallel=True,
+            period=120,
             pivot_window=5,
+            max_lines=2,
             row=1,
             col=1,
         ):
-            """绘制真正贴合波峰波谷的技术分析通道（基于凸包/最外侧包络几何算法）"""
-            if (
-                support_resistance_period <= 0
-                or len(df) < support_resistance_period
-                or df.empty
-            ):
+            """TradingView 风格的绝对稳定水平支撑阻力位 (Slope = 0)"""
+            if df.empty or len(df) < period:
                 return
 
-            recent = df.iloc[-support_resistance_period:].copy().reset_index(drop=True)
-            if len(recent) < pivot_window * 2 + 1:
+            recent = df.iloc[-period:].copy().reset_index(drop=True)
+            current_price = recent["close"].iloc[-1]
+            x_start = recent["datetime"].iloc[0]
+            x_end = recent["datetime"].iloc[-1]
+
+            # 1. 提取结构性高低点 (Pivots)
+            recent["is_high"] = (
+                recent["high"]
+                == recent["high"].rolling(2 * pivot_window + 1, center=True).max()
+            )
+            recent["is_low"] = (
+                recent["low"]
+                == recent["low"].rolling(2 * pivot_window + 1, center=True).min()
+            )
+
+            high_prices = recent[recent["is_high"]]["high"].values
+            low_prices = recent[recent["is_low"]]["low"].values
+
+            if len(high_prices) == 0 or len(low_prices) == 0:
                 return
 
-            # 1. 建立时间轴 t (天数)
-            base_date = recent["datetime"].min()
-            recent["t"] = (recent["datetime"] - base_date).dt.total_seconds() / 86400.0
+            # 2. 价格聚类：寻找波峰波谷最密集的水平价位 (用 1.5% 阈值归并相近价格)
+            def cluster_levels(prices, tolerance=0.015):
+                clusters = []
+                for p in sorted(prices):
+                    matched = False
+                    for c in clusters:
+                        if abs(p - np.mean(c)) / np.mean(c) <= tolerance:
+                            c.append(p)
+                            matched = True
+                            break
+                    if not matched:
+                        clusters.append([p])
 
-            # 2. 识别基于 Close 的波峰与波谷（替换原先的 high 和 low）
-            recent["is_pivot_low"] = (
-                recent["close"]
-                == recent["close"].rolling(2 * pivot_window + 1, center=True).min()
-            )
-            recent["is_pivot_high"] = (
-                recent["close"]
-                == recent["close"].rolling(2 * pivot_window + 1, center=True).max()
-            )
+                # 按聚类数量（触碰次数）排序，取最显著的价位
+                sorted_clusters = sorted(clusters, key=lambda x: len(x), reverse=True)
+                return [np.mean(c) for c in sorted_clusters]
 
-            # 提取波谷和波峰点阵 (t, close)
-            p_lows = recent[recent["is_pivot_low"]][["t", "close"]].values
-            p_highs = recent[recent["is_pivot_high"]][["t", "close"]].values
+            resistance_levels = cluster_levels(high_prices)
+            support_levels = cluster_levels(low_prices)
 
-            # 保底逻辑同步改为 close
-            if len(p_lows) < 2:
-                p_lows = recent.sort_values("close").head(4)[["t", "close"]].values
-            if len(p_highs) < 2:
-                p_highs = (
-                    recent.sort_values("close", ascending=False)
-                    .head(4)[["t", "close"]]
-                    .values
+            # 3. 筛选当前价格上方的阻力位与下方的支撑位
+            valid_resistances = [p for p in resistance_levels if p > current_price]
+            valid_supports = [p for p in support_levels if p < current_price]
+
+            # 按距离当前价格的远近排序，各取前 N 条
+            valid_resistances = sorted(
+                valid_resistances, key=lambda x: abs(x - current_price)
+            )[:max_lines]
+            valid_supports = sorted(
+                valid_supports, key=lambda x: abs(x - current_price)
+            )[:max_lines]
+
+            # 4. 绘制阻力线 (红色水平射线)
+            for res_p in valid_resistances:
+                fig.add_shape(
+                    type="line",
+                    x0=x_start,
+                    y0=res_p,
+                    x1=x_end,
+                    y1=res_p,
+                    line=dict(color=cfg.get("short"), width=0.6, dash="solid"),
+                    row=row,
+                    col=col,
                 )
 
-            # 3. 寻找包络支撑线（寻找一条斜率，使得它穿过某个波谷，且所有波谷都在其上方或紧贴）
-            def find_envelope_line(points, is_upper=False):
-                """寻找最佳外包络切线 (Upper 为阻力线，Lower 为支撑线)"""
-                best_slope = 0
-                best_intercept = 0
-                min_error = float("inf")
+            # 5. 绘制支撑线 (绿色水平射线)
+            for sup_p in valid_supports:
+                fig.add_shape(
+                    type="line",
+                    x0=x_start,
+                    y0=sup_p,
+                    x1=x_end,
+                    y1=sup_p,
+                    line=dict(color=cfg.get("long"), width=0.6, dash="solid"),
+                    row=row,
+                    col=col,
+                )
 
-                # 遍历任意两点构成的候选直线，寻找能包住所有点且误差最小的线
-                n = len(points)
-                for i in range(n):
-                    for j in range(i + 1, n):
-                        t1, y1 = points[i]
-                        t2, y2 = points[j]
-                        if t1 == t2:
-                            continue
-
-                        slope = (y2 - y1) / (t2 - t1)
-                        intercept = y1 - slope * t1
-
-                        # 计算所有点到这条线的垂直距离
-                        diffs = points[:, 1] - (slope * points[:, 0] + intercept)
-
-                        # 支撑线：所有点应该在线上方 (diffs >= -eps)
-                        # 阻力线：所有点应该在线下方 (diffs <= eps)
-                        if is_upper:
-                            penalty = np.sum(diffs[diffs > 1e-4]) * 100
-                            fitting_loss = np.sum(np.abs(diffs))
-                        else:
-                            penalty = np.sum(np.abs(diffs[diffs < -1e-4])) * 100
-                            fitting_loss = np.sum(np.abs(diffs))
-
-                        total_loss = fitting_loss + penalty
-                        if total_loss < min_error:
-                            min_error = total_loss
-                            best_slope = slope
-                            best_intercept = intercept
-
-                return best_slope, best_intercept
-
-            # 分别计算阻力线和支撑线的斜率截距
-            slope_high, intercept_high = find_envelope_line(p_highs, is_upper=True)
-            slope_low, intercept_low = find_envelope_line(p_lows, is_upper=False)
-
-            if force_parallel:
-                # 平行通道：统一采用波峰波谷斜率的平均值，并向外推至刚好切中极值点
-                avg_slope = (slope_high + slope_low) / 2
-
-                # 重新调整阻力线截距（使其刚好切住最高波峰）
-                intercept_high = np.max(p_highs[:, 1] - avg_slope * p_highs[:, 0])
-                # 重新调整支撑线截距（使其刚好切住最低波谷）
-                intercept_low = np.min(p_lows[:, 1] - avg_slope * p_lows[:, 0])
-
-                slope_high = avg_slope
-                slope_low = avg_slope
-            else:
-                # 【新增抗发散约束】：禁止“喇叭口”模式（上轨向上 + 下轨向下）
-                if slope_high > slope_low:
-                    # 当发生发散时，强制将负斜率的下轨/上轨纠正为平行，采用较贴合整体走势的斜率
-                    # 优先采用绝对值更小（更平稳）的斜率，防止任意一条线倾角过大飞天/崩塌
-                    m_slope = (
-                        slope_high if abs(slope_high) < abs(slope_low) else slope_low
-                    )
-                    # 如果平稳斜率太陡，限制最大斜率
-                    slope_high = m_slope
-                    slope_low = m_slope
-
-                    # 重新定位截距
-                    intercept_high = np.max(p_highs[:, 1] - slope_high * p_highs[:, 0])
-                    intercept_low = np.min(p_lows[:, 1] - slope_low * p_lows[:, 0])
-
-            # 5. 画线
-            x0_dt, x1_dt = recent["datetime"].iloc[0], recent["datetime"].iloc[-1]
-            t0, t1 = recent["t"].iloc[0], recent["t"].iloc[-1]
-
-            # 支撑线 (Bottom)
-            y0_low = slope_low * t0 + intercept_low
-            y1_low = slope_low * t1 + intercept_low
-            fig.add_shape(
-                type="line",
-                x0=x0_dt,
-                y0=y0_low,
-                x1=x1_dt,
-                y1=y1_low,
-                line=dict(color=cfg.get("long"), width=0.6, dash="solid"),
-                row=row,
-                col=col,
-            )
-
-            # 阻力线 (Top)
-            y0_high = slope_high * t0 + intercept_high
-            y1_high = slope_high * t1 + intercept_high
-            fig.add_shape(
-                type="line",
-                x0=x0_dt,
-                y0=y0_high,
-                x1=x1_dt,
-                y1=y1_high,
-                line=dict(color=cfg.get("short"), width=0.6, dash="solid"),
-                row=row,
-                col=col,
-            )
-
-        _add_support_resistance_channel(fig, df, force_parallel=False)
+        add_horizontal_sr_levels(fig, df)
 
         xmin = df["datetime"].min()
         xmax = df["datetime"].max()
