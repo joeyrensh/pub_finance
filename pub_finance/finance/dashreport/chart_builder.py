@@ -2383,10 +2383,11 @@ class ChartBuilder:
             period=120,
             pivot_window=5,
             max_lines=2,
+            min_dist_pct=0.05,  # 新增：两条支撑/阻力线之间的最小允许间距 (2.5%)
             row=1,
             col=1,
         ):
-            """TradingView 风格的绝对稳定水平支撑阻力位 (Slope = 0)"""
+            """TradingView 风格的绝对稳定水平支撑阻力位 (含智能二次间距抑制)"""
             if df.empty or len(df) < period:
                 return
 
@@ -2411,7 +2412,7 @@ class ChartBuilder:
             if len(high_prices) == 0 or len(low_prices) == 0:
                 return
 
-            # 2. 价格聚类：寻找波峰波谷最密集的水平价位 (用 1.5% 阈值归并相近价格)
+            # 2. 一次聚类：归并微小噪声点
             def cluster_levels(prices, tolerance=0.015):
                 clusters = []
                 for p in sorted(prices):
@@ -2423,27 +2424,49 @@ class ChartBuilder:
                             break
                     if not matched:
                         clusters.append([p])
-
-                # 按聚类数量（触碰次数）排序，取最显著的价位
                 sorted_clusters = sorted(clusters, key=lambda x: len(x), reverse=True)
                 return [np.mean(c) for c in sorted_clusters]
 
             resistance_levels = cluster_levels(high_prices)
             support_levels = cluster_levels(low_prices)
 
-            # 3. 筛选当前价格上方的阻力位与下方的支撑位
-            valid_resistances = [p for p in resistance_levels if p > current_price]
-            valid_supports = [p for p in support_levels if p < current_price]
+            # 3. 初始过滤：区分上下界
+            raw_resistances = [p for p in resistance_levels if p > current_price]
+            raw_supports = [p for p in support_levels if p < current_price]
 
-            # 按距离当前价格的远近排序，各取前 N 条
-            valid_resistances = sorted(
-                valid_resistances, key=lambda x: abs(x - current_price)
-            )[:max_lines]
-            valid_supports = sorted(
-                valid_supports, key=lambda x: abs(x - current_price)
-            )[:max_lines]
+            # 按距离当前价格由近到远排序
+            raw_resistances = sorted(
+                raw_resistances, key=lambda x: abs(x - current_price)
+            )
+            raw_supports = sorted(raw_supports, key=lambda x: abs(x - current_price))
 
-            # 4. 绘制阻力线 (红色水平射线)
+            # 4. (最小物理间距抑制)
+            def filter_close_levels(sorted_levels, min_dist=0.025, max_n=2):
+                selected = []
+                for level in sorted_levels:
+                    # 校验当前候选位是否与已选出的所有位都保持足够的距离
+                    is_far_enough = True
+                    for sel in selected:
+                        if abs(level - sel) / sel < min_dist:
+                            is_far_enough = False
+                            break
+
+                    if is_far_enough:
+                        selected.append(level)
+
+                    if len(selected) >= max_n:
+                        break
+                return selected
+
+            # 执行二次过滤，选出真正具备空间拉开度的支撑/阻力线
+            valid_resistances = filter_close_levels(
+                raw_resistances, min_dist=min_dist_pct, max_n=max_lines
+            )
+            valid_supports = filter_close_levels(
+                raw_supports, min_dist=min_dist_pct, max_n=max_lines
+            )
+
+            # 5. 绘制阻力线
             for res_p in valid_resistances:
                 fig.add_shape(
                     type="line",
@@ -2460,7 +2483,7 @@ class ChartBuilder:
                     col=col,
                 )
 
-            # 5. 绘制支撑线 (绿色水平射线)
+            # 6. 绘制支撑线
             for sup_p in valid_supports:
                 fig.add_shape(
                     type="line",
