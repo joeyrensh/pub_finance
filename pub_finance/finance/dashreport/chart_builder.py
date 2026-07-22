@@ -2441,29 +2441,80 @@ class ChartBuilder:
             raw_supports = sorted(raw_supports, key=lambda x: abs(x - current_price))
 
             # 4. (最小物理间距抑制)
-            def filter_close_levels(sorted_levels, min_dist=0.025, max_n=2):
-                selected = []
-                for level in sorted_levels:
-                    # 校验当前候选位是否与已选出的所有位都保持足够的距离
-                    is_far_enough = True
-                    for sel in selected:
+            def filter_close_levels(
+                raw_resistances,
+                raw_supports,
+                current_price,
+                min_dist_pct=0.05,  # 同类线条（支撑与支撑、阻力与阻力）的最小间距 (2.5%)
+                min_channel_pct=0.05,  # 支撑与阻力之间的最小通道宽度 (3.0%)
+                max_n=2,
+            ):
+                """
+                智能去重与通道扩张算法：
+                1. 消除同类靠得太近的虚线 (S1-S2 / R1-R2)
+                2. 消除与当前价格过近、导致 S1 和 R1 挤在一起的无效狭窄通道
+                """
+
+                # --- 辅助校验：判断新候选位是否与已选列表里的所有线条都保持足够距离 ---
+                def is_far_enough(level, selected_levels, min_dist):
+                    for sel in selected_levels:
                         if abs(level - sel) / sel < min_dist:
-                            is_far_enough = False
-                            break
+                            return False
+                    return True
 
-                    if is_far_enough:
-                        selected.append(level)
-
-                    if len(selected) >= max_n:
+                # 1. 挑选阻力线 (Resistances)
+                valid_resistances = []
+                for r in raw_resistances:
+                    # 校验 A: 与当前价格不能贴太近（不能小于半个通道宽度）
+                    if (r - current_price) / current_price < (min_channel_pct / 2):
+                        continue
+                    # 校验 B: 与已选阻力线保持同类间距
+                    if is_far_enough(r, valid_resistances, min_dist_pct):
+                        valid_resistances.append(r)
+                    if len(valid_resistances) >= max_n:
                         break
-                return selected
 
-            # 执行二次过滤，选出真正具备空间拉开度的支撑/阻力线
-            valid_resistances = filter_close_levels(
-                raw_resistances, min_dist=min_dist_pct, max_n=max_lines
+                # 2. 挑选支撑线 (Supports)
+                valid_supports = []
+                for s in raw_supports:
+                    # 校验 A: 与当前价格不能贴太近
+                    if (current_price - s) / s < (min_channel_pct / 2):
+                        continue
+                    # 校验 B: 与已选支撑线保持同类间距
+                    if is_far_enough(s, valid_supports, min_dist_pct):
+                        valid_supports.append(s)
+                    if len(valid_supports) >= max_n:
+                        break
+
+                # 3. 兜底保障：若筛选后 S1 和 R1 依然打破了最小通道阈值，进行“舍弱留强/顺延”
+                if valid_resistances and valid_supports:
+                    r1, s1 = valid_resistances[0], valid_supports[0]
+                    if (r1 - s1) / s1 < min_channel_pct:
+                        # 价格离阻力更近，剔除过度贴近的 R1，让阻力向上顺延至 R2
+                        if abs(r1 - current_price) < abs(s1 - current_price):
+                            valid_resistances.pop(0)
+                        else:  # 离支撑更近，剔除 S1，让支撑向下顺延至 S2
+                            valid_supports.pop(0)
+
+                return valid_resistances, valid_supports
+
+            # 初始区分上下界并按距离由近到远排序
+            raw_resistances = sorted(
+                [p for p in resistance_levels if p > current_price],
+                key=lambda x: abs(x - current_price),
             )
-            valid_supports = filter_close_levels(
-                raw_supports, min_dist=min_dist_pct, max_n=max_lines
+            raw_supports = sorted(
+                [p for p in support_levels if p < current_price],
+                key=lambda x: abs(x - current_price),
+            )
+
+            valid_resistances, valid_supports = filter_close_levels(
+                raw_resistances=raw_resistances,
+                raw_supports=raw_supports,
+                current_price=current_price,
+                min_dist_pct=min_dist_pct,  # 同类间距 (2.5%)
+                min_channel_pct=0.05,  # 支撑和阻力之间至少要拉开 3.5% 的通道空间
+                max_n=max_lines,
             )
 
             # 5. 绘制阻力线
@@ -2476,7 +2527,7 @@ class ChartBuilder:
                     y1=res_p,
                     line=dict(
                         color=self._get_alpha_color(cfg.get("short"), alpha=0.7),
-                        width=0.6,
+                        width=1.2 * scale,
                         dash="solid",
                     ),
                     row=row,
@@ -2493,7 +2544,7 @@ class ChartBuilder:
                     y1=sup_p,
                     line=dict(
                         color=self._get_alpha_color(cfg.get("long"), alpha=0.7),
-                        width=0.6,
+                        width=1.2 * scale,
                         dash="solid",
                     ),
                     row=row,
