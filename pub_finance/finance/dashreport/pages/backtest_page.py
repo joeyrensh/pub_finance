@@ -662,7 +662,9 @@ class BacktestPage:
                 if not stock_data.empty and "datetime" in stock_data.columns:
                     stock_data["datetime"] = pd.to_datetime(stock_data["datetime"])
                     stock_data = stock_data.sort_values("datetime")
-                    cutoff = stock_data["datetime"].max() - pd.Timedelta(days=240)
+                    cutoff = stock_data["datetime"].max() - pd.Timedelta(
+                        days=200 if width < 1440 else 360
+                    )
                     stock_data = stock_data[stock_data["datetime"] >= cutoff]
 
                 # 预先过滤当前股票的交易记录和持仓明细
