@@ -2532,6 +2532,7 @@ class ChartBuilder:
                     ),
                     row=row,
                     col=col,
+                    layer="below",
                 )
 
             # 6. 绘制支撑线
@@ -2549,6 +2550,7 @@ class ChartBuilder:
                     ),
                     row=row,
                     col=col,
+                    layer="below",
                 )
 
         add_horizontal_sr_levels(fig, df)
