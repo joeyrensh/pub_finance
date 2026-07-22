@@ -2180,7 +2180,7 @@ class ChartBuilder:
         def _add_support_resistance_channel(
             fig,
             df,
-            support_resistance_period=120,
+            support_resistance_period=100,
             force_parallel=True,
             pivot_window=5,
             row=1,
@@ -2288,7 +2288,6 @@ class ChartBuilder:
                     m_slope = (
                         slope_high if abs(slope_high) < abs(slope_low) else slope_low
                     )
-
                     # 如果平稳斜率太陡，限制最大斜率
                     slope_high = m_slope
                     slope_low = m_slope
