@@ -2356,16 +2356,16 @@ class ChartBuilder:
 
             # 1. 提取结构性高低点 (Pivots)
             recent["is_high"] = (
-                recent["high"]
-                == recent["high"].rolling(2 * pivot_window + 1, center=True).max()
+                recent["close"]
+                == recent["close"].rolling(2 * pivot_window + 1, center=True).max()
             )
             recent["is_low"] = (
-                recent["low"]
-                == recent["low"].rolling(2 * pivot_window + 1, center=True).min()
+                recent["close"]
+                == recent["close"].rolling(2 * pivot_window + 1, center=True).min()
             )
 
-            high_prices = recent[recent["is_high"]]["high"].values
-            low_prices = recent[recent["is_low"]]["low"].values
+            high_prices = recent[recent["is_high"]]["close"].values
+            low_prices = recent[recent["is_low"]]["close"].values
 
             if len(high_prices) == 0 or len(low_prices) == 0:
                 return
