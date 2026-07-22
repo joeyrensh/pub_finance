@@ -2072,7 +2072,7 @@ class ChartBuilder:
                 x=df["datetime"],
                 y=df["volume"],
                 name="成交量",
-                marker=dict(color=colors, line=dict(color=colors)),
+                marker=dict(color=colors, line=dict(color=colors, width=0.8 * scale)),
                 opacity=1.0,
                 showlegend=True,
             ),
