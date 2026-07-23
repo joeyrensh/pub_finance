@@ -1310,7 +1310,8 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .background-header::before {
-    width: 18%;
+    width: 15%;
+    margin-top: 3px;
   }
   
   .company-logo {
@@ -1407,7 +1408,7 @@ a:active { color: lightgrey; text-decoration: underline; }
     width: 70%;
     padding-left: 58px;
     font-size: 1rem;
-    margin-top: 15px !important;
+    margin-top: 12px !important;
   }
   
   .five.columns {
