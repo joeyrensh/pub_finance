@@ -2553,7 +2553,7 @@ class ChartBuilder:
                     layer="below",
                 )
 
-        add_horizontal_sr_levels(fig, df)
+        add_horizontal_sr_levels(fig, df, period=len(df) if len(df) < 150 else 150)
 
         xmin = df["datetime"].min()
         xmax = df["datetime"].max()
