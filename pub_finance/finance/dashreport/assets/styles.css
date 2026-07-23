@@ -1066,13 +1066,14 @@ a:active { color: lightgrey; text-decoration: underline; }
   position: absolute;
   top: 0;
   left: 0;
-  width: 110px;
+  width: 100px;
   height: 200px;
   background-image: url('/assets/background-logo.png');
   background-repeat: no-repeat;
   background-size: contain;
   z-index: -1;
   margin-left: -5px;
+  margin-top: 5px;
 }
 
 /* --- 其他核心小部件 --- */
