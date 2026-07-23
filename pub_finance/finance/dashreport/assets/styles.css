@@ -560,7 +560,7 @@ legend {
   margin-right: 5px;
 }
 .label_text{
-  color: #666;
+  /* color: #666; */
 }
 
 /* --- 图表外壳与特定视图 --- */
