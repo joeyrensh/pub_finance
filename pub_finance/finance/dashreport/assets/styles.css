@@ -1374,7 +1374,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   
   .all-tabs {
     text-align: center;
-    margin-top: 0px;
+    margin-top: -10px;
     margin-bottom: 0px;
     font-size: 1rem;
   }
