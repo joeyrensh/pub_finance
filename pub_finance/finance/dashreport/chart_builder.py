@@ -98,12 +98,29 @@ class ChartBuilder:
         client_width=None,
         min_scale=0.6,
         max_scale=1.05,
+        mid_min_width=550,  # 中间区间的下限宽度
+        mid_min_scale=0.85,  # 屏幕在 550px 时，期望的温和缩放比例 (不至于太小)
     ):
-        """计算缩放比例"""
-        if client_width < 550:
-            scale = client_width / base_fig_width
-        else:
+        """计算响应式 Dashboard 字体/线宽缩放比例 (支持平缓线性插值)"""
+        # 兜底防御：若未获取到 client_width，默认返回 1.0
+        if client_width is None or client_width <= 0:
+            return 1.0
+
+        # 1. 大屏区间 (>= 1440px)：保持满额 1.0 缩放
+        if client_width >= base_fig_width:
             scale = 1.0
+
+        # 2. 中屏插值区间 (550px ~ 1440px)：平缓过渡，避免过大或过小
+        elif client_width >= mid_min_width:
+            progress = (client_width - mid_min_width) / (base_fig_width - mid_min_width)
+            scale = mid_min_scale + progress * (1.0 - mid_min_scale)
+
+        # 3. 小屏/移动端区间 (< 550px)：按比例缩放，依靠 min_scale 保底
+        else:
+            # 在极小屏下按比例递减
+            scale = client_width / base_fig_width
+
+        # 4. 最终边界值约束
         return max(min_scale, min(scale, max_scale))
 
     def _get_font_sizes(
