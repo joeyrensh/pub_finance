@@ -159,7 +159,7 @@ h6 { font-size: 1.4rem; }
   width: 80%;
   border-left: 0px solid var(--border-left-color);
   padding-left: 95px;
-  /* margin-top: -30px; */
+  margin-top: -5px;
 }
 
 .subtitle {
@@ -241,7 +241,7 @@ li::before {
   text-align: center;
   font-size: 1.4rem;
   font-weight: 500;
-  margin-top: -30px;
+  margin-top: -45px;
   text-transform: uppercase;
 }
 
@@ -1066,14 +1066,14 @@ a:active { color: lightgrey; text-decoration: underline; }
   position: absolute;
   top: 0;
   left: 0;
-  width: 100px;
+  width: 80px;
   height: 200px;
   background-image: url('/assets/background-logo.png');
   background-repeat: no-repeat;
   background-size: contain;
   z-index: -1;
   margin-left: -5px;
-  margin-top: 5px;
+  margin-top: 15px;
 }
 
 /* --- 其他核心小部件 --- */
@@ -1409,7 +1409,7 @@ a:active { color: lightgrey; text-decoration: underline; }
     width: 70%;
     padding-left: 58px;
     font-size: 1rem;
-    margin-top: 12px !important;
+    margin-top: 15px !important;
   }
   
   .five.columns {
