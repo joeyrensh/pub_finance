@@ -1194,7 +1194,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .background-header::before {
-    width: 15%;
+    width: 10%;
   }
   
   .company-logo {
@@ -1212,7 +1212,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .all-tabs {
-    margin-top: 0px;
+    margin-top: -15px;
     font-size: 1.4rem;
   }
   
@@ -1227,7 +1227,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   .main-title {
     padding-left: 127px;
     font-size: 1.4rem;
-    margin-top: 2px;
+    margin-top: 5px;
   }
   
   #full-view-link {
