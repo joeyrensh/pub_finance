@@ -230,6 +230,8 @@ li::before {
   border-bottom: 2px solid var(--gridcolor);
   margin-bottom: 0px;
   margin-top: -5px;
+  position: relative;
+  z-index: 10;  
 }
 
 .github-wrapper {
