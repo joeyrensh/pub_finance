@@ -5,6 +5,10 @@ from dash import html, dcc, Input, Output, State, ctx, Dash
 import dash_bootstrap_components as dbc
 from finance.dashreport.utils import Header
 from flask import session
+from finance.dashreport.data_loader import ReportDataLoader
+from finance.utility.toolkit import ToolKit
+import pandas as pd
+from datetime import datetime
 
 # -------------------------- 路径与默认配置 --------------------------
 JSON_FILE_PATH = os.path.join(FINANCE_ROOT, "utility", "scoring_weights.json")
@@ -67,6 +71,69 @@ def load_config() -> dict:
 def save_config(config: dict):
     with open(JSON_FILE_PATH, "w", encoding="utf-8") as f:
         json.dump(config, f, ensure_ascii=False, indent=4)
+
+
+def get_default_trade_date(market: str = "cn") -> str:
+    """获取指定市场的默认交易日期（含兜底逻辑）"""
+    try:
+        data = ReportDataLoader.load(prefix=market, datasets=("overall",))
+        df_overall = data.get("overall")
+        if df_overall is not None and not df_overall.empty:
+            end_date = df_overall.at[0, "end_date"]
+            if isinstance(end_date, pd.Timestamp):
+                return end_date.strftime("%Y%m%d")
+            return str(end_date).replace("-", "")
+    except Exception:
+        pass
+
+    try:
+        if market == "us":
+            return ToolKit.get_us_latest_trade_date(0)
+        return ToolKit.get_cn_latest_trade_date(0)
+    except Exception:
+        return datetime.now().strftime("%Y%m%d")
+
+
+def export_dynamic_list(market: str = None, trade_date: str = None) -> None:
+    """读取指定市场 (或默认 cn, us) 的 stockdetail.csv 文件并执行股票排名导出"""
+    column_map_default = {
+        "symbol": "SYMBOL",
+        "name": "NAME",
+        "industry": "IND",
+        "erp": "ERP",
+        "open_date": "OPEN DATE",
+        "daily_return_array": "DAILY RETURN",
+        "pnl_ratio": "PNL RATIO",
+        "win_rate": "WIN RATE",
+        "avg_trans": "AVG TRANS",
+        "sortino": "SORTINO RATIO",
+        "max_dd": "MAX DD",
+        "strategy_cnt": "STRATEGY CNT",
+        "strategy": "STRATEGY",
+    }
+
+    # 如果未指定 market，则默认处理 ['cn', 'us']
+    markets = [market] if market else ["cn", "us"]
+
+    for mkt in markets:
+        csv_path = FINANCE_ROOT / f"data/{mkt}_stockdetail.csv"
+        if not csv_path.exists():
+            print(f"[{mkt.upper()}] 错误: 文件不存在 -> {csv_path}")
+            continue
+
+        pd_position_history = pd.read_csv(csv_path)
+        if pd_position_history.empty:
+            print(f"[{mkt.upper()}] 警告: 数据为空，跳过导出")
+            continue
+
+        mkt_date = trade_date or get_default_trade_date(mkt)
+
+        # 评分选股并导出
+        toolkit = ToolKit("股票排名导出")
+        selected_symbols, _ = toolkit.score_and_select_symbols(
+            pd_position_history, column_map_default, mkt, mkt_date
+        )
+        toolkit.export_if_changed(selected_symbols, mkt)
 
 
 # -------------------------- 静态键名定义（修复：从DEFAULT_CONFIG读取，不依赖init_cfg） --------------------------
@@ -531,6 +598,7 @@ def register_callbacks(app: Dash):
         try:
             d = json.loads(json_str)
             save_config(d)
+            export_dynamic_list()
             return html.Span(
                 "✅ Configuration file saved successfully.", style={"color": "#198754"}
             )
