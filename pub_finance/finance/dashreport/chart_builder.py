@@ -1455,7 +1455,7 @@ class ChartBuilder:
                 "header_h": 35,
                 "cell_h": 40,
                 "gap_ratio": 0.05,
-                "table_ratio_cap": 0.20,
+                "table_ratio_cap": 0.24,
             }
 
         # 3. 平板竖屏 (550px ~ 767px) -> 1.0rem 视觉体系
@@ -1467,7 +1467,7 @@ class ChartBuilder:
                 "header_h": 30,
                 "cell_h": 35,
                 "gap_ratio": 0.05,
-                "table_ratio_cap": 0.27,
+                "table_ratio_cap": 0.24,
             }
 
         # 4. 小屏 / 手机端 (< 550px) -> 0.9rem 极简体系
