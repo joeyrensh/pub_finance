@@ -84,7 +84,7 @@ class ChartBuilder:
                 "cumret": "#ff4444",
                 "drawdown": "#00a859",
                 # "drawdown_fill": "rgba(107,207,181,0.3)",
-                "drawdown_fill": "#D1D5DB",
+                "drawdown_fill": "#2D3748",
                 "table_header": "rgba(64,64,64,0)",
                 "table_cell": "rgba(0,0,0,0)",
                 "hover_bg": "#1a1a1a",
