@@ -1427,6 +1427,61 @@ class ChartBuilder:
 
         return fig
 
+    def _get_responsive_config(self, client_width):
+        """
+        基于设备断点 (Breakpoints) 的离散配置系统
+        摒弃连续浮点数计算，彻底解决 Plotly 表格与 K 线图缝隙脱节的问题
+        """
+        w = client_width if (client_width and client_width > 0) else 1440
+
+        # 1. 大屏 / Mac Safari 端 (>= 1200px) -> 1.2rem 视觉体系
+        if w >= 1200:
+            return {
+                "scale": 1.0,
+                "main_font": 16,
+                "table_font": 16,
+                "header_h": 45,
+                "cell_h": 50,
+                "gap_ratio": 0.045,  # 上下缝隙死死锁定为 3% 画布高度
+                "table_ratio_cap": 0.24,  # Table 占画布比例上限
+            }
+
+        # 2. 中屏 / 笔记本 & iPad 横屏 (768px ~ 1199px) -> 1.1rem 视觉体系
+        elif w >= 768:
+            return {
+                "scale": 0.85,
+                "main_font": 13,
+                "table_font": 13,
+                "header_h": 35,
+                "cell_h": 40,
+                "gap_ratio": 0.05,
+                "table_ratio_cap": 0.20,
+            }
+
+        # 3. 平板竖屏 (550px ~ 767px) -> 1.0rem 视觉体系
+        elif w >= 550:
+            return {
+                "scale": 0.8,
+                "main_font": 11,
+                "table_font": 11,
+                "header_h": 30,
+                "cell_h": 35,
+                "gap_ratio": 0.05,
+                "table_ratio_cap": 0.27,
+            }
+
+        # 4. 小屏 / 手机端 (< 550px) -> 0.9rem 极简体系
+        else:
+            return {
+                "scale": 0.65,
+                "main_font": 10,
+                "table_font": 10,
+                "header_h": 19,
+                "cell_h": 21,
+                "gap_ratio": 0.06,
+                "table_ratio_cap": 0.25,
+            }
+
     def annual_return(self, page, pnl: pd.Series, theme="light", client_width=1440):
         """
         生成年度收益图表（上：图，下：表格）
@@ -1848,26 +1903,28 @@ class ChartBuilder:
         # =========================
         # CHART_DOMAIN_Y = [0.34, 1.0]
         # TABLE_DOMAIN_Y = [0.0, 0.27]
-        # 1. 修正画布高度估算
-        estimated_total_height = 650 * (scale if scale >= 1 else 0.7 * scale)
 
-        # 2. 计算 Table 绝对像素高度
-        header_h = int(45 * (scale if scale >= 1 else 0.65 * scale))
-        cell_h = int(50 * scale) if scale >= 1 else max(22, int(50 * 0.65 * scale))
-        num_rows = len(cell_values[0]) if cell_values else 0
-        table_absolute_height = header_h + (cell_h * num_rows) + 15
+        # 获取当前屏幕断点的布局尺寸配置
+        layout_cfg = self._get_responsive_config(client_width)
 
-        # 3. 转化为画布百分比
-        table_y_ratio = min(0.65, table_absolute_height / estimated_total_height)
+        # 计算 Table 绝对像素高度及画布占比
+        num_rows = len(cell_values[0]) if cell_values and len(cell_values) > 0 else 0
+        table_pixel_height = (
+            layout_cfg["header_h"] + (layout_cfg["cell_h"] * num_rows) + 15
+        )
 
-        # 4. 绝对像素级间距（固定 15-20px 视觉留白）
-        gap_px = 25 if scale >= 1 else 20
-        gap_ratio = gap_px / estimated_total_height
+        # 基于 1.5 比例计算基准画布高度
+        base_canvas_height = (client_width if client_width else 1440) / 1.6
+        raw_table_ratio = table_pixel_height / base_canvas_height
 
-        TABLE_DOMAIN_Y = [0.0, float(f"{table_y_ratio:.3f}")]
-        CHART_DOMAIN_Y = [float(f"{min(1.0, table_y_ratio + gap_ratio):.3f}"), 1.0]
+        # 约束 Table 在画布上的 y 轴分配比例
+        table_y_ratio = min(layout_cfg["table_ratio_cap"], max(0.5, raw_table_ratio))
 
-        legend_absolute_x = 0
+        # 无缝垂直 Domain 计算
+        TABLE_DOMAIN_Y = [0.0, round(table_y_ratio, 3)]
+        CHART_DOMAIN_Y = [round(table_y_ratio + layout_cfg["gap_ratio"], 3), 1.0]
+
+        # 添加 Table (将尺寸用 layout_cfg，色彩用 theme_cfg)
         fig.add_trace(
             go.Table(
                 domain=dict(x=[0.0, 1.0], y=TABLE_DOMAIN_Y),
@@ -1876,13 +1933,12 @@ class ChartBuilder:
                     fill_color=cfg["table_header"],
                     line=dict(color=cfg["border"], width=1),
                     font=dict(
-                        size=table_font,
-                        color=text_color,
+                        size=layout_cfg["table_font"],
+                        color=cfg["text_color"],
                         family=self.font_family,
-                        # weight="bold",
                     ),
                     align=["left"] * len(header_values),
-                    height=header_h,
+                    height=layout_cfg["header_h"],
                 ),
                 cells=dict(
                     values=cell_values,
@@ -1890,15 +1946,17 @@ class ChartBuilder:
                     line=dict(color=cfg["border"], width=1),
                     font=dict(
                         size=font_sizes_by_col,
-                        color=font_colors_by_col,  # font_colors 是二维列表
+                        color=font_colors_by_col,
                         family=self.font_family,
                         weight=font_weights_by_col,
                     ),
                     align=["left"] * len(header_values),
-                    height=cell_h,
+                    height=layout_cfg["cell_h"],
                 ),
             )
         )
+
+        legend_absolute_x = 0
 
         # 更新图表布局
         fig.update_layout(
