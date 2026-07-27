@@ -1478,8 +1478,8 @@ class ChartBuilder:
                 "table_font": 10,
                 "header_h": 19,
                 "cell_h": 21,
-                "gap_ratio": 0.06,
-                "table_ratio_cap": 0.25,
+                "gap_ratio": 0.055,
+                "table_ratio_cap": 0.255,
             }
 
     def annual_return(self, page, pnl: pd.Series, theme="light", client_width=1440):
