@@ -2110,7 +2110,13 @@ class ChartBuilder:
 
         # 图例名称：股票代码 + 名称（取最后一次买入时的名称）
         name = next((t["name"] for t in reversed(trades) if t.get("name")), None)
-        legend_name = f"{symbol}#{name}" if name else symbol
+        industry = next(
+            (t["industry"] for t in reversed(trades) if t.get("industry")), None
+        )
+        # legend_name = f"{symbol}#{name}" if name else symbol
+        legend_name = (
+            f"<b>{symbol}</b> ({name} / <i>{industry}</i>)" if name else symbol
+        )
         trades = [
             t for t in trades if pd.to_datetime(t["date"]) >= df["datetime"].min()
         ]
