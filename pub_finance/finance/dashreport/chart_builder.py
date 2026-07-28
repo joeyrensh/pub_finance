@@ -21,7 +21,7 @@ class ChartBuilder:
                 "background": "rgba(255, 255, 255, 0)",  # 透明背景
                 "legend_bg": "rgba(246, 248, 249, 0.8)",
                 "strategy_colors": [
-                    "#2D3748",
+                    "#64748B",
                     "#0C5386",
                     "#0d876d",
                     "#0d876d",
@@ -30,15 +30,16 @@ class ChartBuilder:
                     "#FF4444",
                     "#A0AEC0",
                 ],
-                "long2": "#2D3748",
+                "upgrade": "#ffa700",
+                "long2": "#64748B",
                 "long": "#ff4444",
                 "short": "#0d876d",
                 "pnl_colors": [
-                    "#2D3748",
-                    "#0C5386",
                     "#0d876d",
                     "#FF4444",
-                    "#A0AEC0",
+                    "#64748B",
+                    "#64748B",
+                    "#64748B",
                 ],
                 "border": "#D1D5DB",
                 "outside_text": "#777777",
@@ -69,15 +70,16 @@ class ChartBuilder:
                     "#FF4444",
                     "#374151",
                 ],
+                "upgrade": "#ffa700",
                 "long2": "#64748B",
                 "long": "#ff4444",
                 "short": "#00a859",
                 "pnl_colors": [
-                    "#64748B",
-                    "#186EAC",
                     "#00a859",
                     "#FF4444",
-                    "#B8C5D6",
+                    "#64748B",
+                    "#64748B",
+                    "#64748B",
                 ],
                 "border": "#2D3748",
                 "outside_text": "#aaaaaa",
@@ -2217,7 +2219,6 @@ class ChartBuilder:
                 pass
 
         # ----- 策略升级点计算 -----
-        strategy_colors = cfg["strategy_colors"]
         upgrade_points = []
         if pos_detail:
             df_pos = pd.DataFrame(pos_detail)
@@ -2277,7 +2278,7 @@ class ChartBuilder:
                         size=6,
                         color="white",
                         line=dict(
-                            color=strategy_colors[2],
+                            color=cfg["upgrade"],
                             width=2 if scale >= 1 else 3 * scale,
                         ),
                     ),
@@ -2288,7 +2289,7 @@ class ChartBuilder:
                     hoverlabel=dict(
                         font_size=font_size,
                         font_family=self.font_family,
-                        bgcolor=strategy_colors[2],
+                        bgcolor=cfg["upgrade"],
                     ),
                 ),
                 row=1,
