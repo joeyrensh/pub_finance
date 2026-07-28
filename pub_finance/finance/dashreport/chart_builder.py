@@ -23,8 +23,8 @@ class ChartBuilder:
                 "strategy_colors": [
                     "#0C5386",
                     "#7dcfff",
-                    "#ffa700",
                     "#00b89a",
+                    "#ffa700",
                     "#00a380",
                     "#ff4444",
                     "#a90a3f",
@@ -62,8 +62,8 @@ class ChartBuilder:
                 "strategy_colors": [
                     "#186EAC",
                     "#7dcfff",
-                    "#ffa700",
                     "#00c4a6",
+                    "#ffa700",
                     "#01b08f",
                     "#ff4444",
                     "#cf1745",
@@ -752,13 +752,13 @@ class ChartBuilder:
         # =========================
         strategy_order = [
             "多头排列",
+            "突破年线",
             "均线金叉",
             "均线收敛",
-            "突破年线",
             "突破半年线",
-            "连续上涨",
             "成交量放大",
             "红三兵",
+            "连续上涨",
         ]
         groups = dict(list(df.groupby("strategy")))
 
