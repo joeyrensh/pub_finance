@@ -10,10 +10,11 @@ from finance import FINANCE_ROOT
 # 文件名称定义
 start_date = "20240101"
 end_date = "20260115"
-file_path = FINANCE_ROOT / "usstockinfo" / "new_stock_data.csv"
+market = "us"
+file_path = FINANCE_ROOT / f"{market}stockinfo" / "new_stock_data.csv"
 em = EMWebCrawlerUti()
 em.get_his_stock_info_list(
-    "us",
+    market,
     start_date,
     end_date,
     file_path,
