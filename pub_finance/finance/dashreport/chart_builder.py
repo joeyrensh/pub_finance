@@ -780,12 +780,12 @@ class ChartBuilder:
         line_styles = [
             {"dash": "solid", "width": 1.5},
             {"dash": "solid", "width": 1.5},
-            {"dash": "dashdot", "width": 1.4},
-            {"dash": "dash", "width": 1.4},
-            {"dash": "6,3", "width": 1.3},
-            {"dash": "5,5", "width": 1.2},
-            {"dash": "4,6", "width": 1.1},
-            {"dash": "2,8", "width": 1.0},
+            {"dash": "solid", "width": 1.4},
+            {"dash": "solid", "width": 1.4},
+            {"dash": "solid", "width": 1.3},
+            {"dash": "dash", "width": 1.2},
+            {"dash": "dash", "width": 1.1},
+            {"dash": "dash", "width": 1.0},
         ]
 
         # =========================
