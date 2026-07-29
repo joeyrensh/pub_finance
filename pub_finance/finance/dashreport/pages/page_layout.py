@@ -190,7 +190,7 @@ class PageLayout:
 
         style = {"overflow-x": "auto", "max-height": max_height, "overflow-y": "auto"}
         if is_last:
-            style["margin-bottom"] = "10px"
+            style["margin-bottom"] = "20px"
 
         return html.Div(
             className="row",

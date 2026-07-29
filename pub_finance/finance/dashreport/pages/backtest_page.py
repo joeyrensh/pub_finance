@@ -1119,6 +1119,7 @@ class BacktestPage:
                                 "overflow-x": "auto",
                                 "max-height": 400,
                                 "overflow-y": "auto",
+                                "marginBottom": "20px",
                             },
                         ),
                     ],

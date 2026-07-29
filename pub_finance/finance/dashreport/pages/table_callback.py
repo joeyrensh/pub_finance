@@ -233,19 +233,24 @@ class TableCallback:
                 else ""
             )
 
-            is_target_market = page in ["cn", "us"]
-            is_not_trade_table = table != "trade"
+            is_main_page = page in ["cn", "us"]
+            is_trade_table = table == "trade"
+            is_secondary_page = page in ["cn_dynamic", "us_dynamic"]
 
             # 只有当 page 为 cn/us 且 table 不是 trade 时，margin_bottom 才为 "0px"
-            margin_bottom = (
-                "0px" if (is_target_market and is_not_trade_table) else "20px"
-            )
+            margin_bottom = "0px" if (is_main_page and not is_trade_table) else "20px"
+            margin_top = "-20px" if (is_secondary_page or is_trade_table) else "0px"
 
-            hide_wrapper = {"display": "none", "marginBottom": margin_bottom}
+            hide_wrapper = {
+                "display": "none",
+                "marginBottom": margin_bottom,
+                "marginTop": margin_top,
+            }
             show_wrapper = {
                 "position": "relative",
                 "display": "block",
                 "marginBottom": margin_bottom,
+                "marginTop": margin_top,
             }
 
             hide_btn = {"display": "none"}
