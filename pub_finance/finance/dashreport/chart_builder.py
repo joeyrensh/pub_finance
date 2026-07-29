@@ -46,7 +46,7 @@ class ChartBuilder:
                 "cumret": "#ff4444",
                 "drawdown": "#0d876d",
                 # "drawdown_fill": "rgba(13,135,109,0.3)",
-                "drawdown_fill": "#D1D5DB",
+                "drawdown_fill": "rgba(145, 149, 153, 0.24)",
                 "table_header": "rgba(245,245,245,0)",
                 "table_cell": "rgba(0,0,0,0)",
                 "hover_bg": "#ffffff",
@@ -777,14 +777,14 @@ class ChartBuilder:
         #     {"dash": "2,8", "width": 1.4 * unified_scale},
         # ]
         line_styles = [
-            {"dash": "solid", "width": 1.0},
             {"dash": "solid", "width": 1.5},
-            {"dash": "solid", "width": 1.0},
             {"dash": "solid", "width": 1.5},
-            {"dash": "solid", "width": 1.0},
+            {"dash": "solid", "width": 1.5},
+            {"dash": "solid", "width": 1.5},
+            {"dash": "solid", "width": 1.5},
             {"dash": "dash", "width": 1.5},
-            {"dash": "dash", "width": 1.0},
-            {"dash": "dash", "width": 1.0},
+            {"dash": "dash", "width": 1.5},
+            {"dash": "dash", "width": 1.5},
         ]
 
         # =========================
