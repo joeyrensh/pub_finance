@@ -46,7 +46,7 @@ class ChartBuilder:
                 "cumret": "#ff4444",
                 "drawdown": "#0d876d",
                 # "drawdown_fill": "rgba(13,135,109,0.3)",
-                "drawdown_fill": "rgba(145, 149, 153, 0.14)",
+                "drawdown_fill": "#D1D5DB",
                 "table_header": "rgba(245,245,245,0)",
                 "table_cell": "rgba(0,0,0,0)",
                 "hover_bg": "#ffffff",
@@ -762,9 +762,6 @@ class ChartBuilder:
             "红三兵",
             "连续上涨",
         ]
-        groups = dict(list(df.groupby("strategy")))
-
-        fig = go.Figure()
 
         # =========================
         # 线型样式
@@ -793,116 +790,101 @@ class ChartBuilder:
         # =========================
         # 画图
         # =========================
-        for i, strategy in enumerate(strategy_order):
-            if strategy not in groups:
-                continue
-            data = groups[strategy]
-            color = strategy_colors[i]
+        # 1. 建立 strategy -> (color, line_style, rank) 的映射字典，方便向量化或统一查找
+        strategy_cfg = {
+            strat: {
+                "color": strategy_colors[idx],
+                "style": line_styles[idx],
+                "rank": idx,
+            }
+            for idx, strat in enumerate(strategy_order)
+        }
 
-            # —— 成功率折线
-            fig.add_trace(
-                go.Scatter(
-                    x=data["date"],
-                    y=data["ema_success_rate"],
-                    mode="lines",
-                    name=strategy,
-                    line=dict(
-                        width=line_styles[i]["width"],
-                        dash=line_styles[i]["dash"],
-                        shape="spline",
-                        color=color,
-                    ),
-                    yaxis="y",
-                    hovertemplate=(
-                        "<b>成功率</b>: " + strategy + " %{y:.2%}<extra></extra>"
-                    ),
-                    legendgroup=strategy,
-                )
-            )
+        # 2. 筛选并按自定义策略顺序排序 DataFrame
+        valid_strategies = [s for s in strategy_order if s in df["strategy"].values]
+        df_sorted = df[df["strategy"].isin(valid_strategies)].copy()
 
-            # —— Bar（根据 bar_metric 决定显示方式）
-            if bar_metric == "pnl":
+        fig = go.Figure()
+
+        # =========================================================
+        # 所有策略的 Bar（保证所有的柱状图都压在最底层）
+        # =========================================================
+        for strat in valid_strategies:
+            data = df_sorted[df_sorted["strategy"] == strat]
+            color = strategy_cfg[strat]["color"]
+
+            if bar_metric in ["pnl", "avg"]:
                 pos = data[data["bar_pos"] > 0]
                 neg = data[data["bar_neg"] < 0]
-                fig.add_trace(
-                    go.Bar(
-                        x=pos["date"],
-                        y=pos["bar_pos"],
-                        yaxis="y2",
-                        marker=dict(
-                            color=color,
-                            line=dict(color=color),
-                        ),
-                        showlegend=False,
-                        legendgroup=strategy,
-                        # hovertemplate="<b>收益</b>: %{y:,.0f}<extra></extra>",
-                        hoverinfo="none",  # 关键：关闭悬浮提示
+
+                # 正向 Bar
+                if not pos.empty:
+                    fig.add_trace(
+                        go.Bar(
+                            x=pos["date"],
+                            y=pos["bar_pos"],
+                            yaxis="y2",
+                            marker=dict(color=color, line=dict(color=color)),
+                            showlegend=False,
+                            legendgroup=strat,
+                            hoverinfo="none",
+                        )
                     )
-                )
-                fig.add_trace(
-                    go.Bar(
-                        x=neg["date"],
-                        y=neg["bar_neg"],
-                        yaxis="y2",
-                        marker=dict(
-                            color=color,
-                            line=dict(color=color),
-                        ),
-                        showlegend=False,
-                        legendgroup=strategy,
-                        # hovertemplate="<b>收益</b>: %{y:,.0f}<extra></extra>",
-                        hoverinfo="none",  # 关键：关闭悬浮提示
+                # 负向 Bar
+                if not neg.empty:
+                    fig.add_trace(
+                        go.Bar(
+                            x=neg["date"],
+                            y=neg["bar_neg"],
+                            yaxis="y2",
+                            marker=dict(color=color, line=dict(color=color)),
+                            showlegend=False,
+                            legendgroup=strat,
+                            hoverinfo="none",
+                        )
                     )
-                )
-            elif bar_metric == "avg":  # 新增：平均收益（分正负显示）
-                pos = data[data["bar_pos"] > 0]
-                neg = data[data["bar_neg"] < 0]
-                fig.add_trace(
-                    go.Bar(
-                        x=pos["date"],
-                        y=pos["bar_pos"],
-                        yaxis="y2",
-                        marker=dict(
-                            color=color,
-                            line=dict(color=color),
-                        ),
-                        showlegend=False,
-                        legendgroup=strategy,
-                        # hovertemplate="<b>平均收益</b>: %{y:,.2f}<extra></extra>",
-                        hoverinfo="none",  # 关键：关闭悬浮提示
-                    )
-                )
-                fig.add_trace(
-                    go.Bar(
-                        x=neg["date"],
-                        y=neg["bar_neg"],
-                        yaxis="y2",
-                        marker=dict(
-                            color=color,
-                            line=dict(color=color),
-                        ),
-                        showlegend=False,
-                        legendgroup=strategy,
-                        # hovertemplate="<b>平均收益</b>: %{y:,.2f}<extra></extra>",
-                        hoverinfo="none",  # 关键：关闭悬浮提示
-                    )
-                )
             else:  # cnt
                 fig.add_trace(
                     go.Bar(
                         x=data["date"],
                         y=data["bar_pos"],
                         yaxis="y2",
-                        marker=dict(
-                            color=color,
-                            line=dict(color=color),
-                        ),
+                        marker=dict(color=color, line=dict(color=color)),
                         showlegend=False,
-                        legendgroup=strategy,
-                        # hovertemplate="<b>股数</b>: %{y}<extra></extra>",
-                        hoverinfo="none",  # 关键：关闭悬浮提示
+                        legendgroup=strat,
+                        hoverinfo="none",
                     )
                 )
+
+        # =========================================================
+        # 所有策略的 Line（保证所有折线图都压在柱状图上方）
+        # =========================================================
+        for strat in valid_strategies:
+            data = df_sorted[df_sorted["strategy"] == strat]
+            cfg = strategy_cfg[strat]
+            is_core = strat in ["突破年线", "均线收敛", "成交量放大"]
+
+            fig.add_trace(
+                go.Scatter(
+                    x=data["date"],
+                    y=data["ema_success_rate"],
+                    mode="lines",
+                    name=strat,
+                    visible=True if is_core else "legendonly",
+                    line=dict(
+                        width=cfg["style"]["width"],
+                        dash=cfg["style"]["dash"],
+                        shape="spline",
+                        color=cfg["color"],
+                    ),
+                    yaxis="y",
+                    hovertemplate=f"<b>成功率</b>: {strat} %{{y:.2%}}<extra></extra>",
+                    legendgroup=strat,
+                    legendrank=cfg[
+                        "rank"
+                    ],  # 关键：指定图例排序权重，无需依赖 trace 添加顺序
+                )
+            )
 
         # =========================
         # Layout
@@ -971,6 +953,7 @@ class ChartBuilder:
                 anchor="free",
                 position=0.95,
                 layer="below traces",
+                ticklabelposition="inside",
                 showticklabels=False,  # 关闭刻度标签
                 ticks="",  # 关闭刻度线
             ),

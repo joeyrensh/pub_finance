@@ -29,6 +29,7 @@
   --border-left-color: rgba(231, 127, 63, 0.97);
   --bubble-background-color: linear-gradient(135deg, rgb(255, 68, 0), #fb0, #fb0);
   --hover-text-color: #186EAC;
+  --kpi-background: #D1D5DB;
 }
 
 /* --- 深色主题 --- */
@@ -53,6 +54,7 @@
     --flag-color: rgba(231, 127, 63, 0.97);
     --full-view-link-bg-color: #00a85aa2;
     --hover-text-color: #186EAC;
+    --kpi-background: #91959924;
   }
 }
 
@@ -409,7 +411,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 }
 
 .dash-table-container .dash-spreadsheet-container th {
-  background-color: #91959924 !important;
+  background-color: var(--kpi-background) !important;
 }
 
 /* 列宽自定义细化 */
@@ -511,7 +513,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
   padding: 15px 5px;
   border-radius: 4px;
   border: 0.2px solid var(--gridcolor);
-  background-color: #91959924;
+  background-color: var(--kpi-background);
 }
 
 .kpi-label {
