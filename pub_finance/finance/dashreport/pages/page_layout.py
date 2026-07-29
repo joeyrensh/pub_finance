@@ -3,7 +3,6 @@ import dash_core_components as dcc
 from finance.dashreport.utils import Header
 from finance.dashreport.chart_builder import ChartBuilder
 from finance.dashreport.data_loader import ReportDataLoader
-from flask import session
 
 
 class PageLayout:
@@ -261,16 +260,12 @@ class PageLayout:
             card = self.build_table_card(t, is_last=(i == len(self.show_tables) - 1))
             table_cards_dict[t] = card
 
-        # 2. 权限与样式定义
-        role = session.get("role")
-        is_admin = role == "admin"
-        display_style = "block" if is_admin else "none"
-
         # 3. 构建 AI 分析文本框容器
         ai_summary_section = html.Div(
+            id="ai_summary_wrapper",
             style={
                 "position": "relative",
-                "display": display_style,  # 仅限 admin 显示，控制整个容器
+                "display": "none",
             },
             children=[
                 # ─── 1. 独立动画层：绝对定位拉满，用 Flex 让转圈绝对居中 ───

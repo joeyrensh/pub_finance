@@ -8,6 +8,7 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 import httpx
+from flask import session
 
 AI_TASK_CACHE = {}
 cache_lock = threading.Lock()
@@ -216,28 +217,50 @@ class TableCallback:
         [register_table_ai_callback(app, t) for t in ["detail", "trade"]]
 
         @callback(
-            Output("global_btn_ai_summary", "style"),
+            Output("ai_summary_wrapper", "style"),
+            Output("global_btn_ai_summary", "style"),  # 控制 AI 按钮显隐
             Input("store_selected_cell_info", "data"),
             Input("ai_is_loading", "data"),
             prevent_initial_call=True,
         )
-        def toggle_ai_button_show(cell_info, is_loading):
-            hide_style = {"display": "none"}
-            show_style = {
-                "display": "inline-block",
-                "cursor": "pointer",
+        def toggle_ai_summary_section(cell_info, is_loading):
+            page = (
+                cell_info.get("page", "").lower() if isinstance(cell_info, dict) else ""
+            )
+            table = (
+                cell_info.get("table", "").lower()
+                if isinstance(cell_info, dict)
+                else ""
+            )
+
+            is_target_market = page in ["cn", "us"]
+            is_not_trade_table = table != "trade"
+
+            # 只有当 page 为 cn/us 且 table 不是 trade 时，margin_bottom 才为 "0px"
+            margin_bottom = (
+                "0px" if (is_target_market and is_not_trade_table) else "20px"
+            )
+
+            hide_wrapper = {"display": "none", "marginBottom": margin_bottom}
+            show_wrapper = {
+                "position": "relative",
+                "display": "block",
+                "marginBottom": margin_bottom,
             }
 
-            # 条件1：AI加载中 → 强制隐藏按钮
+            hide_btn = {"display": "none"}
+            show_btn = {"display": "inline-block", "cursor": "pointer"}
+
+            if session.get("role") != "admin":
+                return hide_wrapper, hide_btn
+
             if is_loading:
-                return hide_style
+                return show_wrapper, hide_btn
 
-            # 条件2：没有选中有效NAME单元格 → 隐藏按钮
             if cell_info is None:
-                return hide_style
+                return hide_wrapper, hide_btn
 
-            # 选中合法NAME行 → 显示按钮
-            return show_style
+            return show_wrapper, show_btn
 
         @callback(
             Output("ai_summary_box", "children", allow_duplicate=True),

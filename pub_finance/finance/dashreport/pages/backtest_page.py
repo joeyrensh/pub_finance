@@ -16,7 +16,6 @@ from finance.utility.tickerinfo import TickerInfo
 from finance import FINANCE_ROOT
 from finance.dashreport.data_loader import ReportDataLoader
 from threading import Lock
-from flask import session
 
 BACKTEST_LOCK = Lock()
 
@@ -62,9 +61,11 @@ def run_bt_task(stock_list, date_str, market):
                 pos_detail_df.to_dict("records") if not pos_detail_df.empty else []
             ),
             "h": [
-                hist_dict[sym].iloc[:-1].to_dict("records")
-                if len(hist_dict[sym]) > 1
-                else []
+                (
+                    hist_dict[sym].iloc[:-1].to_dict("records")
+                    if len(hist_dict[sym]) > 1
+                    else []
+                )
                 for sym in stock_list
             ],
             "s": stock_list,
@@ -1127,16 +1128,12 @@ class BacktestPage:
 
     def get_layout(self):
 
-        # 2. 权限与样式定义
-        role = session.get("role")
-        is_admin = role == "admin"
-        display_style = "block" if is_admin else "none"
-
         # 3. 构建 AI 分析文本框容器
         ai_summary_section = html.Div(
+            id="ai_summary_wrapper",
             style={
                 "position": "relative",
-                "display": display_style,  # 仅限 admin 显示，控制整个容器
+                "display": "none",
                 "marginBottom": "20px",  # 与下方内容保持间距
             },
             children=[
