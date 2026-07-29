@@ -812,6 +812,7 @@ class ChartBuilder:
         for strat in valid_strategies:
             data = df_sorted[df_sorted["strategy"] == strat]
             color = strategy_cfg[strat]["color"]
+            is_core = strat in ["突破年线", "均线收敛", "成交量放大"]
 
             if bar_metric in ["pnl", "avg"]:
                 pos = data[data["bar_pos"] > 0]
@@ -828,6 +829,7 @@ class ChartBuilder:
                             showlegend=False,
                             legendgroup=strat,
                             hoverinfo="none",
+                            visible=True if is_core else "legendonly",
                         )
                     )
                 # 负向 Bar
@@ -841,6 +843,7 @@ class ChartBuilder:
                             showlegend=False,
                             legendgroup=strat,
                             hoverinfo="none",
+                            visible=True if is_core else "legendonly",
                         )
                     )
             else:  # cnt
@@ -853,6 +856,7 @@ class ChartBuilder:
                         showlegend=False,
                         legendgroup=strat,
                         hoverinfo="none",
+                        visible=True if is_core else "legendonly",
                     )
                 )
 
