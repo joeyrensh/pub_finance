@@ -997,7 +997,7 @@ a:active { color: lightgrey; text-decoration: underline; }
     color: var(--text-color) !important;
     border-radius: 0 !important;
     border: 1px solid var(--gridcolor) !important;
-    padding: 0 20px !important;
+    padding: 0 15px !important;
     font-size: 1.3rem;
     transition: background 0.2s;
     line-height: 30px;
@@ -1478,7 +1478,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   .ai-analysis-btn {
     font-size: 1rem;
     padding: 2px 4px !important;
-    line-height: 25px;
+    line-height: 5px;
     bottom: 4px !important;
     right: 4px !important;
     height: 20px !important;
