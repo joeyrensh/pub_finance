@@ -993,11 +993,11 @@ a:active { color: lightgrey; text-decoration: underline; }
     height: 30px !important;
     margin-top: 0 !important;     
     z-index: 10;
-    background: var(--gridcolor) !important;
+    background: var(--kpi-background) !important;
     color: var(--text-color) !important;
     border-radius: 0 !important;
     border: 1px solid var(--gridcolor) !important;
-    padding: 0 15px !important;
+    padding: 0 5px !important;
     font-size: 1.3rem;
     transition: background 0.2s;
     line-height: 30px;
@@ -1477,11 +1477,11 @@ a:active { color: lightgrey; text-decoration: underline; }
 
   .ai-analysis-btn {
     font-size: 1rem;
-    padding: 2px 4px !important;
-    line-height: 5px;
+    padding: 8px 4px !important;
+    line-height: 8px;
     bottom: 4px !important;
     right: 4px !important;
-    height: 20px !important;
+    height: 25px !important;
   }
   
   .ai-analysis-panel {
