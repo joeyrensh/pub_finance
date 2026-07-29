@@ -19,7 +19,6 @@ from datetime import timedelta
 from finance import FINANCE_ROOT
 from werkzeug.security import check_password_hash
 
-
 server = Flask(__name__)
 Compress(
     server,
@@ -186,6 +185,45 @@ app.clientside_callback(
         State("current-theme", "data"),
         State("client-width", "data"),
     ],
+)
+
+# 重定位AI summary text box
+app.clientside_callback(
+    """
+    function(wrapper_style) {
+        if (wrapper_style && wrapper_style.display === "block") {
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    var element = document.getElementById("ai_summary_wrapper");
+                    if (!element) return;
+
+                    var rect = element.getBoundingClientRect();
+                    var windowHeight = window.innerHeight || document.documentElement.clientHeight;
+
+                    var isFullyVisible = (rect.top >= 0) && (rect.bottom <= windowHeight + 10);
+
+                    if (isFullyVisible) {
+                        return;
+                    }
+
+                    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    var elementAbsoluteBottom = rect.bottom + scrollTop;
+                    
+                    var targetScrollTop = elementAbsoluteBottom - windowHeight + 20;
+
+                    window.scrollTo({
+                        top: targetScrollTop,
+                        behavior: "smooth"
+                    });
+                });
+            });
+        }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output("ai_summary_wrapper", "id"),
+    Input("ai_summary_wrapper", "style"),
+    prevent_initial_call=True,
 )
 
 
