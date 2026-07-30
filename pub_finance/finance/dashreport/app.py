@@ -255,26 +255,40 @@ app.clientside_callback(
 app.clientside_callback(
     """
     function(appInit) {
-        if (window._plotlyTouchHandlerBound) return window.dash_clientside.no_update;
-        window._plotlyTouchHandlerBound = true;
+        if (window._plotlyTouchCleanerBound) return window.dash_clientside.no_update;
+        window._plotlyTouchCleanerBound = true;
 
-        // 直接监听点击/触碰事件
         document.addEventListener('pointerdown', function(e) {
-            // 只有点在 Plotly 图表内部时才处理
-            var graphDiv = e.target.closest('.js-plotly-plot');
-            if (graphDiv && window.Plotly) {
-                
-                // 清理当前图表上一次的倒计时
-                if (graphDiv._hoverTimer) clearTimeout(graphDiv._hoverTimer);
+            // 1. 判断是否点击在 .chart-container 内部
+            var container = e.target.closest('.chart-container');
+            if (!container) return;
 
-                // 2000ms 后自动清除 hover 框
-                graphDiv._hoverTimer = setTimeout(function() {
-                    if (graphDiv && graphDiv.data) {
+            // 2. 获取触发点击的特定图表
+            var graphDiv = e.target.closest('.js-plotly-plot');
+            if (!graphDiv || !window.Plotly) return;
+
+            // 3. 清除该特定图表上已有的定时器
+            if (graphDiv._autoClearTimer) {
+                clearTimeout(graphDiv._autoClearTimer);
+                graphDiv._autoClearTimer = null;
+            }
+
+            // 4. 为该特定图表设定 2 秒后清空 hover 浮窗
+            graphDiv._autoClearTimer = setTimeout(function() {
+                // 检查 graphDiv 是否依然挂载在当前 DOM 树中
+                if (!document.body.contains(graphDiv)) {
+                    graphDiv._autoClearTimer = null;
+                    return;
+                }
+
+                requestAnimationFrame(function() {
+                    // 确保节点仍存在且 Plotly 数据完好
+                    if (document.body.contains(graphDiv) && graphDiv.data) {
                         Plotly.Fx.hover(graphDiv, []);
                     }
-                    graphDiv._hoverTimer = null;
-                }, 2000);
-            }
+                });
+                graphDiv._autoClearTimer = null;
+            }, 2000);
         }, { passive: true });
 
         return window.dash_clientside.no_update;
