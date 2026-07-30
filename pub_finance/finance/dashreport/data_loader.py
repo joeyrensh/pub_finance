@@ -189,10 +189,12 @@ class ReportDataLoader:
         datasets_key = ReportDataLoader._normalize_datasets(datasets)
         mtime_sig = ReportDataLoader._mtime_signature(prefix, datasets_key)
 
+        chart_time_range = ToolKit.get_config(
+            "chart_display.chart_time_range", default=120
+        )
+
         data = ReportDataLoader._load_cached(
-            prefix,
-            datasets_key,
-            mtime_sig,
+            prefix, datasets_key, mtime_sig, chart_time_range
         )
 
         # 防止外部修改污染缓存
@@ -207,6 +209,7 @@ class ReportDataLoader:
         prefix: str,
         datasets: Tuple[str, ...],
         mtime_sig: Tuple[Tuple[str, float], ...],
+        chart_time_range: int,
     ) -> Dict[str, object]:
 
         loaders = {
@@ -231,7 +234,10 @@ class ReportDataLoader:
         for name in datasets:
             loader = loaders.get(name)
             if loader:
-                result[name] = loader(prefix)
+                if name in ("strategy", "trade", "pnl_trend"):
+                    result[name] = loader(prefix, limit=chart_time_range)
+                else:
+                    result[name] = loader(prefix)
 
         return result
 
@@ -275,6 +281,10 @@ class ReportDataLoader:
     ) -> Tuple[Tuple[str, float], ...]:
 
         files = []
+
+        config_path = FINANCE_ROOT / "utility" / "scoring_weights.json"
+        if config_path.exists():
+            files.append(config_path)
 
         for ds in datasets:
             files.extend(ReportDataLoader._dataset_files(prefix, ds))
@@ -403,23 +413,20 @@ class ReportDataLoader:
         return ReportDataLoader._safe_csv(f"{prefix}_pd_calendar_heatmap.csv")
 
     @staticmethod
-    def _load_strategy(prefix: str) -> pd.DataFrame:
+    def _load_strategy(prefix: str, limit: int = 120) -> pd.DataFrame:
         df = ReportDataLoader._safe_csv(f"{prefix}_pd_strategy_tracking_lstndays.csv")
-        limit = ToolKit.get_config("chart_display.chart_time_range", default=120)
         return ReportDataLoader._filter_by_date_range(df, date_col="date", limit=limit)
 
     @staticmethod
-    def _load_trade_info(prefix: str) -> pd.DataFrame:
+    def _load_trade_info(prefix: str, limit: int = 120) -> pd.DataFrame:
         df = ReportDataLoader._safe_csv(f"{prefix}_pd_trade_info_lstndays.csv")
-        limit = ToolKit.get_config("chart_display.chart_time_range", default=120)
         return ReportDataLoader._filter_by_date_range(
             df, date_col="buy_date", limit=limit
         )
 
     @staticmethod
-    def _load_pnl_trend(prefix: str) -> pd.DataFrame:
+    def _load_pnl_trend(prefix: str, limit: int = 120) -> pd.DataFrame:
         df = ReportDataLoader._safe_csv(f"{prefix}_pd_topn_industry_profit_trend.csv")
-        limit = ToolKit.get_config("chart_display.chart_time_range", default=120)
         return ReportDataLoader._filter_by_date_range(
             df, date_col="buy_date", limit=limit
         )
