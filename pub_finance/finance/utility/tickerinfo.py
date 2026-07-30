@@ -35,9 +35,7 @@ class TickerInfo:
         """ 获取动态追踪股票列表文件路径 """
         self.file_dynamic_list = file.get_file_path_dynamic_list
         # 获取交易日 & 股票过滤条件权重
-        config_path = FINANCE_ROOT / "utility" / "scoring_weights.json"
-        with open(config_path, "r", encoding="utf-8") as f:
-            weights_cfg = json.load(f)
+        weights_cfg = ToolKit.get_config()
         self.collection_days = weights_cfg["stock_filter"]["collection_days"]
         self.capital_flow_weights = weights_cfg["stock_filter"]["capital_flow"]
         self.up_days_weights = weights_cfg["stock_filter"]["up_days"]

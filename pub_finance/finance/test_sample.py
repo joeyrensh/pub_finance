@@ -34,7 +34,7 @@ def retry_call(func, max_retries=3, delay=1, backoff=2, exceptions=(Exception,))
             if attempt == max_retries - 1:
                 raise  # 最后一次失败则抛出异常
             wait = delay * (backoff**attempt)
-            print(f"⚠️ 重试第 {attempt + 1} 次，等待 {wait:.1f} 秒后重试，错误: {e}")
+            print(f"⚠️ 重试第 {attempt+1} 次，等待 {wait:.1f} 秒后重试，错误: {e}")
             time.sleep(wait)
     # 理论上不会执行到这里
     raise RuntimeError("重试失败")

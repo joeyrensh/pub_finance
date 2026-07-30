@@ -13,6 +13,7 @@ import hashlib
 import os
 from finance import FINANCE_ROOT
 import json
+from typing import Any
 
 
 class ToolKit:
@@ -735,6 +736,36 @@ class ToolKit:
         )
 
     @staticmethod
+    def get_config(path: str = None, default: Any = None) -> Any:
+        try:
+
+            config_path = FINANCE_ROOT / "utility" / "scoring_weights.json"
+
+            if not config_path.exists():
+                return default if path else {}
+
+            with open(config_path, "r", encoding="utf-8") as f:
+                cfg = json.load(f)
+
+        except Exception as e:
+            print(f"[ToolKit] 读取配置文件失败: {e}")
+            return default if path else {}
+
+        # 1. 不传 path，直接返回完整字典
+        if not path:
+            return cfg
+
+        # 2. 按点号解析层级 key
+        curr = cfg
+        for k in path.split("."):
+            if isinstance(curr, dict) and k in curr:
+                curr = curr[k]
+            else:
+                return default
+
+        return curr
+
+    @staticmethod
     def score_and_select_symbols(
         df: pd.DataFrame,
         column_map: dict,
@@ -798,9 +829,7 @@ class ToolKit:
         df = df.copy()
 
         # -----读取权重配置-----#
-        config_path = FINANCE_ROOT / "utility" / "scoring_weights.json"
-        with open(config_path, "r", encoding="utf-8") as f:
-            weights_cfg = json.load(f)
+        weights_cfg = ToolKit.get_config()
         w = weights_cfg["weights"]
         sw = weights_cfg["sub_weights"]
 

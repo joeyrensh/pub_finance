@@ -7,6 +7,7 @@ import copy
 import os
 from finance import FINANCE_ROOT
 import json
+from finance.utility.toolkit import ToolKit
 
 
 class ReportDataLoader:
@@ -373,21 +374,6 @@ class ReportDataLoader:
         return pd.read_csv(path) if path.exists() else pd.DataFrame()
 
     @staticmethod
-    def _get_chart_time_range() -> int:
-        """读取评分配置文件中的 chart_time_range（含异常兜底）"""
-        try:
-            config_path = FINANCE_ROOT / "utility" / "scoring_weights.json"
-            if config_path.exists():
-                with open(config_path, "r", encoding="utf-8") as f:
-                    weights_cfg = json.load(f)
-                return int(
-                    weights_cfg.get("chart_display", {}).get("chart_time_range", 120)
-                )
-        except Exception:
-            pass
-        return 120  # 默认兜底 120 天
-
-    @staticmethod
     def _filter_by_date_range(
         df: pd.DataFrame, date_col: str, limit: int
     ) -> pd.DataFrame:
@@ -419,13 +405,13 @@ class ReportDataLoader:
     @staticmethod
     def _load_strategy(prefix: str) -> pd.DataFrame:
         df = ReportDataLoader._safe_csv(f"{prefix}_pd_strategy_tracking_lstndays.csv")
-        limit = ReportDataLoader._get_chart_time_range()
+        limit = ToolKit.get_config("chart_display.chart_time_range", default=120)
         return ReportDataLoader._filter_by_date_range(df, date_col="date", limit=limit)
 
     @staticmethod
     def _load_trade_info(prefix: str) -> pd.DataFrame:
         df = ReportDataLoader._safe_csv(f"{prefix}_pd_trade_info_lstndays.csv")
-        limit = ReportDataLoader._get_chart_time_range()
+        limit = ToolKit.get_config("chart_display.chart_time_range", default=120)
         return ReportDataLoader._filter_by_date_range(
             df, date_col="buy_date", limit=limit
         )
@@ -433,7 +419,7 @@ class ReportDataLoader:
     @staticmethod
     def _load_pnl_trend(prefix: str) -> pd.DataFrame:
         df = ReportDataLoader._safe_csv(f"{prefix}_pd_topn_industry_profit_trend.csv")
-        limit = ReportDataLoader._get_chart_time_range()
+        limit = ToolKit.get_config("chart_display.chart_time_range", default=120)
         return ReportDataLoader._filter_by_date_range(
             df, date_col="buy_date", limit=limit
         )

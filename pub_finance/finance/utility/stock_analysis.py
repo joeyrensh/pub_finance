@@ -229,13 +229,13 @@ class StockProposal:
                 pd_timeseries["trade_date"].apply(toolkit.is_cn_trade_date)
             ]
         pd_timeseries = pd_timeseries.sort_values("buy_date").reset_index(drop=True)
-        config_path = FINANCE_ROOT / "utility" / "scoring_weights.json"
-        with open(config_path, "r", encoding="utf-8") as f:
-            weights_cfg = json.load(f)
-        ctr = weights_cfg["chart_display"]["chart_time_range"]
-        chart_time_range = int(ctr / 0.75) if ctr else 120
-        mini_ctr = weights_cfg["chart_display"]["minichart_time_range"]
-        minichart_time_range = int(mini_ctr)
+        # 获取时间窗口配置
+        chart_time_range = max(
+            120, ToolKit.get_config("chart_display.chart_time_range", default=120)
+        )
+        minichart_time_range = max(
+            60, ToolKit.get_config("chart_display.minichart_time_range", default=60)
+        )
         start_date = pd_timeseries.iloc[-chart_time_range]["buy_date"]
         start_date_200 = pd_timeseries.iloc[-chart_time_range - 30]["buy_date"]
         start_date_60 = pd_timeseries.iloc[-minichart_time_range]["buy_date"]
@@ -4067,11 +4067,10 @@ class StockProposal:
                 pd_timeseries["trade_date"].apply(toolkit.is_cn_trade_date)
             ]
         pd_timeseries = pd_timeseries.sort_values("buy_date").reset_index(drop=True)
-        config_path = FINANCE_ROOT / "utility" / "scoring_weights.json"
-        with open(config_path, "r", encoding="utf-8") as f:
-            weights_cfg = json.load(f)
-        ctr = weights_cfg["chart_display"]["chart_time_range"]
-        chart_time_range = int(ctr / 0.75) if ctr else 120
+        # 获取时间窗口JSON配置
+        chart_time_range = max(
+            120, ToolKit.get_config("chart_display.chart_time_range", default=120)
+        )
         start_date = pd_timeseries.iloc[-chart_time_range]["buy_date"]
         pd_timeseries = pd_timeseries.tail(chart_time_range)
 
