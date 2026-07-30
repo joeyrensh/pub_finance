@@ -8,6 +8,8 @@ import multiprocessing
 import gc
 import datetime
 import os
+import json
+from finance import FINANCE_ROOT
 
 """ 组合每日股票数据为一个dataframe """
 
@@ -32,12 +34,22 @@ class TickerInfo:
         self.file_fixed_list = file.get_file_path_fixed_list
         """ 获取动态追踪股票列表文件路径 """
         self.file_dynamic_list = file.get_file_path_dynamic_list
-        # 获取交易日
-        tk = ToolKit("获取10天前交易日")
+        # 获取交易日 & 股票过滤条件权重
+        config_path = FINANCE_ROOT / "utility" / "scoring_weights.json"
+        with open(config_path, "r", encoding="utf-8") as f:
+            weights_cfg = json.load(f)
+        self.collection_days = weights_cfg["stock_filter"]["collection_days"]
+        self.capital_flow_weights = weights_cfg["stock_filter"]["capital_flow"]
+        self.up_days_weights = weights_cfg["stock_filter"]["up_days"]
+        tk = ToolKit(f"获取{self.collection_days}天前交易日")
         if market.startswith("us"):
-            self.date_threshold = tk.get_us_trade_date_by_delta(10, trade_date)
+            self.date_threshold = tk.get_us_trade_date_by_delta(
+                self.collection_days, trade_date
+            )
         elif market.startswith("cn"):
-            self.date_threshold = tk.get_cn_trade_date_by_delta(10, trade_date)
+            self.date_threshold = tk.get_cn_trade_date_by_delta(
+                self.collection_days, trade_date
+            )
 
     def _top_by_activity(
         self,
@@ -124,10 +136,10 @@ class TickerInfo:
 
         # 归一化（Min-Max）
         act_norm = (sym_act - sym_act.min()) / (sym_act.max() - sym_act.min() + 1e-6)
-        up_norm = sym_up / 10.0
+        up_norm = sym_up / self.collection_days
 
         # 综合得分：资金流权重0.6，上涨天数权重0.4（可调）
-        score = 0.6 * act_norm + 0.4 * up_norm
+        score = self.capital_flow_weights * act_norm + self.up_days_weights * up_norm
         sym_act = score.sort_values(ascending=False)
 
         # 检查 activity <= 0

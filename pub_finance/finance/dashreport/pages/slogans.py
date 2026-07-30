@@ -1,14 +1,14 @@
-from finance import FINANCE_ROOT
+from datetime import datetime
 import json
 import os
-from dash import html, dcc, Input, Output, State, ctx, Dash
+from dash import Dash, Input, Output, State, ctx, dcc, html
 import dash_bootstrap_components as dbc
-from finance.dashreport.utils import Header
-from flask import session
+from finance import FINANCE_ROOT
 from finance.dashreport.data_loader import ReportDataLoader
+from finance.dashreport.utils import Header
 from finance.utility.toolkit import ToolKit
+from flask import session
 import pandas as pd
-from datetime import datetime
 
 # -------------------------- 路径与默认配置 --------------------------
 JSON_FILE_PATH = os.path.join(FINANCE_ROOT, "utility", "scoring_weights.json")
@@ -16,20 +16,34 @@ JSON_FILE_PATH = os.path.join(FINANCE_ROOT, "utility", "scoring_weights.json")
 DEFAULT_CONFIG = {
     "weights": {
         "industry": 0.2,
-        "pnl": 0.3,
-        "stability": 0.1,
-        "erp": 0.2,
-        "strategy": 0.2,
+        "pnl": 0.25,
+        "stability": 0.2,
+        "erp": 0.1,
+        "strategy": 0.25,
     },
     "sub_weights": {
-        "industry": {"arrow": 0.6, "bracket": 0.4},
+        "industry": {"arrow": 0.5, "bracket": 0.5},
         "pnl": {"daily": 0.4, "weighted_return": 0.6},
-        "stability": {"win_rate": 0.2, "avg_trans": 0.2, "sortino": 0.2, "maxdd": 0.4},
+        "stability": {
+            "win_rate": 0.2,
+            "avg_trans": 0.2,
+            "sortino": 0.2,
+            "maxdd": 0.4,
+        },
         "strategy": {"cnt": 0.6, "signal": 0.4},
+    },
+    "stock_filter": {
+        "collection_days": 10,
+        "capital_flow": 0.6,
+        "up_days": 0.4,
+    },
+    "chart_display": {
+        "chart_time_range": 120,
+        "minichart_time_range": 60,
     },
 }
 
-# 【新增：界面名称映射，只改展示，不改动底层key】
+# 【界面名称映射】
 LABEL_MAPPING = {
     # 全局权重
     "industry": "Industry Factor",
@@ -51,6 +65,15 @@ LABEL_MAPPING = {
     # strategy子项
     "cnt": "Strategy Intensity",
     "signal": "Strategy Tier",
+    # 股票过滤器
+    "stock_filter": "Stock Filter",
+    "collection_days": "Collection Days",
+    "capital_flow": "Capital Flow",
+    "up_days": "Up Days",
+    # 图表显示范围
+    "chart_display": "Chart Display",
+    "chart_time_range": "Chart Time Range",
+    "minichart_time_range": "Mini Chart Time Range",
 }
 
 
@@ -112,7 +135,6 @@ def export_dynamic_list(market: str = None, trade_date: str = None) -> None:
         "strategy": "STRATEGY",
     }
 
-    # 如果未指定 market，则默认处理 ['cn', 'us']
     markets = [market] if market else ["cn", "us"]
 
     for mkt in markets:
@@ -128,7 +150,6 @@ def export_dynamic_list(market: str = None, trade_date: str = None) -> None:
 
         mkt_date = trade_date or get_default_trade_date(mkt)
 
-        # 评分选股并导出
         toolkit = ToolKit("股票排名导出")
         selected_symbols, _ = toolkit.score_and_select_symbols(
             pd_position_history, column_map_default, mkt, mkt_date
@@ -136,15 +157,18 @@ def export_dynamic_list(market: str = None, trade_date: str = None) -> None:
         toolkit.export_if_changed(selected_symbols, mkt)
 
 
-# -------------------------- 静态键名定义（修复：从DEFAULT_CONFIG读取，不依赖init_cfg） --------------------------
+# -------------------------- 静态键名定义 --------------------------
 ROOT_KEYS = list(DEFAULT_CONFIG["weights"].keys())
 IND_KEYS = list(DEFAULT_CONFIG["sub_weights"]["industry"].keys())
 PNL_KEYS = list(DEFAULT_CONFIG["sub_weights"]["pnl"].keys())
 STA_KEYS = list(DEFAULT_CONFIG["sub_weights"]["stability"].keys())
 STR_KEYS = list(DEFAULT_CONFIG["sub_weights"]["strategy"].keys())
+# 【新增：静态键名定义】
+STK_KEYS = list(DEFAULT_CONFIG["stock_filter"].keys())
+CHT_KEYS = list(DEFAULT_CONFIG["chart_display"].keys())
 
 
-# -------------------------- 卡片构建函数（替换Label展示名称） --------------------------
+# -------------------------- 卡片构建函数 --------------------------
 def build_root_card(cfg):
     row_list = []
     for k in ROOT_KEYS:
@@ -333,7 +357,6 @@ def build_stability_card(cfg):
     )
 
 
-# 【新增：策略因子子权重卡片】
 def build_strategy_card(cfg):
     row_list = []
     for k in STR_KEYS:
@@ -381,23 +404,120 @@ def build_strategy_card(cfg):
     )
 
 
-# -------------------------- 页面区块拆分（对齐项目示例结构） --------------------------
+# 【新增：Stock Filter 卡片构建】
+def build_stock_filter_card(cfg):
+    row_list = []
+    for k in STK_KEYS:
+        display_text = LABEL_MAPPING.get(k, k)
+        # 根据是否是天数/整数控制 Slider 的步长与区间
+        is_days = k == "collection_days"
+        min_v = 1 if is_days else 0
+        max_v = 30 if is_days else 1
+        step_v = 1 if is_days else 0.01
+        marks_v = (
+            {10: "10", 20: "20", 30: "30"}
+            if is_days
+            else {0.25: "0.25", 0.5: "0.5", 0.75: "0.75", 1: "1"}
+        )
+
+        row_list.append(
+            dbc.Row(
+                [
+                    dbc.Label(
+                        display_text, width=2, className="mb-0 fw-normal l2_label"
+                    ),
+                    dbc.Col(
+                        dcc.Slider(
+                            id=f"slider_stk_{k}",
+                            min=min_v,
+                            max=max_v,
+                            step=step_v,
+                            value=cfg["stock_filter"][k],
+                            marks=marks_v,
+                            tooltip={"placement": "bottom", "always_visible": True},
+                            className="mb-0 weight-slider-primary",
+                            drag_value=0,
+                            disabled=False,
+                        ),
+                        width=8,
+                    ),
+                ],
+                className="mb-3 align-items-center",
+            )
+        )
+    return dbc.Card(
+        [
+            dbc.CardHeader(
+                html.Label(
+                    LABEL_MAPPING["stock_filter"],
+                    className="fs-5 fw-bold text-dark l1_label",
+                )
+            ),
+            dbc.CardBody(row_list, className="py-3 card-body"),
+        ],
+        className="h-100 shadow-sm border-0 rounded-3 mb-4 weight-config-card",
+    )
+
+
+# 【新增：Chart Display 卡片构建】
+def build_chart_display_card(cfg):
+    row_list = []
+    for k in CHT_KEYS:
+        display_text = LABEL_MAPPING.get(k, k)
+        row_list.append(
+            dbc.Row(
+                [
+                    dbc.Label(
+                        display_text, width=2, className="mb-0 fw-normal l2_label"
+                    ),
+                    dbc.Col(
+                        dcc.Slider(
+                            id=f"slider_cht_{k}",
+                            min=10,
+                            max=200,
+                            step=5,
+                            value=cfg["chart_display"][k],
+                            marks={60: "60", 120: "120", 200: "200"},
+                            tooltip={"placement": "bottom", "always_visible": True},
+                            className="mb-0 weight-slider-primary",
+                            drag_value=0,
+                            disabled=False,
+                        ),
+                        width=8,
+                    ),
+                ],
+                className="mb-3 align-items-center",
+            )
+        )
+    return dbc.Card(
+        [
+            dbc.CardHeader(
+                html.Label(
+                    LABEL_MAPPING["chart_display"],
+                    className="fs-5 fw-bold text-dark l1_label",
+                )
+            ),
+            dbc.CardBody(row_list, className="py-3 card-body"),
+        ],
+        className="h-100 shadow-sm border-0 rounded-3 mb-4 weight-config-card",
+    )
+
+
+# -------------------------- 页面结构拆分 --------------------------
 def create_layout(app: Dash):
-    # 每次访问页面，实时校验文件、读取最新磁盘配置
     init_json_file()
     init_cfg = load_config()
-    # 标题区块
+
     title_section = html.Div(
         [
             html.H6("Weight Configuration", className="subtitle padded"),
             html.P(
-                "Drag and drop to adjust weights freely.Save profile with one click.",
+                "Drag and drop to adjust weights freely. Save profile with one click.",
                 className="text-secondary text-center mb-5 small page-sub-desc",
             ),
         ]
     )
 
-    # 双列卡片行
     card_row_1 = dbc.Row(
         [
             dbc.Col(build_root_card(init_cfg), lg=6, md=12),
@@ -410,14 +530,20 @@ def create_layout(app: Dash):
             dbc.Col(build_stability_card(init_cfg), lg=6, md=12),
         ]
     )
-    # 新增第三行：策略子权重卡片
     card_row_3 = dbc.Row(
         [
             dbc.Col(build_strategy_card(init_cfg), lg=6, md=12),
+            # 【新增：拼接 Stock Filter 卡片于第3行右侧】
+            dbc.Col(build_stock_filter_card(init_cfg), lg=6, md=12),
+        ]
+    )
+    # 【新增：第4行拼接 Chart Display 卡片】
+    card_row_4 = dbc.Row(
+        [
+            dbc.Col(build_chart_display_card(init_cfg), lg=6, md=12),
         ]
     )
 
-    # 按钮操作区块
     button_section = html.Div(
         [
             dbc.Button(
@@ -437,12 +563,10 @@ def create_layout(app: Dash):
         className="d-flex gap-4 mt-5 mb-4 flex-row flex-wrap",
     )
 
-    # 提示信息
     msg_section = html.Div(
         id="save-msg", className="text-center mb-4 fw-medium save-message-tip"
     )
 
-    # JSON预览区块
     preview_section = html.Div(
         [
             html.H6("Real-time Configuration Preview", className="subtitle padded"),
@@ -452,18 +576,17 @@ def create_layout(app: Dash):
         ]
     )
 
-    # 拼接sub_page内部所有内容（列表形式，和项目范例完全一致）
     sub_page_content = [
         title_section,
         card_row_1,
         card_row_2,
         card_row_3,
+        card_row_4,  # 【新增】
         button_section,
         msg_section,
         preview_section,
     ]
 
-    # 严格匹配你提供的外层layout骨架
     layout = html.Div(
         [
             Header(app),
@@ -477,66 +600,30 @@ def create_layout(app: Dash):
     return layout
 
 
-# -------------------------- 回调注册（无自动分摊拖拽逻辑） --------------------------
+# -------------------------- 回调注册 --------------------------
 def register_callbacks(app: Dash):
-    # 数值实时展示
-    @app.callback(
-        [Output(f"val_root_{k}", "children") for k in ROOT_KEYS],
-        [Input(f"slider_root_{k}", "value") for k in ROOT_KEYS],
-        allow_duplicate=True,
-    )
-    def show_root_vals(*vals):
-        return [f"{v:.2f}" for v in vals]
-
-    @app.callback(
-        [Output(f"val_ind_{k}", "children") for k in IND_KEYS],
-        [Input(f"slider_ind_{k}", "value") for k in IND_KEYS],
-        allow_duplicate=True,
-    )
-    def show_ind_vals(*vals):
-        return [f"{v:.2f}" for v in vals]
-
-    @app.callback(
-        [Output(f"val_pnl_{k}", "children") for k in PNL_KEYS],
-        [Input(f"slider_pnl_{k}", "value") for k in PNL_KEYS],
-        allow_duplicate=True,
-    )
-    def show_pnl_vals(*vals):
-        return [f"{v:.2f}" for v in vals]
-
-    @app.callback(
-        [Output(f"val_sta_{k}", "children") for k in STA_KEYS],
-        [Input(f"slider_sta_{k}", "value") for k in STA_KEYS],
-        allow_duplicate=True,
-    )
-    def show_sta_vals(*vals):
-        return [f"{v:.2f}" for v in vals]
-
-    # 新增策略子项数值显示回调
-    @app.callback(
-        [Output(f"val_str_{k}", "children") for k in STR_KEYS],
-        [Input(f"slider_str_{k}", "value") for k in STR_KEYS],
-        allow_duplicate=True,
-    )
-    def show_str_vals(*vals):
-        return [f"{v:.2f}" for v in vals]
-
-    # 重置按钮回调
-    reset_outputs = (
-        [Output(f"slider_root_{k}", "value") for k in ROOT_KEYS]
-        + [Output(f"slider_ind_{k}", "value") for k in IND_KEYS]
-        + [Output(f"slider_pnl_{k}", "value") for k in PNL_KEYS]
-        + [Output(f"slider_sta_{k}", "value") for k in STA_KEYS]
-        + [Output(f"slider_str_{k}", "value") for k in STR_KEYS]
-    )
+    # 扩展全量控制项列表
     all_slider_input_list = (
         [Input(f"slider_root_{k}", "value") for k in ROOT_KEYS]
         + [Input(f"slider_ind_{k}", "value") for k in IND_KEYS]
         + [Input(f"slider_pnl_{k}", "value") for k in PNL_KEYS]
         + [Input(f"slider_sta_{k}", "value") for k in STA_KEYS]
         + [Input(f"slider_str_{k}", "value") for k in STR_KEYS]
+        + [Input(f"slider_stk_{k}", "value") for k in STK_KEYS]  # 【新增】
+        + [Input(f"slider_cht_{k}", "value") for k in CHT_KEYS]  # 【新增】
     )
 
+    reset_outputs = (
+        [Output(f"slider_root_{k}", "value") for k in ROOT_KEYS]
+        + [Output(f"slider_ind_{k}", "value") for k in IND_KEYS]
+        + [Output(f"slider_pnl_{k}", "value") for k in PNL_KEYS]
+        + [Output(f"slider_sta_{k}", "value") for k in STA_KEYS]
+        + [Output(f"slider_str_{k}", "value") for k in STR_KEYS]
+        + [Output(f"slider_stk_{k}", "value") for k in STK_KEYS]  # 【新增】
+        + [Output(f"slider_cht_{k}", "value") for k in CHT_KEYS]  # 【新增】
+    )
+
+    # 重置按钮回调
     @app.callback(
         reset_outputs,
         inputs=[Input("btn-reset", "n_clicks")],
@@ -553,6 +640,11 @@ def register_callbacks(app: Dash):
         for v in DEFAULT_CONFIG["sub_weights"]["stability"].values():
             out.append(v)
         for v in DEFAULT_CONFIG["sub_weights"]["strategy"].values():
+            out.append(v)
+        # 【新增：组装新增两组配置的重置默认值】
+        for v in DEFAULT_CONFIG["stock_filter"].values():
+            out.append(v)
+        for v in DEFAULT_CONFIG["chart_display"].values():
             out.append(v)
         return out
 
@@ -578,6 +670,15 @@ def register_callbacks(app: Dash):
         for k in STR_KEYS:
             cfg["sub_weights"]["strategy"][k] = all_values[ptr]
             ptr += 1
+        # 【新增：写入 stock_filter】
+        for k in STK_KEYS:
+            cfg["stock_filter"][k] = all_values[ptr]
+            ptr += 1
+        # 【新增：写入 chart_display】
+        for k in CHT_KEYS:
+            cfg["chart_display"][k] = all_values[ptr]
+            ptr += 1
+
         return json.dumps(cfg, indent=4, ensure_ascii=False)
 
     # 保存配置写入文件
@@ -588,7 +689,6 @@ def register_callbacks(app: Dash):
         prevent_initial_call=True,
     )
     def save_btn(n, json_str):
-        # ----- 权限检查 -----
         role = session.get("role")
         if role != "admin":
             return html.Span(

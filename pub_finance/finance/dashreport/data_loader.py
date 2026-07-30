@@ -6,6 +6,7 @@ from functools import lru_cache
 import copy
 import os
 from finance import FINANCE_ROOT
+import json
 
 
 class ReportDataLoader:
@@ -372,20 +373,70 @@ class ReportDataLoader:
         return pd.read_csv(path) if path.exists() else pd.DataFrame()
 
     @staticmethod
+    def _get_chart_time_range() -> int:
+        """读取评分配置文件中的 chart_time_range（含异常兜底）"""
+        try:
+            config_path = FINANCE_ROOT / "utility" / "scoring_weights.json"
+            if config_path.exists():
+                with open(config_path, "r", encoding="utf-8") as f:
+                    weights_cfg = json.load(f)
+                return int(
+                    weights_cfg.get("chart_display", {}).get("chart_time_range", 120)
+                )
+        except Exception:
+            pass
+        return 120  # 默认兜底 120 天
+
+    @staticmethod
+    def _filter_by_date_range(
+        df: pd.DataFrame, date_col: str, limit: int
+    ) -> pd.DataFrame:
+        """根据唯一日期截取最新的 limit 个交易日内包含的所有记录，并按日期升序恢复"""
+        if df.empty or date_col not in df.columns or limit <= 0:
+            return df
+
+        # 1. 提取去重后的日期列表，转换为 datetime 统一排序
+        unique_dates = df[date_col].drop_duplicates()
+        temp_unique = pd.to_datetime(unique_dates, errors="coerce")
+
+        # 2. 拿到最新 limit 个唯一的日期（保持原有格式/值）
+        latest_unique_dates = unique_dates.loc[
+            temp_unique.sort_values(ascending=False).head(limit).index
+        ]
+
+        # 3. 筛选包含这些日期的所有行记录
+        filtered_df = df[df[date_col].isin(latest_unique_dates)].copy()
+
+        # 4. 按日期升序排序并重置索引，确保图标按时间轴从左到右正常展示
+        return filtered_df.sort_values(by=date_col, ascending=True).reset_index(
+            drop=True
+        )
+
+    @staticmethod
     def _load_heatmap(prefix: str) -> pd.DataFrame:
         return ReportDataLoader._safe_csv(f"{prefix}_pd_calendar_heatmap.csv")
 
     @staticmethod
     def _load_strategy(prefix: str) -> pd.DataFrame:
-        return ReportDataLoader._safe_csv(f"{prefix}_pd_strategy_tracking_lstndays.csv")
+        df = ReportDataLoader._safe_csv(f"{prefix}_pd_strategy_tracking_lstndays.csv")
+        limit = ReportDataLoader._get_chart_time_range()
+        return ReportDataLoader._filter_by_date_range(df, date_col="date", limit=limit)
 
     @staticmethod
     def _load_trade_info(prefix: str) -> pd.DataFrame:
-        return ReportDataLoader._safe_csv(f"{prefix}_pd_trade_info_lstndays.csv")
+        df = ReportDataLoader._safe_csv(f"{prefix}_pd_trade_info_lstndays.csv")
+        limit = ReportDataLoader._get_chart_time_range()
+        return ReportDataLoader._filter_by_date_range(
+            df, date_col="buy_date", limit=limit
+        )
 
     @staticmethod
     def _load_pnl_trend(prefix: str) -> pd.DataFrame:
-        return ReportDataLoader._safe_csv(f"{prefix}_pd_topn_industry_profit_trend.csv")
+        df = ReportDataLoader._safe_csv(f"{prefix}_pd_topn_industry_profit_trend.csv")
+        limit = ReportDataLoader._get_chart_time_range()
+        return ReportDataLoader._filter_by_date_range(
+            df, date_col="buy_date", limit=limit
+        )
 
     @staticmethod
     def _load_industry_position(prefix: str) -> pd.DataFrame:

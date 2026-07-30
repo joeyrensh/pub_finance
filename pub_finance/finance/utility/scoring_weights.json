@@ -25,5 +25,14 @@
             "cnt": 0.6,
             "signal": 0.4
         }
+    },
+    "stock_filter": {
+        "collection_days": 10,
+        "capital_flow": 0.6,
+        "up_days": 0.4
+    },
+    "chart_display": {
+        "chart_time_range": 120,
+        "minichart_time_range": 60
     }
 }
