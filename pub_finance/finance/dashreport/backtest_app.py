@@ -127,6 +127,7 @@ app.layout = html.Div(
                 html.Div(id="page-content"),
             ],
         ),
+        html.Div(id="chart-touch-cleaner-dummy", style={"display": "none"}),
     ],
 )
 # ===== 1. 注册chart回调 =====
@@ -224,6 +225,39 @@ app.clientside_callback(
     Output("ai_summary_wrapper", "id"),
     Input("ai_summary_wrapper", "style"),
     prevent_initial_call=True,
+)
+
+# IOS端 Hover自动清除机制
+app.clientside_callback(
+    """
+    function(appInit) {
+        if (window._plotlyTouchHandlerBound) return window.dash_clientside.no_update;
+        window._plotlyTouchHandlerBound = true;
+
+        // 直接监听点击/触碰事件
+        document.addEventListener('pointerdown', function(e) {
+            // 只有点在 Plotly 图表内部时才处理
+            var graphDiv = e.target.closest('.js-plotly-plot');
+            if (graphDiv && window.Plotly) {
+                
+                // 清理当前图表上一次的倒计时
+                if (graphDiv._hoverTimer) clearTimeout(graphDiv._hoverTimer);
+
+                // 2000ms 后自动清除 hover 框
+                graphDiv._hoverTimer = setTimeout(function() {
+                    if (graphDiv && graphDiv.data) {
+                        Plotly.Fx.hover(graphDiv, []);
+                    }
+                    graphDiv._hoverTimer = null;
+                }, 2000);
+            }
+        }, { passive: true });
+
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output("chart-touch-cleaner-dummy", "children"),
+    Input("chart-touch-cleaner-dummy", "id"),
 )
 
 

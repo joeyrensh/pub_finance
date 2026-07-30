@@ -828,7 +828,7 @@ class ChartBuilder:
                             marker=dict(color=color, line=dict(color=color)),
                             showlegend=False,
                             legendgroup=strat,
-                            hoverinfo="none",
+                            hoverinfo="skip",
                             visible=True if is_core else "legendonly",
                         )
                     )
@@ -842,7 +842,7 @@ class ChartBuilder:
                             marker=dict(color=color, line=dict(color=color)),
                             showlegend=False,
                             legendgroup=strat,
-                            hoverinfo="none",
+                            hoverinfo="skip",
                             visible=True if is_core else "legendonly",
                         )
                     )
@@ -855,7 +855,7 @@ class ChartBuilder:
                         marker=dict(color=color, line=dict(color=color)),
                         showlegend=False,
                         legendgroup=strat,
-                        hoverinfo="none",
+                        hoverinfo="skip",
                         visible=True if is_core else "legendonly",
                     )
                 )
