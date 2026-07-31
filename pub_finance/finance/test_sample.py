@@ -146,15 +146,15 @@ if __name__ == "__main__":
 
     # A股主要策略执行
     print("-----------A股主策略执行-----------")
-    retry_backtest_and_send("cn", trade_date)
+    # retry_backtest_and_send("cn", trade_date)
 
     # ETF主要策略执行
     print("-----------A股ETF策略执行-----------")
-    retry_backtest_and_send("cnetf", trade_date)
+    retry_backtest_and_send("cnetf", trade_date, force_run=True)
 
     # A股动态列表执行
     print("-----------A股动态列表策略执行-----------")
-    retry_backtest_and_send("cn_dynamic", trade_date)
+    # retry_backtest_and_send("cn_dynamic", trade_date)
 
     """ 结束进度条 """
     pbar.finish()
