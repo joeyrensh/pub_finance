@@ -8,7 +8,7 @@ import functools
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from finance.utility.toolkit import ToolKit
-from finance.utility.stock_analysis import StockProposal
+from finance.utility.stock_analysis_simplify import StockProposal
 import gc
 from finance.utility.em_stock_uti import EMWebCrawlerUti
 from finance.cncrawler.ak_incre_crawler import AKCNWebCrawler

@@ -10,7 +10,7 @@ from finance.backtraderref.globalstrategyv5 import GlobalStrategy
 import backtrader as bt
 from finance.utility.tickerinfo import TickerInfo
 from finance.backtraderref.pandasdata_ext import BTPandasDataExt
-from finance.utility.stock_analysis import StockProposal
+from finance.utility.stock_analysis_simplify import StockProposal
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import matplotlib.dates as mdates
