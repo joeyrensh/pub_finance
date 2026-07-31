@@ -19,7 +19,7 @@ class ChartBuilder:
                 "text_color": "#000000",  # 黑色
                 "grid": "#D1D5DB",  # 网格线
                 "background": "rgba(255, 255, 255, 0)",  # 透明背景
-                "legend_bg": "rgba(246, 248, 249, 0.8)",
+                "legend_bg": "rgba(246, 248, 249, 0.2)",
                 "strategy_colors": [
                     "#FF4444",
                     "#FF4444",

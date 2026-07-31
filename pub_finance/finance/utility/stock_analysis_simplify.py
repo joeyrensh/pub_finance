@@ -1464,13 +1464,11 @@ class StockProposal:
                             
                             h2 {{
                                 font-size: 24px;
-                                margin-bottom: 20px;
                                 text-align: left ;
                                 word-break: break-all;
                             }}
                             
                             .image-container {{
-                                margin-bottom: 10px;
                                 border-radius: 0px;
                                 overflow: hidden;
                                 width: 100% ;
@@ -1538,7 +1536,6 @@ class StockProposal:
                                 }}
 
                                 .image-container {{
-                                    margin-bottom: 10px;
                                     border-radius: 0px;
                                     overflow: hidden;
                                     width: 100%;
@@ -1546,7 +1543,7 @@ class StockProposal:
                                 }} 
                                 
                                 h2 {{
-                                    font-size: 35px;
+                                    font-size: 15px;
                                     word-break: break-all;
                                 }}
                                 
@@ -1576,6 +1573,38 @@ class StockProposal:
                     """.format(
             cash=cash, final_value=final_value, stock_cnt=len(stock_list)
         )
+        css = """
+            <style>
+                :root {
+                    color-scheme: dark light;
+                    supported-color-schemes: dark light;
+                    background-color: transparent;
+                    color: black;
+                    -webkit-text-size-adjust: 100%;
+                    text-size-adjust: 100%;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;                            
+                }                
+                /* Your light mode (default) styles: */
+                body {
+                    background-color: white;
+                    color: black;
+                    width: 100%;                                    
+                }
+                @media (prefers-color-scheme: dark) {            
+                    body {
+                        background-color: black;
+                        color: white;
+                        width: 100%;                              
+                    }
+                }
+                /* 移动设备优化 */
+                @media screen and (max-width: 480px) {
+                    body {
+                        width: 100%;                              
+                    }
+                }                    
+            </style>
+        """
 
         final_html = f"""
         <!DOCTYPE html>
@@ -1608,6 +1637,7 @@ class StockProposal:
         <body>
             <div class="email-wrapper">
                 {html_content}
+                {css}
             </div>
         </body>
         </html>
@@ -2099,7 +2129,6 @@ class StockProposal:
                 }}
                 
                 .image-container {{
-                    margin-bottom: 10px;
                     border-radius: 0px;
                     overflow: hidden;
                     width: 100% ;
@@ -2167,7 +2196,6 @@ class StockProposal:
                     }}
 
                     .image-container {{
-                        margin-bottom: 10px;
                         border-radius: 0px;
                         overflow: hidden;
                         width: 100%;
@@ -2175,7 +2203,7 @@ class StockProposal:
                     }} 
                     
                     h2 {{
-                        font-size: 35px;
+                        font-size:15px;
                         word-break: break-all;
                     }}
                     
@@ -2201,6 +2229,39 @@ class StockProposal:
         </body>
         </html>
         """.format(cash=cash, final_value=final_value)
+
+        css = """
+            <style>
+                :root {
+                    color-scheme: dark light;
+                    supported-color-schemes: dark light;
+                    background-color: transparent;
+                    color: black;
+                    -webkit-text-size-adjust: 100%;
+                    text-size-adjust: 100%;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;                            
+                }                
+                /* Your light mode (default) styles: */
+                body {
+                    background-color: white;
+                    color: black;
+                    width: 100%;                                    
+                }
+                @media (prefers-color-scheme: dark) {            
+                    body {
+                        background-color: black;
+                        color: white;
+                        width: 100%;                              
+                    }
+                }
+                /* 移动设备优化 */
+                @media screen and (max-width: 480px) {
+                    body {
+                        width: 100%;                              
+                    }
+                }                    
+            </style>
+        """
 
         final_html = f"""
         <!DOCTYPE html>
@@ -2232,6 +2293,7 @@ class StockProposal:
         <body>
             <div class="email-wrapper">
                 {html_content}
+                {css}
             </div>
         </body>
         </html>

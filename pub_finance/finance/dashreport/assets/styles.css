@@ -707,9 +707,7 @@ a:active { color: lightgrey; text-decoration: underline; }
 
 #full-view-link {
   float: right;
-  border: 0.5px;
-  border-color: lightgrey;
-  border-style: solid;
+  border: 1px solid var(--gridcolor);
   color: var(--text-color);
   font-size: 1.4rem;
   padding: 10px 5px;

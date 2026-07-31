@@ -86,8 +86,8 @@ def get_header(app):
                                             "padding": "8px 14px",
                                             # "backgroundColor": "#f3f4f6",
                                             # "color": "#111827",
-                                            "border": "1px solid #d1d5db",
-                                            "borderRadius": "6px",
+                                            # "border": "1px solid #d1d5db",
+                                            "borderRadius": "2px",
                                             "cursor": "pointer",
                                             # "fontSize": "15px",
                                             "fontWeight": "500",
@@ -340,7 +340,9 @@ def data_bars(df, column):
                     var(--positive-databar-color) {percentage}%,
                     transparent {percentage}%,
                     transparent 100%)
-                """.format(percentage=percentage),
+                """.format(
+                    percentage=percentage
+                ),
                 "borderRadius": "4px",
                 "backgroundSize": "100% 70%",
                 "backgroundRepeat": "no-repeat",
@@ -364,7 +366,9 @@ def data_bars(df, column):
                     transparent {transparent_percentage}%,
                     var(--negative-databar-color) {transparent_percentage}%,
                     var(--negative-databar-color) 100%)
-                """.format(transparent_percentage=100 - percentage),
+                """.format(
+                    transparent_percentage=100 - percentage
+                ),
                 "borderRadius": "4px",
                 "backgroundSize": "100% 70%",
                 "backgroundRepeat": "no-repeat",
@@ -906,9 +910,11 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                     "backgroundColor": "transparent",
                 },
                 style_table={
-                    "paddingBottom": "2px"
-                    if (table_name == "trade" or not data or len(data) < 10)
-                    else "20px",
+                    "paddingBottom": (
+                        "2px"
+                        if (table_name == "trade" or not data or len(data) < 10)
+                        else "20px"
+                    ),
                     "position": "relative",
                     # "display": "flex",
                     # "flexDirection": "column",
