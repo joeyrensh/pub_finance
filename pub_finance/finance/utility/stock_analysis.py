@@ -2040,6 +2040,7 @@ class StockProposal:
                     ,strategy
                     ,SUM(pnl) AS pnl
                     ,COUNT(symbol) AS cnt
+                    ,COUNT(symbol) / SUM(COUNT(symbol)) OVER(PARTITION BY date) AS symbol_ratio
                     ,IF(COUNT(symbol) > 0, SUM(CASE WHEN pnl - l_pnl > 0 THEN 1 ELSE 0 END) / COUNT(symbol), 0) AS success_rate_daily
                     ,IF(COUNT(symbol) > 0, SUM(CASE WHEN pnl > 0 THEN 1 ELSE 0 END) / COUNT(symbol), 0) AS success_rate
             FROM tmp2

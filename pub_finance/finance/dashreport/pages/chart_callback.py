@@ -218,7 +218,6 @@ class ChartCallback:
                         df=df,
                         theme=theme,
                         client_width=client_width,
-                        bar_metric="avg",
                     )
 
                 elif chart_type == "trade":

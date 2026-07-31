@@ -697,7 +697,8 @@ class ChartBuilder:
         df,
         theme="light",
         client_width=1440,
-        bar_metric="pnl",  # 可选 'pnl', 'cnt', 'avg'
+        bar_metric="avg",  # 可选: 'pnl', 'cnt', 'avg', None
+        trend_metric="success_rate",  # 可选: 'success_rate', 'pnl', 'symbol_ratio'
     ):
         cfg = self.theme_config.get(theme, self.theme_config["light"])
         text_color = cfg["text_color"]
@@ -707,50 +708,87 @@ class ChartBuilder:
         scale, base_font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.05
         )
-        unified_scale, unified_font_size = self._get_font_sizes(
-            client_width, base_font=16, min_scale=0.65, max_scale=1.05
-        )
 
-        # =========================
-        # 数据预处理
-        # =========================
         df = df.copy()
-        if bar_metric == "pnl":
-            df["bar_pos"] = df["pnl"].clip(lower=0)
-            df["bar_neg"] = df["pnl"].clip(upper=0)
-        elif bar_metric == "cnt":
-            df["bar_pos"] = df["cnt"]
-            df["bar_neg"] = 0
-        elif bar_metric == "avg":  # 新增：平均收益
-            # 计算平均收益，避免除零（cnt=0 时 avg=0）
-            df["avg"] = df["pnl"] / df["cnt"].replace(0, np.nan)
-            df["avg"] = df["avg"].fillna(0)
-            df["bar_pos"] = df["avg"].clip(lower=0)
-            df["bar_neg"] = df["avg"].clip(upper=0)
-        else:
-            raise ValueError("bar_metric must be 'pnl', 'cnt', or 'avg'")
 
-        # 用于 Y2 轴范围计算
-        df_pos = df.groupby("date")["bar_pos"].sum().reset_index()
-        df_neg = df.groupby("date")["bar_neg"].sum().reset_index()
-        max_pos = df_pos["bar_pos"].max()
-        min_neg = df_neg["bar_neg"].min()
-
-        # 根据 bar_metric 确定 y2 轴范围（修改：pnl 和 avg 采用相同逻辑）
-        if bar_metric != "cnt":  # 包括 'pnl' 和 'avg'
-            threshold = df["success_rate"].quantile(0.1)
-            min_success_rate = df.loc[
-                df["success_rate"] >= threshold, "success_rate"
-            ].min()
-            safe_rate = max(min_success_rate, 0.2)
-            max_range = min(2 * max_pos, max_pos * 2 / safe_rate)
-            min_range = min_neg
-        else:
-            max_range = max_pos * 2
-            min_range = 0
+        show_bar = bar_metric is not None
+        # 定义核心默认显示的策略
+        core_strategies = ["突破年线", "均线收敛", "成交量放大"]
 
         # =========================
-        # 策略顺序
+        # 数据预处理 (Bar 逻辑)
+        # =========================
+        if show_bar:
+            if bar_metric == "pnl":
+                df["bar_pos"] = df["pnl"].clip(lower=0)
+                df["bar_neg"] = df["pnl"].clip(upper=0)
+            elif bar_metric == "cnt":
+                df["bar_pos"] = df["cnt"]
+                df["bar_neg"] = 0
+            elif bar_metric == "avg":
+                df["avg"] = df["pnl"] / df["cnt"].replace(0, np.nan)
+                df["avg"] = df["avg"].fillna(0)
+                df["bar_pos"] = df["avg"].clip(lower=0)
+                df["bar_neg"] = df["avg"].clip(upper=0)
+            else:
+                raise ValueError("bar_metric must be 'pnl', 'cnt', 'avg', or None")
+
+            # 用于 Y2 轴 (Bar 轴) 范围计算
+            df_pos = df.groupby("date")["bar_pos"].sum().reset_index()
+            df_neg = df.groupby("date")["bar_neg"].sum().reset_index()
+            max_pos = df_pos["bar_pos"].max() if not df_pos.empty else 0
+            min_neg = df_neg["bar_neg"].min() if not df_neg.empty else 0
+
+            if bar_metric != "cnt":
+                threshold = df["success_rate"].quantile(0.1) if not df.empty else 0
+                min_success_rate = (
+                    df.loc[df["success_rate"] >= threshold, "success_rate"].min()
+                    if not df.empty
+                    else 0.2
+                )
+                safe_rate = max(min_success_rate, 0.2)
+                max_range = (
+                    min(2 * max_pos, max_pos * 2 / safe_rate)
+                    if safe_rate > 0
+                    else max_pos * 2
+                )
+                min_range = min_neg
+            else:
+                max_range = max_pos * 2
+                min_range = 0
+        else:
+            # 不显示 Bar 时给 Y2 轴设置默认范围兜底
+            min_range, max_range = 0, 1
+
+        # =========================
+        # 数据预处理 (Trend 逻辑控制)
+        # =========================
+        if trend_metric == "success_rate":
+            df["trend_val"] = df["ema_success_rate"]
+            hover_fmt = "<b>成功率</b>: %{y:.2%}"
+            y1_range = [0, 1]
+            y1_dtick = 1 / 3
+            y1_autorange = False
+        elif trend_metric == "symbol_ratio":
+            df["trend_val"] = df.get("ema_symbol_ratio", df["symbol_ratio"])
+            hover_fmt = "<b>股票占比</b>: %{y:.2%}"
+            # 关键改变：交由前端 Plotly 自动自适应范围（从 0 开始）
+            y1_range = None
+            y1_dtick = None
+            y1_autorange = True
+        elif trend_metric == "pnl":
+            df["trend_val"] = df["pnl"]
+            hover_fmt = "<b>盈亏金额</b>: %{y:,.0f}"
+            y1_range = None
+            y1_dtick = None
+            y1_autorange = True
+        else:
+            raise ValueError(
+                "trend_metric must be 'success_rate', 'symbol_ratio', or 'pnl'"
+            )
+
+        # =========================
+        # 策略顺序 & 线型样式
         # =========================
         strategy_order = [
             "多头排列",
@@ -763,19 +801,6 @@ class ChartBuilder:
             "连续上涨",
         ]
 
-        # =========================
-        # 线型样式
-        # =========================
-        # line_styles = [
-        #     {"dash": "solid", "width": 3 * unified_scale},
-        #     {"dash": "solid", "width": 3 * unified_scale},
-        #     {"dash": "dashdot", "width": 2.5 * unified_scale},
-        #     {"dash": "dash", "width": 2.2 * unified_scale},
-        #     {"dash": "6,3", "width": 2 * unified_scale},
-        #     {"dash": "5,5", "width": 1.8 * unified_scale},
-        #     {"dash": "4,6", "width": 1.6 * unified_scale},
-        #     {"dash": "2,8", "width": 1.4 * unified_scale},
-        # ]
         line_styles = [
             {"dash": "solid", "width": 1.5},
             {"dash": "solid", "width": 1.5},
@@ -787,10 +812,6 @@ class ChartBuilder:
             {"dash": "dash", "width": 1.5},
         ]
 
-        # =========================
-        # 画图
-        # =========================
-        # 1. 建立 strategy -> (color, line_style, rank) 的映射字典，方便向量化或统一查找
         strategy_cfg = {
             strat: {
                 "color": strategy_colors[idx],
@@ -800,30 +821,55 @@ class ChartBuilder:
             for idx, strat in enumerate(strategy_order)
         }
 
-        # 2. 筛选并按自定义策略顺序排序 DataFrame
         valid_strategies = [s for s in strategy_order if s in df["strategy"].values]
         df_sorted = df[df["strategy"].isin(valid_strategies)].copy()
 
         fig = go.Figure()
 
         # =========================================================
-        # 所有策略的 Bar（保证所有的柱状图都压在最底层）
+        # 1. 所有策略的 Bar（仅在 show_bar 为 True 时绘制）
         # =========================================================
-        for strat in valid_strategies:
-            data = df_sorted[df_sorted["strategy"] == strat]
-            color = strategy_cfg[strat]["color"]
-            is_core = strat in ["突破年线", "均线收敛", "成交量放大"]
+        if show_bar:
+            for strat in valid_strategies:
+                data = df_sorted[df_sorted["strategy"] == strat]
+                color = strategy_cfg[strat]["color"]
+                is_core = strat in core_strategies
 
-            if bar_metric in ["pnl", "avg"]:
-                pos = data[data["bar_pos"] > 0]
-                neg = data[data["bar_neg"] < 0]
+                if bar_metric in ["pnl", "avg"]:
+                    pos = data[data["bar_pos"] > 0]
+                    neg = data[data["bar_neg"] < 0]
 
-                # 正向 Bar
-                if not pos.empty:
+                    if not pos.empty:
+                        fig.add_trace(
+                            go.Bar(
+                                x=pos["date"],
+                                y=pos["bar_pos"],
+                                yaxis="y2",
+                                marker=dict(color=color, line=dict(color=color)),
+                                showlegend=False,
+                                legendgroup=strat,
+                                hoverinfo="skip",
+                                visible=True if is_core else "legendonly",
+                            )
+                        )
+                    if not neg.empty:
+                        fig.add_trace(
+                            go.Bar(
+                                x=neg["date"],
+                                y=neg["bar_neg"],
+                                yaxis="y2",
+                                marker=dict(color=color, line=dict(color=color)),
+                                showlegend=False,
+                                legendgroup=strat,
+                                hoverinfo="skip",
+                                visible=True if is_core else "legendonly",
+                            )
+                        )
+                else:  # cnt
                     fig.add_trace(
                         go.Bar(
-                            x=pos["date"],
-                            y=pos["bar_pos"],
+                            x=data["date"],
+                            y=data["bar_pos"],
                             yaxis="y2",
                             marker=dict(color=color, line=dict(color=color)),
                             showlegend=False,
@@ -832,49 +878,22 @@ class ChartBuilder:
                             visible=True if is_core else "legendonly",
                         )
                     )
-                # 负向 Bar
-                if not neg.empty:
-                    fig.add_trace(
-                        go.Bar(
-                            x=neg["date"],
-                            y=neg["bar_neg"],
-                            yaxis="y2",
-                            marker=dict(color=color, line=dict(color=color)),
-                            showlegend=False,
-                            legendgroup=strat,
-                            hoverinfo="skip",
-                            visible=True if is_core else "legendonly",
-                        )
-                    )
-            else:  # cnt
-                fig.add_trace(
-                    go.Bar(
-                        x=data["date"],
-                        y=data["bar_pos"],
-                        yaxis="y2",
-                        marker=dict(color=color, line=dict(color=color)),
-                        showlegend=False,
-                        legendgroup=strat,
-                        hoverinfo="skip",
-                        visible=True if is_core else "legendonly",
-                    )
-                )
 
         # =========================================================
-        # 所有策略的 Line（保证所有折线图都压在柱状图上方）
+        # 2. 所有策略的 Line（压在柱状图上方，根据 trend_metric 绘制）
         # =========================================================
         for strat in valid_strategies:
             data = df_sorted[df_sorted["strategy"] == strat]
             cfg = strategy_cfg[strat]
-            is_core = strat in ["突破年线", "均线收敛", "成交量放大"]
+            is_core = strat in core_strategies
 
             fig.add_trace(
                 go.Scatter(
                     x=data["date"],
-                    y=data["ema_success_rate"],
+                    y=data["trend_val"],
                     mode="lines",
                     name=strat,
-                    visible=True if is_core else "legendonly",
+                    visible=True if is_core or not show_bar else "legendonly",
                     line=dict(
                         width=cfg["style"]["width"],
                         dash=cfg["style"]["dash"],
@@ -882,25 +901,51 @@ class ChartBuilder:
                         color=cfg["color"],
                     ),
                     yaxis="y",
-                    hovertemplate=f"<b>成功率</b>: {strat} %{{y:.2%}}<extra></extra>",
+                    hovertemplate=f"{strat} {hover_fmt}<extra></extra>",
                     legendgroup=strat,
-                    legendrank=cfg[
-                        "rank"
-                    ],  # 关键：指定图例排序权重，无需依赖 trace 添加顺序
+                    legendrank=cfg["rank"],
                 )
             )
 
         # =========================
-        # Layout
+        # Layout 配置
         # =========================
         xmin = pd.to_datetime(df["date"].min())
         xmax = pd.to_datetime(df["date"].max())
+
+        yaxis_config = dict(
+            side="left",
+            mirror=False,
+            ticklabelposition="inside",
+            showticklabels=False,
+            ticks="",
+            tickfont=dict(
+                family=self.font_family,
+                size=base_font_size,
+                color=text_color,
+            ),
+            showline=False,
+            zeroline=False,
+            gridcolor=grid_color,
+            gridwidth=0.5,
+            fixedrange=True,
+            rangemode="tozero",
+        )
+
+        # 动态应用 range 或 autorange
+        if y1_autorange:
+            yaxis_config["autorange"] = True
+        elif y1_range is not None:
+            yaxis_config["range"] = y1_range
+
+        if y1_dtick is not None:
+            yaxis_config["dtick"] = y1_dtick
+
         fig.update_layout(
             xaxis=dict(
                 mirror=False,
                 automargin=False,
                 tickangle=0,
-                # ticks="outside",
                 tickfont=dict(
                     family=self.font_family,
                     size=base_font_size,
@@ -908,7 +953,7 @@ class ChartBuilder:
                 ),
                 showline=False,
                 zeroline=False,
-                linecolor=grid_color,  # 与网格同色，保持克制
+                linecolor=grid_color,
                 linewidth=1,
                 gridcolor=grid_color,
                 gridwidth=0.5,
@@ -921,26 +966,7 @@ class ChartBuilder:
                     xmax + timedelta(days=0.5),
                 ],
             ),
-            yaxis=dict(
-                side="left",
-                mirror=False,
-                ticklabelposition="inside",
-                showticklabels=False,  # 关闭刻度标签
-                ticks="",  # 关闭刻度线
-                tickfont=dict(
-                    family=self.font_family,
-                    size=base_font_size,
-                    color=text_color,
-                ),
-                showline=False,
-                zeroline=False,
-                gridcolor=grid_color,
-                gridwidth=0.5,
-                # dtick=0.1,
-                fixedrange=True,
-                range=[0, 1],
-                dtick=1 / 3,
-            ),
+            yaxis=yaxis_config,
             yaxis2=dict(
                 side="right",
                 overlaying="y",
@@ -958,8 +984,8 @@ class ChartBuilder:
                 position=0.95,
                 layer="below traces",
                 ticklabelposition="inside",
-                showticklabels=False,  # 关闭刻度标签
-                ticks="",  # 关闭刻度线
+                showticklabels=False,
+                ticks="",
             ),
             legend=dict(
                 orientation="v",
