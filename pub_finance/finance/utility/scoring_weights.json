@@ -27,7 +27,7 @@
         }
     },
     "stock_filter": {
-        "collection_days": 20,
+        "collection_days": 10,
         "capital_flow": 0.5,
         "up_days": 0.5
     },

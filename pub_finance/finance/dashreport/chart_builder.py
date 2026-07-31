@@ -22,7 +22,7 @@ class ChartBuilder:
                 "legend_bg": "rgba(246, 248, 249, 0.8)",
                 "strategy_colors": [
                     "#64748B",
-                    "#0C5386",
+                    "#64748B",
                     "#0d876d",
                     "#0d876d",
                     "#0d876d",
@@ -61,8 +61,8 @@ class ChartBuilder:
                 "background": "rgba(0, 0, 0, 0)",  # 透明背景
                 "legend_bg": "rgba(20, 20, 20, 0.6)",
                 "strategy_colors": [
-                    "#334155",
-                    "#186EAC",
+                    "#64748B",
+                    "#64748B",
                     "#00a859",
                     "#00a859",
                     "#00a859",

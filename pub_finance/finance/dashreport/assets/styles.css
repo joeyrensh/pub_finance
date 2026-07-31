@@ -6,7 +6,7 @@
 :root {
   /* 表格相关 */
   --data-bar-color: #7dcfff;
-  --date-bg-color: #57a0ec94;
+  --date-bg-color: #91959924;
   --row-bg-color: #ff4444;
   --negative-value-bg-color: #00a859;
   --positive-value-bg-color: #ff4444;
@@ -37,7 +37,7 @@
   :root {
     /* 表格相关 */
     --data-bar-color: #0074d973;
-    --date-bg-color: #3078c291;
+    --date-bg-color: #91959924;
     --positive-databar-color: #ff444482;
     --negative-databar-color: #0d876cd9;
     --gridcolor: #2D3748;
@@ -443,7 +443,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 .default-table .dash-filter input:not([type=radio]):not([type=checkbox]) {
   padding: 0 !important;
   font-size: 0.9rem !important;  
-  color: #007eff !important;
+  color: var(--border-left-color) !important;
   text-align: left !important;
 }
 
