@@ -59,7 +59,7 @@ class ChartBuilder:
                 "text_color": "#ffffff",  # 白色
                 "grid": "#2D3748",  # 网格线
                 "background": "rgba(0, 0, 0, 0)",  # 透明背景
-                "legend_bg": "rgba(20, 20, 20, 0.6)",
+                "legend_bg": "rgba(123, 50, 116, 0.02)",
                 "strategy_colors": [
                     "#FF4444",
                     "#FF4444",
