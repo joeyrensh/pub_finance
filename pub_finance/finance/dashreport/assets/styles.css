@@ -512,7 +512,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 
 .kpi-card {
   padding: 15px 5px;
-  border-radius: 4px;
+  border-radius: 2px;
   border: 0.2px solid var(--gridcolor);
   background-color: var(--kpi-background);
 }
