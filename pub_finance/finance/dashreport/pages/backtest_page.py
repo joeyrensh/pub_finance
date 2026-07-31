@@ -4,6 +4,7 @@
 from dash import dcc, html, Input, Output, State, callback, no_update, callback_context
 import dash_bootstrap_components as dbc
 import pandas as pd
+import numpy as np
 from datetime import datetime
 import multiprocessing
 from multiprocessing import Manager
@@ -119,11 +120,15 @@ def load_logs(stocks, dt, m):
     )
     if f_latest_info.exists():
         df_latest = pd.read_csv(
-            f_latest_info, usecols=["symbol", "name", "total_value", "pe"], dtype=str
+            f_latest_info,
+            usecols=["symbol", "name", "total_value", "pe", "close"],
+            dtype=str,
         )
         df_latest = df_latest[df_latest["symbol"].isin(stocks)]
     else:
-        df_latest = pd.DataFrame(columns=["symbol", "name", "total_value", "pe"])
+        df_latest = pd.DataFrame(
+            columns=["symbol", "name", "total_value", "pe", "close"]
+        )
     if not df_logs.empty:
         df_logs = df_logs.rename(
             columns={
@@ -148,6 +153,15 @@ def load_logs(stocks, dt, m):
         df_logs["pe"] = (
             pd.to_numeric(df_logs["pe"], errors="coerce").round(2).fillna("-")
         )
+        # 1. 先将 close 和 price 强制转换为数值类型
+        df_logs["close"] = pd.to_numeric(df_logs["close"], errors="coerce")
+        df_logs["price"] = pd.to_numeric(df_logs["price"], errors="coerce")
+
+        # 2. 计算基础盈亏比例
+        calc_ratio = ((df_logs["close"] - df_logs["price"]) / df_logs["price"]).round(2)
+
+        # 3. 根据 type == "买入" 条件赋值，不满足条件的设为 "-"
+        df_logs["pnl_ratio"] = np.where(df_logs["type"] == "买入", calc_ratio, "-")
         logs = df_logs.to_dict("records")
     # 持仓明细
     pos_path = FINANCE_ROOT / (
@@ -740,6 +754,7 @@ class BacktestPage:
                 "date": "DATE",
                 "type": "TYPE",
                 "price": "PRICE",
+                "pnl_ratio": "PNL RATIO",
                 "volume": "VOLUME",
                 "strategy": "STRATEGY",
             }
@@ -748,6 +763,7 @@ class BacktestPage:
             cols_format = {
                 "DATE": ("date", "format"),
                 "PRICE": ("float",),
+                "PNL RATIO": ("ratio",),
                 "VOLUME": ("float",),
                 "INDUSTRY": ("text",),
                 "PE": ("text",),
