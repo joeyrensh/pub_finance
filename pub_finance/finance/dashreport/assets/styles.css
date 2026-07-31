@@ -26,7 +26,7 @@
   --main-title-color: #D9534F;
   --flag-color: rgba(231, 127, 63, 0.97);
   --full-view-link-bg-color: #3498dbc4;
-  --border-left-color: rgba(231, 127, 63, 0.97);
+  --border-left-color: #D1D5DB;
   --bubble-background-color: linear-gradient(135deg, rgb(255, 68, 0), #fb0, #fb0);
   --hover-text-color: #186EAC;
   --kpi-background: #91959924;
@@ -53,6 +53,7 @@
     --main-title-color: #ffffffc5;
     --flag-color: rgba(231, 127, 63, 0.97);
     --full-view-link-bg-color: #00a85aa2;
+    --border-left-color: #2D3748;
     --hover-text-color: #186EAC;
     --kpi-background: #91959924;
   }
@@ -443,7 +444,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 .default-table .dash-filter input:not([type=radio]):not([type=checkbox]) {
   padding: 0 !important;
   font-size: 0.9rem !important;  
-  color: var(--border-left-color) !important;
+  color: var(--text-color);
   text-align: left !important;
 }
 
