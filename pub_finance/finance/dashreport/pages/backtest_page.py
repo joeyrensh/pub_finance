@@ -681,8 +681,8 @@ class BacktestPage:
                     "aspectRatio": 1.6,
                 }
                 # 最后一个额外增加底部margin 5px
-                if is_last:
-                    base_style["marginBottom"] = "10px"
+                # if is_last:
+                #     base_style["marginBottom"] = "10px"
 
                 fig = self.cb.kl_fig(
                     his=stock_data,
@@ -1084,7 +1084,7 @@ class BacktestPage:
                                         "padding": 0,
                                         "width": "100%",
                                         "height": "100%",
-                                        "overflowY": "auto",
+                                        "overflowY": "visible",
                                     },
                                 )
                             ],
