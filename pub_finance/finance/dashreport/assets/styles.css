@@ -900,7 +900,7 @@ a:active { color: lightgrey; text-decoration: underline; }
 .weight-slider-primary .rc-slider-handle {
     width:8px;
     height:8px;
-    border: 2px solid var(--flag-color);
+    border: 2px solid var(--gridcolor);
     background:#fff;
     margin-top:-2px;
     touch-action: pan-y;
@@ -909,14 +909,14 @@ a:active { color: lightgrey; text-decoration: underline; }
 .weight-slider-primary .rc-slider-dot {
     width: 1px;
     height: 6px;
-    border: 1px solid var(--flag-color);
+    border: 1px solid var(--text-color);
     bottom: 0px;
     border-radius: 0;
     background-color:transparent;
 }
 
 .weight-slider-primary .rc-slider-mark-text {
-    color: var(--flag-color) !important;
+    color: var(--grid-color) !important;
     font-size : 0.9rem;
     margin-top: -5px;
 }
