@@ -444,8 +444,13 @@ table.tiny-header tr:first-child { font-size: 8px; }
 .default-table .dash-filter input:not([type=radio]):not([type=checkbox]) {
   padding: 0 !important;
   font-size: 0.9rem !important;  
-  color: var(--text-color);
+  color: var(--text-color) !important;
   text-align: left !important;
+}
+@media (prefers-color-scheme: dark) {
+  .default-table .dash-filter input:not([type=radio]):not([type=checkbox]) {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
 }
 
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th.dash-filter input.dash-filter--case--sensitive {
