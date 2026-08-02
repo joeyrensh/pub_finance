@@ -1,6 +1,17 @@
 # finance/dashreport/table_callback.py
 
-from dash import callback, Output, Input, MATCH, html, State, no_update, ctx, ALL
+from dash import (
+    callback,
+    Output,
+    Input,
+    MATCH,
+    html,
+    State,
+    no_update,
+    ctx,
+    ALL,
+    callback_context,
+)
 from finance.dashreport.data_loader import ReportDataLoader
 from finance.dashreport.utils import Header, make_dash_format_table
 import threading
@@ -219,11 +230,13 @@ class TableCallback:
         @callback(
             Output("ai_summary_wrapper", "style"),
             Output("global_btn_ai_summary", "style"),  # 控制 AI 按钮显隐
+            Output("ai_summary_done", "data"),
             Input("store_selected_cell_info", "data"),
             Input("ai_is_loading", "data"),
+            State("ai_summary_done", "data"),
             prevent_initial_call=True,
         )
-        def toggle_ai_summary_section(cell_info, is_loading):
+        def toggle_ai_summary_section(cell_info, is_loading, ai_summary_done):
             page = (
                 cell_info.get("page", "").lower() if isinstance(cell_info, dict) else ""
             )
@@ -256,16 +269,23 @@ class TableCallback:
             hide_btn = {"display": "none"}
             show_btn = {"display": "inline-block", "cursor": "pointer"}
 
-            if session.get("role") != "admin":
-                return hide_wrapper, hide_btn
+            if ctx.triggered and ctx.triggered_id == "store_selected_cell_info":
+                ai_summary_done = False
 
+            # 权限和加载状态
+            if session.get("role") != "admin":
+                return hide_wrapper, hide_btn, ai_summary_done
             if is_loading:
-                return show_wrapper, hide_btn
+                return show_wrapper, hide_btn, ai_summary_done
+
+            # 若摘要已完成（done=True），则隐藏按钮；否则正常显示
+            if ai_summary_done:
+                return show_wrapper, hide_btn, ai_summary_done
 
             if cell_info is None:
-                return hide_wrapper, hide_btn
+                return hide_wrapper, hide_btn, ai_summary_done
 
-            return show_wrapper, show_btn
+            return show_wrapper, show_btn, ai_summary_done
 
         @callback(
             Output("ai_summary_box", "children", allow_duplicate=True),
@@ -342,13 +362,14 @@ class TableCallback:
             Output("ai_summary_loading_trigger", "children", allow_duplicate=True),
             Output("ai_is_loading", "data", allow_duplicate=True),
             Output("ai_polling_timer", "disabled", allow_duplicate=True),
+            Output("ai_summary_done", "data", allow_duplicate=True),
             Input("ai_polling_timer", "n_intervals"),
             State("store_selected_cell_info", "data"),
             prevent_initial_call=True,
         )
         def poll_ai_status(n_intervals, cell_info):
             if not cell_info or not ctx.triggered_id:
-                return no_update, no_update, no_update, no_update
+                return no_update, no_update, no_update, no_update, no_update
 
             task_key = f"{cell_info.get('symbol', '')}"
 
@@ -362,9 +383,10 @@ class TableCallback:
                         None,
                         False,
                         True,
+                        False,
                     )
 
-                return no_update, no_update, no_update, no_update
+                return no_update, no_update, no_update, no_update, no_update
 
             if task_data.get("status") == "success":
                 final_text = task_data.get("result", "No valid content obtained")
@@ -372,9 +394,9 @@ class TableCallback:
                 with cache_lock:
                     AI_TASK_CACHE.pop(task_key, None)
 
-                return final_text, None, False, True
+                return final_text, None, False, True, True
 
-            return no_update
+            return no_update, no_update, no_update, no_update, no_update
 
         @callback(
             Output({"type": "auto-table-count", "page": ALL, "table": ALL}, "children"),

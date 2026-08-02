@@ -306,7 +306,7 @@ class PageLayout:
                 ),
                 dcc.Store(id="store_selected_cell_info", data=None),
                 dcc.Store(id="ai_is_loading", data=False),
-                dcc.Store(id="ai_trigger", data=0),
+                dcc.Store(id="ai_summary_done", data=False),
                 dcc.Interval(
                     id="ai_polling_timer",
                     interval=2000,
@@ -331,6 +331,7 @@ class PageLayout:
                                 "width": "100%",
                                 "height": "auto",
                                 "display": "block",
+                                "position": "absolute",
                             },
                             children="Select a stock from the NAME column and click [AI Analysis] to view the summary.",
                         ),
