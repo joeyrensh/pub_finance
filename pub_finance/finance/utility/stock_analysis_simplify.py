@@ -1137,7 +1137,13 @@ class StockProposal:
                     AVG(fwd_pnl_1d_diff) AS pnl_1d_future_avg,                    
                     -- 未来 5 日该策略带来的【总绝对盈亏金额】与【单票平均绝对盈亏金额】
                     SUM(fwd_pnl_5d_diff) AS pnl_5d_future_sum,
-                    AVG(fwd_pnl_5d_diff) AS pnl_5d_future_avg,                    
+                    AVG(fwd_pnl_5d_diff) AS pnl_5d_future_avg,    
+                    -- 未来 1 日收益率 % (均值 & 累加值)
+                    AVG(fwd_ret_1d) AS ret_1d_future_avg,
+                    SUM(fwd_ret_1d) AS ret_1d_future_sum,
+                    -- 未来 5 日收益率 % (均值 & 累加值)
+                    AVG(fwd_ret_5d) AS ret_5d_future_avg,
+                    SUM(fwd_ret_5d) AS ret_5d_future_sum,                                    
                     -- 未来胜率统计
                     try_divide(SUM(is_win_5d), NULLIF(COUNT(is_win_5d), 0)) AS success_rate_5d,
                     try_divide(SUM(is_win_1d), NULLIF(COUNT(is_win_1d), 0)) AS success_rate_1d
@@ -1154,6 +1160,10 @@ class StockProposal:
                 pnl_1d_future_avg AS pnl_1d_future_avg,
                 pnl_5d_future_sum AS pnl_5d_future_sum,
                 pnl_5d_future_avg AS pnl_5d_future_avg,
+                ROUND(ret_1d_future_avg, 4) AS ret_1d_future_avg,
+                ROUND(ret_1d_future_sum, 4) AS ret_1d_future_sum,
+                ROUND(ret_5d_future_avg, 4) AS ret_5d_future_avg,
+                ROUND(ret_5d_future_sum, 4) AS ret_5d_future_sum,                
                 ROUND(success_rate_1d, 4) AS success_rate_1d,
                 ROUND(success_rate_5d, 4) AS success_rate_5d
             FROM tmp_daily_agg

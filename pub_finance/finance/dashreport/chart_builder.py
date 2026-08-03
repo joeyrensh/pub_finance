@@ -699,7 +699,7 @@ class ChartBuilder:
         client_width=1440,
         bar_metric="future_pnl",  # 可选: 'pnl', 'cnt', 'avg', 'future_pnl', None
         trend_metric="success_rate",  # 可选: 'success_rate', 'symbol_ratio'
-        future_pnl_col="pnl_5d_future_sum",  # 当 bar_metric 为 'future_pnl' 时使用
+        future_pnl_col="ret_5d_future_avg",  # 当 bar_metric 为 'future_pnl' 时使用
         success_rate_col="success_rate_5d",  # 当 trend_metric 为 'success_rate' 时使用
         use_ema=True,  # 新增: 是否对 trend_metric 使用 EMA 平滑曲线，可传 Bool 或 int(span)
     ):
@@ -719,22 +719,27 @@ class ChartBuilder:
             df = df.sort_values(["strategy", "date"]).reset_index(drop=True)
 
         show_bar = bar_metric is not None
-        # core_strategies = ["突破年线", "均线收敛", "成交量放大"]
 
         # =========================
-        # 1. 数据预处理 (Bar 逻辑)
+        # 1. 数据预处理 (Bar 逻辑 - 全动态比率/金额解析)
         # =========================
+        bar_hover_fmt = None  # Bar 的 hover 格式定义
+        is_ratio_metric = True  # 是否为比率/百分比标志
+
         if show_bar:
             if bar_metric == "pnl":
                 df["bar_pos"] = df["pnl"].clip(lower=0)
                 df["bar_neg"] = df["pnl"].clip(upper=0)
+                bar_hover_fmt = "<b>持仓PnL</b>: %{y:,.2f}"
             elif bar_metric == "cnt":
                 df["bar_pos"] = df["cnt"]
                 df["bar_neg"] = 0
+                bar_hover_fmt = "<b>股票数量</b>: %{y:d}"
             elif bar_metric == "avg":
                 df["avg"] = (df["pnl"] / df["cnt"].replace(0, np.nan)).fillna(0)
                 df["bar_pos"] = df["avg"].clip(lower=0)
                 df["bar_neg"] = df["avg"].clip(upper=0)
+                bar_hover_fmt = "<b>单票平均PnL</b>: %{y:,.2f}"
             elif bar_metric == "future_pnl":
                 if future_pnl_col not in df.columns:
                     raise ValueError(
@@ -742,44 +747,98 @@ class ChartBuilder:
                     )
                 df["bar_pos"] = df[future_pnl_col].clip(lower=0)
                 df["bar_neg"] = df[future_pnl_col].clip(upper=0)
+
+                # ----------------------------------------------------
+                # A. 动态解析 Label 与 数据类型（区分比率与金额）
+                # ----------------------------------------------------
+                col_lower = future_pnl_col.lower()
+
+                # 1. 解析时间周期
+                day_prefix = ""
+                if "1d" in col_lower:
+                    day_prefix = "1日"
+                elif "5d" in col_lower:
+                    day_prefix = "5日"
+
+                # 3. 构建最自然的 Hover 标签
+                if is_ratio_metric:
+                    metric_label = (
+                        f"{day_prefix}预期收益率" if day_prefix else "预期收益率"
+                    )
+                    bar_hover_fmt = f"<b>{metric_label}</b>: %{{y:+.2%}}"
+                else:
+                    metric_label = f"{day_prefix}预期PnL" if day_prefix else "预期PnL"
+                    bar_hover_fmt = f"<b>{metric_label}</b>: %{{y:,.2f}}"
+
             else:
                 raise ValueError(
                     "bar_metric must be 'pnl', 'cnt', 'avg', 'future_pnl', or None"
                 )
 
+            # ----------------------------------------------------
+            # B. 计算 Y2 轴的物理显示范围 (Range)
+            # ----------------------------------------------------
             df_pos = df.groupby("date")["bar_pos"].sum().reset_index()
             df_neg = df.groupby("date")["bar_neg"].sum().reset_index()
             max_pos = df_pos["bar_pos"].max() if not df_pos.empty else 0
             min_neg = df_neg["bar_neg"].min() if not df_neg.empty else 0
 
-            # 用指定的 success_rate 列做范围对齐参考
-            ref_rate_col = (
-                success_rate_col
-                if success_rate_col in df.columns
-                else "success_rate_5d"
-            )
-            if bar_metric != "cnt" and ref_rate_col in df.columns:
-                threshold = df[ref_rate_col].quantile(0.1) if not df.empty else 0
-                min_rate = (
-                    df.loc[df[ref_rate_col] >= threshold, ref_rate_col].min()
-                    if not df.empty
-                    else 0.2
+            if is_ratio_metric:
+                # 场景 1：收益率/比率场景 (百分比)
+                # 目标：将 0 轴固定映射到图表垂直高度的 25% 处（即 Y1 轴胜率 25% 的高度）
+                # 这样：正收益占上半部分 75% 空间，负收益占下半部分 25% 空间
+                zero_anchor = 0.15  # 0 轴在全图表中的相对高度比例 (0.25 即底部 25% 处)
+
+                # 限制一个最小感知值，防止收益率全为 0 时比例尺崩塌
+                safe_max_pos = max(max_pos, 0.02)  # 至少支持 2% 的顶部空间
+                safe_abs_neg = max(abs(min_neg), 0.02)  # 至少支持 -2% 的底部空间
+
+                # 根据 25% 锚点反推 max_range 和 min_range
+                # 保证 max_pos 恰好能显示在 (1 - zero_anchor) 的空间内
+                range_top_from_pos = safe_max_pos / (1.0 - zero_anchor)
+
+                # 保证 min_neg 恰好能显示在 zero_anchor 的空间内
+                range_top_from_neg = safe_abs_neg / zero_anchor
+
+                # 取两者大值，确保正负两端都不超限（柱子不会穿顶或穿底）
+                unified_scale = max(range_top_from_pos, range_top_from_neg)
+
+                # 计算最终的 Y2 轴上下限
+                max_range = unified_scale * (1.0 - zero_anchor)
+                min_range = -unified_scale * zero_anchor
+            elif bar_metric != "cnt":
+                # 场景 2：绝对金额场景 (PnL)
+                ref_rate_col = (
+                    success_rate_col
+                    if success_rate_col in df.columns
+                    else "success_rate_5d"
                 )
-                safe_rate = max(min_rate, 0.2)
-                max_range = (
-                    min(2 * max_pos, max_pos * 2 / safe_rate)
-                    if safe_rate > 0
-                    else max_pos * 2
-                )
-                min_range = min_neg
+                if ref_rate_col in df.columns:
+                    threshold = df[ref_rate_col].quantile(0.1) if not df.empty else 0
+                    min_rate = (
+                        df.loc[df[ref_rate_col] >= threshold, ref_rate_col].min()
+                        if not df.empty
+                        else 0.2
+                    )
+                    safe_rate = max(min_rate, 0.2)
+                    max_range = (
+                        min(2 * max_pos, max_pos * 2 / safe_rate)
+                        if safe_rate > 0
+                        else max_pos * 2
+                    )
+                    min_range = min_neg
+                else:
+                    max_range = max_pos * 2
+                    min_range = min_neg
             else:
+                # 场景 3：持仓数量场景 (cnt)
                 max_range = max_pos * 2
                 min_range = 0
         else:
             min_range, max_range = 0, 1
 
         # =========================
-        # 2. 数据预处理 (Trend 逻辑控制 & 平滑)
+        # 2. 数据预处理 (Trend 逻辑控制 & EMA 平滑)
         # =========================
         if trend_metric == "success_rate":
             target_col = (
@@ -800,12 +859,12 @@ class ChartBuilder:
         if use_ema:
             span = 20 if isinstance(use_ema, bool) else use_ema
 
-            # 使用 Exponential Weighted Moving Average (EMA)
+            # 使用 Exponential Weighted Moving Average (EMA) 替换 SMA
             smooth_series = df.groupby("strategy")[target_col].transform(
                 lambda x: x.ewm(span=span, adjust=False).mean()
             )
 
-            # 依然加上掩码保护：确保原数据为 NaN 时平滑值也为 NaN
+            # 掩码保护：原数据为 NaN 时平滑值也为 NaN，防止末尾无数据时假性拉平
             df["trend_val"] = smooth_series.where(df[target_col].notna())
         else:
             df["trend_val"] = df[target_col]
@@ -830,22 +889,19 @@ class ChartBuilder:
         group_short = ["成交量放大", "红三兵", "连续上涨"]
 
         core_strategies = []
-        # 核心改动：比较列直接使用计算好平滑值的 "trend_val"
         compare_col = "trend_val" if "trend_val" in df.columns else target_col
 
         if not df.empty and compare_col in df.columns:
-            # 1. 确定全表最新日期基准
+            # 1. 确定全表最新日期基准与 5 日窗口
             max_date = df["date"].max()
-
-            # 2. 限定近 5 日的时间窗口边界
             cutoff_date = max_date - pd.Timedelta(days=5)
 
-            # 3. 筛选近 5 日内且 trend_val 非空的记录
+            # 2. 筛选窗口内且 trend_val 非空的记录
             df_recent = df[
                 (df["date"] >= cutoff_date) & (df[compare_col].notna())
             ].copy()
 
-            # 4. 获取每个策略在 5 日窗口内【最新一天】的数据
+            # 3. 提取窗口内各策略最新一天的数据
             if not df_recent.empty:
                 df_latest_in_window = (
                     df_recent.sort_values("date")
@@ -856,7 +912,7 @@ class ChartBuilder:
             else:
                 df_latest_in_window = pd.DataFrame(columns=["strategy", compare_col])
 
-            # 5. 构建 Score Map：读取 trend_val 并强转为原生 float 确保准确对比
+            # 4. 构建 Score Map (读取 trend_val 强转 float 确保准确排序)
             strat_score_map = {}
             for strat in strategy_order:
                 match = df_latest_in_window[df_latest_in_window["strategy"] == strat]
@@ -867,17 +923,15 @@ class ChartBuilder:
                     except (ValueError, TypeError):
                         strat_score_map[strat] = 0.0
                 else:
-                    # 近 5 日无有效 trend_val，设为 0.0
                     strat_score_map[strat] = 0.0
 
-            # 6. 辅助函数：根据各策略最新的 trend_val 降序排序并选出最高者
+            # 5. 组内最高分策略提取逻辑
             def get_best_strat_in_group(group_list):
                 sorted_group = sorted(
                     group_list, key=lambda s: strat_score_map.get(s, 0.0), reverse=True
                 )
                 return sorted_group[0]
 
-            # 7. 分别选出长、中、短期 trend_val 最高者
             best_long = get_best_strat_in_group(group_long)
             best_mid = get_best_strat_in_group(group_mid)
             best_short = get_best_strat_in_group(group_short)
@@ -914,7 +968,7 @@ class ChartBuilder:
         fig = go.Figure()
 
         # =========================================================
-        # 4. 所有策略的 Bar（仅在 show_bar 为 True 时绘制）
+        # 4. 所有策略的 Bar (仅在 show_bar 为 True 时绘制)
         # =========================================================
         if show_bar:
             for strat in valid_strategies:
@@ -935,6 +989,7 @@ class ChartBuilder:
                                 marker=dict(color=color, line=dict(color=color)),
                                 showlegend=False,
                                 legendgroup=strat,
+                                # hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
                                 hoverinfo="skip",
                                 visible=True if is_core else "legendonly",
                             )
@@ -948,6 +1003,7 @@ class ChartBuilder:
                                 marker=dict(color=color, line=dict(color=color)),
                                 showlegend=False,
                                 legendgroup=strat,
+                                # hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
                                 hoverinfo="skip",
                                 visible=True if is_core else "legendonly",
                             )
@@ -961,6 +1017,7 @@ class ChartBuilder:
                             marker=dict(color=color, line=dict(color=color)),
                             showlegend=False,
                             legendgroup=strat,
+                            # hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
                             hoverinfo="skip",
                             visible=True if is_core else "legendonly",
                         )
@@ -1028,6 +1085,9 @@ class ChartBuilder:
         if y1_dtick is not None:
             yaxis_config["dtick"] = y1_dtick
 
+        # 区分百分比比率与绝对金额的 y2 格式化
+        y2_tickfmt = "%" if is_ratio_metric else "~s"
+
         fig.update_layout(
             xaxis=dict(
                 mirror=False,
@@ -1066,7 +1126,7 @@ class ChartBuilder:
                 showline=False,
                 zeroline=False,
                 range=[min_range, max_range],
-                tickformat="~s",
+                tickformat=y2_tickfmt,
                 anchor="free",
                 position=0.95,
                 layer="below traces",
