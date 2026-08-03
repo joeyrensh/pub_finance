@@ -724,7 +724,17 @@ class ChartBuilder:
         # 1. 数据预处理 (Bar 逻辑 - 全动态比率/金额解析)
         # =========================
         bar_hover_fmt = None  # Bar 的 hover 格式定义
-        is_ratio_metric = True  # 是否为比率/百分比标志
+        is_ratio_metric = (
+            True
+            if future_pnl_col
+            in [
+                "ret_5d_future_sum",
+                "ret_5d_future_avg",
+                "ret_1d_future_sum",
+                "ret_1d_future_avg",
+            ]
+            else False
+        )  # 是否为比率/百分比标志
 
         if show_bar:
             if bar_metric == "pnl":
@@ -776,64 +786,62 @@ class ChartBuilder:
                 )
 
             # ----------------------------------------------------
-            # B. 计算 Y2 轴的物理显示范围 (Range)
+            # B. 计算 Y2 轴的物理显示范围 (Range) - by strategy 防压缩与全场景对齐
             # ----------------------------------------------------
-            df_pos = df.groupby("date")["bar_pos"].sum().reset_index()
-            df_neg = df.groupby("date")["bar_neg"].sum().reset_index()
-            max_pos = df_pos["bar_pos"].max() if not df_pos.empty else 0
-            min_neg = df_neg["bar_neg"].min() if not df_neg.empty else 0
+            # 1. 提取单策略单日的最大正值与最小负值 (反映单个策略柱子的真实物理量级)
+            single_max_pos = df["bar_pos"].max() if not df.empty else 0
+            single_min_neg = df["bar_neg"].min() if not df.empty else 0
 
-            if is_ratio_metric:
-                # 场景 1：收益率/比率场景 (百分比)
-                # 目标：将 0 轴固定映射到图表垂直高度的 25% 处（即 Y1 轴胜率 25% 的高度）
-                # 这样：正收益占上半部分 75% 空间，负收益占下半部分 25% 空间
-                zero_anchor = 0.15  # 0 轴在全图表中的相对高度比例 (0.25 即底部 25% 处)
+            # 2. 提取多策略同一天堆叠后的总和
+            df_pos_sum = df.groupby("date")["bar_pos"].sum()
+            df_neg_sum = df.groupby("date")["bar_neg"].sum()
 
-                # 限制一个最小感知值，防止收益率全为 0 时比例尺崩塌
-                safe_max_pos = max(max_pos, 0.02)  # 至少支持 2% 的顶部空间
-                safe_abs_neg = max(abs(min_neg), 0.02)  # 至少支持 -2% 的底部空间
+            stacked_max_pos = df_pos_sum.max() if not df_pos_sum.empty else 0
+            stacked_min_neg = df_neg_sum.min() if not df_neg_sum.empty else 0
 
-                # 根据 25% 锚点反推 max_range 和 min_range
-                # 保证 max_pos 恰好能显示在 (1 - zero_anchor) 的空间内
+            # 3. 极值计算策略：
+            # 以“单策略最大值的 2.0 倍”与“真实堆叠最大值”取较小者，
+            # 既给多策略堆叠留出一定视觉空间，又绝对防止 sum 指标把坐标轴撑得太大导致柱子变短小。
+            if stacked_max_pos > 0:
+                max_pos = min(
+                    stacked_max_pos, max(single_max_pos * 2.0, single_max_pos)
+                )
+            else:
+                max_pos = 0
+
+            if stacked_min_neg < 0:
+                min_neg = max(
+                    stacked_min_neg, min(single_min_neg * 2.0, single_min_neg)
+                )
+            else:
+                min_neg = 0
+
+            if bar_metric == "cnt":
+                # 场景 1：持仓数量场景 (仅有正数，从 0 开始，留 2 倍顶部空间防止柱子太高)
+                max_range = max_pos * 2 if max_pos > 0 else 10
+                min_range = 0
+            else:
+                # 场景 2：收益率(比率) 与 绝对金额(PnL) 统一处理
+                # 目标：将 0 轴固定映射到图表垂直高度的 15% 处 (底部 15% 处)
+                zero_anchor = 0.15  # 0 轴高度比例 15%
+
+                # 设定防崩塌的最小绝对数值（比率设 0.005 即 0.5%，金额设 1.0 即 1元）
+                min_floor = 0.005 if is_ratio_metric else 1.0
+                safe_max_pos = max(max_pos, min_floor)
+                safe_abs_neg = max(abs(min_neg), min_floor)
+
+                # 1. 根据 15% 锚点反推：正向最大值需要的全量量程 (占用 85% 空间)
                 range_top_from_pos = safe_max_pos / (1.0 - zero_anchor)
 
-                # 保证 min_neg 恰好能显示在 zero_anchor 的空间内
+                # 2. 根据 15% 锚点反推：负向最大值需要的全量量程 (占用 15% 空间)
                 range_top_from_neg = safe_abs_neg / zero_anchor
 
-                # 取两者大值，确保正负两端都不超限（柱子不会穿顶或穿底）
+                # 3. 取两者最大比例，保证正负两端柱子都不穿界
                 unified_scale = max(range_top_from_pos, range_top_from_neg)
 
-                # 计算最终的 Y2 轴上下限
+                # 4. 计算 Y2 轴最终的上下限 bounds
                 max_range = unified_scale * (1.0 - zero_anchor)
                 min_range = -unified_scale * zero_anchor
-            elif bar_metric != "cnt":
-                # 场景 2：绝对金额场景 (PnL)
-                ref_rate_col = (
-                    success_rate_col
-                    if success_rate_col in df.columns
-                    else "success_rate_5d"
-                )
-                if ref_rate_col in df.columns:
-                    threshold = df[ref_rate_col].quantile(0.1) if not df.empty else 0
-                    min_rate = (
-                        df.loc[df[ref_rate_col] >= threshold, ref_rate_col].min()
-                        if not df.empty
-                        else 0.2
-                    )
-                    safe_rate = max(min_rate, 0.2)
-                    max_range = (
-                        min(2 * max_pos, max_pos * 2 / safe_rate)
-                        if safe_rate > 0
-                        else max_pos * 2
-                    )
-                    min_range = min_neg
-                else:
-                    max_range = max_pos * 2
-                    min_range = min_neg
-            else:
-                # 场景 3：持仓数量场景 (cnt)
-                max_range = max_pos * 2
-                min_range = 0
         else:
             min_range, max_range = 0, 1
 
@@ -865,7 +873,8 @@ class ChartBuilder:
             )
 
             # 掩码保护：原数据为 NaN 时平滑值也为 NaN，防止末尾无数据时假性拉平
-            df["trend_val"] = smooth_series.where(df[target_col].notna())
+            df["trend_val"] = smooth_series
+            # df["trend_val"] = smooth_series.where(df[target_col].notna())
         else:
             df["trend_val"] = df[target_col]
 
@@ -989,8 +998,8 @@ class ChartBuilder:
                                 marker=dict(color=color, line=dict(color=color)),
                                 showlegend=False,
                                 legendgroup=strat,
-                                # hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
-                                hoverinfo="skip",
+                                hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
+                                # hoverinfo="skip",
                                 visible=True if is_core else "legendonly",
                             )
                         )
@@ -1003,8 +1012,8 @@ class ChartBuilder:
                                 marker=dict(color=color, line=dict(color=color)),
                                 showlegend=False,
                                 legendgroup=strat,
-                                # hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
-                                hoverinfo="skip",
+                                hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
+                                # hoverinfo="skip",
                                 visible=True if is_core else "legendonly",
                             )
                         )
@@ -1017,8 +1026,8 @@ class ChartBuilder:
                             marker=dict(color=color, line=dict(color=color)),
                             showlegend=False,
                             legendgroup=strat,
-                            # hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
-                            hoverinfo="skip",
+                            hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
+                            # hoverinfo="skip",
                             visible=True if is_core else "legendonly",
                         )
                     )
