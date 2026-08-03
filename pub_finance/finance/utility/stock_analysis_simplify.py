@@ -222,7 +222,7 @@ class StockProposal:
         pd_timeseries = pd_timeseries.sort_values("buy_date").reset_index(drop=True)
         # 获取时间窗口配置
         chart_time_range = max(
-            120, ToolKit.get_config("chart_display.chart_time_range", default=120)
+            180, ToolKit.get_config("chart_display.chart_time_range", default=120)
         )
         minichart_time_range = max(
             60, ToolKit.get_config("chart_display.minichart_time_range", default=60)
@@ -1821,7 +1821,7 @@ class StockProposal:
         pd_timeseries = pd_timeseries.sort_values("buy_date").reset_index(drop=True)
         # 获取时间窗口JSON配置
         chart_time_range = max(
-            120, ToolKit.get_config("chart_display.chart_time_range", default=120)
+            180, ToolKit.get_config("chart_display.chart_time_range", default=120)
         )
         start_date = pd_timeseries.iloc[-chart_time_range]["buy_date"]
         pd_timeseries = pd_timeseries.tail(chart_time_range)

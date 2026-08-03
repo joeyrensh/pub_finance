@@ -701,7 +701,7 @@ class ChartBuilder:
         trend_metric="success_rate",  # 可选: 'success_rate', 'symbol_ratio'
         future_pnl_col="pnl_5d_future_sum",  # 当 bar_metric 为 'future_pnl' 时使用
         success_rate_col="success_rate_5d",  # 当 trend_metric 为 'success_rate' 时使用
-        use_sma=True,  # 新增: 是否对 trend_metric 使用 EMA 平滑曲线，可传 Bool 或 int(span)
+        use_ema=True,  # 新增: 是否对 trend_metric 使用 EMA 平滑曲线，可传 Bool 或 int(span)
     ):
         cfg = self.theme_config.get(theme, self.theme_config["light"])
         text_color = cfg["text_color"]
@@ -797,14 +797,16 @@ class ChartBuilder:
         else:
             raise ValueError("trend_metric must be 'success_rate' or 'symbol_ratio'")
 
-        if use_sma:
-            window = 20 if isinstance(use_sma, bool) else use_sma
-            # 1. 计算滑动平均
-            sma_series = df.groupby("strategy")[target_col].transform(
-                lambda x: x.rolling(window=window, min_periods=1).mean()
+        if use_ema:
+            span = 20 if isinstance(use_ema, bool) else use_ema
+
+            # 使用 Exponential Weighted Moving Average (EMA)
+            smooth_series = df.groupby("strategy")[target_col].transform(
+                lambda x: x.ewm(span=span, adjust=False).mean()
             )
-            # 2. 强行掩码：如果原始点是 NaN，平滑点也必须为 NaN，防止末尾无数据时假性拉平
-            df["trend_val"] = sma_series.where(df[target_col].notna())
+
+            # 依然加上掩码保护：确保原数据为 NaN 时平滑值也为 NaN
+            df["trend_val"] = smooth_series.where(df[target_col].notna())
         else:
             df["trend_val"] = df[target_col]
 
