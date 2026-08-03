@@ -825,43 +825,52 @@ class ChartBuilder:
         group_mid = ["均线金叉", "均线收敛", "突破半年线"]
         group_short = ["成交量放大", "红三兵", "连续上涨"]
 
-        # --- 动态计算 core_strategies ---
         core_strategies = []
         if not df.empty and target_col in df.columns:
-            # 1. 过滤掉 target_col 为空/NaN 的记录
-            df_valid = df[df[target_col].notna()].copy()
+            # 1. 确定全表最新日期基准（例如 '2026-08-03'）
+            max_date = df["date"].max()
 
-            if not df_valid.empty:
-                # 2. 核心修改：按策略分组，获取【每个策略各自最新一天】的有效数据记录
-                # 这样即使策略A最新数据在8月3日，策略B最新数据在7月30日，都能拿到各自最新的真实胜率
-                df_latest_per_strat = (
-                    df_valid.sort_values("date")
+            # 2. 限定近 5 日的时间窗口边界 (按交易日或自然日 5 天)
+            cutoff_date = max_date - pd.Timedelta(days=5)
+
+            # 3. 筛选在 [max_date - 5d, max_date] 范围内且指标非空的记录
+            df_recent = df[
+                (df["date"] >= cutoff_date) & (df[target_col].notna())
+            ].copy()
+
+            # 4. 获取每个策略在 5 日窗口内【最新一天】的数据
+            if not df_recent.empty:
+                df_latest_in_window = (
+                    df_recent.sort_values("date")
                     .groupby("strategy")
                     .last()
                     .reset_index()
                 )
+            else:
+                df_latest_in_window = pd.DataFrame(columns=["strategy", target_col])
 
-                # 3. 辅助函数：从给定的策略组中，找到组内最新成功率最高的那一个策略
-                def get_best_strat_in_group(group_list):
-                    group_data = df_latest_per_strat[
-                        df_latest_per_strat["strategy"].isin(group_list)
-                    ]
-                    if not group_data.empty:
-                        # 按 target_col 降序排列，取数值最大的策略
-                        return group_data.sort_values(
-                            by=target_col, ascending=False
-                        ).iloc[0]["strategy"]
-                    return None
+            # 5. 对所有 8 个策略进行对齐：近 5 日有数据的取最新值，无数据的显式赋值 0
+            strat_score_map = {}
+            for strat in strategy_order:
+                match = df_latest_in_window[df_latest_in_window["strategy"] == strat]
+                if not match.empty:
+                    strat_score_map[strat] = match.iloc[0][target_col]
+                else:
+                    # 近 5 日无数据，指标设为 0
+                    strat_score_map[strat] = 0.0
 
-                # 4. 分别选出长、中、短期胜率最高者
-                best_long = get_best_strat_in_group(group_long)
-                best_mid = get_best_strat_in_group(group_mid)
-                best_short = get_best_strat_in_group(group_short)
+            # 6. 辅助函数：从给定的策略组中，根据对齐后的得分选出最高者
+            def get_best_strat_in_group(group_list):
+                # 按得分从大到小排序，得分相同（如都为0）时按组内默认顺序
+                best_strat = max(group_list, key=lambda s: strat_score_map.get(s, 0.0))
+                return best_strat
 
-                # 5. 组合成核心策略列表（过滤掉可能的 None）
-                core_strategies = [
-                    s for s in [best_long, best_mid, best_short] if s is not None
-                ]
+            # 7. 分别选出长、中、短期胜率最高者
+            best_long = get_best_strat_in_group(group_long)
+            best_mid = get_best_strat_in_group(group_mid)
+            best_short = get_best_strat_in_group(group_short)
+
+            core_strategies = [best_long, best_mid, best_short]
 
         # 如果最新一天数据全为空（边界保护），则 Fallback 回每组默认第 1 个策略
         if not core_strategies:
