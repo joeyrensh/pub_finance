@@ -798,17 +798,18 @@ class ChartBuilder:
             raise ValueError("trend_metric must be 'success_rate' or 'symbol_ratio'")
 
         if use_sma:
-            # 如果传的是 True，默认使用 20 个交易日窗口；如果传的是数字则用指定窗口
             window = 20 if isinstance(use_sma, bool) else use_sma
-            # min_periods=1 保证前几期数据不会变全 NaN，同时对空值做了滑动平均处理
-            df["trend_val"] = df.groupby("strategy")[target_col].transform(
+            # 1. 计算滑动平均
+            sma_series = df.groupby("strategy")[target_col].transform(
                 lambda x: x.rolling(window=window, min_periods=1).mean()
             )
+            # 2. 强行掩码：如果原始点是 NaN，平滑点也必须为 NaN，防止末尾无数据时假性拉平
+            df["trend_val"] = sma_series.where(df[target_col].notna())
         else:
             df["trend_val"] = df[target_col]
 
         # =========================
-        # 3. 策略顺序 & 线型样式
+        # 3. 策略分组与动态 Core 策略计算 (基于 trend_val 近5日窗口选优)
         # =========================
         strategy_order = [
             "多头排列",
@@ -820,22 +821,26 @@ class ChartBuilder:
             "红三兵",
             "连续上涨",
         ]
+
         # 策略分组定义
         group_long = ["多头排列", "突破年线"]
         group_mid = ["均线金叉", "均线收敛", "突破半年线"]
         group_short = ["成交量放大", "红三兵", "连续上涨"]
 
         core_strategies = []
-        if not df.empty and target_col in df.columns:
-            # 1. 确定全表最新日期基准（例如 '2026-08-03'）
+        # 核心改动：比较列直接使用计算好平滑值的 "trend_val"
+        compare_col = "trend_val" if "trend_val" in df.columns else target_col
+
+        if not df.empty and compare_col in df.columns:
+            # 1. 确定全表最新日期基准
             max_date = df["date"].max()
 
-            # 2. 限定近 5 日的时间窗口边界 (按交易日或自然日 5 天)
+            # 2. 限定近 5 日的时间窗口边界
             cutoff_date = max_date - pd.Timedelta(days=5)
 
-            # 3. 筛选在 [max_date - 5d, max_date] 范围内且指标非空的记录
+            # 3. 筛选近 5 日内且 trend_val 非空的记录
             df_recent = df[
-                (df["date"] >= cutoff_date) & (df[target_col].notna())
+                (df["date"] >= cutoff_date) & (df[compare_col].notna())
             ].copy()
 
             # 4. 获取每个策略在 5 日窗口内【最新一天】的数据
@@ -847,32 +852,37 @@ class ChartBuilder:
                     .reset_index()
                 )
             else:
-                df_latest_in_window = pd.DataFrame(columns=["strategy", target_col])
+                df_latest_in_window = pd.DataFrame(columns=["strategy", compare_col])
 
-            # 5. 对所有 8 个策略进行对齐：近 5 日有数据的取最新值，无数据的显式赋值 0
+            # 5. 构建 Score Map：读取 trend_val 并强转为原生 float 确保准确对比
             strat_score_map = {}
             for strat in strategy_order:
                 match = df_latest_in_window[df_latest_in_window["strategy"] == strat]
                 if not match.empty:
-                    strat_score_map[strat] = match.iloc[0][target_col]
+                    val = match.iloc[0][compare_col]
+                    try:
+                        strat_score_map[strat] = float(val) if pd.notna(val) else 0.0
+                    except (ValueError, TypeError):
+                        strat_score_map[strat] = 0.0
                 else:
-                    # 近 5 日无数据，指标设为 0
+                    # 近 5 日无有效 trend_val，设为 0.0
                     strat_score_map[strat] = 0.0
 
-            # 6. 辅助函数：从给定的策略组中，根据对齐后的得分选出最高者
+            # 6. 辅助函数：根据各策略最新的 trend_val 降序排序并选出最高者
             def get_best_strat_in_group(group_list):
-                # 按得分从大到小排序，得分相同（如都为0）时按组内默认顺序
-                best_strat = max(group_list, key=lambda s: strat_score_map.get(s, 0.0))
-                return best_strat
+                sorted_group = sorted(
+                    group_list, key=lambda s: strat_score_map.get(s, 0.0), reverse=True
+                )
+                return sorted_group[0]
 
-            # 7. 分别选出长、中、短期胜率最高者
+            # 7. 分别选出长、中、短期 trend_val 最高者
             best_long = get_best_strat_in_group(group_long)
             best_mid = get_best_strat_in_group(group_mid)
             best_short = get_best_strat_in_group(group_short)
 
             core_strategies = [best_long, best_mid, best_short]
 
-        # 如果最新一天数据全为空（边界保护），则 Fallback 回每组默认第 1 个策略
+        # 兜底保护
         if not core_strategies:
             core_strategies = [group_long[0], group_mid[0], group_short[0]]
 
