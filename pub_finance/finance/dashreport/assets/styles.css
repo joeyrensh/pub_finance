@@ -889,7 +889,7 @@ a:active { color: lightgrey; text-decoration: underline; }
 }
 
 .weight-slider-primary .rc-slider-track {
-    background-color: var(--flag-color);
+    background-color: #64748B;
     height:4px;
     touch-action: pan-y;
     pointer-events: none; 
