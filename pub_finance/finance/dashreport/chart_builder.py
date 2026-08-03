@@ -697,8 +697,11 @@ class ChartBuilder:
         df,
         theme="light",
         client_width=1440,
-        bar_metric="avg",  # 可选: 'pnl', 'cnt', 'avg', None
-        trend_metric="success_rate",  # 可选: 'success_rate', 'pnl', 'symbol_ratio'
+        bar_metric="future_pnl",  # 可选: 'pnl', 'cnt', 'avg', 'future_pnl', None
+        trend_metric="success_rate",  # 可选: 'success_rate', 'symbol_ratio'
+        future_pnl_col="pnl_5d_future_sum",  # 当 bar_metric 为 'future_pnl' 时使用
+        success_rate_col="success_rate_5d",  # 当 trend_metric 为 'success_rate' 时使用
+        use_sma=True,  # 新增: 是否对 trend_metric 使用 EMA 平滑曲线，可传 Bool 或 int(span)
     ):
         cfg = self.theme_config.get(theme, self.theme_config["light"])
         text_color = cfg["text_color"]
@@ -710,13 +713,16 @@ class ChartBuilder:
         )
 
         df = df.copy()
+        # 确保按日期和策略排序，保证 EMA / 时间序列计算正确
+        if "date" in df.columns and "strategy" in df.columns:
+            df["date"] = pd.to_datetime(df["date"])
+            df = df.sort_values(["strategy", "date"]).reset_index(drop=True)
 
         show_bar = bar_metric is not None
-        # 定义核心默认显示的策略
-        core_strategies = ["突破年线", "均线收敛", "成交量放大"]
+        # core_strategies = ["突破年线", "均线收敛", "成交量放大"]
 
         # =========================
-        # 数据预处理 (Bar 逻辑)
+        # 1. 数据预处理 (Bar 逻辑)
         # =========================
         if show_bar:
             if bar_metric == "pnl":
@@ -726,27 +732,40 @@ class ChartBuilder:
                 df["bar_pos"] = df["cnt"]
                 df["bar_neg"] = 0
             elif bar_metric == "avg":
-                df["avg"] = df["pnl"] / df["cnt"].replace(0, np.nan)
-                df["avg"] = df["avg"].fillna(0)
+                df["avg"] = (df["pnl"] / df["cnt"].replace(0, np.nan)).fillna(0)
                 df["bar_pos"] = df["avg"].clip(lower=0)
                 df["bar_neg"] = df["avg"].clip(upper=0)
+            elif bar_metric == "future_pnl":
+                if future_pnl_col not in df.columns:
+                    raise ValueError(
+                        f"future_pnl_col '{future_pnl_col}' does not exist in dataframe."
+                    )
+                df["bar_pos"] = df[future_pnl_col].clip(lower=0)
+                df["bar_neg"] = df[future_pnl_col].clip(upper=0)
             else:
-                raise ValueError("bar_metric must be 'pnl', 'cnt', 'avg', or None")
+                raise ValueError(
+                    "bar_metric must be 'pnl', 'cnt', 'avg', 'future_pnl', or None"
+                )
 
-            # 用于 Y2 轴 (Bar 轴) 范围计算
             df_pos = df.groupby("date")["bar_pos"].sum().reset_index()
             df_neg = df.groupby("date")["bar_neg"].sum().reset_index()
             max_pos = df_pos["bar_pos"].max() if not df_pos.empty else 0
             min_neg = df_neg["bar_neg"].min() if not df_neg.empty else 0
 
-            if bar_metric != "cnt":
-                threshold = df["success_rate"].quantile(0.1) if not df.empty else 0
-                min_success_rate = (
-                    df.loc[df["success_rate"] >= threshold, "success_rate"].min()
+            # 用指定的 success_rate 列做范围对齐参考
+            ref_rate_col = (
+                success_rate_col
+                if success_rate_col in df.columns
+                else "success_rate_5d"
+            )
+            if bar_metric != "cnt" and ref_rate_col in df.columns:
+                threshold = df[ref_rate_col].quantile(0.1) if not df.empty else 0
+                min_rate = (
+                    df.loc[df[ref_rate_col] >= threshold, ref_rate_col].min()
                     if not df.empty
                     else 0.2
                 )
-                safe_rate = max(min_success_rate, 0.2)
+                safe_rate = max(min_rate, 0.2)
                 max_range = (
                     min(2 * max_pos, max_pos * 2 / safe_rate)
                     if safe_rate > 0
@@ -757,38 +776,39 @@ class ChartBuilder:
                 max_range = max_pos * 2
                 min_range = 0
         else:
-            # 不显示 Bar 时给 Y2 轴设置默认范围兜底
             min_range, max_range = 0, 1
 
         # =========================
-        # 数据预处理 (Trend 逻辑控制)
+        # 2. 数据预处理 (Trend 逻辑控制 & 平滑)
         # =========================
         if trend_metric == "success_rate":
-            df["trend_val"] = df["ema_success_rate"]
-            hover_fmt = "<b>成功率</b>: %{y:.2%}"
-            y1_range = [0, 1]
-            y1_dtick = 1 / 3
-            y1_autorange = False
-        elif trend_metric == "symbol_ratio":
-            df["trend_val"] = df.get("ema_symbol_ratio", df["symbol_ratio"])
-            hover_fmt = "<b>股票占比</b>: %{y:.2%}"
-            # 关键改变：交由前端 Plotly 自动自适应范围（从 0 开始）
-            y1_range = None
-            y1_dtick = None
-            y1_autorange = True
-        elif trend_metric == "pnl":
-            df["trend_val"] = df["pnl"]
-            hover_fmt = "<b>盈亏金额</b>: %{y:,.0f}"
-            y1_range = None
-            y1_dtick = None
-            y1_autorange = True
-        else:
-            raise ValueError(
-                "trend_metric must be 'success_rate', 'symbol_ratio', or 'pnl'"
+            target_col = (
+                success_rate_col
+                if success_rate_col in df.columns
+                else "success_rate_5d"
             )
+            rate_label = "成功率(5日)" if "5d" in target_col else "成功率(1日)"
+            hover_fmt = f"<b>{rate_label}</b>: %{{y:.2%}}"
+            y1_range, y1_dtick, y1_autorange = [0, 1], 1 / 3, False
+        elif trend_metric == "symbol_ratio":
+            target_col = "symbol_ratio"
+            hover_fmt = "<b>股票占比</b>: %{y:.2%}"
+            y1_range, y1_dtick, y1_autorange = None, None, True
+        else:
+            raise ValueError("trend_metric must be 'success_rate' or 'symbol_ratio'")
+
+        if use_sma:
+            # 如果传的是 True，默认使用 20 个交易日窗口；如果传的是数字则用指定窗口
+            window = 20 if isinstance(use_sma, bool) else use_sma
+            # min_periods=1 保证前几期数据不会变全 NaN，同时对空值做了滑动平均处理
+            df["trend_val"] = df.groupby("strategy")[target_col].transform(
+                lambda x: x.rolling(window=window, min_periods=1).mean()
+            )
+        else:
+            df["trend_val"] = df[target_col]
 
         # =========================
-        # 策略顺序 & 线型样式
+        # 3. 策略顺序 & 线型样式
         # =========================
         strategy_order = [
             "多头排列",
@@ -800,6 +820,52 @@ class ChartBuilder:
             "红三兵",
             "连续上涨",
         ]
+        # 策略分组定义
+        group_long = ["多头排列", "突破年线"]
+        group_mid = ["均线金叉", "均线收敛", "突破半年线"]
+        group_short = ["成交量放大", "红三兵", "连续上涨"]
+
+        # --- 动态计算 core_strategies ---
+        core_strategies = []
+        if not df.empty and target_col in df.columns:
+            # 1. 过滤掉 target_col 为空/NaN 的记录
+            df_valid = df[df[target_col].notna()].copy()
+
+            if not df_valid.empty:
+                # 2. 核心修改：按策略分组，获取【每个策略各自最新一天】的有效数据记录
+                # 这样即使策略A最新数据在8月3日，策略B最新数据在7月30日，都能拿到各自最新的真实胜率
+                df_latest_per_strat = (
+                    df_valid.sort_values("date")
+                    .groupby("strategy")
+                    .last()
+                    .reset_index()
+                )
+
+                # 3. 辅助函数：从给定的策略组中，找到组内最新成功率最高的那一个策略
+                def get_best_strat_in_group(group_list):
+                    group_data = df_latest_per_strat[
+                        df_latest_per_strat["strategy"].isin(group_list)
+                    ]
+                    if not group_data.empty:
+                        # 按 target_col 降序排列，取数值最大的策略
+                        return group_data.sort_values(
+                            by=target_col, ascending=False
+                        ).iloc[0]["strategy"]
+                    return None
+
+                # 4. 分别选出长、中、短期胜率最高者
+                best_long = get_best_strat_in_group(group_long)
+                best_mid = get_best_strat_in_group(group_mid)
+                best_short = get_best_strat_in_group(group_short)
+
+                # 5. 组合成核心策略列表（过滤掉可能的 None）
+                core_strategies = [
+                    s for s in [best_long, best_mid, best_short] if s is not None
+                ]
+
+        # 如果最新一天数据全为空（边界保护），则 Fallback 回每组默认第 1 个策略
+        if not core_strategies:
+            core_strategies = [group_long[0], group_mid[0], group_short[0]]
 
         line_styles = [
             {"dash": "solid", "width": 1.5},
@@ -827,7 +893,7 @@ class ChartBuilder:
         fig = go.Figure()
 
         # =========================================================
-        # 1. 所有策略的 Bar（仅在 show_bar 为 True 时绘制）
+        # 4. 所有策略的 Bar（仅在 show_bar 为 True 时绘制）
         # =========================================================
         if show_bar:
             for strat in valid_strategies:
@@ -835,7 +901,7 @@ class ChartBuilder:
                 color = strategy_cfg[strat]["color"]
                 is_core = strat in core_strategies
 
-                if bar_metric in ["pnl", "avg"]:
+                if bar_metric in ["pnl", "avg", "future_pnl"]:
                     pos = data[data["bar_pos"] > 0]
                     neg = data[data["bar_neg"] < 0]
 
@@ -880,11 +946,11 @@ class ChartBuilder:
                     )
 
         # =========================================================
-        # 2. 所有策略的 Line（压在柱状图上方，根据 trend_metric 绘制）
+        # 5. 所有策略的 Line
         # =========================================================
         for strat in valid_strategies:
             data = df_sorted[df_sorted["strategy"] == strat]
-            cfg = strategy_cfg[strat]
+            cfg_item = strategy_cfg[strat]
             is_core = strat in core_strategies
 
             fig.add_trace(
@@ -893,22 +959,23 @@ class ChartBuilder:
                     y=data["trend_val"],
                     mode="lines",
                     name=strat,
+                    connectgaps=False,
                     visible=True if is_core or not show_bar else "legendonly",
                     line=dict(
-                        width=cfg["style"]["width"],
-                        dash=cfg["style"]["dash"],
+                        width=cfg_item["style"]["width"],
+                        dash=cfg_item["style"]["dash"],
                         shape="spline",
-                        color=cfg["color"],
+                        color=cfg_item["color"],
                     ),
                     yaxis="y",
                     hovertemplate=f"{strat} {hover_fmt}<extra></extra>",
                     legendgroup=strat,
-                    legendrank=cfg["rank"],
+                    legendrank=cfg_item["rank"],
                 )
             )
 
         # =========================
-        # Layout 配置
+        # 6. Layout 配置
         # =========================
         xmin = pd.to_datetime(df["date"].min())
         xmax = pd.to_datetime(df["date"].max())
@@ -932,7 +999,6 @@ class ChartBuilder:
             rangemode="tozero",
         )
 
-        # 动态应用 range 或 autorange
         if y1_autorange:
             yaxis_config["autorange"] = True
         elif y1_range is not None:

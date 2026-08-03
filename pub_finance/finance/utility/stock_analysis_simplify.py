@@ -228,8 +228,7 @@ class StockProposal:
             60, ToolKit.get_config("chart_display.minichart_time_range", default=60)
         )
         start_date = pd_timeseries.iloc[-chart_time_range]["buy_date"]
-        start_date_200 = pd_timeseries.iloc[-chart_time_range - 30]["buy_date"]
-        start_date_60 = pd_timeseries.iloc[-minichart_time_range]["buy_date"]
+        start_date_minichart = pd_timeseries.iloc[-minichart_time_range]["buy_date"]
         pd_timeseries = pd_timeseries.tail(chart_time_range)
 
         spark_timeseries = spark.createDataFrame(
@@ -388,7 +387,7 @@ class StockProposal:
                 -- 交叉生成“所有行业 x 所有日期”的标本网格，这才是对齐时序的标准做法
                 CROSS JOIN (SELECT DISTINCT industry FROM temp_industry_info) m
                 LEFT JOIN industry_daily_pnl i ON m.industry = i.industry AND t1.buy_date = i.date
-                WHERE t1.buy_date >= '{start_date_60}'
+                WHERE t1.buy_date >= '{start_date_minichart}'
             ),  tmp3 AS (
                 -- 3. 最终聚合：打包成结构体强行排序，彻底解决分布式乱序问题
                 SELECT 
@@ -1064,53 +1063,109 @@ class StockProposal:
         print("Tree Map-PnL生成完成...")
 
         # N天内策略交易概率
-        spark_strategy_tracking_lstndays = spark.sql(""" 
-            WITH tmp1 AS (
-                SELECT t1.date
-                    ,t1.symbol
-                    ,t1.pnl
-                    ,t1.strategy
-                    ,ROW_NUMBER() OVER(PARTITION BY t1.date, t1.symbol ORDER BY ABS(t1.date - t2.date) ASC) AS rn
-                FROM temp_position_detail t1 LEFT JOIN temp_transaction_detail t2 ON t1.symbol = t2.symbol AND t1.date >= t2.date AND t2.trade_type = 'buy'
-                WHERE t1.date >= '{}'
-            ),  tmp2 AS (
-                SELECT
-                    date
-                    ,symbol
-                    ,pnl
-                    ,strategy
-                    ,rn
-                    ,LAG(pnl) OVER (PARTITION BY symbol ORDER BY date) AS l_pnl
-                FROM tmp1
-                ORDER BY date, symbol
-            ) 
-            SELECT date
-                    ,strategy
-                    ,SUM(pnl) AS pnl
-                    ,COUNT(symbol) AS cnt
-                    ,COUNT(symbol) / SUM(COUNT(symbol)) OVER(PARTITION BY date) AS symbol_ratio
-                    ,IF(COUNT(symbol) > 0, SUM(CASE WHEN pnl - l_pnl > 0 THEN 1 ELSE 0 END) / COUNT(symbol), 0) AS success_rate_daily
-                    ,IF(COUNT(symbol) > 0, SUM(CASE WHEN pnl > 0 THEN 1 ELSE 0 END) / COUNT(symbol), 0) AS success_rate
-            FROM tmp2
-            WHERE rn = 1
-            GROUP BY date, strategy
-            ORDER BY date, pnl
-            """.format(start_date_200))
+        spark_strategy_tracking_lstndays = spark.sql(f"""
+            WITH tmp_trades AS (
+                SELECT 
+                    symbol,
+                    buy_date,
+                    COALESCE(sell_date, '9999-12-31') AS sell_date,
+                    CONCAT(symbol, '_', buy_date) AS trade_id
+                FROM temp_transaction_logs
+            ),
+            tmp_base AS (
+                SELECT 
+                    p.date,
+                    p.symbol,
+                    p.strategy,
+                    p.price,     -- 开仓买入价
+                    p.adjbase,   -- 当日最新价格
+                    p.shares,    -- 当日持仓股数
+                    t.trade_id,                    
+                    -- 1. fwd_adjbase_1d 逻辑：
+                    -- 若 p.date 等于 {end_date}，则返回 NULL；否则取未来第 1 天的 adjbase
+                    CASE 
+                        WHEN p.date = '{end_date}' THEN NULL 
+                        ELSE LEAD(p.adjbase, 1) OVER (PARTITION BY p.symbol, t.trade_id ORDER BY p.date) 
+                    END AS fwd_adjbase_1d,                    
+                    -- 2. fwd_adjbase_5d 动态 Fallback 逻辑：
+                    -- 如果未来 5 天内已平仓/触及 end_date，则自动取这期间可用的【最后一个交易日】的价格（有几天算几天）
+                    LAST_VALUE(p.adjbase) OVER (
+                        PARTITION BY p.symbol, t.trade_id 
+                        ORDER BY p.date 
+                        ROWS BETWEEN 1 FOLLOWING AND 5 FOLLOWING
+                    ) AS fwd_adjbase_5d
+                FROM temp_position_detail p
+                INNER JOIN tmp_trades t
+                    ON p.symbol = t.symbol
+                   AND p.date >= t.buy_date 
+                   AND p.date <= t.sell_date
+                WHERE p.date >= '{start_date}'
+                  AND p.date <= '{end_date}'
+            ),
+            tmp_signals AS (
+                SELECT 
+                    date,
+                    symbol,
+                    strategy,
+                    trade_id,
+                    -- 1. T 日当天的持仓浮动总 PnL金额 = (当前价 - 买入价) * 股数
+                    (adjbase - price) * shares AS pnl_curr,                                        
+                    -- 2. T+1 日的前瞻 PnL 变化金额 = (T+1日价格 - T日价格) * 股数
+                    (fwd_adjbase_1d - adjbase) * shares AS fwd_pnl_1d_diff,                    
+                    -- 3. T+5 日的前瞻 PnL 变化金额 = (T+5日价格 - T日价格) * 股数
+                    (fwd_adjbase_5d - adjbase) * shares AS fwd_pnl_5d_diff,                    
+                    -- 4. 未来 5 天收益率 % （价格变动百分比，与股数无关）
+                    (fwd_adjbase_5d - adjbase) / adjbase AS fwd_ret_5d,                    
+                    -- 5. 未来 1 天收益率 % （与股数无关）
+                    (fwd_adjbase_1d - adjbase) / adjbase AS fwd_ret_1d,                                        
+                    -- 6. 判定未来 5 天是否盈利 (未到期/已平仓无数据时记为 NULL)
+                    CASE WHEN fwd_adjbase_5d > adjbase THEN 1 WHEN fwd_adjbase_5d IS NULL THEN NULL ELSE 0 END AS is_win_5d,                    
+                    -- 7. 判定未来 1 天是否盈利
+                    CASE WHEN fwd_adjbase_1d > adjbase THEN 1 WHEN fwd_adjbase_1d IS NULL THEN NULL ELSE 0 END AS is_win_1d
+                FROM tmp_base
+            ),
+            -- 4. 每日策略维度聚合统计
+            tmp_daily_agg AS (
+                SELECT 
+                    date,
+                    strategy,
+                    COUNT(symbol) AS cnt,                    
+                    -- T日当天的持仓总 PnL
+                    SUM(pnl_curr) AS pnl_total_curr,                    
+                    -- 未来 1 日该策略带来的【总绝对盈亏金额】与【单票平均绝对盈亏金额】
+                    SUM(fwd_pnl_1d_diff) AS pnl_1d_future_sum,
+                    AVG(fwd_pnl_1d_diff) AS pnl_1d_future_avg,                    
+                    -- 未来 5 日该策略带来的【总绝对盈亏金额】与【单票平均绝对盈亏金额】
+                    SUM(fwd_pnl_5d_diff) AS pnl_5d_future_sum,
+                    AVG(fwd_pnl_5d_diff) AS pnl_5d_future_avg,                    
+                    -- 未来胜率统计
+                    try_divide(SUM(is_win_5d), NULLIF(COUNT(is_win_5d), 0)) AS success_rate_5d,
+                    try_divide(SUM(is_win_1d), NULLIF(COUNT(is_win_1d), 0)) AS success_rate_1d
+                FROM tmp_signals
+                GROUP BY date, strategy
+            )
+            SELECT 
+                date,
+                strategy,
+                cnt AS cnt,
+                cnt / SUM(cnt) OVER(PARTITION BY date) AS symbol_ratio,
+                pnl_total_curr AS pnl,
+                pnl_1d_future_sum AS pnl_1d_future_sum,
+                pnl_1d_future_avg AS pnl_1d_future_avg,
+                pnl_5d_future_sum AS pnl_5d_future_sum,
+                pnl_5d_future_avg AS pnl_5d_future_avg,
+                ROUND(success_rate_1d, 4) AS success_rate_1d,
+                ROUND(success_rate_5d, 4) AS success_rate_5d
+            FROM tmp_daily_agg
+            ORDER BY date, pnl_5d_future_sum DESC
+            """)
         pd_strategy_tracking_lstndays = spark_strategy_tracking_lstndays.toPandas()
         pd_strategy_tracking_lstndays["date"] = pd.to_datetime(
             pd_strategy_tracking_lstndays["date"]
         ).dt.date
-        pd_strategy_tracking_lstndays["ema_success_rate"] = (
-            pd_strategy_tracking_lstndays["success_rate"]
-            .ewm(span=20, adjust=False)
-            .mean()
-        )
         pd_strategy_tracking_lstndays = pd_strategy_tracking_lstndays[
             pd_strategy_tracking_lstndays["date"] >= pd.to_datetime(start_date).date()
         ]
-        pd_strategy_tracking_lstndays_group = (
-            pd_strategy_tracking_lstndays.groupby("date")["pnl"].sum().reset_index()
-        )  # 按日期分组并求和
         # 导出 CSV 供 Dash 使用
         try:
             pd_strategy_tracking_lstndays.to_csv(
