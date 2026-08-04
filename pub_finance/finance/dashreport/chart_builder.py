@@ -806,6 +806,13 @@ class ChartBuilder:
         if "date" in df.columns and "strategy" in df.columns:
             df["date"] = pd.to_datetime(df["date"])
             df = df.sort_values(["strategy", "date"]).reset_index(drop=True)
+            if (
+                bar_metric == "future_pnl"
+                and trend_metric == "success_rate"
+                and not df.empty
+            ):
+                last_date = df["date"].max()
+                df = df[df["date"] < last_date].reset_index(drop=True)
 
         show_bar = bar_metric is not None
 
@@ -1327,7 +1334,7 @@ class ChartBuilder:
             hoverformat="%Y-%m-%d",
             range=[
                 xmin - timedelta(days=0.5),
-                xmax + timedelta(days=-0.5),
+                xmax + timedelta(days=0.5),
             ],
         )
         if y2_dtick is not None:
