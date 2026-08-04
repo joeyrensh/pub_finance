@@ -1315,6 +1315,8 @@ class ChartBuilder:
             tickangle=0,
             showline=False,
             zeroline=False,
+            domain=[0.0, 1.0],
+            rangeslider=dict(visible=False),
             linecolor=grid_color,
             linewidth=1,
             gridcolor=grid_color,
@@ -1325,7 +1327,7 @@ class ChartBuilder:
             hoverformat="%Y-%m-%d",
             range=[
                 xmin - timedelta(days=0.5),
-                xmax + timedelta(days=0.5),
+                xmax + timedelta(days=-0.5),
             ],
         )
         if y2_dtick is not None:
