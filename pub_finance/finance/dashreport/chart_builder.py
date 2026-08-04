@@ -1278,6 +1278,36 @@ class ChartBuilder:
             yaxis_config["dtick"] = y1_dtick
 
         y2_tickfmt = "%" if is_ratio_metric else "~s"
+        # 1. 针对比例/收益率类型的 Bar 图设置合理的 dtick
+        y2_dtick = None
+        if show_bar and is_ratio_metric:
+            # 方式 1：如果区间较小（如 20% 以内），设为 0.05 (5% 一个刻度)
+            # 方式 2：如果想切成 3 段，用 (max_range - min_range) / 3
+            span = max_range - min_range
+            y2_dtick = span / 3 if span > 0 else 0.05
+
+        yaxis2_config = dict(
+            domain=y2_domain,
+            side="right",
+            showgrid=True,
+            gridcolor=grid_color,
+            gridwidth=0.5,
+            tickfont=dict(
+                family=self.font_family,
+                size=base_font_size,
+                color=text_color,
+            ),
+            showline=False,
+            zeroline=True,
+            zerolinecolor=grid_color,
+            zerolinewidth=0.5,
+            range=[min_range, max_range],
+            tickformat=y2_tickfmt,
+            layer="below traces",
+            ticklabelposition="inside",
+            showticklabels=False,
+            ticks="",
+        )
 
         common_xaxis_args = dict(
             mirror=False,
@@ -1298,6 +1328,8 @@ class ChartBuilder:
                 xmax + timedelta(days=0.5),
             ],
         )
+        if y2_dtick is not None:
+            yaxis2_config["dtick"] = y2_dtick
 
         fig.update_layout(
             xaxis=dict(
@@ -1318,26 +1350,7 @@ class ChartBuilder:
                 ),
             ),
             yaxis=yaxis_config,
-            yaxis2=dict(
-                domain=y2_domain,
-                side="right",
-                showgrid=False,
-                tickfont=dict(
-                    family=self.font_family,
-                    size=base_font_size,
-                    color=text_color,
-                ),
-                showline=False,
-                zeroline=True,
-                zerolinecolor=grid_color,
-                zerolinewidth=0.8,
-                range=[min_range, max_range],
-                tickformat=y2_tickfmt,
-                layer="below traces",
-                ticklabelposition="inside",
-                showticklabels=False,
-                ticks="",
-            ),
+            yaxis2=yaxis2_config,
             legend=dict(
                 orientation="v",
                 x=0,
