@@ -798,6 +798,9 @@ class ChartBuilder:
         scale, base_font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.05
         )
+        unified_scale, unified_font_size = self._get_font_sizes(
+            client_width, base_font=16, min_scale=0.65, max_scale=1.05
+        )
 
         df = df.copy()
         if "date" in df.columns and "strategy" in df.columns:
@@ -1222,7 +1225,9 @@ class ChartBuilder:
                             yaxis="y",
                             mode="markers+text",
                             marker=dict(
-                                symbol="circle", size=5, color=cfg_item["color"]
+                                symbol="circle",
+                                size=6 * unified_scale,
+                                color=cfg_item["color"],
                             ),
                             text=[f"{max_val_str}"],
                             textposition=smart_pos,
@@ -1290,7 +1295,7 @@ class ChartBuilder:
             hoverformat="%Y-%m-%d",
             range=[
                 xmin - timedelta(days=0.5),
-                xmax + timedelta(days=0.5),  # 维持标准的 0.5 天微调，不额外留空
+                xmax + timedelta(days=0.5),
             ],
         )
 
@@ -1354,7 +1359,7 @@ class ChartBuilder:
             bargroupgap=0.2,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            margin=dict(t=0, b=5, l=0, r=0),  # 👈 保持贴边设置 (r=0)
+            margin=dict(t=0, b=5, l=0, r=0),
             autosize=True,
             dragmode=False,
             hovermode="x",
