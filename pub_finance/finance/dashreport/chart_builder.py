@@ -758,19 +758,14 @@ class ChartBuilder:
                 df["bar_pos"] = df[future_pnl_col].clip(lower=0)
                 df["bar_neg"] = df[future_pnl_col].clip(upper=0)
 
-                # ----------------------------------------------------
-                # A. 动态解析 Label 与 数据类型（区分比率与金额）
-                # ----------------------------------------------------
                 col_lower = future_pnl_col.lower()
 
-                # 1. 解析时间周期
                 day_prefix = ""
                 if "1d" in col_lower:
                     day_prefix = "1日"
                 elif "5d" in col_lower:
                     day_prefix = "5日"
 
-                # 3. 构建最自然的 Hover 标签
                 if is_ratio_metric:
                     metric_label = (
                         f"{day_prefix}预期收益率" if day_prefix else "预期收益率"
@@ -786,62 +781,24 @@ class ChartBuilder:
                 )
 
             # ----------------------------------------------------
-            # B. 计算 Y2 轴的物理显示范围 (Range) - by strategy 防压缩与全场景对齐
+            # B. 计算 Y2 轴范围
             # ----------------------------------------------------
-            # 1. 提取单策略单日的最大正值与最小负值 (反映单个策略柱子的真实物理量级)
-            single_max_pos = df["bar_pos"].max() if not df.empty else 0
-            single_min_neg = df["bar_neg"].min() if not df.empty else 0
-
-            # 2. 提取多策略同一天堆叠后的总和
             df_pos_sum = df.groupby("date")["bar_pos"].sum()
             df_neg_sum = df.groupby("date")["bar_neg"].sum()
 
-            stacked_max_pos = df_pos_sum.max() if not df_pos_sum.empty else 0
-            stacked_min_neg = df_neg_sum.min() if not df_neg_sum.empty else 0
-
-            # 3. 极值计算策略：
-            # 以“单策略最大值的 2.0 倍”与“真实堆叠最大值”取较小者，
-            # 既给多策略堆叠留出一定视觉空间，又绝对防止 sum 指标把坐标轴撑得太大导致柱子变短小。
-            if stacked_max_pos > 0:
-                max_pos = min(
-                    stacked_max_pos, max(single_max_pos * 2.0, single_max_pos)
-                )
-            else:
-                max_pos = 0
-
-            if stacked_min_neg < 0:
-                min_neg = max(
-                    stacked_min_neg, min(single_min_neg * 2.0, single_min_neg)
-                )
-            else:
-                min_neg = 0
+            max_pos = df_pos_sum.max() if not df_pos_sum.empty else 0
+            min_neg = df_neg_sum.min() if not df_neg_sum.empty else 0
 
             if bar_metric == "cnt":
-                # 场景 1：持仓数量场景 (仅有正数，从 0 开始，留 2 倍顶部空间防止柱子太高)
-                max_range = max_pos * 2 if max_pos > 0 else 10
+                max_range = max_pos * 1.1 if max_pos > 0 else 10
                 min_range = 0
             else:
-                # 场景 2：收益率(比率) 与 绝对金额(PnL) 统一处理
-                # 目标：将 0 轴固定映射到图表垂直高度的 15% 处 (底部 15% 处)
-                zero_anchor = 0.15  # 0 轴高度比例 15%
-
-                # 设定防崩塌的最小绝对数值（比率设 0.005 即 0.5%，金额设 1.0 即 1元）
                 min_floor = 0.005 if is_ratio_metric else 1.0
                 safe_max_pos = max(max_pos, min_floor)
                 safe_abs_neg = max(abs(min_neg), min_floor)
 
-                # 1. 根据 15% 锚点反推：正向最大值需要的全量量程 (占用 85% 空间)
-                range_top_from_pos = safe_max_pos / (1.0 - zero_anchor)
-
-                # 2. 根据 15% 锚点反推：负向最大值需要的全量量程 (占用 15% 空间)
-                range_top_from_neg = safe_abs_neg / zero_anchor
-
-                # 3. 取两者最大比例，保证正负两端柱子都不穿界
-                unified_scale = max(range_top_from_pos, range_top_from_neg)
-
-                # 4. 计算 Y2 轴最终的上下限 bounds
-                max_range = unified_scale * (1.0 - zero_anchor)
-                min_range = -unified_scale * zero_anchor
+                max_range = safe_max_pos * 1.10
+                min_range = -safe_abs_neg * 1.10
         else:
             min_range, max_range = 0, 1
 
@@ -867,19 +824,15 @@ class ChartBuilder:
         if use_ema:
             span = 20 if isinstance(use_ema, bool) else use_ema
 
-            # 使用 Exponential Weighted Moving Average (EMA) 替换 SMA
             smooth_series = df.groupby("strategy")[target_col].transform(
                 lambda x: x.ewm(span=span, adjust=False).mean()
             )
-
-            # 掩码保护：原数据为 NaN 时平滑值也为 NaN，防止末尾无数据时假性拉平
-            df["trend_val"] = smooth_series
-            # df["trend_val"] = smooth_series.where(df[target_col].notna())
+            df["trend_val"] = smooth_series.where(df[target_col].notna())
         else:
             df["trend_val"] = df[target_col]
 
         # =========================
-        # 3. 策略分组与动态 Core 策略计算 (基于 trend_val 近5日窗口选优)
+        # 3. 策略分组与动态 Core 策略计算
         # =========================
         strategy_order = [
             "多头排列",
@@ -892,7 +845,6 @@ class ChartBuilder:
             "连续上涨",
         ]
 
-        # 策略分组定义
         group_long = ["多头排列", "突破年线"]
         group_mid = ["均线金叉", "均线收敛", "突破半年线"]
         group_short = ["成交量放大", "红三兵", "连续上涨"]
@@ -901,16 +853,13 @@ class ChartBuilder:
         compare_col = "trend_val" if "trend_val" in df.columns else target_col
 
         if not df.empty and compare_col in df.columns:
-            # 1. 确定全表最新日期基准与 5 日窗口
             max_date = df["date"].max()
             cutoff_date = max_date - pd.Timedelta(days=5)
 
-            # 2. 筛选窗口内且 trend_val 非空的记录
             df_recent = df[
                 (df["date"] >= cutoff_date) & (df[compare_col].notna())
             ].copy()
 
-            # 3. 提取窗口内各策略最新一天的数据
             if not df_recent.empty:
                 df_latest_in_window = (
                     df_recent.sort_values("date")
@@ -921,7 +870,6 @@ class ChartBuilder:
             else:
                 df_latest_in_window = pd.DataFrame(columns=["strategy", compare_col])
 
-            # 4. 构建 Score Map (读取 trend_val 强转 float 确保准确排序)
             strat_score_map = {}
             for strat in strategy_order:
                 match = df_latest_in_window[df_latest_in_window["strategy"] == strat]
@@ -934,7 +882,6 @@ class ChartBuilder:
                 else:
                     strat_score_map[strat] = 0.0
 
-            # 5. 组内最高分策略提取逻辑
             def get_best_strat_in_group(group_list):
                 sorted_group = sorted(
                     group_list, key=lambda s: strat_score_map.get(s, 0.0), reverse=True
@@ -947,7 +894,6 @@ class ChartBuilder:
 
             core_strategies = [best_long, best_mid, best_short]
 
-        # 兜底保护
         if not core_strategies:
             core_strategies = [group_long[0], group_mid[0], group_short[0]]
 
@@ -977,7 +923,7 @@ class ChartBuilder:
         fig = go.Figure()
 
         # =========================================================
-        # 4. 所有策略的 Bar (仅在 show_bar 为 True 时绘制)
+        # 4. 所有策略的 Bar (关键修改：绑定 xaxis="x2", yaxis="y2")
         # =========================================================
         if show_bar:
             for strat in valid_strategies:
@@ -994,12 +940,12 @@ class ChartBuilder:
                             go.Bar(
                                 x=pos["date"],
                                 y=pos["bar_pos"],
-                                yaxis="y2",
+                                xaxis="x2",  # 显式映射到下半区的 X 轴
+                                yaxis="y2",  # 显式映射到下半区的 Y 轴
                                 marker=dict(color=color, line=dict(color=color)),
                                 showlegend=False,
                                 legendgroup=strat,
                                 hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
-                                # hoverinfo="skip",
                                 visible=True if is_core else "legendonly",
                             )
                         )
@@ -1008,12 +954,12 @@ class ChartBuilder:
                             go.Bar(
                                 x=neg["date"],
                                 y=neg["bar_neg"],
-                                yaxis="y2",
+                                xaxis="x2",  # 显式映射到下半区的 X 轴
+                                yaxis="y2",  # 显式映射到下半区的 Y 轴
                                 marker=dict(color=color, line=dict(color=color)),
                                 showlegend=False,
                                 legendgroup=strat,
                                 hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
-                                # hoverinfo="skip",
                                 visible=True if is_core else "legendonly",
                             )
                         )
@@ -1022,18 +968,18 @@ class ChartBuilder:
                         go.Bar(
                             x=data["date"],
                             y=data["bar_pos"],
-                            yaxis="y2",
+                            xaxis="x2",  # 显式映射到下半区的 X 轴
+                            yaxis="y2",  # 显式映射到下半区的 Y 轴
                             marker=dict(color=color, line=dict(color=color)),
                             showlegend=False,
                             legendgroup=strat,
                             hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
-                            # hoverinfo="skip",
                             visible=True if is_core else "legendonly",
                         )
                     )
 
         # =========================================================
-        # 5. 所有策略的 Line
+        # 5. 所有策略的 Line (绑定 xaxis="x", yaxis="y")
         # =========================================================
         for strat in valid_strategies:
             data = df_sorted[df_sorted["strategy"] == strat]
@@ -1054,7 +1000,8 @@ class ChartBuilder:
                         shape="spline",
                         color=cfg_item["color"],
                     ),
-                    yaxis="y",
+                    xaxis="x",  # 映射到上半区 X 轴
+                    yaxis="y",  # 映射到上半区 Y 轴
                     hovertemplate=f"{strat} {hover_fmt}<extra></extra>",
                     legendgroup=strat,
                     legendrank=cfg_item["rank"],
@@ -1062,12 +1009,16 @@ class ChartBuilder:
             )
 
         # =========================
-        # 6. Layout 配置
+        # 6. Layout 配置 (通过 Subplot 联动完美的 Hover 与底座 X 轴)
         # =========================
         xmin = pd.to_datetime(df["date"].min())
         xmax = pd.to_datetime(df["date"].max())
 
+        y1_domain = [0.35, 1.0] if show_bar else [0.0, 1.0]
+        y2_domain = [0.0, 0.35]
+
         yaxis_config = dict(
+            domain=y1_domain,
             side="left",
             mirror=False,
             ticklabelposition="inside",
@@ -1094,38 +1045,53 @@ class ChartBuilder:
         if y1_dtick is not None:
             yaxis_config["dtick"] = y1_dtick
 
-        # 区分百分比比率与绝对金额的 y2 格式化
         y2_tickfmt = "%" if is_ratio_metric else "~s"
 
+        # 核心设置：定义上半区 X 轴 (xaxis) 与下半区 X 轴 (xaxis2)
+        common_xaxis_args = dict(
+            mirror=False,
+            automargin=False,
+            tickangle=0,
+            showline=False,
+            zeroline=False,
+            linecolor=grid_color,
+            linewidth=1,
+            gridcolor=grid_color,
+            gridwidth=0.5,
+            tickmode="linear",
+            dtick="M1",
+            tickformat="%Y-%m",
+            hoverformat="%Y-%m-%d",
+            range=[
+                xmin - timedelta(days=0.5),
+                xmax + timedelta(days=0.5),
+            ],
+        )
+
         fig.update_layout(
+            # 上半区 X 轴：隐藏 ticklabels，专为折线服务
             xaxis=dict(
-                mirror=False,
-                automargin=False,
-                tickangle=0,
+                **common_xaxis_args,
+                anchor="y",
+                showticklabels=False,
+            ),
+            # 下半区 X 轴：显示在最底部，负责底部的日期标签
+            xaxis2=dict(
+                **common_xaxis_args,
+                anchor="y2",
+                side="bottom",
+                showticklabels=True,
+                matches="x",  # 关联范围，拖拽或缩放时上下 X 轴联动
                 tickfont=dict(
                     family=self.font_family,
                     size=base_font_size,
                     color=text_color,
                 ),
-                showline=False,
-                zeroline=False,
-                linecolor=grid_color,
-                linewidth=1,
-                gridcolor=grid_color,
-                gridwidth=0.5,
-                tickmode="linear",
-                dtick="M1",
-                tickformat="%Y-%m",
-                hoverformat="%Y-%m-%d",
-                range=[
-                    xmin - timedelta(days=0.5),
-                    xmax + timedelta(days=0.5),
-                ],
             ),
             yaxis=yaxis_config,
             yaxis2=dict(
+                domain=y2_domain,
                 side="right",
-                overlaying="y",
                 showgrid=False,
                 tickfont=dict(
                     family=self.font_family,
@@ -1133,11 +1099,11 @@ class ChartBuilder:
                     color=text_color,
                 ),
                 showline=False,
-                zeroline=False,
+                zeroline=True,
+                zerolinecolor=grid_color,
+                zerolinewidth=0.8,
                 range=[min_range, max_range],
                 tickformat=y2_tickfmt,
-                anchor="free",
-                position=0.95,
                 layer="below traces",
                 ticklabelposition="inside",
                 showticklabels=False,
@@ -1167,7 +1133,7 @@ class ChartBuilder:
             margin=dict(t=0, b=5, l=0, r=0),
             autosize=True,
             dragmode=False,
-            hovermode="x",
+            hovermode="x",  # 同时唤醒相同 X 日期下的所有 Trace（跨 x 和 x2 轴同步响应）
             hoverlabel=dict(font_size=base_font_size),
         )
         return fig

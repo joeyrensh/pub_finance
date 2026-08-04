@@ -32,7 +32,7 @@
         "up_days": 0.5
     },
     "chart_display": {
-        "chart_time_range": 100,
+        "chart_time_range": 90,
         "minichart_time_range": 60
     }
 }
