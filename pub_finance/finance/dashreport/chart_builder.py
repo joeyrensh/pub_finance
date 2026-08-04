@@ -874,16 +874,31 @@ class ChartBuilder:
             max_pos = df_pos_sum.max() if not df_pos_sum.empty else 0
             min_neg = df_neg_sum.min() if not df_neg_sum.empty else 0
 
+            # =========================================================
+            # Y 轴 Range 计算逻辑 (加入 10% 缓冲区与 Ratio 精确控制)
+            # =========================================================
             if bar_metric == "cnt":
-                max_range = max_pos * 1.20 if max_pos > 0 else 10
+                max_range = max_pos * 1.1 if max_pos > 0 else 10
                 min_range = 0
             else:
-                min_floor = 0.005 if is_ratio_metric else 1.0
-                safe_max_pos = max(max_pos, min_floor)
-                safe_abs_neg = max(abs(min_neg), min_floor)
+                if is_ratio_metric:
+                    if max_pos > 0:
+                        max_range = min(1.0, max_pos * 1.10)
+                    else:
+                        max_range = 0.01  # 全负数时，给上方留一点空间，防止标注被裁
 
-                max_range = safe_max_pos * 1.20
-                min_range = -safe_abs_neg * 1.20
+                    if min_neg < 0:
+                        min_range = max(-1.0, min_neg * 1.10)
+                    else:
+                        min_range = 0.0  # 全正数时，0轴直接贴底
+                else:
+                    # 普通金额 (PnL, Avg) 类型
+                    min_floor = 1.0
+                    safe_max_pos = max(max_pos, min_floor)
+                    safe_abs_neg = max(abs(min_neg), min_floor)
+
+                    max_range = safe_max_pos * 1.10
+                    min_range = -safe_abs_neg * 1.10
         else:
             min_range, max_range = 0, 1
 
@@ -898,14 +913,13 @@ class ChartBuilder:
             )
             rate_label = "成功率(5日)" if "5d" in target_col else "成功率(1日)"
             hover_fmt = f"<b>{rate_label}</b>: %{{y:.2%}}"
-            y1_range, y1_dtick, y1_autorange = [0, 1.15], 1 / 3, False
         elif trend_metric == "symbol_ratio":
             target_col = "symbol_ratio"
             hover_fmt = "<b>股票占比</b>: %{y:.2%}"
-            y1_range, y1_dtick, y1_autorange = None, None, True
         else:
             raise ValueError("trend_metric must be 'success_rate' or 'symbol_ratio'")
 
+        # 1. 优先生成实际用于绘图的 trend_val 列
         if use_ema:
             span = 20 if isinstance(use_ema, bool) else use_ema
             smooth_series = df.groupby("strategy")[target_col].transform(
@@ -914,6 +928,31 @@ class ChartBuilder:
             df["trend_val"] = smooth_series.where(df[target_col].notna())
         else:
             df["trend_val"] = df[target_col]
+
+        # 2. 根据实际上图的 trend_val 评估 Y 轴 Range
+        if trend_metric == "success_rate":
+            # 过滤掉 dropna 和可能的异常 0 值（仅针对正常波动区间评估）
+            valid_rates = df["trend_val"].dropna()
+
+            if not valid_rates.empty:
+                raw_min = valid_rates.min()
+                raw_max = valid_rates.max()
+
+                # 基于平滑后的真实起伏，设置 10%~15% 的紧致缓冲区
+                if raw_max >= 1.0:
+                    y1_max = 1.1
+                else:
+                    y1_max = min(1.0, raw_max * 1.1)
+
+                y1_min = max(0.0, raw_min * 0.9)
+                y1_dtick = (y1_max - y1_min) / 3
+            else:
+                y1_min, y1_max, y1_dtick = 0.0, 1.1, 1 / 3
+
+            y1_range = [y1_min, y1_max]
+            y1_autorange = False
+        else:  # symbol_ratio
+            y1_range, y1_dtick, y1_autorange = None, None, True
 
         # =========================
         # 3. 策略分组与 Core 策略计算
@@ -1192,14 +1231,14 @@ class ChartBuilder:
                     line=dict(
                         width=cfg_item["style"]["width"],
                         dash=cfg_item["style"]["dash"],
-                        shape="spline",
                         color=cfg_item["color"],
                     ),
                     xaxis="x",
-                    yaxis="y",
+                    yaxis="y1",
                     hovertemplate=f"{strat} {hover_fmt}<extra></extra>",
                     legendgroup=strat,
                     legendrank=cfg_item["rank"],
+                    cliponaxis=False,
                 )
             )
 
@@ -1272,24 +1311,23 @@ class ChartBuilder:
             zeroline=False,
             gridcolor=grid_color,
             gridwidth=0.5,
-            fixedrange=True,
-            rangemode="tozero",
+            automargin=False,
         )
 
         if y1_autorange:
             yaxis_config["autorange"] = True
         elif y1_range is not None:
+            yaxis_config["autorange"] = False
             yaxis_config["range"] = y1_range
 
         if y1_dtick is not None:
+            yaxis_config["tickmode"] = "linear"
             yaxis_config["dtick"] = y1_dtick
 
         y2_tickfmt = "%" if is_ratio_metric else "~s"
         # 1. 针对比例/收益率类型的 Bar 图设置合理的 dtick
         y2_dtick = None
         if show_bar and is_ratio_metric:
-            # 方式 1：如果区间较小（如 20% 以内），设为 0.05 (5% 一个刻度)
-            # 方式 2：如果想切成 3 段，用 (max_range - min_range) / 3
             span = max_range - min_range
             y2_dtick = span / 3 if span > 0 else 0.05
 
