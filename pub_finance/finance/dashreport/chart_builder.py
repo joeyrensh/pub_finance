@@ -691,6 +691,90 @@ class ChartBuilder:
 
         return hover_lines
 
+    # =========================================================
+    # 1. 边缘防截断：智能文本位置计算（保持 r=0 贴边）
+    # =========================================================
+    @staticmethod
+    def _get_smart_textposition(x_val, xmin, xmax, default_pos="top center"):
+        """
+        如果数据点落在时间轴最右侧 10% 区域，文本强行改用 left 方向（向左延伸），避免右侧被截断
+        如果数据点落在时间轴最左侧 10% 区域，文本强行改用 right 方向（向右延伸）
+        """
+        if pd.isna(x_val) or pd.isna(xmin) or pd.isna(xmax):
+            return default_pos
+
+        total_days = (xmax - xmin).days
+        if total_days <= 0:
+            return default_pos
+
+        current_offset = (x_val - xmin).days
+        ratio = current_offset / total_days
+
+        # 最右侧 10% 区域：强行左靠 (top left / bottom left / middle left)
+        if ratio >= 0.90:
+            if "top" in default_pos:
+                return "top left"
+            elif "bottom" in default_pos:
+                return "bottom left"
+            return "middle left"
+        # 最左侧 10% 区域：强行右靠
+        elif ratio <= 0.10:
+            if "top" in default_pos:
+                return "top right"
+            elif "bottom" in default_pos:
+                return "bottom right"
+            return "middle right"
+
+        return default_pos
+
+    @staticmethod
+    def _filter_overlapping_maxima(
+        max_points,
+        date_threshold_days=15,
+        val_threshold_pct=0.10,
+        val_threshold_abs=0.05,
+    ):
+        if not max_points:
+            return set()
+
+        # 按绝对值从大到小排序
+        sorted_points = sorted(max_points, key=lambda p: abs(p["y"]), reverse=True)
+        kept_points = []
+
+        for pt in sorted_points:
+            has_conflict = False
+            for kept in kept_points:
+                # 1. 计算日期天数差
+                day_diff = abs((pt["x"] - kept["x"]).days)
+
+                # 2. 计算数值绝对差与相对差
+                abs_diff = abs(pt["y"] - kept["y"])
+                base_val = max(abs(kept["y"]), abs(pt["y"]))
+                rel_diff = abs_diff / base_val if base_val != 0 else 0
+
+                # -------------------------------------------------------------
+                # 碰撞判定逻辑重构：
+                # 如果是百分比/比例数据（y 绝对值小于等于 1.5），强制使用绝对差 val_threshold_abs 判定
+                # -------------------------------------------------------------
+                if abs(pt["y"]) <= 1.5:  # 判定为百分比/比例数据
+                    is_val_conflict = abs_diff <= val_threshold_abs
+                else:  # 普通大数值（如 PnL 金额、股票数量）
+                    is_val_conflict = rel_diff <= val_threshold_pct
+                    if val_threshold_abs is not None:
+                        is_val_conflict = is_val_conflict or (
+                            abs_diff <= val_threshold_abs
+                        )
+
+                # 当【天数相近】且【视觉数值接近】时，判定为碰撞，淘汰较小者
+                if day_diff <= date_threshold_days and is_val_conflict:
+                    has_conflict = True
+                    break
+
+            if not has_conflict:
+                kept_points.append(pt)
+
+        return {p["strat"] for p in kept_points}
+
     def strategy_chart(
         self,
         page,
@@ -701,7 +785,10 @@ class ChartBuilder:
         trend_metric="success_rate",  # 可选: 'success_rate', 'symbol_ratio'
         future_pnl_col="ret_5d_future_avg",  # 当 bar_metric 为 'future_pnl' 时使用
         success_rate_col="success_rate_5d",  # 当 trend_metric 为 'success_rate' 时使用
-        use_ema=True,  # 新增: 是否对 trend_metric 使用 EMA 平滑曲线，可传 Bool 或 int(span)
+        use_ema=True,  # 是否对 trend_metric 使用 EMA 平滑曲线
+        show_max_annotation=True,  # 是否开启最大值标注
+        collision_date_days=15,  # 碰撞判断：相近天数阈值
+        collision_val_pct=0.05,  # 碰撞判断：数值差距百分比阈值
     ):
         cfg = self.theme_config.get(theme, self.theme_config["light"])
         text_color = cfg["text_color"]
@@ -713,7 +800,6 @@ class ChartBuilder:
         )
 
         df = df.copy()
-        # 确保按日期和策略排序，保证 EMA / 时间序列计算正确
         if "date" in df.columns and "strategy" in df.columns:
             df["date"] = pd.to_datetime(df["date"])
             df = df.sort_values(["strategy", "date"]).reset_index(drop=True)
@@ -721,9 +807,9 @@ class ChartBuilder:
         show_bar = bar_metric is not None
 
         # =========================
-        # 1. 数据预处理 (Bar 逻辑 - 全动态比率/金额解析)
+        # 1. 数据预处理 (Bar 逻辑)
         # =========================
-        bar_hover_fmt = None  # Bar 的 hover 格式定义
+        bar_hover_fmt = None
         is_ratio_metric = (
             True
             if future_pnl_col
@@ -734,7 +820,7 @@ class ChartBuilder:
                 "ret_1d_future_avg",
             ]
             else False
-        )  # 是否为比率/百分比标志
+        )
 
         if show_bar:
             if bar_metric == "pnl":
@@ -759,12 +845,9 @@ class ChartBuilder:
                 df["bar_neg"] = df[future_pnl_col].clip(upper=0)
 
                 col_lower = future_pnl_col.lower()
-
-                day_prefix = ""
-                if "1d" in col_lower:
-                    day_prefix = "1日"
-                elif "5d" in col_lower:
-                    day_prefix = "5日"
+                day_prefix = (
+                    "1日" if "1d" in col_lower else ("5日" if "5d" in col_lower else "")
+                )
 
                 if is_ratio_metric:
                     metric_label = (
@@ -775,14 +858,6 @@ class ChartBuilder:
                     metric_label = f"{day_prefix}预期PnL" if day_prefix else "预期PnL"
                     bar_hover_fmt = f"<b>{metric_label}</b>: %{{y:,.2f}}"
 
-            else:
-                raise ValueError(
-                    "bar_metric must be 'pnl', 'cnt', 'avg', 'future_pnl', or None"
-                )
-
-            # ----------------------------------------------------
-            # B. 计算 Y2 轴范围
-            # ----------------------------------------------------
             df_pos_sum = df.groupby("date")["bar_pos"].sum()
             df_neg_sum = df.groupby("date")["bar_neg"].sum()
 
@@ -790,20 +865,20 @@ class ChartBuilder:
             min_neg = df_neg_sum.min() if not df_neg_sum.empty else 0
 
             if bar_metric == "cnt":
-                max_range = max_pos * 1.1 if max_pos > 0 else 10
+                max_range = max_pos * 1.20 if max_pos > 0 else 10
                 min_range = 0
             else:
                 min_floor = 0.005 if is_ratio_metric else 1.0
                 safe_max_pos = max(max_pos, min_floor)
                 safe_abs_neg = max(abs(min_neg), min_floor)
 
-                max_range = safe_max_pos * 1.10
-                min_range = -safe_abs_neg * 1.10
+                max_range = safe_max_pos * 1.20
+                min_range = -safe_abs_neg * 1.20
         else:
             min_range, max_range = 0, 1
 
         # =========================
-        # 2. 数据预处理 (Trend 逻辑控制 & EMA 平滑)
+        # 2. 数据预处理 (Trend 逻辑)
         # =========================
         if trend_metric == "success_rate":
             target_col = (
@@ -813,7 +888,7 @@ class ChartBuilder:
             )
             rate_label = "成功率(5日)" if "5d" in target_col else "成功率(1日)"
             hover_fmt = f"<b>{rate_label}</b>: %{{y:.2%}}"
-            y1_range, y1_dtick, y1_autorange = [0, 1], 1 / 3, False
+            y1_range, y1_dtick, y1_autorange = [0, 1.15], 1 / 3, False
         elif trend_metric == "symbol_ratio":
             target_col = "symbol_ratio"
             hover_fmt = "<b>股票占比</b>: %{y:.2%}"
@@ -823,7 +898,6 @@ class ChartBuilder:
 
         if use_ema:
             span = 20 if isinstance(use_ema, bool) else use_ema
-
             smooth_series = df.groupby("strategy")[target_col].transform(
                 lambda x: x.ewm(span=span, adjust=False).mean()
             )
@@ -832,7 +906,7 @@ class ChartBuilder:
             df["trend_val"] = df[target_col]
 
         # =========================
-        # 3. 策略分组与动态 Core 策略计算
+        # 3. 策略分组与 Core 策略计算
         # =========================
         strategy_order = [
             "多头排列",
@@ -920,16 +994,81 @@ class ChartBuilder:
         valid_strategies = [s for s in strategy_order if s in df["strategy"].values]
         df_sorted = df[df["strategy"].isin(valid_strategies)].copy()
 
+        xmin = pd.to_datetime(df["date"].min())
+        xmax = pd.to_datetime(df["date"].max())
+
+        # =========================================================
+        # 4. 预先计算碰撞筛选（分别处理 Trend 和 Bar）
+        # =========================================================
+        allowed_trend_annotation_strats = set()
+        allowed_bar_annotation_strats = set()
+
+        if show_max_annotation:
+            # A. 收集所有 Valid 策略的 Trend Line Max 点候选
+            trend_candidates = []
+            for strat in valid_strategies:
+                s_data = df_sorted[df_sorted["strategy"] == strat].dropna(
+                    subset=["trend_val"]
+                )
+                if not s_data.empty:
+                    m_row = s_data.loc[s_data["trend_val"].idxmax()]
+                    trend_candidates.append(
+                        {"strat": strat, "x": m_row["date"], "y": m_row["trend_val"]}
+                    )
+
+            allowed_trend_annotation_strats = self._filter_overlapping_maxima(
+                trend_candidates,
+                date_threshold_days=collision_date_days,
+                val_threshold_pct=collision_val_pct,
+                val_threshold_abs=0.08,
+            )
+
+            # B. 收集所有 Valid 策略的 Bar 极值点候选（支持正数最大 & 负数最小）
+            if show_bar:
+                bar_candidates = []
+                for strat in valid_strategies:
+                    s_data = df_sorted[df_sorted["strategy"] == strat]
+                    if not s_data.empty:
+                        pos_data = s_data[s_data["bar_pos"] > 0]
+                        if not pos_data.empty:
+                            m_row = pos_data.loc[pos_data["bar_pos"].idxmax()]
+                            bar_candidates.append(
+                                {
+                                    "strat": strat,
+                                    "x": m_row["date"],
+                                    "y": m_row["bar_pos"],
+                                }
+                            )
+                        else:
+                            neg_data = s_data[s_data["bar_neg"] < 0]
+                            if not neg_data.empty:
+                                m_row = neg_data.loc[neg_data["bar_neg"].idxmin()]
+                                bar_candidates.append(
+                                    {
+                                        "strat": strat,
+                                        "x": m_row["date"],
+                                        "y": m_row["bar_neg"],
+                                    }
+                                )
+
+                allowed_bar_annotation_strats = self._filter_overlapping_maxima(
+                    bar_candidates,
+                    date_threshold_days=collision_date_days,
+                    val_threshold_pct=collision_val_pct,
+                    val_threshold_abs=0.03,
+                )
+
         fig = go.Figure()
 
         # =========================================================
-        # 4. 所有策略的 Bar (关键修改：绑定 xaxis="x2", yaxis="y2")
+        # 5. Bar Trace & 碰撞防护后的 Bar Max 标注
         # =========================================================
         if show_bar:
             for strat in valid_strategies:
                 data = df_sorted[df_sorted["strategy"] == strat]
                 color = strategy_cfg[strat]["color"]
                 is_core = strat in core_strategies
+                visibility = True if is_core else "legendonly"
 
                 if bar_metric in ["pnl", "avg", "future_pnl"]:
                     pos = data[data["bar_pos"] > 0]
@@ -940,13 +1079,13 @@ class ChartBuilder:
                             go.Bar(
                                 x=pos["date"],
                                 y=pos["bar_pos"],
-                                xaxis="x2",  # 显式映射到下半区的 X 轴
-                                yaxis="y2",  # 显式映射到下半区的 Y 轴
+                                xaxis="x2",
+                                yaxis="y2",
                                 marker=dict(color=color, line=dict(color=color)),
                                 showlegend=False,
                                 legendgroup=strat,
                                 hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
-                                visible=True if is_core else "legendonly",
+                                visible=visibility,
                             )
                         )
                     if not neg.empty:
@@ -954,13 +1093,13 @@ class ChartBuilder:
                             go.Bar(
                                 x=neg["date"],
                                 y=neg["bar_neg"],
-                                xaxis="x2",  # 显式映射到下半区的 X 轴
-                                yaxis="y2",  # 显式映射到下半区的 Y 轴
+                                xaxis="x2",
+                                yaxis="y2",
                                 marker=dict(color=color, line=dict(color=color)),
                                 showlegend=False,
                                 legendgroup=strat,
                                 hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
-                                visible=True if is_core else "legendonly",
+                                visible=visibility,
                             )
                         )
                 else:  # cnt
@@ -968,23 +1107,69 @@ class ChartBuilder:
                         go.Bar(
                             x=data["date"],
                             y=data["bar_pos"],
-                            xaxis="x2",  # 显式映射到下半区的 X 轴
-                            yaxis="y2",  # 显式映射到下半区的 Y 轴
+                            xaxis="x2",
+                            yaxis="y2",
                             marker=dict(color=color, line=dict(color=color)),
                             showlegend=False,
                             legendgroup=strat,
                             hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
-                            visible=True if is_core else "legendonly",
+                            visible=visibility,
+                        )
+                    )
+
+                # --- Bar 标注绘制逻辑（经过碰撞过滤 + 最右侧 top left 避让）---
+                if strat in allowed_bar_annotation_strats:
+                    pos_data = data[data["bar_pos"] > 0]
+                    if not pos_data.empty:
+                        max_bar_row = pos_data.loc[pos_data["bar_pos"].idxmax()]
+                        max_x = max_bar_row["date"]
+                        max_y = max_bar_row["bar_pos"]
+                        default_pos = "top center"
+                    else:
+                        neg_data = data[data["bar_neg"] < 0]
+                        if not neg_data.empty:
+                            max_bar_row = neg_data.loc[neg_data["bar_neg"].idxmin()]
+                            max_x = max_bar_row["date"]
+                            max_y = max_bar_row["bar_neg"]
+                            default_pos = "bottom center"
+                        else:
+                            continue
+
+                    # 算出的防截断方位（最右侧 10% 自动变 top left / bottom left）
+                    smart_pos = self._get_smart_textposition(
+                        max_x, xmin, xmax, default_pos=default_pos
+                    )
+                    val_str = f"{max_y:+.1%}" if is_ratio_metric else f"{max_y:,.0f}"
+
+                    fig.add_trace(
+                        go.Scatter(
+                            x=[max_x],
+                            y=[max_y],
+                            xaxis="x2",
+                            yaxis="y2",
+                            mode="text",
+                            text=[f"{val_str}"],
+                            textposition=smart_pos,
+                            textfont=dict(
+                                size=int(base_font_size),
+                                color=color,
+                                family=self.font_family,
+                            ),
+                            showlegend=False,
+                            legendgroup=strat,
+                            hoverinfo="skip",
+                            visible=visibility,
                         )
                     )
 
         # =========================================================
-        # 5. 所有策略的 Line (绑定 xaxis="x", yaxis="y")
+        # 6. Trend Line & 碰撞防护后的 Trend Max 标注
         # =========================================================
         for strat in valid_strategies:
             data = df_sorted[df_sorted["strategy"] == strat]
             cfg_item = strategy_cfg[strat]
             is_core = strat in core_strategies
+            visibility = True if is_core or not show_bar else "legendonly"
 
             fig.add_trace(
                 go.Scatter(
@@ -993,27 +1178,69 @@ class ChartBuilder:
                     mode="lines",
                     name=strat,
                     connectgaps=False,
-                    visible=True if is_core or not show_bar else "legendonly",
+                    visible=visibility,
                     line=dict(
                         width=cfg_item["style"]["width"],
                         dash=cfg_item["style"]["dash"],
                         shape="spline",
                         color=cfg_item["color"],
                     ),
-                    xaxis="x",  # 映射到上半区 X 轴
-                    yaxis="y",  # 映射到上半区 Y 轴
+                    xaxis="x",
+                    yaxis="y",
                     hovertemplate=f"{strat} {hover_fmt}<extra></extra>",
                     legendgroup=strat,
                     legendrank=cfg_item["rank"],
                 )
             )
 
-        # =========================
-        # 6. Layout 配置 (通过 Subplot 联动完美的 Hover 与底座 X 轴)
-        # =========================
-        xmin = pd.to_datetime(df["date"].min())
-        xmax = pd.to_datetime(df["date"].max())
+            # --- Trend 标注绘制逻辑（经过碰撞过滤 + 最右侧 top left 避让）---
+            if strat in allowed_trend_annotation_strats:
+                valid_trend_data = data.dropna(subset=["trend_val"])
+                if not valid_trend_data.empty:
+                    max_trend_row = valid_trend_data.loc[
+                        valid_trend_data["trend_val"].idxmax()
+                    ]
+                    max_x = max_trend_row["date"]
+                    max_y = max_trend_row["trend_val"]
 
+                    max_val_str = (
+                        f"{max_y:.1%}"
+                        if trend_metric == "success_rate" or "ratio" in trend_metric
+                        else f"{max_y:.2f}"
+                    )
+
+                    # 算出的防截断方位（最右侧 10% 自动变 top left）
+                    smart_pos = self._get_smart_textposition(
+                        max_x, xmin, xmax, default_pos="top center"
+                    )
+
+                    fig.add_trace(
+                        go.Scatter(
+                            x=[max_x],
+                            y=[max_y],
+                            xaxis="x",
+                            yaxis="y",
+                            mode="markers+text",
+                            marker=dict(
+                                symbol="circle", size=5, color=cfg_item["color"]
+                            ),
+                            text=[f"{max_val_str}"],
+                            textposition=smart_pos,
+                            textfont=dict(
+                                size=int(base_font_size),
+                                color=cfg_item["color"],
+                                family=self.font_family,
+                            ),
+                            showlegend=False,
+                            legendgroup=strat,
+                            hoverinfo="skip",
+                            visible=visibility,
+                        )
+                    )
+
+        # =========================================================
+        # 7. Layout 配置（维持严格贴边 r=0）
+        # =========================================================
         y1_domain = [0.35, 1.0] if show_bar else [0.0, 1.0]
         y2_domain = [0.0, 0.35]
 
@@ -1047,7 +1274,6 @@ class ChartBuilder:
 
         y2_tickfmt = "%" if is_ratio_metric else "~s"
 
-        # 核心设置：定义上半区 X 轴 (xaxis) 与下半区 X 轴 (xaxis2)
         common_xaxis_args = dict(
             mirror=False,
             automargin=False,
@@ -1064,24 +1290,22 @@ class ChartBuilder:
             hoverformat="%Y-%m-%d",
             range=[
                 xmin - timedelta(days=0.5),
-                xmax + timedelta(days=0.5),
+                xmax + timedelta(days=0.5),  # 维持标准的 0.5 天微调，不额外留空
             ],
         )
 
         fig.update_layout(
-            # 上半区 X 轴：隐藏 ticklabels，专为折线服务
             xaxis=dict(
                 **common_xaxis_args,
                 anchor="y",
                 showticklabels=False,
             ),
-            # 下半区 X 轴：显示在最底部，负责底部的日期标签
             xaxis2=dict(
                 **common_xaxis_args,
                 anchor="y2",
                 side="bottom",
                 showticklabels=True,
-                matches="x",  # 关联范围，拖拽或缩放时上下 X 轴联动
+                matches="x",
                 tickfont=dict(
                     family=self.font_family,
                     size=base_font_size,
@@ -1130,10 +1354,10 @@ class ChartBuilder:
             bargroupgap=0.2,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            margin=dict(t=0, b=5, l=0, r=0),
+            margin=dict(t=0, b=5, l=0, r=0),  # 👈 保持贴边设置 (r=0)
             autosize=True,
             dragmode=False,
-            hovermode="x",  # 同时唤醒相同 X 日期下的所有 Trace（跨 x 和 x2 轴同步响应）
+            hovermode="x",
             hoverlabel=dict(font_size=base_font_size),
         )
         return fig
