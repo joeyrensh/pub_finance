@@ -3214,10 +3214,10 @@ class ChartBuilder:
         # ------------------------------
         # 4. 水平方向：仅调整文本对齐，箭头垂直（ax=0）
         # ------------------------------
-        dates_ts = df_annot["date"].apply(lambda x: x.timestamp())
+        dates_ts = df_annot["date"].apply(lambda x: x.timestamp()).values
         min_ts = dates_ts.min()
         max_ts = dates_ts.max()
-        range_ts = max_ts - min_ts
+        range_ts = max_ts - min_ts if max_ts > min_ts else 1.0
         left_boundary = min_ts + range_ts * 0.3
         right_boundary = min_ts + range_ts * 0.7
 
@@ -3232,49 +3232,82 @@ class ChartBuilder:
         ax_offsets = [0] * len(df_annot)
 
         # ------------------------------
-        # 5. 垂直方向动态递增偏移防重叠（基于所有已分配标注）
+        # 5. 垂直方向动态递增偏移（全 step 参数化/无 Hardcode 版）
         # ------------------------------
         y_vals = df_annot["s_pnl"].values
         y_min, y_max = y_vals.min(), y_vals.max()
         y_range = y_max - y_min if y_max > y_min else 1.0
-        threshold = max(y_range * 0.05, 10)  # 冲突阈值
 
-        assigned = []  # (y_value, offset)
+        # 1. 基础参数定义
+        step = 10  # 垂直偏移步长 (px)
+        max_step = 10  # 最大尝试层数
+        x_threshold = range_ts * 0.1  # X 轴时间碰撞跨度 (8%)
+
+        # 2. 动态导出参数（彻底替代硬编码）
+        # 假设图表 Plot Area 高度约为 400px，计算出 1px 对应的 Y 轴数据跨度
+        px_to_y_unit = y_range / 300
+
+        # 将 step (px) 直接精准映射到 Y 轴数据跨度（即 1 层 step 在数据坐标下的物理高度）
+        step_y_scale = step * px_to_y_unit
+
+        # 单个中文字体框的高约为 16px，将其换算为数据坐标下的文本容忍阈值
+        font_height_px = 12.0
+        text_height_y_scale = font_height_px * px_to_y_unit
+
+        assigned = []
         ay_offsets = []
 
-        for y_val in y_vals:
-            step = 25
-            max_step = 5
+        # 候选序列：基于 step 和 max_step 动态生成
+        candidate_offsets = [-step * i for i in range(1, max_step + 1)] + [
+            step * i for i in range(1, max_step + 1)
+        ]
+
+        for ts, y_val in zip(dates_ts, y_vals):
+            # 判断点在全局 Y 轴的相对高度 (0 ~ 1)
+            relative_height = (y_val - y_min) / y_range if y_range > 0 else 0.5
+
+            # 根据点的高度决定优先搜索方向
+            if relative_height >= 0.5:
+                # 位于上半区/高位：优先向上，备选向下
+                candidate_offsets = [-step * i for i in range(1, max_step + 1)] + [
+                    step * i for i in range(1, max_step + 1)
+                ]
+            else:
+                # 位于下半区/低位：优先向下 (+step)，备选向上 (-step)
+                candidate_offsets = [step * i for i in range(1, max_step + 1)] + [
+                    -step * i for i in range(1, max_step + 1)
+                ]
+
             selected = None
-            # 尝试向上偏移（负值）
-            for level in range(1, max_step + 1):
-                off = -step * level
+            for off in candidate_offsets:
                 conflict = False
-                for y_other, off_other in assigned:
+                for ts_other, y_other, off_other in assigned:
+                    is_x_close = abs(ts - ts_other) < x_threshold
+
+                    layer_num = off / step
+                    layer_num_other = off_other / step
+
+                    estimated_y_text = y_val - (layer_num * step_y_scale)
+                    estimated_y_text_other = y_other - (layer_num_other * step_y_scale)
+
                     if (
-                        abs(y_val - y_other) < threshold and off_other * off > 0
-                    ):  # 同向且接近
+                        is_x_close
+                        and abs(estimated_y_text - estimated_y_text_other)
+                        < text_height_y_scale
+                    ):
                         conflict = True
                         break
+
                 if not conflict:
                     selected = off
                     break
+
             if selected is None:
-                # 再尝试向下偏移
-                for level in range(1, max_step + 1):
-                    off = step * level
-                    conflict = False
-                    for y_other, off_other in assigned:
-                        if abs(y_val - y_other) < threshold and off_other * off > 0:
-                            conflict = True
-                            break
-                    if not conflict:
-                        selected = off
-                        break
-            if selected is None:
-                selected = -step  # 降级：最小向上偏移
+                # 低位点兜底向下 (+step)，高位点兜底向上 (-step)
+                selected = step if relative_height < 0.5 else -step
+
             ay_offsets.append(selected)
-            assigned.append((y_val, selected))
+            assigned.append((ts, y_val, selected))
         # ------------------------------
         # 6. 创建折线图
         # ------------------------------
