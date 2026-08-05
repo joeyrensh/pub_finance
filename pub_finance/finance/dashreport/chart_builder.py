@@ -2069,6 +2069,8 @@ class ChartBuilder:
                 mode="lines",
                 fill="tozeroy",
                 name="Drawdown",
+                legendgroup="drawdown",
+                visible="legendonly",
                 # line=dict(color=cfg["drawdown"], width=1.5 * scale),
                 line=dict(color=cfg["drawdown"], width=1),
                 fillcolor=cfg["drawdown_fill"],
@@ -2237,6 +2239,8 @@ class ChartBuilder:
                     x=[max_dd_idx],
                     y=[max_dd_val],
                     mode="markers+text",
+                    visible="legendonly",
+                    legendgroup="drawdown",
                     marker=dict(symbol="circle", size=8 * scale, color=cfg["drawdown"]),
                     text=[get_compact_label("Max DD", max_dd_val, client_width)],
                     textposition=get_label_position(
@@ -2269,6 +2273,8 @@ class ChartBuilder:
                             x=[idx_30],
                             y=[val_30],
                             mode="markers+text",
+                            visible="legendonly",
+                            legendgroup="drawdown",
                             marker=dict(
                                 symbol="diamond", size=6 * scale, color=cfg["drawdown"]
                             ),
@@ -2305,6 +2311,8 @@ class ChartBuilder:
                             x=[idx_120],
                             y=[val_120],
                             mode="markers+text",
+                            visible="legendonly",
+                            legendgroup="drawdown",
                             marker=dict(
                                 symbol="diamond", size=6 * scale, color=cfg["drawdown"]
                             ),
