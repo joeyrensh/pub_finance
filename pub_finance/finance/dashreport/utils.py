@@ -118,47 +118,39 @@ def get_menu():
                     dcc.Link(
                         [
                             html.I(className="fa-solid fa-chart-line icon"),
-                            html.Span("A.stock", className="menu-name"),
+                            html.Span("A-Share", className="menu-name"),
                         ],
-                        href="/dash-financial-report/cn-stock-performance",
+                        href="/dash-financial-report/a-share",
                         className="tab first",
                     ),
                     dcc.Link(
                         [
                             html.I(className="fa-solid fa-flag-usa icon"),
-                            html.Span("U.stock", className="menu-name"),
+                            html.Span("US-Stock", className="menu-name"),
                         ],
-                        href="/dash-financial-report/us-stock-performance",
-                        className="tab",
-                    ),
-                    # dcc.Link(
-                    #     [
-                    #         html.I(className="fa-solid fa-rocket icon"),
-                    #         html.Span("U.fsl", className="menu-name"),
-                    #     ],
-                    #     href="/dash-financial-report/us-special-stock-performance",
-                    #     className="tab",
-                    # ),
-                    dcc.Link(
-                        [
-                            html.I(className="fa-solid fa-rocket icon"),
-                            html.Span("A.dsl", className="menu-name"),
-                        ],
-                        href="/dash-financial-report/cn-dynamic-stock-performance",
+                        href="/dash-financial-report/us-stock",
                         className="tab",
                     ),
                     dcc.Link(
                         [
                             html.I(className="fa-solid fa-rocket icon"),
-                            html.Span("U.dsl", className="menu-name"),
+                            html.Span("A+", className="menu-name"),
                         ],
-                        href="/dash-financial-report/us-dynamic-stock-performance",
+                        href="/dash-financial-report/a-picks",
+                        className="tab",
+                    ),
+                    dcc.Link(
+                        [
+                            html.I(className="fa-solid fa-rocket icon"),
+                            html.Span("US+", className="menu-name"),
+                        ],
+                        href="/dash-financial-report/us-picks",
                         className="tab",
                     ),
                     dcc.Link(
                         [
                             html.I(className="fa-solid fa-rotate-right icon"),
-                            html.Span("B.test", className="menu-name"),
+                            html.Span("B-Test", className="menu-name"),
                         ],
                         href="/dash-financial-report/backtest",
                         className="tab",
@@ -166,9 +158,9 @@ def get_menu():
                     dcc.Link(
                         [
                             html.I(className="fa-regular fa-newspaper icon"),
-                            html.Span("Slog", className="menu-name"),
+                            html.Span("Setup", className="menu-name"),
                         ],
-                        href="/dash-financial-report/slogans",
+                        href="/dash-financial-report/settings",
                         className="tab",
                     ),
                 ],

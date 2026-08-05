@@ -877,8 +877,8 @@ class BacktestPage:
                                 dcc.RadioItems(
                                     id="backtest-market",
                                     options=[
-                                        {"label": "A-Shares", "value": "cn"},
-                                        {"label": "US Stocks", "value": "us"},
+                                        {"label": "A-Share", "value": "cn"},
+                                        {"label": "US Stock", "value": "us"},
                                     ],
                                     value="cn",
                                     inline=True,

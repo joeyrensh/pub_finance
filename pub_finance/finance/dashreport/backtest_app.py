@@ -4,7 +4,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State, MATCH
 from dash import clientside_callback
-from finance.dashreport.pages import slogans
+from finance.dashreport.pages import settings
 from finance.dashreport.pages.page import Page as page_creater
 from finance.dashreport.pages.chart_callback import ChartCallback
 from finance.dashreport.pages.table_callback import TableCallback
@@ -51,13 +51,12 @@ app.title = "Financial Report"
 # 列出应用中允许的页面路径，用于登录后验证并决定是否重定向
 ALLOWED_PATHS = {
     "/dash-financial-report/overview",
-    "/dash-financial-report/cn-stock-performance",
-    "/dash-financial-report/us-stock-performance",
-    "/dash-financial-report/us-special-stock-performance",
-    "/dash-financial-report/cn-dynamic-stock-performance",
-    "/dash-financial-report/us-dynamic-stock-performance",
-    "/dash-financial-report/slogans",
-    "/dash-financial-report/full-view",
+    "/dash-financial-report/a-share",
+    "/dash-financial-report/us-stock",
+    "/dash-financial-report/a-picks",
+    "/dash-financial-report/us-picks",
+    "/dash-financial-report/backtest",
+    "/dash-financial-report/settings",
 }
 
 # Describe the layout/ UI of the app
@@ -147,7 +146,7 @@ app.kpi_callback = kpi_callback
 
 backtestpage = BacktestPage(app)
 
-slogans.register_callbacks(app)
+settings.register_callbacks(app)
 
 
 # ======================================================
@@ -385,7 +384,7 @@ def update_page_content(pathname):
             ],
             show_tables=["category", "detail", "cn_etf", "detail_short"],
         ).get_layout()
-    elif pathname == "/dash-financial-report/cn-stock-performance":
+    elif pathname == "/dash-financial-report/a-share":
         return page_creater(
             app,
             "cn",
@@ -401,7 +400,7 @@ def update_page_content(pathname):
             ],
             show_tables=["category", "detail", "cn_etf", "detail_short"],
         ).get_layout()
-    elif pathname == "/dash-financial-report/us-stock-performance":
+    elif pathname == "/dash-financial-report/us-stock":
         return page_creater(
             app,
             "us",
@@ -417,24 +416,9 @@ def update_page_content(pathname):
             ],
             show_tables=["category", "detail", "detail_short"],
         ).get_layout()
-    # elif pathname == "/dash-financial-report/us-special-stock-performance":
-    #     return page_creater(
-    #         app,
-    #         "us_special",
-    #         show_charts=[
-    #             "annual_return",
-    #             "heatmap",
-    #             "strategy",
-    #             "trade",
-    #             "pnl_trend",
-    #             "industry_position",
-    #             "industry_profit",
-    #         ],
-    #         show_tables=["category", "detail", "detail_short"],
-    #     ).get_layout()
     elif pathname == "/dash-financial-report/backtest":
         return backtestpage.get_layout()
-    elif pathname == "/dash-financial-report/cn-dynamic-stock-performance":
+    elif pathname == "/dash-financial-report/a-picks":
         return page_creater(
             app,
             "cn_dynamic",
@@ -445,7 +429,7 @@ def update_page_content(pathname):
             ],
             show_tables=["detail"],
         ).get_layout()
-    elif pathname == "/dash-financial-report/us-dynamic-stock-performance":
+    elif pathname == "/dash-financial-report/us-picks":
         return page_creater(
             app,
             "us_dynamic",
@@ -456,8 +440,8 @@ def update_page_content(pathname):
             ],
             show_tables=["detail"],
         ).get_layout()
-    elif pathname == "/dash-financial-report/slogans":
-        return slogans.create_layout(app)
+    elif pathname == "/dash-financial-report/settings":
+        return settings.create_layout(app)
     elif pathname == "/dash-financial-report/full-view":
         return [
             page_creater(
@@ -490,7 +474,7 @@ def update_page_content(pathname):
                 ],
                 show_tables=["category", "detail", "detail_short"],
             ).get_layout(),
-            slogans.create_layout(app),
+            settings.create_layout(app),
         ]
     else:
         return (
