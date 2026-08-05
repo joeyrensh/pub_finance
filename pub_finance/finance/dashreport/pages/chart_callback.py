@@ -1,5 +1,5 @@
 """
-修正版：单个通用回调 + DataLoader 驱动
+修正版：单个通用回调 + DataLoader 驱动 (支持动态 Style / AspectRatio 返回)
 """
 
 from dash import Output, Input, MATCH, callback, no_update
@@ -45,10 +45,33 @@ class ChartCallback:
     @staticmethod
     def _get_font_sizes(client_width, base_font=12, min_scale=0.9, max_scale=1.05):
         """获取字体大小"""
-        # 通过类名调用静态方法
         scale = ChartCallback._get_scale(1440, client_width, min_scale, max_scale)
         font_size = int(base_font * scale)
         return scale, font_size
+
+    @staticmethod
+    def _get_chart_style(chart_type: str, client_width: int):
+        """
+        根据图表类型与客户端宽度动态生成 style 字典
+        """
+        base_style = {
+            "margin": 0,
+            "padding": 0,
+            "width": "100%",
+            "height": "auto",
+        }
+
+        # 判断长宽比逻辑
+        if chart_type == "annual_return":
+            if client_width <= 550:
+                aspect_ratio = "1.6 / 1"
+            else:
+                aspect_ratio = "2.2 / 1"
+        else:
+            aspect_ratio = "1.6 / 1"
+
+        base_style["aspectRatio"] = aspect_ratio
+        return base_style
 
     @staticmethod
     def _placeholder_figure(
@@ -56,7 +79,6 @@ class ChartCallback:
     ):
         """生成一个显示文本的占位图表"""
         bg_color = "rgba(255, 255, 255, 0)"
-        # 获取适应屏幕的字体大小
         _, font_size = ChartCallback._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.05
         )
@@ -119,15 +141,26 @@ class ChartCallback:
             return
 
         @callback(
-            Output(
-                {
-                    "type": "dynamic-chart",
-                    "page": MATCH,
-                    "chart": MATCH,
-                    "index": MATCH,
-                },
-                "figure",
-            ),
+            [
+                Output(
+                    {
+                        "type": "dynamic-chart",
+                        "page": MATCH,
+                        "chart": MATCH,
+                        "index": MATCH,
+                    },
+                    "figure",
+                ),
+                Output(
+                    {
+                        "type": "dynamic-chart",
+                        "page": MATCH,
+                        "chart": MATCH,
+                        "index": MATCH,
+                    },
+                    "style",
+                ),
+            ],
             Input("current-theme", "data"),
             Input("client-width", "data"),
             Input(
@@ -146,16 +179,19 @@ class ChartCallback:
             chart_type = component_id["chart"]
             index = component_id["index"]
 
+            theme = theme or "light"
+            client_width = client_width or 1440
+
+            # 动态计算对应的 style
+            chart_style = self._get_chart_style(chart_type, client_width)
+
             key = f"{chart_type}_{page}_{index}"
             if key not in self._charts:
-                return no_update
+                return no_update, no_update
 
             info = self._charts[key]
             builder = info["builder"]
             datasets = info["datasets"]
-
-            theme = theme or "light"
-            client_width = client_width or 1440
 
             try:
                 # 🚀 核心：真正命中 mtime-aware LRU
@@ -167,14 +203,17 @@ class ChartCallback:
                 # ===== 关键：总是添加微小延迟 =====
                 import time
 
-                time.sleep(0.1)  # 50ms延迟，确保loading有显示时间
+                time.sleep(0.1)  # 100ms延迟，确保loading有显示时间
 
                 # ===== 图表分发 =====
                 if chart_type == "annual_return":
                     annual_data = data_bundle.get("annual_return")
                     if annual_data is None:
-                        return self._placeholder_figure(
-                            "Run Backtest", theme, client_width
+                        return (
+                            self._placeholder_figure(
+                                "Run Backtest", theme, client_width
+                            ),
+                            chart_style,
                         )
                     pnl, cash, total_value = data_bundle["annual_return"]
                     fig = builder.annual_return(
@@ -184,10 +223,13 @@ class ChartCallback:
                         client_width=client_width,
                     )
                 elif chart_type == "heatmap":
-                    df = data_bundle["heatmap"]
+                    df = data_bundle.get("heatmap")
                     if df is None or df.empty:
-                        return self._placeholder_figure(
-                            "Run Backtest", theme, client_width
+                        return (
+                            self._placeholder_figure(
+                                "Run Backtest", theme, client_width
+                            ),
+                            chart_style,
                         )
                     fig = builder.calendar_heatmap(
                         page=page,
@@ -196,10 +238,13 @@ class ChartCallback:
                         client_width=client_width,
                     )
                 elif chart_type == "industry_strength":
-                    df = data_bundle["industry_strength"]
+                    df = data_bundle.get("industry_strength")
                     if df is None or df.empty:
-                        return self._placeholder_figure(
-                            "Run Backtest", theme, client_width
+                        return (
+                            self._placeholder_figure(
+                                "Run Backtest", theme, client_width
+                            ),
+                            chart_style,
                         )
                     fig = builder.industry_strength_chart(
                         page=page,
@@ -208,10 +253,13 @@ class ChartCallback:
                         client_width=client_width,
                     )
                 elif chart_type == "strategy":
-                    df = data_bundle["strategy"]
+                    df = data_bundle.get("strategy")
                     if df is None or df.empty:
-                        return self._placeholder_figure(
-                            "Run Backtest", theme, client_width
+                        return (
+                            self._placeholder_figure(
+                                "Run Backtest", theme, client_width
+                            ),
+                            chart_style,
                         )
                     fig = builder.strategy_chart(
                         page=page,
@@ -221,10 +269,13 @@ class ChartCallback:
                     )
 
                 elif chart_type == "trade":
-                    df = data_bundle["trade"]
+                    df = data_bundle.get("trade")
                     if df is None or df.empty:
-                        return self._placeholder_figure(
-                            "Run Backtest", theme, client_width
+                        return (
+                            self._placeholder_figure(
+                                "Run Backtest", theme, client_width
+                            ),
+                            chart_style,
                         )
                     fig = builder.trade_info_chart(
                         page=page,
@@ -234,10 +285,13 @@ class ChartCallback:
                     )
 
                 elif chart_type == "pnl_trend":
-                    df = data_bundle["pnl_trend"]
+                    df = data_bundle.get("pnl_trend")
                     if df is None or df.empty:
-                        return self._placeholder_figure(
-                            "Run Backtest", theme, client_width
+                        return (
+                            self._placeholder_figure(
+                                "Run Backtest", theme, client_width
+                            ),
+                            chart_style,
                         )
                     fig = builder.industry_pnl_trend(
                         page=page,
@@ -247,10 +301,13 @@ class ChartCallback:
                     )
 
                 elif chart_type == "industry_position":
-                    df = data_bundle["industry_position"]
+                    df = data_bundle.get("industry_position")
                     if df is None or df.empty:
-                        return self._placeholder_figure(
-                            "Run Backtest", theme, client_width
+                        return (
+                            self._placeholder_figure(
+                                "Run Backtest", theme, client_width
+                            ),
+                            chart_style,
                         )
                     fig = builder.industry_position_treemap(
                         page=page,
@@ -260,10 +317,13 @@ class ChartCallback:
                     )
 
                 elif chart_type == "industry_profit":
-                    df = data_bundle["industry_profit"]
+                    df = data_bundle.get("industry_profit")
                     if df is None or df.empty:
-                        return self._placeholder_figure(
-                            "Run Backtest", theme, client_width
+                        return (
+                            self._placeholder_figure(
+                                "Run Backtest", theme, client_width
+                            ),
+                            chart_style,
                         )
                     fig = builder.industry_profit_treemap(
                         page=page,
@@ -273,11 +333,12 @@ class ChartCallback:
                     )
 
                 else:
-                    return no_update
+                    return no_update, no_update
 
-                return fig
+                return fig, chart_style
+
             except Exception as e:
                 print(f"⚠️ Chart generation failed. {key}: {e}")
-                return no_update
+                return no_update, no_update
 
         self._callback_registered = True

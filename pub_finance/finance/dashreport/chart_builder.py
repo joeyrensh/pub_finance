@@ -1868,10 +1868,10 @@ class ChartBuilder:
                 "scale": 1.0,
                 "main_font": 16,
                 "table_font": 16,
-                "header_h": 45,
-                "cell_h": 50,
+                "header_h": 40,
+                "cell_h": 45,
                 "gap_ratio": 0.045,  # 上下缝隙死死锁定为 3% 画布高度
-                "table_ratio_cap": 0.24,  # Table 占画布比例上限
+                "table_ratio_cap": 0.29,  # Table 占画布比例上限
             }
 
         # 2. 中屏 / 笔记本 & iPad 横屏 (768px ~ 1199px) -> 1.1rem 视觉体系
@@ -1883,7 +1883,7 @@ class ChartBuilder:
                 "header_h": 35,
                 "cell_h": 40,
                 "gap_ratio": 0.05,
-                "table_ratio_cap": 0.24,
+                "table_ratio_cap": 0.29,
             }
 
         # 3. 平板竖屏 (550px ~ 767px) -> 1.0rem 视觉体系
@@ -1895,7 +1895,7 @@ class ChartBuilder:
                 "header_h": 30,
                 "cell_h": 35,
                 "gap_ratio": 0.05,
-                "table_ratio_cap": 0.24,
+                "table_ratio_cap": 0.29,
             }
 
         # 4. 小屏 / 手机端 (< 550px) -> 0.9rem 极简体系
@@ -2350,7 +2350,9 @@ class ChartBuilder:
         )
 
         # 基于 1.5 比例计算基准画布高度
-        base_canvas_height = (client_width if client_width else 1440) / 1.6
+        base_canvas_height = (client_width if client_width else 1440) / (
+            1.6 if (client_width or 1440) <= 550 else 2.2
+        )
         raw_table_ratio = table_pixel_height / base_canvas_height
 
         # 约束 Table 在画布上的 y 轴分配比例

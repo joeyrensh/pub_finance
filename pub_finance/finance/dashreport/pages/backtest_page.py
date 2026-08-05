@@ -646,7 +646,7 @@ class BacktestPage:
                     "padding": 0,
                     "width": "100%",
                     "height": "100%",
-                    "aspectRatio": 1.6,
+                    "aspectRatio": 1.6 if client_width <= 550 else 2.2,
                 },
                 mathjax=True,
             )
@@ -692,7 +692,7 @@ class BacktestPage:
                     "padding": 0,
                     "width": "100%",
                     "height": "100%",
-                    "aspectRatio": 1.6,
+                    "aspectRatio": 1.6 if client_width <= 550 else 2.2,
                 }
                 # 最后一个额外增加底部margin 5px
                 # if is_last:

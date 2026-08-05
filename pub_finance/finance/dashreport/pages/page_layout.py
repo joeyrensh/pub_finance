@@ -159,7 +159,7 @@ class PageLayout:
                         )
                     ],
                     id={"type": "collapsible", "page": self.prefix, "index": index},
-                    style={"display": "block", "aspectRatio": 1.6, "width": "100%"},
+                    style={"display": "block", "width": "100%"},
                 ),
             ],
             className=(
