@@ -44,7 +44,7 @@ app = dash.Dash(
         }
     ],
     server=server,
-    serve_locally=False,
+    serve_locally=True,
 )
 app.title = "Financial Report"
 
