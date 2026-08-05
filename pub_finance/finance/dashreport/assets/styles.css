@@ -38,6 +38,8 @@
     /* 表格相关 */
     --data-bar-color: #0074d973;
     --date-bg-color: #91959924;
+    --negative-value-bg-color: #00875A;    
+    --positive-value-bg-color: #ff4444;    
     --positive-databar-color: #ff444482;
     --negative-databar-color: #0d876cd9;
     --gridcolor: #2D3748;

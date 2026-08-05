@@ -44,7 +44,7 @@ class ChartBuilder:
                 "border": "#D1D5DB",
                 "outside_text": "#777777",
                 "cumret": "#ff4444",
-                "drawdown": "#64748B",
+                "drawdown": "#0d876d",
                 # "drawdown_fill": "rgba(13,135,109,0.3)",
                 "drawdown_fill": "rgba(145, 149, 153, 0.05)",
                 "table_header": "rgba(245,245,245,0)",
@@ -55,7 +55,7 @@ class ChartBuilder:
             },
             "dark": {
                 "positive_int": "#ff4444",  # 亮红色 - 正数
-                "negative_int": "#00a859",  # 亮绿色 - 负数
+                "negative_int": "#00875A",  # 亮绿色 - 负数
                 "text_color": "#ffffff",  # 白色
                 "grid": "#2D3748",  # 网格线
                 "background": "rgba(0, 0, 0, 0)",  # 透明背景
@@ -63,9 +63,9 @@ class ChartBuilder:
                 "strategy_colors": [
                     "#FF4444",
                     "#FF4444",
-                    "#00a859",
-                    "#00a859",
-                    "#00a859",
+                    "#00875A",
+                    "#00875A",
+                    "#00875A",
                     "#64748B",
                     "#64748B",
                     "#64748B",
@@ -73,9 +73,9 @@ class ChartBuilder:
                 "upgrade": "#64748B",
                 "long2": "#64748B",
                 "long": "#ff4444",
-                "short": "#00a859",
+                "short": "#00875A",
                 "pnl_colors": [
-                    "#00a859",
+                    "#00875A",
                     "#FF4444",
                     "#64748B",
                     "#64748B",
@@ -84,7 +84,7 @@ class ChartBuilder:
                 "border": "#2D3748",
                 "outside_text": "#64748B",
                 "cumret": "#ff4444",
-                "drawdown": "#64748B",
+                "drawdown": "#00875A",
                 # "drawdown_fill": "rgba(107,207,181,0.3)",
                 "drawdown_fill": "rgba(145, 149, 153, 0)",
                 "table_header": "rgba(64,64,64,0)",
@@ -2068,12 +2068,18 @@ class ChartBuilder:
                 y=drawdown,
                 mode="lines",
                 fill="tozeroy",
+                fillgradient=dict(
+                    type="vertical",
+                    colorscale=[
+                        (0.0, "rgba(255, 255, 255, 0.0)"),
+                        (1.0, self._get_alpha_color(cfg.get("drawdown"), alpha=0.2)),
+                    ],
+                ),
                 name="Drawdown",
                 legendgroup="drawdown",
                 visible="legendonly",
                 # line=dict(color=cfg["drawdown"], width=1.5 * scale),
                 line=dict(color=cfg["drawdown"], width=1),
-                fillcolor=cfg["drawdown_fill"],
                 hovertemplate=("<b>Drawdown</b>: %{y:.2%}<br><extra></extra>"),
                 hoverlabel=dict(
                     bgcolor=hover_config["drawdown"],
@@ -2090,6 +2096,14 @@ class ChartBuilder:
                 x=cumulative.index,
                 y=cumulative,
                 mode="lines",
+                fill="tozeroy",
+                fillgradient=dict(
+                    type="vertical",
+                    colorscale=[
+                        (0.0, "rgba(255, 255, 255, 0.0)"),
+                        (1.0, self._get_alpha_color(cfg.get("cumret"), alpha=0.2)),
+                    ],
+                ),
                 name="Cum. Return",
                 # line=dict(color=cfg["cumret"], width=3 * scale),
                 line=dict(color=cfg["cumret"], width=1.5),
