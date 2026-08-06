@@ -1213,9 +1213,13 @@ a:active { color: lightgrey; text-decoration: underline; }
   table {
     font-size: 1.2rem !important;
   }
+  .navbar {
+    gap: 0px;
+    margin-left: 15px;
+  }
   
   .all-tabs {
-        margin-top: -35px;
+        margin-top: -45px;
         font-size: 1.2rem;
     
   }
