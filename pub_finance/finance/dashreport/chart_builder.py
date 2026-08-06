@@ -1538,6 +1538,7 @@ class ChartBuilder:
                 ],
             ),
             yaxis=dict(
+                title=None,
                 side="left",
                 mirror=False,
                 showticklabels=False,  # 关闭刻度标签
@@ -1553,6 +1554,7 @@ class ChartBuilder:
                 ticklabelposition="inside",
                 tickangle=0,
                 zeroline=False,
+                autorange=True,
                 dtick=ymax / 3,
             ),
             legend=dict(

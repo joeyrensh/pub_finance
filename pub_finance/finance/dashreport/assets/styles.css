@@ -670,6 +670,12 @@ table tr:hover img[src^="data:image/png;base64"] {
 .js-plotly-plot .hoverlayer { overflow: visible !important; z-index: 9999; }
 .js-plotly-plot .hoverlabel { white-space: normal !important; max-width: none !important; overflow: visible !important; }
 .js-plotly-plot, .js-plotly-plot svg { overflow: visible !important; }
+.js-plotly-plot .draglayer .drag {
+    pointer-events: none !important;
+}
+.js-plotly-plot .draglayer .nsewdrag {
+    pointer-events: all !important;
+}
 
 
 /* ==========================================================================
