@@ -242,66 +242,6 @@ def make_dash_table(df):
     )
 
 
-# def data_bars(df, column):
-#     col_n = column + "_o"
-#     n_bins = 100
-#     bounds = [i * (1.0 / n_bins) for i in range(n_bins + 1)]
-#     ranges = [
-#         ((df[col_n].max() - df[col_n].min()) * i) + df[col_n].min() for i in bounds
-#     ]
-#     styles = []
-#     for i in range(1, len(bounds)):
-#         min_bound = ranges[i - 1]
-#         max_bound = ranges[i]
-#         max_bound_percentage = bounds[i] * 100
-#         styles.append(
-#             {
-#                 "if": {
-#                     "filter_query": (
-#                         "{{{column}}} >= {min_bound}"
-#                         + (
-#                             " && {{{column}}} < {max_bound}"
-#                             if (i < len(bounds) - 1)
-#                             else ""
-#                         )
-#                         + " && {{{column}}} > 0"  # 只对非负值应用样式
-#                     ).format(column=col_n, min_bound=min_bound, max_bound=max_bound),
-#                     "column_id": column,
-#                 },
-#                 "background": (
-#                     """
-#                     linear-gradient(90deg,
-#                     var(--data-bar-color) 0%,
-#                     var(--data-bar-color) {max_bound_percentage}%,
-#                     transparent {max_bound_percentage}%,
-#                     transparent 100%)
-#                     """.format(
-#                         max_bound_percentage=max_bound_percentage
-#                     )
-#                 ),
-#                 # "padding": "4px 0",
-#                 # "paddingBottom": 2,
-#                 # "paddingTop": 2,
-#             }
-#         )
-#         # 添加对负值的样式
-#         styles.append(
-#             {
-#                 "if": {
-#                     "filter_query": ("{{{column}}} <= 0").format(  # 只对负值应用样式
-#                         column=col_n
-#                     ),
-#                     "column_id": column,
-#                 },
-#                 "background": "none",  # 负值背景色设置为透明
-#                 "paddingBottom": 2,
-#                 "paddingTop": 2,
-#             }
-#         )
-
-#     return styles
-
-
 def data_bars(df, column):
     col_n = column + "_o"
 
@@ -421,11 +361,11 @@ def discrete_background_color_bins(df, column, n_bins=10, positive_is_red=False,
 
     # 根据参数决定正/负的基础颜色（使用 CSS 变量，保留可覆盖性）
     if positive_is_red:
-        pos_base = "var(--positive-value-bg-color, red)"
-        neg_base = "var(--negative-value-bg-color, green)"
+        pos_base = "var(--positive-int-bg-color, red)"
+        neg_base = "var(--negative-int-bg-color, green)"
     else:
-        pos_base = "var(--negative-value-bg-color, green)"
-        neg_base = "var(--positive-value-bg-color, red)"
+        pos_base = "var(--negative-int-bg-color, green)"
+        neg_base = "var(--positive-int-bg-color, red)"
 
     # 使用CSS变量定义颜色，让CSS处理暗黑模式适配
     def get_color_style(value_range, is_positive=True):
@@ -592,7 +532,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                     "filter_query": filter_query,
                     "column_id": col,  # 高亮的列
                 },
-                "color": "var(--row-bg-color)",
+                "color": "var(--highlight-symbol-color)",
                 "fontWeight": "bold",
             }
             for col in highlight_cols
@@ -758,8 +698,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                     "filter_query": "{{{}}} < 0".format(col + "_o"),
                     "column_id": col,
                 },
-                # "color": ("""var(--negative-value-bg-color)"""),
-                "color": "var(--negative-value-bg-color)",
+                "color": "var(--negative-int-bg-color)",
             }
             for col in df.columns
             if col in cols_format
@@ -773,8 +712,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                     "filter_query": "{{{}}} > 0".format(col + "_o"),
                     "column_id": col,
                 },
-                # "color": ("""var(--positive-value-bg-color)"""),
-                "color": "var(--positive-value-bg-color)",
+                "color": "var(--positive-int-bg-color)",
             }
             for col in df.columns
             if col in cols_format

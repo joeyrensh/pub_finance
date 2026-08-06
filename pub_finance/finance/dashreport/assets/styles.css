@@ -5,14 +5,12 @@
 /* --- 浅色主题（默认） --- */
 :root {
   /* 表格相关 */
-  --data-bar-color: #7dcfff;
   --date-bg-color: #91959924;
-  --row-bg-color: #ff4444;
-  --negative-value-bg-color: #00a859;
-  --positive-value-bg-color: #ff4444;
-  --track-color: #ecf0f1;
-  --positive-databar-color: #ff444482;
-  --negative-databar-color: #00a859bf;
+  --highlight-symbol-color: #ff4444;
+  --negative-int-bg-color: #0d876d;
+  --positive-int-bg-color: #ff4444;
+  --positive-databar-color: #ff444480;
+  --negative-databar-color: #0d876d80;
   --gridcolor: #D1D5DB;
   
   /* 通用样式 */
@@ -23,12 +21,9 @@
   --a-visited-color: #000000;
   --learn-more-button-color: #000000;
   --dash-table-border-color: rgba(211, 211, 211, 0.6);
-  --main-title-color: #D9534F;
   --flag-color: rgba(231, 127, 63, 0.97);
-  --full-view-link-bg-color: #3498dbc4;
   --border-left-color: #D1D5DB;
   --bubble-background-color: linear-gradient(135deg, rgb(255, 68, 0), #fb0, #fb0);
-  --hover-text-color: #186EAC;
   --kpi-background: #91959924;
 }
 
@@ -36,12 +31,11 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* 表格相关 */
-    --data-bar-color: #0074d973;
     --date-bg-color: #91959924;
-    --negative-value-bg-color: #00875A;    
-    --positive-value-bg-color: #ff4444;    
-    --positive-databar-color: #ff444482;
-    --negative-databar-color: #0d876cd9;
+    --negative-int-bg-color: #00875A;    
+    --positive-int-bg-color: #ff4444;    
+    --positive-databar-color: #ff444480;
+    --negative-databar-color: #00875A80;
     --gridcolor: #2D3748;
     
     /* 通用样式 */
@@ -52,11 +46,8 @@
     --a-visited-color: #ffffffc5;
     --learn-more-button-color: #9fa6b7;
     --dash-table-border-color: rgba(255, 255, 255, 0.2);
-    --main-title-color: #ffffffc5;
     --flag-color: rgba(231, 127, 63, 0.97);
-    --full-view-link-bg-color: #00a85aa2;
     --border-left-color: #2D3748;
-    --hover-text-color: #186EAC;
     --kpi-background: #91959924;
   }
 }

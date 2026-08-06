@@ -291,7 +291,7 @@ class ToolKit:
     #     # 配置参数
     #     config = {
     #         "up_color": "#ff4444",
-    #         "down_color": "#00a859",
+    #         "down_color": "#0d876d",
     #         "line_width": 2,
     #         "secondary_line_width": (
     #             0.5 if second_plot_type == "area" else 1.5
@@ -575,7 +575,7 @@ class ToolKit:
         # ===============================
         config = {
             "up_color": "#ff4444",
-            "down_color": "#00a859",
+            "down_color": "#0d876d",
             "line_width": 2,
             "secondary_line_width": 0.6,
             "secondary_line_alpha": 0.9,

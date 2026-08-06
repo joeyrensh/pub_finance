@@ -14,13 +14,13 @@ class ChartBuilder:
     def __init__(self):
         self.theme_config = {
             "light": {
-                "positive_int": "#ff4444",  # 红色 - 正数
-                "negative_int": "#0d876d",  # 绿色 - 负数
-                "text_color": "#000000",  # 黑色
-                "grid": "#D1D5DB",  # 网格线
-                "background": "rgba(255, 255, 255, 0)",  # 透明背景
-                "legend_bg": "rgba(246, 248, 249, 0.2)",
-                "strategy_colors": [
+                "positive-int-color": "#ff4444",  # 红色 - 正数
+                "negative-int-color": "#0d876d",  # 绿色 - 负数
+                "text-color": "#000000",  # 黑色
+                "gridcolor": "#D1D5DB",  # 网格线
+                "background-color": "rgba(255, 255, 255, 0)",  # 透明背景
+                "legend-bg-color": "rgba(246, 248, 249, 0.2)",
+                "strategy-colors": [
                     "#FF4444",
                     "#FF4444",
                     "#0d876d",
@@ -30,37 +30,35 @@ class ChartBuilder:
                     "#64748B",
                     "#64748B",
                 ],
-                "upgrade": "#64748B",
-                "long2": "#64748B",
+                "upgrade-marker-color": "#64748B",
+                "total-cnt-color": "#64748B",
                 "long": "#ff4444",
                 "short": "#0d876d",
-                "pnl_colors": [
+                "pnl-colors": [
                     "#0d876d",
                     "#FF4444",
                     "#64748B",
                     "#64748B",
                     "#64748B",
                 ],
-                "border": "#D1D5DB",
-                "outside_text": "#777777",
-                "cumret": "#ff4444",
-                "drawdown": "#0d876d",
-                # "drawdown_fill": "rgba(13,135,109,0.3)",
-                "drawdown_fill": "rgba(145, 149, 153, 0.05)",
-                "table_header": "rgba(245,245,245,0)",
-                "table_cell": "rgba(0,0,0,0)",
-                "hover_bg": "#ffffff",
-                "hover_text": "#000000",
-                "hover_border": "#cccccc",
+                "border-color": "#D1D5DB",
+                "outside-text-color": "#777777",
+                "cumret-line-color": "#ff4444",
+                "drawdown-line-color": "#0d876d",
+                "table-header-color": "rgba(245,245,245,0)",
+                "table-cell-color": "rgba(0,0,0,0)",
+                "hover-bg-color": "#ffffff",
+                "hover-text-color": "#000000",
+                "hover-border-color": "#cccccc",
             },
             "dark": {
-                "positive_int": "#ff4444",  # 亮红色 - 正数
-                "negative_int": "#00875A",  # 亮绿色 - 负数
-                "text_color": "#ffffff",  # 白色
-                "grid": "#2D3748",  # 网格线
-                "background": "rgba(0, 0, 0, 0)",  # 透明背景
-                "legend_bg": "rgba(123, 50, 116, 0.02)",
-                "strategy_colors": [
+                "positive-int-color": "#ff4444",  # 亮红色 - 正数
+                "negative-int-color": "#00875A",  # 亮绿色 - 负数
+                "text-color": "#ffffff",  # 白色
+                "gridcolor": "#2D3748",  # 网格线
+                "background-color": "rgba(0, 0, 0, 0)",  # 透明背景
+                "legend-bg-color": "rgba(123, 50, 116, 0.02)",
+                "strategy-colors": [
                     "#FF4444",
                     "#FF4444",
                     "#00875A",
@@ -70,28 +68,26 @@ class ChartBuilder:
                     "#64748B",
                     "#64748B",
                 ],
-                "upgrade": "#64748B",
-                "long2": "#64748B",
+                "upgrade-marker-color": "#64748B",
+                "total-cnt-color": "#64748B",
                 "long": "#ff4444",
                 "short": "#00875A",
-                "pnl_colors": [
+                "pnl-colors": [
                     "#00875A",
                     "#FF4444",
                     "#64748B",
                     "#64748B",
                     "#64748B",
                 ],
-                "border": "#2D3748",
-                "outside_text": "#64748B",
-                "cumret": "#ff4444",
-                "drawdown": "#00875A",
-                # "drawdown_fill": "rgba(107,207,181,0.3)",
-                "drawdown_fill": "rgba(145, 149, 153, 0)",
-                "table_header": "rgba(64,64,64,0)",
-                "table_cell": "rgba(0,0,0,0)",
-                "hover_bg": "#1a1a1a",
-                "hover_text": "#ffffff",
-                "hover_border": "#666666",
+                "border-color": "#2D3748",
+                "outside-text-color": "#64748B",
+                "cumret-line-color": "#ff4444",
+                "drawdown-line-color": "#00875A",
+                "table-header-color": "rgba(64,64,64,0)",
+                "table-cell-color": "rgba(0,0,0,0)",
+                "hover-bg-color": "#1a1a1a",
+                "hover-text-color": "#ffffff",
+                "hover-border-color": "#666666",
             },
         }
         self.font_family = '"SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif'
@@ -194,11 +190,11 @@ class ChartBuilder:
         config = self.theme_config.get(theme, self.theme_config["light"])
         hover_config = self.theme_config.get(theme, self.theme_config["light"])
         # 休市颜色使用中性色 + 透明度
-        holiday_color = config["text_color"].replace("#", "")
+        holiday_color = config["text-color"].replace("#", "")
         if len(holiday_color) == 6:  # 如果是hex颜色
             holiday_color = f"rgba({int(holiday_color[0:2], 16)}, {int(holiday_color[2:4], 16)}, {int(holiday_color[4:6], 16)}, 0.5)"
         else:
-            holiday_color = config["text_color"]
+            holiday_color = config["text-color"]
         # 转换数据类型
         if "date" in df.columns:
             df["date"] = pd.to_datetime(df["date"])
@@ -427,14 +423,14 @@ class ChartBuilder:
 
             # -------- 颜色 --------
             if col3_value > 0:
-                dynamic_text_color = config["positive_int"]
-                hover_bg = hover_config["positive_int"]
+                dynamic_text_color = config["positive-int-color"]
+                hover_bg = hover_config["positive-int-color"]
             elif col3_value < 0:
-                dynamic_text_color = config["negative_int"]
-                hover_bg = hover_config["negative_int"]
+                dynamic_text_color = config["negative-int-color"]
+                hover_bg = hover_config["negative-int-color"]
             else:
-                dynamic_text_color = config["text_color"]
-                hover_bg = config["text_color"]
+                dynamic_text_color = config["text-color"]
+                hover_bg = config["text-color"]
                 dynamic_font_size = base_font_size
 
             industry_items = [
@@ -476,7 +472,7 @@ class ChartBuilder:
                         family=self.font_family,
                         # size=(base_font_size + font_size_top),
                         size=base_font_size,
-                        color=config["text_color"],
+                        color=config["text-color"],
                     ),
                     align="center",
                     xanchor="center",
@@ -525,7 +521,7 @@ class ChartBuilder:
             #             family=self.font_family,
             #             # size=(base_font_size + font_size_bottom),
             #             size=base_font_size,
-            #             color=config["text_color"],
+            #             color=config["text-color"],
             #         ),
             #         align="center",
             #         xanchor="center",
@@ -579,7 +575,7 @@ class ChartBuilder:
                 tickfont=dict(
                     family=self.font_family,
                     size=base_font_size,
-                    color=config["text_color"],
+                    color=config["text-color"],
                 ),
             ),
             yaxis=dict(
@@ -589,15 +585,15 @@ class ChartBuilder:
                 autorange=False,
                 range=yaxis_range,
             ),
-            plot_bgcolor=config["background"],
-            paper_bgcolor=config["background"],
+            plot_bgcolor=config["background-color"],
+            paper_bgcolor=config["background-color"],
             margin=dict(l=0, r=0, t=0, b=0, pad=0),
             autosize=True,
             dragmode=False,
             hoverlabel=dict(
                 bgcolor=hover_bg,
                 font_size=base_font_size,
-                # font_color=config["hover_text"],
+                # font_color=config["hover-text-color"],
             ),
         )
 
@@ -607,7 +603,7 @@ class ChartBuilder:
             fig.add_hline(
                 y=week - 0.5,
                 line=dict(
-                    color=config["grid"],
+                    color=config["gridcolor"],
                     width=1,
                 ),
                 opacity=0.6,
@@ -620,7 +616,7 @@ class ChartBuilder:
             fig.add_vline(
                 x=day - 0.5,
                 line=dict(
-                    color=config["grid"],
+                    color=config["gridcolor"],
                     width=1,
                 ),
                 opacity=0.6,
@@ -647,7 +643,7 @@ class ChartBuilder:
                     font=dict(
                         family=self.font_family,
                         size=base_font_size,
-                        color=config["text_color"],
+                        color=config["text-color"],
                     ),
                     align="center",
                     xanchor="center",
@@ -791,10 +787,10 @@ class ChartBuilder:
         collision_val_pct=0.05,  # 碰撞判断：数值差距百分比阈值
     ):
         cfg = self.theme_config.get(theme, self.theme_config["light"])
-        text_color = cfg["text_color"]
-        grid_color = cfg["grid"]
-        legend_bg = cfg["legend_bg"]
-        strategy_colors = cfg["strategy_colors"]
+        text_color = cfg["text-color"]
+        grid_color = cfg["gridcolor"]
+        legend_bg = cfg["legend-bg-color"]
+        strategy_colors = cfg["strategy-colors"]
         scale, base_font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.05
         )
@@ -1436,8 +1432,8 @@ class ChartBuilder:
     ):
 
         cfg = self.theme_config.get(theme, self.theme_config["light"])
-        text_color = cfg["text_color"]
-        grid_color = cfg["grid"]
+        text_color = cfg["text-color"]
+        grid_color = cfg["gridcolor"]
 
         scale, font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.05
@@ -1457,8 +1453,8 @@ class ChartBuilder:
                 y=df["total_cnt"],
                 mode="lines",
                 name="Total",
-                # line=dict(color=cfg["long2"], width=3 * unified_scale),
-                line=dict(color=cfg["long2"], width=1.5),
+                # line=dict(color=cfg["total-cnt-color"], width=3 * unified_scale),
+                line=dict(color=cfg["total-cnt-color"], width=1.5),
                 yaxis="y",
                 hovertemplate=(
                     # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
@@ -1570,7 +1566,7 @@ class ChartBuilder:
                     color=text_color,
                     family=self.font_family,
                 ),
-                bgcolor=cfg["legend_bg"],
+                bgcolor=cfg["legend-bg-color"],
                 borderwidth=0,
                 tracegroupgap=0,
             ),
@@ -1597,7 +1593,7 @@ class ChartBuilder:
     ):
 
         cfg = self.theme_config.get(theme, self.theme_config["light"])
-        text_color = cfg["text_color"]
+        text_color = cfg["text-color"]
 
         scale, font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.05
@@ -1615,7 +1611,7 @@ class ChartBuilder:
             y="pnl",
             color="industry",
             line_group="industry",
-            color_discrete_sequence=cfg["pnl_colors"],
+            color_discrete_sequence=cfg["pnl-colors"],
         )
         fig.update_traces(
             # line=dict(width=3 * unified_scale),
@@ -1641,10 +1637,10 @@ class ChartBuilder:
                 family=self.font_family,
             ),
             showline=False,
-            linecolor=cfg["grid"],
+            linecolor=cfg["gridcolor"],
             linewidth=1,
             zeroline=False,
-            gridcolor=cfg["grid"],
+            gridcolor=cfg["gridcolor"],
             gridwidth=0.5,
             tickmode="linear",
             dtick="M1",
@@ -1667,10 +1663,10 @@ class ChartBuilder:
                 family=self.font_family,
             ),
             showline=False,
-            linecolor=cfg["grid"],
+            linecolor=cfg["gridcolor"],
             linewidth=1,
             zeroline=False,
-            gridcolor=cfg["grid"],
+            gridcolor=cfg["gridcolor"],
             gridwidth=0.5,
             ticklabelposition="inside",
             tickangle=0,
@@ -1706,7 +1702,7 @@ class ChartBuilder:
                     color=text_color,
                     family=self.font_family,
                 ),
-                bgcolor=cfg["legend_bg"],
+                bgcolor=cfg["legend-bg-color"],
                 borderwidth=0,
                 tracegroupgap=0,
             ),
@@ -1730,7 +1726,7 @@ class ChartBuilder:
     ):
 
         cfg = self.theme_config.get(theme, self.theme_config["light"])
-        text_color = cfg["text_color"]
+        text_color = cfg["text-color"]
         scale, font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.05
         )
@@ -1757,7 +1753,7 @@ class ChartBuilder:
                 marker=dict(
                     colors=hex_colors,
                     line=dict(
-                        color=cfg["border"],
+                        color=cfg["border-color"],
                         width=1,
                     ),
                     showscale=False,
@@ -1795,7 +1791,7 @@ class ChartBuilder:
     ):
 
         cfg = self.theme_config.get(theme, self.theme_config["light"])
-        text_color = cfg["text_color"]
+        text_color = cfg["text-color"]
         scale, font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.0
         )
@@ -1819,14 +1815,14 @@ class ChartBuilder:
                     family=self.font_family,
                 ),
                 outsidetextfont=dict(
-                    color=cfg["outside_text"],
+                    color=cfg["outside-text-color"],
                     family=self.font_family,
                 ),
                 textposition="middle center",
                 marker=dict(
                     colors=hex_colors,
                     line=dict(
-                        color=cfg["border"],
+                        color=cfg["border-color"],
                         width=1,
                     ),
                     showscale=False,
@@ -1930,7 +1926,7 @@ class ChartBuilder:
         # =========================
         cfg = self.theme_config.get(theme, self.theme_config["light"])
         hover_config = self.theme_config.get(theme, self.theme_config["light"])
-        text_color = cfg["text_color"]
+        text_color = cfg["text-color"]
         scale, base_font = self._get_font_sizes(
             client_width, base_font=16, min_scale=0.65, max_scale=1.05
         )
@@ -2003,9 +1999,9 @@ class ChartBuilder:
                             num_val = float(val_str.replace("%", ""))
                             if row["YEAR"] == latest_year:
                                 color = (
-                                    cfg["positive_int"]
+                                    cfg["positive-int-color"]
                                     if num_val >= 0
-                                    else cfg["negative_int"]
+                                    else cfg["negative-int-color"]
                                 )
                             else:
                                 color = text_color
@@ -2072,17 +2068,21 @@ class ChartBuilder:
                     type="vertical",
                     colorscale=[
                         (0.0, "rgba(255, 255, 255, 0.0)"),
-                        (1.0, self._get_alpha_color(cfg.get("drawdown"), alpha=0.2)),
+                        (
+                            1.0,
+                            self._get_alpha_color(
+                                cfg.get("drawdown-line-color"), alpha=0.2
+                            ),
+                        ),
                     ],
                 ),
                 name="Drawdown",
                 legendgroup="drawdown",
                 visible="legendonly",
-                # line=dict(color=cfg["drawdown"], width=1.5 * scale),
-                line=dict(color=cfg["drawdown"], width=1),
+                line=dict(color=cfg["drawdown-line-color"], width=1),
                 hovertemplate=("<b>Drawdown</b>: %{y:.2%}<br><extra></extra>"),
                 hoverlabel=dict(
-                    bgcolor=hover_config["drawdown"],
+                    bgcolor=hover_config["drawdown-line-color"],
                 ),
                 yaxis="y",
             )
@@ -2101,15 +2101,19 @@ class ChartBuilder:
                     type="vertical",
                     colorscale=[
                         (0.0, "rgba(255, 255, 255, 0.0)"),
-                        (1.0, self._get_alpha_color(cfg.get("cumret"), alpha=0.2)),
+                        (
+                            1.0,
+                            self._get_alpha_color(
+                                cfg.get("cumret-line-color"), alpha=0.2
+                            ),
+                        ),
                     ],
                 ),
                 name="Cum. Return",
-                # line=dict(color=cfg["cumret"], width=3 * scale),
-                line=dict(color=cfg["cumret"], width=1.5),
+                line=dict(color=cfg["cumret-line-color"], width=1.5),
                 hovertemplate=("<b>Cum. Return</b>: %{y:.4f}<br><extra></extra>"),
                 hoverlabel=dict(
-                    bgcolor=hover_config["cumret"],
+                    bgcolor=hover_config["cumret-line-color"],
                 ),
                 yaxis="y2",
             )
@@ -2202,10 +2206,12 @@ class ChartBuilder:
                     x=[last_x],
                     y=[last_y],
                     mode="markers+text",
-                    marker=dict(symbol="circle", size=8 * scale, color=cfg["cumret"]),
+                    marker=dict(
+                        symbol="circle", size=8 * scale, color=cfg["cumret-line-color"]
+                    ),
                     showlegend=False,
                     hovertemplate=f"<b>Latest Cum. Return</b>: {last_y:.4f}<br><extra></extra>",
-                    hoverlabel=dict(bgcolor=hover_config["cumret"]),
+                    hoverlabel=dict(bgcolor=hover_config["cumret-line-color"]),
                     yaxis="y2",
                 )
             )
@@ -2222,7 +2228,9 @@ class ChartBuilder:
                     ],
                     y=[cum_max_val],
                     mode="markers+text",
-                    marker=dict(symbol="circle", size=8 * scale, color=cfg["cumret"]),
+                    marker=dict(
+                        symbol="circle", size=8 * scale, color=cfg["cumret-line-color"]
+                    ),
                     text=[f"Max: {cum_max_val:.2f}"],
                     textposition=get_label_position(
                         cum_max_idx, cumulative, cum_max_val, avoid_overflow=False
@@ -2233,7 +2241,7 @@ class ChartBuilder:
                     cliponaxis=False,
                     showlegend=False,
                     hovertemplate=f"<b>Max Cum. Return</b>: {cum_max_val:.4f}<br><extra></extra>",
-                    hoverlabel=dict(bgcolor=hover_config["cumret"]),
+                    hoverlabel=dict(bgcolor=hover_config["cumret-line-color"]),
                     yaxis="y2",
                 )
             )
@@ -2255,7 +2263,11 @@ class ChartBuilder:
                     mode="markers+text",
                     visible="legendonly",
                     legendgroup="drawdown",
-                    marker=dict(symbol="circle", size=8 * scale, color=cfg["drawdown"]),
+                    marker=dict(
+                        symbol="circle",
+                        size=8 * scale,
+                        color=cfg["drawdown-line-color"],
+                    ),
                     text=[get_compact_label("Max DD", max_dd_val, client_width)],
                     textposition=get_label_position(
                         max_dd_idx,
@@ -2271,7 +2283,7 @@ class ChartBuilder:
                     cliponaxis=False,
                     showlegend=False,
                     hovertemplate=f"<b>Max Drawdown</b>: {max_dd_val:.2%}<br><extra></extra>",
-                    hoverlabel=dict(bgcolor=hover_config["drawdown"]),
+                    hoverlabel=dict(bgcolor=hover_config["drawdown-line-color"]),
                     yaxis="y",
                 )
             )
@@ -2290,7 +2302,9 @@ class ChartBuilder:
                             visible="legendonly",
                             legendgroup="drawdown",
                             marker=dict(
-                                symbol="diamond", size=6 * scale, color=cfg["drawdown"]
+                                symbol="diamond",
+                                size=6 * scale,
+                                color=cfg["drawdown-line-color"],
                             ),
                             text=[get_compact_label("30D DD", val_30, client_width)],
                             textposition=get_label_position(
@@ -2306,7 +2320,9 @@ class ChartBuilder:
                             textfont=dict(size=base_font, color=text_color),
                             showlegend=False,
                             hovertemplate=f"<b>30D Max Drawdown</b>: {val_30:.2%}<br><extra></extra>",
-                            hoverlabel=dict(bgcolor=hover_config["drawdown"]),
+                            hoverlabel=dict(
+                                bgcolor=hover_config["drawdown-line-color"]
+                            ),
                             yaxis="y",
                         )
                     )
@@ -2328,7 +2344,9 @@ class ChartBuilder:
                             visible="legendonly",
                             legendgroup="drawdown",
                             marker=dict(
-                                symbol="diamond", size=6 * scale, color=cfg["drawdown"]
+                                symbol="diamond",
+                                size=6 * scale,
+                                color=cfg["drawdown-line-color"],
                             ),
                             text=[get_compact_label("120D DD", val_120, client_width)],
                             textposition=get_label_position(
@@ -2343,7 +2361,9 @@ class ChartBuilder:
                             textfont=dict(size=base_font, color=text_color),
                             showlegend=False,
                             hovertemplate=f"<b>120D Max Drawdown</b>: {val_120:.2%}<br><extra></extra>",
-                            hoverlabel=dict(bgcolor=hover_config["drawdown"]),
+                            hoverlabel=dict(
+                                bgcolor=hover_config["drawdown-line-color"]
+                            ),
                             yaxis="y",
                         )
                     )
@@ -2382,11 +2402,11 @@ class ChartBuilder:
                 domain=dict(x=[0.0, 1.0], y=TABLE_DOMAIN_Y),
                 header=dict(
                     values=header_values,
-                    fill_color=cfg["table_header"],
-                    line=dict(color=cfg["border"], width=1),
+                    fill_color=cfg["table-header-color"],
+                    line=dict(color=cfg["border-color"], width=1),
                     font=dict(
                         size=layout_cfg["table_font"],
-                        color=cfg["text_color"],
+                        color=cfg["text-color"],
                         family=self.font_family,
                     ),
                     align=["left"] * len(header_values),
@@ -2394,8 +2414,8 @@ class ChartBuilder:
                 ),
                 cells=dict(
                     values=cell_values,
-                    fill_color=cfg["table_cell"],
-                    line=dict(color=cfg["border"], width=1),
+                    fill_color=cfg["table-cell-color"],
+                    line=dict(color=cfg["border-color"], width=1),
                     font=dict(
                         size=font_sizes_by_col,
                         color=font_colors_by_col,
@@ -2452,7 +2472,7 @@ class ChartBuilder:
                 ticklabelposition="inside",
                 showline=False,
                 linewidth=1,
-                linecolor=cfg["border"],
+                linecolor=cfg["border-color"],
                 zeroline=False,
                 domain=CHART_DOMAIN_Y,  # 图表垂直区域
             ),
@@ -2462,7 +2482,7 @@ class ChartBuilder:
                 side="left",
                 overlaying="y",
                 showgrid=True,
-                gridcolor=cfg["grid"],
+                gridcolor=cfg["gridcolor"],
                 gridwidth=0.5,
                 tickfont=dict(
                     size=base_font, color=text_color, family=self.font_family
@@ -2476,13 +2496,13 @@ class ChartBuilder:
                 ticklabelposition="inside",
                 showline=False,
                 linewidth=1,
-                linecolor=cfg["border"],
+                linecolor=cfg["border-color"],
                 zeroline=False,
                 domain=CHART_DOMAIN_Y,  # 与yaxis共享相同垂直区域
             ),
             # X轴设置
             xaxis=dict(
-                gridcolor=cfg["grid"],
+                gridcolor=cfg["gridcolor"],
                 tickfont=dict(
                     size=base_font, color=text_color, family=self.font_family
                 ),
@@ -2490,7 +2510,7 @@ class ChartBuilder:
                 rangeslider=dict(visible=False),
                 showline=False,
                 linewidth=1,
-                linecolor=cfg["border"],
+                linecolor=cfg["border-color"],
                 mirror=False,
                 anchor="y",
                 tickformat="%Y-%m",
@@ -2732,7 +2752,7 @@ class ChartBuilder:
                         size=6,
                         color="white",
                         line=dict(
-                            color=cfg["upgrade"],
+                            color=cfg["upgrade-marker-color"],
                             width=2 if scale >= 1 else 3 * scale,
                         ),
                     ),
@@ -2743,7 +2763,7 @@ class ChartBuilder:
                     hoverlabel=dict(
                         font_size=font_size,
                         font_family=self.font_family,
-                        bgcolor=cfg["upgrade"],
+                        bgcolor=cfg["upgrade-marker-color"],
                     ),
                 ),
                 row=1,
@@ -3095,10 +3115,10 @@ class ChartBuilder:
             tickangle=0,
             rangeslider_visible=False,
             showgrid=True,
-            gridcolor=cfg["grid"],
+            gridcolor=cfg["gridcolor"],
             gridwidth=0.5,
             showline=False,  # 你原本单独设置的
-            linecolor=cfg["grid"],
+            linecolor=cfg["gridcolor"],
             linewidth=1,
             automargin=False,
             ticks="",  # 刻度线向内
@@ -3110,15 +3130,15 @@ class ChartBuilder:
             mirror=False,
             tickfont=dict(
                 size=font_size,
-                color=cfg["text_color"],
+                color=cfg["text-color"],
                 family=self.font_family,
             ),
             title=dict(text=None),
             showline=False,
-            linecolor=cfg["grid"],
+            linecolor=cfg["gridcolor"],
             linewidth=1,
             zeroline=False,
-            gridcolor=cfg["grid"],
+            gridcolor=cfg["gridcolor"],
             gridwidth=0.5,
             ticklabelposition="inside",
             tickangle=0,
@@ -3131,7 +3151,7 @@ class ChartBuilder:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             hoverlabel=dict(font_size=font_size, font_family=self.font_family),
-            font=dict(family=self.font_family, size=font_size, color=cfg["text_color"]),
+            font=dict(family=self.font_family, size=font_size, color=cfg["text-color"]),
             hovermode="x",
             dragmode=False,
             showlegend=True,
@@ -3160,7 +3180,7 @@ class ChartBuilder:
         # 1. 基础配置与数据预处理
         # ------------------------------
         cfg = self.theme_config.get(theme, self.theme_config["light"])
-        text_color = cfg["text_color"]
+        text_color = cfg["text-color"]
         scale, font_size = self._get_font_sizes(
             client_width, base_font=12, min_scale=0.9, max_scale=1.05
         )
@@ -3327,7 +3347,7 @@ class ChartBuilder:
         # ------------------------------
         # 6. 创建折线图
         # ------------------------------
-        df["hover_text"] = df.apply(
+        df["hover-text-color"] = df.apply(
             lambda row: (
                 f"<b>{row['date'].strftime('%Y-%m-%d')}</b><br>"
                 f"盈亏: {row['s_pnl']:,.2f}<br>"
@@ -3343,10 +3363,9 @@ class ChartBuilder:
                 y=df["s_pnl"],
                 name="每日盈亏",
                 mode="lines+markers",
-                # line=dict(color=cfg.get("cumret"), width=3 * unified_scale),
-                line=dict(color=cfg.get("cumret"), width=1.5),
-                marker=dict(size=6 * unified_scale, color=cfg.get("cumret")),
-                text=df["hover_text"],
+                line=dict(color=cfg.get("cumret-line-color"), width=1.5),
+                marker=dict(size=6 * unified_scale, color=cfg.get("cumret-line-color")),
+                text=df["hover-text-color"],
                 hovertemplate="%{text}<extra></extra>",
                 yaxis="y",
             )
@@ -3369,7 +3388,7 @@ class ChartBuilder:
                 arrowcolor=text_color,
                 ax=ax_offsets[i],
                 ay=ay_offsets[i],
-                bgcolor=cfg.get("legend_bg"),
+                bgcolor=cfg.get("legend-bg-color"),
                 font=dict(size=font_size, color=text_color),
                 xanchor=xanchors[i],
                 yanchor="bottom" if ay_offsets[i] < 0 else "top",
@@ -3399,10 +3418,10 @@ class ChartBuilder:
                 tickfont=dict(size=font_size, color=text_color),
                 mirror=False,
                 showline=False,
-                linecolor=cfg["grid"],
+                linecolor=cfg["gridcolor"],
                 linewidth=1,
                 zeroline=True,
-                gridcolor=cfg["grid"],
+                gridcolor=cfg["gridcolor"],
                 gridwidth=0.5,
                 tickmode="auto",
                 tickformat="%Y-%m-%d",
@@ -3417,7 +3436,7 @@ class ChartBuilder:
                 showticklabels=False,
                 mirror=True,
                 showgrid=True,
-                gridcolor=cfg["grid"],
+                gridcolor=cfg["gridcolor"],
                 gridwidth=0.5,
                 side="left",
                 zeroline=False,
@@ -3435,7 +3454,7 @@ class ChartBuilder:
                 y=1,
                 yanchor="top",
                 font=dict(size=font_size, color=text_color, family=self.font_family),
-                bgcolor=cfg["legend_bg"],
+                bgcolor=cfg["legend-bg-color"],
                 borderwidth=0,
                 tracegroupgap=0,
             ),
