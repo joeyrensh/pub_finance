@@ -40,10 +40,10 @@
     
     /* 通用样式 */
     --background-color: #171b26;
-    --text-color: rgba(255, 255, 255, 0.8);
+    --text-color: rgba(255, 255, 255, 0.9);
     --login-box-shadow-color: #607D8B;
-    --subtitle-color: rgba(255, 255, 255, 0.8);
-    --a-visited-color: rgba(255, 255, 255, 0.8);
+    --subtitle-color: rgba(255, 255, 255, 0.9);
+    --a-visited-color: rgba(255, 255, 255, 0.9);
     --learn-more-button-color: #9fa6b7;
     --dash-table-border-color: rgba(255, 255, 255, 0.2);
     --flag-color: rgba(231, 127, 63, 0.97);
