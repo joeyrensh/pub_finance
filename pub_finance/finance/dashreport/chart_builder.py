@@ -16,7 +16,7 @@ class ChartBuilder:
             "light": {
                 "positive-int-color": "#ff4444",  # 红色 - 正数
                 "negative-int-color": "#0d876d",  # 绿色 - 负数
-                "text-color": "#000000",  # 黑色
+                "text-color": "#333333",  # 黑色
                 "gridcolor": "#D1D5DB",  # 网格线
                 "background-color": "rgba(255, 255, 255, 0)",  # 透明背景
                 "legend-bg-color": "rgba(246, 248, 249, 0.2)",
@@ -48,13 +48,13 @@ class ChartBuilder:
                 "table-header-color": "rgba(245,245,245,0)",
                 "table-cell-color": "rgba(0,0,0,0)",
                 "hover-bg-color": "#ffffff",
-                "hover-text-color": "#000000",
+                "hover-text-color": "#333333",
                 "hover-border-color": "#cccccc",
             },
             "dark": {
                 "positive-int-color": "#ff4444",  # 亮红色 - 正数
                 "negative-int-color": "#00875A",  # 亮绿色 - 负数
-                "text-color": "#ffffff",  # 白色
+                "text-color": "rgba(255, 255, 255, 0.8)",  # 白色
                 "gridcolor": "#2D3748",  # 网格线
                 "background-color": "rgba(0, 0, 0, 0)",  # 透明背景
                 "legend-bg-color": "rgba(123, 50, 116, 0.02)",
@@ -86,7 +86,7 @@ class ChartBuilder:
                 "table-header-color": "rgba(64,64,64,0)",
                 "table-cell-color": "rgba(0,0,0,0)",
                 "hover-bg-color": "#1a1a1a",
-                "hover-text-color": "#ffffff",
+                "hover-text-color": "rgba(255, 255, 255, 0.8)",
                 "hover-border-color": "#666666",
             },
         }
