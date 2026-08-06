@@ -537,11 +537,11 @@ table.tiny-header tr:first-child { font-size: 8px; }
 
 .kpi-pct-up{
   font-variant-numeric: tabular-nums;
-  color: var(--positive-value-bg-color);
+  color: var(--positive-int-bg-color);
 }
 .kpi-pct-down{
   font-variant-numeric: tabular-nums;
-  color: var(--negative-value-bg-color);    
+  color: var(--negative-int-bg-color);    
 }
 .kpi-pct-neutral{
   color: var(--text-color)
