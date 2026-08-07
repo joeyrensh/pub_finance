@@ -394,13 +394,13 @@ table.tiny-header tr:first-child { font-size: 8px; }
   border-color: var(--dash-table-border-color) !important;
 }
 
+/* ---------- 方案四：品牌渐变 ---------- */
 .default-table input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
     width: 16px;   /* 适当放大提升触摸体验 */
     height: 16px;
-    border: none;
     background: transparent;
     cursor: pointer;
     position: relative;
@@ -408,30 +408,31 @@ table.tiny-header tr:first-child { font-size: 8px; }
     /* 确保 input 自身是块级或 inline-block，方便父级居中 */
     display: inline-block;
 }
-.default-table input[type="checkbox"]::before {
-    content: "□";
+
+.default-table input[type="checkbox"]:checked {
+    border-color: var(--positive-int-bg-color);
+    background-color: var(--positive-int-bg-color);
+}
+
+.default-table input[type="checkbox"]::after {
+    content: "✓";
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    /* 不再使用 flex，改为 text-align 和 line-height 居中 */
-    text-align: center;
-    line-height: 1;  /* 避免额外高度 */
-    font-size: 2rem; /* 适当大小 */
-    color: var(--gridcolor);
-    transition: all 0.2s;
-}
-.default-table input[type="checkbox"]:checked::before {
-    content: "■";
-    color: var(--negative-int-bg-color);
-}
-.default-table input[type="checkbox"]:hover::before {
-    color: var(--gridcolor);
-}
-.default-table input[type="checkbox"]:checked:hover::before {
-    color: var(--negative-int-bg-color);
+    transform: translate(-50%, -50%) scale(0);
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: transform 0.15s ease;
 }
 
+.default-table input[type="checkbox"]:checked::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.default-table input[type="checkbox"]:hover {
+    border-color: var(--positive-int-bg-color);
+}
 
 .dash-table-container .dash-spreadsheet-container {
   display: block !important;
@@ -1369,8 +1370,8 @@ a:active { color: lightgrey; text-decoration: underline; }
     line-height: 35px;    
   }
 
-  .default-table input[type="checkbox"]::before {
-    font-size: 1.2rem !important;
+  .default-table input[type="checkbox"]::after {
+    font-size: 1rem !important;
   }
 
   .page {

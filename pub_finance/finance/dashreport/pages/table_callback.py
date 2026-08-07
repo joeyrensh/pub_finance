@@ -416,7 +416,7 @@ class TableCallback:
         # 同步回调：监听表格选择，更新 Store
         for page, table in target_tables:
 
-            @app.callback(
+            @callback(
                 Output(
                     {"type": "selected-store", "page": page, "table": table}, "data"
                 ),
@@ -437,9 +437,6 @@ class TableCallback:
                         if sym and sym.strip() not in symbols:
                             symbols.append(sym.strip())
                 return symbols
-
-        # 跳转回调：点击标题，读取 Store 跳转
-        for page, table in target_tables:
 
             @callback(
                 [
