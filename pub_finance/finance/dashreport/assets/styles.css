@@ -398,26 +398,27 @@ table.tiny-header tr:first-child { font-size: 8px; }
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    width: 10px;
-    height: 10px;
+    width: 16px;   /* 适当放大提升触摸体验 */
+    height: 16px;
     border: none;
     background: transparent;
     cursor: pointer;
     position: relative;
     margin: 0;
+    /* 确保 input 自身是块级或 inline-block，方便父级居中 */
+    display: inline-block;
 }
 .default-table input[type="checkbox"]::before {
     content: "□";
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: #cccccc;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* 不再使用 flex，改为 text-align 和 line-height 居中 */
+    text-align: center;
+    line-height: 1;  /* 避免额外高度 */
+    font-size: 2rem; /* 适当大小 */
+    color: var(--gridcolor);
     transition: all 0.2s;
 }
 .default-table input[type="checkbox"]:checked::before {
@@ -425,11 +426,12 @@ table.tiny-header tr:first-child { font-size: 8px; }
     color: var(--negative-int-bg-color);
 }
 .default-table input[type="checkbox"]:hover::before {
-    color: #aaaaaa;
+    color: var(--gridcolor);
 }
 .default-table input[type="checkbox"]:checked:hover::before {
     color: var(--negative-int-bg-color);
 }
+
 
 .dash-table-container .dash-spreadsheet-container {
   display: block !important;
@@ -1365,6 +1367,10 @@ a:active { color: lightgrey; text-decoration: underline; }
   .nav-btn.right {
     height: 35px;
     line-height: 35px;    
+  }
+
+  .default-table input[type="checkbox"]::before {
+    font-size: 1.2rem !important;
   }
 
   .page {
