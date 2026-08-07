@@ -401,39 +401,42 @@ table.tiny-header tr:first-child { font-size: 8px; }
     width: 18px;
     height: 18px;
     background: transparent;
-    border: 0.5px solid var(--gridcolor);
+    border: none;
     cursor: pointer;
     position: relative;
     margin: 0;
     display: inline-block;
     border-radius: 0;
-    transition: border-color 0.18s ease, background-color 0.18s ease;
-}
-
-.default-table input[type="checkbox"]:checked {
-    border-color: var(--positive-int-bg-color);
-    background-color: var(--positive-int-bg-color);
+    transition: transform 0.18s ease;
 }
 
 .default-table input[type="checkbox"]::after {
-    content: "A";
+    content: "-";
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 500;
-    transition: transform 0.18s ease;
+    transform: translate(-50%, -50%) scale(0.9);
+    font-size: 1.5rem;
+    font-weight: 900;
     line-height: 1;
+    /* 未选中：灰色描边空心字 */
+    color: transparent;
+    -webkit-text-stroke: 0.5px var(--gridcolor);
+    text-stroke: 0.5px var(--gridcolor);
+    transition: transform 0.18s ease, color 0.18s ease, -webkit-text-stroke 0.18s ease;
 }
 
 .default-table input[type="checkbox"]:checked::after {
     transform: translate(-50%, -50%) scale(1);
+    /* 选中：红色实心字母，取消描边 */
+    color: var(--positive-int-bg-color);
+    -webkit-text-stroke: 0;
+    text-stroke: 0;
 }
 
-.default-table input[type="checkbox"]:hover:not(:checked) {
-    border-color: var(--positive-int-bg-color);
+.default-table input[type="checkbox"]:hover:not(:checked)::after {
+    -webkit-text-stroke: 0.5px var(--positive-int-bg-color);
+    text-stroke: 0.5px var(--positive-int-bg-color);
 }
 
 .dash-table-container .dash-spreadsheet-container {
@@ -1371,14 +1374,11 @@ a:active { color: lightgrey; text-decoration: underline; }
     height: 35px;
     line-height: 35px;    
   }
-  /* .default-table input[type="checkbox"] {
-    width: 16px !important;
-    height: 16px !important;
-    }
+
 
   .default-table input[type="checkbox"]::after {
-    font-size: 1.5rem !important;
-  } */
+    font-size: 1.3rem !important;
+  }
 
   .page {
     width: 99% !important;
