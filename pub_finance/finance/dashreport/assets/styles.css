@@ -394,19 +394,20 @@ table.tiny-header tr:first-child { font-size: 8px; }
   border-color: var(--dash-table-border-color) !important;
 }
 
-/* ---------- 方案四：品牌渐变 ---------- */
 .default-table input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    width: 16px;   /* 适当放大提升触摸体验 */
-    height: 16px;
+    width: 18px;
+    height: 18px;
     background: transparent;
+    border: 0.5px solid var(--gridcolor);
     cursor: pointer;
     position: relative;
     margin: 0;
-    /* 确保 input 自身是块级或 inline-block，方便父级居中 */
     display: inline-block;
+    border-radius: 0;
+    transition: border-color 0.18s ease, background-color 0.18s ease;
 }
 
 .default-table input[type="checkbox"]:checked {
@@ -415,22 +416,23 @@ table.tiny-header tr:first-child { font-size: 8px; }
 }
 
 .default-table input[type="checkbox"]::after {
-    content: "✓";
+    content: "A";
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0);
-    color: white;
-    font-size: 1.2rem;
-    font-weight: bold;
-    transition: transform 0.15s ease;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    transition: transform 0.18s ease;
+    line-height: 1;
 }
 
 .default-table input[type="checkbox"]:checked::after {
     transform: translate(-50%, -50%) scale(1);
 }
 
-.default-table input[type="checkbox"]:hover {
+.default-table input[type="checkbox"]:hover:not(:checked) {
     border-color: var(--positive-int-bg-color);
 }
 
@@ -1369,10 +1371,14 @@ a:active { color: lightgrey; text-decoration: underline; }
     height: 35px;
     line-height: 35px;    
   }
+  /* .default-table input[type="checkbox"] {
+    width: 16px !important;
+    height: 16px !important;
+    }
 
   .default-table input[type="checkbox"]::after {
-    font-size: 1rem !important;
-  }
+    font-size: 1.5rem !important;
+  } */
 
   .page {
     width: 99% !important;
