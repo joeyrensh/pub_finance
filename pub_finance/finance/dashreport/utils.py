@@ -818,7 +818,12 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                 fill_width=True,
                 editable=False,
                 cell_selectable=True,
-                selected_cells=[],
+                row_selectable=(
+                    "multi"
+                    if market in ("cn", "us") and table_name in ("detail", "cn_etf")
+                    else False
+                ),
+                selected_rows=[],
                 style_header={
                     "position": "sticky",
                     "top": "0",

@@ -243,14 +243,36 @@ class BacktestPage:
                 Output("backtest-full-list", "data"),
                 Output("backtest-page", "data"),
                 Output("backtest-refresh", "children"),
+                Output("selected-symbols-store", "data", allow_duplicate=True),
             ],
             [
                 Input("backtest-market", "value"),
                 Input("backtest-date", "date"),
             ],
-            prevent_initial_call=False,
+            [State("selected-symbols-store", "data")],
+            prevent_initial_call="initial_duplicate",
         )
-        def load_stock_list(market, date_str):
+        def load_stock_list(market, date_str, stored_data):
+            if not market:
+                return no_update, no_update, no_update, no_update, no_update
+
+            # ---------------- 带参数跳转 ----------------
+            if stored_data and isinstance(stored_data, dict):
+                symbols = stored_data.get("symbols", [])
+
+                if symbols:
+                    stocks_value = ",".join(symbols)
+                    total = len(symbols)
+                    button_text = f"Total: {total}"
+
+                    # 赋值并清空 Store
+                    return (
+                        stocks_value,  # 1. backtest-stocks
+                        symbols,  # 2. backtest-full-list
+                        0,  # 3. backtest-page
+                        button_text,  # 4. backtest-refresh
+                        None,  # 5. 清空 store
+                    )
             file_path = FINANCE_ROOT / (
                 "cnstockinfo/dynamic_list.csv"
                 if market == "cn"
@@ -329,7 +351,8 @@ class BacktestPage:
             end = min(3, total)
             current_stocks = symbols[start:end]
             button_text = f"{1}-{end} / {total}"
-            return ",".join(current_stocks), symbols, 0, button_text
+
+            return ",".join(current_stocks), symbols, 0, button_text, no_update
 
         # ---------- 3. 分页翻页 ----------
         @callback(
@@ -880,7 +903,7 @@ class BacktestPage:
                                         {"label": "A-Share", "value": "cn"},
                                         {"label": "US Stock", "value": "us"},
                                     ],
-                                    value="cn",
+                                    value=None,
                                     inline=True,
                                     className="custom-date-picker backtest-label",
                                 ),

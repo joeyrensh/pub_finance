@@ -20,6 +20,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import httpx
 from flask import session
+import re
 
 AI_TASK_CACHE = {}
 cache_lock = threading.Lock()
@@ -410,5 +411,71 @@ class TableCallback:
                 f"Total {len(idx) if idx is not None else 0} Rows"
                 for idx in indices_list
             ]
+
+        target_tables = [("cn", "detail"), ("cn", "cn_etf"), ("us", "detail")]
+        # 同步回调：监听表格选择，更新 Store
+        for page, table in target_tables:
+
+            @app.callback(
+                Output(
+                    {"type": "selected-store", "page": page, "table": table}, "data"
+                ),
+                Input(
+                    {"type": "auto-table", "page": page, "table": table},
+                    "selected_rows",
+                ),
+                State({"type": "auto-table", "page": page, "table": table}, "data"),
+            )
+            def sync_selected(selected_rows, data, page=page, table=table):
+                if not selected_rows or not data:
+                    return []
+                symbols = []
+                for idx in selected_rows:
+                    if idx < len(data):
+                        row = data[idx]
+                        sym = row.get("SYMBOL_o") or row.get("SYMBOL")
+                        if sym and sym.strip() not in symbols:
+                            symbols.append(sym.strip())
+                return symbols
+
+        # 跳转回调：点击标题，读取 Store 跳转
+        for page, table in target_tables:
+
+            @callback(
+                [
+                    Output("url", "pathname", allow_duplicate=True),
+                    Output("selected-symbols-store", "data", allow_duplicate=True),
+                ],
+                Input(
+                    {"type": "subtitle-click", "page": page, "table": table}, "n_clicks"
+                ),
+                State({"type": "selected-store", "page": page, "table": table}, "data"),
+                prevent_initial_call=True,
+            )
+            def jump_to_backtest(n_clicks, symbols, page=page, table=table):
+                if not n_clicks or not symbols:
+                    return no_update, no_update
+                target_market = "us" if page == "us" else "cn"
+                return "/dash-financial-report/backtest", {
+                    "market": target_market,
+                    "symbols": symbols,
+                }
+
+        # ---------- 同步跳转的市场类型 ----------
+        @callback(
+            Output("backtest-market", "value"),
+            Input("url", "pathname"),  # 监听页面路径加载
+            State("selected-symbols-store", "data"),
+            prevent_initial_call=False,
+        )
+        def sync_backtest_market(pathname, stored_data):
+            # 如果 Store 中有来自跳转的数据，优先读取跳转的市场 ("cn" 或 "us")
+            if stored_data and isinstance(stored_data, dict):
+                target_market = stored_data.get("market")
+                if target_market:
+                    return target_market
+
+            # 否则，默认设定为 "cn"
+            return "cn"
 
         self._callback_registered = True

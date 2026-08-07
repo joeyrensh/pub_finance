@@ -1,5 +1,6 @@
 import dash_html_components as html
 import dash_core_components as dcc
+import dash_bootstrap_components as dbc
 from finance.dashreport.utils import Header
 from finance.dashreport.chart_builder import ChartBuilder
 from finance.dashreport.data_loader import ReportDataLoader
@@ -179,8 +180,8 @@ class PageLayout:
         )
 
     def build_table_card(self, table_id, is_last=False):
-        if table_id not in self.show_tables:
-            return html.Div()
+        # if table_id not in self.show_tables:
+        #     return html.Div()
 
         display_name = self.table_display_map.get(table_id, table_id)
         table_class = "cn_table" if "cn" in self.prefix else ""
@@ -192,33 +193,67 @@ class PageLayout:
         if is_last:
             style["margin-bottom"] = "20px"
 
+        div_children = [
+            html.Div(
+                display_name,
+                id={
+                    "type": "subtitle-click",
+                    "page": self.prefix,
+                    "table": table_id,
+                },
+                className="subtitle padded",
+                style={
+                    "cursor": (
+                        "pointer"
+                        if self.prefix in ["cn", "us"]
+                        and table_id in ["detail", "cn_etf"]
+                        else None
+                    )
+                },
+            )
+        ]
+
+        if self.prefix in ["cn", "us"] and table_id in ["detail", "cn_etf"]:
+            div_children.append(
+                dcc.Store(
+                    id={
+                        "type": "selected-store",
+                        "page": self.prefix,
+                        "table": table_id,
+                    },
+                    data=[],
+                )
+            )
+
+        # 3. 追加表格内容部分
+        div_children.append(
+            html.Div(
+                [
+                    dcc.Loading(
+                        type="circle",
+                        delay_hide=1000,
+                        color="#119DFF",
+                        children=html.Div(
+                            id={
+                                "type": "dynamic-table",
+                                "page": self.prefix,
+                                "table": table_id,
+                            },
+                            className=table_class,
+                        ),
+                    )
+                ],
+                className="table_custom",
+                style=style,
+            )
+        )
+
         return html.Div(
             className="row",
             children=[
                 html.Div(
                     className="twelve columns",
-                    children=[
-                        html.H6(display_name, className="subtitle padded"),
-                        html.Div(
-                            [
-                                dcc.Loading(
-                                    type="circle",
-                                    delay_hide=1000,
-                                    color="#119DFF",
-                                    children=html.Div(
-                                        id={
-                                            "type": "dynamic-table",
-                                            "page": self.prefix,
-                                            "table": table_id,
-                                        },
-                                        className=table_class,
-                                    ),
-                                )
-                            ],
-                            className="table_custom",
-                            style=style,
-                        ),
-                    ],
+                    children=div_children,
                 )
             ],
         )

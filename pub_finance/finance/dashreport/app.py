@@ -92,6 +92,7 @@ app.layout = html.Div(
         html.Button(id="client-event", style={"display": "none"}),
         dcc.Store(id="current-theme", data="light"),
         dcc.Store(id="client-width", data=1440),
+        dcc.Store(id="selected-symbols-store", storage_type="session"),
         # dcc.Interval(
         #     id="theme-poller",
         #     interval=1000,  # 1 秒
@@ -151,6 +152,7 @@ app.layout = html.Div(
             ],
         ),
         html.Div(id="chart-touch-cleaner-dummy", style={"display": "none"}),
+        html.Div(id="scroll-top-trigger", style={"display": "none"}),
     ],
 )
 # ===== 1. 注册chart回调 =====
@@ -295,6 +297,26 @@ app.clientside_callback(
     """,
     Output("chart-touch-cleaner-dummy", "children"),
     Input("chart-touch-cleaner-dummy", "id"),
+)
+
+app.clientside_callback(
+    """
+    function(pathname) {
+        if(pathname !== '/dash-financial-report/backtest') return window.dash_clientside.no_update;
+        setTimeout(() => {
+            const main = document.getElementById("main-page");
+            if(main && main.scrollHeight > main.clientHeight) {
+                main.scrollTop = 0;
+            } else {
+                window.scrollTo({top:0, left:0, behavior:'auto'});
+            }
+        }, 80);
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output("scroll-top-trigger", "children"),
+    Input("url", "pathname"),
+    prevent_initial_call=True,
 )
 
 
