@@ -784,6 +784,8 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
         "page": market,
         "table": table_name,
     }
+    is_target = market in ("cn", "us") and table_name in ("detail", "cn_etf")
+    default_selected = list(range(min(3, len(data)))) if (is_target and data) else []
 
     return html.Div(
         children=[
@@ -818,12 +820,8 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                 fill_width=True,
                 editable=False,
                 cell_selectable=True,
-                row_selectable=(
-                    "multi"
-                    if market in ("cn", "us") and table_name in ("detail", "cn_etf")
-                    else False
-                ),
-                selected_rows=[],
+                row_selectable="multi" if is_target else False,
+                selected_rows=default_selected,
                 style_header={
                     "position": "sticky",
                     "top": "0",
