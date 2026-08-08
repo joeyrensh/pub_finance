@@ -493,6 +493,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                 else:
                     tooltip_text = ""
 
+                row["_scoreinfo"] = tooltip_text  # 将 tooltip 信息存储在新列中
                 tooltip_data.append(
                     {"NAME": {"value": tooltip_text, "type": "markdown"}}
                 )
@@ -841,6 +842,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                 page_size=50,
                 columns=columns,
                 tooltip_data=tooltip_data,
+                tooltip_delay=0,
                 tooltip_duration=None,
                 filter_action="native",
                 sort_action="native",
