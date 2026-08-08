@@ -475,8 +475,7 @@ class TableCallback:
             app.clientside_callback(
                 """
                 function(activeCell, currentSelectedIds, currentConditionalStyles) {
-                    // 1. 安全拦截：如果 activeCell 为空或点击的不是 IDX 列，清空 activeCell 以备下次点击
-                    if (!activeCell || activeCell.column_id !== 'IDX' || !activeCell.row_id) {
+                    if (!activeCell || activeCell.column_id !== 'NAME' || !activeCell.row_id) {
                         return [window.dash_clientside.no_update, window.dash_clientside.no_update, null];
                     }
                     
