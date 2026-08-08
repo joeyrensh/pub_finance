@@ -421,31 +421,27 @@ class TableCallback:
                 Output(
                     {"type": "selected-store", "page": page, "table": table}, "data"
                 ),
-                # 1. 改为监听 selected_row_ids，不再依赖会因筛选错位的 selected_rows 行号
                 Input(
                     {"type": "auto-table", "page": page, "table": table},
                     "selected_row_ids",
                 ),
                 State({"type": "auto-table", "page": page, "table": table}, "data"),
             )
-            def sync_selected(selected_row_ids, data, page=page, table=table):
+            def sync_selected(selected_row_ids, data):
                 if not selected_row_ids or not data:
                     return []
-
-                # 建立 row_id (即 IDX) -> 真实 SYMBOL 的映射表
-                id_to_symbol = {}
-                for row in data:
-                    row_id = str(row.get("id", ""))
-                    sym = row.get("SYMBOL_o") or row.get("SYMBOL") or row.get("IDX")
-                    if row_id and sym:
-                        id_to_symbol[row_id] = str(sym).strip()
-
+                # 构建 id -> symbol 映射
+                id_to_symbol = {
+                    str(row.get("id", "")): (
+                        row.get("SYMBOL_o") or row.get("SYMBOL") or row.get("IDX")
+                    )
+                    for row in data
+                }
                 symbols = []
                 for row_id in selected_row_ids:
                     sym = id_to_symbol.get(str(row_id))
                     if sym and sym not in symbols:
-                        symbols.append(sym)
-
+                        symbols.append(str(sym).strip())
                 return symbols
 
             # 2. 点击 Subtitle 携带 symbols 跳转至回测页（保持原逻辑不变）
@@ -469,9 +465,6 @@ class TableCallback:
                     "symbols": symbols,
                 }
 
-            # 1. 设置 Table ID 匹配模式
-            table_id = {"type": "auto-table", "page": page, "table": table}
-
             app.clientside_callback(
                 """
                 function(activeCell, currentSelectedIds, currentConditionalStyles) {
@@ -483,20 +476,17 @@ class TableCallback:
                     var selectedIds = currentSelectedIds ? currentSelectedIds.slice() : [];
                     var idx = selectedIds.indexOf(rowId);
                     
-                    // 2. 切换选中状态（选中 -> 取消；未选中 -> 选中）
                     if (idx > -1) {
                         selectedIds.splice(idx, 1);
                     } else {
                         selectedIds.push(rowId);
                     }
                     
-                    // 3. 过滤并清除旧的 IDX 选中高亮规则
                     var existingStyles = currentConditionalStyles ? currentConditionalStyles.slice() : [];
                     var baseStyles = existingStyles.filter(function(rule) {
                         return !rule._is_idx_selected;
                     });
 
-                    // 4. 构建新的 IDX 选中高亮规则
                     if (selectedIds.length > 0) {
                         var query = selectedIds.map(function(id) {
                             return '({id} = "' + id + '")';
@@ -507,26 +497,41 @@ class TableCallback:
                                 "filter_query": query,
                                 "column_id": "IDX"
                             },
-                            "color": "var(--highlight-symbol-color, #FF4D4F)",
-                            "fontWeight": "bold",
-                            "_is_idx_selected": true  // 标志位
+                            "color": "var(--highlight-symbol-color)",
+                            "fontWeight": "bold",                         
+                            "_is_idx_selected": true
                         });
                     }
                     
-                    // 5. 返回更新后的 selected_row_ids、style_data_conditional，同时将 active_cell 重置为 null
-                    // 重置 active_cell 为 null 是实现“同一个 Cell 连点瞬间响应”的关键！
                     return [selectedIds, baseStyles, null];
                 }
                 """,
                 [
-                    Output(table_id, "selected_row_ids"),
-                    Output(table_id, "style_data_conditional"),
-                    Output(table_id, "active_cell"),  # 核心增加：重置 active_cell
+                    Output(
+                        {"type": "auto-table", "page": page, "table": table},
+                        "selected_row_ids",
+                    ),
+                    Output(
+                        {"type": "auto-table", "page": page, "table": table},
+                        "style_data_conditional",
+                    ),
+                    Output(
+                        {"type": "auto-table", "page": page, "table": table},
+                        "active_cell",
+                    ),
                 ],
-                Input(table_id, "active_cell"),
+                Input(
+                    {"type": "auto-table", "page": page, "table": table}, "active_cell"
+                ),
                 [
-                    State(table_id, "selected_row_ids"),
-                    State(table_id, "style_data_conditional"),
+                    State(
+                        {"type": "auto-table", "page": page, "table": table},
+                        "selected_row_ids",
+                    ),
+                    State(
+                        {"type": "auto-table", "page": page, "table": table},
+                        "style_data_conditional",
+                    ),
                 ],
                 prevent_initial_call=True,
             )

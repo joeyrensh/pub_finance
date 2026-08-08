@@ -193,6 +193,11 @@ class PageLayout:
         if is_last:
             style["margin-bottom"] = "20px"
 
+        # 判定是否支持checkbox选择（仅在 cn/us 且 detail/cn_etf 表格中启用）
+        is_checkbox_enabled = self.prefix in ["cn", "us"] and table_id in [
+            "detail",
+            "cn_etf",
+        ]
         div_children = [
             html.Div(
                 display_name,
@@ -202,14 +207,7 @@ class PageLayout:
                     "table": table_id,
                 },
                 className="subtitle padded",
-                style={
-                    "cursor": (
-                        "pointer"
-                        if self.prefix in ["cn", "us"]
-                        and table_id in ["detail", "cn_etf"]
-                        else None
-                    )
-                },
+                style={"cursor": ("pointer" if is_checkbox_enabled else None)},
             )
         ]
 
