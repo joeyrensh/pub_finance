@@ -198,7 +198,6 @@ class PageLayout:
             "detail",
             "cn_etf",
         ]
-
         div_children = [
             html.Div(
                 display_name,
