@@ -413,31 +413,42 @@ class TableCallback:
             ]
 
         target_tables = [("cn", "detail"), ("cn", "cn_etf"), ("us", "detail")]
-        # 同步回调：监听表格选择，更新 Store
+
+        # 监听表格勾选/点击变动，更新对应的 selected-store
         for page, table in target_tables:
 
             @callback(
                 Output(
                     {"type": "selected-store", "page": page, "table": table}, "data"
                 ),
+                # 1. 改为监听 selected_row_ids，不再依赖会因筛选错位的 selected_rows 行号
                 Input(
                     {"type": "auto-table", "page": page, "table": table},
-                    "selected_rows",
+                    "selected_row_ids",
                 ),
                 State({"type": "auto-table", "page": page, "table": table}, "data"),
             )
-            def sync_selected(selected_rows, data, page=page, table=table):
-                if not selected_rows or not data:
+            def sync_selected(selected_row_ids, data, page=page, table=table):
+                if not selected_row_ids or not data:
                     return []
+
+                # 建立 row_id (即 IDX) -> 真实 SYMBOL 的映射表
+                id_to_symbol = {}
+                for row in data:
+                    row_id = str(row.get("id", ""))
+                    sym = row.get("SYMBOL_o") or row.get("SYMBOL") or row.get("IDX")
+                    if row_id and sym:
+                        id_to_symbol[row_id] = str(sym).strip()
+
                 symbols = []
-                for idx in selected_rows:
-                    if idx < len(data):
-                        row = data[idx]
-                        sym = row.get("SYMBOL_o") or row.get("SYMBOL")
-                        if sym and sym.strip() not in symbols:
-                            symbols.append(sym.strip())
+                for row_id in selected_row_ids:
+                    sym = id_to_symbol.get(str(row_id))
+                    if sym and sym not in symbols:
+                        symbols.append(sym)
+
                 return symbols
 
+            # 2. 点击 Subtitle 携带 symbols 跳转至回测页（保持原逻辑不变）
             @callback(
                 [
                     Output("url", "pathname", allow_duplicate=True),
@@ -458,6 +469,73 @@ class TableCallback:
                     "symbols": symbols,
                 }
 
+            # 1. 设置 Table ID 匹配模式
+            table_id = {"type": "auto-table", "page": page, "table": table}
+
+            # 2. 注册 Clientside Callback（选择、取消选择、动态增删高亮一体化）
+            app.clientside_callback(
+                """
+                function(activeCell, currentSelectedIds, currentConditionalStyles) {
+                    // 1. 安全拦截：如果没有点击或点击的不是 IDX 列，保持现状
+                    if (!activeCell || activeCell.column_id !== 'IDX' || !activeCell.row_id) {
+                        return [window.dash_clientside.no_update, window.dash_clientside.no_update];
+                    }
+                    
+                    var rowId = activeCell.row_id;
+                    var selectedIds = currentSelectedIds ? currentSelectedIds.slice() : [];
+                    var idx = selectedIds.indexOf(rowId);
+                    
+                    // 2. 切换选中状态（选中 -> 取消；未选中 -> 选中）
+                    if (idx > -1) {
+                        selectedIds.splice(idx, 1);
+                    } else {
+                        selectedIds.push(rowId);
+                    }
+                    
+                    // 3. 基础样式数组清理：保留外部导入的条件样式（如 selected_symbols 规则），清空旧的点击选中高亮
+                    var existingStyles = currentConditionalStyles ? currentConditionalStyles.slice() : [];
+                    
+                    // 过滤掉之前由本逻辑生成的 IDX 动态选中规则（通过加标志位 _is_idx_selected 识别）
+                    var baseStyles = existingStyles.filter(function(rule) {
+                        return !rule._is_idx_selected;
+                    });
+
+                    // 4. 构建新的 IDX 选中高亮规则
+                    if (selectedIds.length > 0) {
+                        // 构造 filter_query 规则：({id} = "ID1") || ({id} = "ID2")
+                        var query = selectedIds.map(function(id) {
+                            return '({id} = "' + id + '")';
+                        }).join(" || ");
+
+                        baseStyles.push({
+                            "if": {
+                                "filter_query": query,
+                                "column_id": "IDX"
+                            },
+                            "color": "var(--highlight-symbol-color, #FF4D4F)",
+                            "fontWeight": "bold",
+                            "_is_idx_selected": true  // 标志位：方便下一次点击时精准清理
+                        });
+                    }
+                    
+                    // 5. 同时更新选中状态列表与表格条件样式
+                    return [selectedIds, baseStyles];
+                }
+                """,
+                [
+                    Output(table_id, "selected_row_ids"),
+                    Output(table_id, "style_data_conditional"),
+                ],
+                Input(table_id, "active_cell"),
+                [
+                    State(table_id, "selected_row_ids"),
+                    State(
+                        table_id, "style_data_conditional"
+                    ),  # 将当前的条件样式传入，避免覆盖其他高亮
+                ],
+                prevent_initial_call=True,
+            )
+
         # ---------- 同步跳转的市场类型 ----------
         @callback(
             Output("backtest-market", "value"),
@@ -466,13 +544,11 @@ class TableCallback:
             prevent_initial_call=False,
         )
         def sync_backtest_market(pathname, stored_data):
-            # 如果 Store 中有来自跳转的数据，优先读取跳转的市场 ("cn" 或 "us")
             if stored_data and isinstance(stored_data, dict):
                 target_market = stored_data.get("market")
                 if target_market:
                     return target_market
 
-            # 否则，默认设定为 "cn"
             return "cn"
 
         self._callback_registered = True

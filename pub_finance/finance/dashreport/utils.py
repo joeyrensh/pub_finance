@@ -510,35 +510,63 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
     if "SYMBOL" in df.columns:
         df["SYMBOL"] = df["SYMBOL"].apply(lambda symbol: create_link(symbol, market))
 
-    highlight_cols = [
-        "IDX",
-        "SYMBOL",
-        "NAME",
-    ]
+    # 1. 初始化条件样式列表
+    highlight_conditional = []
+
+    # 获取表格当前所有的列名
+    existing_cols = list(df.columns) if hasattr(df, "columns") else []
+
+    # 2. 【独立逻辑一】：处理 IDX 列的交互样式（指针手势 + 内置选中高亮）
+    if "IDX" in existing_cols:
+        highlight_conditional.extend(
+            [
+                # 基础样式：只要存在 IDX 列，悬停即显示点击手势指针
+                {
+                    "if": {"column_id": "IDX"},
+                    "cursor": "pointer",
+                },
+                # # 内置多选高亮：通过 row_selectable / selected_row_ids 触发的选中高亮
+                # {
+                #     "if": {
+                #         "column_id": "IDX",
+                #         "state": "selected",  # 匹配 Dash 表格内置的选中状态
+                #     },
+                #     "color": "var(--highlight-symbol-color)",
+                # },
+            ]
+        )
+
+    # 3. 【独立逻辑二】：根据外部条件 selected_symbols 触发的特定列高亮
+    highlight_cols = ["SYMBOL", "NAME"]
+    # if "IDX" in existing_cols:
+    #     highlight_cols.append("IDX")
+
     if (
         has_all_required_cols
         and selected_symbols
         and market in ("us", "cn", "us_special")
     ):
-        # 使用原始值列 SYMBOL_o 做过滤（SYMBOL 列已被替换为 HTML/link）
-        # filter_query 中字符串请用双引号，以符合 Dash 语法
+        # 构造过滤查询语句
         filter_query = " || ".join(
             ['({{{}}} = "{}")'.format("SYMBOL_o", sym) for sym in selected_symbols]
         )
 
-        highlight_conditional = [
-            {
-                "if": {
-                    "filter_query": filter_query,
-                    "column_id": col,  # 高亮的列
-                },
-                "color": "var(--highlight-symbol-color)",
-                "fontWeight": "bold",
-            }
-            for col in highlight_cols
-        ]
-    else:
-        highlight_conditional = []
+        # 动态过滤：仅对表格中实际存在的列添加外部条件高亮
+        target_cols = [col for col in highlight_cols if col in existing_cols]
+
+        highlight_conditional.extend(
+            [
+                {
+                    "if": {
+                        "filter_query": filter_query,
+                        "column_id": col,
+                    },
+                    "color": "var(--highlight-symbol-color)",
+                    "fontWeight": "bold",
+                }
+                for col in target_cols
+            ]
+        )
 
     columns = [
         {
@@ -785,7 +813,12 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
         "table": table_name,
     }
     is_target = market in ("cn", "us") and table_name in ("detail", "cn_etf")
-    default_selected = list(range(min(3, len(data)))) if (is_target and data) else []
+    # default_selected = list(range(min(3, len(data)))) if (is_target and data) else []
+    default_selected = []
+
+    # 1. 关键：为每一行数据注入 'id' 键，值为 IDX 的值（前端 UI 不会多显一列）
+    for row in data:
+        row["id"] = str(row.get("IDX", "SYMBOL_o"))
 
     return html.Div(
         children=[
@@ -821,7 +854,8 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                 editable=False,
                 cell_selectable=True,
                 row_selectable="multi" if is_target else False,
-                selected_rows=default_selected,
+                selected_row_ids=[],
+                # selected_rows=default_selected,
                 style_header={
                     "position": "sticky",
                     "top": "0",
