@@ -472,13 +472,12 @@ class TableCallback:
             # 1. 设置 Table ID 匹配模式
             table_id = {"type": "auto-table", "page": page, "table": table}
 
-            # 2. 注册 Clientside Callback（选择、取消选择、动态增删高亮一体化）
             app.clientside_callback(
                 """
                 function(activeCell, currentSelectedIds, currentConditionalStyles) {
-                    // 1. 安全拦截：如果没有点击或点击的不是 IDX 列，保持现状
+                    // 1. 安全拦截：如果 activeCell 为空或点击的不是 IDX 列，清空 activeCell 以备下次点击
                     if (!activeCell || activeCell.column_id !== 'IDX' || !activeCell.row_id) {
-                        return [window.dash_clientside.no_update, window.dash_clientside.no_update];
+                        return [window.dash_clientside.no_update, window.dash_clientside.no_update, null];
                     }
                     
                     var rowId = activeCell.row_id;
@@ -492,17 +491,14 @@ class TableCallback:
                         selectedIds.push(rowId);
                     }
                     
-                    // 3. 基础样式数组清理：保留外部导入的条件样式（如 selected_symbols 规则），清空旧的点击选中高亮
+                    // 3. 过滤并清除旧的 IDX 选中高亮规则
                     var existingStyles = currentConditionalStyles ? currentConditionalStyles.slice() : [];
-                    
-                    // 过滤掉之前由本逻辑生成的 IDX 动态选中规则（通过加标志位 _is_idx_selected 识别）
                     var baseStyles = existingStyles.filter(function(rule) {
                         return !rule._is_idx_selected;
                     });
 
                     // 4. 构建新的 IDX 选中高亮规则
                     if (selectedIds.length > 0) {
-                        // 构造 filter_query 规则：({id} = "ID1") || ({id} = "ID2")
                         var query = selectedIds.map(function(id) {
                             return '({id} = "' + id + '")';
                         }).join(" || ");
@@ -514,27 +510,24 @@ class TableCallback:
                             },
                             "color": "var(--highlight-symbol-color, #FF4D4F)",
                             "fontWeight": "bold",
-                            "transform": "scale(1.25)",           // 放大 1.25 倍
-                            "display": "inline-block",            // 确保 transform 生效
-                            "transformOrigin": "center",          // 可选：放大中心                            
-                            "_is_idx_selected": true  // 标志位：方便下一次点击时精准清理
+                            "_is_idx_selected": true  // 标志位
                         });
                     }
                     
-                    // 5. 同时更新选中状态列表与表格条件样式
-                    return [selectedIds, baseStyles];
+                    // 5. 返回更新后的 selected_row_ids、style_data_conditional，同时将 active_cell 重置为 null
+                    // 重置 active_cell 为 null 是实现“同一个 Cell 连点瞬间响应”的关键！
+                    return [selectedIds, baseStyles, null];
                 }
                 """,
                 [
                     Output(table_id, "selected_row_ids"),
                     Output(table_id, "style_data_conditional"),
+                    Output(table_id, "active_cell"),  # 核心增加：重置 active_cell
                 ],
                 Input(table_id, "active_cell"),
                 [
                     State(table_id, "selected_row_ids"),
-                    State(
-                        table_id, "style_data_conditional"
-                    ),  # 将当前的条件样式传入，避免覆盖其他高亮
+                    State(table_id, "style_data_conditional"),
                 ],
                 prevent_initial_call=True,
             )
