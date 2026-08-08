@@ -514,6 +514,9 @@ class TableCallback:
                             },
                             "color": "var(--highlight-symbol-color, #FF4D4F)",
                             "fontWeight": "bold",
+                            "transform": "scale(1.25)",           // 放大 1.25 倍
+                            "display": "inline-block",            // 确保 transform 生效
+                            "transformOrigin": "center",          // 可选：放大中心                            
                             "_is_idx_selected": true  // 标志位：方便下一次点击时精准清理
                         });
                     }
