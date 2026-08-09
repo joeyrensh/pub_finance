@@ -495,7 +495,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                     tooltip_text = ""
 
                 tooltip_data.append(
-                    {"NAME": {"value": tooltip_text, "type": "markdown"}}
+                    {"IDX": {"value": tooltip_text, "type": "markdown"}}
                 )
 
     def create_link(symbol, market):
