@@ -518,12 +518,12 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
     existing_cols = list(df.columns) if hasattr(df, "columns") else []
 
     # 2. 【独立逻辑一】：处理 IDX 列的交互样式（指针手势 + 内置选中高亮）
-    if "IDX" in existing_cols:
+    if "NAME" in existing_cols:
         highlight_conditional.extend(
             [
                 # 基础样式：只要存在 IDX 列，悬停即显示点击手势指针
                 {
-                    "if": {"column_id": "IDX"},
+                    "if": {"column_id": "NAME"},
                     "cursor": "pointer",
                 },
             ]

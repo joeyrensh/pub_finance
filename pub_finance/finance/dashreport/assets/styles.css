@@ -480,10 +480,10 @@ table.tiny-header tr:first-child { font-size: 8px; }
 .dash-tooltip,
 .dash-cell-tooltip {
     max-width: 200px !important;
-    width: fit-content !important;
-    min-width: unset !important;
-    white-space: pre !important;
-    word-break: normal !important;
+    width: max-content !important;
+    min-width: 50px !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
     overflow: visible !important;
     z-index: 99999 !important;
     background: var(--gridcolor) !important;
@@ -491,11 +491,9 @@ table.tiny-header tr:first-child { font-size: 8px; }
     border: 1px solid var(--gridcolor) !important;
     border-radius: 0 !important;
     box-shadow: none !important;
-    font-size: inherit !important;
-    transform: none !important;
-    font-weight: 400;
-    text-align: left ;
-    align-items: center ;
+    font-weight: 400 !important;
+    /* 定位修正 */
+    left: 5% !important;
     display: grid;
 }
 
