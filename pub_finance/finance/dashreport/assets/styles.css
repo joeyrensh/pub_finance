@@ -489,6 +489,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
     background: var(--gridcolor) !important;
     color: var(--text-color) !important;
     border: 1px solid var(--gridcolor) !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
     font-size: inherit !important;
     transform: none !important;
@@ -498,7 +499,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
     display: grid;
 }
 
-.dash-table-tooltip::before,
+/* .dash-table-tooltip::before,
 .dash-table-tooltip::after,
 .dash-tooltip::before,
 .dash-tooltip::after,
@@ -506,7 +507,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 .dash-cell-tooltip::after{
     display: none !important;
     content: none !important;
-}
+}  */
 
 /* --- KPI 卡片组 --- */
 .kpi-container {
