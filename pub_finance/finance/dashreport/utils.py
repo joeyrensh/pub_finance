@@ -476,7 +476,8 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                 "strategy_score",
                 "rank",
             ]
-            for _, row in df.iterrows():
+
+            for idx, row in df.iterrows():
                 symbol = row["SYMBOL"]  # 注意列名与实际一致
                 values = [score_dict[field].get(symbol) for field in score_fields]
 
@@ -493,7 +494,6 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                 else:
                     tooltip_text = ""
 
-                row["_scoreinfo"] = tooltip_text  # 将 tooltip 信息存储在新列中
                 tooltip_data.append(
                     {"NAME": {"value": tooltip_text, "type": "markdown"}}
                 )
@@ -526,21 +526,11 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                     "if": {"column_id": "IDX"},
                     "cursor": "pointer",
                 },
-                # # 内置多选高亮：通过 row_selectable / selected_row_ids 触发的选中高亮
-                # {
-                #     "if": {
-                #         "column_id": "IDX",
-                #         "state": "selected",  # 匹配 Dash 表格内置的选中状态
-                #     },
-                #     "color": "var(--highlight-symbol-color)",
-                # },
             ]
         )
 
     # 3. 【独立逻辑二】：根据外部条件 selected_symbols 触发的特定列高亮
     highlight_cols = ["SYMBOL", "NAME"]
-    # if "IDX" in existing_cols:
-    #     highlight_cols.append("IDX")
 
     if (
         has_all_required_cols
@@ -615,7 +605,6 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
             "STRATEGY CNT",
         ]
     ]
-
     # 遍历 DataFrame 的所有列
     for col in df.columns:
         # 为每一列创建一个新的列，新的列名为原列名加上后缀 "_o"
@@ -814,8 +803,6 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
         "table": table_name,
     }
     is_checkbox_enabled = market in ("cn", "us") and table_name in ("detail", "cn_etf")
-    # default_selected = list(range(min(3, len(data)))) if (is_target and data) else []
-    default_selected = []
 
     # 1. 关键：为每一行数据注入 'id' 键，值为 IDX 的值（前端 UI 不会多显一列）
     for row in data:
@@ -836,7 +823,6 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                 },
             ),
             dash_table.DataTable(
-                # id="default-table",
                 id=table_id,
                 data=data,
                 page_size=50,
@@ -857,7 +843,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                 cell_selectable=True,
                 row_selectable="multi" if is_checkbox_enabled else False,
                 selected_row_ids=[],
-                # selected_rows=default_selected,
+                # selected_rows=[],
                 style_header={
                     "position": "sticky",
                     "top": "0",
@@ -885,8 +871,6 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                         else "20px"
                     ),
                     "position": "relative",
-                    # "display": "flex",
-                    # "flexDirection": "column",
                     "width": "100%",
                     "maxWidth": "100%",
                     "maxHeight": "400px",
