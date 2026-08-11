@@ -718,8 +718,8 @@ class BacktestPage:
                     "aspectRatio": 1.6 if client_width <= 550 else 2.2,
                 }
                 # 最后一个额外增加底部margin 5px
-                # if is_last:
-                #     base_style["marginBottom"] = "10px"
+                if is_last:
+                    base_style["marginBottom"] = "5px"
 
                 fig = self.cb.kl_fig(
                     his=stock_data,

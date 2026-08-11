@@ -187,61 +187,6 @@ def check_value_type(value):
         return value, "text"
 
 
-def make_dash_table(df):
-    """Return a dash_table.DataTable for a Pandas dataframe"""
-    data = df.to_dict("records")
-
-    columns = []
-    for col in df.columns:
-        columns.append({"name": col, "id": col, "presentation": "markdown"})
-
-    # Convert data to support markdown for images and rich text
-    for row in data:
-        for key in row:
-            value = str(row[key])
-            new_value, value_type = check_value_type(value)
-            if value_type == "img":
-                # 使用 HTML 格式添加图片
-                img_style = "max-width: 100px; max-height: 50px;"
-                row[key] = f'<img src="{new_value}" style="{img_style}" />'
-            elif value_type == "richtext":
-                row[key] = f"{new_value}"
-            else:
-                row[key] = new_value
-
-    return dash_table.DataTable(
-        data=data,
-        columns=columns,
-        filter_action="native",
-        filter_options={
-            "placeholder_text": None,
-            "case": "insensitive",
-        },
-        style_filter={
-            # "color": "white",
-            "ling-height": "1px"
-        },
-        markdown_options={"html": True},
-        fill_width=True,
-        editable=True,
-        style_header={
-            "fontWeight": "bold",
-            "white-space": "normal",
-            # "backgroundColor": "white",
-        },
-        style_cell={
-            "textAlign": "left",
-            "minHeight": "5px",
-            "overflow": "hidden",
-            "textOverflow": "ellipsis",
-            "font-size": "1rem",
-            "margin": "0px",
-            "padding": "0px",
-            # "border": "1px",
-        },
-    )
-
-
 def data_bars(df, column):
     col_n = column + "_o"
 
