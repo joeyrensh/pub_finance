@@ -1155,9 +1155,9 @@ class BacktestPage:
                             ],
                             className="table_custom",
                             style={
-                                "overflow-x": "auto",
-                                "max-height": 400,
-                                "overflow-y": "auto",
+                                "overflowX": "auto",
+                                "maxHeight": 400,
+                                "overflowY": "auto",
                                 "marginBottom": "20px",
                             },
                         ),

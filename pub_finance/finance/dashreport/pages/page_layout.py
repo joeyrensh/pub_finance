@@ -105,12 +105,12 @@ class PageLayout:
                     ),
                     id={"type": "collapse-btn", "page": self.prefix, "index": index},
                     style={
-                        "background": "none",
+                        "backgroundColor": "none",
                         "border": "none",
                         "padding": 0,
                         "cursor": "pointer",
                         "width": "100%",
-                        "text-align": "left",
+                        "textAlign": "left",
                     },
                 ),
                 html.Div(
@@ -189,9 +189,9 @@ class PageLayout:
         # 特殊 max_height
         max_height = 300 if table_id in ["cn_etf", "detail_short"] else 400
 
-        style = {"overflow-x": "auto", "max-height": max_height, "overflow-y": "auto"}
+        style = {"overflowX": "auto", "maxHeight": max_height, "overflowY": "auto"}
         if is_last:
-            style["margin-bottom"] = "20px"
+            style["marginBottom"] = "20px"
 
         # 判定是否支持checkbox选择（仅在 cn/us 且 detail/cn_etf 表格中启用）
         is_checkbox_enabled = self.prefix in ["cn", "us"] and table_id in [
