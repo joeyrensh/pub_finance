@@ -200,7 +200,7 @@ class PageLayout:
         ]
 
         div_children = [
-            html.Div(
+            html.H6(
                 display_name,
                 id={
                     "type": "subtitle-click",
