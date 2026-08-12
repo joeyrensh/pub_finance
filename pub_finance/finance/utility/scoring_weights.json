@@ -28,8 +28,8 @@
     },
     "stock_filter": {
         "collection_days": 10,
-        "capital_flow": 0.5,
-        "up_days": 0.5
+        "capital_flow": 0.6,
+        "up_days": 0.4
     },
     "chart_display": {
         "chart_time_range": 100,

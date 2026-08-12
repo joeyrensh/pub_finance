@@ -69,11 +69,6 @@ app.layout = html.Div(
         dcc.Store(id="current-theme", data="light"),
         dcc.Store(id="client-width", data=1440),
         dcc.Store(id="selected-symbols-store", storage_type="session"),
-        # dcc.Interval(
-        #     id="theme-poller",
-        #     interval=1000,  # 1 秒
-        #     n_intervals=0,
-        # ),
         html.Div(
             id="login-page",
             style={"display": "none"},
@@ -181,7 +176,6 @@ app.clientside_callback(
         Output("current-theme", "data"),
         Output("client-width", "data"),
     ],
-    # Input("theme-poller", "n_intervals"),
     Input("client-event", "n_clicks"),
     [
         State("current-theme", "data"),
@@ -276,6 +270,7 @@ app.clientside_callback(
     Input("chart-touch-cleaner-dummy", "id"),
 )
 
+# 跳转backtest page需要重置到页面最上方
 app.clientside_callback(
     """
     function(pathname) {
@@ -447,8 +442,8 @@ def update_page_content(pathname):
             "cn_dynamic",
             show_charts=[
                 "annual_return",
-                "strategy",
-                "trade",
+                # "strategy",
+                # "trade",
             ],
             show_tables=["detail"],
         ).get_layout()
@@ -458,8 +453,8 @@ def update_page_content(pathname):
             "us_dynamic",
             show_charts=[
                 "annual_return",
-                "strategy",
-                "trade",
+                # "strategy",
+                # "trade",
             ],
             show_tables=["detail"],
         ).get_layout()
