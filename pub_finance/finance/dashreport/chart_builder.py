@@ -980,7 +980,7 @@ class ChartBuilder:
 
         if not df.empty and compare_col in df.columns:
             max_date = df["date"].max()
-            cutoff_date = max_date - pd.Timedelta(days=5)
+            cutoff_date = max_date - pd.Timedelta(days=1)
 
             df_recent = df[
                 (df["date"] >= cutoff_date) & (df[compare_col].notna())

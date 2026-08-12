@@ -5,7 +5,7 @@
 /* --- 浅色主题（默认） --- */
 :root {
   /* 表格相关 */
-  --date-bg-color: #91959924;
+  --date-bg-color: #0d876c15;
   --highlight-symbol-color: #ff4444;
   --negative-int-bg-color: #0d876d;
   --positive-int-bg-color: #ff4444;
@@ -31,7 +31,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* 表格相关 */
-    --date-bg-color: #91959924;
+    --date-bg-color: #00875A15;
     --negative-int-bg-color: #00875A;    
     --positive-int-bg-color: #ff4444;    
     --positive-databar-color: #ff444480;
