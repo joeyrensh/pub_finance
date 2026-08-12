@@ -820,15 +820,21 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                             "position": "relative",
                             "width": "100%",
                             "maxWidth": "100%",
+                            "overflow": "auto",
+                            "maxHeight": (
+                                "300px"
+                                if table_name in ("detail_short", "cn_etf")
+                                else "400px"
+                            ),
                         },
                         style_data_conditional=style_data_conditional,
                     ),
                 ],
                 style={
+                    "overflow": "auto",
                     "maxHeight": (
                         "300px" if table_name in ("detail_short", "cn_etf") else "400px"
                     ),
-                    "overflow": "auto",
                     "width": "100%",
                 },
             ),
