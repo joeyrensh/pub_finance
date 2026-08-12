@@ -759,75 +759,83 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
             html.Div(
                 id=count_id,
                 style={
-                    "position": "sticky",  # 使用 sticky 定位
+                    "position": "absolute",
+                    "right": 0,
+                    "top": "-13px",
                     "zIndex": 1000,
                     "pointerEvents": "none",
                     "whiteSpace": "nowrap",
-                    "float": "right",
-                    "marginBottom": "2px",
                 },
             ),
-            dash_table.DataTable(
-                id=table_id,
-                data=data,
-                page_size=50,
-                columns=columns,
-                tooltip_data=tooltip_data,
-                tooltip_delay=0,
-                tooltip_duration=None,
-                filter_action="native",
-                sort_action="native",
-                sort_mode="single",
-                filter_options={
-                    "placeholder_text": "Search",
-                    "case": "insensitive",
-                },
-                markdown_options={"html": True, "link_target": "_blank"},
-                fill_width=True,
-                editable=False,
-                cell_selectable=True,
-                row_selectable="multi" if is_checkbox_enabled else False,
-                selected_row_ids=[],
-                # selected_rows=[],
-                style_header={
-                    "position": "sticky",
-                    "top": "0",
-                    "backgroundColor": "transparent",
-                    "z-index": 10,
-                    "fontWeight": "bold",
-                    "white-space": "normal",
-                },
-                style_cell={
-                    "textAlign": "left",
-                    "overflow": "hidden",
-                    "textOverflow": "ellipsis",
-                    "backgroundColor": "transparent",
-                    "margin": "0px",
-                    "margin-bottom": "-20px",
-                    "padding": "0px",
-                },
-                style_data={
-                    "backgroundColor": "transparent",
-                },
-                style_table={
-                    "paddingBottom": (
-                        "2px"
-                        if (table_name == "trade" or not data or len(data) < 10)
-                        else "20px"
+            html.Div(
+                children=[
+                    dash_table.DataTable(
+                        id=table_id,
+                        data=data,
+                        page_size=50,
+                        columns=columns,
+                        tooltip_data=tooltip_data,
+                        tooltip_delay=0,
+                        tooltip_duration=None,
+                        filter_action="native",
+                        sort_action="native",
+                        sort_mode="single",
+                        filter_options={
+                            "placeholder_text": "Search",
+                            "case": "insensitive",
+                        },
+                        markdown_options={"html": True, "link_target": "_blank"},
+                        fill_width=True,
+                        editable=False,
+                        cell_selectable=True,
+                        row_selectable="multi" if is_checkbox_enabled else False,
+                        selected_row_ids=[],
+                        # selected_rows=[],
+                        style_header={
+                            "position": "sticky",
+                            "top": "0",
+                            "backgroundColor": "transparent",
+                            "zIndex": 10,
+                            "fontWeight": "bold",
+                            "white-space": "normal",
+                        },
+                        style_cell={
+                            "textAlign": "left",
+                            "overflow": "hidden",
+                            "textOverflow": "ellipsis",
+                            "backgroundColor": "transparent",
+                            "margin": "0px",
+                            "margin-bottom": "-20px",
+                            "padding": "0px",
+                        },
+                        style_data={
+                            "backgroundColor": "transparent",
+                        },
+                        style_table={
+                            "paddingBottom": (
+                                "2px"
+                                if (table_name == "trade" or not data or len(data) < 10)
+                                else "20px"
+                            ),
+                            "position": "relative",
+                            "width": "100%",
+                            "maxWidth": "100%",
+                        },
+                        style_data_conditional=style_data_conditional,
                     ),
-                    "position": "relative",
+                ],
+                style={
+                    "maxHeight": (
+                        "300px" if table_name in ("detail_short", "cn_etf") else "400px"
+                    ),
+                    "overflow": "auto",
                     "width": "100%",
-                    "maxWidth": "100%",
-                    "maxHeight": "400px",
-                    "overflow": "auto",  # 让整个容器可以滚动
                 },
-                style_data_conditional=style_data_conditional,
             ),
         ],
         className="default-table",
         style={
             "position": "relative",
-            # "display": "inline-block",
             "width": "100%",
         },
     )

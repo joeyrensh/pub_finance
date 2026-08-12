@@ -189,7 +189,10 @@ class PageLayout:
         # 特殊 max_height
         max_height = 300 if table_id in ["cn_etf", "detail_short"] else 400
 
-        style = {"overflowX": "auto", "maxHeight": max_height, "overflowY": "auto"}
+        style = {
+            "maxHeight": max_height,
+            #  "overflowX": "auto", "overflowY": "auto"
+        }
         if is_last:
             style["marginBottom"] = "20px"
 

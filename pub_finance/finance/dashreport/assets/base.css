@@ -19,7 +19,7 @@ body {
 .page {
   position: relative;
   width: 250mm;
-  min-height: 300mm;
+  /* min-height: 300mm; */
   padding: 0mm;
   margin: 1mm auto;
   /* border: 1px #D3D3D3 solid; */

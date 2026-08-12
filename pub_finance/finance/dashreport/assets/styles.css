@@ -101,7 +101,7 @@ h6.padded {
 .page {
   position: relative;
   width: 260mm;
-  min-height: 300mm;
+  /* min-height: 300mm; */
   padding: 0mm;
   margin: 2mm auto;
   border-radius: 5px;
@@ -110,7 +110,7 @@ h6.padded {
 .pagetwo {
   position: relative;
   width: 210mm;
-  min-height: 240mm;
+  /* min-height: 240mm; */
   padding: 0mm;
   margin: 10mm auto;
   border: 1px #d3d3d3 solid;
@@ -370,7 +370,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 }
 
 .table_custom {
-  margin-top: -10px;
+  margin-top: 0px;
 }
 
 .default-table table {
