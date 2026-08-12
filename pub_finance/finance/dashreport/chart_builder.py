@@ -1126,7 +1126,10 @@ class ChartBuilder:
                                 y=pos["bar_pos"],
                                 xaxis="x2",
                                 yaxis="y2",
-                                marker=dict(color=color, line=dict(color=color)),
+                                marker=dict(
+                                    color=color,
+                                    line=dict(color=color, width=0.8 * scale),
+                                ),
                                 showlegend=False,
                                 legendgroup=strat,
                                 hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
@@ -1140,7 +1143,10 @@ class ChartBuilder:
                                 y=neg["bar_neg"],
                                 xaxis="x2",
                                 yaxis="y2",
-                                marker=dict(color=color, line=dict(color=color)),
+                                marker=dict(
+                                    color=color,
+                                    line=dict(color=color, width=0.8 * scale),
+                                ),
                                 showlegend=False,
                                 legendgroup=strat,
                                 hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
@@ -1154,7 +1160,9 @@ class ChartBuilder:
                             y=data["bar_pos"],
                             xaxis="x2",
                             yaxis="y2",
-                            marker=dict(color=color, line=dict(color=color)),
+                            marker=dict(
+                                color=color, line=dict(color=color, width=0.8 * scale)
+                            ),
                             showlegend=False,
                             legendgroup=strat,
                             hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
@@ -1468,8 +1476,9 @@ class ChartBuilder:
                 x=df["buy_date"],
                 y=df["buy_cnt"],
                 name="Long",
-                marker_color=cfg["long"],
-                marker_line_color=cfg["long"],
+                marker=dict(
+                    color=cfg["long"], line=dict(color=cfg["long"], width=0.8 * scale)
+                ),
                 yaxis="y",
                 hovertemplate=(
                     # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
@@ -1483,8 +1492,9 @@ class ChartBuilder:
                 x=df["buy_date"],
                 y=df["sell_cnt"],
                 name="Short",
-                marker_color=cfg["short"],
-                marker_line_color=cfg["short"],
+                marker=dict(
+                    color=cfg["short"], line=dict(color=cfg["short"], width=0.8 * scale)
+                ),
                 yaxis="y",
                 hovertemplate=(
                     # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
