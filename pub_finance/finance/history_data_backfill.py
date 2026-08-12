@@ -276,11 +276,11 @@ if __name__ == "__main__":
     # symbol_list = [{"symbol": "JBS", "mkt_code": 106}]  # 示例股票代码列表
     # A股如下 - SZ:0 / SH:1
     # 例如：symbol_list = [{"symbol": "SZ000001", "mkt_code": 0}, {"symbol": "SH600000", "mkt_code": 1}]
-    # symbol_list = [{"symbol": "BABA", "mkt_code": 106}]  # 示例股票代码列表
-    symbol_list = [{"symbol": "SH688059", "mkt_code": 1}]
+    symbol_list = [{"symbol": "ERO", "mkt_code": 106}]  # 示例股票代码列表
+    # symbol_list = [{"symbol": "SH688059", "mkt_code": 1}]
 
     # 配置参数
-    market = "cn"
+    market = "us"
     DATA_DIR = FINANCE_ROOT / f"{market}stockinfo"  # 数据文件目录
     UPDATE_COLS = ["open", "close", "high", "low", "volume"]  # 需要更新的列
     NEW_DATA_PATH = DATA_DIR / "new_stock_data.csv"  # 新爬取的数据文件
@@ -288,7 +288,7 @@ if __name__ == "__main__":
     # # 创建更新器
     updater = StockDataUpdater(DATA_DIR, UPDATE_COLS, batch_size=BATCH_SIZE)
     updater.get_latest_updated_data(
-        symbol_list, "20250101", "20260730", NEW_DATA_PATH, market=market
+        symbol_list, "20250101", "20260811", NEW_DATA_PATH, market=market
     )
 
     # 加载新数据到字典

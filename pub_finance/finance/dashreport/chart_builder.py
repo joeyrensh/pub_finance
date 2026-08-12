@@ -867,9 +867,16 @@ class ChartBuilder:
             df_pos_sum = df.groupby("date")["bar_pos"].sum()
             df_neg_sum = df.groupby("date")["bar_neg"].sum()
 
-            max_pos = df_pos_sum.max() if not df_pos_sum.empty else 0
-            min_neg = df_neg_sum.min() if not df_neg_sum.empty else 0
+            if not df_pos_sum.empty and not df_neg_sum.empty:
+                # 1. 过滤正值：只保留 <= 95% 分位数的数据（剔除最高的 5% 极端值），然后取最大值
+                pos_cutoff = df_pos_sum.quantile(0.9)
+                max_pos = df_pos_sum[df_pos_sum <= pos_cutoff].max()
 
+                # 2. 过滤负值：只保留 >= 5% 分位数的数据（剔除最深的 5% 极端值），然后取最小值
+                neg_cutoff = df_neg_sum.quantile(0.1)
+                min_neg = df_neg_sum[df_neg_sum >= neg_cutoff].min()
+            else:
+                max_pos, min_neg = 0, 0
             # =========================================================
             # Y 轴 Range 计算逻辑 (加入 10% 缓冲区与 Ratio 精确控制)
             # =========================================================
@@ -1134,6 +1141,7 @@ class ChartBuilder:
                                 legendgroup=strat,
                                 hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
                                 visible=visibility,
+                                cliponaxis=False,
                             )
                         )
                     if not neg.empty:
@@ -1151,6 +1159,7 @@ class ChartBuilder:
                                 legendgroup=strat,
                                 hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
                                 visible=visibility,
+                                cliponaxis=False,
                             )
                         )
                 else:  # cnt
@@ -1167,6 +1176,7 @@ class ChartBuilder:
                             legendgroup=strat,
                             hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
                             visible=visibility,
+                            cliponaxis=False,
                         )
                     )
 
@@ -1212,6 +1222,7 @@ class ChartBuilder:
                             legendgroup=strat,
                             hoverinfo="skip",
                             visible=visibility,
+                            cliponaxis=False,
                         )
                     )
 
