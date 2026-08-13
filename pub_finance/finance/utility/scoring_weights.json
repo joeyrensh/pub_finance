@@ -33,6 +33,7 @@
     },
     "chart_display": {
         "chart_time_range": 100,
-        "minichart_time_range": 60
+        "minichart_time_range": 60,
+        "kline_limit": 10
     }
 }

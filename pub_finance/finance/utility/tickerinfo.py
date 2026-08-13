@@ -39,15 +39,14 @@ class TickerInfo:
         self.collection_days = weights_cfg["stock_filter"]["collection_days"]
         self.capital_flow_weights = weights_cfg["stock_filter"]["capital_flow"]
         self.up_days_weights = weights_cfg["stock_filter"]["up_days"]
-        tk = ToolKit(f"获取{self.collection_days}天前交易日")
         if market.startswith("us"):
-            self.date_threshold = tk.get_us_trade_date_by_delta(
-                self.collection_days, trade_date
-            )
+            self.date_threshold = ToolKit(
+                f"获取{self.collection_days}天前交易日"
+            ).get_us_trade_date_by_delta(self.collection_days, trade_date)
         elif market.startswith("cn"):
-            self.date_threshold = tk.get_cn_trade_date_by_delta(
-                self.collection_days, trade_date
-            )
+            self.date_threshold = ToolKit(
+                f"获取{self.collection_days}天前交易日"
+            ).get_cn_trade_date_by_delta(self.collection_days, trade_date)
 
     def _top_by_activity(
         self,

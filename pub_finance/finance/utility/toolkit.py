@@ -17,9 +17,10 @@ from typing import Any
 
 
 class ToolKit:
-    def __init__(self, val):
+    def __init__(self, val=None):
         self.val = val
-        print(val + "...")
+        if val is not None:
+            print(f"{val}...")
 
     """ 执行进度显示 """
 

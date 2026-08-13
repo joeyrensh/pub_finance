@@ -693,8 +693,9 @@ class BacktestPage:
             all_pos = d.get("pos_detail", [])  # 所有持仓明细
             charts = []
             width = client_width or 1440
+            kline_limit = ToolKit.get_config("chart_display.kline_limit", default=10)
 
-            for i in range(min(6, len(histories))):
+            for i in range(min(kline_limit, len(histories))):
                 stock_data = pd.DataFrame(histories[i])
                 symbol = stocks[i] if i < len(stocks) else f"S{i}"
                 if not stock_data.empty and "datetime" in stock_data.columns:
@@ -709,7 +710,7 @@ class BacktestPage:
                 filtered_tr = [t for t in all_tr if t.get("symbol") == symbol]
                 filtered_pos = [p for p in all_pos if p.get("symbol") == symbol]
                 # 判断是否是最后一张图表
-                is_last = i == min(6, len(histories)) - 1
+                is_last = i == min(kline_limit, len(histories)) - 1
                 base_style = {
                     "margin": 0,
                     "padding": 0,

@@ -108,7 +108,6 @@ class GlobalStrategy(bt.Strategy):
                 pass
         """ 板块文件地址 """
         self.file_industry = file.get_file_path_industry
-        self.tk = ToolKit("工具类启动")
 
     def _load_rf_rate(self):
         """
@@ -157,7 +156,9 @@ class GlobalStrategy(bt.Strategy):
         self.sharpe_ratios = {}  # 每只股票当前夏普比率
         self.sortino_ratios = {}
         self.max_drawdowns = {}  # 每只股票最大回撤率
-        self.current_signal = {}  # 记录当前满足的最高级别买入信号（动态更新，用于卖出决策）
+        self.current_signal = (
+            {}
+        )  # 记录当前满足的最高级别买入信号（动态更新，用于卖出决策）
         self.peak_price = {}  # 持仓期间最高价（用于移动止盈）
         # 读取国债收益率
         self.rf_rate = self._load_rf_rate()
@@ -1243,11 +1244,11 @@ class GlobalStrategy(bt.Strategy):
         if buy_date is not None:
             if self.market.startswith("us"):
                 holding_days = (
-                    self.tk.get_us_trade_off_days(current_date, buy_date) or 365
+                    ToolKit.get_us_trade_off_days(current_date, buy_date) or 365
                 )
             elif self.market.startswith("cn"):
                 holding_days = (
-                    self.tk.get_cn_trade_off_days(current_date, buy_date) or 365
+                    ToolKit.get_cn_trade_off_days(current_date, buy_date) or 365
                 )
         else:
             holding_days = 0

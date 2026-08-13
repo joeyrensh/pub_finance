@@ -40,6 +40,7 @@ DEFAULT_CONFIG = {
     "chart_display": {
         "chart_time_range": 120,
         "minichart_time_range": 60,
+        "kline_limit": 10,
     },
 }
 
@@ -74,6 +75,7 @@ LABEL_MAPPING = {
     "chart_display": "Chart Display",
     "chart_time_range": "Chart Time Range",
     "minichart_time_range": "Mini Chart Time Range",
+    "kline_limit": "Max Klines",
 }
 
 
@@ -464,21 +466,48 @@ def build_chart_display_card(cfg):
     row_list = []
     for k in CHT_KEYS:
         display_text = LABEL_MAPPING.get(k, k)
+
+        # ---------------- 1. 内部判断并设置 slider 参数 ----------------
+        if k == "kline_limit":
+            min_v = 0
+            max_v = 20
+            step_v = 1  # 若只希望固定切到 0, 10, 20 档位，可改为 10
+            marks_v = {0: "0", 10: "10", 20: "20"}
+        elif k in ("chart_time_range", "minichart_time_range"):
+            min_v = 10
+            max_v = 120 if k == "minichart_time_range" else 200
+            step_v = 5
+            marks_v = (
+                {60: "60", 120: "120", 200: "200"}
+                if k == "chart_time_range"
+                else {30: "30", 60: "60", 90: "90", 120: "120"}
+            )
+        else:
+            # 兜底默认值
+            min_v, max_v, step_v = 0, 100, 1
+            marks_v = {}
+
+        # ---------------- 2. 构建组件 Row ----------------
         row_list.append(
             dbc.Row(
                 [
                     dbc.Label(
-                        display_text, width=2, className="mb-0 fw-normal l2_label"
+                        display_text,
+                        width=2,
+                        className="mb-0 fw-normal l2_label",
                     ),
                     dbc.Col(
                         dcc.Slider(
                             id=f"slider_cht_{k}",
-                            min=10,
-                            max=200,
-                            step=5,
-                            value=cfg["chart_display"][k],
-                            marks={60: "60", 120: "120", 200: "200"},
-                            tooltip={"placement": "bottom", "always_visible": True},
+                            min=min_v,
+                            max=max_v,
+                            step=step_v,
+                            value=cfg.get("chart_display", {}).get(k, min_v),
+                            marks=marks_v,
+                            tooltip={
+                                "placement": "bottom",
+                                "always_visible": True,
+                            },
                             className="mb-0 weight-slider-primary",
                             drag_value=0,
                             disabled=False,
@@ -489,11 +518,12 @@ def build_chart_display_card(cfg):
                 className="mb-3 align-items-center",
             )
         )
+
     return dbc.Card(
         [
             dbc.CardHeader(
                 html.Label(
-                    LABEL_MAPPING["chart_display"],
+                    LABEL_MAPPING.get("chart_display", "Chart Display"),
                     className="fs-5 fw-bold text-dark l1_label",
                 )
             ),

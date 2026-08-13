@@ -152,30 +152,6 @@ class StockProposal:
             ["name", "symbol", "total_value"]
         ].toPandas()
 
-        # 获取pe历史数据
-        pe_df = TickerInfo(self.trade_date, self.market).get_recent_pe_data()
-
-        # 如果pdf为空，创建一个空的Spark DataFrame，确保列名和类型一致
-        if pe_df.empty:
-            # 创建一个空的Spark DataFrame，具有相同的结构
-            schema = "symbol string, date date, pe string, total_value double"
-            spark_pe_df = spark.createDataFrame([], schema)
-        else:
-            spark_pe_df = spark.createDataFrame(pe_df)
-
-        spark_pe_df.createOrReplaceTempView("temp_pe_trend")
-
-        # 获取gz历史数据
-        gz_df = TickerInfo(self.trade_date, self.market).get_recent_gz_data()
-        # 如果pdf为空，创建一个空的Spark DataFrame，确保列名和类型一致
-        if gz_df.empty:
-            # 创建一个空的Spark DataFrame，具有相同的结构
-            schema = "date date, new double"
-            spark_gz_df = spark.createDataFrame([], schema)
-        else:
-            spark_gz_df = spark.createDataFrame(gz_df)
-        spark_gz_df.createOrReplaceTempView("temp_gz_trend")
-
         # 获取回测股票列表
         stock_list = TickerInfo(self.trade_date, self.market).get_stock_list()
         stock_list_tuples = [(symbol,) for symbol in stock_list]
@@ -210,14 +186,13 @@ class StockProposal:
         pd_timeseries["trade_date"] = pd_timeseries["buy_date"].dt.strftime("%Y%m%d")
 
         # 根据市场类型过滤非交易日
-        toolkit = ToolKit("identify trade date")
         if self.market in ("us", "us_special", "us_dynamic"):
             pd_timeseries = pd_timeseries[
-                pd_timeseries["trade_date"].apply(toolkit.is_us_trade_date)
+                pd_timeseries["trade_date"].apply(ToolKit.is_us_trade_date)
             ]
         elif self.market in ("cn", "cn_dynamic"):
             pd_timeseries = pd_timeseries[
-                pd_timeseries["trade_date"].apply(toolkit.is_cn_trade_date)
+                pd_timeseries["trade_date"].apply(ToolKit.is_cn_trade_date)
             ]
         pd_timeseries = pd_timeseries.sort_values("buy_date").reset_index(drop=True)
         # 获取时间窗口配置
@@ -612,9 +587,8 @@ class StockProposal:
             axis=1,
         )
         # 双列叠加绘图 - 正确的调用方式
-        toolkit = ToolKit("draw line")
         pd_industry_history_tracking["pnl_trend"] = pd_industry_history_tracking.apply(
-            lambda row: toolkit.create_line(
+            lambda row: ToolKit.create_line(
                 row["pnl_array"],  # 作为第一个参数
                 row["volume_array"],  # 作为第二个参数
             ),
@@ -873,14 +847,13 @@ class StockProposal:
             "strategy": "STRATEGY",
         }
         if self.market in ("cn", "us"):
-            toolkit = ToolKit("股票排名导出")
-            selected_symbols, _ = toolkit.score_and_select_symbols(
+            selected_symbols, _ = ToolKit.score_and_select_symbols(
                 pd_position_history,
                 column_map_default,
                 self.market,
                 self.trade_date,
             )
-            toolkit.export_if_changed(selected_symbols, self.market)
+            ToolKit.export_if_changed(selected_symbols, self.market)
 
         pd_cur_position_with_latest_stock_info = None
         pd_position_history = None
@@ -1819,14 +1792,13 @@ class StockProposal:
         pd_timeseries["trade_date"] = pd_timeseries["buy_date"].dt.strftime("%Y%m%d")
 
         # 根据市场类型过滤非交易日
-        toolkit = ToolKit("identify trade date")
         if self.market == "us":
             pd_timeseries = pd_timeseries[
-                pd_timeseries["trade_date"].apply(toolkit.is_us_trade_date)
+                pd_timeseries["trade_date"].apply(ToolKit.is_us_trade_date)
             ]
         elif self.market == "cn":
             pd_timeseries = pd_timeseries[
-                pd_timeseries["trade_date"].apply(toolkit.is_cn_trade_date)
+                pd_timeseries["trade_date"].apply(ToolKit.is_cn_trade_date)
             ]
         pd_timeseries = pd_timeseries.sort_values("buy_date").reset_index(drop=True)
         # 获取时间窗口JSON配置
