@@ -158,7 +158,7 @@ def load_logs(stocks, dt, m):
         df_logs["price"] = pd.to_numeric(df_logs["price"], errors="coerce")
 
         # 2. 计算基础盈亏比例
-        calc_ratio = ((df_logs["close"] - df_logs["price"]) / df_logs["price"]).round(2)
+        calc_ratio = (df_logs["close"] - df_logs["price"]) / df_logs["price"]
 
         # 3. 根据 type == "买入" 条件赋值，不满足条件的设为 "-"
         df_logs["pnl_ratio"] = np.where(df_logs["type"] == "买入", calc_ratio, "-")
