@@ -805,7 +805,6 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                             "textOverflow": "ellipsis",
                             "backgroundColor": "transparent",
                             "margin": "0px",
-                            "margin-bottom": "-20px",
                             "padding": "0px",
                         },
                         style_data={
