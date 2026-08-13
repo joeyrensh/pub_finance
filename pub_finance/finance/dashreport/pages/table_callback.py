@@ -469,27 +469,30 @@ class TableCallback:
                 """
                 function(activeCell, currentSelectedIds, currentConditionalStyles) {
                     if (!activeCell || activeCell.column_id !== 'NAME' || !activeCell.row_id) {
-                        return [window.dash_clientside.no_update, window.dash_clientside.no_update, null];
+                        return [
+                            window.dash_clientside.no_update, 
+                            window.dash_clientside.no_update, 
+                            window.dash_clientside.no_update
+                        ];
                     }
                     
-                    var rowId = activeCell.row_id;
-                    var selectedIds = currentSelectedIds ? currentSelectedIds.slice() : [];
-                    var idx = selectedIds.indexOf(rowId);
-                    
-                    if (idx > -1) {
-                        selectedIds.splice(idx, 1);
+                    var rowId = activeCell.row_id;                    
+                    var selectedSet = new Set(currentSelectedIds || []);
+                    if (selectedSet.has(rowId)) {
+                        selectedSet.delete(rowId);
                     } else {
-                        selectedIds.push(rowId);
+                        selectedSet.add(rowId);
                     }
+                    var selectedIds = Array.from(selectedSet);
                     
-                    var existingStyles = currentConditionalStyles ? currentConditionalStyles.slice() : [];
-                    var baseStyles = existingStyles.filter(function(rule) {
-                        return !rule._is_idx_selected;
+                    
+                    var baseStyles = (currentConditionalStyles || []).filter(function(rule) {
+                        return !rule || !rule._is_idx_selected;
                     });
-
+                    
                     if (selectedIds.length > 0) {
                         var query = selectedIds.map(function(id) {
-                            return '({id} = "' + id + '")';
+                            return '{id} = "' + id + '"';
                         }).join(" || ");
 
                         baseStyles.push({
@@ -497,8 +500,7 @@ class TableCallback:
                                 "filter_query": query,
                                 "column_id": "IDX"
                             },
-                            "color": "var(--highlight-symbol-color)",
-                            "fontWeight": "bold",                         
+                            "backgroundColor": "var(--positive-databar-color)",                         
                             "_is_idx_selected": true
                         });
                     }
