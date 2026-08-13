@@ -1155,7 +1155,7 @@ class BacktestPage:
                             ],
                             className="table_custom",
                             style={
-                                "maxHeight": 400,
+                                "maxHeight": "400px",
                                 "marginBottom": "20px",
                             },
                         ),
