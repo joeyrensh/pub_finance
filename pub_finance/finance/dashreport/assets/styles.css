@@ -381,7 +381,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 }
 
 .default-table .dash-spreadsheet-container .dash-spreadsheet-inner th {
-  border-bottom: 1px solid transparent !important;
+  border-bottom: 0.1px solid var(--gridcolor) !important;
   border-top: none !important;
   background-color: var(--kpi-background) !important;
 }
