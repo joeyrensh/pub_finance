@@ -347,7 +347,7 @@ table {
 }
 
 td, th {
-  border: 0.1px solid var(--dash-table-border-color) !important;
+  border: 0.1px solid var(--gridcolor) !important;
   padding: 0px;
   text-align: left;
   border-spacing: 0;
@@ -373,25 +373,17 @@ table.tiny-header tr:first-child { font-size: 8px; }
   margin-top: 0px;
 }
 
-.default-table table {
+.default-table .dash-spreadsheet-container .dash-spreadsheet-inner table {
   border-collapse: separate !important;
-  border-spacing: 0 !important;
-  border: 0.1px solid var(--dash-table-border-color) !important;
+  border-spacing: 2px 0px !important;
+  border: 0.1px solid var(--gridcolor) !important;
   /* margin-top: -10px ; */
 }
 
-.default-table table td, 
-.default-table table th {
-  border-width: 0.01px !important;
-  border-color: var(--dash-table-border-color) !important;
-  background-color: transparent;
-}
-
-.default-table .dash-table-container {
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
-  border-width: 0.1px !important;
-  border-color: var(--dash-table-border-color) !important;
+.default-table .dash-spreadsheet-container .dash-spreadsheet-inner th {
+  border-bottom: 1px solid transparent !important;
+  border-top: none !important;
+  background-color: var(--kpi-background) !important;
 }
 
 .dash-select-header,
@@ -405,12 +397,8 @@ table.tiny-header tr:first-child { font-size: 8px; }
 
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner * {
   background: none;
-  --hover: #d3d3d382;
+  --hover: #d3d3d325;
   font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
-}
-
-.dash-table-container .dash-spreadsheet-container th {
-  background-color: var(--kpi-background) !important;
 }
 
 /* 列宽自定义细化 */
