@@ -45,6 +45,7 @@ class StockDataUpdater:
             raise ValueError(f"新数据缺少必要的列: {missing}")
 
         # 创建查找字典 {(symbol, date): {col: value}}
+        new_df = new_df.drop_duplicates(subset=self.key_cols, keep="last")
         return new_df.set_index(self.key_cols)[self.update_cols].to_dict("index")
 
     def process_files(self, new_data_dict):
@@ -254,9 +255,12 @@ class StockDataUpdater:
         for h in range(0, len(symbol_list)):
             mkt_code = symbol_list[h]["mkt_code"]
             symbol = symbol_list[h]["symbol"]
-            list_s = em.get_his_stock_info(
-                mkt_code, symbol, start_date, end_date, cache_path=None
-            )
+            try:
+                list_s = em.get_his_stock_info(
+                    mkt_code, symbol, start_date, end_date, cache_path=None
+                )
+            except Exception as e:
+                continue
             list.extend(list_s)
         df = pd.DataFrame(list)
         df.to_csv(
@@ -277,7 +281,12 @@ if __name__ == "__main__":
     # A股如下 - SZ:0 / SH:1
     # 例如：symbol_list = [{"symbol": "SZ000001", "mkt_code": 0}, {"symbol": "SH600000", "mkt_code": 1}]
     # symbol_list = [{"symbol": "ERO", "mkt_code": 106}]  # 示例股票代码列表
-    symbol_list = [{"symbol": "ETF159558", "mkt_code": 0}]
+    symbol_list = [
+        {"symbol": "ETF588710", "mkt_code": 1},
+        {"symbol": "ETF589020", "mkt_code": 1},
+        {"symbol": "ETF588920", "mkt_code": 1},
+        {"symbol": "ETF159880", "mkt_code": 0},
+    ]
 
     # 配置参数
     market = "cn"
@@ -288,7 +297,7 @@ if __name__ == "__main__":
     # # 创建更新器
     updater = StockDataUpdater(DATA_DIR, UPDATE_COLS, batch_size=BATCH_SIZE)
     updater.get_latest_updated_data(
-        symbol_list, "20250101", "20260812", NEW_DATA_PATH, market=market
+        symbol_list, "20250101", "20260813", NEW_DATA_PATH, market=market
     )
 
     # 加载新数据到字典
