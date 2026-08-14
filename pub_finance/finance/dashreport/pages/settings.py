@@ -472,7 +472,7 @@ def build_chart_display_card(cfg):
             min_v = 0
             max_v = 20
             step_v = 1  # 若只希望固定切到 0, 10, 20 档位，可改为 10
-            marks_v = {0: "0", 10: "10", 20: "20"}
+            marks_v = {10: "10", 20: "20"}
         elif k in ("chart_time_range", "minichart_time_range"):
             min_v = 10
             max_v = 120 if k == "minichart_time_range" else 200

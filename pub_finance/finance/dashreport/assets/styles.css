@@ -377,7 +377,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
   border-collapse: separate !important;
   border-spacing: 0 !important;
   border: 0.1px solid var(--dash-table-border-color) !important;
-  margin-top: -10px ;
+  /* margin-top: -10px ; */
 }
 
 .default-table table td, 
@@ -428,8 +428,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 
 /* --- Dash 表格过滤器覆盖 --- */
 .default-table .dash-filter {
-  vertical-align: bottom !important;
-  border-top-width: 0 !important;
+  vertical-align: middle !important;
   padding: 0 !important;
   margin: 0 !important;
 }
@@ -467,7 +466,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 }
 
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th.dash-filter {
-  background: none !important;
+    background-color: var(--kpi-background) !important;
 }
 
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner tr:nth-child(2) th.dash-select-header  {
