@@ -422,8 +422,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 }
 
 .default-table .dash-spreadsheet-inner tr:has(th.dash-filter) {
-  height: 30px !important;
-  min-height: 30px !important;
+  height: 20px !important;
 }
 
 .default-table .dash-filter input:not([type=radio]):not([type=checkbox]) {
