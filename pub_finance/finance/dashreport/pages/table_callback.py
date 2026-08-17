@@ -321,8 +321,8 @@ class TableCallback:
                         http_client=http_client,
                     )
                     prompt = (
-                        f"检索股票【{sym}】最新资讯，输出单段150字内无标题纯文本结论。\n"
-                        f"融合字段：[财报]营收与利润增幅、自由现金流、折算动态PE及日期；[业务]主营与行业竞争；[动向]最新利好利空；[机构]大行评级。\n"
+                        f"检索股票【{sym}】最新资讯，输出单段200字内无标题纯文本结论。\n"
+                        f"融合字段：[财报]营收与利润增幅、自由现金流、动态PE/PB及对应日期，分别给出当前PE/PB的历史百分位水位；[业务]主营与行业竞争；[动向]最新利好利空；[机构]大行评级。\n"
                         f"禁忌：禁序号/标题/前缀/综上所述；禁A股/美股等市场名称。格式：数字用阿拉伯；日期用X月X日或YYYY-MM-DD；价格保留2位小数；百分比用%。"
                     )
                     response = client.responses.create(
@@ -330,7 +330,7 @@ class TableCallback:
                         # model="qwen3.7-plus",
                         input=prompt,
                         tools=[{"type": "web_search"}, {"type": "web_extractor"}],
-                        max_output_tokens=200,
+                        max_output_tokens=300,
                         extra_body={"enable_thinking": True},
                     )
                     ai_result = response.output_text.strip()
