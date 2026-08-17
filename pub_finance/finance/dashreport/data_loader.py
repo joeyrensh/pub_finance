@@ -29,6 +29,7 @@ class ReportDataLoader:
             "OPEN",
             "L5 OPEN",
             "L5 CLOSE",
+            "PE",
             "ERP",
             "PNL RATIO",
             "WIN RATE",
@@ -47,6 +48,7 @@ class ReportDataLoader:
             "AVG TRANS": ("float",),
             "AVG DAYS": ("float",),
             "WIN RATE": ("ratio", "format"),
+            "PE": ("float",),
             "ERP": ("float",),
         },
     }
@@ -58,6 +60,7 @@ class ReportDataLoader:
             "IND",
             "NAME",
             "TOTAL VALUE",
+            "PE",
             "ERP",
             "SHARPE RATIO",
             "SORTINO RATIO",
@@ -86,6 +89,7 @@ class ReportDataLoader:
             "TOTAL PNL RATIO": ("ratio", "format"),
             "OPEN DATE": ("date", "format"),
             "TOTAL VALUE": ("float",),
+            "PE": ("float",),
             "ERP": ("float",),
             "SHARPE RATIO": ("float",),
             "SORTINO RATIO": ("float",),
@@ -100,6 +104,7 @@ class ReportDataLoader:
             "IND",
             "NAME",
             "TOTAL VALUE",
+            "PE",
             "ERP",
             "OPEN DATE",
             "CLOSE DATE",
@@ -112,6 +117,7 @@ class ReportDataLoader:
         ],
         "formats": {
             "TOTAL VALUE": ("float",),
+            "PE": ("float",),
             "ERP": ("float",),
             "BASE": ("float",),
             "ADJBASE": ("float",),
@@ -450,12 +456,13 @@ class ReportDataLoader:
 
         df = pd.read_csv(
             path,
-            usecols=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15],
+            usecols=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16],
             dtype={
                 "IND": "string",
                 "OPEN": "int64",
                 "L5 OPEN": "int64",
                 "L5 CLOSE": "int64",
+                "PE": "string",
                 "ERP": "string",
                 "PROFIT": "float64",
                 "PNL RATIO": "float64",
@@ -483,12 +490,13 @@ class ReportDataLoader:
 
         df = pd.read_csv(
             path,
-            usecols=range(1, 21),
+            usecols=range(1, 22),
             dtype={
                 "SYMBOL": "string",
                 "IND": "string",
                 "NAME": "string",
                 "TOTAL VALUE": "float64",
+                "PE": "string",
                 "ERP": "string",
                 "SHARPE RATIO": "float64",
                 "SORTINO RATIO": "float64",
@@ -524,12 +532,13 @@ class ReportDataLoader:
 
         df = pd.read_csv(
             path,
-            usecols=range(1, 14),
+            usecols=range(1, 15),
             dtype={
                 "SYMBOL": "string",
                 "IND": "string",
                 "NAME": "string",
                 "TOTAL VALUE": "float64",
+                "PE": "string",
                 "ERP": "string",
                 "OPEN DATE": "string",
                 "CLOSE DATE": "string",

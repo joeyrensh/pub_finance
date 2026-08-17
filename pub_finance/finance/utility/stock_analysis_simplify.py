@@ -386,17 +386,32 @@ class StockProposal:
                 GROUP BY temp_industry_info.industry
             ), tmp5 AS (
                 SELECT
-                    temp_industry_info.industry AS industry,
+                    t1.industry,
                     CASE 
-                        WHEN SUM(COALESCE(t3.total_value,0)) > 0 
-                        THEN ROUND(SUM(t3.erp * COALESCE(t3.total_value,0)) / SUM(COALESCE(t3.total_value,0)), 1)
-                        ELSE 0 
-                    END AS industry_erp
-                FROM temp_industry_info 
-                LEFT JOIN temp_symbol_pe t3
-                ON temp_industry_info.symbol = t3.symbol
-                WHERE t3.erp > -50 and t3.erp < 50
-                GROUP BY temp_industry_info.industry
+                        WHEN SUM(CASE WHEN t2.erp IS NOT NULL THEN COALESCE(t2.total_value, 0) ELSE 0 END) > 0 
+                        THEN ROUND(
+                            SUM(t2.erp * COALESCE(t2.total_value, 0)) 
+                            / SUM(CASE WHEN t2.erp IS NOT NULL THEN COALESCE(t2.total_value, 0) ELSE 0 END), 
+                            2
+                        )
+                        ELSE NULL 
+                    END AS industry_erp,
+                    CASE 
+                        WHEN SUM(CASE WHEN t2.pe > 0 THEN COALESCE(t2.total_value, 0) / t2.pe ELSE 0 END) > 0 
+                        THEN ROUND(
+                            SUM(CASE WHEN t2.pe > 0 THEN COALESCE(t2.total_value, 0) ELSE 0 END) 
+                            / SUM(CASE WHEN t2.pe > 0 THEN COALESCE(t2.total_value, 0) / t2.pe ELSE 0 END), 
+                            2
+                        )
+                        ELSE NULL 
+                    END AS industry_pe
+                FROM temp_industry_info t1
+                LEFT JOIN temp_symbol_pe t2
+                    ON t1.symbol = t2.symbol
+                AND t2.pe > 0 
+                AND t2.pe < 300
+                AND t2.erp BETWEEN -20 AND 20
+                GROUP BY t1.industry
             )
             SELECT t1.industry
                 ,COALESCE(t2.p_cnt,0) AS p_cnt
@@ -411,6 +426,7 @@ class StockProposal:
                 ,IF(COALESCE(t1.his_trade_cnt,0) = 0, 0, COALESCE(t1.his_days,0) / COALESCE(t1.his_trade_cnt,0) ) AS avg_days
                 ,IF((COALESCE(t1.pos_cnt,0) + COALESCE(t2.pos_cnt,0) + COALESCE(t1.neg_cnt,0) + COALESCE(t2.neg_cnt,0)) > 0, (COALESCE(t1.pos_cnt,0) + COALESCE(t2.pos_cnt,0)) / (COALESCE(t1.pos_cnt,0) + COALESCE(t2.pos_cnt,0) + COALESCE(t1.neg_cnt,0) + COALESCE(t2.neg_cnt,0)), 0) AS win_rate
                 ,COALESCE(t5.industry_erp, 0) AS industry_erp
+                ,COALESCE(t5.industry_pe, 0) AS industry_pe
             FROM tmp2 t1 LEFT JOIN tmp t2 ON t1.industry = t2.industry
             LEFT JOIN tmp3 t3 ON t1.industry = t3.industry
             LEFT JOIN tmp4 t4 ON t1.industry = t4.industry
@@ -534,6 +550,7 @@ class StockProposal:
                 "p_cnt",
                 "l5_p_cnt",
                 "l5_close",
+                "industry_pe",
                 "industry_erp",
                 "pnl",
                 "pnl_ratio",
@@ -608,6 +625,7 @@ class StockProposal:
                 "win_rate": "WIN RATE",
                 "pnl_trend": "PROFIT TREND",
                 "industry_erp": "ERP",
+                "industry_pe": "PE",
             },
             inplace=True,
         )
@@ -618,6 +636,7 @@ class StockProposal:
                 "OPEN",
                 "L5 OPEN",
                 "L5 CLOSE",
+                "PE",
                 "ERP",
                 "PROFIT",
                 "PNL RATIO",
@@ -679,6 +698,7 @@ class StockProposal:
                 , t1.industry
                 , t1.name
                 , ROUND(t1.total_value / 100000000, 1) AS total_value
+                , t3.pe
                 , t3.erp
                 , t5.sharpe_ratio    
                 , t5.sortino_ratio
@@ -808,6 +828,7 @@ class StockProposal:
                 "industry": "IND",
                 "name": "NAME",
                 "total_value": "TOTAL VALUE",
+                "pe": "PE",
                 "erp": "ERP",
                 "daily_return_array": "DAILY RETURN",
                 "sharpe_ratio": "SHARPE RATIO",
@@ -898,6 +919,7 @@ class StockProposal:
                 , t3.industry
                 , t3.name
                 , t3.total_value
+                , t4.pe
                 , t4.erp
                 , t1.buy_date
                 , t1.sell_date
@@ -952,6 +974,7 @@ class StockProposal:
             pd_position_reduction.rename(
                 columns={
                     "symbol": "SYMBOL",
+                    "pe": "PE",
                     "erp": "ERP",
                     "buy_date": "OPEN DATE",
                     "sell_date": "CLOSE DATE",
