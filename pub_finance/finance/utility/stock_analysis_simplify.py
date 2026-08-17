@@ -408,8 +408,6 @@ class StockProposal:
                 FROM temp_industry_info t1
                 LEFT JOIN temp_symbol_pe t2
                     ON t1.symbol = t2.symbol
-                AND t2.pe > 0 
-                AND t2.pe < 300
                 AND t2.erp BETWEEN -20 AND 20
                 GROUP BY t1.industry
             )
