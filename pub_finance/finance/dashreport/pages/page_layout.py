@@ -196,7 +196,12 @@ class PageLayout:
             style["marginBottom"] = "20px"
 
         # 判定是否支持checkbox选择（仅在 cn/us 且 detail/cn_etf 表格中启用）
-        is_checkbox_enabled = self.prefix in ["cn", "us"] and table_id in [
+        is_checkbox_enabled = self.prefix in [
+            "cn",
+            "us",
+            "cn_dynamic",
+            "us_dynamic",
+        ] and table_id in [
             "detail",
             "cn_etf",
         ]
@@ -214,7 +219,7 @@ class PageLayout:
             )
         ]
 
-        if self.prefix in ["cn", "us"] and table_id in ["detail", "cn_etf"]:
+        if is_checkbox_enabled:
             div_children.append(
                 dcc.Store(
                     id={
@@ -367,7 +372,7 @@ class PageLayout:
                                 "width": "100%",
                                 "height": "auto",
                                 "display": "block",
-                                "position": "absolute",
+                                "position": "relative",
                             },
                             children="Select a stock from the NAME column and click [AI Analysis] to view the summary.",
                         ),

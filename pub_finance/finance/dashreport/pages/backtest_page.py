@@ -1239,7 +1239,7 @@ class BacktestPage:
                                 "width": "100%",
                                 "height": "auto",
                                 "display": "block",  # 块级流，天然向上对齐
-                                "position": "absolute",
+                                "position": "relative",
                             },
                             children="Select a stock from the NAME column and click [AI Analysis] to view the summary.",
                         ),

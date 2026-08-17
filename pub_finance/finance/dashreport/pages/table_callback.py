@@ -258,13 +258,13 @@ class TableCallback:
             hide_wrapper = {
                 "display": "none",
                 "marginBottom": margin_bottom,
-                "marginTop": margin_top,
+                "top": margin_top,
             }
             show_wrapper = {
                 "position": "relative",
                 "display": "block",
                 "marginBottom": margin_bottom,
-                "marginTop": margin_top,
+                "top": margin_top,
             }
 
             hide_btn = {"display": "none"}
@@ -412,7 +412,13 @@ class TableCallback:
                 for idx in indices_list
             ]
 
-        target_tables = [("cn", "detail"), ("cn", "cn_etf"), ("us", "detail")]
+        target_tables = [
+            ("cn", "detail"),
+            ("cn", "cn_etf"),
+            ("us", "detail"),
+            ("cn_dynamic", "detail"),
+            ("us_dynamic", "detail"),
+        ]
 
         # 监听表格勾选/点击变动，更新对应的 selected-store
         for page, table in target_tables:
@@ -459,7 +465,7 @@ class TableCallback:
             def jump_to_backtest(n_clicks, symbols, page=page, table=table):
                 if not n_clicks or not symbols:
                     return no_update, no_update
-                target_market = "us" if page == "us" else "cn"
+                target_market = "us" if page in ("us", "us_dynamic") else "cn"
                 return "/dash-financial-report/backtest", {
                     "market": target_market,
                     "symbols": symbols,
