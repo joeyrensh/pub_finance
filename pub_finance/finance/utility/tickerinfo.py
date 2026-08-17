@@ -310,8 +310,6 @@ class TickerInfo:
         if self.market == "us":
             # 美股筛选条件
             SMALL_CAP_THRESHOLD = 2000000000  # 20亿美元 ≈ 140亿人民币
-            LARGE_CAP_THRESHOLD = 10000000000  # 100亿美元 ≈ 700亿人民币
-            MEGA_CAP_THRESHOLD = 100000000000  # 1000亿美元 ≈ 7000亿人民币
 
             base_cond = (
                 (df_recent["total_value"] > SMALL_CAP_THRESHOLD)
@@ -321,22 +319,14 @@ class TickerInfo:
                 & (df_recent["high"] > 0)
                 & (df_recent["low"] > 0)
             )
-            # bins = [
-            #     2e9,
-            #     1e10,
-            #     5e10,
-            #     1e11,
-            #     2e11,
-            #     np.inf,
-            # ]  # 20亿 100亿 500亿 1000亿 2000亿
             bins = [
                 2e9,
                 1e10,
-                2e10,
+                5e10,
                 1e11,
                 2e11,
                 np.inf,
-            ]  # 20亿 100亿 200亿 1000亿 2000亿
+            ]  # 20亿 100亿 500亿 1000亿 2000亿
             # 合并所有条件
             # filtered_top = self._top_by_activity(
             #     base_cond, df_recent, n_groups=5, top_n_per_group=100
@@ -356,8 +346,6 @@ class TickerInfo:
         elif self.market == "cn":
             # A股筛选条件
             SMALL_CAP_THRESHOLD = 5000000000  # 50亿人民币
-            LARGE_CAP_THRESHOLD = 10000000000  # 200亿人民币
-            MEGA_CAP_THRESHOLD = 100000000000  # 1千亿人民币
 
             # 基础条件（不包含涨幅限制）
             base_cond = (
@@ -371,11 +359,11 @@ class TickerInfo:
             bins = [
                 5e9,
                 1e10,
-                2e10,
                 5e10,
                 1e11,
+                2e11,
                 np.inf,
-            ]  # 50亿 100亿 200亿 500亿 1000亿
+            ]  # 50亿 100亿 500亿 1000亿 2000亿
             # 合并所有条件
             # filtered_top = self._top_by_activity(
             #     base_cond, df_recent, n_groups=5, top_n_per_group=100
