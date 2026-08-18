@@ -39,10 +39,11 @@ def get_header(app):
                                 html.Button(
                                     [
                                         html.I(
-                                            className="fa-solid fa-code",
+                                            # className="fa-solid fa-code",
+                                            className="fa-solid fa-magnifying-glass",
                                             style={"marginRight": "6px"},
                                         ),
-                                        "GitHub",
+                                        # "GitHub",
                                     ],
                                     id="learn-more-button",
                                 ),

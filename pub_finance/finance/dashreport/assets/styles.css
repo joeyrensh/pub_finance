@@ -729,7 +729,7 @@ a:active { color: lightgrey; text-decoration: underline; }
 
 .header-right-action {
   position: absolute;
-  top: 10px;
+  top: 20px;
   right: 5px;
   z-index: 100;
 }
@@ -738,13 +738,14 @@ a:active { color: lightgrey; text-decoration: underline; }
 #learn-more-button {
   display: flex;
   align-items: center;
-  padding: 0px 20px;
-  font-size: 1.3rem;
+  padding: 0;
+  font-size: 2rem;
   font-weight: 500;
   color: var(--learn-more-button-color, #4b5563);
   background-color: transparent;
-  border: 0.5px solid var(--gridcolor, #e5e7eb);
-  border-radius: 6px;
+  /* border: 0.5px solid var(--gridcolor, #e5e7eb); */
+  border: 0;
+  /* border-radius: 6px; */
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -1259,10 +1260,10 @@ a:active { color: lightgrey; text-decoration: underline; }
   h6 { font-size: 1.2rem; }
   
   .header-right-action  {
-    top: 18px;
+    top: 25px;
   }
   #learn-more-button {
-    font-size: 1.2rem;
+    font-size: 2rem;
     padding: 0;
     border: 0;
   }
@@ -1420,7 +1421,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .all-tabs {
-    width: 65% !important;             /* 1. 限制整个菜单区域只占屏幕宽度的 50% */
+    width: 75% !important;             /* 1. 限制整个菜单区域只占屏幕宽度的 50% */
     margin-left: 13% !important;       /* 2. 配合 auto 实现水平居中 */
     margin-right: auto !important;
     overflow-x: auto !important;        /* 3. 开启横向滚动 */
@@ -1444,13 +1445,13 @@ a:active { color: lightgrey; text-decoration: underline; }
 
   .header-right-action {
     position: absolute;
-    top: 10px;
+    top: 20px;
     right: 2px;
     z-index: 100;
   }  
   
   #learn-more-button {
-    font-size: 1rem;
+    font-size: 1.5rem;
     padding: 0;
     border: 0;
   }
