@@ -1347,7 +1347,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   
   .background-header::before {
     width: 12%;
-    margin-top: 5px;
+    margin-top: 8px;
   }
   
   .company-logo {
