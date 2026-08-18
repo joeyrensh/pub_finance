@@ -25,7 +25,7 @@ def get_header(app):
                     html.Div(
                         [
                             html.Span(
-                                "Find Your Truth!",
+                                # "Find Your Truth!",
                                 id="header-title",
                                 className="bubble-text",
                             ),

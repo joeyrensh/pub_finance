@@ -555,7 +555,7 @@ PAGE_TITLE_MAP = {
 @app.callback(Output("header-title", "children"), Input("url", "pathname"))
 def update_header_title(pathname):
     # 匹配对应页面的名称，如果匹配不到（比如在首页），则回退默认标题
-    return PAGE_TITLE_MAP.get(pathname, "Find Your Truth!")
+    return PAGE_TITLE_MAP.get(pathname, "")
 
 
 if __name__ == "__main__":

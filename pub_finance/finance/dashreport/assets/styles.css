@@ -1423,7 +1423,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   
   .all-tabs {
     width: 75% !important;             /* 1. 限制整个菜单区域只占屏幕宽度的 50% */
-    margin-left: 13% !important;       /* 2. 配合 auto 实现水平居中 */
+    margin-left: 14% !important;       /* 2. 配合 auto 实现水平居中 */
     margin-right: auto !important;
     overflow-x: auto !important;        /* 3. 开启横向滚动 */
     overflow-y: hidden !important;      /* 禁止纵向溢出 */
