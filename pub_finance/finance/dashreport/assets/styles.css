@@ -325,7 +325,7 @@ li::before {
   background: var(--bubble-background-color);
   -webkit-background-clip: text;
   color: transparent;
-  margin-left: 10px;
+  margin-left: 35px;
 }
 
 
@@ -1078,7 +1078,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   background-size: contain;
   z-index: -1;
   margin-left: -5px;
-  margin-top: 30px;
+  margin-top: 35px;
 }
 
 /* --- 其他核心小部件 --- */
@@ -1199,8 +1199,9 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .background-header::before {
-    width: 10%;
-    margin-top: -10px;
+    width: 6%;
+    margin-top: 15px;
+    margin-left: -3px;
   }
   
   .company-logo {
@@ -1331,7 +1332,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   
   .background-header::before {
     width: 12%;
-    margin-top: 10px;
+    margin-top: 15px;
   }
   
   .company-logo {
@@ -1387,7 +1388,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .bubble-text {
-    margin-left: 2px;
+    margin-left: 25px;
     font-size: 1.2rem;
   }
   

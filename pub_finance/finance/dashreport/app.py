@@ -590,6 +590,25 @@ def toggle_collapse(n_clicks, current_style, btn_content):
     return new_style, new_title
 
 
+# 1. 建立 URL 路径与菜单名称的映射关系字典
+PAGE_TITLE_MAP = {
+    "/dash-financial-report/a-share": "A-Share",
+    "/dash-financial-report/us-stock": "US-Stock",
+    "/dash-financial-report/a-picks": "A+",
+    "/dash-financial-report/us-picks": "US+",
+    "/dash-financial-report/backtest": "B-Test",
+    "/dash-financial-report/settings": "Setup",
+    "/dash-financial-report/full-view": "Full View",
+}
+
+
+# 2. 编写回调函数
+@app.callback(Output("header-title", "children"), Input("url", "pathname"))
+def update_header_title(pathname):
+    # 匹配对应页面的名称，如果匹配不到（比如在首页），则回退默认标题
+    return PAGE_TITLE_MAP.get(pathname, "Find Your Truth!")
+
+
 if __name__ == "__main__":
     app.run_server(
         host="0.0.0.0",

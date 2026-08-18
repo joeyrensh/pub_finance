@@ -27,7 +27,6 @@ def get_header(app):
                                 html.Button(
                                     [
                                         html.I(
-                                            # className="fa-brands fa-github",
                                             className="fa-solid fa-code",
                                             style={
                                                 "marginRight": "6px",
@@ -41,12 +40,9 @@ def get_header(app):
                                         "display": "flex",
                                         "alignItems": "center",
                                         "padding": "8px 14px",
-                                        # "backgroundColor": "#24292e",
-                                        # "color": "white",
                                         "border": "none",
                                         "borderRadius": "6px",
                                         "cursor": "pointer",
-                                        # "fontSize": "15px",
                                         "fontWeight": "500",
                                     },
                                 ),
@@ -59,10 +55,11 @@ def get_header(app):
                     ),
                     html.Div(
                         [
-                            # html.I(className="fa-regular fa-circle bubble-1"),
-                            # html.I(className="fa-regular fa-circle bubble-2"),
-                            # html.I(className="fa-regular fa-circle bubble-3"),
-                            html.Span("Find Your Truth!", className="bubble-text"),
+                            html.Span(
+                                "Find Your Truth!",
+                                id="header-title",
+                                className="bubble-text",
+                            ),
                         ],
                         className="seven columns main-title",
                     ),
@@ -84,22 +81,15 @@ def get_header(app):
                                             "display": "flex",
                                             "alignItems": "center",
                                             "padding": "8px 14px",
-                                            # "backgroundColor": "#f3f4f6",
-                                            # "color": "#111827",
-                                            # "border": "1px solid #d1d5db",
                                             "borderRadius": "2px",
                                             "cursor": "pointer",
-                                            # "fontSize": "15px",
                                             "fontWeight": "500",
-                                            # "textDecoration": "none",
                                         },
                                     )
                                 ],
                             ),
                         ],
-                        # className="twelve columns",
                         className="row",
-                        # style={"padding-left": "0"},
                     ),
                 ],
                 className="row",
