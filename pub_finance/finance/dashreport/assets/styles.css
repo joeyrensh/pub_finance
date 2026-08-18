@@ -1389,7 +1389,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .navbar {
-    gap: 8px;
+    gap: 10px;
     justify-content: flex-start !important; /* 覆盖原来的 center，防止溢出的菜单项无法滚动到左侧 */
     min-width: max-content !important;      /* 保持子菜单项按实际内容延伸，不被压缩 */
     margin-top: 6px;
@@ -1423,7 +1423,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   
   .all-tabs {
     width: 75% !important;             /* 1. 限制整个菜单区域只占屏幕宽度的 50% */
-    margin-left: 15% !important;       /* 2. 配合 auto 实现水平居中 */
+    margin-left: 13% !important;       /* 2. 配合 auto 实现水平居中 */
     margin-right: auto !important;
     overflow-x: auto !important;        /* 3. 开启横向滚动 */
     overflow-y: hidden !important;      /* 禁止纵向溢出 */
