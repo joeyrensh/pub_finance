@@ -283,17 +283,16 @@ li::before {
   color: white;
 }
 
-.tab::after {
+/* .tab::after {
   content: "";
   position: absolute;
   left: 50%;
   bottom: 4px;
   height: 1px;
   width: 0;
-  /* background: #1e90ff; */
   background: var(--gridcolor);
   transition: 0.25s;
-}
+} */
 
 .tab:hover::after {
   left: 0;
