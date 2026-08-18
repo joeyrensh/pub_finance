@@ -62,6 +62,21 @@
   -moz-box-sizing: border-box;
 }
 
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+html, body, * {
+  /* Firefox */
+  scrollbar-width: none !important;
+  /* IE 10+ / Edge */
+  -ms-overflow-style: none !important;
+  /* iOS 移动端惯性流畅滚动 */
+  -webkit-overflow-scrolling: touch;
+}
+
 body {
   width: 100%;
   height: 100%;
