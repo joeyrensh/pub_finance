@@ -592,12 +592,12 @@ def toggle_collapse(n_clicks, current_style, btn_content):
 
 # 1. 建立 URL 路径与菜单名称的映射关系字典
 PAGE_TITLE_MAP = {
-    "/dash-financial-report/a-share": "A-Share",
-    "/dash-financial-report/us-stock": "US-Stock",
+    "/dash-financial-report/a-share": "A",
+    "/dash-financial-report/us-stock": "US",
     "/dash-financial-report/a-picks": "A+",
     "/dash-financial-report/us-picks": "US+",
-    "/dash-financial-report/backtest": "B-Test",
-    "/dash-financial-report/settings": "Setup",
+    "/dash-financial-report/backtest": "T",
+    "/dash-financial-report/settings": "S",
     "/dash-financial-report/full-view": "Full View",
 }
 

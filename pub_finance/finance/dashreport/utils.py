@@ -21,38 +21,7 @@ def get_header(app):
         [
             html.Div(
                 [
-                    html.Div(
-                        [
-                            html.A(
-                                html.Button(
-                                    [
-                                        html.I(
-                                            className="fa-solid fa-code",
-                                            style={
-                                                "marginRight": "6px",
-                                                "textDecoration": "none",
-                                            },
-                                        ),
-                                        "Source Code",
-                                    ],
-                                    id="learn-more-button",
-                                    style={
-                                        "display": "flex",
-                                        "alignItems": "center",
-                                        "padding": "8px 14px",
-                                        "border": "none",
-                                        "borderRadius": "6px",
-                                        "cursor": "pointer",
-                                        "fontWeight": "500",
-                                    },
-                                ),
-                                href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
-                                target="_blank",
-                                style={"textDecoration": "none"},
-                            )
-                        ],
-                        className="row",
-                    ),
+                    # 左侧/中间：标题区域
                     html.Div(
                         [
                             html.Span(
@@ -63,33 +32,26 @@ def get_header(app):
                         ],
                         className="seven columns main-title",
                     ),
+                    # 右侧：仅保留 Source Code 按钮
                     html.Div(
                         [
-                            html.Div(
-                                [
-                                    dcc.Link(
-                                        [
-                                            html.I(
-                                                className="fa-solid fa-up-right-from-square",
-                                                style={"marginRight": "6px"},
-                                            ),
-                                            "Full View",
-                                        ],
-                                        href="/dash-financial-report/full-view",
-                                        id="full-view-link",
-                                        style={
-                                            "display": "flex",
-                                            "alignItems": "center",
-                                            "padding": "8px 14px",
-                                            "borderRadius": "2px",
-                                            "cursor": "pointer",
-                                            "fontWeight": "500",
-                                        },
-                                    )
-                                ],
-                            ),
+                            html.A(
+                                html.Button(
+                                    [
+                                        html.I(
+                                            className="fa-solid fa-code",
+                                            style={"marginRight": "6px"},
+                                        ),
+                                        "GitHub",
+                                    ],
+                                    id="learn-more-button",
+                                ),
+                                href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
+                                target="_blank",
+                                style={"textDecoration": "none"},
+                            )
                         ],
-                        className="row",
+                        className="header-right-action",
                     ),
                 ],
                 className="row",

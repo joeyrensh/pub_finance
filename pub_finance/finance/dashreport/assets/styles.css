@@ -169,8 +169,8 @@ h6 { font-size: 1.4rem; }
   font-size: 1.4rem;
   width: 80%;
   border-left: 0px solid var(--border-left-color);
-  padding-left: 95px;
-  margin-top: -2px;
+  /* padding-left: 95px; */
+  /* margin-top: -2px; */
 }
 
 .subtitle {
@@ -253,7 +253,6 @@ li::before {
   text-align: center;
   font-size: 1.4rem;
   font-weight: 600;
-  margin-top: -45px;
   text-transform: uppercase;
 }
 
@@ -341,6 +340,8 @@ li::before {
   -webkit-background-clip: text;
   color: transparent;
   margin-left: 35px;
+  position: absolute;
+  margin-top: 20px;
 }
 
 
@@ -727,17 +728,26 @@ a:active { color: lightgrey; text-decoration: underline; }
   transition-duration: 1s;
 }
 
+.header-right-action {
+  position: absolute;
+  top: 10px;
+  right: 5px;
+  z-index: 100;
+}
+
+/* 简洁版按钮样式 */
 #learn-more-button {
-  float: right;
-  padding-left: 15px;
-  padding-right: 0px !important;
-  margin: 10px 10px 8px 5px;
-  line-height: 30px;
-  border: 0.5px;
-  border-color: lightgrey;
-  border-style: solid;
-  color: var(--learn-more-button-color);
-  font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
+  display: flex;
+  align-items: center;
+  padding: 0px 20px;
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--learn-more-button-color, #4b5563);
+  background-color: transparent;
+  border: 0.5px solid var(--gridcolor, #e5e7eb);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 /* --- 回测控制按钮组 --- */
@@ -1078,7 +1088,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   position: relative;
   height: auto;
   overflow: visible;
-  margin-top: -20px;
+  /* margin-top: -20px; */
 }
 
 .background-header::before {
@@ -1086,14 +1096,14 @@ a:active { color: lightgrey; text-decoration: underline; }
   position: absolute;
   top: 0;
   left: 0;
-  width: 60px;
-  height: 200px;
+  width: 50px;
+  height: 50px;
   background-image: url('/assets/background-logo.png');
   background-repeat: no-repeat;
   background-size: contain;
   z-index: -1;
   margin-left: -5px;
-  margin-top: 35px;
+  margin-top: 5px;
 }
 
 /* --- 其他核心小部件 --- */
@@ -1210,12 +1220,12 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .background-header {
-    margin-top: 15px;
+    /* margin-top: 15px; */
   }
   
   .background-header::before {
     width: 6%;
-    margin-top: 15px;
+    /* margin-top: 15px; */
     margin-left: -3px;
   }
   
@@ -1238,8 +1248,8 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .all-tabs {
-        margin-top: -45px;
-        font-size: 1.2rem;
+        /* margin-top: -45px; */
+    font-size: 1.2rem;
     
   }
   .tab {
@@ -1252,16 +1262,14 @@ a:active { color: lightgrey; text-decoration: underline; }
   h6 { font-size: 1.2rem; }
   
   #learn-more-button {
-    font-size: 1rem;
-    height: 5px;
-    padding: 5px;
-    margin-top: 0px;
-    margin-right: 0px;
+    font-size: 1.2rem;
+    padding: 0;
+    border: 0;
   }
   
   .main-title {
     font-size: 1.2rem;
-    margin-top: 12px;
+    /* margin-top: 12px; */
   }
   
   #full-view-link {
@@ -1346,7 +1354,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .background-header::before {
-    width: 12%;
+    width: 10%;
     margin-top: 8px;
   }
   
@@ -1379,8 +1387,9 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .navbar {
-    justify-content: center;
-    gap: 6px;
+    gap: 2px;
+    justify-content: flex-start !important; /* 覆盖原来的 center，防止溢出的菜单项无法滚动到左侧 */
+    min-width: max-content !important;      /* 保持子菜单项按实际内容延伸，不被压缩 */
   }
   
   .github-wrapper {
@@ -1388,10 +1397,10 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .tab {
-    font-size: 1.05rem;
+    font-size: 1rem;
     padding: 4px 3px;
     gap: 6px;
-    height: 30px;
+    height: 25px;
   }
   
   .tab .icon {
@@ -1404,14 +1413,19 @@ a:active { color: lightgrey; text-decoration: underline; }
   
   .bubble-text {
     margin-left: 25px;
-    font-size: 1.2rem;
+    margin-top: 25px;
+    font-size: 1rem;
+    padding: 0;
   }
   
   .all-tabs {
-    text-align: center;
-    margin-top: -10px;
-    margin-bottom: 0px;
-    font-size: 1rem;
+    width: 65% !important;             /* 1. 限制整个菜单区域只占屏幕宽度的 50% */
+    margin-left: 13% !important;       /* 2. 配合 auto 实现水平居中 */
+    margin-right: auto !important;
+    overflow-x: auto !important;        /* 3. 开启横向滚动 */
+    overflow-y: hidden !important;      /* 禁止纵向溢出 */
+    white-space: nowrap !important;     /* 4. 强制不换行 */
+    -webkit-overflow-scrolling: touch;  /* iOS 移动端流畅滑动 */
   }
   
   .tablast {
@@ -1426,15 +1440,18 @@ a:active { color: lightgrey; text-decoration: underline; }
   .logo {
     height: 20px;
   }
+
+  .header-right-action {
+    position: absolute;
+    top: 10px;
+    right: 2px;
+    z-index: 100;
+  }  
   
   #learn-more-button {
-    font-size: 0.8rem;
-    font-weight: 400;
-    height: 15px;
-    padding: 8px;
-    margin-top: 2px;
-    margin-bottom: 0px;
-    margin-right:2px;
+    font-size: 1rem;
+    padding: 0;
+    border: 0;
   }
   
   h5 { font-size: 1.5rem; }
@@ -1442,9 +1459,9 @@ a:active { color: lightgrey; text-decoration: underline; }
   
   .main-title {
     width: 70%;
-    padding-left: 58px;
+    /* padding-left: 58px; */
     font-size: 1rem;
-    /* margin-top: 18px !important; */
+    /* margin-top: 10px !important; */
   }
   
   .five.columns {
