@@ -262,7 +262,7 @@ li::before {
   gap: 8px;
   padding: 8px 10px;
   text-decoration: none;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   color: #333333;
   white-space: nowrap;
   transition: all 0.25s ease;
@@ -1225,8 +1225,8 @@ a:active { color: lightgrey; text-decoration: underline; }
   
   .background-header::before {
     width: 6%;
-    /* margin-top: 15px; */
     margin-left: -3px;
+    margin-top: 5px;
   }
   
   .company-logo {
@@ -1243,24 +1243,25 @@ a:active { color: lightgrey; text-decoration: underline; }
     font-size: 1.2rem !important;
   }
   .navbar {
-    gap: 0px;
     margin-left: 15px;
   }
   
   .all-tabs {
-        /* margin-top: -45px; */
-    font-size: 1.2rem;
-    
+    font-size: 1.4rem;
   }
   .tab {
-       font-size: 1.2rem;
+    font-size: 1.4rem;
+    gap: 2px;
   }
 
   .bubble-text {
-       font-size: 1.4rem;
+    font-size: 1.4rem;
   }
   h6 { font-size: 1.2rem; }
   
+  .header-right-action  {
+    top: 18px;
+  }
   #learn-more-button {
     font-size: 1.2rem;
     padding: 0;
@@ -1350,7 +1351,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .background-header {
-    margin-top: -10px;
+    margin-top: -5px;
   }
   
   .background-header::before {
@@ -1390,6 +1391,7 @@ a:active { color: lightgrey; text-decoration: underline; }
     gap: 2px;
     justify-content: flex-start !important; /* 覆盖原来的 center，防止溢出的菜单项无法滚动到左侧 */
     min-width: max-content !important;      /* 保持子菜单项按实际内容延伸，不被压缩 */
+    margin-top: 6px;
   }
   
   .github-wrapper {
@@ -1397,7 +1399,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .tab {
-    font-size: 1rem;
+    font-size: 1.2rem;
     padding: 4px 3px;
     gap: 6px;
     height: 25px;
@@ -1414,7 +1416,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   .bubble-text {
     margin-left: 25px;
     margin-top: 25px;
-    font-size: 1rem;
+    font-size: 1.2rem;
     padding: 0;
   }
   
