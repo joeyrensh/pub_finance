@@ -1347,7 +1347,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   
   .background-header::before {
     width: 12%;
-    margin-top: 15px;
+    margin-top: 5px;
   }
   
   .company-logo {
@@ -1432,8 +1432,8 @@ a:active { color: lightgrey; text-decoration: underline; }
     font-weight: 400;
     height: 15px;
     padding: 8px;
-    margin-top: 0px;
-    margin-bottom: 2px;
+    margin-top: 2px;
+    margin-bottom: 0px;
     margin-right:2px;
   }
   
@@ -1444,7 +1444,7 @@ a:active { color: lightgrey; text-decoration: underline; }
     width: 70%;
     padding-left: 58px;
     font-size: 1rem;
-    margin-top: 18px !important;
+    /* margin-top: 18px !important; */
   }
   
   .five.columns {
@@ -1453,7 +1453,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   
   #full-view-link {
     font-size: 1rem;
-    padding: 8px 12px !important;
+    padding: 6px 10px !important;
     margin-right: 0px;
     margin-top: 3px;
     text-transform: uppercase;
@@ -1461,7 +1461,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   
   .row > .columns:not(:first-child) {
     padding: 0 0;
-    margin-top: 5px;
+    margin-top: 10px;
   }
   
   .three.columns {
