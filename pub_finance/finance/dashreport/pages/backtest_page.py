@@ -976,7 +976,7 @@ class BacktestPage:
                                             value="SZ002077,SZ002119",
                                             className="backtest-label custom-input",
                                             style={
-                                                "flex": "1",
+                                                "flex": 1,
                                                 "marginRight": "12px",
                                                 "minWidth": "30%",
                                             },

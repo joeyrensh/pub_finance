@@ -105,7 +105,7 @@ class PageLayout:
                     ),
                     id={"type": "collapse-btn", "page": self.prefix, "index": index},
                     style={
-                        "backgroundColor": "none",
+                        "backgroundColor": "transparent",
                         "border": "none",
                         "padding": 0,
                         "cursor": "pointer",
@@ -215,7 +215,7 @@ class PageLayout:
                     "table": table_id,
                 },
                 className="subtitle padded",
-                style={"cursor": ("pointer" if is_checkbox_enabled else None)},
+                style={"cursor": ("pointer" if is_checkbox_enabled else "auto")},
             )
         ]
 
