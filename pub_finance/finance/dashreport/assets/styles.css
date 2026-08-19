@@ -230,6 +230,13 @@ li::before {
    4. 导航与品牌元素 (Navbar & Branding)
    ========================================================================== */
 
+.header-menu-wrapper{
+    border-bottom: 1px solid var(--gridcolor);
+    padding-bottom: 5px;
+    box-sizing: border-box;
+    width: 100%;
+}   
+
 .navbar {
   display: flex;
   justify-content: center;
@@ -237,9 +244,9 @@ li::before {
   gap: 8px;
   width: 100%;
   box-sizing: border-box;
-  border-bottom: 2px solid var(--gridcolor);
+  /* border-bottom: 2px solid var(--gridcolor); */
   margin-bottom: 0px;
-  margin-top: 5px;
+  /* margin-top: 5px; */
   position: relative;
   z-index: 10;  
 }
@@ -1104,7 +1111,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   background-size: contain;
   z-index: -1;
   margin-left: -5px;
-  margin-top: 5px;
+  margin-top: 8px;
 }
 
 /* --- 其他核心小部件 --- */
@@ -1227,7 +1234,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   .background-header::before {
     width: 6%;
     margin-left: -3px;
-    margin-top: 5px;
+    margin-top: 8px;
   }
   
   .company-logo {
@@ -1357,7 +1364,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   
   .background-header::before {
     width: 10%;
-    margin-top: 8px;
+    margin-top: 6px;
   }
   
   .company-logo {
@@ -1389,7 +1396,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .navbar {
-    gap: 10px;
+    gap: 4px;
     justify-content: flex-start !important; /* 覆盖原来的 center，防止溢出的菜单项无法滚动到左侧 */
     min-width: max-content !important;      /* 保持子菜单项按实际内容延伸，不被压缩 */
     margin-top: 6px;
@@ -1415,15 +1422,15 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .bubble-text {
-    margin-left: 25px;
-    margin-top: 25px;
+    margin-left: 5px;
+    margin-top: 10px;
     font-size: 1.2rem;
     padding: 0;
   }
   
   .all-tabs {
     width: 75% !important;             /* 1. 限制整个菜单区域只占屏幕宽度的 50% */
-    margin-left: 14% !important;       /* 2. 配合 auto 实现水平居中 */
+    margin-left: auto !important;       /* 2. 配合 auto 实现水平居中 */
     margin-right: auto !important;
     overflow-x: auto !important;        /* 3. 开启横向滚动 */
     overflow-y: hidden !important;      /* 禁止纵向溢出 */

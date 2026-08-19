@@ -13,7 +13,9 @@ from finance import FINANCE_ROOT
 
 
 def Header(app):
-    return html.Div([get_header(app), html.Br([]), get_menu()])
+    return html.Div(
+        [get_header(app), html.Br([]), get_menu()], className="header-menu-wrapper"
+    )
 
 
 def get_header(app):
@@ -103,7 +105,7 @@ def get_menu():
                     dcc.Link(
                         [
                             html.I(className="fa-solid fa-rotate-right icon"),
-                            html.Span("B-Test", className="menu-name"),
+                            html.Span("Backtest", className="menu-name"),
                         ],
                         href="/dash-financial-report/backtest",
                         className="tab",
@@ -111,7 +113,7 @@ def get_menu():
                     dcc.Link(
                         [
                             html.I(className="fa-regular fa-newspaper icon"),
-                            html.Span("Setup", className="menu-name"),
+                            html.Span("Settings", className="menu-name"),
                         ],
                         href="/dash-financial-report/settings",
                         className="tab",
