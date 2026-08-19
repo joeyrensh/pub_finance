@@ -888,6 +888,59 @@ a:active { color: var(--text-color); text-decoration: underline; }
     border: 1px solid var(--gridcolor);
 }
 
+/* ==========================================================================
+   dcc.DatePickerSingle 终极穿透：彻底透明 + 修复顶部箭头白块
+   ========================================================================== */
+
+/* 1. 强制清除面板、月份、网格容器的背景 */
+.custom-date-picker .SingleDatePicker_picker,
+.custom-date-picker .SingleDatePicker_picker * {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+/* 2. 彻底清除所有日期单元格的白色背景 (提升选择器权重) */
+.custom-date-picker td.CalendarDay,
+.custom-date-picker .CalendarDay,
+.custom-date-picker .CalendarDay__default,
+.custom-date-picker .CalendarDay__valid {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--gridcolor) !important;
+}
+
+/* 3. 修复顶部左右切换按钮的白色方块背景 */
+.custom-date-picker .DayPickerNavigation_button,
+.custom-date-picker .DayPickerNavigation_button__default {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+/* 修复箭头图标颜色 (填充为主题字色) */
+.custom-date-picker .DayPickerNavigation_svg__horizontal {
+  fill: var(--text-color) !important;
+}
+
+/* 4. 修复星期标题 (Su, Mo, Tu...) 的字色 */
+.custom-date-picker .DayPicker_weekHeader,
+.custom-date-picker .DayPicker_weekHeader_item {
+  color: var(--text-color) !important;
+}
+
+/* 5. 鼠标悬停 (Hover) 浅色提示 */
+.custom-date-picker td.CalendarDay:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 6. 保留选中日期 (Selected) 的蓝色高亮 */
+.custom-date-picker td.CalendarDay__selected,
+.custom-date-picker .CalendarDay__selected {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
 .symbol_summary_box{
     min-height: 45px;
     line-height: 1.6;
