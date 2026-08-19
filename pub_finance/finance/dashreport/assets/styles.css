@@ -279,7 +279,7 @@ li::before {
 .all-tabs .tab.active .menu-name {
    font-weight: 600;
    border-bottom: 2px solid var(--text-color) !important;
-   font-size: 1.6rem
+   font-size: 1.8rem
 }
 
 .tab .icon {
@@ -1248,7 +1248,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   }
 
   .all-tabs .tab.active .menu-name {
-    font-size: 1.4rem
+    font-size: 1.5rem
   }
   
   .tab {
@@ -1402,7 +1402,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   }
 
   .all-tabs .tab.active .menu-name {
-    font-size: 1.2rem
+    font-size: 1.3rem
   }  
   
   .tab {
