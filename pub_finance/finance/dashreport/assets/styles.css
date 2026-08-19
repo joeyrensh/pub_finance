@@ -295,17 +295,6 @@ li::before {
   color: white;
 }
 
-/* .tab::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: 4px;
-  height: 1px;
-  width: 0;
-  background: var(--gridcolor);
-  transition: 0.25s;
-} */
-
 .tab:hover::after {
   left: 0;
   width: 100%;
@@ -345,7 +334,7 @@ li::before {
 
 .bubble-text {
   padding: 6px 15px;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: 0.3px;
   background: var(--bubble-background-color);
@@ -1260,13 +1249,13 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .tab {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     gap: 2px;
   }
 
   .bubble-text {
     margin-left: 25px;
-    font-size: 1.4rem;
+    font-size: 1.3rem;
   }
   h6 { font-size: 1.2rem; }
   
@@ -1410,7 +1399,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   }
   
   .tab {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     padding: 4px 3px;
     gap: 6px;
     height: 25px;
@@ -1427,7 +1416,7 @@ a:active { color: lightgrey; text-decoration: underline; }
   .bubble-text {
     margin-left: 5px;
     margin-top: 10px;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     padding: 0;
   }
   
