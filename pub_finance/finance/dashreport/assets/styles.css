@@ -257,9 +257,14 @@ li::before {
 
 /* --- 标签控制 --- */
 .all-tabs {
-  text-align: center;
-  font-size: 1.4rem;
   font-weight: 600;
+  width: 75% !important;             /* 1. 限制整个菜单区域只占屏幕宽度的 50% */
+  margin-left: auto !important;       /* 2. 配合 auto 实现水平居中 */
+  margin-right: auto !important;
+  overflow-x: auto !important;        /* 3. 开启横向滚动 */
+  overflow-y: hidden !important;      /* 禁止纵向溢出 */
+  white-space: nowrap !important;     /* 4. 强制不换行 */
+  -webkit-overflow-scrolling: touch;  /* iOS 移动端流畅滑动 */
   text-transform: uppercase;
 }
 
@@ -1254,15 +1259,13 @@ a:active { color: lightgrey; text-decoration: underline; }
     margin-left: 15px;
   }
   
-  .all-tabs {
-    font-size: 1.4rem;
-  }
   .tab {
     font-size: 1.4rem;
     gap: 2px;
   }
 
   .bubble-text {
+    margin-left: 25px;
     font-size: 1.4rem;
   }
   h6 { font-size: 1.2rem; }
@@ -1426,16 +1429,6 @@ a:active { color: lightgrey; text-decoration: underline; }
     margin-top: 10px;
     font-size: 1.2rem;
     padding: 0;
-  }
-  
-  .all-tabs {
-    width: 75% !important;             /* 1. 限制整个菜单区域只占屏幕宽度的 50% */
-    margin-left: auto !important;       /* 2. 配合 auto 实现水平居中 */
-    margin-right: auto !important;
-    overflow-x: auto !important;        /* 3. 开启横向滚动 */
-    overflow-y: hidden !important;      /* 禁止纵向溢出 */
-    white-space: nowrap !important;     /* 4. 强制不换行 */
-    -webkit-overflow-scrolling: touch;  /* iOS 移动端流畅滑动 */
   }
   
   .tablast {
