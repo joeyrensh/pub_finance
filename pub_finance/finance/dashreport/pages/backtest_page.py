@@ -919,19 +919,30 @@ class BacktestPage:
                         html.Div(
                             [
                                 html.Label("Date", className="label_text"),
-                                dcc.DatePickerSingle(
+                                dbc.Input(
                                     id="backtest-date",
-                                    date=default_date,
-                                    display_format="YYYY-MM-DD",
-                                    placeholder="Select Date",
-                                    className="custom-date-picker backtest-label",
+                                    type="date",
+                                    value=default_date,
+                                    className="custom-date-picker-input",
                                     style={
                                         "width": "auto",
                                         "minWidth": "120px",
                                         "marginLeft": "5px",
-                                        "zIndex": 1050,
                                     },
                                 ),
+                                # dcc.DatePickerSingle(
+                                #     id="backtest-date",
+                                #     date=default_date,
+                                #     display_format="YYYY-MM-DD",
+                                #     placeholder="Select Date",
+                                #     className="custom-date-picker backtest-label",
+                                #     style={
+                                #         "width": "auto",
+                                #         "minWidth": "120px",
+                                #         "marginLeft": "5px",
+                                #         "zIndex": 1050,
+                                #     },
+                                # ),
                             ],
                             style={
                                 "display": "inline-flex",

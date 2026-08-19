@@ -888,6 +888,29 @@ a:active { color: var(--text-color); text-decoration: underline; }
     border: 1px solid var(--gridcolor);
 }
 
+/* ==========================================================================
+   dbc.Input(type="date") 完美对齐原 dcc.DatePickerSingle 风格样式
+   ========================================================================== */
+
+/* 1. 外层容器与输入框基本风格（完全继承你的字体、高度与颜色变量） */
+.custom-date-picker-input {
+  height: 38px !important;
+  line-height: 38px !important;
+  font-size: 1.3rem !important;
+  font-weight: 400 !important;
+  color: var(--text-color) !important;
+  margin: 0px 0px 0px 5px !important;
+  border: 1px solid var(--gridcolor) !important;  /* 复刻原 .SingleDatePickerInput 的边框 */
+  border-radius: 0 !important;                     /* 复刻原 border-radius: 0 */
+  background-color: transparent !important;       /* 复刻背景透明 */
+  box-shadow: none !important;                   /* 移除 Bootstrap 默认 focus 外发光 */
+}
+
+/* 3. 原生系统日历弹窗：自动感知背景色（跟随系统的深浅色调） */
+.custom-date-picker-input {
+  color-scheme: light dark; /* 自动根据页面环境匹配浏览器原生日历弹窗的明暗 */
+}
+
 .symbol_summary_box{
     min-height: 45px;
     line-height: 1.6;
@@ -1313,6 +1336,15 @@ a:active { color: var(--text-color); text-decoration: underline; }
 
   .custom-date-picker .CalendarDay__default {
       font-size: 1.2rem !important;
+  }
+
+  .custom-date-picker-input {
+    height: 30px !important;
+    line-height: 30px !important;
+    font-size: 1rem !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 2px !important;
   }
 
   .custom-input{
