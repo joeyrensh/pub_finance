@@ -401,7 +401,7 @@ class PageLayout:
         # 5. 最终页面整体布局输出
         return html.Div(
             [
-                Header(self.app),
+                # Header(self.app),
                 html.Div(
                     sub_page_children,
                     className="sub_page",

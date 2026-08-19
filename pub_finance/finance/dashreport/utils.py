@@ -71,51 +71,39 @@ def get_menu():
             html.Div(
                 [
                     dcc.Link(
-                        [
-                            # html.I(className="fa-solid fa-chart-line icon"),
-                            html.Span("A-Share", className="menu-name"),
-                        ],
+                        html.Span("A-Share", className="menu-name"),
                         href="/dash-financial-report/a-share",
-                        className="tab first",
+                        id="tab-a-share",
+                        className="tab",
                     ),
                     dcc.Link(
-                        [
-                            # html.I(className="fa-solid fa-flag-usa icon"),
-                            html.Span("US-Stock", className="menu-name"),
-                        ],
+                        html.Span("US-Stock", className="menu-name"),
                         href="/dash-financial-report/us-stock",
+                        id="tab-us-stock",
                         className="tab",
                     ),
                     dcc.Link(
-                        [
-                            # html.I(className="fa-solid fa-rocket icon"),
-                            html.Span("A+", className="menu-name"),
-                        ],
+                        html.Span("A+", className="menu-name"),
                         href="/dash-financial-report/a-picks",
+                        id="tab-a-picks",
                         className="tab",
                     ),
                     dcc.Link(
-                        [
-                            # html.I(className="fa-solid fa-rocket icon"),
-                            html.Span("US+", className="menu-name"),
-                        ],
+                        html.Span("US+", className="menu-name"),
                         href="/dash-financial-report/us-picks",
+                        id="tab-us-picks",
                         className="tab",
                     ),
                     dcc.Link(
-                        [
-                            # html.I(className="fa-solid fa-rotate-right icon"),
-                            html.Span("Backtest", className="menu-name"),
-                        ],
+                        html.Span("Backtest", className="menu-name"),
                         href="/dash-financial-report/backtest",
+                        id="tab-backtest",
                         className="tab",
                     ),
                     dcc.Link(
-                        [
-                            # html.I(className="fa-regular fa-newspaper icon"),
-                            html.Span("Settings", className="menu-name"),
-                        ],
+                        html.Span("Settings", className="menu-name"),
                         href="/dash-financial-report/settings",
+                        id="tab-settings",
                         className="tab",
                     ),
                 ],

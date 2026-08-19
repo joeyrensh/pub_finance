@@ -18,6 +18,7 @@ import os
 from datetime import timedelta
 from finance import FINANCE_ROOT
 from werkzeug.security import check_password_hash
+from finance.dashreport.utils import Header
 
 server = Flask(__name__)
 Compress(
@@ -119,6 +120,10 @@ app.layout = html.Div(
             id="main-page",
             style={"display": "none"},
             children=[
+                html.Div(
+                    Header(app),
+                    className="sub_page page",  # 或者直接套用你的 .page 约束类
+                ),
                 html.Div(id="page-content"),
             ],
         ),
@@ -555,6 +560,30 @@ PAGE_TITLE_MAP = {
 def update_header_title(pathname):
     # 匹配对应页面的名称，如果匹配不到（比如在首页），则回退默认标题
     return PAGE_TITLE_MAP.get(pathname, "")
+
+
+@app.callback(
+    [
+        Output("tab-a-share", "className"),
+        Output("tab-us-stock", "className"),
+        Output("tab-a-picks", "className"),
+        Output("tab-us-picks", "className"),
+        Output("tab-backtest", "className"),
+        Output("tab-settings", "className"),
+    ],
+    Input("url", "pathname"),
+)
+def update_active_tab(pathname):
+    routes = [
+        "/dash-financial-report/a-share",
+        "/dash-financial-report/us-stock",
+        "/dash-financial-report/a-picks",
+        "/dash-financial-report/us-picks",
+        "/dash-financial-report/backtest",
+        "/dash-financial-report/settings",
+    ]
+    # 如果当前的 URL 匹配到某一个路由，赋予 "tab active" 类名，否则赋予 "tab"
+    return ["tab active" if pathname == route else "tab" for route in routes]
 
 
 if __name__ == "__main__":

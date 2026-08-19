@@ -169,8 +169,6 @@ h6 { font-size: 1.4rem; }
   font-size: 1.4rem;
   width: 80%;
   border-left: 0px solid var(--border-left-color);
-  /* padding-left: 95px; */
-  /* margin-top: -2px; */
 }
 
 .subtitle {
@@ -212,7 +210,6 @@ li::before {
   position: relative;
   height: 15%;
   padding: 2px;
-  /* margin-bottom: 5px; */
   color: #FF4136;
   font-size: 1.4rem;
   filter: contrast(105%) saturate(105%);
@@ -244,9 +241,7 @@ li::before {
   gap: 8px;
   width: 100%;
   box-sizing: border-box;
-  /* border-bottom: 2px solid var(--gridcolor); */
   margin-bottom: 0px;
-  /* margin-top: 5px; */
   position: relative;
   z-index: 10;  
 }
@@ -257,8 +252,7 @@ li::before {
 
 /* --- 标签控制 --- */
 .all-tabs {
-  font-weight: 600;
-  width: 75% !important;             /* 1. 限制整个菜单区域只占屏幕宽度的 50% */
+  width: 80% !important;             /* 1. 限制整个菜单区域只占屏幕宽度的 50% */
   margin-left: auto !important;       /* 2. 配合 auto 实现水平居中 */
   margin-right: auto !important;
   overflow-x: auto !important;        /* 3. 开启横向滚动 */
@@ -282,12 +276,18 @@ li::before {
   height: 40px;
 }
 
+.all-tabs .tab.active .menu-name {
+   font-weight: 600;
+   border-bottom: 2px solid var(--text-color) !important;
+   font-size: 1.6rem
+}
+
 .tab .icon {
   font-size: 1.4rem;
 }
 
 .tab-active {
-  background-color: #1e90ff;
+  background-color: var(--text-color);
   color: white !important;
 }
 
@@ -393,7 +393,6 @@ table.tiny-header tr:first-child { font-size: 8px; }
   border-collapse: separate !important;
   border-spacing: 2px 0px !important;
   border: 0.1px solid var(--gridcolor) !important;
-  /* margin-top: -10px ; */
 }
 
 .default-table .dash-spreadsheet-container .dash-spreadsheet-inner th {
@@ -696,8 +695,8 @@ a:link, a:visited {
   text-decoration: none;
 }
 
-a:hover { opacity: 0.6; }
-a:active { color: lightgrey; text-decoration: underline; }
+a:hover { opacity: 1; }
+a:active { color: var(--text-color); text-decoration: underline; }
 
 .input-box {
   width: 100%;
@@ -1247,6 +1246,10 @@ a:active { color: lightgrey; text-decoration: underline; }
   .navbar {
     margin-left: 15px;
   }
+
+  .all-tabs .tab.active .menu-name {
+    font-size: 1.4rem
+  }
   
   .tab {
     font-size: 1.3rem;
@@ -1397,6 +1400,10 @@ a:active { color: lightgrey; text-decoration: underline; }
   .github-wrapper {
     margin-left: 0;
   }
+
+  .all-tabs .tab.active .menu-name {
+    font-size: 1.2rem
+  }  
   
   .tab {
     font-size: 1.1rem;

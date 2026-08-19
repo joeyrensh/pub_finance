@@ -619,7 +619,7 @@ def create_layout(app: Dash):
 
     layout = html.Div(
         [
-            Header(app),
+            # Header(app),
             html.Div(
                 sub_page_content,
                 className="sub_page",

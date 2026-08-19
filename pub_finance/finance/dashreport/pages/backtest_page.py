@@ -1252,7 +1252,7 @@ class BacktestPage:
                 dcc.Store(id="backtest-data", data=None),
                 dcc.Store(id="backtest-full-list", data=[]),
                 dcc.Store(id="backtest-page", data=0),
-                Header(self.app),
+                # Header(self.app),
                 html.Div(
                     [
                         self.build_control_panel(),
