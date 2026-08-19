@@ -43,7 +43,7 @@
     --text-color: rgba(255, 255, 255, 0.9);
     --login-box-shadow-color: #607D8B;
     --subtitle-color: rgba(255, 255, 255, 0.9);
-    --a-visited-color: rgba(255, 255, 255, 0.9);
+    --a-visited-color: rgba(255, 255, 255, 0.8);
     --learn-more-button-color: #9fa6b7;
     --dash-table-border-color: rgba(255, 255, 255, 0.2);
     --flag-color: rgba(231, 127, 63, 0.97);
@@ -269,7 +269,7 @@ li::before {
   padding: 8px 10px;
   text-decoration: none;
   font-size: 1.5rem;
-  color: #333333;
+  /* color: #333333; */
   white-space: nowrap;
   transition: all 0.25s ease;
   border-style: none;
@@ -279,7 +279,8 @@ li::before {
 .all-tabs .tab.active .menu-name {
    font-weight: 600;
    border-bottom: 2px solid var(--text-color) !important;
-   font-size: 1.8rem
+   font-size: 1.8rem;
+   color: var(--text-color) !important;
 }
 
 .tab .icon {
