@@ -43,7 +43,7 @@
     --text-color: rgba(255, 255, 255, 0.9);
     --login-box-shadow-color: #607D8B;
     --subtitle-color: rgba(255, 255, 255, 0.9);
-    --a-visited-color: rgba(255, 255, 255, 0.8);
+    --a-visited-color: rgba(255, 255, 255, 0.7);
     --learn-more-button-color: #9fa6b7;
     --dash-table-border-color: rgba(255, 255, 255, 0.2);
     --flag-color: rgba(231, 127, 63, 0.97);
@@ -252,7 +252,7 @@ li::before {
 
 /* --- 标签控制 --- */
 .all-tabs {
-  width: 80% !important;             /* 1. 限制整个菜单区域只占屏幕宽度的 50% */
+  width: 60% !important;             /* 1. 限制整个菜单区域只占屏幕宽度的 50% */
   margin-left: auto !important;       /* 2. 配合 auto 实现水平居中 */
   margin-right: auto !important;
   overflow-x: auto !important;        /* 3. 开启横向滚动 */
