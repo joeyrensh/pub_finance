@@ -164,6 +164,43 @@ class ChartBuilder:
         # 3. 兜底处理 (若配置传的是特殊值)
         return color_str
 
+    @staticmethod
+    def _truncate_text_by_display_width(text, max_display_width=16):
+        """
+        按显示宽度截断文本
+        规则：1个汉字 = 2个字符宽度，1个英文字符 = 1个字符宽度
+        max_display_width=16 对应：8个汉字 或 16个英文字符
+        """
+
+        text = str(text).strip()
+        if not text:
+            return text
+
+        total_width = 0
+        result_chars = []
+
+        for char in text:
+            # 计算字符宽度
+            if "\u4e00" <= char <= "\u9fff":  # 中文字符
+                char_width = 2
+            else:  # 英文字符、数字、标点等
+                char_width = 1
+
+            # 检查是否超过最大宽度
+            if total_width + char_width > max_display_width:
+                break
+
+            result_chars.append(char)
+            total_width += char_width
+
+        result = "".join(result_chars)
+
+        # 如果截断了，添加省略号
+        if len(result) < len(text):
+            result += ".."
+
+        return result
+
     def calendar_heatmap(
         self,
         page,
@@ -319,42 +356,6 @@ class ChartBuilder:
             )
         )
 
-        def truncate_text_by_display_width(text, max_display_width=16):
-            """
-            按显示宽度截断文本
-            规则：1个汉字 = 2个字符宽度，1个英文字符 = 1个字符宽度
-            max_display_width=16 对应：8个汉字 或 16个英文字符
-            """
-
-            text = str(text).strip()
-            if not text:
-                return text
-
-            total_width = 0
-            result_chars = []
-
-            for char in text:
-                # 计算字符宽度
-                if "\u4e00" <= char <= "\u9fff":  # 中文字符
-                    char_width = 2
-                else:  # 英文字符、数字、标点等
-                    char_width = 1
-
-                # 检查是否超过最大宽度
-                if total_width + char_width > max_display_width:
-                    break
-
-                result_chars.append(char)
-                total_width += char_width
-
-            result = "".join(result_chars)
-
-            # 如果截断了，添加省略号
-            if len(result) < len(text):
-                result += ".."
-
-            return result
-
         # ===============================
         # 1️⃣ 统计出现频率最高的 3 个行业
         # ===============================
@@ -443,7 +444,7 @@ class ChartBuilder:
                 rank_text_top = industry_rank_map.get(industry_text_top, 0)
 
                 if len(industry_text_top) > 6:
-                    industry_text_top = truncate_text_by_display_width(
+                    industry_text_top = self._truncate_text_by_display_width(
                         industry_text_top, 12
                     )
 
@@ -496,7 +497,7 @@ class ChartBuilder:
             #     )
 
             #     if len(industry_text_bottom) > 6:
-            #         industry_text_bottom = truncate_text_by_display_width(
+            #         industry_text_bottom = self._truncate_text_by_display_width(
             #             industry_text_bottom, 12
             #         )
 
@@ -3263,6 +3264,9 @@ class ChartBuilder:
             return ind
 
         df["annotation_text"] = df["top1_industry"].apply(format_label)
+        df["annotation_text"] = df["annotation_text"].apply(
+            lambda x: self._truncate_text_by_display_width(x, 14)
+        )
         df_annot = df[df["annotation_text"] != ""].copy()
 
         if df_annot.empty:
@@ -3277,8 +3281,8 @@ class ChartBuilder:
         min_ts = dates_ts.min()
         max_ts = dates_ts.max()
         range_ts = max_ts - min_ts if max_ts > min_ts else 1.0
-        left_boundary = min_ts + range_ts * 0.3
-        right_boundary = min_ts + range_ts * 0.7
+        left_boundary = min_ts + range_ts * 0.2
+        right_boundary = min_ts + range_ts * 0.8
 
         xanchors = []
         for ts in dates_ts:
@@ -3291,56 +3295,60 @@ class ChartBuilder:
         ax_offsets = [0] * len(df_annot)
 
         # ------------------------------
-        # 5. 垂直方向动态递增偏移（全 step 参数化/无 Hardcode 版）
+        # 5. 垂直方向动态递增偏移（解决中间堆叠：放大步长 + 精准 X 轴像素判定）
         # ------------------------------
         y_vals = df_annot["s_pnl"].values
         y_min, y_max = y_vals.min(), y_vals.max()
         y_range = y_max - y_min if y_max > y_min else 1.0
 
         # 1. 基础参数定义
-        step = 10  # 垂直偏移步长 (px)
-        max_step = 10  # 最大尝试层数
-        x_threshold = range_ts * 0.1  # X 轴时间碰撞跨度 (8%)
+        step = 22  # 垂直步长从 10px 大幅增加到 22px，拉大上下推开的距离
+        max_step = 8  # 最大尝试层数
 
-        # 2. 动态导出参数（彻底替代硬编码）
-        # 假设图表 Plot Area 高度约为 400px，计算出 1px 对应的 Y 轴数据跨度
-        px_to_y_unit = y_range / 300
-
-        # 将 step (px) 直接精准映射到 Y 轴数据跨度（即 1 层 step 在数据坐标下的物理高度）
+        # 2. 物理像素精准映射（假设画布宽 600px，高 350px）
+        px_to_y_unit = y_range / 350
         step_y_scale = step * px_to_y_unit
 
-        # 单个中文字体框的高约为 16px，将其换算为数据坐标下的文本容忍阈值
-        font_height_px = 12.0
+        font_height_px = 14.0  # 字体高度估值
         text_height_y_scale = font_height_px * px_to_y_unit
+
+        # 按物理像素（约 30px 文本宽度）精确换算 X 轴碰撞阈值，彻底解决 0.1 导致的一大片数据误判
+        x_threshold = (range_ts / 600) * 30.0
 
         assigned = []
         ay_offsets = []
 
-        # 候选序列：基于 step 和 max_step 动态生成
-        candidate_offsets = [-step * i for i in range(1, max_step + 1)] + [
-            step * i for i in range(1, max_step + 1)
-        ]
+        for i, (ts, y_val) in enumerate(zip(dates_ts, y_vals)):
+            # 根据前后 K 线走势判断局部波峰/波谷
+            prev_y = y_vals[i - 1] if i > 0 else y_val
+            next_y = y_vals[i + 1] if i < len(y_vals) - 1 else y_val
 
-        for ts, y_val in zip(dates_ts, y_vals):
-            # 判断点在全局 Y 轴的相对高度 (0 ~ 1)
-            relative_height = (y_val - y_min) / y_range if y_range > 0 else 0.5
+            is_local_peak = (y_val >= prev_y) and (y_val >= next_y)
+            is_local_trough = (y_val <= prev_y) and (y_val <= next_y)
 
-            # 根据点的高度决定优先搜索方向
-            if relative_height >= 0.5:
-                # 位于上半区/高位：优先向上，备选向下
-                candidate_offsets = [-step * i for i in range(1, max_step + 1)] + [
-                    step * i for i in range(1, max_step + 1)
+            if is_local_peak:
+                preferred_up = True
+            elif is_local_trough:
+                preferred_up = False
+            else:
+                relative_height = (y_val - y_min) / y_range if y_range > 0 else 0.5
+                preferred_up = relative_height >= 0.5
+
+            # 建立候选序列（优先在同向拉大步长，例如 -22, -44, -66，直接冲出重围）
+            if preferred_up:
+                candidate_offsets = [-step * k for k in range(1, max_step + 1)] + [
+                    step * k for k in range(1, max_step + 1)
                 ]
             else:
-                # 位于下半区/低位：优先向下 (+step)，备选向上 (-step)
-                candidate_offsets = [step * i for i in range(1, max_step + 1)] + [
-                    -step * i for i in range(1, max_step + 1)
+                candidate_offsets = [step * k for k in range(1, max_step + 1)] + [
+                    -step * k for k in range(1, max_step + 1)
                 ]
 
             selected = None
             for off in candidate_offsets:
                 conflict = False
                 for ts_other, y_other, off_other in assigned:
+                    # 精准判定：只有 X 轴像素距离很近的点，才触发碰撞拦截
                     is_x_close = abs(ts - ts_other) < x_threshold
 
                     layer_num = off / step
@@ -3362,8 +3370,7 @@ class ChartBuilder:
                     break
 
             if selected is None:
-                # 低位点兜底向下 (+step)，高位点兜底向上 (-step)
-                selected = step if relative_height < 0.5 else -step
+                selected = -step * 2 if preferred_up else step * 2
 
             ay_offsets.append(selected)
             assigned.append((ts, y_val, selected))
