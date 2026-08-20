@@ -234,7 +234,7 @@ class BacktestPage:
             default = get_default_date(market or "cn")
             if default:
                 return datetime.strptime(default, "%Y%m%d").strftime("%Y-%m-%d")
-            return None
+            return no_update
 
         # ---------- 2. 加载股票列表 ----------
         @callback(

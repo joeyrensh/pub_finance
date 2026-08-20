@@ -1888,8 +1888,8 @@ class ChartBuilder:
                 "scale": 1.0,
                 "main_font": 16,
                 "table_font": 16,
-                "header_h": 40,
-                "cell_h": 45,
+                "header_h": 42,
+                "cell_h": 42,
                 "gap_ratio": 0.045,  # 上下缝隙死死锁定为 3% 画布高度
                 "table_ratio_cap": 0.29,  # Table 占画布比例上限
             }
@@ -1897,25 +1897,25 @@ class ChartBuilder:
         # 2. 中屏 / 笔记本 & iPad 横屏 (768px ~ 1199px) -> 1.1rem 视觉体系
         elif w >= 768:
             return {
-                "scale": 0.85,
-                "main_font": 13,
-                "table_font": 13,
-                "header_h": 35,
-                "cell_h": 40,
-                "gap_ratio": 0.05,
-                "table_ratio_cap": 0.29,
+                "scale": 0.9,
+                "main_font": 14,
+                "table_font": 14,
+                "header_h": 38,
+                "cell_h": 38,
+                "gap_ratio": 0.055,
+                "table_ratio_cap": 0.28,
             }
 
         # 3. 平板竖屏 (550px ~ 767px) -> 1.0rem 视觉体系
         elif w >= 550:
             return {
                 "scale": 0.8,
-                "main_font": 11,
-                "table_font": 11,
-                "header_h": 30,
-                "cell_h": 35,
-                "gap_ratio": 0.05,
-                "table_ratio_cap": 0.29,
+                "main_font": 13,
+                "table_font": 13,
+                "header_h": 28,
+                "cell_h": 28,
+                "gap_ratio": 0.055,
+                "table_ratio_cap": 0.27,
             }
 
         # 4. 小屏 / 手机端 (< 550px) -> 0.9rem 极简体系
@@ -1924,8 +1924,8 @@ class ChartBuilder:
                 "scale": 0.65,
                 "main_font": 10,
                 "table_font": 10,
-                "header_h": 19,
-                "cell_h": 21,
+                "header_h": 20,
+                "cell_h": 20,
                 "gap_ratio": 0.055,
                 "table_ratio_cap": 0.255,
             }

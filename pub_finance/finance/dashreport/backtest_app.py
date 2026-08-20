@@ -81,6 +81,7 @@ app.layout = html.Div(
                         dcc.Input(
                             id="username",
                             type="text",
+                            value="",
                             placeholder="Username",
                             className="input-box",
                             name="username",
@@ -89,6 +90,7 @@ app.layout = html.Div(
                         dcc.Input(
                             id="password",
                             type="password",
+                            value="",
                             placeholder="Password",
                             className="input-box",
                             name="password",
