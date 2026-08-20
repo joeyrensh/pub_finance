@@ -2041,15 +2041,13 @@ class ChartBuilder:
             [font_colors[i][j] for i in range(len(table_df))]
             for j in range(len(table_columns))
         ]
-        # font_weights_by_col = ["bold"] + ["normal"] * (len(table_columns) - 1)
-        # font_weights_by_col = ["normal"] * (len(table_columns))
-        font_weights_by_col = ["normal", "normal", "bold", "normal", "normal"]
+        font_weights_by_col = ["bold", "bold", "bold", "bold", "bold"]
         font_sizes_by_col = [
-            table_font,
-            table_font,
             table_font + 3,
-            table_font,
-            table_font,
+            table_font + 3,
+            table_font + 3,
+            table_font + 3,
+            table_font + 3,
         ]
 
         # 准备表格单元格数据（列优先）
