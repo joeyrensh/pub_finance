@@ -1451,11 +1451,11 @@ a:active { color: var(--text-color); text-decoration: underline; }
   }
 
   .all-tabs .tab.active .menu-name {
-    font-size: 1.3rem
+    font-size: 1.4rem
   }
   
   .tab {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     padding: 4px 3px;
     gap: 6px;
     height: 25px;
@@ -1472,7 +1472,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   .bubble-text {
     margin-left: 5px;
     margin-top: 10px;
-    font-size: 1.1rem;
+    font-size: 1.4rem;
     padding: 0;
   }
   
