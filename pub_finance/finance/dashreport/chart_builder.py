@@ -3295,34 +3295,34 @@ class ChartBuilder:
         ax_offsets = [0] * len(df_annot)
 
         # ------------------------------
-        # 5. 垂直方向动态递增偏移（解决中间堆叠：放大步长 + 精准 X 轴像素判定）
+        # 5. 垂直方向动态递增偏移（基于画布物理像素准确判定）
         # ------------------------------
         y_vals = df_annot["s_pnl"].values
         y_min, y_max = y_vals.min(), y_vals.max()
         y_range = y_max - y_min if y_max > y_min else 1.0
 
-        # 1. 基础参数定义
-        step = 22  # 垂直步长从 10px 大幅增加到 22px，拉大上下推开的距离
+        # 1. 物理参数定义 (全部以像素 px 为单位)
+        step = 22  # 垂直步长 (px)
         max_step = 8  # 最大尝试层数
+        canvas_height_px = 350.0  # 假设画布绘图区高度为 350px
+        canvas_width_px = 500.0  # 假设画布绘图区宽度为 500px
 
-        # 2. 物理像素精准映射（假设画布宽 600px，高 350px）
-        px_to_y_unit = y_range / 350
-        step_y_scale = step * px_to_y_unit
-
-        font_height_px = 14.0  # 字体高度估值
-        text_height_y_scale = font_height_px * px_to_y_unit
-
-        # 按物理像素（约 30px 文本宽度）精确换算 X 轴碰撞阈值，彻底解决 0.1 导致的一大片数据误判
-        x_threshold = (range_ts / 600) * 30.0
+        # X 轴像素碰撞阈值设为 45px（符合截断后文本的真实物理宽度）
+        x_threshold_px = 45.0
+        font_height_px = 16.0  # 文本框物理高度容差
 
         assigned = []
         ay_offsets = []
 
         for i, (ts, y_val) in enumerate(zip(dates_ts, y_vals)):
-            # 根据前后 K 线走势判断局部波峰/波谷
+            # 计算数据点在画布上的【物理 Y 像素坐标】(以顶部为 0)
+            y_pixel = (1.0 - (y_val - y_min) / y_range) * canvas_height_px
+            # 计算数据点在画布上的【物理 X 像素坐标】
+            x_pixel = ((ts - min_ts) / range_ts) * canvas_width_px
+
+            # 波峰/波谷优先方向判断
             prev_y = y_vals[i - 1] if i > 0 else y_val
             next_y = y_vals[i + 1] if i < len(y_vals) - 1 else y_val
-
             is_local_peak = (y_val >= prev_y) and (y_val >= next_y)
             is_local_trough = (y_val <= prev_y) and (y_val <= next_y)
 
@@ -3331,10 +3331,8 @@ class ChartBuilder:
             elif is_local_trough:
                 preferred_up = False
             else:
-                relative_height = (y_val - y_min) / y_range if y_range > 0 else 0.5
-                preferred_up = relative_height >= 0.5
+                preferred_up = (y_val - y_min) / y_range >= 0.5
 
-            # 建立候选序列（优先在同向拉大步长，例如 -22, -44, -66，直接冲出重围）
             if preferred_up:
                 candidate_offsets = [-step * k for k in range(1, max_step + 1)] + [
                     step * k for k in range(1, max_step + 1)
@@ -3347,20 +3345,17 @@ class ChartBuilder:
             selected = None
             for off in candidate_offsets:
                 conflict = False
-                for ts_other, y_other, off_other in assigned:
-                    # 精准判定：只有 X 轴像素距离很近的点，才触发碰撞拦截
-                    is_x_close = abs(ts - ts_other) < x_threshold
+                # 当前候选位置的【真实物理 Y 像素位置】(ay 为负时向上，像素值减小)
+                curr_text_y_px = y_pixel + off
 
-                    layer_num = off / step
-                    layer_num_other = off_other / step
+                for x_other_px, y_other_text_px in assigned:
+                    # 只有 X 轴物理像素距离 < 45px 时，才需要判断 Y 轴冲突
+                    is_x_close = abs(x_pixel - x_other_px) < x_threshold_px
 
-                    estimated_y_text = y_val - (layer_num * step_y_scale)
-                    estimated_y_text_other = y_other - (layer_num_other * step_y_scale)
-
+                    # 判断两者在画布上的【物理 Y 轴像素距离】是否重叠
                     if (
                         is_x_close
-                        and abs(estimated_y_text - estimated_y_text_other)
-                        < text_height_y_scale
+                        and abs(curr_text_y_px - y_other_text_px) < font_height_px
                     ):
                         conflict = True
                         break
@@ -3373,7 +3368,8 @@ class ChartBuilder:
                 selected = -step * 2 if preferred_up else step * 2
 
             ay_offsets.append(selected)
-            assigned.append((ts, y_val, selected))
+            # 记录已分配标注的【物理 X 像素】与【物理 Y 文本像素位置】
+            assigned.append((x_pixel, y_pixel + selected))
         # ------------------------------
         # 6. 创建折线图
         # ------------------------------
