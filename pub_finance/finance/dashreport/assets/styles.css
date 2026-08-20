@@ -211,7 +211,7 @@ li::before {
   height: 15%;
   padding: 2px;
   color: #FF4136;
-  font-size: 1.4rem;
+  /* font-size: 1.4rem; */
   filter: contrast(105%) saturate(105%);
   overflow-wrap: break-word;
   word-break: break-all;
@@ -858,48 +858,40 @@ a:active { color: var(--text-color); text-decoration: underline; }
   color: #000 !important;
 } */
 
+/* ==========================================================================
+   dcc.DatePickerSingle 整合版：输入框 + 彻底透明 + transform 完美等比例缩小
+   ========================================================================== */
+
+/* 1. 输入框与外层容器样式 */
 .custom-date-picker .DateInput_input {
-    height: 38px;
-    line-height: 38px;
-    font-size: 1.3rem !important;
-    font-weight: 400 !important;
-    color: var(--text-color) !important;
-    margin: 0 !important;
-    border: 0 !important;
-    border-radius: 0;
-    width: 100%;
-    background-color: transparent !important;
-}
-
-.custom-date-picker .CalendarDay__default {
-    font-size: 1.3rem !important;
-}
-
-.custom-date-picker .DayPicker_weekHeaders__horizontal {
-    padding: 5px;
-}
-
-.custom-date-picker .SingleDatePickerInput,
-.custom-date-picker .SingleDatePickerInput .DateInput {
-    background-color: transparent !important;
+  height: 38px;
+  line-height: 38px;
+  font-size: 1.3rem !important;
+  font-weight: 400 !important;
+  color: var(--text-color) !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0;
+  width: 100%;
+  background-color: transparent !important;
 }
 
 .custom-date-picker .SingleDatePickerInput {
-    border: 1px solid var(--gridcolor);
+  border: 1px solid var(--gridcolor);
+  background-color: transparent !important;
 }
 
-/* ==========================================================================
-   dcc.DatePickerSingle 终极穿透：彻底透明 + 修复顶部箭头白块
-   ========================================================================== */
+.custom-date-picker .SingleDatePickerInput .DateInput {
+  background-color: transparent !important;
+}
 
-/* 1. 强制清除面板、月份、网格容器的背景 */
+/* 2. 彻底透明穿透设置 */
 .custom-date-picker .SingleDatePicker_picker,
 .custom-date-picker .SingleDatePicker_picker * {
-  background-color: transparent !important;
   background: transparent !important;
+  background-color: transparent !important;
 }
 
-/* 2. 彻底清除所有日期单元格的白色背景 (提升选择器权重) */
 .custom-date-picker td.CalendarDay,
 .custom-date-picker .CalendarDay,
 .custom-date-picker .CalendarDay__default,
@@ -910,35 +902,38 @@ a:active { color: var(--text-color); text-decoration: underline; }
   border: 1px solid var(--gridcolor) !important;
 }
 
-/* 3. 修复顶部左右切换按钮的白色方块背景 */
+/* 3. 头部导航与箭头 */
 .custom-date-picker .DayPickerNavigation_button,
 .custom-date-picker .DayPickerNavigation_button__default {
   background: transparent !important;
-  background-color: transparent !important;
   border: none !important;
 }
 
-/* 修复箭头图标颜色 (填充为主题字色) */
 .custom-date-picker .DayPickerNavigation_svg__horizontal {
   fill: var(--text-color) !important;
 }
 
-/* 4. 修复星期标题 (Su, Mo, Tu...) 的字色 */
+.custom-date-picker .CalendarMonth_caption,
 .custom-date-picker .DayPicker_weekHeader,
 .custom-date-picker .DayPicker_weekHeader_item {
   color: var(--text-color) !important;
 }
 
-/* 5. 鼠标悬停 (Hover) 浅色提示 */
+/* 4. 交互状态 (Hover & Selected) */
 .custom-date-picker td.CalendarDay:hover {
   background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-/* 6. 保留选中日期 (Selected) 的蓝色高亮 */
 .custom-date-picker td.CalendarDay__selected,
 .custom-date-picker .CalendarDay__selected {
   background-color: #3b82f6 !important;
   color: #ffffff !important;
+}
+
+/* 5. 使用 transform: scale 进行完美无损缩放 */
+.custom-date-picker .SingleDatePicker_picker {
+  transform: scale(0.7) translateX(-80px) !important;
+  transform-origin: top left !important;
 }
 
 .symbol_summary_box{
@@ -1290,7 +1285,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   }
   
   .product {
-    font-size: 1.2rem;
+    /* font-size: 1.2rem; */
     padding: 2px;
   }
   
@@ -1302,19 +1297,19 @@ a:active { color: var(--text-color); text-decoration: underline; }
   }
 
   .all-tabs .tab.active .menu-name {
-    font-size: 1.5rem
+    font-size: 1.6rem
   }
   
   .tab {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     gap: 2px;
   }
 
   .bubble-text {
     margin-left: 25px;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
   }
-  h6 { font-size: 1.2rem; }
+  h6 { font-size: 1.4rem; }
   
   .header-right-action  {
     top: 25px;
@@ -1426,7 +1421,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   }
   
   .product {
-    font-size: 1rem;
+    /* font-size: 1rem; */
     padding: 2px;
   }
   
@@ -1457,7 +1452,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
 
   .all-tabs .tab.active .menu-name {
     font-size: 1.3rem
-  }  
+  }
   
   .tab {
     font-size: 1.1rem;
@@ -1508,7 +1503,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   }
   
   h5 { font-size: 1.5rem; }
-  h6 { font-size: 1rem; }
+  h6 { font-size: 1.1rem; }
   
   .main-title {
     width: 70%;
