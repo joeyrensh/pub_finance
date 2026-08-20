@@ -1888,9 +1888,9 @@ class ChartBuilder:
                 "scale": 1.0,
                 "main_font": 16,
                 "table_font": 16,
-                "header_h": 42,
+                "header_h": 41,
                 "cell_h": 42,
-                "gap_ratio": 0.045,  # 上下缝隙死死锁定为 3% 画布高度
+                "gap_ratio": 0.05,  # 上下缝隙死死锁定为 3% 画布高度
                 "table_ratio_cap": 0.29,  # Table 占画布比例上限
             }
 
@@ -1901,9 +1901,9 @@ class ChartBuilder:
                 "main_font": 14,
                 "table_font": 14,
                 "header_h": 38,
-                "cell_h": 38,
-                "gap_ratio": 0.055,
-                "table_ratio_cap": 0.28,
+                "cell_h": 39,
+                "gap_ratio": 0.06,
+                "table_ratio_cap": 0.27,
             }
 
         # 3. 平板竖屏 (550px ~ 767px) -> 1.0rem 视觉体系
@@ -1913,8 +1913,8 @@ class ChartBuilder:
                 "main_font": 13,
                 "table_font": 13,
                 "header_h": 28,
-                "cell_h": 28,
-                "gap_ratio": 0.055,
+                "cell_h": 29,
+                "gap_ratio": 0.06,
                 "table_ratio_cap": 0.27,
             }
 
@@ -1924,10 +1924,10 @@ class ChartBuilder:
                 "scale": 0.65,
                 "main_font": 10,
                 "table_font": 10,
-                "header_h": 20,
-                "cell_h": 20,
-                "gap_ratio": 0.055,
-                "table_ratio_cap": 0.255,
+                "header_h": 21,
+                "cell_h": 22,
+                "gap_ratio": 0.06,
+                "table_ratio_cap": 0.27,
             }
 
     def annual_return(self, page, pnl: pd.Series, theme="light", client_width=1440):
@@ -2047,7 +2047,7 @@ class ChartBuilder:
         font_sizes_by_col = [
             table_font,
             table_font,
-            table_font + 2,
+            table_font + 3,
             table_font,
             table_font,
         ]
