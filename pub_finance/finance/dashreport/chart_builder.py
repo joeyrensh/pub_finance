@@ -2449,6 +2449,7 @@ class ChartBuilder:
         # 更新图表布局
         fig.update_layout(
             dragmode=False,
+            autosize=True,
             margin=dict(l=0, r=1, t=0, b=0),
             font=dict(size=base_font, color=text_color, family=self.font_family),
             legend=dict(
@@ -2539,6 +2540,8 @@ class ChartBuilder:
                     pnl.index.min() - timedelta(days=0.5),
                     pnl.index.max() + timedelta(days=0.5),
                 ],
+                nticks=6,
+                tickmode="auto",
             ),
         )
 

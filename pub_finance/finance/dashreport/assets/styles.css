@@ -88,7 +88,7 @@ body {
   line-height: 1.0;
   font-weight: 400;
   font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
-  letter-spacing: -.03rem !important;
+  /* letter-spacing: -.03rem !important; */
   -webkit-font-smoothing: antialiased !important;
   text-rendering: optimizeLegibility;
   -webkit-text-size-adjust: 100%;
@@ -526,7 +526,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 .kpi-label {
   color: var(--text-color);
   margin-bottom: 6px;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 400;
 }
 
@@ -536,7 +536,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
   /* color: #ff4444; */
   color: var(--text-color);
   margin-bottom: 6px;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
 }
 
 .kpi-date {
@@ -578,11 +578,29 @@ legend {
 
 /* --- 图表外壳与特定视图 --- */
 .chart-container {
+  container-type: inline-size;
   position: relative;
   width: 100%;
   height: 100%;
   margin: 0 auto;
   font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
+}
+
+.chart-container .js-plotly-plot .plotly text,
+.chart-container .js-plotly-plot .plotly tspan,
+.chart-container .js-plotly-plot .plotly .gtitle,
+.chart-container .js-plotly-plot .plotly .xtick text,
+.chart-container .js-plotly-plot .plotly .ytick text,
+.chart-container .js-plotly-plot .plotly .legendtext,
+.chart-container .js-plotly-plot .plotly .annotation-text,
+.chart-container .js-plotly-plot .plotly .table .header-cells text,
+.chart-container .js-plotly-plot .plotly .table .cells text {
+  font-size: clamp(1.05rem, 2.4cqw, 1.5rem) !important;
+}
+
+.chart-container .js-plotly-plot .plotly .table .column-block#cells1 .column-cells .column-cell:first-child text.cell-text {
+  font-size: clamp(1.3rem, 2.4cqw, 1.9rem) !important;
+  font-weight: bold !important;
 }
 
 #us-annual-return-light,
@@ -1338,23 +1356,23 @@ a:active { color: var(--text-color); text-decoration: underline; }
 @media (max-width: 550px),
        (max-device-width: 550px) and (orientation: portrait) {
   body {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
   
   .kpi-label {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
   .kpi-value {
     font-size: 1.3rem;
   }
 
   .backtest-label{
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
 
   .custom-date-picker .DateInput_input {
       height: 30px;
-      font-size: 1rem !important;
+      font-size: 1.05rem !important;
       margin: 0 !important;
       border: 0 !important;
   }
@@ -1426,7 +1444,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   }
   
   table {
-    font-size: 1rem !important;
+    font-size: 1.05rem !important;
   }
   
   .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td[data-dash-column='NAME'],
@@ -1508,7 +1526,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   .main-title {
     width: 70%;
     /* padding-left: 58px; */
-    font-size: 1rem;
+    font-size: 1.05rem;
     /* margin-top: 10px !important; */
   }
   
@@ -1517,7 +1535,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   }
   
   #full-view-link {
-    font-size: 1rem;
+    font-size: 1.05rem;
     padding: 6px 10px !important;
     margin-right: 0px;
     margin-top: 3px;
@@ -1562,7 +1580,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   }
 
   .ai-analysis-btn {
-    font-size: 1rem;
+    font-size: 1.05rem;
     padding: 8px 4px !important;
     line-height: 8px;
     bottom: 4px !important;
@@ -1571,7 +1589,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   }
   
   .ai-analysis-panel {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
 
   input,
