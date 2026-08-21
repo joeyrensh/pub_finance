@@ -526,7 +526,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 .kpi-label {
   color: var(--text-color);
   margin-bottom: 6px;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 400;
 }
 
@@ -536,7 +536,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
   /* color: #ff4444; */
   color: var(--text-color);
   margin-bottom: 6px;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
 }
 
 .kpi-date {
