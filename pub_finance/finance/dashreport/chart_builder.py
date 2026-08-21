@@ -1888,10 +1888,10 @@ class ChartBuilder:
                 "scale": 1.0,
                 "main_font": 16,
                 "table_font": 16,
-                "header_h": 41,
-                "cell_h": 42,
+                "header_h": 37,
+                "cell_h": 38,
                 "gap_ratio": 0.05,  # 上下缝隙死死锁定为 3% 画布高度
-                "table_ratio_cap": 0.29,  # Table 占画布比例上限
+                "table_ratio_cap": 0.27,  # Table 占画布比例上限
             }
 
         # 2. 中屏 / 笔记本 & iPad 横屏 (768px ~ 1199px) -> 1.1rem 视觉体系
@@ -2041,7 +2041,7 @@ class ChartBuilder:
             [font_colors[i][j] for i in range(len(table_df))]
             for j in range(len(table_columns))
         ]
-        font_weights_by_col = ["bold"] * len(table_columns)
+        font_weights_by_col = ["normal"] * len(table_columns)
         font_sizes_by_col = [table_font + 3] * len(table_columns)
 
         # 准备表格单元格数据（列优先）

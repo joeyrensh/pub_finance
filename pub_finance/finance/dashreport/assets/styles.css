@@ -525,7 +525,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 
 .kpi-label {
   color: var(--text-color);
-  margin-bottom: 6px;
+  margin-bottom: 10px;
   font-size: 1.3rem;
   font-weight: 400;
 }
@@ -535,7 +535,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
   font-variant-numeric: tabular-nums;
   /* color: #ff4444; */
   color: var(--text-color);
-  margin-bottom: 6px;
+  margin-bottom: 10px;
   font-size: 1.5rem;
 }
 
@@ -1361,9 +1361,11 @@ a:active { color: var(--text-color); text-decoration: underline; }
   
   .kpi-label {
     font-size: 1.05rem;
+    margin-bottom: 6px;
   }
   .kpi-value {
     font-size: 1.3rem;
+    margin-bottom: 6px;
   }
 
   .backtest-label{
