@@ -2041,14 +2041,8 @@ class ChartBuilder:
             [font_colors[i][j] for i in range(len(table_df))]
             for j in range(len(table_columns))
         ]
-        font_weights_by_col = ["bold", "bold", "bold", "bold", "bold"]
-        font_sizes_by_col = [
-            table_font + 3,
-            table_font + 3,
-            table_font + 3,
-            table_font + 3,
-            table_font + 3,
-        ]
+        font_weights_by_col = ["bold"] * len(table_columns)
+        font_sizes_by_col = [table_font + 3] * len(table_columns)
 
         # 准备表格单元格数据（列优先）
         cell_values = [table_df[col].tolist() for col in table_columns]
