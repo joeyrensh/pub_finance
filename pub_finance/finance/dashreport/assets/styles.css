@@ -94,6 +94,7 @@ body {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;  
   font-variant-numeric: tabular-nums !important;
+  overflow-y: auto;  
 }
 
 p {
@@ -113,11 +114,6 @@ h6.padded {
    ========================================================================== */
 
 /* --- 核心页面骨架 --- */
-#main-page {
-    height: 100vh;
-    overflow-y: auto;
-}
-
 .page {
   position: relative;
   width: 260mm;
