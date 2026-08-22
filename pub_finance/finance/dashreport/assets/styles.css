@@ -113,6 +113,11 @@ h6.padded {
    ========================================================================== */
 
 /* --- 核心页面骨架 --- */
+#main-page {
+    height: 100vh;
+    overflow-y: auto;
+}
+
 .page {
   position: relative;
   width: 260mm;
@@ -120,6 +125,9 @@ h6.padded {
   padding: 0mm;
   margin: 2mm auto;
   border-radius: 5px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .pagetwo {
@@ -135,6 +143,11 @@ h6.padded {
 .sub_page {
   /* padding: 0.2cm; */
   /* min-height: 300mm; */
+}
+
+#page-content,
+#page-content * {
+  z-index: 1 !important;
 }
 
 .columns {
@@ -232,6 +245,9 @@ li::before {
     padding-bottom: 5px;
     box-sizing: border-box;
     width: 100%;
+    z-index: 99999;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
 }   
 
 .navbar {
