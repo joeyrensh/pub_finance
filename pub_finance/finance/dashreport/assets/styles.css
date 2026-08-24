@@ -602,8 +602,8 @@ legend {
 
 /* 左侧标题固定宽度，保证上下两行的冒号和 Radio 起点绝对对齐 */
 .grp-label-fixed {
-  width: 30% !important;
-  min-width: 30% !important;
+  width: 20% !important;
+  min-width: 20% !important;
   display: inline-block !important;
   margin-bottom: 0 !important;
   white-space: nowrap !important;
@@ -656,10 +656,25 @@ legend {
   margin-bottom: 0 !important;
   background-color: rgba(255, 255, 255, 0) !important;
   color: var(--text-color) !important;
+  border-radius: 0 !important;
+  padding: 6px 2px !important;
 }
 
 #etf_settings_container {
   margin: 4px 0px 0px 0px;
+}
+
+/* 1. 输入框禁用时的背景与浅灰颜色 */
+.custom-grp-input:disabled {
+  background-color: var(--gridcolor) !important;
+  cursor: not-allowed;
+}
+
+/* 2. 强制数字上下箭头禁用时置灰半透明 */
+.custom-grp-input:disabled::-webkit-inner-spin-button,
+.custom-grp-input:disabled::-webkit-outer-spin-button {
+  opacity: 0.3 !important;
+  filter: grayscale(100%);
 }
 
 /* --- 图表外壳与特定视图 --- */
@@ -1490,8 +1505,8 @@ a:active { color: var(--text-color); text-decoration: underline; }
     line-height: 35px !important;
   }
   .grp-label-fixed {
-    width: 40% !important;
-    min-width: 40% !important;
+    width: 35% !important;
+    min-width: 35% !important;
   }
   .custom-grp-input {
     height: 30px !important;

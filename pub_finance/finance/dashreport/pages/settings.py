@@ -97,6 +97,7 @@ LABEL_MAPPING = {
     "collection_days": "Collection Days",
     "capital_flow": "Capital Flow",
     "up_days": "Up Days",
+    "quantile": "Quantile",
     # 图表显示范围
     "chart_display": "Chart Display",
     "chart_time_range": "Chart Time Range",
@@ -457,7 +458,7 @@ def build_stock_filter_card(cfg):
         is_quantile = k == "quantile"
 
         # 动态设置上下限与步长
-        min_v = 1 if is_days else (0.50 if is_quantile else 0)
+        min_v = 1 if is_days else (0.75 if is_quantile else 0)
         max_v = 30 if is_days else (0.99 if is_quantile else 1)
         step_v = 1 if is_days else 0.01
 
@@ -465,7 +466,7 @@ def build_stock_filter_card(cfg):
         if is_days:
             marks_v = {10: "10", 20: "20", 30: "30"}
         elif is_quantile:
-            marks_v = {0.50: "0.50", 0.75: "0.75", 0.95: "0.95", 0.99: "0.99"}
+            marks_v = {0.75: "0.75", 0.85: "0.85", 0.95: "0.95", 0.99: "0.99"}
         else:
             marks_v = {0.25: "0.25", 0.5: "0.5", 0.75: "0.75", 1: "1"}
 
@@ -877,13 +878,16 @@ def create_layout(app: Dash):
 
 # -------------------------- 回调注册 --------------------------
 def register_callbacks(app: Dash):
+    # 1. 扩充所有输入的组件列表 (增加了 etf 的 3 个 Input)
     all_slider_input_list = (
         [Input(f"slider_root_{k}", "value") for k in ROOT_KEYS]
         + [Input(f"slider_ind_{k}", "value") for k in IND_KEYS]
         + [Input(f"slider_pnl_{k}", "value") for k in PNL_KEYS]
         + [Input(f"slider_sta_{k}", "value") for k in STA_KEYS]
         + [Input(f"slider_str_{k}", "value") for k in STR_KEYS]
-        + [Input(f"slider_stk_{k}", "value") for k in STK_KEYS]
+        + [
+            Input(f"slider_stk_{k}", "value") for k in STK_KEYS
+        ]  # 已包含 STK_KEYS 中的 quantile
         + [Input(f"slider_cht_{k}", "value") for k in CHT_KEYS]
         + [
             Input("grp_market", "value"),
@@ -891,9 +895,14 @@ def register_callbacks(app: Dash):
             Input("grp_bins", "value"),
             Input("grp_n_groups", "value"),
             Input("grp_top_n", "value"),
+            # 【新增】ETF 实时监听输入
+            Input("etf_min_threshold", "value"),
+            Input("etf_n_groups", "value"),
+            Input("etf_top_n", "value"),
         ]
     )
 
+    # 2. 扩充重置按钮的输出列表 (增加了 etf 的 3 个 Output)
     reset_outputs = (
         [Output(f"slider_root_{k}", "value") for k in ROOT_KEYS]
         + [Output(f"slider_ind_{k}", "value") for k in IND_KEYS]
@@ -908,10 +917,14 @@ def register_callbacks(app: Dash):
             Output("grp_bins", "value"),
             Output("grp_n_groups", "value"),
             Output("grp_top_n", "value"),
+            # 【新增】ETF 重置输出
+            Output("etf_min_threshold", "value"),
+            Output("etf_n_groups", "value"),
+            Output("etf_top_n", "value"),
         ]
     )
 
-    # 1. 手动/自动模式切换禁用逻辑
+    # 手动/自动模式切换禁用逻辑
     @app.callback(
         [Output("grp_bins", "disabled"), Output("grp_n_groups", "disabled")],
         Input("grp_mode", "value"),
@@ -921,7 +934,7 @@ def register_callbacks(app: Dash):
             return False, True
         return True, False
 
-    # 2. 切换市场单选框时，自动填充该市场的专属参数
+    # 切换市场单选框时，自动填充该市场的专属参数
     @app.callback(
         [
             Output("grp_mode", "value", allow_duplicate=True),
@@ -945,7 +958,16 @@ def register_callbacks(app: Dash):
             grp_cfg.get("top_n_per_group", 10),
         )
 
-    # 3. 重置按钮逻辑
+    # 控制 ETF 区域在 CN 时显示，US 时隐藏
+    @app.callback(
+        Output("etf_settings_container", "style"), Input("grp_market", "value")
+    )
+    def toggle_etf_settings(market):
+        if market == "cn":
+            return {"display": "block"}
+        return {"display": "none"}
+
+    # 重置按钮逻辑
     @app.callback(
         reset_outputs,
         inputs=[Input("btn-reset", "n_clicks")],
@@ -975,17 +997,18 @@ def register_callbacks(app: Dash):
         out.append(DEFAULT_GROUPING_CN["n_groups"])
         out.append(DEFAULT_GROUPING_CN["top_n_per_group"])
 
+        # 【新增】还原 ETF 默认配置
+        def_etf = DEFAULT_CONFIG.get(
+            "grouping_settings_etf",
+            {"min_threshold": "5e9", "n_groups": 1, "top_n_per_group": 50},
+        )
+        out.append(def_etf.get("min_threshold", "5e9"))
+        out.append(def_etf.get("n_groups", 1))
+        out.append(def_etf.get("top_n_per_group", 50))
+
         return out
 
-    @app.callback(
-        Output("etf_settings_container", "style"), Input("grp_market", "value")
-    )
-    def toggle_etf_settings(market):
-        if market == "cn":
-            return {"display": "block"}
-        return {"display": "none"}
-
-    # 4. JSON 实时预览刷新逻辑
+    # JSON 实时预览刷新逻辑
     @app.callback(Output("json-preview", "value"), all_slider_input_list)
     def refresh_json(*all_values):
         ptr = 0
@@ -1024,7 +1047,7 @@ def register_callbacks(app: Dash):
         top_n_val = all_values[ptr]
         ptr += 1
 
-        # 更新对应选定市场的独立 grouping_settings
+        # 1. 更新对应选定市场的独立 grouping_settings
         grp_key = f"grouping_settings_{selected_market}"
         cfg[grp_key] = {
             "grouping_mode": mode_val,
@@ -1033,9 +1056,23 @@ def register_callbacks(app: Dash):
             "top_n_per_group": top_n_val,
         }
 
+        # 2. 【新增】提取并更新 ETF grouping_settings
+        etf_min_thresh = all_values[ptr]
+        ptr += 1
+        etf_n_groups = all_values[ptr]
+        ptr += 1
+        etf_top_n = all_values[ptr]
+        ptr += 1
+
+        cfg["grouping_settings_etf"] = {
+            "min_threshold": str(etf_min_thresh),
+            "n_groups": etf_n_groups,
+            "top_n_per_group": etf_top_n,
+        }
+
         return json.dumps(cfg, indent=4, ensure_ascii=False)
 
-    # 5. 保存配置写入文件
+    # 保存配置写入文件 (保存函数不变)
     @app.callback(
         Output("save-msg", "children"),
         Input("btn-save", "n_clicks"),

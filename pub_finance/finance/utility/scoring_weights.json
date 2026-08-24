@@ -50,7 +50,7 @@
         "top_n_per_group": 100
     },
     "grouping_settings_etf": {
-        "min_threshold": 5e9,
+        "min_threshold": "5e9",
         "n_groups": 1,
         "top_n_per_group": 50
     }
