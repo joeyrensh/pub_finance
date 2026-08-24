@@ -915,32 +915,26 @@ a:active { color: var(--text-color); text-decoration: underline; }
   background-color: transparent !important;
 }
 
-/* 2. 彻底透明穿透设置 */
-.custom-date-picker .SingleDatePicker_picker,
-.custom-date-picker .SingleDatePicker_picker * {
+/* 2. 弹出层基础设置与无损缩放 */
+.custom-date-picker .SingleDatePicker_picker {
   background: transparent !important;
-  background-color: transparent !important;
+  z-index: 99999 !important;
+  transform: scale(0.7) translateX(-80px) !important;
+  transform-origin: top left !important;
 }
 
+.custom-date-picker .SingleDatePicker_picker * {
+  background: transparent !important;
+}
+
+/* 3. 日期单元格与文本颜色 */
 .custom-date-picker td.CalendarDay,
 .custom-date-picker .CalendarDay,
 .custom-date-picker .CalendarDay__default,
 .custom-date-picker .CalendarDay__valid {
   background: transparent !important;
-  background-color: transparent !important;
   color: var(--text-color) !important;
   border: 1px solid var(--gridcolor) !important;
-}
-
-/* 3. 头部导航与箭头 */
-.custom-date-picker .DayPickerNavigation_button,
-.custom-date-picker .DayPickerNavigation_button__default {
-  background: transparent !important;
-  border: none !important;
-}
-
-.custom-date-picker .DayPickerNavigation_svg__horizontal {
-  fill: var(--text-color) !important;
 }
 
 .custom-date-picker .CalendarMonth_caption,
@@ -949,7 +943,35 @@ a:active { color: var(--text-color); text-decoration: underline; }
   color: var(--text-color) !important;
 }
 
-/* 4. 交互状态 (Hover & Selected) */
+/* 4. 头部导航与箭头点击修复 */
+.custom-date-picker .DayPickerNavigation {
+  position: relative !important;
+  z-index: 999999 !important;
+}
+
+.custom-date-picker .DayPickerNavigation_button,
+.custom-date-picker .DayPickerNavigation_button__default {
+  position: absolute !important;
+  z-index: 999999 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  background: transparent !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 强制 SVG 穿透，确保点击精准响应在 button 上 */
+.custom-date-picker .DayPickerNavigation_button * {
+  pointer-events: none !important;
+}
+
+.custom-date-picker .DayPickerNavigation_svg__horizontal {
+  fill: var(--text-color) !important;
+}
+
+/* 5. 交互状态 (Hover & Selected) */
 .custom-date-picker td.CalendarDay:hover {
   background-color: rgba(255, 255, 255, 0.1) !important;
 }
@@ -958,12 +980,6 @@ a:active { color: var(--text-color); text-decoration: underline; }
 .custom-date-picker .CalendarDay__selected {
   background-color: #3b82f6 !important;
   color: #ffffff !important;
-}
-
-/* 5. 使用 transform: scale 进行完美无损缩放 */
-.custom-date-picker .SingleDatePicker_picker {
-  transform: scale(0.7) translateX(-80px) !important;
-  transform-origin: top left !important;
 }
 
 .symbol_summary_box{
