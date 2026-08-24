@@ -2237,7 +2237,7 @@ class ChartBuilder:
                     x=[
                         cumulative.index[
                             max(
-                                int(len(cumulative) * (0.25 if scale >= 1 else 0.4)),
+                                int(len(cumulative) * (0.28 if scale >= 1 else 0.4)),
                                 cumulative.index.get_loc(cumulative.idxmax()),
                             )
                         ]
