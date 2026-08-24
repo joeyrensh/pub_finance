@@ -1145,20 +1145,22 @@ a:active { color: var(--text-color); text-decoration: underline; }
     border-color:#6c757d;
     margin-top: 20px;
     font-size: inherit;
-    line-height: 30px;
+    line-height: 38px;
     font-weight: 400;
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
     border: 1px solid var(--gridcolor);
+    width: 49.45%;
 }
 
 .weight-btn-save {
-    margin-left: 2px;
+    margin-left: 1%;
     border-color:#6c757d;
     font-size: inherit;
-    line-height: 30px;
+    line-height: 38px;
     font-weight: 400;
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
     border: 1px solid var(--gridcolor);
+    width: 49.45%;
 }
 
 .l1_label { font-weight: 500; }
@@ -1537,6 +1539,14 @@ a:active { color: var(--text-color); text-decoration: underline; }
   .nav-btn.right {
     height: 35px;
     line-height: 35px;    
+  }
+
+  .weight-btn-reset {
+    line-height: 30px;
+  }
+
+  .weight-btn-save {
+    line-height: 30px;
   }
 
   .page {

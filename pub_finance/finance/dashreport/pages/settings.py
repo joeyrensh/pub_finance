@@ -831,16 +831,16 @@ def create_layout(app: Dash):
                 id="btn-reset",
                 color="secondary",
                 outline=True,
-                className="py-2 rounded-2 weight-btn-reset flex-btn-item",
+                className="py-2 rounded-2 weight-btn-reset flex-btn-item flex-grow-1",
             ),
             dbc.Button(
                 "Save to JSON",
                 id="btn-save",
                 color="primary",
-                className="py-2 rounded-2 weight-btn-save flex-btn-item",
+                className="py-2 rounded-2 weight-btn-save flex-btn-item flex-grow-1",
             ),
         ],
-        className="d-flex gap-4 mt-5 mb-4 flex-row flex-wrap",
+        className="d-flex gap-4 mt-5 mb-4 flex-row",
     )
 
     msg_section = html.Div(
