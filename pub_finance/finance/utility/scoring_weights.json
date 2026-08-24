@@ -29,11 +29,29 @@
     "stock_filter": {
         "collection_days": 10,
         "capital_flow": 0.6,
-        "up_days": 0.4
+        "up_days": 0.4,
+        "quantile": 0.95
     },
     "chart_display": {
         "chart_time_range": 100,
         "minichart_time_range": 60,
         "kline_limit": 10
+    },
+    "grouping_settings_cn": {
+        "grouping_mode": "manual",
+        "bins": "5e9, 1e10, 5e10, 1e11, 2e11, inf",
+        "n_groups": 5,
+        "top_n_per_group": 100
+    },
+    "grouping_settings_us": {
+        "grouping_mode": "manual",
+        "bins": "2e9, 1e10, 5e10, 1e11, 2e11, inf",
+        "n_groups": 5,
+        "top_n_per_group": 100
+    },
+    "grouping_settings_etf": {
+        "min_threshold": 5e9,
+        "n_groups": 1,
+        "top_n_per_group": 50
     }
 }

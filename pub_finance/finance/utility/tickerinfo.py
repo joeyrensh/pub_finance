@@ -39,6 +39,43 @@ class TickerInfo:
         self.collection_days = weights_cfg["stock_filter"]["collection_days"]
         self.capital_flow_weights = weights_cfg["stock_filter"]["capital_flow"]
         self.up_days_weights = weights_cfg["stock_filter"]["up_days"]
+        # 获取市值阈值配置
+        self.group_cfg = weights_cfg.get(f"grouping_settings_{self.market}", {})
+        self.mode = self.group_cfg.get("grouping_mode", "manual")
+        self.top_n = self.group_cfg.get("top_n_per_group", 100)
+        self.n_groups = self.group_cfg.get("n_groups", 5)
+        # 统一解析 bins（无论模式，都存储并解析，作为备用与市值阈值来源）
+        default_bins_str = (
+            "5e9, 1e10, 5e10, 1e11, 2e11, inf"
+            if self.market == "cn"
+            else "2e9, 1e10, 5e10, 1e11, 2e11, inf"
+        )
+        bins_str = self.group_cfg.get("bins", default_bins_str)
+
+        self.bins = [
+            (
+                np.inf
+                if x.strip().lower() in ("inf", "+inf", "np.inf")
+                else float(x.strip())
+            )
+            for x in str(bins_str).split(",")
+            if x.strip()
+        ]
+
+        # 关键点：用 bins 的第一个值作为市值门槛 (SMALL_CAP_THRESHOLD)
+        self.small_cap_threshold = self.bins[0] if self.bins else 2e9
+
+        # 读取 ETF 专属分组配置 (仅 auto 模式)
+        self.etf_cfg = weights_cfg.get("grouping_settings_etf", {})
+        self.etf_n_groups = self.etf_cfg.get("n_groups", 1)
+        self.etf_top_n = self.etf_cfg.get("top_n_per_group", 50)
+        etf_min_threshold = self.etf_cfg.get("min_threshold", "5e9")
+        self.etf_min_threshold = (
+            float(etf_min_threshold)
+            if str(etf_min_threshold).lower() != "inf"
+            else np.inf
+        )
+
         if market.startswith("us"):
             self.date_threshold = ToolKit(
                 f"获取{self.collection_days}天前交易日"
@@ -309,34 +346,28 @@ class TickerInfo:
 
         if self.market == "us":
             # 美股筛选条件
-            SMALL_CAP_THRESHOLD = 2000000000  # 20亿美元 ≈ 140亿人民币
-
             base_cond = (
-                (df_recent["total_value"] > SMALL_CAP_THRESHOLD)
+                (df_recent["total_value"] > self.small_cap_threshold)
                 & (df_recent["close"] > 3)
                 & (df_recent["close"] < 10000)
                 & (df_recent["open"] > 0)
                 & (df_recent["high"] > 0)
                 & (df_recent["low"] > 0)
             )
-            bins = [
-                2e9,
-                1e10,
-                5e10,
-                1e11,
-                2e11,
-                np.inf,
-            ]  # 20亿 100亿 500亿 1000亿 2000亿
-            # 合并所有条件
-            # filtered_top = self._top_by_activity(
-            #     base_cond, df_recent, n_groups=5, top_n_per_group=100
-            # )
-            filtered_top = self._top_by_activity(
-                base_cond,
-                df_recent,
-                group_bins=bins,
-                top_n_per_group=100,
-            )
+            if self.mode == "manual":
+                filtered_top = self._top_by_activity(
+                    base_cond,
+                    df_recent,
+                    group_bins=self.bins,
+                    top_n_per_group=self.top_n,
+                )
+            else:
+                filtered_top = self._top_by_activity(
+                    base_cond,
+                    df_recent,
+                    n_groups=self.n_groups,
+                    top_n_per_group=self.top_n,
+                )
 
             # 合并三组的 top20% symbol
             combined_symbols = list(set(filtered_top))
@@ -344,37 +375,30 @@ class TickerInfo:
             tickers.extend(combined_symbols)
 
         elif self.market == "cn":
-            # A股筛选条件
-            SMALL_CAP_THRESHOLD = 5000000000  # 50亿人民币
 
             # 基础条件（不包含涨幅限制）
             base_cond = (
-                (df_recent["total_value"] > SMALL_CAP_THRESHOLD)
+                (df_recent["total_value"] > self.small_cap_threshold)
                 & (df_recent["close"] > 3)
                 & (df_recent["close"] < 10000)
                 & (df_recent["open"] > 0)
                 & (df_recent["high"] > 0)
                 & (df_recent["low"] > 0)
             )
-            bins = [
-                5e9,
-                1e10,
-                5e10,
-                1e11,
-                2e11,
-                np.inf,
-            ]  # 50亿 100亿 500亿 1000亿 2000亿
-            # 合并所有条件
-            # filtered_top = self._top_by_activity(
-            #     base_cond, df_recent, n_groups=5, top_n_per_group=100
-            # )
-            filtered_top = self._top_by_activity(
-                base_cond,
-                df_recent,
-                group_bins=bins,
-                top_n_per_group=100,
-                # target_symbols=["SZ002448", "SZ002533"],
-            )
+            if self.mode == "manual":
+                filtered_top = self._top_by_activity(
+                    base_cond,
+                    df_recent,
+                    group_bins=self.bins,
+                    top_n_per_group=self.top_n,
+                )
+            else:
+                filtered_top = self._top_by_activity(
+                    base_cond,
+                    df_recent,
+                    n_groups=self.n_groups,
+                    top_n_per_group=self.top_n,
+                )
 
             combined_symbols = list(set(filtered_top))
 
@@ -623,10 +647,12 @@ class TickerInfo:
         df_recent = df_all[df_all["date"] >= date_threshold_str]
 
         # 3. 条件筛选
-        cond = (df_recent["total_value"] > 5e9) & (
+        cond = (df_recent["total_value"] > self.etf_min_threshold) & (
             df_recent["name"].str.upper().str.contains("ETF")
         )
-        etf_top = self._top_by_activity(cond, df_recent, n_groups=1, top_n_per_group=50)
+        etf_top = self._top_by_activity(
+            cond, df_recent, n_groups=self.etf_n_groups, top_n_per_group=self.etf_top_n
+        )
 
         combined_symbols = list(set(etf_top))
 

@@ -588,6 +588,75 @@ legend {
   /* color: #666; */
 }
 
+/* ---settings.pycss定义 */
+/* 左侧标签统一右对齐，确保冒号竖直在一跳线上 */
+/* 1. 强行把 Label 和 Radio 锁在同一直线上，并增加行间距 */
+.grp-flex-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  margin-bottom: 1rem !important; /* 增加两行 radio 之间的间距 */
+  margin-top: 1rem !important;
+  width: 100% !important;
+}
+
+/* 左侧标题固定宽度，保证上下两行的冒号和 Radio 起点绝对对齐 */
+.grp-label-fixed {
+  width: 30% !important;
+  min-width: 30% !important;
+  display: inline-block !important;
+  margin-bottom: 0 !important;
+  white-space: nowrap !important;
+  font-weight: 500;
+}
+
+/* Radio 选项横向排列 */
+.custom-grp-radio {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 1.5rem !important;
+  margin-bottom: 0 !important;
+}
+
+.custom-grp-radio .form-check {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 0 !important;
+  padding-left: 0 !important;
+  white-space: nowrap !important;
+}
+
+.custom-grp-radio .form-check-input {
+  float: none !important;
+  margin: 0 4px 0 0 !important; /* 垂直完美居中 */
+  cursor: pointer;
+}
+
+.custom-grp-radio .form-check-label {
+  margin: 0 !important;
+  cursor: pointer;
+}
+
+/* 2. 强行把 3 个 Input 锁在同一行 */
+.grp-inputs-row {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 1rem !important; /* 3个输入框之间的间距 */
+  align-items: flex-end !important;
+  width: 100% !important;
+  margin-top: 0.5rem !important;
+}
+
+.custom-grp-input {
+  color-scheme: light dark;
+  height: 42px !important;
+  width: 100% !important;
+  margin-bottom: 0 !important;
+  background-color: rgba(255, 255, 255, 0) !important;
+  color: var(--text-color) !important;
+}
+
 /* --- 图表外壳与特定视图 --- */
 .chart-container {
   container-type: inline-size;
@@ -1412,6 +1481,14 @@ a:active { color: var(--text-color); text-decoration: underline; }
   }
 
   .custom-input{
+    height: 35px !important;
+    line-height: 35px !important;
+  }
+  .grp-label-fixed {
+    width: 40% !important;
+    min-width: 40% !important;
+  }
+  .custom-grp-input {
     height: 35px !important;
     line-height: 35px !important;
   }

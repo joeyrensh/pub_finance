@@ -773,12 +773,17 @@ class ToolKit:
         market: str,
         trade_date: str,
         *,
-        quantile: float = 0.95,
+        quantile: float | None = None,
     ) -> set[str]:
         """
         执行打分逻辑 + 筛选 symbol
         返回：被选中的 symbol 集合
         """
+        # 如果调用方没传 quantile（为 None），则优先从 UI 配置读取；配置没有则回退到 0.95
+        if quantile is None:
+            quantile = (
+                ToolKit.get_config().get("stock_filter", {}).get("quantile", 0.95)
+            )
 
         def extract_arrow_num(s):
             # 去除 HTML 标签

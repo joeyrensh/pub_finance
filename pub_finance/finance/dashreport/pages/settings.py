@@ -1,17 +1,35 @@
 from datetime import datetime
 import json
 import os
+import numpy as np
+import pandas as pd
 from dash import Dash, Input, Output, State, ctx, dcc, html
 import dash_bootstrap_components as dbc
+from flask import session
+
 from finance import FINANCE_ROOT
 from finance.dashreport.data_loader import ReportDataLoader
 from finance.dashreport.utils import Header
 from finance.utility.toolkit import ToolKit
-from flask import session
-import pandas as pd
 
 # -------------------------- 路径与默认配置 --------------------------
 JSON_FILE_PATH = os.path.join(FINANCE_ROOT, "utility", "scoring_weights.json")
+
+# A股 (CN) 默认分组配置
+DEFAULT_GROUPING_CN = {
+    "grouping_mode": "manual",
+    "bins": "5e9, 1e10, 5e10, 1e11, 2e11, inf",
+    "n_groups": 5,
+    "top_n_per_group": 100,
+}
+
+# 美股 (US) 默认分组配置
+DEFAULT_GROUPING_US = {
+    "grouping_mode": "manual",
+    "bins": "2e9, 1e10, 5e10, 1e11, 2e11, inf",
+    "n_groups": 5,
+    "top_n_per_group": 100,
+}
 
 DEFAULT_CONFIG = {
     "weights": {
@@ -36,11 +54,19 @@ DEFAULT_CONFIG = {
         "collection_days": 10,
         "capital_flow": 0.6,
         "up_days": 0.4,
+        "quantile": 0.95,
     },
     "chart_display": {
         "chart_time_range": 120,
         "minichart_time_range": 60,
         "kline_limit": 10,
+    },
+    "grouping_settings_cn": DEFAULT_GROUPING_CN,
+    "grouping_settings_us": DEFAULT_GROUPING_US,
+    "grouping_settings_etf": {
+        "min_threshold": 5e9,
+        "n_groups": 1,
+        "top_n_per_group": 50,
     },
 }
 
@@ -76,10 +102,44 @@ LABEL_MAPPING = {
     "chart_time_range": "Chart Time Range",
     "minichart_time_range": "Mini Chart Time Range",
     "kline_limit": "Max Klines",
+    # 股票分组设置
+    "grouping_settings": "Market & Grouping Settings",
+    "market": "Target Market Config",
+    "grouping_mode": "Grouping Mode",
+    "bins": "Manual Bins",
+    "n_groups": "Auto Groups",
+    "top_n_per_group": "Top N per Group",
 }
 
 
-# 文件读写工具
+# -------------------------- 工具函数 --------------------------
+def parse_bins_str(bins_str: str) -> list:
+    """将 UI 传入的字符串（如 "2e9, 1e10, 5e10, 1e11, 2e11, inf"）解析为数值与 np.inf 列表"""
+    if not bins_str or not isinstance(bins_str, str):
+        return [2e9, 1e10, 5e10, 1e11, 2e11, np.inf]
+
+    clean_items = [item.strip().lower() for item in bins_str.split(",") if item.strip()]
+    parsed_bins = []
+
+    for item in clean_items:
+        if item in ("inf", "+inf", "np.inf"):
+            parsed_bins.append(np.inf)
+        else:
+            try:
+                parsed_bins.append(float(item))
+            except ValueError:
+                pass
+
+    if not parsed_bins:
+        return [2e9, 1e10, 5e10, 1e11, 2e11, np.inf]
+
+    parsed_bins = sorted(list(set(parsed_bins)))
+    if parsed_bins[0] > 0:
+        parsed_bins.insert(0, 0.0)
+
+    return parsed_bins
+
+
 def init_json_file():
     utility_full_path = os.path.join(FINANCE_ROOT, "utility")
     os.makedirs(utility_full_path, exist_ok=True)
@@ -89,8 +149,17 @@ def init_json_file():
 
 
 def load_config() -> dict:
+    init_json_file()
     with open(JSON_FILE_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+        cfg = json.load(f)
+        # 兼容补全 US/CN 独立分组键
+        if "grouping_settings_cn" not in cfg:
+            cfg["grouping_settings_cn"] = cfg.get(
+                "grouping_settings", DEFAULT_GROUPING_CN
+            )
+        if "grouping_settings_us" not in cfg:
+            cfg["grouping_settings_us"] = DEFAULT_GROUPING_US
+        return cfg
 
 
 def save_config(config: dict):
@@ -165,7 +234,6 @@ IND_KEYS = list(DEFAULT_CONFIG["sub_weights"]["industry"].keys())
 PNL_KEYS = list(DEFAULT_CONFIG["sub_weights"]["pnl"].keys())
 STA_KEYS = list(DEFAULT_CONFIG["sub_weights"]["stability"].keys())
 STR_KEYS = list(DEFAULT_CONFIG["sub_weights"]["strategy"].keys())
-# 【新增：静态键名定义】
 STK_KEYS = list(DEFAULT_CONFIG["stock_filter"].keys())
 CHT_KEYS = list(DEFAULT_CONFIG["chart_display"].keys())
 
@@ -188,12 +256,7 @@ def build_root_card(cfg):
                             max=1,
                             step=0.01,
                             value=cfg["weights"][k],
-                            marks={
-                                0.25: "0.25",
-                                0.5: "0.5",
-                                0.75: "0.75",
-                                1: "1",
-                            },
+                            marks={0.25: "0.25", 0.5: "0.5", 0.75: "0.75", 1: "1"},
                             tooltip={"placement": "bottom", "always_visible": True},
                             className="mb-0 weight-slider-primary",
                             drag_value=0,
@@ -235,12 +298,7 @@ def build_industry_card(cfg):
                             max=1,
                             step=0.01,
                             value=cfg["sub_weights"]["industry"][k],
-                            marks={
-                                0.25: "0.25",
-                                0.5: "0.5",
-                                0.75: "0.75",
-                                1: "1",
-                            },
+                            marks={0.25: "0.25", 0.5: "0.5", 0.75: "0.75", 1: "1"},
                             tooltip={"placement": "bottom", "always_visible": True},
                             className="mb-0 weight-slider-primary",
                             drag_value=0,
@@ -282,12 +340,7 @@ def build_pnl_card(cfg):
                             max=1,
                             step=0.01,
                             value=cfg["sub_weights"]["pnl"][k],
-                            marks={
-                                0.25: "0.25",
-                                0.5: "0.5",
-                                0.75: "0.75",
-                                1: "1",
-                            },
+                            marks={0.25: "0.25", 0.5: "0.5", 0.75: "0.75", 1: "1"},
                             tooltip={"placement": "bottom", "always_visible": True},
                             className="mb-0 weight-slider-primary",
                             drag_value=0,
@@ -329,12 +382,7 @@ def build_stability_card(cfg):
                             max=1,
                             step=0.01,
                             value=cfg["sub_weights"]["stability"][k],
-                            marks={
-                                0.25: "0.25",
-                                0.5: "0.5",
-                                0.75: "0.75",
-                                1: "1",
-                            },
+                            marks={0.25: "0.25", 0.5: "0.5", 0.75: "0.75", 1: "1"},
                             tooltip={"placement": "bottom", "always_visible": True},
                             className="mb-0 weight-slider-primary",
                             drag_value=0,
@@ -376,12 +424,7 @@ def build_strategy_card(cfg):
                             max=1,
                             step=0.01,
                             value=cfg["sub_weights"]["strategy"][k],
-                            marks={
-                                0.25: "0.25",
-                                0.5: "0.5",
-                                0.75: "0.75",
-                                1: "1",
-                            },
+                            marks={0.25: "0.25", 0.5: "0.5", 0.75: "0.75", 1: "1"},
                             tooltip={"placement": "bottom", "always_visible": True},
                             className="mb-0 weight-slider-primary",
                             drag_value=0,
@@ -406,21 +449,25 @@ def build_strategy_card(cfg):
     )
 
 
-# 【新增：Stock Filter 卡片构建】
 def build_stock_filter_card(cfg):
     row_list = []
     for k in STK_KEYS:
         display_text = LABEL_MAPPING.get(k, k)
-        # 根据是否是天数/整数控制 Slider 的步长与区间
         is_days = k == "collection_days"
-        min_v = 1 if is_days else 0
-        max_v = 30 if is_days else 1
+        is_quantile = k == "quantile"
+
+        # 动态设置上下限与步长
+        min_v = 1 if is_days else (0.50 if is_quantile else 0)
+        max_v = 30 if is_days else (0.99 if is_quantile else 1)
         step_v = 1 if is_days else 0.01
-        marks_v = (
-            {10: "10", 20: "20", 30: "30"}
-            if is_days
-            else {0.25: "0.25", 0.5: "0.5", 0.75: "0.75", 1: "1"}
-        )
+
+        # 动态设置刻度标记
+        if is_days:
+            marks_v = {10: "10", 20: "20", 30: "30"}
+        elif is_quantile:
+            marks_v = {0.50: "0.50", 0.75: "0.75", 0.95: "0.95", 0.99: "0.99"}
+        else:
+            marks_v = {0.25: "0.25", 0.5: "0.5", 0.75: "0.75", 1: "1"}
 
         row_list.append(
             dbc.Row(
@@ -434,7 +481,9 @@ def build_stock_filter_card(cfg):
                             min=min_v,
                             max=max_v,
                             step=step_v,
-                            value=cfg["stock_filter"][k],
+                            value=cfg["stock_filter"].get(
+                                k, 0.95 if is_quantile else 0
+                            ),
                             marks=marks_v,
                             tooltip={"placement": "bottom", "always_visible": True},
                             className="mb-0 weight-slider-primary",
@@ -461,17 +510,12 @@ def build_stock_filter_card(cfg):
     )
 
 
-# 【新增：Chart Display 卡片构建】
 def build_chart_display_card(cfg):
     row_list = []
     for k in CHT_KEYS:
         display_text = LABEL_MAPPING.get(k, k)
-
-        # ---------------- 1. 内部判断并设置 slider 参数 ----------------
         if k == "kline_limit":
-            min_v = 0
-            max_v = 20
-            step_v = 1  # 若只希望固定切到 0, 10, 20 档位，可改为 10
+            min_v, max_v, step_v = 0, 20, 1
             marks_v = {10: "10", 20: "20"}
         elif k in ("chart_time_range", "minichart_time_range"):
             min_v = 10
@@ -483,18 +527,14 @@ def build_chart_display_card(cfg):
                 else {30: "30", 60: "60", 90: "90", 120: "120"}
             )
         else:
-            # 兜底默认值
             min_v, max_v, step_v = 0, 100, 1
             marks_v = {}
 
-        # ---------------- 2. 构建组件 Row ----------------
         row_list.append(
             dbc.Row(
                 [
                     dbc.Label(
-                        display_text,
-                        width=2,
-                        className="mb-0 fw-normal l2_label",
+                        display_text, width=2, className="mb-0 fw-normal l2_label"
                     ),
                     dbc.Col(
                         dcc.Slider(
@@ -504,10 +544,7 @@ def build_chart_display_card(cfg):
                             step=step_v,
                             value=cfg.get("chart_display", {}).get(k, min_v),
                             marks=marks_v,
-                            tooltip={
-                                "placement": "bottom",
-                                "always_visible": True,
-                            },
+                            tooltip={"placement": "bottom", "always_visible": True},
                             className="mb-0 weight-slider-primary",
                             drag_value=0,
                             disabled=False,
@@ -533,7 +570,216 @@ def build_chart_display_card(cfg):
     )
 
 
-# -------------------------- 页面结构拆分 --------------------------
+def format_to_sci(val) -> str:
+    """将数字或字符串格式化为简洁科学计数法 (如 5000000000.0 -> '5e9')"""
+    if val is None or val == "":
+        return ""
+    try:
+        f_val = float(val)
+        if f_val == float("inf"):
+            return "inf"
+        # 格式化为科学计数法并去除多余字符
+        s = f"{f_val:.2e}"  # -> '5.00e+09'
+        num, exp = s.split("e")
+        num_str = f"{float(num):g}"  # 去掉末尾的 .00 -> '5'
+        exp_int = int(exp)  # '+09' -> 9
+        return f"{num_str}e{exp_int}" if exp_int != 0 else num_str
+    except (ValueError, TypeError):
+        return str(val)
+
+
+def build_grouping_settings_card(cfg: dict) -> dbc.Card:
+    grp_cfg = cfg.get("grouping_settings_cn", DEFAULT_GROUPING_CN)
+    etf_cfg = cfg.get("grouping_settings_etf", {"n_groups": 1, "top_n_per_group": 50})
+    mode = grp_cfg.get("grouping_mode", "manual")
+
+    card_body = [
+        # 1. Target Market Config 行
+        html.Div(
+            [
+                html.Span(f"{LABEL_MAPPING['market']}：", className="grp-label-fixed"),
+                dbc.RadioItems(
+                    id="grp_market",
+                    options=[
+                        {"label": "A-Share", "value": "cn"},
+                        {"label": "US Market", "value": "us"},
+                    ],
+                    value="cn",
+                    className="custom-grp-radio",
+                ),
+            ],
+            className="grp-flex-row",
+        ),
+        # 2. Grouping Mode 行
+        html.Div(
+            [
+                html.Span(
+                    f"{LABEL_MAPPING['grouping_mode']}：", className="grp-label-fixed"
+                ),
+                dbc.RadioItems(
+                    id="grp_mode",
+                    options=[
+                        {"label": "Custom Bins", "value": "manual"},
+                        {"label": "Auto Groups", "value": "auto"},
+                    ],
+                    value=mode,
+                    className="custom-grp-radio",
+                ),
+            ],
+            className="grp-flex-row",
+        ),
+        # 3. 3个 Input 强制一行并排容器
+        html.Div(
+            [
+                # Manual Bins
+                html.Div(
+                    [
+                        html.Label(LABEL_MAPPING["bins"], className="mb-1 l2_label"),
+                        dbc.Input(
+                            id="grp_bins",
+                            type="text",
+                            value=str(grp_cfg.get("bins", "")),
+                            placeholder="e.g. 2e9, 1e10, 5e10, inf",
+                            disabled=(mode != "manual"),
+                            className="custom-grp-input",
+                        ),
+                    ],
+                    style={"flex": "2"},  # 占 50% 宽度
+                ),
+                # Auto Group Count
+                html.Div(
+                    [
+                        html.Label(
+                            LABEL_MAPPING["n_groups"],
+                            className="mb-1 l2_label text-truncate",
+                        ),
+                        dbc.Input(
+                            id="grp_n_groups",
+                            type="number",
+                            min=1,
+                            max=50,
+                            step=1,
+                            value=grp_cfg.get("n_groups", 5),
+                            disabled=(mode == "manual"),
+                            className="custom-grp-input",
+                        ),
+                    ],
+                    style={"flex": "1"},  # 占 25% 宽度
+                ),
+                # Top N
+                html.Div(
+                    [
+                        html.Label(
+                            LABEL_MAPPING["top_n_per_group"],
+                            className="mb-1 l2_label text-truncate",
+                        ),
+                        dbc.Input(
+                            id="grp_top_n",
+                            type="number",
+                            min=1,
+                            max=100,
+                            step=1,
+                            value=grp_cfg.get("top_n_per_group", 10),
+                            className="custom-grp-input",
+                        ),
+                    ],
+                    style={"flex": "1"},  # 占 25% 宽度
+                ),
+            ],
+            className="grp-inputs-row",
+        ),
+        # ETF Settings 专属配置项 (包含最小阈值与 Auto 模式参数)
+        html.Div(
+            [
+                html.Div(
+                    "ETF Grouping Config (Auto Mode Only)",
+                    className="fw-bold mb-2 text-secondary fs-6",
+                ),
+                html.Div(
+                    [
+                        # Min Threshold
+                        html.Div(
+                            [
+                                html.Label(
+                                    LABEL_MAPPING.get("min_threshold", "Min Threshold"),
+                                    className="mb-1 l2_label text-truncate",
+                                ),
+                                dbc.Input(
+                                    id="etf_min_threshold",
+                                    type="text",
+                                    value=format_to_sci(
+                                        etf_cfg.get("min_threshold", "5e9")
+                                    ),  # 强制格式化为 '5e9'
+                                    placeholder="e.g. 5e9",
+                                    className="custom-grp-input",
+                                ),
+                            ],
+                            style={"flex": "1"},
+                        ),
+                        # Auto Groups
+                        html.Div(
+                            [
+                                html.Label(
+                                    LABEL_MAPPING.get("n_groups", "Auto Groups"),
+                                    className="mb-1 l2_label text-truncate",
+                                ),
+                                dbc.Input(
+                                    id="etf_n_groups",
+                                    type="number",
+                                    min=1,
+                                    max=50,
+                                    step=1,
+                                    value=etf_cfg.get("n_groups", 1),
+                                    className="custom-grp-input",
+                                ),
+                            ],
+                            style={"flex": "1"},
+                        ),
+                        # Top N
+                        html.Div(
+                            [
+                                html.Label(
+                                    LABEL_MAPPING.get("top_n_per_group", "Top N"),
+                                    className="mb-1 l2_label text-truncate",
+                                ),
+                                dbc.Input(
+                                    id="etf_top_n",
+                                    type="number",
+                                    min=1,
+                                    max=200,
+                                    step=1,
+                                    value=etf_cfg.get("top_n_per_group", 50),
+                                    className="custom-grp-input",
+                                ),
+                            ],
+                            style={"flex": "1"},
+                        ),
+                    ],
+                    className="grp-inputs-row",
+                ),
+            ],
+            id="etf_settings_container",
+            className="border-top pt-3 mt-3",
+        ),
+    ]
+
+    return dbc.Card(
+        [
+            dbc.CardHeader(
+                html.Label(
+                    LABEL_MAPPING.get(
+                        "grouping_settings", "Market & Grouping Settings"
+                    ),
+                    className="fs-5 fw-bold text-dark l1_label",
+                )
+            ),
+            dbc.CardBody(card_body, className="py-3 card-body"),
+        ],
+        className="h-100 shadow-sm border-0 rounded-3 mb-4 weight-config-card",
+    )
+
+
+# -------------------------- 页面布局 --------------------------
 def create_layout(app: Dash):
     init_json_file()
     init_cfg = load_config()
@@ -563,14 +809,17 @@ def create_layout(app: Dash):
     card_row_3 = dbc.Row(
         [
             dbc.Col(build_strategy_card(init_cfg), lg=6, md=12),
-            # 【新增：拼接 Stock Filter 卡片于第3行右侧】
             dbc.Col(build_stock_filter_card(init_cfg), lg=6, md=12),
         ]
     )
-    # 【新增：第4行拼接 Chart Display 卡片】
     card_row_4 = dbc.Row(
         [
             dbc.Col(build_chart_display_card(init_cfg), lg=6, md=12),
+        ]
+    )
+    card_row_5 = dbc.Row(
+        [
+            dbc.Col(build_grouping_settings_card(init_cfg), lg=6, md=12),
         ]
     )
 
@@ -611,36 +860,38 @@ def create_layout(app: Dash):
         card_row_1,
         card_row_2,
         card_row_3,
-        card_row_4,  # 【新增】
+        card_row_4,
+        card_row_5,
         button_section,
         msg_section,
         preview_section,
     ]
 
-    layout = html.Div(
+    return html.Div(
         [
-            # Header(app),
-            html.Div(
-                sub_page_content,
-                className="sub_page",
-            ),
+            html.Div(sub_page_content, className="sub_page"),
         ],
         className="page",
     )
-    return layout
 
 
 # -------------------------- 回调注册 --------------------------
 def register_callbacks(app: Dash):
-    # 扩展全量控制项列表
     all_slider_input_list = (
         [Input(f"slider_root_{k}", "value") for k in ROOT_KEYS]
         + [Input(f"slider_ind_{k}", "value") for k in IND_KEYS]
         + [Input(f"slider_pnl_{k}", "value") for k in PNL_KEYS]
         + [Input(f"slider_sta_{k}", "value") for k in STA_KEYS]
         + [Input(f"slider_str_{k}", "value") for k in STR_KEYS]
-        + [Input(f"slider_stk_{k}", "value") for k in STK_KEYS]  # 【新增】
-        + [Input(f"slider_cht_{k}", "value") for k in CHT_KEYS]  # 【新增】
+        + [Input(f"slider_stk_{k}", "value") for k in STK_KEYS]
+        + [Input(f"slider_cht_{k}", "value") for k in CHT_KEYS]
+        + [
+            Input("grp_market", "value"),
+            Input("grp_mode", "value"),
+            Input("grp_bins", "value"),
+            Input("grp_n_groups", "value"),
+            Input("grp_top_n", "value"),
+        ]
     )
 
     reset_outputs = (
@@ -649,11 +900,52 @@ def register_callbacks(app: Dash):
         + [Output(f"slider_pnl_{k}", "value") for k in PNL_KEYS]
         + [Output(f"slider_sta_{k}", "value") for k in STA_KEYS]
         + [Output(f"slider_str_{k}", "value") for k in STR_KEYS]
-        + [Output(f"slider_stk_{k}", "value") for k in STK_KEYS]  # 【新增】
-        + [Output(f"slider_cht_{k}", "value") for k in CHT_KEYS]  # 【新增】
+        + [Output(f"slider_stk_{k}", "value") for k in STK_KEYS]
+        + [Output(f"slider_cht_{k}", "value") for k in CHT_KEYS]
+        + [
+            Output("grp_market", "value"),
+            Output("grp_mode", "value"),
+            Output("grp_bins", "value"),
+            Output("grp_n_groups", "value"),
+            Output("grp_top_n", "value"),
+        ]
     )
 
-    # 重置按钮回调
+    # 1. 手动/自动模式切换禁用逻辑
+    @app.callback(
+        [Output("grp_bins", "disabled"), Output("grp_n_groups", "disabled")],
+        Input("grp_mode", "value"),
+    )
+    def toggle_grouping_mode(mode):
+        if mode == "manual":
+            return False, True
+        return True, False
+
+    # 2. 切换市场单选框时，自动填充该市场的专属参数
+    @app.callback(
+        [
+            Output("grp_mode", "value", allow_duplicate=True),
+            Output("grp_bins", "value", allow_duplicate=True),
+            Output("grp_n_groups", "value", allow_duplicate=True),
+            Output("grp_top_n", "value", allow_duplicate=True),
+        ],
+        Input("grp_market", "value"),
+        prevent_initial_call=True,
+    )
+    def switch_market_settings(market):
+        cfg = load_config()
+        grp_key = f"grouping_settings_{market}"
+        def_val = DEFAULT_GROUPING_CN if market == "cn" else DEFAULT_GROUPING_US
+        grp_cfg = cfg.get(grp_key, def_val)
+
+        return (
+            grp_cfg.get("grouping_mode", "manual"),
+            grp_cfg.get("bins", ""),
+            grp_cfg.get("n_groups", 5),
+            grp_cfg.get("top_n_per_group", 10),
+        )
+
+    # 3. 重置按钮逻辑
     @app.callback(
         reset_outputs,
         inputs=[Input("btn-reset", "n_clicks")],
@@ -671,20 +963,34 @@ def register_callbacks(app: Dash):
             out.append(v)
         for v in DEFAULT_CONFIG["sub_weights"]["strategy"].values():
             out.append(v)
-        # 【新增：组装新增两组配置的重置默认值】
         for v in DEFAULT_CONFIG["stock_filter"].values():
             out.append(v)
         for v in DEFAULT_CONFIG["chart_display"].values():
             out.append(v)
+
+        # 还原当前选中的 Market 及该 Market 的默认分组配置
+        out.append("cn")
+        out.append(DEFAULT_GROUPING_CN["grouping_mode"])
+        out.append(DEFAULT_GROUPING_CN["bins"])
+        out.append(DEFAULT_GROUPING_CN["n_groups"])
+        out.append(DEFAULT_GROUPING_CN["top_n_per_group"])
+
         return out
 
-    # JSON预览实时刷新
     @app.callback(
-        Output("json-preview", "value"), all_slider_input_list, allow_duplicate=True
+        Output("etf_settings_container", "style"), Input("grp_market", "value")
     )
+    def toggle_etf_settings(market):
+        if market == "cn":
+            return {"display": "block"}
+        return {"display": "none"}
+
+    # 4. JSON 实时预览刷新逻辑
+    @app.callback(Output("json-preview", "value"), all_slider_input_list)
     def refresh_json(*all_values):
         ptr = 0
         cfg = load_config()
+
         for k in ROOT_KEYS:
             cfg["weights"][k] = all_values[ptr]
             ptr += 1
@@ -700,18 +1006,36 @@ def register_callbacks(app: Dash):
         for k in STR_KEYS:
             cfg["sub_weights"]["strategy"][k] = all_values[ptr]
             ptr += 1
-        # 【新增：写入 stock_filter】
         for k in STK_KEYS:
             cfg["stock_filter"][k] = all_values[ptr]
             ptr += 1
-        # 【新增：写入 chart_display】
         for k in CHT_KEYS:
             cfg["chart_display"][k] = all_values[ptr]
             ptr += 1
 
+        selected_market = all_values[ptr]
+        ptr += 1
+        mode_val = all_values[ptr]
+        ptr += 1
+        bins_val = all_values[ptr]
+        ptr += 1
+        n_groups_val = all_values[ptr]
+        ptr += 1
+        top_n_val = all_values[ptr]
+        ptr += 1
+
+        # 更新对应选定市场的独立 grouping_settings
+        grp_key = f"grouping_settings_{selected_market}"
+        cfg[grp_key] = {
+            "grouping_mode": mode_val,
+            "bins": bins_val,
+            "n_groups": n_groups_val,
+            "top_n_per_group": top_n_val,
+        }
+
         return json.dumps(cfg, indent=4, ensure_ascii=False)
 
-    # 保存配置写入文件
+    # 5. 保存配置写入文件
     @app.callback(
         Output("save-msg", "children"),
         Input("btn-save", "n_clicks"),
