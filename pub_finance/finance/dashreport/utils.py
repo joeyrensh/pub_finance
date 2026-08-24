@@ -705,7 +705,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
                     "position": "absolute",
                     "right": 0,
                     "top": "-15px",
-                    "zIndex": 1000,
+                    "zIndex": 200,
                     "pointerEvents": "none",
                     "whiteSpace": "nowrap",
                 },

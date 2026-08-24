@@ -241,7 +241,7 @@ li::before {
     padding-bottom: 5px;
     box-sizing: border-box;
     width: 100%;
-    z-index: 99999;
+    z-index: 2000;
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
 }   
@@ -499,7 +499,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
     white-space: pre-wrap !important;
     word-break: break-word !important;
     overflow: visible !important;
-    z-index: 99999 !important;
+    z-index: 8000 !important;
     background: var(--gridcolor) !important;
     color: var(--text-color) !important;
     border: 1px solid var(--gridcolor) !important;
@@ -705,7 +705,7 @@ table tr:hover img[src^="data:image/png;base64"] {
     pointer-events: none !important;
 }
 
-.js-plotly-plot .hoverlayer { overflow: visible !important; z-index: 9999; }
+.js-plotly-plot .hoverlayer { overflow: visible !important; z-index: 5000; }
 .js-plotly-plot .hoverlabel { white-space: normal !important; max-width: none !important; overflow: visible !important; }
 .js-plotly-plot, .js-plotly-plot svg { overflow: visible !important; }
 .js-plotly-plot .draglayer .drag {
@@ -918,7 +918,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
 /* 2. 弹出层基础设置与无损缩放 */
 .custom-date-picker .SingleDatePicker_picker {
   background: transparent !important;
-  z-index: 99999 !important;
+  z-index: 10000 !important;
   transform: scale(0.7) translateX(-80px) !important;
   transform-origin: top left !important;
 }
@@ -946,13 +946,13 @@ a:active { color: var(--text-color); text-decoration: underline; }
 /* 4. 头部导航与箭头点击修复 */
 .custom-date-picker .DayPickerNavigation {
   position: relative !important;
-  z-index: 999999 !important;
+  z-index: 10001 !important;
 }
 
 .custom-date-picker .DayPickerNavigation_button,
 .custom-date-picker .DayPickerNavigation_button__default {
   position: absolute !important;
-  z-index: 999999 !important;
+  z-index: 10001 !important;
   pointer-events: auto !important;
   cursor: pointer !important;
   background: transparent !important;
@@ -1113,7 +1113,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
     top: auto !important;         
     height: 30px !important;
     margin-top: 0 !important;     
-    z-index: 10;
+    z-index: 20;
     background: var(--kpi-background) !important;
     color: var(--text-color) !important;
     border-radius: 0 !important;
