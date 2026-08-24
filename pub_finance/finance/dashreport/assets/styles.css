@@ -650,11 +650,16 @@ legend {
 
 .custom-grp-input {
   color-scheme: light dark;
-  height: 42px !important;
+  height: 38px !important;
+  line-height: 38px !important;
   width: 100% !important;
   margin-bottom: 0 !important;
   background-color: rgba(255, 255, 255, 0) !important;
   color: var(--text-color) !important;
+}
+
+#etf_settings_container {
+  margin: 4px 0px 0px 0px;
 }
 
 /* --- 图表外壳与特定视图 --- */
@@ -1489,8 +1494,8 @@ a:active { color: var(--text-color); text-decoration: underline; }
     min-width: 40% !important;
   }
   .custom-grp-input {
-    height: 35px !important;
-    line-height: 35px !important;
+    height: 30px !important;
+    line-height: 30px !important;
   }
 
   .btn-backtest {
