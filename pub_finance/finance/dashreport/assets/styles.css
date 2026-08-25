@@ -1173,8 +1173,8 @@ a:active { color: var(--text-color); text-decoration: underline; }
 input[type="radio"] {
     -webkit-appearance: none;
     appearance: none;
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border: 1px solid rgba(13, 135, 108, 0.4);
     border-radius: 50%;
     outline: none;
