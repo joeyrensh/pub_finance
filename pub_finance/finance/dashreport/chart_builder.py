@@ -3269,102 +3269,138 @@ class ChartBuilder:
             fig.add_trace(go.Scatter(x=df["date"], y=df["s_pnl"], mode="lines+markers"))
             return fig
 
-        # ------------------------------
-        # 4. 水平方向：仅调整文本对齐，箭头垂直（ax=0）
-        # ------------------------------
+        # ==============================================================
+        # 根据 client_width 优化几何碰撞与线长参数 (无 font-size)
+        # ==============================================================
+        # 组1：画布物理尺寸 (宽度, 高度)
+        CANVAS_W_PX, CANVAS_H_PX = (
+            (380.0, 260.0) if client_width < 550 else (750.0, 420.0)
+        )
+
+        # 组2：文本框物理尺寸 (中文字宽, 英文字宽, Padding, 文本高度)
+        CHAR_CN_W, CHAR_EN_W, PAD_W, TEXT_H = (
+            (9.5, 5.5, 6.0, 15.0) if client_width < 550 else (12.0, 7.0, 8.0, 18.0)
+        )
+
+        # 组3：避让阶梯与间距 (Y轴阶梯, X轴安全缓冲, 连线空隙)
+        Y_STEPS, SAFETY_GAP_X, STANDOFF_PX = (
+            ([-16, 16, -28, 28, -40, 40, -52, 52, -64, 64], 4.0, 1)
+            if client_width < 550
+            else ([-18, 18, -32, 32, -46, 46, -60, 60, -74, 74], 6.0, 2)
+        )
+
+        # ==============================================================
+        # 2. 纯垂直指示线 + 自适应 2D 防重叠避让算法
+        # ==============================================================
         dates_ts = df_annot["date"].apply(lambda x: x.timestamp()).values
-        min_ts = dates_ts.min()
-        max_ts = dates_ts.max()
+        min_ts, max_ts = dates_ts.min(), dates_ts.max()
         range_ts = max_ts - min_ts if max_ts > min_ts else 1.0
-        left_boundary = min_ts + range_ts * 0.2
-        right_boundary = min_ts + range_ts * 0.8
 
-        xanchors = []
-        for ts in dates_ts:
-            if ts < left_boundary:
-                xanchors.append("left")
-            elif ts > right_boundary:
-                xanchors.append("right")
-            else:
-                xanchors.append("center")
-        ax_offsets = [0] * len(df_annot)
-
-        # ------------------------------
-        # 5. 垂直方向动态递增偏移（基于画布物理像素准确判定）
-        # ------------------------------
         y_vals = df_annot["s_pnl"].values
         y_min, y_max = y_vals.min(), y_vals.max()
         y_range = y_max - y_min if y_max > y_min else 1.0
 
-        # 1. 物理参数定义 (全部以像素 px 为单位)
-        step = 22  # 垂直步长 (px)
-        max_step = 8  # 最大尝试层数
-        canvas_height_px = 350.0  # 假设画布绘图区高度为 350px
-        canvas_width_px = 500.0  # 假设画布绘图区宽度为 500px
+        pts_px = []
+        for i, ts in enumerate(dates_ts):
+            x_p = ((ts - min_ts) / range_ts) * CANVAS_W_PX
+            y_p = (1.0 - (y_vals[i] - y_min) / y_range) * CANVAS_H_PX
+            pts_px.append((x_p, y_p))
 
-        # X 轴像素碰撞阈值设为 45px（符合截断后文本的真实物理宽度）
-        x_threshold_px = 45.0
-        font_height_px = 16.0  # 文本框物理高度容差
-
-        assigned = []
+        n_pts = len(pts_px)
+        ax_offsets = [0] * n_pts  # 保持 100% 绝对垂直线
         ay_offsets = []
+        xanchors = []
+        placed_boxes = []
 
-        for i, (ts, y_val) in enumerate(zip(dates_ts, y_vals)):
-            # 计算数据点在画布上的【物理 Y 像素坐标】(以顶部为 0)
-            y_pixel = (1.0 - (y_val - y_min) / y_range) * canvas_height_px
-            # 计算数据点在画布上的【物理 X 像素坐标】
-            x_pixel = ((ts - min_ts) / range_ts) * canvas_width_px
+        for i, (x_px, y_px) in enumerate(pts_px):
+            # 1. 动态估算物理字宽
+            text_str = str(df_annot.iloc[i]["annotation_text"])
+            text_w = (
+                sum(CHAR_CN_W if ord(c) > 127 else CHAR_EN_W for c in text_str) + PAD_W
+            )
 
-            # 波峰/波谷优先方向判断
-            prev_y = y_vals[i - 1] if i > 0 else y_val
-            next_y = y_vals[i + 1] if i < len(y_vals) - 1 else y_val
-            is_local_peak = (y_val >= prev_y) and (y_val >= next_y)
-            is_local_trough = (y_val <= prev_y) and (y_val <= next_y)
+            # 2. 左右边缘防溢出判定
+            is_left_edge = i < int(n_pts * 0.15) or x_px < (CANVAS_W_PX * 0.12)
+            is_right_edge = i > int(n_pts * 0.85) or x_px > (CANVAS_W_PX * 0.88)
 
-            if is_local_peak:
-                preferred_up = True
-            elif is_local_trough:
-                preferred_up = False
+            if is_left_edge:
+                anchor_candidates = ["left"]
+            elif is_right_edge:
+                anchor_candidates = ["right"]
             else:
-                preferred_up = (y_val - y_min) / y_range >= 0.5
+                anchor_candidates = ["center", "left", "right"]
 
-            if preferred_up:
-                candidate_offsets = [-step * k for k in range(1, max_step + 1)] + [
-                    step * k for k in range(1, max_step + 1)
-                ]
-            else:
-                candidate_offsets = [step * k for k in range(1, max_step + 1)] + [
-                    -step * k for k in range(1, max_step + 1)
-                ]
+            # 3. 波峰/波谷方向判定
+            prev_y = y_vals[i - 1] if i > 0 else y_vals[i]
+            next_y = y_vals[i + 1] if i < n_pts - 1 else y_vals[i]
+            prefer_up = (
+                (y_vals[i] >= prev_y and y_vals[i] >= next_y)
+                if (
+                    (y_vals[i] >= prev_y and y_vals[i] >= next_y)
+                    or (y_vals[i] <= prev_y and y_vals[i] <= next_y)
+                )
+                else ((y_vals[i] - y_min) / y_range >= 0.5)
+            )
 
-            selected = None
-            for off in candidate_offsets:
-                conflict = False
-                # 当前候选位置的【真实物理 Y 像素位置】(ay 为负时向上，像素值减小)
-                curr_text_y_px = y_pixel + off
+            sorted_ay = sorted(
+                Y_STEPS, key=lambda val: (0 if (val < 0) == prefer_up else 1)
+            )
 
-                for x_other_px, y_other_text_px in assigned:
-                    # 只有 X 轴物理像素距离 < 45px 时，才需要判断 Y 轴冲突
-                    is_x_close = abs(x_pixel - x_other_px) < x_threshold_px
+            selected_ay = None
+            selected_anchor = None
 
-                    # 判断两者在画布上的【物理 Y 轴像素距离】是否重叠
-                    if (
-                        is_x_close
-                        and abs(curr_text_y_px - y_other_text_px) < font_height_px
-                    ):
-                        conflict = True
+            # 4. 2D 矩形碰撞检测
+            for ay in sorted_ay:
+                for anchor in anchor_candidates:
+                    if anchor == "center":
+                        b_min_x = x_px - (text_w / 2.0)
+                        b_max_x = x_px + (text_w / 2.0)
+                    elif anchor == "left":
+                        b_min_x = x_px
+                        b_max_x = x_px + text_w
+                    else:
+                        b_min_x = x_px - text_w
+                        b_max_x = x_px
+
+                    text_center_y = y_px + ay
+                    b_min_y = text_center_y - (TEXT_H / 2.0)
+                    b_max_y = text_center_y + (TEXT_H / 2.0)
+
+                    collision = False
+                    for box in placed_boxes:
+                        if not (
+                            (b_max_x + SAFETY_GAP_X) < box[0]
+                            or (b_min_x - SAFETY_GAP_X) > box[1]
+                            or (b_max_y + 2) < box[2]
+                            or (b_min_y - 2) > box[3]
+                        ):
+                            collision = True
+                            break
+
+                    if not collision:
+                        selected_ay = ay
+                        selected_anchor = anchor
+                        placed_boxes.append((b_min_x, b_max_x, b_min_y, b_max_y))
                         break
 
-                if not conflict:
-                    selected = off
+                if selected_ay is not None:
                     break
 
-            if selected is None:
-                selected = -step * 2 if preferred_up else step * 2
+            # 5. 极小概率冲突时的兜底避让
+            if selected_ay is None:
+                selected_ay = (Y_STEPS[-1] + 12) if not prefer_up else (Y_STEPS[0] - 12)
+                selected_anchor = anchor_candidates[0]
+                placed_boxes.append(
+                    (
+                        x_px - (text_w / 2.0),
+                        x_px + (text_w / 2.0),
+                        y_px + selected_ay - (TEXT_H / 2.0),
+                        y_px + selected_ay + (TEXT_H / 2.0),
+                    )
+                )
 
-            ay_offsets.append(selected)
-            # 记录已分配标注的【物理 X 像素】与【物理 Y 文本像素位置】
-            assigned.append((x_pixel, y_pixel + selected))
+            ay_offsets.append(selected_ay)
+            xanchors.append(selected_anchor)
         # ------------------------------
         # 6. 创建折线图
         # ------------------------------
@@ -3398,23 +3434,26 @@ class ChartBuilder:
         # 7. 添加标注
         # ------------------------------
         for i, row in df_annot.iterrows():
+            final_ay = ay_offsets[i]
+
             fig.add_annotation(
                 x=row["date"],
                 y=row["s_pnl"],
                 text=row["annotation_text"],
-                showarrow=True,  # 仍然显示箭头（线段）
-                arrowhead=0,  # 设置箭头样式为 0（无箭头）
+                showarrow=True,
+                arrowhead=0,
                 arrowsize=0.3,
-                arrowwidth=0.3,
+                arrowwidth=0.4,
                 arrowcolor=text_color,
-                ax=ax_offsets[i],
-                ay=ay_offsets[i],
-                bgcolor=cfg.get("legend-bg-color"),
-                font=dict(size=font_size, color=text_color),
+                ax=0,
+                ay=final_ay,
                 xanchor=xanchors[i],
-                yanchor="bottom" if ay_offsets[i] < 0 else "top",
-                borderpad=0,  # 内边距设为0
-                borderwidth=0,  # 可选：去掉边框
+                yanchor="bottom" if final_ay < 0 else "top",
+                standoff=STANDOFF_PX,
+                startstandoff=0,
+                bgcolor=cfg.get("legend-bg-color"),
+                borderpad=1,
+                borderwidth=0,
             )
 
         # ------------------------------
