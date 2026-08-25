@@ -109,7 +109,7 @@ class KpiCallback:
 
             # 6. 构建升级版的 KPI 结构 (格式: (指标名, 最新值, 环比值/补充说明))
             kpis = [
-                ("SWDI", swdi_today, swdi_pct),
+                ("S&W500", swdi_today, swdi_pct),
                 ("ASSETS", f"{val_today / 10000:,.2f} 万", assets_pct),
                 ("CASH", f"{cash_today / 10000:,.2f} 万", cash_pct),
                 ("SHARES", f"{stock_cnt_today}", shares_pct),
