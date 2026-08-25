@@ -395,7 +395,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 
 /* --- Dash 表格特定覆盖配置 --- */
 .dash-spreadsheet-container {
-  line-height: 1.0 !important;
+  line-height: 1.05 !important;
 }
 
 .table_custom {
@@ -697,11 +697,11 @@ legend {
 .chart-container .js-plotly-plot .plotly .annotation-text,
 .chart-container .js-plotly-plot .plotly .table .header-cells text,
 .chart-container .js-plotly-plot .plotly .table .cells text {
-  font-size: clamp(1.05rem, 2.4cqw, 1.5rem) !important;
+  font-size: clamp(1.05rem, 2.5cqw, 1.5rem) !important;
 }
 
 .chart-container .js-plotly-plot .plotly .table .column-block#cells1 .column-cells .column-cell:first-child text.cell-text {
-  font-size: clamp(1.3rem, 2.4cqw, 1.9rem) !important;
+  font-size: clamp(1.3rem, 2.5cqw, 1.9rem) !important;
   font-weight: bold !important;
 }
 
