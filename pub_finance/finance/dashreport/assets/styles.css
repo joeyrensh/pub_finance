@@ -963,7 +963,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   top: 0;
   height: 100%;
   width: 0%;
-  background-color: rgba(87, 160, 236, 0.45);
+  background-color: rgba(13, 135, 108, 0.4);
   animation: queue-fill 20s linear infinite;
   z-index: 0;
 }
