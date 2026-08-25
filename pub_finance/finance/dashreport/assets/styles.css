@@ -14,7 +14,7 @@
   --gridcolor: #D1D5DB;
   
   /* 通用样式 */
-  --background-color: #f6f8f9;
+  --background-color: #F0F2F5;
   --text-color: #333333;
   --login-box-shadow-color: rgb(0 0 0 / 20%);
   --subtitle-color: #333333;
@@ -39,7 +39,7 @@
     --gridcolor: #2D3748;
     
     /* 通用样式 */
-    --background-color: #171b26;
+    --background-color: #12151a;
     --text-color: rgba(255, 255, 255, 0.9);
     --login-box-shadow-color: #607D8B;
     --subtitle-color: rgba(255, 255, 255, 0.9);
