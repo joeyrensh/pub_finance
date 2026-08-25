@@ -1097,7 +1097,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
 }
 
 .weight-slider-primary .rc-slider-track {
-    background-color: #64748B;
+    background-color: rgba(13, 135, 108, 0.6);
     height:4px;
     touch-action: pan-y;
     pointer-events: none; 
@@ -1167,6 +1167,38 @@ a:active { color: var(--text-color); text-decoration: underline; }
 .l1_label { font-weight: 500; }
 .l2_label { margin-bottom: 2px; }
 .row:first-child .l2_label { margin-top: 10px; }
+
+/* --- radio相关设置 */
+
+input[type="radio"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border: 1px solid rgba(13, 135, 108, 0.4);
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
+    vertical-align: middle;
+    display: inline-grid;
+    place-content: center;
+    margin: 4px 4px 6px 4px !important;
+
+}
+
+/* 选中状态：只改颜色，不动 border 宽度 */
+input[type="radio"]:checked {
+  border-color: rgba(13, 135, 108, 0.79);
+}
+
+/* 内部实心圆点 */
+input[type="radio"]:checked::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(13, 135, 108, 0.79);
+}
 
 /* --- 页面描述、配置与预览层 --- */
 .page-sub-desc { color: #6c757d; margin-bottom: 5px; }
