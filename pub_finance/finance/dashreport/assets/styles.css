@@ -1181,10 +1181,11 @@ a:active { color: var(--text-color); text-decoration: underline; }
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
     border: 1px solid var(--gridcolor);
 }
-
+.save-message-tip,
 .save-message-tip span[style*="color:#198754"],
 .save-message-tip span[style*="color:#dc3545"] {
     font-weight:500;
+    margin-top: 5px;
 }
 
 /* --- AI分析按钮及大模型文本框面板 --- */
