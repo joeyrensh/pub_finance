@@ -1064,12 +1064,13 @@ a:active { color: var(--text-color); text-decoration: underline; }
 
 /* 5. 交互状态 (Hover & Selected) */
 .custom-date-picker td.CalendarDay:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
 }
 
 .custom-date-picker td.CalendarDay__selected,
 .custom-date-picker .CalendarDay__selected {
-  background-color: #3b82f6 !important;
+  background-color: rgba(13, 135, 108, 0.79) !important;
   color: #ffffff !important;
 }
 
