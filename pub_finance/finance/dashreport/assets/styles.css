@@ -659,6 +659,7 @@ legend {
   border-radius: 0 !important;
   padding: 6px 2px !important;
   border: 1px solid var(--gridcolor) !important;
+  font-size: 1.3rem;
 }
 
 #etf_settings_container {
@@ -1129,13 +1130,13 @@ a:active { color: var(--text-color); text-decoration: underline; }
 
 .weight-slider-primary .rc-slider-mark-text {
     color: var(--grid-color) !important;
-    font-size : 0.9rem;
+    font-size : 1rem;
     margin-top: -5px;
 }
 
 .rc-slider-tooltip-inner {
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
-    font-size: 1.1rem !important;
+    font-size: 1.3rem !important;
     padding: 5px;
     background: var(--background-color);
     color: var(--text-color);
@@ -1508,6 +1509,13 @@ a:active { color: var(--text-color); text-decoration: underline; }
     height: 35px !important;
     line-height: 35px !important;
   }
+  .weight-slider-primary .rc-slider-mark-text {
+    font-size : 0.9rem;
+  }
+
+  .rc-slider-tooltip-inner {
+      font-size: 1.05rem !important;
+  }
   .grp-label-fixed {
     width: 35% !important;
     min-width: 35% !important;
@@ -1515,6 +1523,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   .custom-grp-input {
     height: 30px !important;
     line-height: 30px !important;
+    font-size: 1.05rem !important;
   }
 
   .btn-backtest {
