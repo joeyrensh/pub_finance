@@ -468,7 +468,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
         "ERP": "ERP",
         "SHARPE RATIO": "SHARPE",
         "SORTINO RATIO": "SORTINO",
-        "MAX DD": "MAX DD",
+        "MAX DD": "MAX DD (%)",
         # --- 收益 & 盈亏指标 ---
         "PNL": "PNL",
         "PROFIT": "PNL",
