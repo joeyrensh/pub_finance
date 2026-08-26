@@ -453,6 +453,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
         "SYMBOL": "SYMBOL",
         "NAME": "NAME",
         "IND": "SECTOR",
+        "INDUSTRY": "SECTOR",
         "STRATEGY": "STRAT",
         "STRATEGY CNT": "STRAT COUNT",
         # --- 价格 & 资产价值 ---
