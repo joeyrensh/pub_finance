@@ -447,9 +447,50 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
             ]
         )
 
+    HEADER_NAME_MAP = {
+        # --- 基础标识 & 分类 ---
+        "IDX": "IDX",
+        "SYMBOL": "SYMBOL",
+        "NAME": "NAME",
+        "IND": "SECTOR",
+        "STRATEGY": "STRAT",
+        "STRATEGY CNT": "STRAT COUNT",
+        # --- 价格 & 资产价值 ---
+        "TOTAL VALUE": "MKT CAP",
+        "BASE": "COST",
+        "PRICE": "COST",
+        "ADJBASE": "LAST",
+        "OPEN": "OPEN",
+        "L5 OPEN": "5D OPENS",
+        "L5 CLOSE": "5D CLOSES",
+        # --- 估值 & 风险指标 ---
+        "PE": "P/E",
+        "ERP": "ERP",
+        "SHARPE RATIO": "SHARPE",
+        "SORTINO RATIO": "SORTINO",
+        "MAX DD": "MAX DD",
+        # --- 收益 & 盈亏指标 ---
+        "PNL": "PNL",
+        "PROFIT": "PNL",
+        "PNL RATIO": "PNL (%)",
+        "TOTAL PNL RATIO": "CUM PNL (%)",
+        "DAILY RETURN": "1D RET (%)",
+        "PROFIT TREND": "TREND",
+        # --- 交易统计 & 胜率 ---
+        "WIN RATE": "WIN RATE (%)",
+        "LRATIO": "SECTOR RATIO (%)",
+        "AVG TRANS": "TRADES",
+        "AVG DAYS": "HOLD DAYS",
+        "HIS DAYS": "HIST DAYS",
+        # --- 日期 ---
+        "DATE": "DATE",
+        "OPEN DATE": "OPEN DATE",
+        "CLOSE DATE": "CLOSE DATE",
+    }
+
     columns = [
         {
-            "name": col,
+            "name": HEADER_NAME_MAP.get(col, col),
             "id": col,
             "type": (
                 "numeric"
