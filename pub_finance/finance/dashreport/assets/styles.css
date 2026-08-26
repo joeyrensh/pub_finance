@@ -403,8 +403,8 @@ table.tiny-header tr:first-child { font-size: 8px; }
 }
 
 .default-table .dash-spreadsheet-container .dash-spreadsheet-inner table {
-  border-collapse: separate !important;
-  border-spacing: 2px 0px !important;
+  border-collapse: collapse !important;
+  border-spacing: 1px 0px !important;
   border: 0.1px solid var(--gridcolor) !important;
 }
 
@@ -538,7 +538,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 .kpi-label {
   color: var(--text-color);
   margin-bottom: 10px;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 400;
 }
 
@@ -548,11 +548,15 @@ table.tiny-header tr:first-child { font-size: 8px; }
   /* color: #ff4444; */
   color: var(--text-color);
   margin-bottom: 10px;
-  font-size: 1.5rem;
+  font-size: 1.7rem;
 }
 
 .kpi-date {
   font-weight: 600;
+}
+
+.kpi-pct {
+  font-size: 1.4rem;
 }
 
 .kpi-pct-up{
@@ -1521,6 +1525,10 @@ input[type="radio"]:checked::before {
   .kpi-value {
     font-size: 1.3rem;
     margin-bottom: 6px;
+  }
+
+  .kpi-pct {
+    font-size: 1.05rem;
   }
 
   .backtest-label{
