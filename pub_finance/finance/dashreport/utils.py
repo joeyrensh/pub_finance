@@ -460,7 +460,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
         "BASE": "COST",
         "PRICE": "COST",
         "ADJBASE": "LAST",
-        "OPEN": "OPEN",
+        "OPEN": "OPEN POS",
         "L5 OPEN": "5D OPENS",
         "L5 CLOSE": "5D CLOSES",
         # --- 估值 & 风险指标 ---
