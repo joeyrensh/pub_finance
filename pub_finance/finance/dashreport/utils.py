@@ -452,8 +452,8 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
         "IDX": "IDX",
         "SYMBOL": "SYMBOL",
         "NAME": "NAME",
-        "IND": "SECTOR",
-        "INDUSTRY": "SECTOR",
+        "IND": "INDUSTRY",
+        "INDUSTRY": "INDUSTRY",
         "STRATEGY": "STRAT",
         "STRATEGY CNT": "STRAT COUNT",
         # --- 价格 & 资产价值 ---
@@ -479,7 +479,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
         "PROFIT TREND": "TREND",
         # --- 交易统计 & 胜率 ---
         "WIN RATE": "WIN RATE (%)",
-        "LRATIO": "SECTOR RATIO (%)",
+        "LRATIO": "IND RATIO (%)",
         "AVG TRANS": "TRADES",
         "AVG DAYS": "HOLD DAYS",
         "HIS DAYS": "HIST DAYS",
