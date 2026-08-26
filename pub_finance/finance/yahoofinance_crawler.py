@@ -272,7 +272,7 @@ def convert_industry(source_file: str, map_file: str, target_file: str) -> None:
 if __name__ == "__main__":
     # 代理列表（请自行替换为有效的代理）
     proxy_list = [
-        # "http://45.186.6.104:3128",
+        "http://45.186.6.104:3128",
         "http://95.3.69.222:8080",
         "http://181.39.25.196:8118",
         "http://64.112.184.210:3128",
@@ -354,9 +354,9 @@ if __name__ == "__main__":
     CACHE_FILE = FINANCE_ROOT / "usstockinfo" / "symbol_list_cache.csv"
     OUTPUT_FILE = FINANCE_ROOT / "usstockinfo" / "industry_yfinance.csv"
 
-    main(proxy_list, CACHE_FILE, OUTPUT_FILE)
-    # convert_industry(
-    #     source_file=OUTPUT_FILE,
-    #     map_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_mapping.csv",
-    #     target_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_cn.csv",
-    # )
+    # main(proxy_list, CACHE_FILE, OUTPUT_FILE)
+    convert_industry(
+        source_file=OUTPUT_FILE,
+        map_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_mapping.csv",
+        target_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_cn.csv",
+    )

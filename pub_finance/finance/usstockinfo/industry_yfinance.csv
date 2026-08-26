@@ -60,7 +60,6 @@
 58,XWEL,Diagnostics & Research,Healthcare
 59,XTLB,Biotechnology,Healthcare
 60,XTIA,Aerospace & Defense,Industrials
-61,XTERU,,
 62,XSLL,Shell Companies,Financial Services
 63,XRX,Business Equipment & Supplies,Industrials
 64,XRTX,Biotechnology,Healthcare
@@ -702,7 +701,6 @@
 700,SFD,Packaged Foods,Consumer Defensive
 701,SFBC,Banks - Regional,Financial Services
 702,SEZL,Credit Services,Financial Services
-703,SEV,,
 704,SERV,Integrated Freight & Logistics,Industrials
 705,SERA,Medical Devices,Healthcare
 706,SEPN,Biotechnology,Healthcare
@@ -804,7 +802,6 @@
 802,ROKU,Entertainment,Communication Services
 803,ROIV,Biotechnology,Healthcare
 804,ROCK,Building Products & Equipment,Industrials
-805,ROC,,
 806,ROAD,Engineering & Construction,Industrials
 807,RNXT,Biotechnology,Healthcare
 808,RNW,Utilities - Renewable,Utilities
@@ -1152,7 +1149,6 @@
 1150,OXSQ,Asset Management,Financial Services
 1151,OXLCO,Asset Management,Financial Services
 1152,OXLCN,Asset Management,Financial Services
-1153,OXLCM,,
 1154,OXBR,Insurance - Reinsurance,Financial Services
 1155,OWLS,Software - Infrastructure,Technology
 1156,OVLY,Banks - Regional,Financial Services
@@ -1362,8 +1358,6 @@
 1361,NHPAP,REIT - Healthcare Facilities,Real Estate
 1362,NHP,REIT - Healthcare Facilities,Real Estate
 1363,NHIV,Shell Companies,Financial Services
-1364,NHICU,,
-1365,NHIC,,
 1366,NGNE,Biotechnology,Healthcare
 1367,NGEN,Biotechnology,Healthcare
 1368,NFLX,Entertainment,Communication Services
@@ -2090,7 +2084,6 @@
 2089,HPAI,Software - Infrastructure,Technology
 2090,HOWL,Biotechnology,Healthcare
 2091,HOVR,Aerospace & Defense,Industrials
-2092,HOVNP,,
 2093,HOUR,Internet Retail,Consumer Cyclical
 2094,HOPE,Banks - Regional,Financial Services
 2095,HOOD,Capital Markets,Financial Services
@@ -2214,11 +2207,8 @@
 2213,GP,Farm & Heavy Construction Machinery,Industrials
 2214,GOVX,Biotechnology,Healthcare
 2215,GOSS,Biotechnology,Healthcare
-2216,GOOGN,,
-2217,GOOGM,,
 2218,GOOGL,Internet Content & Information,Communication Services
 2219,GOOG,Internet Content & Information,Communication Services
-2220,GOODO,,
 2221,GOODN,REIT - Diversified,Real Estate
 2222,GOOD,REIT - Diversified,Real Estate
 2223,GOGO,Telecom Services,Communication Services
@@ -2408,7 +2398,6 @@
 2407,FIZZ,Beverages - Non-Alcoholic,Consumer Defensive
 2408,FIVN,Software - Infrastructure,Technology
 2409,FIVE,Specialty Retail,Consumer Cyclical
-2410,FISV,,
 2411,FISN,Specialty Industrial Machinery,Industrials
 2412,FISI,Banks - Regional,Financial Services
 2413,FIP,Conglomerates,Industrials
@@ -2448,7 +2437,6 @@
 2447,FCUV,Scientific & Technical Instruments,Technology
 2448,FCNCP,Banks - Regional,Financial Services
 2449,FCNCO,Banks - Regional,Financial Services
-2450,FCNCN,,
 2451,FCNCA,Banks - Regional,Financial Services
 2452,FCHL,Education & Training Services,Consumer Defensive
 2453,FCFS,Credit Services,Financial Services
@@ -2471,7 +2459,6 @@
 2470,FAST,Industrial Distribution,Industrials
 2471,FANG,Oil & Gas E&P,Energy
 2472,FAMI,Packaged Foods,Consumer Defensive
-2473,FACT,,
 2474,FAC,Electrical Equipment & Parts,Industrials
 2475,FABC,Semiconductors,Technology
 2476,FA,Specialty Business Services,Industrials
@@ -2636,7 +2623,6 @@
 2635,DRDB,Shell Companies,Financial Services
 2636,DRCT,Advertising Agencies,Communication Services
 2637,DPZ,Restaurants,Consumer Cyclical
-2638,DPU,,
 2639,DPRO,Computer Hardware,Technology
 2640,DOYU,Internet Content & Information,Communication Services
 2641,DOX,Software - Infrastructure,Technology
@@ -2890,7 +2876,6 @@
 2889,CIGI,Real Estate Services,Real Estate
 2890,CIFR,Information Technology Services,Technology
 2891,CHYM,Software - Application,Technology
-2892,CHTRP,,
 2893,CHTR,Telecom Services,Communication Services
 2894,CHSN,Restaurants,Consumer Cyclical
 2895,CHSCP,Farm Products,Consumer Defensive
@@ -3052,7 +3037,6 @@
 3051,BUSEP,Banks - Regional,Financial Services
 3052,BUSE,Banks - Regional,Financial Services
 3053,BULL,Software - Application,Technology
-3054,BTTC,,
 3055,BTSGU,Health Information Services,Healthcare
 3056,BTSG,Health Information Services,Healthcare
 3057,BTQ,Software - Infrastructure,Technology
@@ -3091,7 +3075,6 @@
 3090,BRKH,Shell Companies,Financial Services
 3091,BRID,Packaged Foods,Consumer Defensive
 3092,BRFH,Beverages - Non-Alcoholic,Consumer Defensive
-3093,BREZ,,
 3094,BRCB,Restaurants,Consumer Cyclical
 3095,BRBI,Capital Markets,Financial Services
 3096,BRAI,Computer Hardware,Technology
@@ -3099,11 +3082,8 @@
 3098,BPYPP,Real Estate Services,Real Estate
 3099,BPYPO,Real Estate Services,Real Estate
 3100,BPYPN,Real Estate Services,Real Estate
-3101,BPYPM,,
 3102,BPRN,Banks - Regional,Financial Services
-3103,BPOPM,,
 3104,BPOP,Banks - Regional,Financial Services
-3105,BPAC,,
 3106,BOXL,Consumer Electronics,Technology
 3107,BOTJ,Banks - Regional,Financial Services
 3108,BOT,Asset Management,Financial Services
@@ -3234,7 +3214,6 @@
 3233,BANX,Asset Management,Financial Services
 3234,BANR,Banks - Regional,Financial Services
 3235,BANL,Oil & Gas Midstream,Energy
-3236,BANFP,,
 3237,BANF,Banks - Regional,Financial Services
 3238,BAND,Software - Infrastructure,Technology
 3239,BAFN,Banks - Regional,Financial Services
@@ -3302,7 +3281,6 @@
 3301,ATEX,Telecom Services,Communication Services
 3302,ATER,"Furnishings, Fixtures & Appliances",Consumer Cyclical
 3303,ATEC,Medical Devices,Healthcare
-3304,ATCX,,
 3305,ATAT,Lodging,Consumer Cyclical
 3306,ATAI,Biotechnology,Healthcare
 3307,ASYS,Semiconductor Equipment & Materials,Technology
@@ -3333,7 +3311,6 @@
 3332,ARTNA,Utilities - Regulated Water,Utilities
 3333,ARTL,Biotechnology,Healthcare
 3334,ARTCU,Shell Companies,Financial Services
-3335,ARTC,,
 3336,ARRY,Solar,Technology
 3337,ARQT,Biotechnology,Healthcare
 3338,ARQQ,Software - Infrastructure,Technology
@@ -3435,7 +3412,6 @@
 3434,ALRM,Software - Application,Technology
 3435,ALPXU,Shell Companies,Financial Services
 3436,ALPX,Shell Companies,Financial Services
-3437,ALPS,,
 3438,ALP,Asset Management,Financial Services
 3439,ALOY,Other Industrial Metals & Mining,Basic Materials
 3440,ALOV,Shell Companies,Financial Services
@@ -3640,8 +3616,6 @@
 3639,XYL,Specialty Industrial Machinery,Industrials
 3640,XYF,Credit Services,Financial Services
 3641,XXI,Education & Training Services,Consumer Defensive
-3642,XRN_B,,
-3643,XRN_A,,
 3644,XRN,REIT - Healthcare Facilities,Real Estate
 3645,XPRO,Oil & Gas Equipment & Services,Energy
 3646,XPOF,Leisure,Consumer Cyclical
@@ -3662,7 +3636,6 @@
 3661,WTI,Oil & Gas E&P,Energy
 3662,WT,Asset Management,Financial Services
 3663,WST,Medical Instruments & Supplies,Healthcare
-3664,WSO_B,,
 3665,WSO,Industrial Distribution,Industrials
 3666,WSM,Specialty Retail,Consumer Cyclical
 3667,WS,Steel,Basic Materials
@@ -3686,7 +3659,6 @@
 3685,WKC,Oil & Gas Refining & Marketing,Energy
 3686,WK,Software - Application,Technology
 3687,WIT,Information Technology Services,Technology
-3688,WHR_A,,
 3689,WHR,"Furnishings, Fixtures & Appliances",Consumer Cyclical
 3690,WHK,Oil & Gas Midstream,Energy
 3691,WHG,Asset Management,Financial Services
@@ -3694,12 +3666,6 @@
 3693,WH,Lodging,Consumer Cyclical
 3694,WGO,Recreational Vehicles,Consumer Cyclical
 3695,WFG,Lumber & Wood Production,Basic Materials
-3696,WFC_Z,,
-3697,WFC_Y,,
-3698,WFC_L,,
-3699,WFC_D,,
-3700,WFC_C,,
-3701,WFC_A,,
 3702,WFC,Banks - Diversified,Financial Services
 3703,WF,Banks - Regional,Financial Services
 3704,WEX,Software - Infrastructure,Technology
@@ -3716,7 +3682,6 @@
 3715,WBX,Electronic Components,Technology
 3716,WBI,Oil & Gas Equipment & Services,Energy
 3717,WAT,Diagnostics & Research,Healthcare
-3718,WAL_A,,
 3719,WAL,Banks - Regional,Financial Services
 3720,WAB,Railroads,Industrials
 3721,W,Internet Retail,Consumer Cyclical
@@ -3737,14 +3702,9 @@
 3736,VRT,Electrical Equipment & Parts,Industrials
 3737,VPG,Scientific & Technical Instruments,Technology
 3738,VOYG,Aerospace & Defense,Industrials
-3739,VOYA_B,,
 3740,VOYA,Financial Conglomerates,Financial Services
 3741,VOC,Oil & Gas E&P,Energy
 3742,VNT,Scientific & Technical Instruments,Technology
-3743,VNO_O,,
-3744,VNO_N,,
-3745,VNO_M,,
-3746,VNO_L,,
 3747,VNO,REIT - Office,Real Estate
 3748,VMRK,REIT - Residential,Real Estate
 3749,VMO,Asset Management,Financial Services
@@ -3759,7 +3719,6 @@
 3758,VIRT,Capital Markets,Financial Services
 3759,VIPS,Internet Retail,Consumer Cyclical
 3760,VIK,Travel Services,Consumer Cyclical
-3761,VII_U,,
 3762,VII,Shell Companies,Financial Services
 3763,VICI,REIT - Diversified,Real Estate
 3764,VIA,Software - Application,Technology
@@ -3774,7 +3733,6 @@
 3773,VATE,Engineering & Construction,Industrials
 3774,VALE,Other Industrial Metals & Mining,Basic Materials
 3775,VAL,Oil & Gas Drilling,Energy
-3776,VACI_U,,
 3777,VACI,Shell Companies,Financial Services
 3778,VAC,Resorts & Casinos,Consumer Cyclical
 3779,V,Credit Services,Financial Services
@@ -3787,12 +3745,6 @@
 3786,USPH,Medical Care Facilities,Healthcare
 3787,USNA,Packaged Foods,Consumer Defensive
 3788,USFD,Food Distribution,Consumer Defensive
-3789,USB_S,,
-3790,USB_R,,
-3791,USB_Q,,
-3792,USB_P,,
-3793,USB_H,,
-3794,USB_A,,
 3795,USB,Banks - Regional,Financial Services
 3796,USAC,Oil & Gas Equipment & Services,Energy
 3797,URI,Rental & Leasing Services,Industrials
@@ -3803,7 +3755,6 @@
 3802,UNH,Healthcare Plans,Healthcare
 3803,UNFI,Food Distribution,Consumer Defensive
 3804,UNF,Specialty Business Services,Industrials
-3805,UMH_D,,
 3806,UMH,REIT - Residential,Real Estate
 3807,UMC,Semiconductors,Technology
 3808,ULS,Specialty Business Services,Industrials
@@ -3812,7 +3763,6 @@
 3811,UI,Communication Equipment,Technology
 3812,UHT,REIT - Healthcare Facilities,Real Estate
 3813,UHS,Medical Care Facilities,Healthcare
-3814,UHAL_B,,
 3815,UHAL,Rental & Leasing Services,Industrials
 3816,UGP,Oil & Gas Refining & Marketing,Energy
 3817,UGI,Utilities - Regulated Gas,Utilities
@@ -3827,18 +3777,12 @@
 3826,UAA,Apparel Manufacturing,Consumer Cyclical
 3827,UA,Apparel Manufacturing,Consumer Cyclical
 3828,U,Software - Application,Technology
-3829,T_C,,
-3830,T_A,,
-3831,TY_,,
 3832,TYL,Software - Application,Technology
 3833,TYG,Asset Management,Financial Services
 3834,TXT,Aerospace & Defense,Industrials
 3835,TXO,Oil & Gas E&P,Energy
 3836,TXNM,Utilities - Regulated Electric,Utilities
 3837,TX,Steel,Basic Materials
-3838,TWO_C,,
-3839,TWO_B,,
-3840,TWO_A,,
 3841,TWLO,Software - Infrastructure,Technology
 3842,TWI,Farm & Heavy Construction Machinery,Industrials
 3843,TV,Telecom Services,Communication Services
@@ -3856,15 +3800,7 @@
 3855,TS,Oil & Gas Equipment & Services,Energy
 3856,TRV,Insurance - Property & Casualty,Financial Services
 3857,TRU,Financial Data & Stock Exchanges,Financial Services
-3858,TRTX_C,,
 3859,TRTX,REIT - Mortgage,Real Estate
-3860,TRTN_G,,
-3861,TRTN_F,,
-3862,TRTN_E,,
-3863,TRTN_D,,
-3864,TRTN_C,,
-3865,TRTN_B,,
-3866,TRTN_A,,
 3867,TRP,Oil & Gas Midstream,Energy
 3868,TROX,Chemicals,Basic Materials
 3869,TRNO,REIT - Industrial,Real Estate
@@ -3890,3 +3826,1936 @@
 3889,TNC,Specialty Industrial Machinery,Industrials
 3890,TMO,Diagnostics & Research,Healthcare
 3891,TME,Internet Content & Information,Communication Services
+3892,TM,Auto Manufacturers,Consumer Cyclical
+3893,TLYS,Apparel Retail,Consumer Cyclical
+3894,TLK,Telecom Services,Communication Services
+3895,TKR,Tools & Accessories,Industrials
+3896,TKO,Entertainment,Communication Services
+3897,TKC,Telecom Services,Communication Services
+3898,TK,Oil & Gas Midstream,Energy
+3899,TJX,Apparel Retail,Consumer Cyclical
+3900,TISI,Specialty Business Services,Industrials
+3901,TIMB,Telecom Services,Communication Services
+3902,TIC,Specialty Business Services,Industrials
+3903,THO,Recreational Vehicles,Consumer Cyclical
+3904,THG,Insurance - Property & Casualty,Financial Services
+3905,THC,Medical Care Facilities,Healthcare
+3906,TGT,Discount Stores,Consumer Defensive
+3907,TGS,Oil & Gas Integrated,Energy
+3908,TGLS,Building Materials,Basic Materials
+3909,TGE,Asset Management,Financial Services
+3910,TG,Metal Fabrication,Industrials
+3911,TFX,Medical Instruments & Supplies,Healthcare
+3912,TFPM,Other Precious Metals & Mining,Basic Materials
+3914,TFIN,Banks - Regional,Financial Services
+3915,TFII,Trucking,Industrials
+3919,TFC,Banks - Regional,Financial Services
+3920,TEX,Farm & Heavy Construction Machinery,Industrials
+3921,TEVA,Drug Manufacturers - Specialty & Generic,Healthcare
+3922,TEO,Telecom Services,Communication Services
+3925,TEN,Oil & Gas Midstream,Energy
+3926,TEL,Electronic Components,Technology
+3927,TECK,Copper,Basic Materials
+3928,TE,Electrical Equipment & Parts,Industrials
+3929,TDY,Scientific & Technical Instruments,Technology
+3930,TDW,Oil & Gas Equipment & Services,Energy
+3933,TDS,Telecom Services,Communication Services
+3934,TDOC,Health Information Services,Healthcare
+3935,TDG,Aerospace & Defense,Industrials
+3936,TDC,Software - Infrastructure,Technology
+3937,TDAY,Publishing,Communication Services
+3938,TD,Banks - Diversified,Financial Services
+3939,TCI,Real Estate Services,Real Estate
+3940,TCBX,Banks - Regional,Financial Services
+3941,TBN,Oil & Gas E&P,Energy
+3942,TBI,Staffing & Employment Services,Industrials
+3943,TBBB,Discount Stores,Consumer Defensive
+3945,TAP,Beverages - Brewers,Consumer Defensive
+3946,TALO,Oil & Gas E&P,Energy
+3947,TAL,Education & Training Services,Consumer Defensive
+3948,TAK,Drug Manufacturers - Specialty & Generic,Healthcare
+3949,TAC,Utilities - Independent Power Producers,Utilities
+3950,T,Telecom Services,Communication Services
+3951,SYY,Food Distribution,Consumer Defensive
+3952,SYK,Medical Devices,Healthcare
+3955,SYF,Credit Services,Financial Services
+3956,SXT,Specialty Chemicals,Basic Materials
+3957,SXI,Specialty Industrial Machinery,Industrials
+3958,SXC,Coking Coal,Basic Materials
+3959,SWX,Utilities - Regulated Gas,Utilities
+3960,SWK,Tools & Accessories,Industrials
+3961,SW,Packaging & Containers,Consumer Cyclical
+3962,SVV,Specialty Retail,Consumer Cyclical
+3963,SUZ,Paper & Paper Products,Basic Materials
+3964,SUPV,Banks - Regional,Financial Services
+3965,SUNC,Oil & Gas Midstream,Energy
+3966,SUNB,Rental & Leasing Services,Industrials
+3967,SUN,Oil & Gas Refining & Marketing,Energy
+3968,SUI,REIT - Residential,Real Estate
+3969,SU,Oil & Gas Integrated,Energy
+3970,STZ,Beverages - Brewers,Consumer Defensive
+3971,STWD,REIT - Mortgage,Real Estate
+3972,STVN,Medical Instruments & Supplies,Healthcare
+3973,STUB,Internet Content & Information,Communication Services
+3975,STT,Asset Management,Financial Services
+3976,STNG,Oil & Gas Midstream,Energy
+3977,STN,Engineering & Construction,Industrials
+3978,STM,Semiconductors,Technology
+3979,STLA,Auto Manufacturers,Consumer Cyclical
+3980,STG,Education & Training Services,Consumer Defensive
+3981,STEM,Utilities - Renewable,Utilities
+3982,STE,Medical Devices,Healthcare
+3983,STDN,Specialty Chemicals,Basic Materials
+3984,STC,Insurance - Property & Casualty,Financial Services
+3985,STAG,REIT - Industrial,Real Estate
+3986,ST,Scientific & Technical Instruments,Technology
+3987,SSTK,Internet Content & Information,Communication Services
+3988,SST,Specialty Business Services,Industrials
+3989,SSMR,Other Industrial Metals & Mining,Basic Materials
+3990,SSL,Specialty Chemicals,Basic Materials
+3991,SSD,Lumber & Wood Production,Basic Materials
+3992,SSB,Banks - Regional,Financial Services
+3993,SRL,Capital Markets,Financial Services
+3994,SRI,Auto Parts,Consumer Cyclical
+3996,SRG,Real Estate Services,Real Estate
+3997,SRFM,Airlines,Industrials
+3998,SRE,Utilities - Diversified,Utilities
+3999,SR,Utilities - Regulated Gas,Utilities
+4000,SQNS,Semiconductors,Technology
+4001,SQM,Specialty Chemicals,Basic Materials
+4002,SPXC,Building Products & Equipment,Industrials
+4003,SPRU,Solar,Technology
+4004,SPOT,Internet Content & Information,Communication Services
+4005,SPNT,Insurance - Reinsurance,Financial Services
+4006,SPME,Asset Management,Financial Services
+4007,SPMC,Asset Management,Financial Services
+4008,SPMA,Asset Management,Financial Services
+4009,SPIR,Specialty Business Services,Industrials
+4010,SPHR,Entertainment,Communication Services
+4011,SPH,Utilities - Regulated Gas,Utilities
+4013,SPGI,Financial Data & Stock Exchanges,Financial Services
+4014,SPG,REIT - Retail,Real Estate
+4016,SPCE,Aerospace & Defense,Industrials
+4017,SPB,Household & Personal Products,Consumer Defensive
+4018,SOUL,Shell Companies,Financial Services
+4019,SOS,Capital Markets,Financial Services
+4020,SONY,Consumer Electronics,Technology
+4021,SON,Packaging & Containers,Consumer Cyclical
+4022,SOMN,Utilities - Regulated Electric,Utilities
+4023,SOLV,Medical Instruments & Supplies,Healthcare
+4024,SOC,Oil & Gas Drilling,Energy
+4025,SOBO,Oil & Gas Midstream,Energy
+4026,SO,Utilities - Regulated Electric,Utilities
+4027,SNX,Electronics & Computer Distribution,Technology
+4030,SNOW,Software - Application,Technology
+4031,SNN,Medical Devices,Healthcare
+4032,SNDR,Trucking,Industrials
+4033,SNDA,Medical Care Facilities,Healthcare
+4034,SNAP,Internet Content & Information,Communication Services
+4035,SNA,Tools & Accessories,Industrials
+4036,SN,"Furnishings, Fixtures & Appliances",Consumer Cyclical
+4037,SMWB,Software - Application,Technology
+4038,SMRT,Software - Application,Technology
+4039,SMR,Specialty Industrial Machinery,Industrials
+4040,SMP,Auto Parts,Consumer Cyclical
+4041,SMHI,Marine Shipping,Industrials
+4042,SMG,Agricultural Inputs,Basic Materials
+4043,SMFG,Banks - Diversified,Financial Services
+4044,SMC,Oil & Gas Midstream,Energy
+4045,SMBK,Banks - Regional,Financial Services
+4046,SMA,REIT - Industrial,Real Estate
+4047,SM,Oil & Gas E&P,Energy
+4048,SLVM,Paper & Paper Products,Basic Materials
+4049,SLQT,Insurance Brokers,Financial Services
+4051,SLGN,Packaging & Containers,Consumer Cyclical
+4052,SLG,REIT - Office,Real Estate
+4053,SLF,Insurance - Diversified,Financial Services
+4054,SLB,Oil & Gas Equipment & Services,Energy
+4055,SKYH,Real Estate - Development,Real Estate
+4056,SKY,Residential Construction,Consumer Cyclical
+4057,SKT,REIT - Retail,Real Estate
+4058,SKM,Telecom Services,Communication Services
+4059,SKIL,Education & Training Services,Consumer Defensive
+4060,SKE,Other Industrial Metals & Mining,Basic Materials
+4061,SJT,Oil & Gas E&P,Energy
+4062,SJM,Packaged Foods,Consumer Defensive
+4063,SITE,Industrial Distribution,Industrials
+4064,SITC,REIT - Retail,Real Estate
+4065,SIND,Other Precious Metals & Mining,Basic Materials
+4066,SII,Asset Management,Financial Services
+4067,SIG,Luxury Goods,Consumer Cyclical
+4068,SID,Steel,Basic Materials
+4070,SHW,Specialty Chemicals,Basic Materials
+4073,SHO,REIT - Hotel & Motel,Real Estate
+4074,SHG,Banks - Regional,Financial Services
+4075,SHEL,Oil & Gas Integrated,Energy
+4076,SHAK,Restaurants,Consumer Cyclical
+4077,SGU,Oil & Gas Refining & Marketing,Energy
+4078,SGI,"Furnishings, Fixtures & Appliances",Consumer Cyclical
+4079,SGHC,Gambling,Consumer Cyclical
+4080,SG,Restaurants,Consumer Cyclical
+4084,SFL,Marine Shipping,Industrials
+4085,SFBS,Banks - Regional,Financial Services
+4086,SF,Capital Markets,Financial Services
+4087,SES,Auto Parts,Consumer Cyclical
+4088,SEI,Oil & Gas Equipment & Services,Energy
+4089,SEG,Real Estate Services,Real Estate
+4090,SECZ,Software - Application,Technology
+4093,SE,Internet Retail,Consumer Cyclical
+4094,SDRL,Oil & Gas Drilling,Energy
+4095,SDHC,Real Estate - Development,Real Estate
+4096,SD,Oil & Gas E&P,Energy
+4097,SCM,Asset Management,Financial Services
+4098,SCL,Specialty Chemicals,Basic Materials
+4099,SCI,Personal Services,Consumer Cyclical
+4102,SCHW,Capital Markets,Financial Services
+4107,SCCO,Copper,Basic Materials
+4110,SBXE,Shell Companies,Financial Services
+4111,SBXD,Shell Companies,Financial Services
+4112,SBSW,Other Precious Metals & Mining,Basic Materials
+4113,SBSI,Banks - Regional,Financial Services
+4114,SBS,Utilities - Regulated Water,Utilities
+4115,SBR,Oil & Gas Midstream,Energy
+4116,SBH,Specialty Retail,Consumer Cyclical
+4117,SB,Marine Shipping,Industrials
+4118,SARO,Aerospace & Defense,Industrials
+4119,SAR,Asset Management,Financial Services
+4120,SAP,Software - Application,Technology
+4121,SAN,Banks - Diversified,Financial Services
+4123,SAM,Beverages - Brewers,Consumer Defensive
+4124,SAH,Auto & Truck Dealerships,Consumer Cyclical
+4125,SAGU,Shell Companies,Financial Services
+4126,SAFE,REIT - Diversified,Real Estate
+4127,SAC,Shell Companies,Financial Services
+4128,SA,Gold,Basic Materials
+4129,S,Software - Infrastructure,Technology
+4130,RYZ,Metal Fabrication,Industrials
+4131,RYN,REIT - Specialty,Real Estate
+4132,RYAN,Insurance - Specialty,Financial Services
+4133,RYAM,Chemicals,Basic Materials
+4134,RY,Banks - Diversified,Financial Services
+4135,RXO,Trucking,Industrials
+4137,RWT,REIT - Mortgage,Real Estate
+4138,RVTY,Diagnostics & Research,Healthcare
+4139,RVLV,Internet Retail,Consumer Cyclical
+4140,RVII,Asset Management,Financial Services
+4141,RTX,Aerospace & Defense,Industrials
+4142,RTO,Specialty Business Services,Industrials
+4143,RSKD,Software - Application,Technology
+4144,RSI,Gambling,Consumer Cyclical
+4145,RSG,Waste Management,Industrials
+4146,RS,Steel,Basic Materials
+4147,RRX,Specialty Industrial Machinery,Industrials
+4148,RRC,Oil & Gas E&P,Energy
+4150,RPT,REIT - Mortgage,Real Estate
+4151,RPM,Specialty Chemicals,Basic Materials
+4152,RPC,Asset Management,Financial Services
+4153,ROL,Personal Services,Consumer Cyclical
+4154,ROK,Specialty Industrial Machinery,Industrials
+4155,ROG,Electronic Components,Technology
+4156,RNST,Banks - Regional,Financial Services
+4159,RNR,Insurance - Reinsurance,Financial Services
+4160,RNGR,Oil & Gas Equipment & Services,Energy
+4161,RNG,Software - Application,Technology
+4162,RMD,Medical Instruments & Supplies,Healthcare
+4163,RM,Credit Services,Financial Services
+4164,RLX,Tobacco,Consumer Defensive
+4166,RLJ,REIT - Hotel & Motel,Real Estate
+4167,RLI,Insurance - Property & Casualty,Financial Services
+4168,RL,Apparel Manufacturing,Consumer Cyclical
+4169,RKT,Mortgage Finance,Financial Services
+4170,RJF,Asset Management,Financial Services
+4178,RITM,REIT - Mortgage,Real Estate
+4179,RIO,Other Industrial Metals & Mining,Basic Materials
+4180,RIG,Oil & Gas Drilling,Energy
+4181,RHP,REIT - Hotel & Motel,Real Estate
+4182,RHLD,Specialty Business Services,Industrials
+4183,RHI,Staffing & Employment Services,Industrials
+4184,RH,Specialty Retail,Consumer Cyclical
+4185,RGR,Aerospace & Defense,Industrials
+4186,RGA,Insurance - Reinsurance,Financial Services
+4190,RFL,Real Estate Services,Real Estate
+4191,RF,Banks - Regional,Financial Services
+4192,REZI,Industrial Distribution,Industrials
+4195,REXR,REIT - Industrial,Real Estate
+4196,REX,Chemicals,Basic Materials
+4197,RES,Oil & Gas Equipment & Services,Energy
+4198,RERE,Internet Retail,Consumer Cyclical
+4199,RELX,Specialty Business Services,Industrials
+4200,REF,Apparel Retail,Consumer Cyclical
+4201,RDY,Drug Manufacturers - Specialty & Generic,Healthcare
+4202,RDW,Aerospace & Defense,Industrials
+4203,RDN,Insurance - Specialty,Financial Services
+4204,RDDT,Internet Content & Information,Communication Services
+4207,RCUS,Biotechnology,Healthcare
+4208,RCL,Travel Services,Consumer Cyclical
+4209,RCI,Telecom Services,Communication Services
+4210,RC,REIT - Mortgage,Real Estate
+4211,RBRK,Software - Infrastructure,Technology
+4212,RBLX,Electronic Gaming & Multimedia,Communication Services
+4213,RBC,Tools & Accessories,Industrials
+4214,RBA,Specialty Business Services,Industrials
+4215,RAMP,Software - Infrastructure,Technology
+4216,RAL,Electronic Components,Technology
+4217,RACE,Auto Manufacturers,Consumer Cyclical
+4218,RAC,Shell Companies,Financial Services
+4219,R,Rental & Leasing Services,Industrials
+4221,QXO,Industrial Distribution,Industrials
+4222,QUAD,Specialty Business Services,Industrials
+4223,QTWO,Software - Application,Technology
+4224,QSR,Restaurants,Consumer Cyclical
+4225,QRED,Shell Companies,Financial Services
+4226,QLEP,Shell Companies,Financial Services
+4227,QGEN,Diagnostics & Research,Healthcare
+4228,Q,Semiconductor Equipment & Materials,Technology
+4229,PXED,Education & Training Services,Consumer Defensive
+4230,PWR,Engineering & Construction,Industrials
+4231,PVL,Oil & Gas E&P,Energy
+4232,PVH,Apparel Manufacturing,Consumer Cyclical
+4233,PUMP,Oil & Gas Equipment & Services,Energy
+4234,PUK,Insurance - Life,Financial Services
+4235,PSX,Oil & Gas Refining & Marketing,Energy
+4236,PSTL,REIT - Office,Real Estate
+4237,PSQH,Software - Application,Technology
+4238,PSO,Publishing,Communication Services
+4239,PSN,Information Technology Services,Technology
+4240,PSFE,Software - Infrastructure,Technology
+4242,PSBD,Asset Management,Financial Services
+4259,PSA,REIT - Industrial,Real Estate
+4260,PS,Asset Management,Financial Services
+4261,PRU,Insurance - Life,Financial Services
+4262,PRT,Oil & Gas E&P,Energy
+4263,PRSU,Travel Services,Consumer Cyclical
+4264,PRMB,Beverages - Non-Alcoholic,Consumer Defensive
+4265,PRM,Specialty Chemicals,Basic Materials
+4266,PRLB,Metal Fabrication,Industrials
+4267,PRKS,Leisure,Consumer Cyclical
+4268,PRIM,Engineering & Construction,Industrials
+4272,PRI,Insurance - Life,Financial Services
+4273,PRGO,Drug Manufacturers - Specialty & Generic,Healthcare
+4274,PRG,Rental & Leasing Services,Industrials
+4275,PR,Oil & Gas E&P,Energy
+4276,PPLC,Utilities - Regulated Electric,Utilities
+4277,PPL,Utilities - Regulated Electric,Utilities
+4278,PPG,Specialty Chemicals,Basic Materials
+4279,POST,Packaged Foods,Consumer Defensive
+4280,POR,Utilities - Regulated Electric,Utilities
+4281,PNW,Utilities - Regulated Electric,Utilities
+4282,PNR,Specialty Industrial Machinery,Industrials
+4283,PNNT,Asset Management,Financial Services
+4287,PNFP,Banks - Regional,Financial Services
+4288,PNC,Banks - Regional,Financial Services
+4293,PMT,REIT - Mortgage,Real Estate
+4294,PM,Tobacco,Consumer Defensive
+4295,PLUN,Shell Companies,Financial Services
+4296,PLOW,Auto Parts,Consumer Cyclical
+4297,PLNT,Leisure,Consumer Cyclical
+4298,PLGO,Insurance - Diversified,Financial Services
+4299,PLD,REIT - Industrial,Real Estate
+4300,PL,Aerospace & Defense,Industrials
+4301,PKX,Steel,Basic Materials
+4302,PKG,Packaging & Containers,Consumer Cyclical
+4303,PKE,Aerospace & Defense,Industrials
+4304,PK,REIT - Hotel & Motel,Real Estate
+4305,PJT,Capital Markets,Financial Services
+4306,PIPR,Capital Markets,Financial Services
+4307,PINS,Internet Content & Information,Communication Services
+4309,PINE,REIT - Retail,Real Estate
+4310,PII,Recreational Vehicles,Consumer Cyclical
+4311,PHR,Health Information Services,Healthcare
+4312,PHM,Residential Construction,Consumer Cyclical
+4313,PHIN,Auto Parts,Consumer Cyclical
+4314,PHI,Telecom Services,Communication Services
+4315,PHG,Medical Devices,Healthcare
+4316,PH,Specialty Industrial Machinery,Industrials
+4317,PGR,Insurance - Property & Casualty,Financial Services
+4318,PG,Household & Personal Products,Consumer Defensive
+4319,PFSI,Mortgage Finance,Financial Services
+4320,PFS,Banks - Regional,Financial Services
+4321,PFLT,Asset Management,Financial Services
+4322,PFGC,Food Distribution,Consumer Defensive
+4323,PFE,Drug Manufacturers - General,Healthcare
+4324,PEW,Aerospace & Defense,Industrials
+4325,PERF,Software - Application,Technology
+4326,PEN,Medical Devices,Healthcare
+4327,PEG,Utilities - Regulated Electric,Utilities
+4332,PEB,REIT - Hotel & Motel,Real Estate
+4333,PDX,Asset Management,Financial Services
+4334,PDS,Oil & Gas Drilling,Energy
+4335,PDPA,Asset Management,Financial Services
+4336,PDM,REIT - Office,Real Estate
+4337,PDCC,Asset Management,Financial Services
+4338,PD,Software - Application,Technology
+4339,PCOR,Software - Application,Technology
+4341,PCG,Utilities - Regulated Electric,Utilities
+4342,PBT,Oil & Gas Midstream,Energy
+4344,PBR,Oil & Gas Integrated,Energy
+4345,PBI,Integrated Freight & Logistics,Industrials
+4346,PBH,Drug Manufacturers - Specialty & Generic,Healthcare
+4347,PBF,Oil & Gas Refining & Marketing,Energy
+4348,PBA,Oil & Gas Midstream,Energy
+4349,PB,Banks - Regional,Financial Services
+4350,PAYC,Software - Application,Technology
+4351,PAY,Software - Infrastructure,Technology
+4352,PATH,Software - Infrastructure,Technology
+4353,PARR,Oil & Gas Refining & Marketing,Energy
+4354,PAR,Software - Application,Technology
+4355,PAM,Conglomerates,Industrials
+4356,PAII,Shell Companies,Financial Services
+4357,PAGS,Software - Infrastructure,Technology
+4358,PAG,Auto & Truck Dealerships,Consumer Cyclical
+4359,PACS,Medical Care Facilities,Healthcare
+4360,PACK,Packaging & Containers,Consumer Cyclical
+4361,PAC,Airports & Air Services,Industrials
+4362,PAAS,Gold,Basic Materials
+4363,P,Computer Hardware,Technology
+4364,OXY,Oil & Gas E&P,Energy
+4365,OXM,Apparel Manufacturing,Consumer Cyclical
+4366,OWLT,Medical Devices,Healthcare
+4367,OWL,Asset Management,Financial Services
+4368,OVV,Oil & Gas E&P,Energy
+4369,OUT,REIT - Specialty,Real Estate
+4370,OTIS,Specialty Industrial Machinery,Industrials
+4371,OTF,Asset Management,Financial Services
+4373,OTAI,Shell Companies,Financial Services
+4374,OSK,Farm & Heavy Construction Machinery,Industrials
+4375,OSG,Insurance - Specialty,Financial Services
+4376,OSCR,Healthcare Plans,Healthcare
+4377,ORN,Engineering & Construction,Industrials
+4378,ORI,Insurance - Property & Casualty,Financial Services
+4380,ORCL,Software - Infrastructure,Technology
+4381,ORC,REIT - Mortgage,Real Estate
+4382,ORA,Utilities - Renewable,Utilities
+4383,OR,Gold,Basic Materials
+4384,OPY,Capital Markets,Financial Services
+4385,OPTU,Telecom Services,Communication Services
+4388,OPLN,Auto & Truck Dealerships,Consumer Cyclical
+4389,OPFI,Credit Services,Financial Services
+4390,OPAD,Real Estate Services,Real Estate
+4391,OOMA,Software - Application,Technology
+4392,ONTO,Semiconductor Equipment & Materials,Technology
+4393,ONT,Waste Management,Industrials
+4394,ONON,Footwear & Accessories,Consumer Cyclical
+4395,ONL,REIT - Office,Real Estate
+4396,ONIT,Mortgage Finance,Financial Services
+4397,OMF,Credit Services,Financial Services
+4398,OMC,Advertising Agencies,Communication Services
+4399,OLP,REIT - Diversified,Real Estate
+4400,OLN,Chemicals,Basic Materials
+4401,OKLO,Utilities - Independent Power Producers,Utilities
+4402,OKE,Oil & Gas Midstream,Energy
+4403,OIS,Oil & Gas Equipment & Services,Energy
+4404,OII,Oil & Gas Equipment & Services,Energy
+4405,OI,Packaging & Containers,Consumer Cyclical
+4406,OHI,REIT - Healthcare Facilities,Real Estate
+4407,OGS,Utilities - Regulated Gas,Utilities
+4408,OGN,Drug Manufacturers - General,Healthcare
+4409,OGG,Gold,Basic Materials
+4410,OGE,Utilities - Regulated Electric,Utilities
+4411,OGC,Gold,Basic Materials
+4412,OFRM,Packaged Foods,Consumer Defensive
+4413,OFG,Banks - Regional,Financial Services
+4414,OEC,Specialty Chemicals,Basic Materials
+4415,ODC,Specialty Chemicals,Basic Materials
+4417,OCAC,Shell Companies,Financial Services
+4418,OC,Building Products & Equipment,Industrials
+4419,OBK,Banks - Regional,Financial Services
+4420,OBDC,Asset Management,Financial Services
+4423,O,REIT - Retail,Real Estate
+4424,NYT,Publishing,Communication Services
+4425,NYC,Real Estate Services,Real Estate
+4426,NXRT,REIT - Residential,Real Estate
+4427,NXG,Asset Management,Financial Services
+4428,NXE,Uranium,Energy
+4430,NXDR,Internet Content & Information,Communication Services
+4431,NX,Building Products & Equipment,Industrials
+4432,NWN,Utilities - Regulated Gas,Utilities
+4433,NWG,Banks - Regional,Financial Services
+4435,NWAX,Shell Companies,Financial Services
+4436,NVT,Electrical Equipment & Parts,Industrials
+4437,NVST,Medical Instruments & Supplies,Healthcare
+4438,NVS,Drug Manufacturers - General,Healthcare
+4439,NVRI,Waste Management,Industrials
+4440,NVR,Residential Construction,Consumer Cyclical
+4441,NVO,Drug Manufacturers - General,Healthcare
+4442,NVGS,Oil & Gas Midstream,Energy
+4443,NUVB,Biotechnology,Healthcare
+4444,NUS,Household & Personal Products,Consumer Defensive
+4445,NUE,Steel,Basic Materials
+4446,NU,Banks - Regional,Financial Services
+4447,NTZ,"Furnishings, Fixtures & Appliances",Consumer Cyclical
+4448,NTST,REIT - Retail,Real Estate
+4449,NTR,Agricultural Inputs,Basic Materials
+4450,NTB,Banks - Diversified,Financial Services
+4451,NSP,Staffing & Employment Services,Industrials
+4452,NSC,Railroads,Industrials
+4453,NRT,Oil & Gas E&P,Energy
+4454,NRP,Thermal Coal,Energy
+4455,NRGV,Utilities - Renewable,Utilities
+4456,NRG,Utilities - Independent Power Producers,Utilities
+4458,NREF,REIT - Mortgage,Real Estate
+4459,NRDY,Software - Application,Technology
+4460,NPWR,Specialty Industrial Machinery,Industrials
+4461,NPO,Specialty Industrial Machinery,Industrials
+4462,NPKI,Building Products & Equipment,Industrials
+4463,NPK,Aerospace & Defense,Industrials
+4464,NPB,Banks - Regional,Financial Services
+4465,NP,Insurance Brokers,Financial Services
+4466,NOW,Software - Application,Technology
+4467,NOV,Oil & Gas Equipment & Services,Energy
+4468,NOMD,Packaged Foods,Consumer Defensive
+4469,NOK,Communication Equipment,Technology
+4470,NOG,Oil & Gas E&P,Energy
+4471,NOC,Aerospace & Defense,Industrials
+4472,NOAH,Asset Management,Financial Services
+4473,NOA,Oil & Gas Equipment & Services,Energy
+4474,NNN,REIT - Retail,Real Estate
+4475,NNI,Credit Services,Financial Services
+4476,NMR,Capital Markets,Financial Services
+4477,NMM,Marine Shipping,Industrials
+4478,NMG,Other Industrial Metals & Mining,Basic Materials
+4479,NMCO,Asset Management,Financial Services
+4480,NMAX,Broadcasting,Communication Services
+4485,NLY,REIT - Mortgage,Real Estate
+4486,NLOP,REIT - Office,Real Estate
+4487,NL,Security & Protection Services,Industrials
+4488,NKE,Footwear & Accessories,Consumer Cyclical
+4489,NJR,Utilities - Regulated Gas,Utilities
+4491,NIO,Auto Manufacturers,Consumer Cyclical
+4492,NIC,Banks - Regional,Financial Services
+4493,NI,Utilities - Regulated Gas,Utilities
+4494,NHI,REIT - Healthcare Facilities,Real Estate
+4495,NGVT,Specialty Chemicals,Basic Materials
+4496,NGVC,Grocery Stores,Consumer Defensive
+4497,NGS,Oil & Gas Equipment & Services,Energy
+4500,NGL,Oil & Gas Midstream,Energy
+4501,NGG,Utilities - Regulated Electric,Utilities
+4502,NFG,Oil & Gas Integrated,Energy
+4503,NEXA,Other Industrial Metals & Mining,Basic Materials
+4504,NEU,Specialty Chemicals,Basic Materials
+4505,NET,Software - Infrastructure,Technology
+4506,NEM,Gold,Basic Materials
+4510,NEE,Utilities - Regulated Electric,Utilities
+4511,NE,Oil & Gas Drilling,Energy
+4514,NCLH,Travel Services,Consumer Cyclical
+4515,NCDL,Asset Management,Financial Services
+4516,NC,Thermal Coal,Energy
+4517,NBR,Oil & Gas Drilling,Energy
+4518,NBHC,Banks - Regional,Financial Services
+4519,NATL,Software - Application,Technology
+4520,NAT,Oil & Gas Midstream,Energy
+4521,NABL,Information Technology Services,Technology
+4523,MZYX,Shell Companies,Financial Services
+4524,MYE,Packaging & Containers,Consumer Cyclical
+4525,MXF,Asset Management,Financial Services
+4526,MX,Semiconductors,Technology
+4527,MWA,Specialty Industrial Machinery,Industrials
+4528,MUX,Other Precious Metals & Mining,Basic Materials
+4529,MUSA,Specialty Retail,Consumer Cyclical
+4530,MUR,Oil & Gas E&P,Energy
+4531,MUFG,Banks - Diversified,Financial Services
+4532,MTZ,Engineering & Construction,Industrials
+4533,MTX,Specialty Chemicals,Basic Materials
+4534,MTW,Farm & Heavy Construction Machinery,Industrials
+4535,MTUS,Steel,Basic Materials
+4536,MTRN,Other Industrial Metals & Mining,Basic Materials
+4537,MTR,Oil & Gas E&P,Energy
+4538,MTNE,Shell Companies,Financial Services
+4539,MTN,Resorts & Casinos,Consumer Cyclical
+4540,MTH,Residential Construction,Consumer Cyclical
+4541,MTG,Insurance - Specialty,Financial Services
+4542,MTDR,Oil & Gas E&P,Energy
+4543,MTD,Diagnostics & Research,Healthcare
+4548,MTB,Banks - Regional,Financial Services
+4549,MTAL,Shell Companies,Financial Services
+4550,MT,Steel,Basic Materials
+4560,MSM,Industrial Distribution,Industrials
+4561,MSIF,Asset Management,Financial Services
+4562,MSI,Communication Equipment,Technology
+4563,MSGS,Entertainment,Communication Services
+4564,MSGE,Entertainment,Communication Services
+4565,MSDL,Asset Management,Financial Services
+4566,MSCI,Financial Data & Stock Exchanges,Financial Services
+4567,MSC,Resorts & Casinos,Consumer Cyclical
+4568,MSB,Steel,Basic Materials
+4569,MSA,Security & Protection Services,Industrials
+4570,MS,Capital Markets,Financial Services
+4571,MRSH,Insurance Brokers,Financial Services
+4572,MRP,REIT - Residential,Real Estate
+4573,MRK,Drug Manufacturers - General,Healthcare
+4574,MPT,REIT - Healthcare Facilities,Real Estate
+4575,MPLX,Oil & Gas Midstream,Energy
+4576,MPC,Oil & Gas Refining & Marketing,Energy
+4577,MP,Other Industrial Metals & Mining,Basic Materials
+4578,MOV,Luxury Goods,Consumer Cyclical
+4579,MOS,Agricultural Inputs,Basic Materials
+4580,MOH,Healthcare Plans,Healthcare
+4583,MOGU,Internet Retail,Consumer Cyclical
+4584,MOD,Auto Parts,Consumer Cyclical
+4585,MO,Tobacco,Consumer Defensive
+4586,MNTN,Software - Application,Technology
+4587,MNSO,Specialty Retail,Consumer Cyclical
+4588,MNR,Oil & Gas E&P,Energy
+4589,MMS,Specialty Business Services,Industrials
+4590,MMM,Conglomerates,Industrials
+4591,MMI,Real Estate Services,Real Estate
+4592,MMD,Asset Management,Financial Services
+4593,MLR,Auto Parts,Consumer Cyclical
+4594,MLP,Real Estate Services,Real Estate
+4595,MLM,Building Materials,Basic Materials
+4596,MLI,Metal Fabrication,Industrials
+4597,MKL,Insurance - Property & Casualty,Financial Services
+4599,MKC,Packaged Foods,Consumer Defensive
+4603,MITT,REIT - Mortgage,Real Estate
+4604,MIR,Specialty Industrial Machinery,Industrials
+4605,MICC,Packaged Foods,Consumer Defensive
+4606,MIAX,Capital Markets,Financial Services
+4607,MHO,Residential Construction,Consumer Cyclical
+4608,MHK,"Furnishings, Fixtures & Appliances",Consumer Cyclical
+4609,MH,Education & Training Services,Consumer Defensive
+4610,MGY,Oil & Gas E&P,Energy
+4611,MGM,Resorts & Casinos,Consumer Cyclical
+4612,MGA,Auto Parts,Consumer Cyclical
+4613,MG,Security & Protection Services,Industrials
+4614,MFG,Banks - Regional,Financial Services
+4615,MFC,Insurance - Life,Financial Services
+4618,MFA,REIT - Mortgage,Real Estate
+4622,MET,Insurance - Life,Financial Services
+4623,MEI,Electronic Components,Technology
+4624,MED,Personal Services,Consumer Cyclical
+4625,MEC,Metal Fabrication,Industrials
+4626,MDU,Utilities - Regulated Gas,Utilities
+4627,MDT,Medical Devices,Healthcare
+4628,MDA,Aerospace & Defense,Industrials
+4629,MD,Medical Care Facilities,Healthcare
+4630,MCY,Insurance - Property & Casualty,Financial Services
+4631,MCS,Entertainment,Communication Services
+4632,MCO,Financial Data & Stock Exchanges,Financial Services
+4633,MCK,Medical Distribution,Healthcare
+4634,MCI,Asset Management,Financial Services
+4635,MCD,Restaurants,Consumer Cyclical
+4636,MCB,Banks - Regional,Financial Services
+4637,MC,Capital Markets,Financial Services
+4638,MBI,Insurance - Specialty,Financial Services
+4639,MBGL,Software - Infrastructure,Technology
+4640,MBC,"Furnishings, Fixtures & Appliances",Consumer Cyclical
+4641,MAX,Internet Content & Information,Communication Services
+4642,MATX,Marine Shipping,Industrials
+4643,MATV,Specialty Chemicals,Basic Materials
+4644,MAS,Building Products & Equipment,Industrials
+4645,MANU,Entertainment,Communication Services
+4646,MANE,Biotechnology,Healthcare
+4647,MAN,Staffing & Employment Services,Industrials
+4648,MAIR,Building Products & Equipment,Industrials
+4649,MAIN,Asset Management,Financial Services
+4650,MAGN,Household & Personal Products,Consumer Defensive
+4651,MAC,REIT - Retail,Real Estate
+4653,MAA,REIT - Residential,Real Estate
+4654,MA,Credit Services,Financial Services
+4655,M,Department Stores,Consumer Cyclical
+4656,LZM,Other Industrial Metals & Mining,Basic Materials
+4657,LZB,"Furnishings, Fixtures & Appliances",Consumer Cyclical
+4658,LYV,Entertainment,Communication Services
+4659,LYNX,Aerospace & Defense,Industrials
+4660,LYG,Banks - Regional,Financial Services
+4661,LYB,Specialty Chemicals,Basic Materials
+4662,LXU,Chemicals,Basic Materials
+4664,LXP,REIT - Industrial,Real Estate
+4665,LXFR,Specialty Industrial Machinery,Industrials
+4666,LW,Packaged Foods,Consumer Defensive
+4667,LVWR,Auto Manufacturers,Consumer Cyclical
+4668,LVS,Resorts & Casinos,Consumer Cyclical
+4669,LUXE,Luxury Goods,Consumer Cyclical
+4670,LUV,Airlines,Industrials
+4671,LUMN,Telecom Services,Communication Services
+4672,LUCK,Leisure,Consumer Cyclical
+4673,LU,Credit Services,Financial Services
+4674,LTM,Airlines,Industrials
+4675,LTH,Leisure,Consumer Cyclical
+4676,LTC,REIT - Healthcare Facilities,Real Estate
+4677,LSPD,Software - Application,Technology
+4678,LRN,Education & Training Services,Consumer Defensive
+4679,LPX,Building Products & Equipment,Industrials
+4680,LPL,Consumer Electronics,Technology
+4681,LPG,Oil & Gas Midstream,Energy
+4682,LOW,Home Improvement Retail,Consumer Cyclical
+4683,LOMA,Building Materials,Basic Materials
+4684,LOCL,Farm Products,Consumer Defensive
+4686,LOB,Banks - Regional,Financial Services
+4687,LOAR,Aerospace & Defense,Industrials
+4688,LNN,Farm & Heavy Construction Machinery,Industrials
+4689,LNG,Oil & Gas Midstream,Energy
+4690,LND,Farm Products,Consumer Defensive
+4692,LNC,Insurance - Life,Financial Services
+4693,LMT,Aerospace & Defense,Industrials
+4694,LMND,Insurance - Property & Casualty,Financial Services
+4695,LLY,Drug Manufacturers - General,Healthcare
+4696,LITB,Internet Retail,Consumer Cyclical
+4698,LII,Building Products & Equipment,Industrials
+4699,LHX,Aerospace & Defense,Industrials
+4700,LH,Diagnostics & Research,Healthcare
+4702,LFT,REIT - Mortgage,Real Estate
+4703,LEVI,Apparel Manufacturing,Consumer Cyclical
+4704,LEU,Uranium,Energy
+4706,LEN,Residential Construction,Consumer Cyclical
+4707,LEG,"Furnishings, Fixtures & Appliances",Consumer Cyclical
+4708,LEA,Auto Parts,Consumer Cyclical
+4709,LDP,Asset Management,Financial Services
+4710,LDOS,Information Technology Services,Technology
+4711,LDI,Mortgage Finance,Financial Services
+4712,LCLN,Capital Markets,Financial Services
+4713,LCII,Recreational Vehicles,Consumer Cyclical
+4714,LBRT,Oil & Gas Equipment & Services,Energy
+4715,LB,Oil & Gas Equipment & Services,Energy
+4716,LAZ,Capital Markets,Financial Services
+4717,LAW,Software - Application,Technology
+4718,LAR,Other Industrial Metals & Mining,Basic Materials
+4719,LANV,Luxury Goods,Consumer Cyclical
+4720,LADR,REIT - Mortgage,Real Estate
+4721,LAD,Auto & Truck Dealerships,Consumer Cyclical
+4722,LAC,Other Industrial Metals & Mining,Basic Materials
+4723,L,Insurance - Property & Casualty,Financial Services
+4724,KYN,Asset Management,Financial Services
+4725,KWY,Asset Management,Financial Services
+4726,KWR,Specialty Chemicals,Basic Materials
+4727,KVYO,Software - Application,Technology
+4728,KVUE,Household & Personal Products,Consumer Defensive
+4729,KTB,Apparel Manufacturing,Consumer Cyclical
+4730,KT,Telecom Services,Communication Services
+4731,KSS,Department Stores,Consumer Cyclical
+4733,KRSP,Shell Companies,Financial Services
+4734,KRP,Oil & Gas E&P,Energy
+4735,KRO,Specialty Chemicals,Basic Materials
+4736,KRMN,Aerospace & Defense,Industrials
+4737,KRG,REIT - Retail,Real Estate
+4739,KREF,REIT - Mortgage,Real Estate
+4740,KRC,REIT - Office,Real Estate
+4741,KR,Grocery Stores,Consumer Defensive
+4742,KPET,Shell Companies,Financial Services
+4743,KOS,Oil & Gas E&P,Energy
+4744,KOP,Specialty Chemicals,Basic Materials
+4745,KOF,Beverages - Non-Alcoholic,Consumer Defensive
+4746,KODK,Specialty Business Services,Industrials
+4747,KO,Beverages - Non-Alcoholic,Consumer Defensive
+4748,KNX,Trucking,Industrials
+4749,KNTK,Oil & Gas Midstream,Energy
+4750,KNSL,Insurance - Property & Casualty,Financial Services
+4751,KNOP,Oil & Gas Midstream,Energy
+4752,KNF,Building Materials,Basic Materials
+4753,KN,Electronic Components,Technology
+4754,KMX,Auto & Truck Dealerships,Consumer Cyclical
+4755,KMT,Tools & Accessories,Industrials
+4756,KMPR,Insurance - Property & Casualty,Financial Services
+4757,KMI,Oil & Gas Midstream,Energy
+4758,KLC,Education & Training Services,Consumer Defensive
+4759,KLAR,Credit Services,Financial Services
+4761,KKR,Asset Management,Financial Services
+4765,KIM,REIT - Retail,Real Estate
+4766,KGS,Oil & Gas Equipment & Services,Energy
+4767,KGC,Gold,Basic Materials
+4768,KFY,Staffing & Employment Services,Industrials
+4769,KFRC,Staffing & Employment Services,Industrials
+4774,KEYS,Scientific & Technical Instruments,Technology
+4775,KEY,Banks - Regional,Financial Services
+4776,KEX,Marine Shipping,Industrials
+4777,KEP,Utilities - Regulated Electric,Utilities
+4778,KEN,Utilities - Independent Power Producers,Utilities
+4779,KD,Information Technology Services,Technology
+4782,KBR,Engineering & Construction,Industrials
+4783,KBH,Residential Construction,Consumer Cyclical
+4784,KBDC,Asset Management,Financial Services
+4785,KB,Banks - Regional,Financial Services
+4786,KAI,Specialty Industrial Machinery,Industrials
+4788,JXN,Insurance - Life,Financial Services
+4795,JPM,Banks - Diversified,Financial Services
+4796,JOE,Real Estate - Diversified,Real Estate
+4797,JOBY,Airports & Air Services,Industrials
+4798,JNJ,Drug Manufacturers - General,Healthcare
+4799,JMKE,Restaurants,Consumer Cyclical
+4800,JMIA,Internet Retail,Consumer Cyclical
+4801,JLL,Real Estate Services,Real Estate
+4802,JKS,Solar,Technology
+4803,JILL,Apparel Retail,Consumer Cyclical
+4804,JHX,Building Materials,Basic Materials
+4805,JENA,Shell Companies,Financial Services
+4806,JELD,Building Products & Equipment,Industrials
+4807,JEF,Capital Markets,Financial Services
+4808,JCI,Building Products & Equipment,Industrials
+4809,JBTM,Specialty Industrial Machinery,Industrials
+4810,JBS,Packaged Foods,Consumer Defensive
+4811,JBL,Electronic Components,Technology
+4812,JBI,Building Products & Equipment,Industrials
+4813,JBGS,REIT - Diversified,Real Estate
+4814,JAN,REIT - Residential,Real Estate
+4815,JACS,Shell Companies,Financial Services
+4816,J,Engineering & Construction,Industrials
+4817,IX,Financial Conglomerates,Financial Services
+4818,IVZ,Asset Management,Financial Services
+4819,IVT,REIT - Retail,Real Estate
+4821,IVR,REIT - Mortgage,Real Estate
+4822,ITW,Specialty Industrial Machinery,Industrials
+4823,ITUB,Banks - Regional,Financial Services
+4824,ITT,Specialty Industrial Machinery,Industrials
+4825,ITGR,Medical Devices,Healthcare
+4826,IT,Information Technology Services,Technology
+4827,IRT,REIT - Residential,Real Estate
+4828,IRS,Real Estate Services,Real Estate
+4829,IRM,REIT - Specialty,Real Estate
+4830,IRAB,Shell Companies,Financial Services
+4831,IR,Specialty Industrial Machinery,Industrials
+4832,IQV,Diagnostics & Research,Healthcare
+4833,IPI,Agricultural Inputs,Basic Materials
+4834,IP,Packaging & Containers,Consumer Cyclical
+4835,IOT,Software - Infrastructure,Technology
+4836,IONQ,Computer Hardware,Technology
+4837,INVX,Oil & Gas Equipment & Services,Energy
+4838,INVH,REIT - Residential,Real Estate
+4839,INSW,Oil & Gas Midstream,Energy
+4840,INSP,Medical Devices,Healthcare
+4841,INR,Oil & Gas E&P,Energy
+4844,INN,REIT - Hotel & Motel,Real Estate
+4845,INGR,Packaged Foods,Consumer Defensive
+4846,INGM,Information Technology Services,Technology
+4847,ING,Banks - Diversified,Financial Services
+4848,INFY,Information Technology Services,Technology
+4849,INFQ,Software - Infrastructure,Technology
+4850,IMAX,Entertainment,Communication Services
+4852,IIPR,REIT - Industrial,Real Estate
+4853,IIIN,Metal Fabrication,Industrials
+4854,IHS,Real Estate Services,Real Estate
+4855,IHG,Lodging,Consumer Cyclical
+4856,IH,Education & Training Services,Consumer Defensive
+4857,IFS,Banks - Regional,Financial Services
+4858,IFF,Specialty Chemicals,Basic Materials
+4859,IEX,Specialty Industrial Machinery,Industrials
+4860,IDT,Telecom Services,Communication Services
+4861,IDA,Utilities - Regulated Electric,Utilities
+4863,ICL,Agricultural Inputs,Basic Materials
+4864,ICE,Financial Data & Stock Exchanges,Financial Services
+4865,IBTA,Software - Application,Technology
+4866,IBP,Residential Construction,Consumer Cyclical
+4867,IBN,Banks - Regional,Financial Services
+4868,IBM,Information Technology Services,Technology
+4869,IAG,Gold,Basic Materials
+4870,IAE,Asset Management,Financial Services
+4871,HZO,Specialty Retail,Consumer Cyclical
+4872,HY,Farm & Heavy Construction Machinery,Industrials
+4873,HXL,Aerospace & Defense,Industrials
+4874,HWM,Aerospace & Defense,Industrials
+4876,HVT,Home Improvement Retail,Consumer Cyclical
+4877,HUYA,Entertainment,Communication Services
+4878,HUN,Chemicals,Basic Materials
+4879,HUM,Healthcare Plans,Healthcare
+4880,HUBS,Software - Application,Technology
+4881,HUBB,Electrical Equipment & Parts,Industrials
+4882,HTT,Credit Services,Financial Services
+4883,HTH,Financial Conglomerates,Financial Services
+4884,HTGC,Asset Management,Financial Services
+4885,HTB,Banks - Regional,Financial Services
+4886,HSY,Confectioners,Consumer Defensive
+4887,HSHP,Marine Shipping,Industrials
+4888,HSBC,Banks - Diversified,Financial Services
+4889,HRTG,Insurance - Property & Casualty,Financial Services
+4890,HRL,Packaged Foods,Consumer Defensive
+4891,HRI,Rental & Leasing Services,Industrials
+4892,HRB,Personal Services,Consumer Cyclical
+4893,HR,REIT - Healthcare Facilities,Real Estate
+4894,HPQ,Computer Hardware,Technology
+4896,HPP,REIT - Office,Real Estate
+4898,HPE,Communication Equipment,Technology
+4899,HP,Oil & Gas Drilling,Energy
+4900,HOV,Residential Construction,Consumer Cyclical
+4901,HOMB,Banks - Regional,Financial Services
+4902,HOG,Recreational Vehicles,Consumer Cyclical
+4903,HNI,"Furnishings, Fixtures & Appliances",Consumer Cyclical
+4904,HNGE,Health Information Services,Healthcare
+4905,HMY,Gold,Basic Materials
+4906,HMN,Insurance - Property & Casualty,Financial Services
+4907,HMC,Auto Manufacturers,Consumer Cyclical
+4909,HLX,Oil & Gas Equipment & Services,Energy
+4910,HLT,Lodging,Consumer Cyclical
+4911,HLN,Drug Manufacturers - Specialty & Generic,Healthcare
+4912,HLLY,Auto Parts,Consumer Cyclical
+4913,HLIO,Specialty Industrial Machinery,Industrials
+4914,HLI,Capital Markets,Financial Services
+4915,HLF,Packaged Foods,Consumer Defensive
+4916,HL,Other Precious Metals & Mining,Basic Materials
+4917,HKD,Software - Application,Technology
+4918,HIW,REIT - Office,Real Estate
+4919,HIPO,Insurance - Property & Casualty,Financial Services
+4920,HIMS,Drug Manufacturers - Specialty & Generic,Healthcare
+4921,HII,Aerospace & Defense,Industrials
+4923,HIG,Insurance - Diversified,Financial Services
+4924,HHH,Real Estate - Development,Real Estate
+4925,HGV,Resorts & Casinos,Consumer Cyclical
+4926,HGTY,Insurance - Property & Casualty,Financial Services
+4927,HG,Insurance - Reinsurance,Financial Services
+4930,HESM,Oil & Gas Midstream,Energy
+4932,HEI,Aerospace & Defense,Industrials
+4933,HE,Utilities - Regulated Electric,Utilities
+4934,HDB,Banks - Regional,Financial Services
+4935,HD,Home Improvement Retail,Consumer Cyclical
+4936,HCI,Insurance - Property & Casualty,Financial Services
+4937,HCC,Coking Coal,Basic Materials
+4938,HCA,Medical Care Facilities,Healthcare
+4939,HBM,Copper,Basic Materials
+4940,HBB,"Furnishings, Fixtures & Appliances",Consumer Cyclical
+4941,HAYW,Electrical Equipment & Parts,Industrials
+4942,HAWK,Aerospace & Defense,Industrials
+4943,HASI,Asset Management,Financial Services
+4944,HAL,Oil & Gas Equipment & Services,Energy
+4945,HAFN,Marine Shipping,Industrials
+4946,HAE,Medical Devices,Healthcare
+4947,H,Lodging,Consumer Cyclical
+4948,GXO,Integrated Freight & Logistics,Industrials
+4949,GWW,Industrial Distribution,Industrials
+4950,GWRE,Software - Application,Technology
+4951,GWH,Electrical Equipment & Parts,Industrials
+4952,GVA,Engineering & Construction,Industrials
+4954,GTY,REIT - Retail,Real Estate
+4956,GTN,Broadcasting,Communication Services
+4957,GTES,Specialty Industrial Machinery,Industrials
+4962,GSL,Marine Shipping,Industrials
+4963,GSK,Drug Manufacturers - General,Healthcare
+4964,GSBD,Asset Management,Financial Services
+4965,GS,Capital Markets,Financial Services
+4966,GROV,Household & Personal Products,Consumer Defensive
+4967,GRNT,Oil & Gas E&P,Energy
+4968,GRND,Software - Application,Technology
+4969,GRMN,Scientific & Technical Instruments,Technology
+4970,GRDN,Medical Care Facilities,Healthcare
+4971,GRC,Specialty Industrial Machinery,Industrials
+4973,GRBK,Residential Construction,Consumer Cyclical
+4974,GPRK,Oil & Gas E&P,Energy
+4975,GPOR,Oil & Gas E&P,Energy
+4976,GPN,Specialty Business Services,Industrials
+4978,GPMT,REIT - Mortgage,Real Estate
+4979,GPK,Packaging & Containers,Consumer Cyclical
+4980,GPI,Auto & Truck Dealerships,Consumer Cyclical
+4981,GPGI,Metal Fabrication,Industrials
+4982,GPC,Auto Parts,Consumer Cyclical
+4983,GOTU,Education & Training Services,Consumer Defensive
+4984,GOOS,Apparel Manufacturing,Consumer Cyclical
+4985,GOLF,Leisure,Consumer Cyclical
+4986,GOLD,Capital Markets,Financial Services
+4987,GNW,Insurance - Life,Financial Services
+4989,GNRC,Specialty Industrial Machinery,Industrials
+4994,GNL,REIT - Diversified,Real Estate
+4995,GNK,Marine Shipping,Industrials
+4996,GNE,Utilities - Regulated Electric,Utilities
+4997,GMRS,Medical Care Facilities,Healthcare
+4998,GMED,Medical Devices,Healthcare
+4999,GME,Specialty Retail,Consumer Cyclical
+5000,GM,Auto Manufacturers,Consumer Cyclical
+5001,GLW,Electronic Components,Technology
+5002,GLP,Oil & Gas Midstream,Energy
+5006,GLOB,Information Technology Services,Technology
+5007,GLED,Shell Companies,Financial Services
+5008,GLAS,Drug Manufacturers - Specialty & Generic,Healthcare
+5009,GL,Insurance - Life,Financial Services
+5010,GKOS,Medical Devices,Healthcare
+5011,GIS,Packaged Foods,Consumer Defensive
+5012,GIL,Apparel Manufacturing,Consumer Cyclical
+5013,GIC,Industrial Distribution,Industrials
+5014,GIB,Information Technology Services,Technology
+5015,GHM,Specialty Industrial Machinery,Industrials
+5016,GHI,Mortgage Finance,Financial Services
+5017,GHG,Lodging,Consumer Cyclical
+5018,GHC,Conglomerates,Industrials
+5021,GGG,Specialty Industrial Machinery,Industrials
+5022,GGB,Steel,Basic Materials
+5023,GFR,Oil & Gas E&P,Energy
+5024,GFL,Waste Management,Industrials
+5025,GFI,Gold,Basic Materials
+5026,GFF,Building Products & Equipment,Industrials
+5027,GEV,Specialty Industrial Machinery,Industrials
+5028,GETY,Internet Content & Information,Communication Services
+5029,GEO,Security & Protection Services,Industrials
+5030,GENI,Internet Content & Information,Communication Services
+5031,GEL,Oil & Gas Midstream,Energy
+5033,GEF,Packaging & Containers,Consumer Cyclical
+5034,GE,Aerospace & Defense,Industrials
+5037,GDOT,Credit Services,Financial Services
+5038,GDDY,Software - Infrastructure,Technology
+5039,GD,Aerospace & Defense,Industrials
+5040,GCTS,Semiconductors,Technology
+5041,GCO,Apparel Retail,Consumer Cyclical
+5042,GBX,Railroads,Industrials
+5043,GBTG,Travel Services,Consumer Cyclical
+5044,GBCI,Banks - Regional,Financial Services
+5045,GATX,Rental & Leasing Services,Industrials
+5046,GAP,Apparel Retail,Consumer Cyclical
+5051,G,Information Technology Services,Technology
+5052,FVRR,Internet Content & Information,Communication Services
+5053,FVR,REIT - Diversified,Real Estate
+5054,FUN,Leisure,Consumer Cyclical
+5055,FUL,Specialty Chemicals,Basic Materials
+5056,FUBO,Broadcasting,Communication Services
+5057,FTW,Oil & Gas E&P,Energy
+5058,FTV,Scientific & Technical Instruments,Technology
+5059,FTS,Utilities - Regulated Electric,Utilities
+5060,FTRA,Shell Companies,Financial Services
+5061,FTK,Oil & Gas Equipment & Services,Energy
+5062,FTI,Oil & Gas Equipment & Services,Energy
+5063,FSS,Farm & Heavy Construction Machinery,Industrials
+5064,FSM,Gold,Basic Materials
+5065,FSK,Asset Management,Financial Services
+5066,FSCO,Asset Management,Financial Services
+5068,FRT,REIT - Retail,Real Estate
+5069,FRO,Oil & Gas Midstream,Energy
+5070,FR,REIT - Industrial,Real Estate
+5071,FPS,Electrical Equipment & Parts,Industrials
+5072,FPI,REIT - Specialty,Real Estate
+5073,FPH,Real Estate - Development,Real Estate
+5075,FOUR,Software - Infrastructure,Technology
+5076,FOR,Real Estate - Development,Real Estate
+5077,FOIL,Electrical Equipment & Parts,Industrials
+5078,FOA,Credit Services,Financial Services
+5080,FNF,Insurance - Specialty,Financial Services
+5081,FND,Home Improvement Retail,Consumer Cyclical
+5082,FNB,Banks - Regional,Financial Services
+5083,FN,Electronic Components,Technology
+5084,FMX,Beverages - Brewers,Consumer Defensive
+5085,FMS,Medical Care Facilities,Healthcare
+5086,FMC,Agricultural Inputs,Basic Materials
+5087,FLUT,Gambling,Consumer Cyclical
+5088,FLS,Specialty Industrial Machinery,Industrials
+5089,FLR,Engineering & Construction,Industrials
+5090,FLOC,Oil & Gas Equipment & Services,Energy
+5091,FLO,Packaged Foods,Consumer Defensive
+5092,FLNG,Oil & Gas Midstream,Energy
+5094,FLG,Banks - Regional,Financial Services
+5095,FIX,Engineering & Construction,Industrials
+5100,FITB,Banks - Regional,Financial Services
+5101,FIS,Information Technology Services,Technology
+5102,FIRY,Electronic Gaming & Multimedia,Communication Services
+5103,FINV,Credit Services,Financial Services
+5104,FIGS,Apparel Manufacturing,Consumer Cyclical
+5105,FIG,Software - Application,Technology
+5106,FICO,Software - Application,Technology
+5110,FHN,Banks - Regional,Financial Services
+5111,FHI,Asset Management,Financial Services
+5112,FG,Insurance - Life,Financial Services
+5113,FF,Specialty Chemicals,Basic Materials
+5114,FET,Oil & Gas Equipment & Services,Energy
+5115,FERG,Industrial Distribution,Industrials
+5116,FENG,Internet Content & Information,Communication Services
+5117,FEDU,Education & Training Services,Consumer Defensive
+5118,FE,Utilities - Regulated Electric,Utilities
+5119,FDXF,Integrated Freight & Logistics,Industrials
+5120,FDX,Integrated Freight & Logistics,Industrials
+5121,FDS,Financial Data & Stock Exchanges,Financial Services
+5122,FCX,Copper,Basic Materials
+5124,FCRS,Shell Companies,Financial Services
+5125,FCPT,REIT - Retail,Real Estate
+5126,FCN,Consulting Services,Industrials
+5127,FCF,Banks - Regional,Financial Services
+5128,FCBM,Banks - Regional,Financial Services
+5129,FC,Education & Training Services,Consumer Defensive
+5131,FBRT,REIT - Mortgage,Real Estate
+5132,FBP,Banks - Regional,Financial Services
+5133,FBK,Banks - Regional,Financial Services
+5134,FBIN,Building Products & Equipment,Industrials
+5135,FAF,Insurance - Specialty,Financial Services
+5136,F,Auto Manufacturers,Consumer Cyclical
+5137,EXR,REIT - Industrial,Real Estate
+5138,EXPD,Integrated Freight & Logistics,Industrials
+5139,EXP,Building Materials,Basic Materials
+5140,EXK,Silver,Basic Materials
+5141,EXG,Asset Management,Financial Services
+5142,EW,Medical Devices,Healthcare
+5143,EVTL,Aerospace & Defense,Industrials
+5144,EVTC,Software - Infrastructure,Technology
+5145,EVR,Capital Markets,Financial Services
+5146,EVMN,Biotechnology,Healthcare
+5147,EVH,Health Information Services,Healthcare
+5148,EVEX,Aerospace & Defense,Industrials
+5149,EVC,Advertising Agencies,Communication Services
+5150,EVAC,Shell Companies,Financial Services
+5152,ETSY,Internet Retail,Consumer Cyclical
+5153,ETSS,Shell Companies,Financial Services
+5154,ETR,Utilities - Regulated Electric,Utilities
+5155,ETN,Specialty Industrial Machinery,Industrials
+5157,ETD,"Furnishings, Fixtures & Appliances",Consumer Cyclical
+5158,ET,Oil & Gas Midstream,Energy
+5159,ESTC,Software - Application,Technology
+5160,ESS,REIT - Residential,Real Estate
+5161,ESRT,REIT - Diversified,Real Estate
+5162,ESNT,Insurance - Specialty,Financial Services
+5163,ESI,Specialty Chemicals,Basic Materials
+5164,ESE,Scientific & Technical Instruments,Technology
+5165,ESAB,Metal Fabrication,Industrials
+5166,ES,Utilities - Regulated Electric,Utilities
+5167,EROK,Oil & Gas Equipment & Services,Energy
+5168,EROC,Specialty Industrial Machinery,Industrials
+5169,ERO,Copper,Basic Materials
+5170,EQT,Oil & Gas E&P,Energy
+5171,EQS,Asset Management,Financial Services
+5172,EQNR,Oil & Gas Integrated,Energy
+5175,EQH,Asset Management,Financial Services
+5176,EQBK,Banks - Regional,Financial Services
+5181,EPRT,REIT - Retail,Real Estate
+5182,EPR,REIT - Specialty,Real Estate
+5183,EPD,Oil & Gas Midstream,Energy
+5184,EPC,Household & Personal Products,Consumer Defensive
+5185,EPAM,Information Technology Services,Technology
+5186,EPAC,Specialty Industrial Machinery,Industrials
+5187,EOG,Oil & Gas E&P,Energy
+5188,ENVA,Credit Services,Financial Services
+5189,ENS,Electrical Equipment & Parts,Industrials
+5190,ENR,Electrical Equipment & Parts,Industrials
+5191,ENOV,Medical Devices,Healthcare
+5192,ENIC,Utilities - Regulated Electric,Utilities
+5193,ENHA,Packaged Foods,Consumer Defensive
+5194,ENB,Oil & Gas Midstream,Energy
+5195,EMR,Specialty Industrial Machinery,Industrials
+5196,EMN,Specialty Chemicals,Basic Materials
+5197,EME,Engineering & Construction,Industrials
+5198,EMBJ,Aerospace & Defense,Industrials
+5199,EMA,Utilities - Regulated Electric,Utilities
+5200,ELV,Healthcare Plans,Healthcare
+5201,ELS,REIT - Residential,Real Estate
+5202,ELPC,Utilities - Regulated Electric,Utilities
+5203,ELME,REIT - Residential,Real Estate
+5204,ELF,Household & Personal Products,Consumer Defensive
+5205,ELAN,Drug Manufacturers - Specialty & Generic,Healthcare
+5206,EL,Household & Personal Products,Consumer Defensive
+5207,EIX,Utilities - Regulated Electric,Utilities
+5209,EIG,Insurance - Specialty,Financial Services
+5210,EICA,Asset Management,Financial Services
+5211,EIC,Asset Management,Financial Services
+5212,EHC,Medical Care Facilities,Healthcare
+5213,EGY,Oil & Gas E&P,Energy
+5214,EGP,REIT - Industrial,Real Estate
+5215,EGO,Gold,Basic Materials
+5216,EG,Insurance - Reinsurance,Financial Services
+5217,EFXT,Oil & Gas Equipment & Services,Energy
+5218,EFX,Consulting Services,Industrials
+5219,EFOR,Information Technology Services,Technology
+5223,EFC,REIT - Mortgage,Real Estate
+5224,EE,Oil & Gas Midstream,Energy
+5225,EDU,Education & Training Services,Consumer Defensive
+5226,EDN,Utilities - Regulated Electric,Utilities
+5227,ED,Utilities - Regulated Electric,Utilities
+5228,ECVT,Specialty Chemicals,Basic Materials
+5229,ECO,Marine Shipping,Industrials
+5230,ECL,Specialty Chemicals,Basic Materials
+5231,ECG,Engineering & Construction,Industrials
+5233,ECCC,Asset Management,Financial Services
+5234,ECC,Asset Management,Financial Services
+5235,EC,Oil & Gas Integrated,Energy
+5236,EBS,Drug Manufacturers - Specialty & Generic,Healthcare
+5237,EBF,Business Equipment & Supplies,Industrials
+5238,EAT,Restaurants,Consumer Cyclical
+5239,EARN,Asset Management,Financial Services
+5240,EAF,Electrical Equipment & Parts,Industrials
+5241,E,Oil & Gas Integrated,Energy
+5242,DY,Engineering & Construction,Industrials
+5244,DXYZ,Asset Management,Financial Services
+5245,DXC,Information Technology Services,Technology
+5246,DX,REIT - Mortgage,Real Estate
+5247,DVN,Oil & Gas E&P,Energy
+5248,DVA,Medical Care Facilities,Healthcare
+5249,DV,Advertising Agencies,Communication Services
+5251,DUKU,Utilities - Regulated Electric,Utilities
+5252,DUK,Utilities - Regulated Electric,Utilities
+5253,DTM,Oil & Gas Midstream,Energy
+5254,DTE,Utilities - Regulated Electric,Utilities
+5255,DT,Software - Application,Technology
+5257,DSX,Marine Shipping,Industrials
+5258,DRI,Restaurants,Consumer Cyclical
+5259,DRD,Gold,Basic Materials
+5260,DQ,Semiconductor Equipment & Materials,Technology
+5261,DPC,Aerospace & Defense,Industrials
+5262,DOW,Chemicals,Basic Materials
+5263,DOV,Specialty Industrial Machinery,Industrials
+5264,DOUG,Real Estate Services,Real Estate
+5265,DOLE,Farm Products,Consumer Defensive
+5266,DOCS,Health Information Services,Healthcare
+5267,DOCN,Software - Infrastructure,Technology
+5268,DOC,REIT - Healthcare Facilities,Real Estate
+5269,DNOW,Industrial Distribution,Industrials
+5270,DNA,Biotechnology,Healthcare
+5271,DMC,Farm Products,Consumer Defensive
+5272,DLY,Asset Management,Financial Services
+5273,DLX,Conglomerates,Industrials
+5277,DLR,REIT - Specialty,Real Estate
+5279,DLNG,Oil & Gas Midstream,Energy
+5280,DLB,Specialty Business Services,Industrials
+5281,DKS,Specialty Retail,Consumer Cyclical
+5282,DKL,Oil & Gas Refining & Marketing,Energy
+5283,DK,Oil & Gas Refining & Marketing,Energy
+5284,DIS,Entertainment,Communication Services
+5285,DINO,Oil & Gas Refining & Marketing,Energy
+5286,DIN,Restaurants,Consumer Cyclical
+5287,DHX,Software - Application,Technology
+5288,DHT,Oil & Gas Midstream,Energy
+5289,DHR,Diagnostics & Research,Healthcare
+5290,DHI,Residential Construction,Consumer Cyclical
+5291,DGX,Diagnostics & Research,Healthcare
+5293,DGAC,Shell Companies,Financial Services
+5294,DG,Discount Stores,Consumer Defensive
+5295,DFIN,Software - Application,Technology
+5296,DFH,Residential Construction,Consumer Cyclical
+5297,DEO,Beverages - Wineries & Distilleries,Consumer Defensive
+5298,DELL,Computer Hardware,Technology
+5299,DEI,REIT - Office,Real Estate
+5300,DECK,Footwear & Accessories,Consumer Cyclical
+5301,DEC,Oil & Gas Integrated,Energy
+5302,DEA,REIT - Office,Real Estate
+5303,DE,Farm & Heavy Construction Machinery,Industrials
+5305,DDS,Department Stores,Consumer Cyclical
+5306,DDL,Grocery Stores,Consumer Defensive
+5307,DDD,Computer Hardware,Technology
+5308,DD,Specialty Chemicals,Basic Materials
+5310,DCOM,Banks - Regional,Financial Services
+5311,DCO,Aerospace & Defense,Industrials
+5312,DCI,Specialty Industrial Machinery,Industrials
+5313,DCH,Auto Parts,Consumer Cyclical
+5317,DBRG,Asset Management,Financial Services
+5318,DBI,Footwear & Accessories,Consumer Cyclical
+5319,DBD,Software - Application,Technology
+5320,DB,Banks - Regional,Financial Services
+5321,DAVA,Software - Infrastructure,Technology
+5322,DAR,Packaged Foods,Consumer Defensive
+5323,DAO,Education & Training Services,Consumer Defensive
+5324,DAN,Auto Parts,Consumer Cyclical
+5325,DAL,Airlines,Industrials
+5326,DAC,Marine Shipping,Industrials
+5327,D,Utilities - Regulated Electric,Utilities
+5330,CYH,Medical Care Facilities,Healthcare
+5331,CYD,Auto Manufacturers,Consumer Cyclical
+5332,CXW,Security & Protection Services,Industrials
+5333,CXT,Specialty Industrial Machinery,Industrials
+5334,CXM,Software - Application,Technology
+5335,CX,Building Materials,Basic Materials
+5336,CWT,Utilities - Regulated Water,Utilities
+5337,CWK,Real Estate Services,Real Estate
+5338,CWH,Auto & Truck Dealerships,Consumer Cyclical
+5339,CWEN,Utilities - Renewable,Utilities
+5340,CW,Aerospace & Defense,Industrials
+5341,CVX,Oil & Gas Integrated,Energy
+5342,CVSA,Education & Training Services,Consumer Defensive
+5343,CVS,Healthcare Plans,Healthcare
+5344,CVNA,Auto & Truck Dealerships,Consumer Cyclical
+5345,CVLG,Trucking,Industrials
+5346,CVI,Oil & Gas Refining & Marketing,Energy
+5347,CVEO,Lodging,Consumer Cyclical
+5348,CVE,Oil & Gas Integrated,Energy
+5349,CUZ,REIT - Office,Real Estate
+5350,CURV,Apparel Retail,Consumer Cyclical
+5351,CURB,REIT - Retail,Real Estate
+5352,CUBI,Banks - Regional,Financial Services
+5353,CUBE,REIT - Industrial,Real Estate
+5354,CTVA,Agricultural Inputs,Basic Materials
+5355,CTS,Electronic Components,Technology
+5356,CTRI,Utilities - Regulated Gas,Utilities
+5357,CTRE,REIT - Healthcare Facilities,Real Estate
+5359,CTOS,Rental & Leasing Services,Industrials
+5360,CTO,REIT - Diversified,Real Estate
+5361,CTEV,Health Information Services,Healthcare
+5364,CSW,Specialty Industrial Machinery,Industrials
+5365,CSV,Personal Services,Consumer Cyclical
+5366,CSTM,Aluminum,Basic Materials
+5367,CSR,REIT - Residential,Real Estate
+5368,CSQR,Information Technology Services,Technology
+5369,CSL,Building Products & Equipment,Industrials
+5370,CSAN,Oil & Gas Refining & Marketing,Energy
+5371,CRT,Oil & Gas E&P,Energy
+5372,CRS,Metal Fabrication,Industrials
+5373,CRM,Software - Application,Technology
+5374,CRL,Diagnostics & Research,Healthcare
+5375,CRK,Oil & Gas E&P,Energy
+5376,CRI,Apparel Retail,Consumer Cyclical
+5377,CRH,Building Materials,Basic Materials
+5378,CRGY,Oil & Gas E&P,Energy
+5381,CRCL,Capital Markets,Financial Services
+5382,CRC,Oil & Gas E&P,Energy
+5383,CRBG,Asset Management,Financial Services
+5384,CR,Specialty Industrial Machinery,Industrials
+5385,CQP,Oil & Gas Midstream,Energy
+5386,CPT,REIT - Residential,Real Estate
+5387,CPS,Auto Parts,Consumer Cyclical
+5388,CPRI,Luxury Goods,Consumer Cyclical
+5389,CPNG,Internet Retail,Consumer Cyclical
+5390,CPK,Utilities - Regulated Gas,Utilities
+5391,CPF,Banks - Regional,Financial Services
+5392,CPAY,Software - Infrastructure,Technology
+5393,CPAC,Building Materials,Basic Materials
+5394,CPA,Airlines,Industrials
+5395,CP,Railroads,Industrials
+5396,COUR,Education & Training Services,Consumer Defensive
+5397,COTY,Household & Personal Products,Consumer Defensive
+5398,COSO,Banks - Regional,Financial Services
+5399,COR,Medical Distribution,Healthcare
+5400,COPL,Shell Companies,Financial Services
+5401,COP,Oil & Gas E&P,Energy
+5402,COOK,"Furnishings, Fixtures & Appliances",Consumer Cyclical
+5403,CON,Medical Care Facilities,Healthcare
+5404,COMP,Real Estate Services,Real Estate
+5405,COLD,REIT - Industrial,Real Estate
+5406,COHR,Scientific & Technical Instruments,Technology
+5412,COF,Credit Services,Financial Services
+5416,CODI,Conglomerates,Industrials
+5417,CNX,Oil & Gas E&P,Energy
+5418,CNS,Asset Management,Financial Services
+5419,CNR,Thermal Coal,Energy
+5420,CNQ,Oil & Gas E&P,Energy
+5421,CNP,Utilities - Regulated Electric,Utilities
+5422,CNO,Insurance - Life,Financial Services
+5423,CNNE,Restaurants,Consumer Cyclical
+5424,CNMD,Medical Devices,Healthcare
+5425,CNM,Industrial Distribution,Industrials
+5426,CNK,Entertainment,Communication Services
+5427,CNI,Railroads,Industrials
+5428,CNH,Farm & Heavy Construction Machinery,Industrials
+5429,CNF,Mortgage Finance,Financial Services
+5430,CNC,Healthcare Plans,Healthcare
+5431,CNA,Insurance - Property & Casualty,Financial Services
+5432,CMTG,REIT - Mortgage,Real Estate
+5435,CMS,Utilities - Regulated Electric,Utilities
+5439,CMRE,Marine Shipping,Industrials
+5440,CMP,Other Industrial Metals & Mining,Basic Materials
+5441,CMI,Specialty Industrial Machinery,Industrials
+5442,CMG,Restaurants,Consumer Cyclical
+5443,CMDB,Marine Shipping,Industrials
+5444,CMCM,Internet Content & Information,Communication Services
+5445,CMC,Metal Fabrication,Industrials
+5446,CMBT,Oil & Gas Midstream,Energy
+5447,CM,Banks - Diversified,Financial Services
+5448,CLX,Household & Personal Products,Consumer Defensive
+5449,CLW,Paper & Paper Products,Basic Materials
+5450,CLVT,Information Technology Services,Technology
+5451,CLS,Electronic Components,Technology
+5452,CLPR,REIT - Residential,Real Estate
+5453,CLH,Waste Management,Industrials
+5454,CLF,Steel,Basic Materials
+5456,CLDT,REIT - Hotel & Motel,Real Estate
+5458,CLBR,Shell Companies,Financial Services
+5459,CLB,Oil & Gas Equipment & Services,Energy
+5460,CL,Household & Personal Products,Consumer Defensive
+5461,CION,Asset Management,Financial Services
+5462,CINT,Software - Infrastructure,Technology
+5467,CIM,REIT - Mortgage,Real Estate
+5469,CIG,Utilities - Regulated Electric,Utilities
+5470,CIEN,Communication Equipment,Technology
+5471,CIB,Banks - Regional,Financial Services
+5472,CIA,Insurance - Life,Financial Services
+5473,CI,Healthcare Plans,Healthcare
+5474,CHWY,Internet Retail,Consumer Cyclical
+5475,CHT,Telecom Services,Communication Services
+5476,CHPT,Specialty Retail,Consumer Cyclical
+5479,CHMI,REIT - Mortgage,Real Estate
+5480,CHH,Lodging,Consumer Cyclical
+5481,CHGG,Education & Training Services,Consumer Defensive
+5482,CHE,Medical Care Facilities,Healthcare
+5483,CHD,Household & Personal Products,Consumer Defensive
+5484,CHCT,REIT - Healthcare Facilities,Real Estate
+5485,CGAU,Gold,Basic Materials
+5488,CFR,Banks - Regional,Financial Services
+5489,CFND,Asset Management,Financial Services
+5493,CFG,Banks - Regional,Financial Services
+5494,CF,Agricultural Inputs,Basic Materials
+5495,CEPU,Utilities - Regulated Electric,Utilities
+5496,CE,Chemicals,Basic Materials
+5499,CDRE,Aerospace & Defense,Industrials
+5500,CDP,REIT - Office,Real Estate
+5501,CDLR,Engineering & Construction,Industrials
+5502,CDE,Gold,Basic Materials
+5503,CCU,Beverages - Brewers,Consumer Defensive
+5504,CCS,Real Estate - Development,Real Estate
+5505,CCO,Advertising Agencies,Communication Services
+5506,CCM,Medical Care Facilities,Healthcare
+5507,CCL,Travel Services,Consumer Cyclical
+5508,CCK,Packaging & Containers,Consumer Cyclical
+5509,CCJ,Uranium,Energy
+5510,CCID,Asset Management,Financial Services
+5511,CCI,REIT - Specialty,Real Estate
+5512,CC,Specialty Chemicals,Basic Materials
+5513,CBZ,Specialty Business Services,Industrials
+5514,CBU,Banks - Regional,Financial Services
+5515,CBT,Specialty Chemicals,Basic Materials
+5516,CBRE,Real Estate Services,Real Estate
+5517,CBNA,Banks - Regional,Financial Services
+5518,CBL,REIT - Retail,Real Estate
+5519,CBAN,Banks - Regional,Financial Services
+5520,CB,Insurance - Property & Casualty,Financial Services
+5521,CAVA,Restaurants,Consumer Cyclical
+5522,CATO,Apparel Retail,Consumer Cyclical
+5523,CAT,Farm & Heavy Construction Machinery,Industrials
+5524,CARS,Internet Content & Information,Communication Services
+5525,CARR,Building Products & Equipment,Industrials
+5526,CAPL,Oil & Gas Refining & Marketing,Energy
+5527,CANG,Capital Markets,Financial Services
+5528,CALY,Leisure,Consumer Cyclical
+5529,CALX,Software - Infrastructure,Technology
+5530,CAL,Apparel Retail,Consumer Cyclical
+5531,CAH,Medical Distribution,Healthcare
+5532,CAG,Packaged Foods,Consumer Defensive
+5533,CACI,Information Technology Services,Technology
+5534,CABO,Telecom Services,Communication Services
+5535,CAAP,Airports & Air Services,Industrials
+5536,C,Banks - Diversified,Financial Services
+5537,BZH,Residential Construction,Consumer Cyclical
+5538,BYD,Resorts & Casinos,Consumer Cyclical
+5539,BY,Banks - Regional,Financial Services
+5540,BXSL,Asset Management,Financial Services
+5541,BXP,REIT - Office,Real Estate
+5542,BXMT,REIT - Mortgage,Real Estate
+5543,BXDC,REIT - Specialty,Real Estate
+5544,BXC,Industrial Distribution,Industrials
+5545,BX,Asset Management,Financial Services
+5547,BWXT,Aerospace & Defense,Industrials
+5548,BWMX,Specialty Retail,Consumer Cyclical
+5549,BWLP,Oil & Gas Midstream,Energy
+5551,BWIV,Shell Companies,Financial Services
+5552,BWG,Asset Management,Financial Services
+5553,BWA,Auto Parts,Consumer Cyclical
+5554,BW,Specialty Industrial Machinery,Industrials
+5555,BVN,Other Precious Metals & Mining,Basic Materials
+5556,BV,Specialty Business Services,Industrials
+5557,BURL,Apparel Retail,Consumer Cyclical
+5558,BUR,Asset Management,Financial Services
+5559,BUD,Beverages - Brewers,Consumer Defensive
+5560,BTU,Thermal Coal,Energy
+5561,BTI,Tobacco,Consumer Defensive
+5562,BTGO,Capital Markets,Financial Services
+5563,BTE,Oil & Gas E&P,Energy
+5564,BSX,Medical Devices,Healthcare
+5565,BSTZ,Asset Management,Financial Services
+5566,BSM,Oil & Gas E&P,Energy
+5567,BSBR,Banks - Regional,Financial Services
+5568,BSAC,Banks - Regional,Financial Services
+5569,BRX,REIT - Retail,Real Estate
+5570,BRT,REIT - Residential,Real Estate
+5571,BRSP,REIT - Mortgage,Real Estate
+5572,BRSL,Gambling,Consumer Cyclical
+5573,BROS,Restaurants,Consumer Cyclical
+5574,BRO,Insurance Brokers,Financial Services
+5577,BRCC,Packaged Foods,Consumer Defensive
+5578,BRC,Security & Protection Services,Industrials
+5579,BRBR,Packaged Foods,Consumer Defensive
+5580,BR,Information Technology Services,Technology
+5581,BP,Oil & Gas Integrated,Energy
+5582,BOX,Software - Infrastructure,Technology
+5583,BOW,Insurance - Property & Casualty,Financial Services
+5584,BORR,Oil & Gas Drilling,Energy
+5585,BOOT,Apparel Retail,Consumer Cyclical
+5588,BOH,Banks - Regional,Financial Services
+5589,BOC,Conglomerates,Industrials
+5590,BOBS,Specialty Retail,Consumer Cyclical
+5592,BNY,Banks - Diversified,Financial Services
+5593,BNT,Insurance - Diversified,Financial Services
+5594,BNS,Banks - Diversified,Financial Services
+5595,BNL,REIT - Diversified,Real Estate
+5596,BNED,Specialty Retail,Consumer Cyclical
+5597,BN,Asset Management,Financial Services
+5598,BMY,Drug Manufacturers - General,Healthcare
+5599,BMO,Banks - Diversified,Financial Services
+5600,BMNR,Capital Markets,Financial Services
+5606,BMI,Scientific & Technical Instruments,Technology
+5607,BMA,Banks - Regional,Financial Services
+5608,BLX,Banks - Regional,Financial Services
+5609,BLSH,Software - Infrastructure,Technology
+5610,BLND,Software - Application,Technology
+5611,BLK,Asset Management,Financial Services
+5612,BLDR,Building Products & Equipment,Industrials
+5613,BLCO,Medical Instruments & Supplies,Healthcare
+5614,BKV,Oil & Gas E&P,Energy
+5615,BKU,Banks - Regional,Financial Services
+5616,BKSY,Specialty Business Services,Industrials
+5617,BKKT,Software - Infrastructure,Technology
+5618,BKH,Utilities - Regulated Gas,Utilities
+5619,BKE,Apparel Retail,Consumer Cyclical
+5620,BKD,Medical Care Facilities,Healthcare
+5621,BJ,Discount Stores,Consumer Defensive
+5622,BIRK,Footwear & Accessories,Consumer Cyclical
+5625,BIPC,Utilities - Regulated Gas,Utilities
+5626,BIP,Utilities - Diversified,Utilities
+5628,BIO,Medical Devices,Healthcare
+5629,BILL,Software - Application,Technology
+5631,BIII,Shell Companies,Financial Services
+5633,BHVN,Biotechnology,Healthcare
+5636,BHR,REIT - Hotel & Motel,Real Estate
+5637,BHP,Other Industrial Metals & Mining,Basic Materials
+5638,BHE,Electronic Components,Technology
+5639,BHC,Drug Manufacturers - Specialty & Generic,Healthcare
+5640,BH,Restaurants,Consumer Cyclical
+5641,BGSI,Auto & Truck Dealerships,Consumer Cyclical
+5642,BGSF,Staffing & Employment Services,Industrials
+5643,BGS,Packaged Foods,Consumer Defensive
+5644,BG,Farm Products,Consumer Defensive
+5649,BFS,REIT - Retail,Real Estate
+5650,BFLY,Medical Devices,Healthcare
+5653,BFH,Credit Services,Financial Services
+5654,BFAM,Personal Services,Consumer Cyclical
+5655,BETA,Aerospace & Defense,Industrials
+5657,BEPC,Utilities - Renewable,Utilities
+5658,BEP,Utilities - Renewable,Utilities
+5659,BEN,Asset Management,Financial Services
+5660,BEKE,Real Estate Services,Real Estate
+5661,BEBE,Shell Companies,Financial Services
+5662,BE,Electrical Equipment & Parts,Industrials
+5663,BDX,Medical Instruments & Supplies,Healthcare
+5664,BDN,REIT - Office,Real Estate
+5665,BDC,Communication Equipment,Technology
+5666,BCSS,Shell Companies,Financial Services
+5667,BCSF,Asset Management,Financial Services
+5668,BCS,Banks - Diversified,Financial Services
+5669,BCO,Security & Protection Services,Industrials
+5670,BCH,Banks - Regional,Financial Services
+5671,BCE,Telecom Services,Communication Services
+5672,BCC,Lumber & Wood Production,Basic Materials
+5673,BC,Recreational Vehicles,Consumer Cyclical
+5674,BBY,Specialty Retail,Consumer Cyclical
+5675,BBWI,Specialty Retail,Consumer Cyclical
+5676,BBW,Specialty Retail,Consumer Cyclical
+5677,BBVA,Banks - Diversified,Financial Services
+5678,BBUC,Conglomerates,Industrials
+5679,BBT,Banks - Regional,Financial Services
+5680,BBDO,Banks - Regional,Financial Services
+5681,BBDC,Asset Management,Financial Services
+5682,BBD,Banks - Regional,Financial Services
+5683,BBAR,Banks - Regional,Financial Services
+5684,BBAI,Information Technology Services,Technology
+5685,BB,Software - Infrastructure,Technology
+5687,BAX,Medical Instruments & Supplies,Healthcare
+5688,BARK,Specialty Retail,Consumer Cyclical
+5689,BAP,Banks - Regional,Financial Services
+5691,BANC,Banks - Regional,Financial Services
+5692,BAM,Asset Management,Financial Services
+5693,BALY,Resorts & Casinos,Consumer Cyclical
+5694,BALL,Packaging & Containers,Consumer Cyclical
+5695,BAK,Chemicals,Basic Materials
+5696,BAH,Consulting Services,Industrials
+5707,BAC,Banks - Diversified,Financial Services
+5708,BABA,Internet Retail,Consumer Cyclical
+5709,BA,Aerospace & Defense,Industrials
+5710,B,Gold,Basic Materials
+5711,AZZ,Specialty Business Services,Industrials
+5712,AZUL,Airlines,Industrials
+5713,AZO,Auto Parts,Consumer Cyclical
+5714,AZN,Drug Manufacturers - General,Healthcare
+5715,AYI,Electrical Equipment & Parts,Industrials
+5716,AXTA,Specialty Chemicals,Basic Materials
+5718,AXS,Insurance - Specialty,Financial Services
+5719,AXR,Real Estate - Development,Real Estate
+5720,AXP,Credit Services,Financial Services
+5721,AX,Banks - Regional,Financial Services
+5722,AWR,Utilities - Regulated Water,Utilities
+5723,AWK,Utilities - Regulated Water,Utilities
+5724,AWI,Building Products & Equipment,Industrials
+5725,AVY,Packaging & Containers,Consumer Cyclical
+5726,AVTR,Medical Instruments & Supplies,Healthcare
+5727,AVNT,Specialty Chemicals,Basic Materials
+5728,AVEX,Aerospace & Defense,Industrials
+5729,AVD,Agricultural Inputs,Basic Materials
+5730,AVBC,Banks - Regional,Financial Services
+5731,AVAL,Banks - Regional,Financial Services
+5732,AVA,Utilities - Diversified,Utilities
+5733,AUNA,Medical Care Facilities,Healthcare
+5735,AUB,Banks - Regional,Financial Services
+5736,AU,Gold,Basic Materials
+5737,ATS,Specialty Industrial Machinery,Industrials
+5738,ATR,Medical Instruments & Supplies,Healthcare
+5739,ATO,Utilities - Regulated Gas,Utilities
+5740,ATMU,Auto Parts,Consumer Cyclical
+5741,ATKR,Electrical Equipment & Parts,Industrials
+5742,ATI,Metal Fabrication,Industrials
+5747,ATHM,Internet Content & Information,Communication Services
+5748,ATEN,Software - Infrastructure,Technology
+5749,ASX,Semiconductors,Technology
+5750,ASR,Airports & Air Services,Industrials
+5751,ASPN,Specialty Chemicals,Basic Materials
+5752,ASIX,Chemicals,Basic Materials
+5753,ASIC,Insurance - Property & Casualty,Financial Services
+5754,ASH,Specialty Chemicals,Basic Materials
+5755,ASC,Marine Shipping,Industrials
+5758,ASB,Banks - Regional,Financial Services
+5759,ASAN,Software - Application,Technology
+5760,ASA,Asset Management,Financial Services
+5761,AS,Leisure,Consumer Cyclical
+5762,ARX,Insurance Brokers,Financial Services
+5763,ARW,Electronics & Computer Distribution,Technology
+5765,ARR,REIT - Mortgage,Real Estate
+5766,AROC,Oil & Gas Equipment & Services,Energy
+5767,ARMK,Specialty Business Services,Industrials
+5768,ARLO,Building Products & Equipment,Industrials
+5769,ARL,Real Estate Services,Real Estate
+5770,ARIS,Gold,Basic Materials
+5771,ARI,REIT - Mortgage,Real Estate
+5773,ARES,Asset Management,Financial Services
+5774,ARE,REIT - Office,Real Estate
+5775,ARDT,Medical Care Facilities,Healthcare
+5776,ARCO,Restaurants,Consumer Cyclical
+5777,AR,Oil & Gas E&P,Energy
+5778,AQN,Utilities - Diversified,Utilities
+5779,APTV,Auto Parts,Consumer Cyclical
+5780,APO,Asset Management,Financial Services
+5781,APLE,REIT - Hotel & Motel,Real Estate
+5782,APH,Electronic Components,Technology
+5783,APG,Engineering & Construction,Industrials
+5784,APD,Specialty Chemicals,Basic Materials
+5785,APAM,Asset Management,Financial Services
+5786,AP,Metal Fabrication,Industrials
+5787,AOS,Specialty Industrial Machinery,Industrials
+5788,AORT,Medical Devices,Healthcare
+5789,AON,Insurance Brokers,Financial Services
+5790,AOMR,REIT - Mortgage,Real Estate
+5791,ANVS,Biotechnology,Healthcare
+5792,ANRO,Biotechnology,Healthcare
+5794,ANGX,Entertainment,Communication Services
+5795,ANF,Apparel Retail,Consumer Cyclical
+5796,ANET,Computer Hardware,Technology
+5797,ANDG,Personal Services,Consumer Cyclical
+5798,AN,Auto & Truck Dealerships,Consumer Cyclical
+5799,AMX,Telecom Services,Communication Services
+5800,AMWL,Health Information Services,Healthcare
+5801,AMTM,Specialty Business Services,Industrials
+5802,AMTD,Asset Management,Financial Services
+5803,AMTB,Banks - Regional,Financial Services
+5804,AMT,REIT - Specialty,Real Estate
+5805,AMRZ,Building Materials,Basic Materials
+5806,AMRC,Engineering & Construction,Industrials
+5807,AMR,Coking Coal,Basic Materials
+5808,AMPY,Oil & Gas E&P,Energy
+5809,AMPX,Electrical Equipment & Parts,Industrials
+5810,AMP,Asset Management,Financial Services
+5811,AMN,Medical Care Facilities,Healthcare
+5814,AMH,REIT - Residential,Real Estate
+5815,AMG,Asset Management,Financial Services
+5816,AME,Specialty Industrial Machinery,Industrials
+5817,AMCR,Packaging & Containers,Consumer Cyclical
+5818,AMC,Entertainment,Communication Services
+5819,AMBQ,Semiconductors,Technology
+5820,AMBP,Packaging & Containers,Consumer Cyclical
+5821,AM,Oil & Gas Midstream,Energy
+5822,ALX,REIT - Retail,Real Estate
+5823,ALV,Auto Parts,Consumer Cyclical
+5825,ALUB,Shell Companies,Financial Services
+5827,ALTG,Rental & Leasing Services,Industrials
+5828,ALSN,Auto Parts,Consumer Cyclical
+5832,ALLY,Credit Services,Financial Services
+5833,ALLE,Security & Protection Services,Industrials
+5834,ALL,Insurance - Property & Casualty,Financial Services
+5835,ALK,Airlines,Industrials
+5836,ALIT,Software - Application,Technology
+5837,ALH,"Furnishings, Fixtures & Appliances",Consumer Cyclical
+5838,ALG,Farm & Heavy Construction Machinery,Industrials
+5839,ALC,Medical Instruments & Supplies,Healthcare
+5841,ALB,Specialty Chemicals,Basic Materials
+5842,AKR,REIT - Retail,Real Estate
+5845,AKA,Apparel Retail,Consumer Cyclical
+5846,AJG,Insurance Brokers,Financial Services
+5847,AIZ,Insurance - Property & Casualty,Financial Services
+5848,AIV,REIT - Residential,Real Estate
+5849,AIT,Industrial Distribution,Industrials
+5850,AIR,Aerospace & Defense,Industrials
+5851,AIN,Textile Manufacturing,Consumer Cyclical
+5853,AIIA,Shell Companies,Financial Services
+5854,AII,Insurance - Property & Casualty,Financial Services
+5855,AIG,Insurance - Diversified,Financial Services
+5856,AI,Software - Infrastructure,Technology
+5862,AHT,REIT - Hotel & Motel,Real Estate
+5864,AHRT,REIT - Diversified,Real Estate
+5865,AHR,REIT - Healthcare Facilities,Real Estate
+5869,AGX,Engineering & Construction,Industrials
+5870,AGRO,Farm Products,Consumer Defensive
+5871,AGO,Insurance - Specialty,Financial Services
+5879,AGM,Credit Services,Financial Services
+5880,AGL,Medical Care Facilities,Healthcare
+5881,AGI,Gold,Basic Materials
+5882,AGCO,Farm & Heavy Construction Machinery,Industrials
+5883,AGBK,Banks - Regional,Financial Services
+5884,AG,Silver,Basic Materials
+5885,AFL,Insurance - Life,Financial Services
+5886,AFG,Insurance - Property & Casualty,Financial Services
+5887,AEXA,Shell Companies,Financial Services
+5888,AESI,Oil & Gas Equipment & Services,Energy
+5889,AES,Utilities - Diversified,Utilities
+5890,AERO,Airlines,Industrials
+5891,AER,Rental & Leasing Services,Industrials
+5892,AEO,Apparel Retail,Consumer Cyclical
+5893,AEM,Gold,Basic Materials
+5894,AEG,Insurance - Diversified,Financial Services
+5895,AEE,Utilities - Regulated Electric,Utilities
+5896,ADT,Security & Protection Services,Industrials
+5897,ADNT,Auto Parts,Consumer Cyclical
+5898,ADM,Farm Products,Consumer Defensive
+5899,ADIG,Computer Hardware,Technology
+5901,ADCT,Drug Manufacturers - Specialty & Generic,Healthcare
+5902,ADC,REIT - Retail,Real Estate
+5903,AD,Telecom Services,Communication Services
+5904,ACVA,Auto & Truck Dealerships,Consumer Cyclical
+5907,ACRE,REIT - Mortgage,Real Estate
+5908,ACR,REIT - Mortgage,Real Estate
+5910,ACN,Information Technology Services,Technology
+5911,ACM,Engineering & Construction,Industrials
+5912,ACI,Grocery Stores,Consumer Defensive
+5913,ACHR,Aerospace & Defense,Industrials
+5914,ACH,Medical Distribution,Healthcare
+5915,ACEL,Gambling,Consumer Cyclical
+5916,ACCO,Business Equipment & Supplies,Industrials
+5917,ACA,Engineering & Construction,Industrials
+5918,ABX,Insurance - Life,Financial Services
+5919,ABT,Medical Devices,Healthcare
+5923,ABR,REIT - Mortgage,Real Estate
+5924,ABM,Specialty Business Services,Industrials
+5925,ABG,Auto & Truck Dealerships,Consumer Cyclical
+5926,ABEV,Beverages - Brewers,Consumer Defensive
+5927,ABCB,Banks - Regional,Financial Services
+5928,ABBV,Drug Manufacturers - General,Healthcare
+5929,AB,Asset Management,Financial Services
+5930,AAUC,Gold,Basic Materials
+5931,AAT,REIT - Diversified,Real Estate
+5932,AAP,Auto Parts,Consumer Cyclical
+5933,AAMI,Asset Management,Financial Services
+5934,AADX,Aerospace & Defense,Industrials
+5936,AA,Aluminum,Basic Materials
+5937,A,Diagnostics & Research,Healthcare
+5938,ZONE,Pollution & Treatment Controls,Industrials
+5939,ZDGE,Internet Content & Information,Communication Services
+5940,YCBD,Drug Manufacturers - Specialty & Generic,Healthcare
+5941,XTNT,Medical Devices,Healthcare
+5942,XPL,Other Industrial Metals & Mining,Basic Materials
+5943,WYY,Information Technology Services,Technology
+5944,WWR,Other Industrial Metals & Mining,Basic Materials
+5947,WRN,Other Industrial Metals & Mining,Basic Materials
+5948,VZLA,Other Industrial Metals & Mining,Basic Materials
+5950,VTAK,Medical Devices,Healthcare
+5951,VNTG,Marine Shipping,Industrials
+5952,VNRX,Medical Devices,Healthcare
+5953,VIDA,Software - Application,Technology
+5954,VGZ,Gold,Basic Materials
+5955,VENU,Restaurants,Consumer Cyclical
+5956,UUUU,Uranium,Energy
+5957,UUU,Building Products & Equipment,Industrials
+5958,USBC,Scientific & Technical Instruments,Technology
+5959,USAS,Other Industrial Metals & Mining,Basic Materials
+5960,URG,Uranium,Energy
+5961,UMAC,Computer Hardware,Technology
+5962,UEC,Uranium,Energy
+5964,UAVS,Computer Hardware,Technology
+5966,UAC,Shell Companies,Financial Services
+5967,TRX,Gold,Basic Materials
+5968,TRT,Semiconductor Equipment & Materials,Technology
+5969,TPET,Oil & Gas E&P,Energy
+5971,TP,Software - Infrastructure,Technology
+5972,TOVX,Biotechnology,Healthcare
+5973,TOPS,Oil & Gas Midstream,Energy
+5974,TOPP,Trucking,Industrials
+5975,TOON,Entertainment,Communication Services
+5976,TONT,Shell Companies,Financial Services
+5977,TMQ,Other Industrial Metals & Mining,Basic Materials
+5978,TMP,Banks - Regional,Financial Services
+5979,TMDE,Oil & Gas Midstream,Energy
+5980,TII,Other Industrial Metals & Mining,Basic Materials
+5981,THM,Gold,Basic Materials
+5982,TGEN,Electrical Equipment & Parts,Industrials
+5983,TGB,Copper,Basic Materials
+5985,SYNX,Communication Equipment,Technology
+5986,SVM,Silver,Basic Materials
+5987,STXS,Medical Instruments & Supplies,Healthcare
+5988,STRW,REIT - Healthcare Facilities,Real Estate
+5989,SRXH,Packaged Foods,Consumer Defensive
+5991,SOAR,Airports & Air Services,Industrials
+5992,SNSC,Solar,Technology
+5993,SMJF,Textile Manufacturing,Consumer Cyclical
+5997,SLSR,Other Precious Metals & Mining,Basic Materials
+5998,SLND,Engineering & Construction,Industrials
+5999,SLI,Other Industrial Metals & Mining,Basic Materials
+6000,SIM,Steel,Basic Materials
+6001,SIF,Aerospace & Defense,Industrials
+6003,SER,Biotechnology,Healthcare
+6004,SEB,Conglomerates,Industrials
+6005,SDEV,Asset Management,Financial Services
+6006,SBMT,Other Industrial Metals & Mining,Basic Materials
+6008,SACH,REIT - Mortgage,Real Estate
+6009,RYDE,Software - Application,Technology
+6010,RVP,Medical Instruments & Supplies,Healthcare
+6011,ROLR,Gambling,Consumer Cyclical
+6012,RLGT,Integrated Freight & Logistics,Industrials
+6013,RGNT,Medical Instruments & Supplies,Healthcare
+6014,REPX,Oil & Gas E&P,Energy
+6015,REI,Oil & Gas E&P,Energy
+6016,REED,Beverages - Non-Alcoholic,Consumer Defensive
+6017,REA,Other Industrial Metals & Mining,Basic Materials
+6018,QNC,Software - Infrastructure,Technology
+6019,PZG,Gold,Basic Materials
+6021,PW,REIT - Specialty,Real Estate
+6022,PTHS,Biotechnology,Healthcare
+6023,PRK,Banks - Regional,Financial Services
+6024,POAS,Medical Devices,Healthcare
+6025,PMI,Medical Devices,Healthcare
+6026,PLX,Biotechnology,Healthcare
+6027,PLG,Other Precious Metals & Mining,Basic Materials
+6028,PLAG,Conglomerates,Industrials
+6030,PHGE,Aerospace & Defense,Industrials
+6032,PED,Oil & Gas E&P,Energy
+6033,PAPL,Mortgage Finance,Financial Services
+6034,OZ,Real Estate - Development,Real Estate
+6035,OSTX,Biotechnology,Healthcare
+6036,OPTT,Specialty Industrial Machinery,Industrials
+6038,OPHC,Banks - Regional,Financial Services
+6041,OGEN,Biotechnology,Healthcare
+6042,OGCP,REIT - Office,Real Estate
+6043,OBE,Oil & Gas E&P,Energy
+6044,NXB,Auto & Truck Dealerships,Consumer Cyclical
+6045,NVA,Other Industrial Metals & Mining,Basic Materials
+6046,NTIP,Specialty Business Services,Industrials
+6047,NSRX,Drug Manufacturers - General,Healthcare
+6048,NRXS,Biotechnology,Healthcare
+6051,NNVC,Biotechnology,Healthcare
+6052,NINE,Oil & Gas Equipment & Services,Energy
+6053,NHC,Medical Care Facilities,Healthcare
+6054,NG,Gold,Basic Materials
+6055,NFGC,Gold,Basic Materials
+6056,NEWP,Silver,Basic Materials
+6057,NEN,Real Estate Services,Real Estate
+6058,NAK,Other Industrial Metals & Mining,Basic Materials
+6059,MYO,Medical Devices,Healthcare
+6060,MYND,Education & Training Services,Consumer Defensive
+6061,MXC,Oil & Gas E&P,Energy
+6062,MWG,Rental & Leasing Services,Industrials
+6064,MTNB,Biotechnology,Healthcare
+6065,MTA,Other Precious Metals & Mining,Basic Materials
+6066,MSN,Consumer Electronics,Technology
+6067,MRT,Software - Application,Technology
+6068,MPU,Entertainment,Communication Services
+6069,MPTI,Electronic Components,Technology
+6070,MMA,Leisure,Consumer Cyclical
+6071,MLSS,Medical Instruments & Supplies,Healthcare
+6074,MITQ,Communication Equipment,Technology
+6075,MINE,Gold,Basic Materials
+6076,MI,Internet Retail,Consumer Cyclical
+6077,MHH,Staffing & Employment Services,Industrials
+6078,MGLD,Asset Management,Financial Services
+6079,MCRP,Computer Hardware,Technology
+6080,MAIA,Biotechnology,Healthcare
+6081,LUD,Steel,Basic Materials
+6082,LSF,Packaged Foods,Consumer Defensive
+6085,LPA,Real Estate - Development,Real Estate
+6086,LODE,Other Precious Metals & Mining,Basic Materials
+6087,LGPS,Conglomerates,Industrials
+6088,LGL,Scientific & Technical Instruments,Technology
+6089,LGCY,Education & Training Services,Consumer Defensive
+6090,LEGO,Shell Companies,Financial Services
+6091,LCTX,Biotechnology,Healthcare
+6092,KULR,Electronic Components,Technology
+6093,KNRX,Software - Application,Technology
+6094,KAPA,Biotechnology,Healthcare
+6097,JOB,Staffing & Employment Services,Industrials
+6100,JAGU,Uranium,Energy
+6101,ITRG,Other Precious Metals & Mining,Basic Materials
+6102,ITP,Paper & Paper Products,Basic Materials
+6103,ISOU,Uranium,Energy
+6104,IOR,Mortgage Finance,Financial Services
+6105,INUV,Software - Application,Technology
+6106,INTT,Semiconductor Equipment & Materials,Technology
+6107,INLX,Software - Application,Technology
+6108,INFU,Medical Devices,Healthcare
+6109,INDO,Oil & Gas E&P,Energy
+6110,IMO,Oil & Gas Integrated,Energy
+6111,IMC,Other Industrial Metals & Mining,Basic Materials
+6112,IHT,REIT - Hotel & Motel,Real Estate
+6113,IGC,Biotechnology,Healthcare
+6115,IE,Copper,Basic Materials
+6116,IDR,Gold,Basic Materials
+6117,IBO,Biotechnology,Healthcare
+6118,IAUX,Gold,Basic Materials
+6119,HYLN,Auto Parts,Consumer Cyclical
+6122,HSLV,Silver,Basic Materials
+6124,HCWC,Grocery Stores,Consumer Defensive
+6125,GTE,Oil & Gas E&P,Energy
+6126,GROY,Gold,Basic Materials
+6127,GRO,Other Industrial Metals & Mining,Basic Materials
+6129,GPUS,Conglomerates,Industrials
+6130,GORO,Gold,Basic Materials
+6131,GNS,Education & Training Services,Consumer Defensive
+6132,GMTL,Other Precious Metals & Mining,Basic Materials
+6134,GLDG,Gold,Basic Materials
+6136,GENC,Farm & Heavy Construction Machinery,Industrials
+6139,GCDT,Specialty Industrial Machinery,Industrials
+6140,GBR,Real Estate Services,Real Estate
+6141,GAU,Gold,Basic Materials
+6142,FURY,Gold,Basic Materials
+6143,FSP,REIT - Office,Real Estate
+6144,FSI,Specialty Chemicals,Basic Materials
+6149,FLYX,Airlines,Industrials
+6152,FJET,Aerospace & Defense,Industrials
+6153,FISK,REIT - Office,Real Estate
+6154,EXOD,Software - Infrastructure,Technology
+6155,EVI,Industrial Distribution,Industrials
+6156,ESP,Electrical Equipment & Parts,Industrials
+6157,ESBA,REIT - Office,Real Estate
+6158,EQX,Gold,Basic Materials
+6159,EPM,Oil & Gas E&P,Energy
+6160,EP,Oil & Gas E&P,Energy
+6161,EONR,Oil & Gas E&P,Energy
+6162,ELMD,Medical Devices,Healthcare
+6163,ELLO,Utilities - Renewable,Utilities
+6164,ELA,Luxury Goods,Consumer Cyclical
+6165,EGG,Consulting Services,Industrials
+6166,EDVA,Biotechnology,Healthcare
+6169,DXF,Credit Services,Financial Services
+6171,DSS,Packaging & Containers,Consumer Cyclical
+6172,DNN,Uranium,Energy
+6173,DIT,Food Distribution,Consumer Defensive
+6176,DDC,Packaged Foods,Consumer Defensive
+6177,DC,Gold,Basic Materials
+6178,CVU,Aerospace & Defense,Industrials
+6179,CVR,Tools & Accessories,Industrials
+6180,CVM,Biotechnology,Healthcare
+6181,CTM,Information Technology Services,Technology
+6182,CTGO,Gold,Basic Materials
+6183,CPHI,Drug Manufacturers - Specialty & Generic,Healthcare
+6184,COPR,Copper,Basic Materials
+6185,COHN,Capital Markets,Financial Services
+6186,COE,Education & Training Services,Consumer Defensive
+6187,CMT,Specialty Chemicals,Basic Materials
+6188,CMCL,Gold,Basic Materials
+6189,CLDI,Biotechnology,Healthcare
+6190,CKX,Oil & Gas E&P,Energy
+6191,CIX,Security & Protection Services,Industrials
+6192,CITR,Specialty Chemicals,Basic Materials
+6193,CHOW,Software - Infrastructure,Technology
+6196,CCEL,Medical Care Facilities,Healthcare
+6197,CBOE,Financial Data & Stock Exchanges,Financial Services
+6198,CATX,Medical Devices,Healthcare
+6201,CANF,Biotechnology,Healthcare
+6203,BUDA,Beverages - Non-Alcoholic,Consumer Defensive
+6204,BTG,Gold,Basic Materials
+6207,BRN,Oil & Gas E&P,Energy
+6208,BRIA,Apparel Retail,Consumer Cyclical
+6209,BRBS,Banks - Regional,Financial Services
+6210,BQ,Specialty Retail,Consumer Cyclical
+6213,BKTI,Communication Equipment,Technology
+6214,BHM,REIT - Residential,Real Estate
+6215,BHB,Banks - Regional,Financial Services
+6216,BGI,Luxury Goods,Consumer Cyclical
+6217,BESS,Utilities - Renewable,Utilities
+6219,BDL,Restaurants,Consumer Cyclical
+6223,BCHT,Pollution & Treatment Controls,Industrials
+6224,BATL,Oil & Gas E&P,Energy
+6225,AZTR,Biotechnology,Healthcare
+6226,AXIL,Consumer Electronics,Technology
+6227,AWX,Waste Management,Industrials
+6228,AUST,Gold,Basic Materials
+6229,ATNM,Biotechnology,Healthcare
+6230,ATCH,Capital Markets,Financial Services
+6231,ASM,Other Precious Metals & Mining,Basic Materials
+6232,ARMP,Biotechnology,Healthcare
+6233,AREN,Internet Content & Information,Communication Services
+6234,APUS,Drug Manufacturers - Specialty & Generic,Healthcare
+6235,APT,Building Products & Equipment,Industrials
+6236,AMZE,Software - Application,Technology
+6238,AMS,Medical Care Facilities,Healthcare
+6240,AMBO,Education & Training Services,Consumer Defensive
+6241,AIRI,Aerospace & Defense,Industrials
+6244,AIM,Biotechnology,Healthcare
+6245,AIB,Software - Infrastructure,Technology
+6246,AGIG,Utilities - Renewable,Utilities
+6247,AEON,Biotechnology,Healthcare
+6248,ACU,Household & Personal Products,Consumer Defensive
+6249,ACCS,Advertising Agencies,Communication Services
+6026,FNV,Gold,Basic Materials
