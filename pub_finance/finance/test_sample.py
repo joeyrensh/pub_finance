@@ -145,16 +145,16 @@ if __name__ == "__main__":
         retry_call(do_task, max_retries=max_retries, delay=3)
 
     # A股主要策略执行
-    # print("-----------A股主策略执行-----------")
-    # retry_backtest_and_send("cn", trade_date, force_run=True)
+    print("-----------A股主策略执行-----------")
+    retry_backtest_and_send("cn", trade_date, force_run=True)
 
     # ETF主要策略执行
     print("-----------A股ETF策略执行-----------")
     retry_backtest_and_send("cnetf", trade_date, force_run=True)
 
     # A股动态列表执行
-    # print("-----------A股动态列表策略执行-----------")
-    # retry_backtest_and_send("cn_dynamic", trade_date, force_run=True)
+    print("-----------A股动态列表策略执行-----------")
+    retry_backtest_and_send("cn_dynamic", trade_date, force_run=True)
 
     """ 结束进度条 """
     pbar.finish()

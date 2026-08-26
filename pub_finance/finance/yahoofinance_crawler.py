@@ -64,12 +64,12 @@ def get_industry_info(symbol, proxy_list, max_retries=1, preferred_proxy=None):
 
                 ticker = yf.Ticker(symbol)
                 info = ticker.info
-                industry = info.get("industry", None)
+                industry, sector = info.get("industry", None), info.get("sector", None)
 
                 if use_proxy:
                     last_success_proxy = proxy
-                logger.info(f"✅ 成功获取 {symbol} 行业信息: {industry}")
-                return industry, proxy if use_proxy else None
+                logger.info(f"✅ 成功获取 {symbol} 行业信息: {industry} {sector}")
+                return industry, sector, proxy if use_proxy else None
 
             except (ProxyError, ConnectionError, Timeout, HTTPError) as e:
                 logger.warning(f"[{symbol}] 代理 {proxy} 网络错误: {str(e)}")
@@ -92,7 +92,7 @@ def get_industry_info(symbol, proxy_list, max_retries=1, preferred_proxy=None):
             logger.warning(f"[{symbol}] 所有代理失败，{wait:.1f}秒后重试")
             time.sleep(wait)
 
-    return "N/A", None
+    return "N/A", "N/A", None
 
 
 def get_processed_symbols(output_file):
@@ -168,7 +168,7 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
     with open(OUTPUT_FILE, "a", newline="", encoding="utf-8-sig") as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(["idx", "symbol", "industry"])
+            writer.writerow(["idx", "symbol", "industry", "sector"])
 
         batch_buffer = []
         global_index = sum(1 for _ in open(OUTPUT_FILE, "r", encoding="utf-8-sig")) - 1
@@ -179,7 +179,7 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
             try:
                 start_time = time.time()
 
-                industry, used_proxy = get_industry_info(
+                industry, sector, used_proxy = get_industry_info(
                     symbol,
                     PROXY_LIST,
                     max_retries=1,
@@ -191,7 +191,7 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
                     current_proxy = None
 
                 global_index += 1
-                record = [global_index, symbol, industry]
+                record = [global_index, symbol, industry, sector]
                 batch_buffer.append(record)
 
                 if len(batch_buffer) >= 10:
@@ -202,7 +202,7 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
                 logger.info(
                     f"已处理 {idx}/{len(symbols)} | 耗时: {time.time() - start_time:.2f}s"
                 )
-                time.sleep(random.uniform(0.2, 0.5))
+                # time.sleep(random.uniform(0.2, 0.5))
 
             except KeyboardInterrupt:
                 logger.info("用户中断，保存已处理数据...")
@@ -218,22 +218,49 @@ def main(PROXY_LIST, CACHE_FILE, OUTPUT_FILE):
 
 
 def convert_industry(source_file: str, map_file: str, target_file: str) -> None:
-    """
-    转换行业信息并生成新文件
+    """转换行业(industry)与板块(sector)信息并生成新文件
+
+    规则：
+      1. 使用 map_file 映射 industry 与 sector 列。
+      2. 无论是否能映射到中文，均保留记录（无映射时保留原始文本），不过滤任何数据。
+      3. 输出字段固定为 ["idx", "symbol", "industry", "sector"]。
     """
     try:
-        df_a = pd.read_csv(source_file)
-        valid_industry = df_a["industry"].notna() & (
-            df_a["industry"].str.upper() != "N/A"
+        # 1. 读取源文件与映射文件
+        df_source = pd.read_csv(source_file)
+        df_map = pd.read_csv(map_file)
+
+        # 2. 建立英文到中文的映射字典
+        mapping = df_map.set_index("industry_eng")["industry_cn"].to_dict()
+
+        df_result = df_source.copy()
+
+        # 3. 映射 industry：若映射表中存在则替换，不存在（NaN）则保留原文本
+        if "industry" in df_result.columns:
+            mapped_ind = df_result["industry"].map(mapping)
+            df_result["industry"] = mapped_ind.fillna(df_result["industry"])
+        else:
+            df_result["industry"] = None
+
+        # 4. 映射 sector：若映射表中存在则替换，不存在（NaN）则保留原文本
+        if "sector" in df_result.columns:
+            mapped_sec = df_result["sector"].map(mapping)
+            df_result["sector"] = mapped_sec.fillna(df_result["sector"])
+        else:
+            df_result["sector"] = None
+
+        # 5. 重新分配 idx（保证连续递增编号）
+        df_result.reset_index(drop=True, inplace=True)
+        df_result["idx"] = df_result.index
+
+        # 6. 导出指定的 4 列
+        df_result[["idx", "symbol", "industry", "sector"]].to_csv(
+            target_file, index=False, encoding="utf-8"
         )
-        df_filtered = df_a[valid_industry].copy()
-        df_b = pd.read_csv(map_file)
-        mapping = df_b.set_index("industry_eng")["industry_cn"].to_dict()
-        df_filtered.loc[:, "industry"] = df_filtered["industry"].map(mapping)
-        df_result = df_filtered.dropna(subset=["industry"])
-        df_result[["idx", "symbol", "industry"]].to_csv(target_file, index=False)
+
         print(f"成功生成文件: {target_file}")
-        print(f"原始记录数: {len(df_a)}, 有效记录数: {len(df_result)}")
+        print(f"处理记录数: {len(df_result)}")
+
     except FileNotFoundError as e:
         print(f"文件不存在错误: {str(e)}")
     except KeyError as e:
@@ -245,58 +272,91 @@ def convert_industry(source_file: str, map_file: str, target_file: str) -> None:
 if __name__ == "__main__":
     # 代理列表（请自行替换为有效的代理）
     proxy_list = [
-        # "http://185.200.188.234:10001",
-        # "http://106.10.55.212:1121",
-        # "http://161.117.231.88:8100",
-        # "http://34.87.80.221:30000",
-        # "http://161.117.225.78:8100",
-        "http://138.2.78.251:8100",
-        "http://8.210.132.233:8100",
-        "http://89.58.50.94:11140",
-        "http://103.68.214.164:8080",
-        "http://161.117.86.53:8100",
-        "http://197.164.101.14:1976",
-        "http://103.170.22.145:8080",
-        "http://138.2.92.70:8100",
-        "http://183.88.231.188:34599",
-        "http://45.239.48.98:999",
-        "http://5.187.9.10:8080",
-        "http://203.175.103.91:8485",
-        "http://47.241.16.163:8100",
-        "http://103.184.167.66:8080",
-        "http://43.154.90.238:9527",
-        "http://8.217.126.41:8100",
-        "http://38.22.94.223:2025",
-        "http://45.95.203.47:6699",
-        "http://168.138.171.204:8100",
-        "http://103.76.91.166:2020",
-        "http://190.60.57.43:3128",
-        "http://176.111.37.216:39811",
-        "http://138.2.105.231:8100",
-        "http://176.111.37.5:39811",
-        "http://8.210.138.49:8100",
-        "http://137.59.47.73:3128",
-        "http://152.67.191.232:6800",
-        "http://47.241.32.135:8100",
-        "http://103.189.116.20:8080",
-        "http://52.140.3.27:3333",
-        "http://185.253.61.251:3310",
-        "http://8.217.78.60:8100",
-        "http://202.28.194.139:31280",
-        "http://116.80.96.162:3172",
-        "http://197.164.101.11:1976",
-        "http://103.187.226.52:8082",
-        "http://186.226.167.191:3128",
-        "http://103.235.34.38:3888",
-        "http://8.218.153.104:8100",
-        "http://207.148.124.152:6868",
+        # "http://45.186.6.104:3128",
+        "http://95.3.69.222:8080",
+        "http://181.39.25.196:8118",
+        "http://64.112.184.210:3128",
+        "http://15.235.21.254:8080",
+        "http://87.251.77.29:3128",
+        "http://130.110.103.245:3128",
+        "http://42.96.18.62:1311",
+        "http://140.238.32.108:3128",
+        "http://171.100.254.137:8080",
+        "http://43.156.236.238:80",
+        "http://190.97.236.128:999",
+        "http://45.66.249.187:8181",
+        "http://43.134.141.85:80",
+        "http://43.156.228.168:80",
+        "http://199.7.149.90:3128",
+        "http://47.91.65.23:3128",
+        "http://164.52.214.97:8080",
+        "http://199.7.149.96:3128",
+        "http://109.94.1.23:4050",
+        "http://43.160.242.118:3128",
+        "http://151.185.58.33:8080",
+        "http://8.215.25.3:2080",
+        "http://117.236.124.166:3128",
+        "http://45.43.60.220:8080",
+        "http://128.140.113.110:8081",
+        "http://45.232.0.2:8080",
+        "http://8.215.25.3:2081",
+        "http://116.202.108.111:3128",
+        "http://151.185.59.20:8080",
+        "http://151.185.59.19:8080",
+        "http://47.57.69.227:3128",
+        "http://103.211.103.170:3128",
+        "http://87.236.23.201:3128",
+        "http://14.251.13.20:8080",
+        "http://95.190.193.74:3128",
+        "http://119.18.147.179:96",
+        "http://203.150.128.157:8080",
+        "http://103.155.196.160:8181",
+        "http://223.207.101.166:8080",
+        "http://186.0.170.20:8080",
+        "http://103.80.82.7:8181",
+        "http://103.147.134.117:8082",
+        "http://103.218.122.183:8080",
+        "http://37.58.221.247:3128",
+        "http://31.15.169.77:808",
+        "http://180.191.229.193:5050",
+        "http://195.62.49.101:22855",
+        "http://124.105.87.12:8087",
+        "http://62.182.199.134:3128",
+        "http://165.99.14.18:2765",
+        "http://103.175.237.36:8080",
+        "http://46.209.15.187:8080",
+        "http://187.190.127.212:80",
+        "http://91.210.108.19:8080",
+        "http://180.191.234.124:8080",
+        "http://151.243.153.157:8118",
+        "http://190.0.246.210:4040",
+        "http://196.204.80.105:1981",
+        "http://128.140.113.110:5678",
+        "http://165.99.14.18:5432",
+        "http://139.167.218.162:3127",
+        "http://139.162.89.198:3128",
+        "http://165.99.14.18:1111",
+        "http://122.117.203.252:3128",
+        "http://195.62.49.101:59061",
+        "http://85.209.156.148:1080",
+        "http://49.147.127.126:8082",
+        "http://101.47.74.252:8888",
+        "http://165.154.20.187:10808",
+        "http://103.46.8.61:8080",
+        "http://180.191.138.172:8082",
+        "http://165.154.7.156:8888",
+        "http://126.209.3.199:5050",
+        "http://187.190.127.212:8081",
+        "http://164.52.216.51:8080",
+        "http://47.77.186.212:3128",
+        "http://181.78.243.243:999",
     ]
     CACHE_FILE = FINANCE_ROOT / "usstockinfo" / "symbol_list_cache.csv"
     OUTPUT_FILE = FINANCE_ROOT / "usstockinfo" / "industry_yfinance.csv"
 
     main(proxy_list, CACHE_FILE, OUTPUT_FILE)
-    convert_industry(
-        source_file=OUTPUT_FILE,
-        map_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_mapping.csv",
-        target_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_cn.csv",
-    )
+    # convert_industry(
+    #     source_file=OUTPUT_FILE,
+    #     map_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_mapping.csv",
+    #     target_file=FINANCE_ROOT / "usstockinfo" / "industry_yfinance_cn.csv",
+    # )
