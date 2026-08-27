@@ -99,6 +99,6 @@
         "cn_stock_cron": "30 15 * * *",
         "us_stock_cron": "00 07 * * *",
         "cn_proxy_cron": "30 07 * * *",
-        "oversea_proxy_cron": "30 08 * * *"
+        "oversea_proxy_cron": "30 09 * * *"
     }
 }

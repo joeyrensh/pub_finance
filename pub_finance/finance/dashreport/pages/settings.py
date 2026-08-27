@@ -202,7 +202,7 @@ LABEL_MAPPING = {
     "schedule_settings": "Schedule Configuration",
     "strategy_schedule": "Strategy Schedule",
     "proxy_schedule": "Proxy Schedule",
-    "cn_stock_cron": "A-Share Market Cron",
+    "cn_stock_cron": "A-Share Cron",
     "us_stock_cron": "US Market Cron",
     "cn_proxy_cron": "CN Proxy Cron",
     "oversea_proxy_cron": "Oversea Proxy Cron",
