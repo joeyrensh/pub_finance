@@ -570,14 +570,14 @@ def build_stock_filter_card(cfg):
         is_days = k == "collection_days"
         is_quantile = k == "quantile"
 
-        min_v = 1 if is_days else (0.75 if is_quantile else 0)
+        min_v = 1 if is_days else (0.8 if is_quantile else 0)
         max_v = 30 if is_days else (0.99 if is_quantile else 1)
         step_v = 1 if is_days else 0.01
 
         if is_days:
             marks_v = {10: "10", 20: "20", 30: "30"}
         elif is_quantile:
-            marks_v = {0.85: "0.85", 0.95: "0.95", 0.99: "0.99"}
+            marks_v = {0.85: "0.85", 0.9: "0.9", 0.95: "0.95", 0.99: "0.99"}
         else:
             marks_v = {0.25: "0.25", 0.5: "0.5", 0.75: "0.75", 1: "1"}
 
@@ -634,7 +634,7 @@ def build_chart_display_card(cfg):
             max_v = 200 if k == "chart_time_range" else 120
             step_v = 5
             marks_v = (
-                {60: "60", 120: "120", 200: "200"}
+                {50: "50", 100: "100", 150: "150", 200: "200"}
                 if k == "chart_time_range"
                 else {30: "30", 60: "60", 90: "90", 120: "120"}
             )
@@ -886,33 +886,43 @@ def get_slider_bounds_and_marks(k: str):
 
     # 2. MA 相关
     elif k == "ma_short_period":
-        return 5, 30, 1, {10: "10", 20: "20", 30: "30"}
+        return 0, 30, 1, {10: "10", 20: "20", 30: "30"}
     elif k == "ma_mid_period":
-        return 20, 90, 1, {40: "40", 60: "60", 90: "90"}
+        return 0, 90, 1, {30: "30", 60: "60", 90: "90"}
     elif k == "ma_long_period":
-        return 60, 150, 1, {90: "90", 120: "120", 150: "150"}
+        return 0, 150, 1, {50: "50", 100: "100", 150: "150"}
     elif k == "annual_ma_period":
-        return 200, 300, 1, {240: "240", 300: "300"}
+        return 200, 260, 1, {220: "220", 240: "240", 260: "260"}
 
     # 3. Vol MA 相关
     elif k == "vol_short_period":
-        return 0, 10, 1, {5: "5", 10: "10"}
+        return 0, 20, 1, {10: "10", 20: "20"}
     elif k == "vol_mid_period":
-        return 5, 20, 1, {10: "10", 15: "15", 20: "20"}
+        return (
+            0,
+            40,
+            1,
+            {
+                10: "10",
+                20: "20",
+                30: "30",
+                40: "40",
+            },
+        )
     elif k == "vol_long_period":
-        return 10, 60, 1, {30: "30", 60: "60"}
+        return 0, 60, 1, {20: "20", 40: "40", 60: "60"}
 
     # 4 & 5. 观察与风险窗口
     elif k == "short_term_window":
-        return 0, 20, 1, {5: "5", 10: "10", 20: "20"}
+        return 0, 20, 1, {10: "10", 20: "20"}
     elif k == "risk_window":
-        return 5, 60, 1, {20: "20", 40: "40", 60: "60"}
+        return 0, 60, 1, {20: "20", 40: "40", 60: "60"}
 
     # 6. Inflow
     elif k == "net_inflow_short_period":
         return 5, 20, 1, {10: "10", 15: "15", 20: "20"}
     elif k == "net_inflow_mid_period":
-        return 10, 60, 1, {20: "20", 40: "40", 60: "60"}
+        return 0, 60, 1, {20: "20", 40: "40", 60: "60"}
 
     return 0, 100, 1, {100: "100"}
 
