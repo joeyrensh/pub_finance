@@ -658,7 +658,7 @@ legend {
   height: 38px !important;
   line-height: 38px !important;
   width: 100% !important;
-  margin-bottom: 0 !important;
+  margin-bottom: 4px !important;
   background-color: rgba(255, 255, 255, 0) !important;
   color: var(--text-color) !important;
   border-radius: 0 !important;
@@ -1172,7 +1172,9 @@ a:active { color: var(--text-color); text-decoration: underline; }
 
 .l1_label { font-weight: 500; }
 .l2_label { margin-bottom: 2px; }
-.row:first-child .l2_label { margin-top: 10px; }
+.row:has(.l2_label):first-of-type { 
+  margin-top: 10px; 
+}
 
 /* --- radio相关设置 */
 

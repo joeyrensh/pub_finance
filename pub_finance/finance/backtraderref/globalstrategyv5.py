@@ -7,6 +7,7 @@ import pandas as pd
 from finance.utility.fileinfo import FileInfo
 import numpy as np
 from finance.backtraderref.nanindicator import NaNIndicator
+import textwrap
 
 
 class GlobalStrategy(bt.Strategy):
@@ -62,22 +63,43 @@ class GlobalStrategy(bt.Strategy):
         return GlobalStrategy.STRATEGY_LEVELS.get(strategy_name, 3)
 
     params = (
+        # MACD 参数 (Fast / Slow / Signal)
         ("macd_fast_period", 10),
         ("macd_slow_period", 20),
         ("macd_signal_period", 8),
+        # 价格均线周期 (Moving Averages)
         ("ma_short_period", 20),
         ("ma_mid_period", 60),
         ("ma_long_period", 120),
+        # 年化均线基准 (Yearly Moving Averages)
+        ("annual_period", 240),
+        # 成交量均线周期 (Volume Moving Averages)
         ("vol_short_period", 5),
         ("vol_mid_period", 10),
         ("vol_long_period", 20),
-        ("annual_period", 240),
-        ("availablecash", 4000000),
-        ("restcash", 1000000),
-        ("price_short_period", 5),
-        ("price_mid_period", 10),
-        ("price_long_period", 20),
-        ("rf_window", 20),  # 夏普比率滚动计算窗口（天）
+        # 资金净流入时间窗口
+        ("net_inflow_short_period", 10),
+        ("net_inflow_mid_period", 20),
+        # 战术/短线观察窗口 (Short-term Tactical Window)
+        ("short_term_window", 5),
+        # 绩效与风险统计窗口 (Return/Sharpe/Sortino Rolling Window)
+        (
+            "risk_window",
+            20,
+        ),
+        # Convergence配置
+        ("ma_convergence_window", 20),
+        ("ma_convergence_threshold_pct", 0.02),
+        ("ma_convergence_min_days", 5),
+        # Exit Rules
+        ("max_holding_days", 20),
+        ("hard_stop_loss_pct", 0.1),
+        ("trailing_tp_tier_1_threshold", 1.0),
+        ("trailing_tp_tier_1_drawback", 0.2),
+        ("trailing_tp_tier_2_threshold", 0.5),
+        ("trailing_tp_tier_2_drawback", 0.3),
+        ("trailing_tp_tier_3_threshold", 0.2),
+        ("trailing_tp_tier_3_drawback", 0.5),
     )
 
     def log(self, txt, dt=None):
@@ -132,6 +154,52 @@ class GlobalStrategy(bt.Strategy):
             return 0.0
 
     def __init__(self, trade_date, market):
+        # 动态打印格式化的策略初始化参数日志
+        init_log = textwrap.dedent(f"""
+        ================================================================================
+                                GlobalStrategy Parameter Init                        
+        ================================================================================
+        [MACD Indicators]
+        - Fast Period                  : {self.p.macd_fast_period}
+        - Slow Period                  : {self.p.macd_slow_period}
+        - Signal Period                : {self.p.macd_signal_period}
+
+        [Price Moving Averages]
+        - Short Period (MA)            : {self.p.ma_short_period}
+        - Mid Period (MA)              : {self.p.ma_mid_period}
+        - Long Period (MA)             : {self.p.ma_long_period}
+        - Annual Period (MA)           : {self.p.annual_period}
+
+        [Volume Moving Averages]
+        - Vol Short Period             : {self.p.vol_short_period}
+        - Vol Mid Period               : {self.p.vol_mid_period}
+        - Vol Long Period              : {self.p.vol_long_period}
+
+        [Capital Flow & Windows]
+        - Net Inflow Short Period      : {self.p.net_inflow_short_period}
+        - Net Inflow Mid Period        : {self.p.net_inflow_mid_period}
+        - Short-Term Tactical Window   : {self.p.short_term_window}
+        - Lookback & Performance Window    : {self.p.risk_window}
+
+        [MA Convergence]
+        - Convergence Window           : {self.p.ma_convergence_window}
+        - Convergence Threshold Pct    : {self.p.ma_convergence_threshold_pct:.1%}
+        - Convergence Min Days         : {self.p.ma_convergence_min_days}
+
+        [Stop Loss & Trailing Take-Profit]
+        - Max Holding Days             : {self.p.max_holding_days}
+        - Hard Stop Loss Pct           : {self.p.hard_stop_loss_pct:.1%}
+        - Trailing TP Tier 1 Threshold : {self.p.trailing_tp_tier_1_threshold:.1%}
+        - Trailing TP Tier 1 Drawback  : {self.p.trailing_tp_tier_1_drawback:.0%}
+        - Trailing TP Tier 2 Threshold : {self.p.trailing_tp_tier_2_threshold:.1%}
+        - Trailing TP Tier 2 Drawback  : {self.p.trailing_tp_tier_2_drawback:.0%}
+        - Trailing TP Tier 3 Threshold : {self.p.trailing_tp_tier_3_threshold:.1%}
+        - Trailing TP Tier 3 Drawback  : {self.p.trailing_tp_tier_3_drawback:.0%}
+        ================================================================================
+        """)
+        # 打印控制台输出（也可接入标准的 logger.info(init_log)）
+        print(init_log)
+
         """
         将每日回测完的持仓数据存储文件
         方便后面打印输出
@@ -194,39 +262,39 @@ class GlobalStrategy(bt.Strategy):
             """MA20/60/120 指标 """
             try:
                 self.inds[d._name]["sma_short"] = bt.indicators.SMA(
-                    d.close, period=self.params.ma_short_period
+                    d.close, period=self.p.ma_short_period
                 )
                 self.inds[d._name]["sma_mid"] = bt.indicators.SMA(
-                    d.close, period=self.params.ma_mid_period
+                    d.close, period=self.p.ma_mid_period
                 )
             except Exception as e:
                 print(f"❌ 初始化失败-SMA 指标：{d._name}, {e}")
             # 半年线
             try:
-                if d.buflen() > self.params.ma_long_period:
+                if d.buflen() > self.p.ma_long_period:
                     self.inds[d._name]["sma_long"] = bt.indicators.SMA(
-                        d.close, period=self.params.ma_long_period
+                        d.close, period=self.p.ma_long_period
                     )
                 else:
                     # 数据不足时，创建一个始终为 NaN 的虚拟指标
                     self.inds[d._name]["sma_long"] = NaNIndicator(data=d.close)
                     print(
-                        f"警告：{d._name} 数据长度 ({d.buflen()}) 小于 SMA 周期 ({self.params.ma_long_period})"
+                        f"警告：{d._name} 数据长度 ({d.buflen()}) 小于 SMA 周期 ({self.p.ma_long_period})"
                     )
             except Exception as e:
                 print(f"❌ 初始化失败 - 半年线指标：{d._name}, {e}")
             # 年线
             try:
-                if d.buflen() > self.params.annual_period:
+                if d.buflen() > self.p.annual_period:
                     self.inds[d._name]["sma_annual"] = bt.indicators.SMA(
-                        d.close, period=self.params.annual_period
+                        d.close, period=self.p.annual_period
                     )
                 else:
                     # 数据不足时，创建一个始终为 NaN 的虚拟指标
                     self.inds[d._name]["sma_annual"] = NaNIndicator(data=d.close)
 
                     print(
-                        f"警告：{d._name} 数据长度 ({d.buflen()}) 小于 SMA 周期 ({self.params.annual_period})"
+                        f"警告：{d._name} 数据长度 ({d.buflen()}) 小于 SMA 周期 ({self.p.annual_period})"
                     )
             except Exception as e:
                 print(f"❌ 初始化失败 - 年线指标：{d._name}, {e}")
@@ -234,10 +302,10 @@ class GlobalStrategy(bt.Strategy):
             """EMA20/60/120"""
             try:
                 self.inds[d._name]["ema_short"] = bt.indicators.EMA(
-                    d.close, period=self.params.ma_short_period
+                    d.close, period=self.p.ma_short_period
                 )
                 self.inds[d._name]["ema_mid"] = bt.indicators.EMA(
-                    d.close, period=self.params.ma_mid_period
+                    d.close, period=self.p.ma_mid_period
                 )
             except Exception as e:
                 print(f"❌ 初始化失败-ema 指标：{d._name}, {e}")
@@ -250,22 +318,22 @@ class GlobalStrategy(bt.Strategy):
             try:
                 self.inds[d._name]["dif"] = bt.indicators.MACDHisto(
                     d.close,
-                    period_me1=self.params.macd_fast_period,
-                    period_me2=self.params.macd_slow_period,
-                    period_signal=self.params.macd_signal_period,
+                    period_me1=self.p.macd_fast_period,
+                    period_me2=self.p.macd_slow_period,
+                    period_signal=self.p.macd_signal_period,
                 ).macd
                 self.inds[d._name]["dea"] = bt.indicators.MACDHisto(
                     d.close,
-                    period_me1=self.params.macd_fast_period,
-                    period_me2=self.params.macd_slow_period,
-                    period_signal=self.params.macd_signal_period,
+                    period_me1=self.p.macd_fast_period,
+                    period_me2=self.p.macd_slow_period,
+                    period_signal=self.p.macd_signal_period,
                 ).signal
                 self.inds[d._name]["macd"] = (
                     bt.indicators.MACDHisto(
                         d.close,
-                        period_me1=self.params.macd_fast_period,
-                        period_me2=self.params.macd_slow_period,
-                        period_signal=self.params.macd_signal_period,
+                        period_me1=self.p.macd_fast_period,
+                        period_me2=self.p.macd_slow_period,
+                        period_signal=self.p.macd_signal_period,
                     ).histo
                     * 2
                 )
@@ -277,10 +345,10 @@ class GlobalStrategy(bt.Strategy):
             """
             try:
                 self.inds[d._name]["emavol_short"] = bt.indicators.EMA(
-                    d.volume, period=self.params.vol_short_period
+                    d.volume, period=self.p.vol_short_period
                 )
                 self.inds[d._name]["emavol_long"] = bt.indicators.EMA(
-                    d.volume, period=self.params.vol_long_period
+                    d.volume, period=self.p.vol_long_period
                 )
             except Exception as e:
                 print(f"❌ 初始化失败-Vol 指标：{d._name}, {e}")
@@ -288,10 +356,10 @@ class GlobalStrategy(bt.Strategy):
             """ 收盘价高点/低点 """
             try:
                 self.inds[d._name]["highest_short"] = bt.indicators.Highest(
-                    d.close, period=self.params.price_short_period
+                    d.close, period=self.p.short_term_window
                 )
                 self.inds[d._name]["lowest_short"] = bt.indicators.Lowest(
-                    d.close, period=self.params.price_short_period
+                    d.close, period=self.p.short_term_window
                 )
             except Exception as e:
                 print(f"❌ 初始化失败 - 高低点指标：{d._name}, {e}")
@@ -299,7 +367,7 @@ class GlobalStrategy(bt.Strategy):
             """ ATR指标更新 """
             try:
                 self.inds[d._name]["atr"] = bt.indicators.ATR(
-                    period=self.params.ma_short_period, movav=bt.indicators.SMA
+                    period=self.p.ma_short_period, movav=bt.indicators.SMA
                 )
             except Exception as e:
                 print(f"❌ 初始化失败 - ATR指标：{d._name}, {e}")
@@ -342,30 +410,41 @@ class GlobalStrategy(bt.Strategy):
                     # 情况 1：创新高
                     bt.And(
                         d.close >= self.inds[d._name]["highest_short"],
-                        d.close > self.inds[d._name]["highest_short"](-5),
+                        d.close
+                        > self.inds[d._name]["highest_short"](
+                            -self.p.short_term_window
+                        ),
                         self.signals[d._name]["upper_shadow"] == 1,
                     ),
                     # 情况 2：低点上移 - 收敛上涨
                     bt.And(
                         self.inds[d._name]["lowest_short"]
-                        > self.inds[d._name]["lowest_short"](-5),
-                        d.close > d.close(-5),
+                        > self.inds[d._name]["lowest_short"](-self.p.short_term_window),
+                        d.close > d.close(-self.p.short_term_window),
                         (
                             self.inds[d._name]["highest_short"]
                             - self.inds[d._name]["lowest_short"]
                         )
                         < (
-                            self.inds[d._name]["highest_short"](-5)
-                            - self.inds[d._name]["lowest_short"](-5)
+                            self.inds[d._name]["highest_short"](
+                                -self.p.short_term_window
+                            )
+                            - self.inds[d._name]["lowest_short"](
+                                -self.p.short_term_window
+                            )
                         ),
                     ),
                     # 情况 3：高点上移
                     bt.And(
                         self.inds[d._name]["highest_short"]
-                        > self.inds[d._name]["highest_short"](-5),
-                        d.close > d.close(-5),
+                        > self.inds[d._name]["highest_short"](
+                            -self.p.short_term_window
+                        ),
+                        d.close > d.close(-self.p.short_term_window),
                         self.inds[d._name]["lowest_short"]
-                        >= self.inds[d._name]["lowest_short"](-5),
+                        >= self.inds[d._name]["lowest_short"](
+                            -self.p.short_term_window
+                        ),
                     ),
                 )
 
@@ -373,15 +452,20 @@ class GlobalStrategy(bt.Strategy):
                     # 情况 1：创新低
                     bt.And(
                         d.close <= self.inds[d._name]["lowest_short"],
-                        d.close < self.inds[d._name]["lowest_short"](-5),
+                        d.close
+                        < self.inds[d._name]["lowest_short"](-self.p.short_term_window),
                     ),
                     # 情况 2：低点下移
                     bt.And(
                         self.inds[d._name]["highest_short"]
-                        < self.inds[d._name]["highest_short"](-5),
-                        d.close < d.close(-5),
+                        < self.inds[d._name]["highest_short"](
+                            -self.p.short_term_window
+                        ),
+                        d.close < d.close(-self.p.short_term_window),
                         self.inds[d._name]["lowest_short"]
-                        <= self.inds[d._name]["lowest_short"](-5),
+                        <= self.inds[d._name]["lowest_short"](
+                            -self.p.short_term_window
+                        ),
                     ),
                 )
             except Exception as e:
@@ -472,11 +556,11 @@ class GlobalStrategy(bt.Strategy):
                 # 方法 A: 每日净流入 = (close - open) * volume * factor
                 daily_net_inflow = (d.close - d.open) * d.volume * factor
 
-                self.inds[d._name]["is_net_inflow_mid"] = bt.indicators.SMA(
-                    daily_net_inflow, period=self.params.vol_mid_period
+                self.inds[d._name]["is_net_inflow_short"] = bt.indicators.SMA(
+                    daily_net_inflow, period=self.p.net_inflow_short_period
                 )
-                self.inds[d._name]["is_net_inflow_long"] = bt.indicators.SMA(
-                    daily_net_inflow, period=self.params.vol_long_period
+                self.inds[d._name]["is_net_inflow_mid"] = bt.indicators.SMA(
+                    daily_net_inflow, period=self.p.net_inflow_mid_period
                 )
 
             except Exception as e:
@@ -497,7 +581,7 @@ class GlobalStrategy(bt.Strategy):
                         == 1,
                         self.signals[d._name]["golden_cross"] == 1,
                         self.signals[d._name]["deviant"] == 1,
-                        self.inds[d._name]["is_net_inflow_long"] > 0,
+                        self.inds[d._name]["is_net_inflow_mid"] > 0,
                         d.close > d.open,
                     ),
                     bt.And(
@@ -510,7 +594,7 @@ class GlobalStrategy(bt.Strategy):
                         == 1,
                         self.signals[d._name]["golden_cross"] == 1,
                         self.signals[d._name]["deviant"] == 1,
-                        self.inds[d._name]["is_net_inflow_long"] > 0,
+                        self.inds[d._name]["is_net_inflow_mid"] > 0,
                         d.close > d.open,
                     ),
                 )
@@ -535,7 +619,7 @@ class GlobalStrategy(bt.Strategy):
                         == 1,
                         self.signals[d._name]["golden_cross"] == 1,
                     ),
-                    self.inds[d._name]["is_net_inflow_mid"] > 0,
+                    self.inds[d._name]["is_net_inflow_short"] > 0,
                     d.close > d.open,
                 )
             except Exception as e:
@@ -553,7 +637,7 @@ class GlobalStrategy(bt.Strategy):
                     self.inds[d._name]["ema_mid"] > self.inds[d._name]["ema_mid"](-1),
                     self.signals[d._name]["golden_cross"] == 1,
                     self.signals[d._name]["deviant"] == 1,
-                    self.inds[d._name]["is_net_inflow_long"] > 0,
+                    self.inds[d._name]["is_net_inflow_mid"] > 0,
                 )
             except Exception as e:
                 print(f"❌ 初始化失败 - 买入 3: {d._name}, {e}")
@@ -589,7 +673,7 @@ class GlobalStrategy(bt.Strategy):
                     self.inds[d._name]["sma_annual"]
                     > self.inds[d._name]["sma_annual"](-1),
                     self.signals[d._name]["deviant"] == 1,
-                    self.inds[d._name]["is_net_inflow_long"] > 0,
+                    self.inds[d._name]["is_net_inflow_mid"] > 0,
                     d.close > d.open,
                 )
             except Exception as e:
@@ -610,7 +694,7 @@ class GlobalStrategy(bt.Strategy):
                     ),
                     self.inds[d._name]["sma_long"] > self.inds[d._name]["sma_long"](-1),
                     self.signals[d._name]["deviant"] == 1,
-                    self.inds[d._name]["is_net_inflow_long"] > 0,
+                    self.inds[d._name]["is_net_inflow_mid"] > 0,
                     d.close > d.open,
                 )
             except Exception as e:
@@ -731,23 +815,36 @@ class GlobalStrategy(bt.Strategy):
         """检查均线收敛信号（复杂逻辑提取）"""
         # 计算均线密集程度（近 20 日）
         x1 = self.inds[symbol]["ema_short"].get(
-            ago=-1, size=self.params.ma_short_period
+            ago=-1, size=self.p.ma_convergence_window
         )
-        y1 = self.inds[symbol]["ema_mid"].get(ago=-1, size=self.params.ma_short_period)
+        y1 = self.inds[symbol]["ema_mid"].get(ago=-1, size=self.p.ma_convergence_window)
         x2 = self.inds[symbol]["sma_short"].get(
-            ago=-1, size=self.params.ma_short_period
+            ago=-1, size=self.p.ma_convergence_window
         )
-        y2 = self.inds[symbol]["sma_mid"].get(ago=-1, size=self.params.ma_short_period)
+        y2 = self.inds[symbol]["sma_mid"].get(ago=-1, size=self.p.ma_convergence_window)
         diff_array = [abs((x - y) * 100 / y) for x, y in zip(x1, y1) if y > 1]
         diff_array2 = [abs((x - y) * 100 / y) for x, y in zip(x2, y2) if y > 1]
         diff_array3 = [abs((x - y) * 100 / y) for x, y in zip(x1, x2) if y > 1]
 
         return (
-            sum(1 for value in diff_array if value < 2) >= 5
-            and sum(1 for value in diff_array2 if value < 2) >= 5
-            and sum(1 for value in diff_array3 if value < 2) >= 5
+            sum(
+                1 for value in diff_array if value < self.p.ma_convergence_threshold_pct
+            )
+            >= self.p.ma_convergence_min_days
+            and sum(
+                1
+                for value in diff_array2
+                if value < self.p.ma_convergence_threshold_pct
+            )
+            >= self.p.ma_convergence_min_days
+            and sum(
+                1
+                for value in diff_array3
+                if value < self.p.ma_convergence_threshold_pct
+            )
+            >= self.p.ma_convergence_min_days
             and self.check_signal(symbol, "deviant")
-            and self.inds[symbol]["is_net_inflow_long"] > 0
+            and self.inds[symbol]["is_net_inflow_mid"] > 0
         )
 
     # ===== 新增：统一买入执行方法 =====
@@ -929,15 +1026,15 @@ class GlobalStrategy(bt.Strategy):
         ret = curr_close / prev_close - 1
         self.daily_returns[symbol].append(ret)
 
-        # 只保留最近 rf_window 天数据
-        if len(self.daily_returns[symbol]) > self.params.rf_window:
+        # 只保留最近 risk_window 天数据
+        if len(self.daily_returns[symbol]) > self.p.risk_window:
             self.daily_returns[symbol] = self.daily_returns[symbol][
-                -self.params.rf_window :
+                -self.p.risk_window :
             ]
 
         # ---------- 检查是否有足够数据和无风险利率 ----------
         enough_data = len(self.daily_returns[symbol]) >= min(
-            self.params.rf_window, self.params.annual_period
+            self.p.risk_window, self.p.annual_period
         )
         valid_rf = self.rf_rate is not None and self.rf_rate > 0
 
@@ -948,14 +1045,14 @@ class GlobalStrategy(bt.Strategy):
             return
 
         # ---------- 计算超额收益 ----------
-        rf_daily = self.rf_rate / self.params.annual_period
+        rf_daily = self.rf_rate / self.p.annual_period
         excess_ret = np.array(self.daily_returns[symbol]) - rf_daily
         mean_ret = np.mean(excess_ret)
         std_ret = np.std(excess_ret, ddof=1)
 
         # ---------- 夏普比率 ----------
         if std_ret > 0:
-            sharpe = np.sqrt(self.params.annual_period) * mean_ret / std_ret
+            sharpe = np.sqrt(self.p.annual_period) * mean_ret / std_ret
             self.sharpe_ratios[symbol] = sharpe
         else:
             self.sharpe_ratios[symbol] = 0
@@ -965,7 +1062,7 @@ class GlobalStrategy(bt.Strategy):
         if len(downside_returns) > 5:
             downside_std = np.std(downside_returns, ddof=1)
             if downside_std > 0:
-                sortino = np.sqrt(self.params.annual_period) * mean_ret / downside_std
+                sortino = np.sqrt(self.p.annual_period) * mean_ret / downside_std
                 self.sortino_ratios[symbol] = sortino
             else:
                 self.sortino_ratios[symbol] = 0
@@ -1255,34 +1352,43 @@ class GlobalStrategy(bt.Strategy):
 
         # 第一档止盈，盈利超过100%，回吐20%
         if (
-            holding_days >= 20
-            and peak_profit_pct >= 1.0
-            and current_close <= entry_price + peak_profit * 0.8
+            holding_days >= self.p.max_holding_days
+            and peak_profit_pct >= self.p.trailing_tp_tier_1_threshold
+            and current_close
+            <= entry_price + peak_profit * self.p.trailing_tp_tier_1_drawback
         ):
-            self.execute_sell(data, "动态止盈(20%)")
+            self.execute_sell(
+                data, f"动态止盈({self.p.trailing_tp_tier_1_drawback:.0%})"
+            )
             return
 
         # 第二档止盈，盈利超过50%，回吐30%
         if (
-            holding_days >= 20
-            and peak_profit_pct >= 0.5
-            and current_close <= entry_price + peak_profit * 0.7
+            holding_days >= self.p.max_holding_days
+            and peak_profit_pct >= self.p.trailing_tp_tier_2_threshold
+            and current_close
+            <= entry_price + peak_profit * self.p.trailing_tp_tier_2_drawback
         ):
-            self.execute_sell(data, "动态止盈(30%)")
+            self.execute_sell(
+                data, f"动态止盈({self.p.trailing_tp_tier_2_drawback:.0%})"
+            )
             return
 
         # 第三档止盈，盈利超过20%，回吐50%
         if (
-            holding_days >= 20
-            and peak_profit_pct >= 0.2
-            and current_close <= entry_price + peak_profit * 0.5
+            holding_days >= self.p.max_holding_days
+            and peak_profit_pct >= self.p.trailing_tp_tier_3_threshold
+            and current_close
+            <= entry_price + peak_profit * self.p.trailing_tp_tier_3_drawback
         ):
-            self.execute_sell(data, "动态止盈(50%)")
+            self.execute_sell(
+                data, f"动态止盈({self.p.trailing_tp_tier_3_drawback:.0%})"
+            )
             return
 
         # 止损逻辑，亏损10%
-        if current_close <= entry_price * 0.9:
-            self.execute_sell(data, "止损(10%)")
+        if current_close <= entry_price * (1 - self.p.hard_stop_loss_pct):
+            self.execute_sell(data, f"止损({self.p.hard_stop_loss_pct:.0%})")
             return
 
     def stop(self):

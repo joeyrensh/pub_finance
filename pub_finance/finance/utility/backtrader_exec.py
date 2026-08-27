@@ -41,14 +41,79 @@ class BacktraderExec:
         self.test = test
         self.stocklist = stocklist
 
+    def _get_bt_params(self) -> dict:
+        """从 JSON 实时读取最新配置并平铺为 Backtrader params 字典"""
+        bt_cfg = ToolKit.get_config("backtest_settings", default={})
+
+        macd = bt_cfg.get("macd", {})
+        ma = bt_cfg.get("moving_average", {})
+        vol_ma = bt_cfg.get("volume_ma", {})
+        windows = bt_cfg.get("window_metrics", {})
+        cap_flow = bt_cfg.get("capital_flow", {})
+        ma_sqz = bt_cfg.get("ma_convergence", {})
+        exit_rules = bt_cfg.get("exit_rules", {})
+
+        return {
+            # MACD
+            "macd_fast_period": macd.get("macd_fast_period", 10),
+            "macd_slow_period": macd.get("macd_slow_period", 20),
+            "macd_signal_period": macd.get("macd_signal_period", 8),
+            # Moving Average
+            "ma_short_period": ma.get("ma_short_period", 20),
+            "ma_mid_period": ma.get("ma_mid_period", 60),
+            "ma_long_period": ma.get("ma_long_period", 120),
+            "annual_period": ma.get("annual_ma_period", 240),
+            # Volume MA
+            "vol_short_period": vol_ma.get("vol_short_period", 5),
+            "vol_mid_period": vol_ma.get("vol_mid_period", 10),
+            "vol_long_period": vol_ma.get("vol_long_period", 20),
+            # Capital Flow & Windows
+            "net_inflow_short_period": cap_flow.get("net_inflow_short_period", 10),
+            "net_inflow_mid_period": cap_flow.get("net_inflow_mid_period", 20),
+            "short_term_window": windows.get("short_term_window", 5),
+            "risk_window": windows.get("risk_window", 20),
+            # MA Convergence / Squeeze
+            "ma_convergence_window": ma_sqz.get("ma_convergence_window", 20),
+            "ma_convergence_threshold_pct": ma_sqz.get(
+                "ma_convergence_threshold_pct", 0.02
+            ),
+            "ma_convergence_min_days": ma_sqz.get("ma_convergence_min_days", 5),
+            # Exit Rules
+            "max_holding_days": exit_rules.get("max_holding_days", 20),
+            "hard_stop_loss_pct": exit_rules.get("hard_stop_loss_pct", 0.1),
+            "trailing_tp_tier_1_threshold": exit_rules.get(
+                "trailing_tp_tier_1_threshold", 1.0
+            ),
+            "trailing_tp_tier_1_drawback": exit_rules.get(
+                "trailing_tp_tier_1_drawback", 0.2
+            ),
+            "trailing_tp_tier_2_threshold": exit_rules.get(
+                "trailing_tp_tier_2_threshold", 0.5
+            ),
+            "trailing_tp_tier_2_drawback": exit_rules.get(
+                "trailing_tp_tier_2_drawback", 0.3
+            ),
+            "trailing_tp_tier_3_threshold": exit_rules.get(
+                "trailing_tp_tier_3_threshold", 0.2
+            ),
+            "trailing_tp_tier_3_drawback": exit_rules.get(
+                "trailing_tp_tier_3_drawback", 0.5
+            ),
+        }
+
     def run_strategy(self):
         """运行 backtrader 策略并返回 pnl, cash, total_value 。同时覆盖缓存文件。"""
         # 创建cerebro对象
         cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
         # cerebro.broker.set_coc(True)
         # 添加bt相关的策略
+        # 获取最新 JSON 动态配置
+        dynamic_params = self._get_bt_params()
         cerebro.addstrategy(
-            GlobalStrategy, trade_date=self.trade_date, market=self.market
+            GlobalStrategy,
+            trade_date=self.trade_date,
+            market=self.market,
+            **dynamic_params,
         )
         # 回测时需要添加 TimeReturn 分析器
         cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)

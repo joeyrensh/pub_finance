@@ -53,5 +53,52 @@
         "min_threshold": "5e9",
         "n_groups": 1,
         "top_n_per_group": 50
+    },
+    "backtest_settings": {
+        "macd": {
+            "macd_fast_period": 10,
+            "macd_slow_period": 20,
+            "macd_signal_period": 8
+        },
+        "moving_average": {
+            "ma_short_period": 20,
+            "ma_mid_period": 60,
+            "ma_long_period": 120,
+            "annual_ma_period": 240
+        },
+        "volume_ma": {
+            "vol_short_period": 5,
+            "vol_mid_period": 10,
+            "vol_long_period": 20
+        },
+        "window_metrics": {
+            "short_term_window": 5,
+            "risk_window": 20
+        },
+        "capital_flow": {
+            "net_inflow_short_period": 10,
+            "net_inflow_mid_period": 20
+        },
+        "ma_convergence": {
+            "ma_convergence_window": 20,
+            "ma_convergence_threshold_pct": 0.02,
+            "ma_convergence_min_days": 5
+        },
+        "exit_rules": {
+            "max_holding_days": 20,
+            "hard_stop_loss_pct": 0.1,
+            "trailing_tp_tier_1_threshold": 1,
+            "trailing_tp_tier_1_drawback": 0.2,
+            "trailing_tp_tier_2_threshold": 0.5,
+            "trailing_tp_tier_2_drawback": 0.3,
+            "trailing_tp_tier_3_threshold": 0.2,
+            "trailing_tp_tier_3_drawback": 0.5
+        }
+    },
+    "schedule_settings": {
+        "cn_stock_cron": "30 15 * * *",
+        "us_stock_cron": "00 07 * * *",
+        "cn_proxy_cron": "30 07 * * *",
+        "oversea_proxy_cron": "30 08 * * *"
     }
 }

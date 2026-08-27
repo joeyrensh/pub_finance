@@ -3,7 +3,7 @@ import json
 import os
 import numpy as np
 import pandas as pd
-from dash import Dash, Input, Output, State, ctx, dcc, html
+from dash import Dash, Input, Output, State, ctx, dcc, html, no_update
 import dash_bootstrap_components as dbc
 from flask import session
 
@@ -11,6 +11,7 @@ from finance import FINANCE_ROOT
 from finance.dashreport.data_loader import ReportDataLoader
 from finance.dashreport.utils import Header
 from finance.utility.toolkit import ToolKit
+from finance.dashreport.pages.cron_manager import CronManager
 
 # -------------------------- 路径与默认配置 --------------------------
 JSON_FILE_PATH = os.path.join(FINANCE_ROOT, "utility", "scoring_weights.json")
@@ -29,6 +30,56 @@ DEFAULT_GROUPING_US = {
     "bins": "2e9, 1e10, 5e10, 1e11, 2e11, inf",
     "n_groups": 5,
     "top_n_per_group": 100,
+}
+
+# 8 项策略与回测默认参数
+DEFAULT_BACKTEST_SETTINGS = {
+    "macd": {
+        "macd_fast_period": 10,
+        "macd_slow_period": 20,
+        "macd_signal_period": 8,
+    },
+    "moving_average": {
+        "ma_short_period": 20,
+        "ma_mid_period": 60,
+        "ma_long_period": 120,
+        "annual_ma_period": 240,
+    },
+    "volume_ma": {
+        "vol_short_period": 5,
+        "vol_mid_period": 10,
+        "vol_long_period": 20,
+    },
+    "window_metrics": {
+        "short_term_window": 5,
+        "risk_window": 20,
+    },
+    "capital_flow": {
+        "net_inflow_short_period": 10,
+        "net_inflow_mid_period": 20,
+    },
+    "ma_convergence": {
+        "ma_convergence_window": 20,
+        "ma_convergence_threshold_pct": 0.02,
+        "ma_convergence_min_days": 5,
+    },
+    "exit_rules": {
+        "max_holding_days": 20,
+        "hard_stop_loss_pct": 0.10,
+        "trailing_tp_tier_1_threshold": 1.00,
+        "trailing_tp_tier_1_drawback": 0.20,
+        "trailing_tp_tier_2_threshold": 0.50,
+        "trailing_tp_tier_2_drawback": 0.30,
+        "trailing_tp_tier_3_threshold": 0.20,
+        "trailing_tp_tier_3_drawback": 0.50,
+    },
+}
+
+DEFAULT_SCHEDULE_SETTINGS = {
+    "cn_stock_cron": "30 15 * * *",
+    "us_stock_cron": "00 07 * * *",
+    "cn_proxy_cron": "30 07 * * *",
+    "oversea_proxy_cron": "30 08 * * *",
 }
 
 DEFAULT_CONFIG = {
@@ -68,6 +119,8 @@ DEFAULT_CONFIG = {
         "n_groups": 1,
         "top_n_per_group": 50,
     },
+    "backtest_settings": DEFAULT_BACKTEST_SETTINGS,
+    "schedule_settings": DEFAULT_SCHEDULE_SETTINGS,
 }
 
 # 【界面名称映射】
@@ -110,12 +163,54 @@ LABEL_MAPPING = {
     "bins": "Manual Bins",
     "n_groups": "Auto Groups",
     "top_n_per_group": "Top N per Group",
+    # 策略与回测设置映射
+    "backtest_settings": "Strategy Configuration",
+    "macd": "MACD Indicators",
+    "moving_average": "Price Moving Averages",
+    "volume_ma": "Volume Moving Averages",
+    "window_metrics": "Lookback & Performance Windows",
+    "capital_flow": "Fund Net Inflow Windows",
+    "ma_convergence": "MA Convergence",
+    "exit_rules": "Stop Loss & Trailing Take-Profit",
+    # 策略的具体细节
+    "macd_fast_period": "MACD Fast Period",
+    "macd_slow_period": "MACD Slow Period",
+    "macd_signal_period": "MACD Signal Period",
+    "ma_short_period": "MA Short Period",
+    "ma_mid_period": "MA Mid Period",
+    "ma_long_period": "MA Long Period",
+    "annual_ma_period": "Annual MA Period",
+    "vol_short_period": "Vol MA Short Period",
+    "vol_mid_period": "Vol MA Mid Period",
+    "vol_long_period": "Vol MA Long Period",
+    "short_term_window": "Short-term Window",
+    "risk_window": "Risk Window",
+    "net_inflow_short_period": "Inflow Short Period",
+    "net_inflow_mid_period": "Inflow Mid Period",
+    "ma_convergence_window": "MA Convergence Window",
+    "ma_convergence_threshold_pct": "Convergence Dist Thresh (%)",
+    "ma_convergence_min_days": "Convergence Min Days",
+    "max_holding_days": "Max Holding Days",
+    "hard_stop_loss_pct": "Hard Stop Loss (%)",
+    "trailing_tp_tier_1_threshold": "Tier 1 TP Profit (%)",
+    "trailing_tp_tier_1_drawback": "Tier 1 TP Drawback (%)",
+    "trailing_tp_tier_2_threshold": "Tier 2 TP Profit (%)",
+    "trailing_tp_tier_2_drawback": "Tier 2 TP Drawback (%)",
+    "trailing_tp_tier_3_threshold": "Tier 3 TP Profit (%)",
+    "trailing_tp_tier_3_drawback": "Tier 3 TP Drawback (%)",
+    # 调度配置
+    "schedule_settings": "Schedule Configuration",
+    "strategy_schedule": "Strategy Schedule",
+    "proxy_schedule": "Proxy Schedule",
+    "cn_stock_cron": "A-Share Market Cron",
+    "us_stock_cron": "US Market Cron",
+    "cn_proxy_cron": "CN Proxy Cron",
+    "oversea_proxy_cron": "Oversea Proxy Cron",
 }
 
 
 # -------------------------- 工具函数 --------------------------
 def parse_bins_str(bins_str: str) -> list:
-    """将 UI 传入的字符串（如 "2e9, 1e10, 5e10, 1e11, 2e11, inf"）解析为数值与 np.inf 列表"""
     if not bins_str or not isinstance(bins_str, str):
         return [2e9, 1e10, 5e10, 1e11, 2e11, np.inf]
 
@@ -153,13 +248,16 @@ def load_config() -> dict:
     init_json_file()
     with open(JSON_FILE_PATH, "r", encoding="utf-8") as f:
         cfg = json.load(f)
-        # 兼容补全 US/CN 独立分组键
         if "grouping_settings_cn" not in cfg:
             cfg["grouping_settings_cn"] = cfg.get(
                 "grouping_settings", DEFAULT_GROUPING_CN
             )
         if "grouping_settings_us" not in cfg:
             cfg["grouping_settings_us"] = DEFAULT_GROUPING_US
+        if "backtest_settings" not in cfg:
+            cfg["backtest_settings"] = DEFAULT_BACKTEST_SETTINGS
+        if "schedule_settings" not in cfg:
+            cfg["schedule_settings"] = DEFAULT_SCHEDULE_SETTINGS
         return cfg
 
 
@@ -169,7 +267,6 @@ def save_config(config: dict):
 
 
 def get_default_trade_date(market: str = "cn") -> str:
-    """获取指定市场的默认交易日期（含兜底逻辑）"""
     try:
         data = ReportDataLoader.load(prefix=market, datasets=("overall",))
         df_overall = data.get("overall")
@@ -190,7 +287,6 @@ def get_default_trade_date(market: str = "cn") -> str:
 
 
 def export_dynamic_list(market: str = None, trade_date: str = None) -> None:
-    """读取指定市场 (或默认 cn, us) 的 stockdetail.csv 文件并执行股票排名导出"""
     column_map_default = {
         "symbol": "SYMBOL",
         "name": "NAME",
@@ -237,6 +333,23 @@ STA_KEYS = list(DEFAULT_CONFIG["sub_weights"]["stability"].keys())
 STR_KEYS = list(DEFAULT_CONFIG["sub_weights"]["strategy"].keys())
 STK_KEYS = list(DEFAULT_CONFIG["stock_filter"].keys())
 CHT_KEYS = list(DEFAULT_CONFIG["chart_display"].keys())
+
+# 策略与回测设置子项键名
+BT_MACD_KEYS = list(DEFAULT_BACKTEST_SETTINGS["macd"].keys())
+BT_MA_KEYS = list(DEFAULT_BACKTEST_SETTINGS["moving_average"].keys())
+BT_VOL_KEYS = list(DEFAULT_BACKTEST_SETTINGS["volume_ma"].keys())
+BT_WIN_KEYS = list(DEFAULT_BACKTEST_SETTINGS["window_metrics"].keys())
+BT_FLOW_KEYS = list(DEFAULT_BACKTEST_SETTINGS["capital_flow"].keys())
+BT_CONVERGENCE_KEYS = list(DEFAULT_BACKTEST_SETTINGS["ma_convergence"].keys())
+BT_EXIT_KEYS = list(DEFAULT_BACKTEST_SETTINGS["exit_rules"].keys())
+
+# Cron 调度 Keys 定义
+SCHEDULE_KEYS = [
+    "cn_stock_cron",
+    "us_stock_cron",
+    "cn_proxy_cron",
+    "oversea_proxy_cron",
+]
 
 
 # -------------------------- 卡片构建函数 --------------------------
@@ -457,16 +570,14 @@ def build_stock_filter_card(cfg):
         is_days = k == "collection_days"
         is_quantile = k == "quantile"
 
-        # 动态设置上下限与步长
         min_v = 1 if is_days else (0.75 if is_quantile else 0)
         max_v = 30 if is_days else (0.99 if is_quantile else 1)
         step_v = 1 if is_days else 0.01
 
-        # 动态设置刻度标记
         if is_days:
             marks_v = {10: "10", 20: "20", 30: "30"}
         elif is_quantile:
-            marks_v = {0.75: "0.75", 0.85: "0.85", 0.95: "0.95", 0.99: "0.99"}
+            marks_v = {0.85: "0.85", 0.95: "0.95", 0.99: "0.99"}
         else:
             marks_v = {0.25: "0.25", 0.5: "0.5", 0.75: "0.75", 1: "1"}
 
@@ -520,7 +631,7 @@ def build_chart_display_card(cfg):
             marks_v = {10: "10", 20: "20"}
         elif k in ("chart_time_range", "minichart_time_range"):
             min_v = 10
-            max_v = 120 if k == "minichart_time_range" else 200
+            max_v = 200 if k == "chart_time_range" else 120
             step_v = 5
             marks_v = (
                 {60: "60", 120: "120", 200: "200"}
@@ -529,7 +640,7 @@ def build_chart_display_card(cfg):
             )
         else:
             min_v, max_v, step_v = 0, 100, 1
-            marks_v = {}
+            marks_v = {100: "100"}
 
         row_list.append(
             dbc.Row(
@@ -572,18 +683,16 @@ def build_chart_display_card(cfg):
 
 
 def format_to_sci(val) -> str:
-    """将数字或字符串格式化为简洁科学计数法 (如 5000000000.0 -> '5e9')"""
     if val is None or val == "":
         return ""
     try:
         f_val = float(val)
         if f_val == float("inf"):
             return "inf"
-        # 格式化为科学计数法并去除多余字符
-        s = f"{f_val:.2e}"  # -> '5.00e+09'
+        s = f"{f_val:.2e}"
         num, exp = s.split("e")
-        num_str = f"{float(num):g}"  # 去掉末尾的 .00 -> '5'
-        exp_int = int(exp)  # '+09' -> 9
+        num_str = f"{float(num):g}"
+        exp_int = int(exp)
         return f"{num_str}e{exp_int}" if exp_int != 0 else num_str
     except (ValueError, TypeError):
         return str(val)
@@ -595,7 +704,6 @@ def build_grouping_settings_card(cfg: dict) -> dbc.Card:
     mode = grp_cfg.get("grouping_mode", "manual")
 
     card_body = [
-        # 1. Target Market Config 行
         html.Div(
             [
                 html.Span(f"{LABEL_MAPPING['market']}：", className="grp-label-fixed"),
@@ -611,7 +719,6 @@ def build_grouping_settings_card(cfg: dict) -> dbc.Card:
             ],
             className="grp-flex-row",
         ),
-        # 2. Grouping Mode 行
         html.Div(
             [
                 html.Span(
@@ -629,10 +736,8 @@ def build_grouping_settings_card(cfg: dict) -> dbc.Card:
             ],
             className="grp-flex-row",
         ),
-        # 3. 3个 Input 强制一行并排容器
         html.Div(
             [
-                # Manual Bins
                 html.Div(
                     [
                         html.Label(LABEL_MAPPING["bins"], className="mb-1 l2_label"),
@@ -645,9 +750,8 @@ def build_grouping_settings_card(cfg: dict) -> dbc.Card:
                             className="custom-grp-input",
                         ),
                     ],
-                    style={"flex": "2"},  # 占 50% 宽度
+                    style={"flex": "2"},
                 ),
-                # Auto Group Count
                 html.Div(
                     [
                         html.Label(
@@ -665,9 +769,8 @@ def build_grouping_settings_card(cfg: dict) -> dbc.Card:
                             className="custom-grp-input",
                         ),
                     ],
-                    style={"flex": "1"},  # 占 25% 宽度
+                    style={"flex": "1"},
                 ),
-                # Top N
                 html.Div(
                     [
                         html.Label(
@@ -684,12 +787,11 @@ def build_grouping_settings_card(cfg: dict) -> dbc.Card:
                             className="custom-grp-input",
                         ),
                     ],
-                    style={"flex": "1"},  # 占 25% 宽度
+                    style={"flex": "1"},
                 ),
             ],
             className="grp-inputs-row",
         ),
-        # ETF Settings 专属配置项 (包含最小阈值与 Auto 模式参数)
         html.Div(
             [
                 html.Div(
@@ -698,7 +800,6 @@ def build_grouping_settings_card(cfg: dict) -> dbc.Card:
                 ),
                 html.Div(
                     [
-                        # Min Threshold
                         html.Div(
                             [
                                 html.Label(
@@ -710,14 +811,13 @@ def build_grouping_settings_card(cfg: dict) -> dbc.Card:
                                     type="text",
                                     value=format_to_sci(
                                         etf_cfg.get("min_threshold", "5e9")
-                                    ),  # 强制格式化为 '5e9'
+                                    ),
                                     placeholder="e.g. 5e9",
                                     className="custom-grp-input",
                                 ),
                             ],
                             style={"flex": "1"},
                         ),
-                        # Auto Groups
                         html.Div(
                             [
                                 html.Label(
@@ -736,7 +836,6 @@ def build_grouping_settings_card(cfg: dict) -> dbc.Card:
                             ],
                             style={"flex": "1"},
                         ),
-                        # Top N
                         html.Div(
                             [
                                 html.Label(
@@ -780,50 +879,609 @@ def build_grouping_settings_card(cfg: dict) -> dbc.Card:
     )
 
 
+def get_slider_bounds_and_marks(k: str):
+    # 1. MACD
+    if k in ("macd_fast_period", "macd_slow_period", "macd_signal_period"):
+        return 0, 30, 1, {10: "10", 20: "20", 30: "30"}
+
+    # 2. MA 相关
+    elif k == "ma_short_period":
+        return 5, 30, 1, {10: "10", 20: "20", 30: "30"}
+    elif k == "ma_mid_period":
+        return 20, 90, 1, {40: "40", 60: "60", 90: "90"}
+    elif k == "ma_long_period":
+        return 60, 150, 1, {90: "90", 120: "120", 150: "150"}
+    elif k == "annual_ma_period":
+        return 200, 300, 1, {240: "240", 300: "300"}
+
+    # 3. Vol MA 相关
+    elif k == "vol_short_period":
+        return 0, 10, 1, {5: "5", 10: "10"}
+    elif k == "vol_mid_period":
+        return 5, 20, 1, {10: "10", 15: "15", 20: "20"}
+    elif k == "vol_long_period":
+        return 10, 60, 1, {30: "30", 60: "60"}
+
+    # 4 & 5. 观察与风险窗口
+    elif k == "short_term_window":
+        return 0, 20, 1, {5: "5", 10: "10", 20: "20"}
+    elif k == "risk_window":
+        return 5, 60, 1, {20: "20", 40: "40", 60: "60"}
+
+    # 6. Inflow
+    elif k == "net_inflow_short_period":
+        return 5, 20, 1, {10: "10", 15: "15", 20: "20"}
+    elif k == "net_inflow_mid_period":
+        return 10, 60, 1, {20: "20", 40: "40", 60: "60"}
+
+    return 0, 100, 1, {100: "100"}
+
+
+# 构建 Strategy Configuration 的各个独立子卡片
+def build_strategy_sub_card(category_key: str, key_list: list, cfg: dict) -> dbc.Card:
+    bt_cfg = cfg.get("backtest_settings", DEFAULT_BACKTEST_SETTINGS).get(
+        category_key, {}
+    )
+    card_title = LABEL_MAPPING.get(category_key, category_key)
+
+    row_list = []
+    for k in key_list:
+        display_text = LABEL_MAPPING.get(k, k)
+        val = bt_cfg.get(k, 0)
+
+        min_v, max_v, step_v, marks_v = get_slider_bounds_and_marks(k)
+
+        row_list.append(
+            dbc.Row(
+                [
+                    dbc.Label(
+                        display_text,
+                        width=2,  # 严格对齐 col-2
+                        className="mb-0 fw-normal l2_label align-self-center form-label text-truncate",
+                    ),
+                    dbc.Col(
+                        dcc.Slider(
+                            id=f"slider_bt_{k}",
+                            min=min_v,
+                            max=max_v,
+                            step=step_v,
+                            value=val,
+                            marks=marks_v,
+                            tooltip={
+                                "placement": "bottom",
+                                "always_visible": True,
+                            },
+                            className="mb-0 weight-slider-primary",
+                            drag_value=0,
+                            disabled=False,
+                        ),
+                        width=8,  # 严格对齐 col-8
+                    ),
+                ],
+                className="mb-3 align-items-center",
+            )
+        )
+
+    return dbc.Card(
+        [
+            dbc.CardHeader(
+                html.Label(
+                    card_title,
+                    className="fs-5 fw-bold text-dark l1_label",
+                )
+            ),
+            dbc.CardBody(row_list, className="py-3 card-body"),
+        ],
+        className="h-100 shadow-sm border-0 rounded-3 mb-4 weight-config-card",
+    )
+
+
+def build_ma_convergence_card(cfg: dict) -> dbc.Card:
+    """均线粘合 (MA Convergence) 参数卡片 - 采用 Input 输入框 + 网格布局"""
+    sqz_cfg = cfg.get("backtest_settings", DEFAULT_BACKTEST_SETTINGS).get(
+        "ma_convergence", {}
+    )
+
+    card_body = html.Div(
+        [
+            html.Div(
+                [
+                    html.Label(
+                        LABEL_MAPPING.get(
+                            "ma_convergence_window", "ma_convergence_window"
+                        ),
+                        className="mb-1 l2_label text-truncate",
+                    ),
+                    dbc.Input(
+                        id="input_bt_ma_convergence_window",
+                        type="number",
+                        min=5,
+                        max=90,
+                        step=1,
+                        value=sqz_cfg.get("ma_convergence_window", 20),
+                        className="custom-grp-input",
+                    ),
+                ],
+                style={"flex": "1"},
+            ),
+            html.Div(
+                [
+                    html.Label(
+                        LABEL_MAPPING.get(
+                            "ma_convergence_threshold_pct",
+                            "ma_convergence_threshold_pct",
+                        ),
+                        className="mb-1 l2_label text-truncate",
+                    ),
+                    dbc.Input(
+                        id="input_bt_ma_convergence_threshold_pct",
+                        type="number",
+                        min=0.0,
+                        max=0.5,
+                        step=0.005,
+                        value=sqz_cfg.get("ma_convergence_threshold_pct", 0.02),
+                        className="custom-grp-input",
+                    ),
+                ],
+                style={"flex": "1"},
+            ),
+            html.Div(
+                [
+                    html.Label(
+                        LABEL_MAPPING.get(
+                            "ma_convergence_min_days", "ma_convergence_min_days"
+                        ),
+                        className="mb-1 l2_label text-truncate",
+                    ),
+                    dbc.Input(
+                        id="input_bt_ma_convergence_min_days",
+                        type="number",
+                        min=0,
+                        max=30,
+                        step=1,
+                        value=sqz_cfg.get("ma_convergence_min_days", 5),
+                        className="custom-grp-input",
+                    ),
+                ],
+                style={"flex": "1"},
+            ),
+        ],
+        className="grp-inputs-row",
+    )
+
+    return dbc.Card(
+        [
+            dbc.CardHeader(
+                html.Label(
+                    LABEL_MAPPING.get("ma_convergence", "MA Convergence"),
+                    className="fs-5 fw-bold text-dark l1_label",
+                )
+            ),
+            dbc.CardBody(card_body, className="py-3 card-body"),
+        ],
+        className="h-100 shadow-sm border-0 rounded-3 mb-4 weight-config-card",
+    )
+
+
+def build_exit_rules_card(cfg: dict) -> dbc.Card:
+    """离场与阶梯止盈 (Stop Loss & Trailing Take-Profit) 参数卡片"""
+    exit_cfg = cfg.get("backtest_settings", DEFAULT_BACKTEST_SETTINGS).get(
+        "exit_rules", {}
+    )
+
+    card_body = [
+        # 1. 基础硬止损与持仓天数
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.Label(
+                            LABEL_MAPPING.get("max_holding_days", "max_holding_days"),
+                            className="mb-1 l2_label text-truncate",
+                        ),
+                        dbc.Input(
+                            id="input_bt_max_holding_days",
+                            type="number",
+                            min=1,
+                            max=120,
+                            step=1,
+                            value=exit_cfg.get("max_holding_days", 20),
+                            className="custom-grp-input",
+                        ),
+                    ],
+                    style={"flex": "1"},
+                ),
+                html.Div(
+                    [
+                        html.Label(
+                            LABEL_MAPPING.get(
+                                "hard_stop_loss_pct", "hard_stop_loss_pct"
+                            ),
+                            className="mb-1 l2_label text-truncate",
+                        ),
+                        dbc.Input(
+                            id="input_bt_hard_stop_loss_pct",
+                            type="number",
+                            min=0.0,
+                            max=0.5,
+                            step=0.01,
+                            value=exit_cfg.get("hard_stop_loss_pct", 0.10),
+                            className="custom-grp-input",
+                        ),
+                    ],
+                    style={"flex": "1"},
+                ),
+            ],
+            className="grp-inputs-row mb-3",
+        ),
+        # 2. 阶梯移动止盈 - 完全对齐上方 grp-inputs-row 结构，实现平分 50% 并排
+        html.Div(
+            [
+                html.Div(
+                    "Trailing Take-Profit Tiers (Profit Threshold / Drawback)",
+                    className="fw-bold mb-2 text-secondary fs-6",
+                ),
+                # Tier 1
+                html.Div(
+                    [
+                        html.Label(
+                            "Tier 1 (TP Profit / Drawback)",
+                            className="mb-1 l2_label text-truncate w-100",
+                        ),
+                        html.Div(
+                            [
+                                html.Div(
+                                    dbc.Input(
+                                        id="input_bt_trailing_tp_tier_1_threshold",
+                                        type="number",
+                                        value=exit_cfg.get(
+                                            "trailing_tp_tier_1_threshold", 1.0
+                                        ),
+                                        step=0.05,
+                                        placeholder="Profit",
+                                        className="custom-grp-input",
+                                    ),
+                                    style={"flex": "1"},
+                                ),
+                                html.Div(
+                                    dbc.Input(
+                                        id="input_bt_trailing_tp_tier_1_drawback",
+                                        type="number",
+                                        value=exit_cfg.get(
+                                            "trailing_tp_tier_1_drawback", 0.2
+                                        ),
+                                        step=0.05,
+                                        placeholder="Drawback",
+                                        className="custom-grp-input",
+                                    ),
+                                    style={"flex": "1"},
+                                ),
+                            ],
+                            className="grp-inputs-row",
+                        ),
+                    ],
+                    className="mb-3",
+                ),
+                # Tier 2
+                html.Div(
+                    [
+                        html.Label(
+                            "Tier 2 (TP Profit / Drawback)",
+                            className="mb-1 l2_label text-truncate w-100",
+                        ),
+                        html.Div(
+                            [
+                                html.Div(
+                                    dbc.Input(
+                                        id="input_bt_trailing_tp_tier_2_threshold",
+                                        type="number",
+                                        value=exit_cfg.get(
+                                            "trailing_tp_tier_2_threshold", 0.5
+                                        ),
+                                        step=0.05,
+                                        placeholder="Profit",
+                                        className="custom-grp-input",
+                                    ),
+                                    style={"flex": "1"},
+                                ),
+                                html.Div(
+                                    dbc.Input(
+                                        id="input_bt_trailing_tp_tier_2_drawback",
+                                        type="number",
+                                        value=exit_cfg.get(
+                                            "trailing_tp_tier_2_drawback", 0.3
+                                        ),
+                                        step=0.05,
+                                        placeholder="Drawback",
+                                        className="custom-grp-input",
+                                    ),
+                                    style={"flex": "1"},
+                                ),
+                            ],
+                            className="grp-inputs-row",
+                        ),
+                    ],
+                    className="mb-3",
+                ),
+                # Tier 3
+                html.Div(
+                    [
+                        html.Label(
+                            "Tier 3 (TP Profit / Drawback)",
+                            className="mb-1 l2_label text-truncate w-100",
+                        ),
+                        html.Div(
+                            [
+                                html.Div(
+                                    dbc.Input(
+                                        id="input_bt_trailing_tp_tier_3_threshold",
+                                        type="number",
+                                        value=exit_cfg.get(
+                                            "trailing_tp_tier_3_threshold", 0.2
+                                        ),
+                                        step=0.05,
+                                        placeholder="Profit",
+                                        className="custom-grp-input",
+                                    ),
+                                    style={"flex": "1"},
+                                ),
+                                html.Div(
+                                    dbc.Input(
+                                        id="input_bt_trailing_tp_tier_3_drawback",
+                                        type="number",
+                                        value=exit_cfg.get(
+                                            "trailing_tp_tier_3_drawback", 0.5
+                                        ),
+                                        step=0.05,
+                                        placeholder="Drawback",
+                                        className="custom-grp-input",
+                                    ),
+                                    style={"flex": "1"},
+                                ),
+                            ],
+                            className="grp-inputs-row",
+                        ),
+                    ],
+                    className="mb-2",
+                ),
+            ]
+        ),
+    ]
+
+    return dbc.Card(
+        [
+            dbc.CardHeader(
+                html.Label(
+                    LABEL_MAPPING.get("exit_rules", "Stop Loss & Trailing Take-Profit"),
+                    className="fs-5 fw-bold text-dark l1_label",
+                )
+            ),
+            dbc.CardBody(card_body, className="py-3 card-body"),
+        ],
+        className="h-100 shadow-sm border-0 rounded-3 mb-4 weight-config-card",
+    )
+
+
+def create_schedule_card(config: dict) -> html.Div:
+    """定时调度任务配置卡片 (Schedule Configuration)
+    包含 Strategy Schedule 与 Proxy Schedule 两个标准的 Card 模块 (对齐 MA Convergence)
+    """
+    sch_cfg = config.get("schedule_settings", DEFAULT_SCHEDULE_SETTINGS)
+
+    strategy_schedules = [
+        ("cn_stock_cron", sch_cfg.get("cn_stock_cron", "30 15 * * *")),
+        ("us_stock_cron", sch_cfg.get("us_stock_cron", "00 07 * * *")),
+    ]
+
+    proxy_schedules = [
+        ("cn_proxy_cron", sch_cfg.get("cn_proxy_cron", "30 07 * * *")),
+        ("oversea_proxy_cron", sch_cfg.get("oversea_proxy_cron", "30 08 * * *")),
+    ]
+
+    def render_cron_input(key_name: str, val: str):
+        return html.Div(
+            [
+                html.Label(
+                    LABEL_MAPPING.get(key_name, key_name),
+                    className="mb-1 l2_label text-truncate",
+                ),
+                dbc.Input(
+                    id=f"input_cron_{key_name}",
+                    type="text",
+                    value=val,
+                    placeholder="e.g. 30 15 * * *",
+                    className="custom-grp-input",
+                ),
+            ],
+            style={"flex": "1"},
+        )
+
+    # 1. Strategy Execution Schedule 卡片
+    strategy_card = dbc.Card(
+        [
+            dbc.CardHeader(
+                html.Label(
+                    LABEL_MAPPING.get(
+                        "strategy_schedule", "Strategy Execution Schedule"
+                    ),
+                    className="fs-5 fw-bold text-dark l1_label mb-0",
+                )
+            ),
+            dbc.CardBody(
+                html.Div(
+                    [render_cron_input(k, v) for k, v in strategy_schedules],
+                    className="grp-inputs-row",
+                ),
+                className="py-3 card-body",
+            ),
+        ],
+        className="h-100 shadow-sm border-0 rounded-3 mb-4 weight-config-card",
+    )
+
+    # 2. Proxy Execution Schedule 卡片
+    proxy_card = dbc.Card(
+        [
+            dbc.CardHeader(
+                html.Label(
+                    LABEL_MAPPING.get("proxy_schedule", "Proxy Execution Schedule"),
+                    className="fs-5 fw-bold text-dark l1_label mb-0",
+                )
+            ),
+            dbc.CardBody(
+                html.Div(
+                    [render_cron_input(k, v) for k, v in proxy_schedules],
+                    className="grp-inputs-row",
+                ),
+                className="py-3 card-body",
+            ),
+        ],
+        className="h-100 shadow-sm border-0 rounded-3 mb-4 weight-config-card",
+    )
+
+    # 包裹为一个 Div 返回（包含上下排列的两块标准卡片）
+    return html.Div([strategy_card, proxy_card])
+
+
 # -------------------------- 页面布局 --------------------------
 def create_layout(app: Dash):
     init_json_file()
     init_cfg = load_config()
 
-    title_section = html.Div(
+    # 1. 第一部分：WEIGHT CONFIGURATION 头部与配置区块
+    weight_title_section = html.Div(
         [
-            html.H6("Weight Configuration", className="subtitle padded"),
+            html.H6("WEIGHT CONFIGURATION", className="subtitle padded"),
             html.P(
-                "Drag and drop to adjust weights freely. Save profile with one click.",
-                className="text-secondary text-center mb-5 small page-sub-desc",
+                "Drag and drop to adjust scoring weights freely. Profiles are autosaved into json.",
+                className="text-secondary text-center mb-4 small page-sub-desc",
             ),
         ]
     )
 
-    card_row_1 = dbc.Row(
+    weight_rows = html.Div(
         [
-            dbc.Col(build_root_card(init_cfg), lg=6, md=12),
-            dbc.Col(build_industry_card(init_cfg), lg=6, md=12),
-        ]
-    )
-    card_row_2 = dbc.Row(
-        [
-            dbc.Col(build_pnl_card(init_cfg), lg=6, md=12),
-            dbc.Col(build_stability_card(init_cfg), lg=6, md=12),
-        ]
-    )
-    card_row_3 = dbc.Row(
-        [
-            dbc.Col(build_strategy_card(init_cfg), lg=6, md=12),
-            dbc.Col(build_stock_filter_card(init_cfg), lg=6, md=12),
-        ]
-    )
-    card_row_4 = dbc.Row(
-        [
-            dbc.Col(build_chart_display_card(init_cfg), lg=6, md=12),
-        ]
-    )
-    card_row_5 = dbc.Row(
-        [
-            dbc.Col(build_grouping_settings_card(init_cfg), lg=6, md=12),
+            dbc.Row(
+                [
+                    dbc.Col(build_root_card(init_cfg), lg=6, md=12),
+                    dbc.Col(build_industry_card(init_cfg), lg=6, md=12),
+                ]
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(build_pnl_card(init_cfg), lg=6, md=12),
+                    dbc.Col(build_stability_card(init_cfg), lg=6, md=12),
+                ]
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(build_strategy_card(init_cfg), lg=6, md=12),
+                    dbc.Col(build_chart_display_card(init_cfg), lg=6, md=12),
+                ]
+            ),
         ]
     )
 
+    # 2. 第二部分：STRATEGY CONFIGURATION 包含 Stock Filter、Market Settings 及策略参数
+    strategy_title_section = html.Div(
+        [
+            html.H6("STRATEGY CONFIGURATION", className="subtitle padded mt-5"),
+            html.P(
+                "Fine-tune strategy parameters, indicators, market grouping, and filtering criteria.",
+                className="text-secondary text-center mb-4 small page-sub-desc",
+            ),
+        ]
+    )
+
+    strategy_rows = html.Div(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(build_stock_filter_card(init_cfg), lg=6, md=12),
+                    dbc.Col(build_grouping_settings_card(init_cfg), lg=6, md=12),
+                ]
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        build_strategy_sub_card("macd", BT_MACD_KEYS, init_cfg),
+                        lg=6,
+                        md=12,
+                    ),
+                    dbc.Col(
+                        build_strategy_sub_card("moving_average", BT_MA_KEYS, init_cfg),
+                        lg=6,
+                        md=12,
+                    ),
+                ]
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        build_strategy_sub_card("volume_ma", BT_VOL_KEYS, init_cfg),
+                        lg=6,
+                        md=12,
+                    ),
+                    dbc.Col(
+                        build_strategy_sub_card(
+                            "window_metrics", BT_WIN_KEYS, init_cfg
+                        ),
+                        lg=6,
+                        md=12,
+                    ),
+                ]
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        build_strategy_sub_card("capital_flow", BT_FLOW_KEYS, init_cfg),
+                        lg=6,
+                        md=12,
+                    ),
+                    dbc.Col(
+                        build_ma_convergence_card(init_cfg),
+                        lg=6,
+                        md=12,
+                    ),
+                ]
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        build_exit_rules_card(init_cfg),
+                        lg=12,
+                        md=12,
+                    ),
+                ]
+            ),
+        ]
+    )
+
+    # 3. 第三部分：SCHEDULE CONFIGURATION（新增调度配置卡片区块）
+    schedule_title_section = html.Div(
+        [
+            html.H6("SCHEDULE CONFIGURATION", className="subtitle padded mt-5"),
+            html.P(
+                "Set crontab timings for strategy execution and proxy data collection.",
+                className="text-secondary text-center mb-4 small page-sub-desc",
+            ),
+        ]
+    )
+
+    schedule_rows = html.Div(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(
+                        create_schedule_card(init_cfg),
+                        lg=12,
+                        md=12,
+                    ),
+                ]
+            ),
+        ]
+    )
+
+    # 4. 底部操作按钮、提示与配置预览
     button_section = html.Div(
         [
             dbc.Button(
@@ -856,13 +1514,14 @@ def create_layout(app: Dash):
         ]
     )
 
+    # 组装页面所有区域
     sub_page_content = [
-        title_section,
-        card_row_1,
-        card_row_2,
-        card_row_3,
-        card_row_4,
-        card_row_5,
+        weight_title_section,
+        weight_rows,
+        strategy_title_section,
+        strategy_rows,
+        schedule_title_section,
+        schedule_rows,
         button_section,
         msg_section,
         preview_section,
@@ -876,18 +1535,41 @@ def create_layout(app: Dash):
     )
 
 
-# -------------------------- 回调注册 --------------------------
+# -------------------------- 1. 回调注册主函数 --------------------------
 def register_callbacks(app: Dash):
-    # 1. 扩充所有输入的组件列表 (增加了 etf 的 3 个 Input)
+    # 回测模块 Input / Output
+    bt_inputs = (
+        [Input(f"slider_bt_{k}", "value") for k in BT_MACD_KEYS]
+        + [Input(f"slider_bt_{k}", "value") for k in BT_MA_KEYS]
+        + [Input(f"slider_bt_{k}", "value") for k in BT_VOL_KEYS]
+        + [Input(f"slider_bt_{k}", "value") for k in BT_WIN_KEYS]
+        + [Input(f"slider_bt_{k}", "value") for k in BT_FLOW_KEYS]
+        + [Input(f"input_bt_{k}", "value") for k in BT_CONVERGENCE_KEYS]
+        + [Input(f"input_bt_{k}", "value") for k in BT_EXIT_KEYS]
+    )
+
+    bt_outputs = (
+        [Output(f"slider_bt_{k}", "value") for k in BT_MACD_KEYS]
+        + [Output(f"slider_bt_{k}", "value") for k in BT_MA_KEYS]
+        + [Output(f"slider_bt_{k}", "value") for k in BT_VOL_KEYS]
+        + [Output(f"slider_bt_{k}", "value") for k in BT_WIN_KEYS]
+        + [Output(f"slider_bt_{k}", "value") for k in BT_FLOW_KEYS]
+        + [Output(f"input_bt_{k}", "value") for k in BT_CONVERGENCE_KEYS]
+        + [Output(f"input_bt_{k}", "value") for k in BT_EXIT_KEYS]
+    )
+
+    # 调度模块 Input / Output
+    schedule_inputs = [Input(f"input_cron_{k}", "value") for k in SCHEDULE_KEYS]
+    schedule_outputs = [Output(f"input_cron_{k}", "value") for k in SCHEDULE_KEYS]
+
+    # 汇总所有触发监听输入（用于 Realtime Preview & Save）
     all_slider_input_list = (
         [Input(f"slider_root_{k}", "value") for k in ROOT_KEYS]
         + [Input(f"slider_ind_{k}", "value") for k in IND_KEYS]
         + [Input(f"slider_pnl_{k}", "value") for k in PNL_KEYS]
         + [Input(f"slider_sta_{k}", "value") for k in STA_KEYS]
         + [Input(f"slider_str_{k}", "value") for k in STR_KEYS]
-        + [
-            Input(f"slider_stk_{k}", "value") for k in STK_KEYS
-        ]  # 已包含 STK_KEYS 中的 quantile
+        + [Input(f"slider_stk_{k}", "value") for k in STK_KEYS]
         + [Input(f"slider_cht_{k}", "value") for k in CHT_KEYS]
         + [
             Input("grp_market", "value"),
@@ -895,14 +1577,15 @@ def register_callbacks(app: Dash):
             Input("grp_bins", "value"),
             Input("grp_n_groups", "value"),
             Input("grp_top_n", "value"),
-            # 【新增】ETF 实时监听输入
             Input("etf_min_threshold", "value"),
             Input("etf_n_groups", "value"),
             Input("etf_top_n", "value"),
         ]
+        + bt_inputs
+        + schedule_inputs
     )
 
-    # 2. 扩充重置按钮的输出列表 (增加了 etf 的 3 个 Output)
+    # 汇总所有重置目标输出（修复补充了 ETF 对应的 3 个 Output，防止数量不一致导致 Reset 报错）
     reset_outputs = (
         [Output(f"slider_root_{k}", "value") for k in ROOT_KEYS]
         + [Output(f"slider_ind_{k}", "value") for k in IND_KEYS]
@@ -917,14 +1600,15 @@ def register_callbacks(app: Dash):
             Output("grp_bins", "value"),
             Output("grp_n_groups", "value"),
             Output("grp_top_n", "value"),
-            # 【新增】ETF 重置输出
             Output("etf_min_threshold", "value"),
             Output("etf_n_groups", "value"),
             Output("etf_top_n", "value"),
         ]
+        + bt_outputs
+        + schedule_outputs
     )
 
-    # 手动/自动模式切换禁用逻辑
+    # 切换分组模式（手动/自动）禁用状态
     @app.callback(
         [Output("grp_bins", "disabled"), Output("grp_n_groups", "disabled")],
         Input("grp_mode", "value"),
@@ -958,7 +1642,7 @@ def register_callbacks(app: Dash):
             grp_cfg.get("top_n_per_group", 10),
         )
 
-    # 控制 ETF 区域在 CN 时显示，US 时隐藏
+    # 控制 ETF 区域仅在 CN 时显示
     @app.callback(
         Output("etf_settings_container", "style"), Input("grp_market", "value")
     )
@@ -967,131 +1651,203 @@ def register_callbacks(app: Dash):
             return {"display": "block"}
         return {"display": "none"}
 
-    # 重置按钮逻辑
+    # -------------------------- Reset 恢复默认 --------------------------
     @app.callback(
         reset_outputs,
-        inputs=[Input("btn-reset", "n_clicks")],
+        Input("btn-reset", "n_clicks"),
         prevent_initial_call=True,
     )
-    def reset_btn(n):
-        out = []
-        for v in DEFAULT_CONFIG["weights"].values():
-            out.append(v)
-        for v in DEFAULT_CONFIG["sub_weights"]["industry"].values():
-            out.append(v)
-        for v in DEFAULT_CONFIG["sub_weights"]["pnl"].values():
-            out.append(v)
-        for v in DEFAULT_CONFIG["sub_weights"]["stability"].values():
-            out.append(v)
-        for v in DEFAULT_CONFIG["sub_weights"]["strategy"].values():
-            out.append(v)
-        for v in DEFAULT_CONFIG["stock_filter"].values():
-            out.append(v)
-        for v in DEFAULT_CONFIG["chart_display"].values():
-            out.append(v)
+    def reset_to_defaults(n_clicks):
+        if not n_clicks:
+            return [no_update] * len(reset_outputs)
 
-        # 还原当前选中的 Market 及该 Market 的默认分组配置
-        out.append("cn")
-        out.append(DEFAULT_GROUPING_CN["grouping_mode"])
-        out.append(DEFAULT_GROUPING_CN["bins"])
-        out.append(DEFAULT_GROUPING_CN["n_groups"])
-        out.append(DEFAULT_GROUPING_CN["top_n_per_group"])
+        root_vals = [DEFAULT_CONFIG["weights"][k] for k in ROOT_KEYS]
+        ind_vals = [DEFAULT_CONFIG["sub_weights"]["industry"][k] for k in IND_KEYS]
+        pnl_vals = [DEFAULT_CONFIG["sub_weights"]["pnl"][k] for k in PNL_KEYS]
+        sta_vals = [DEFAULT_CONFIG["sub_weights"]["stability"][k] for k in STA_KEYS]
+        str_vals = [DEFAULT_CONFIG["sub_weights"]["strategy"][k] for k in STR_KEYS]
+        stk_vals = [DEFAULT_CONFIG["stock_filter"][k] for k in STK_KEYS]
+        cht_vals = [DEFAULT_CONFIG["chart_display"][k] for k in CHT_KEYS]
 
-        # 【新增】还原 ETF 默认配置
-        def_etf = DEFAULT_CONFIG.get(
-            "grouping_settings_etf",
-            {"min_threshold": "5e9", "n_groups": 1, "top_n_per_group": 50},
+        # 包含 CN 默认分组参数 + ETF 默认参数 (5e9, 1, 50)
+        grp_vals = [
+            "cn",
+            DEFAULT_GROUPING_CN["grouping_mode"],
+            DEFAULT_GROUPING_CN["bins"],
+            DEFAULT_GROUPING_CN["n_groups"],
+            DEFAULT_GROUPING_CN["top_n_per_group"],
+            "5e9",
+            1,
+            50,
+        ]
+
+        bt_macd = [DEFAULT_BACKTEST_SETTINGS["macd"][k] for k in BT_MACD_KEYS]
+        bt_ma = [DEFAULT_BACKTEST_SETTINGS["moving_average"][k] for k in BT_MA_KEYS]
+        bt_vol = [DEFAULT_BACKTEST_SETTINGS["volume_ma"][k] for k in BT_VOL_KEYS]
+        bt_win = [DEFAULT_BACKTEST_SETTINGS["window_metrics"][k] for k in BT_WIN_KEYS]
+        bt_flow = [DEFAULT_BACKTEST_SETTINGS["capital_flow"][k] for k in BT_FLOW_KEYS]
+        bt_sqz = [
+            DEFAULT_BACKTEST_SETTINGS["ma_convergence"][k] for k in BT_CONVERGENCE_KEYS
+        ]
+        bt_exit = [DEFAULT_BACKTEST_SETTINGS["exit_rules"][k] for k in BT_EXIT_KEYS]
+
+        cron_vals = [DEFAULT_SCHEDULE_SETTINGS[k] for k in SCHEDULE_KEYS]
+
+        return (
+            root_vals
+            + ind_vals
+            + pnl_vals
+            + sta_vals
+            + str_vals
+            + stk_vals
+            + cht_vals
+            + grp_vals
+            + bt_macd
+            + bt_ma
+            + bt_vol
+            + bt_win
+            + bt_flow
+            + bt_sqz
+            + bt_exit
+            + cron_vals
         )
-        out.append(def_etf.get("min_threshold", "5e9"))
-        out.append(def_etf.get("n_groups", 1))
-        out.append(def_etf.get("top_n_per_group", 50))
 
-        return out
+    # -------------------------- 实时预览 & 保存 --------------------------
+    @app.callback(
+        [Output("json-preview", "value"), Output("save-msg", "children")],
+        [Input("btn-save", "n_clicks")] + all_slider_input_list,
+    )
+    def update_and_save(n_clicks, *args):
+        idx = 0
+        root_vals = args[idx : idx + len(ROOT_KEYS)]
+        idx += len(ROOT_KEYS)
 
-    # JSON 实时预览刷新逻辑
-    @app.callback(Output("json-preview", "value"), all_slider_input_list)
-    def refresh_json(*all_values):
-        ptr = 0
-        cfg = load_config()
+        ind_vals = args[idx : idx + len(IND_KEYS)]
+        idx += len(IND_KEYS)
 
-        for k in ROOT_KEYS:
-            cfg["weights"][k] = all_values[ptr]
-            ptr += 1
-        for k in IND_KEYS:
-            cfg["sub_weights"]["industry"][k] = all_values[ptr]
-            ptr += 1
-        for k in PNL_KEYS:
-            cfg["sub_weights"]["pnl"][k] = all_values[ptr]
-            ptr += 1
-        for k in STA_KEYS:
-            cfg["sub_weights"]["stability"][k] = all_values[ptr]
-            ptr += 1
-        for k in STR_KEYS:
-            cfg["sub_weights"]["strategy"][k] = all_values[ptr]
-            ptr += 1
-        for k in STK_KEYS:
-            cfg["stock_filter"][k] = all_values[ptr]
-            ptr += 1
-        for k in CHT_KEYS:
-            cfg["chart_display"][k] = all_values[ptr]
-            ptr += 1
+        pnl_vals = args[idx : idx + len(PNL_KEYS)]
+        idx += len(PNL_KEYS)
 
-        selected_market = all_values[ptr]
-        ptr += 1
-        mode_val = all_values[ptr]
-        ptr += 1
-        bins_val = all_values[ptr]
-        ptr += 1
-        n_groups_val = all_values[ptr]
-        ptr += 1
-        top_n_val = all_values[ptr]
-        ptr += 1
+        sta_vals = args[idx : idx + len(STA_KEYS)]
+        idx += len(STA_KEYS)
 
-        # 1. 更新对应选定市场的独立 grouping_settings
-        grp_key = f"grouping_settings_{selected_market}"
-        cfg[grp_key] = {
-            "grouping_mode": mode_val,
-            "bins": bins_val,
-            "n_groups": n_groups_val,
-            "top_n_per_group": top_n_val,
+        str_vals = args[idx : idx + len(STR_KEYS)]
+        idx += len(STR_KEYS)
+
+        stk_vals = args[idx : idx + len(STK_KEYS)]
+        idx += len(STK_KEYS)
+
+        cht_vals = args[idx : idx + len(CHT_KEYS)]
+        idx += len(CHT_KEYS)
+
+        (
+            market,
+            mode,
+            bins,
+            n_groups,
+            top_n,
+            etf_min,
+            etf_n,
+            etf_top_n,
+        ) = args[idx : idx + 8]
+        idx += 8
+
+        bt_macd_vals = args[idx : idx + len(BT_MACD_KEYS)]
+        idx += len(BT_MACD_KEYS)
+
+        bt_ma_vals = args[idx : idx + len(BT_MA_KEYS)]
+        idx += len(BT_MA_KEYS)
+
+        bt_vol_vals = args[idx : idx + len(BT_VOL_KEYS)]
+        idx += len(BT_VOL_KEYS)
+
+        bt_win_vals = args[idx : idx + len(BT_WIN_KEYS)]
+        idx += len(BT_WIN_KEYS)
+
+        bt_flow_vals = args[idx : idx + len(BT_FLOW_KEYS)]
+        idx += len(BT_FLOW_KEYS)
+
+        bt_sqz_vals = args[idx : idx + len(BT_CONVERGENCE_KEYS)]
+        idx += len(BT_CONVERGENCE_KEYS)
+
+        bt_exit_vals = args[idx : idx + len(BT_EXIT_KEYS)]
+        idx += len(BT_EXIT_KEYS)
+
+        schedule_vals = args[idx : idx + len(SCHEDULE_KEYS)]
+
+        current_cfg = load_config()
+
+        # 更新普通配置
+        current_cfg["weights"] = dict(zip(ROOT_KEYS, root_vals))
+        current_cfg["sub_weights"]["industry"] = dict(zip(IND_KEYS, ind_vals))
+        current_cfg["sub_weights"]["pnl"] = dict(zip(PNL_KEYS, pnl_vals))
+        current_cfg["sub_weights"]["stability"] = dict(zip(STA_KEYS, sta_vals))
+        current_cfg["sub_weights"]["strategy"] = dict(zip(STR_KEYS, str_vals))
+        current_cfg["stock_filter"] = dict(zip(STK_KEYS, stk_vals))
+        current_cfg["chart_display"] = dict(zip(CHT_KEYS, cht_vals))
+
+        target_grp_key = f"grouping_settings_{market}"
+        current_cfg[target_grp_key] = {
+            "grouping_mode": mode,
+            "bins": bins,
+            "n_groups": n_groups,
+            "top_n_per_group": top_n,
         }
 
-        # 2. 【新增】提取并更新 ETF grouping_settings
-        etf_min_thresh = all_values[ptr]
-        ptr += 1
-        etf_n_groups = all_values[ptr]
-        ptr += 1
-        etf_top_n = all_values[ptr]
-        ptr += 1
-
-        cfg["grouping_settings_etf"] = {
-            "min_threshold": str(etf_min_thresh),
-            "n_groups": etf_n_groups,
+        # 更新 grouping_settings_etf
+        current_cfg["grouping_settings_etf"] = {
+            "min_threshold": etf_min,
+            "n_groups": etf_n,
             "top_n_per_group": etf_top_n,
         }
 
-        return json.dumps(cfg, indent=4, ensure_ascii=False)
+        # 更新 backtest_settings
+        current_cfg["backtest_settings"] = {
+            "macd": dict(zip(BT_MACD_KEYS, bt_macd_vals)),
+            "moving_average": dict(zip(BT_MA_KEYS, bt_ma_vals)),
+            "volume_ma": dict(zip(BT_VOL_KEYS, bt_vol_vals)),
+            "window_metrics": dict(zip(BT_WIN_KEYS, bt_win_vals)),
+            "capital_flow": dict(zip(BT_FLOW_KEYS, bt_flow_vals)),
+            "ma_convergence": dict(zip(BT_CONVERGENCE_KEYS, bt_sqz_vals)),
+            "exit_rules": dict(zip(BT_EXIT_KEYS, bt_exit_vals)),
+        }
 
-    # 保存配置写入文件 (保存函数不变)
-    @app.callback(
-        Output("save-msg", "children"),
-        Input("btn-save", "n_clicks"),
-        State("json-preview", "value"),
-        prevent_initial_call=True,
-    )
-    def save_btn(n, json_str):
-        role = session.get("role")
-        if role != "admin":
-            return html.Span(
-                "⛔ Only super administrators can modify the configuration.",
-                style={"color": "#dc3545"},
-            )
-        try:
-            d = json.loads(json_str)
-            save_config(d)
-            export_dynamic_list()
-            return html.Span(
-                "✅ Configuration file saved successfully.", style={"color": "#198754"}
-            )
-        except Exception as e:
-            return html.Span(f"❌ Save failed: {str(e)}", style={"color": "#dc3545"})
+        # 更新 schedule_settings
+        schedule_dict = dict(zip(SCHEDULE_KEYS, schedule_vals))
+        current_cfg["schedule_settings"] = schedule_dict
+
+        preview_json = json.dumps(current_cfg, indent=4, ensure_ascii=False)
+        triggered_id = ctx.triggered_id
+        msg = ""
+
+        if triggered_id == "btn-save":
+            role = session.get("role")
+            if role != "admin":
+                msg = html.Span(
+                    "⛔ Only super administrators can modify the configuration.",
+                    style={"color": "#dc3545"},
+                )
+            else:
+                try:
+                    save_config(current_cfg)
+                    export_dynamic_list()
+
+                    # 同步更新 Linux 系统 Crontab
+                    cron_updated = CronManager.update_system_cron(schedule_dict)
+
+                    if cron_updated:
+                        msg = html.Span(
+                            "✅ Configuration saved & System Crontab updated successfully.",
+                            style={"color": "#198754"},
+                        )
+                    else:
+                        msg = html.Span(
+                            "⚠️ Configuration saved, but failed to update Crontab (check permissions).",
+                            style={"color": "#ffc107"},
+                        )
+                except Exception as e:
+                    msg = html.Span(
+                        f"❌ Save failed: {str(e)}", style={"color": "#dc3545"}
+                    )
+
+        return preview_json, msg
