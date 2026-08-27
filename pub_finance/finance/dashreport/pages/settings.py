@@ -781,7 +781,7 @@ def build_grouping_settings_card(cfg: dict) -> dbc.Card:
                             id="grp_top_n",
                             type="number",
                             min=1,
-                            max=100,
+                            max=500,
                             step=1,
                             value=grp_cfg.get("top_n_per_group", 10),
                             className="custom-grp-input",
@@ -846,7 +846,7 @@ def build_grouping_settings_card(cfg: dict) -> dbc.Card:
                                     id="etf_top_n",
                                     type="number",
                                     min=1,
-                                    max=200,
+                                    max=500,
                                     step=1,
                                     value=etf_cfg.get("top_n_per_group", 50),
                                     className="custom-grp-input",
@@ -996,7 +996,7 @@ def build_ma_convergence_card(cfg: dict) -> dbc.Card:
                         id="input_bt_ma_convergence_window",
                         type="number",
                         min=5,
-                        max=90,
+                        max=120,
                         step=1,
                         value=sqz_cfg.get("ma_convergence_window", 20),
                         className="custom-grp-input",
@@ -1114,7 +1114,7 @@ def build_exit_rules_card(cfg: dict) -> dbc.Card:
             ],
             className="grp-inputs-row mb-3",
         ),
-        # 2. 阶梯移动止盈 - 完全对齐上方 grp-inputs-row 结构，实现平分 50% 并排
+        # 2. 阶梯移动止盈 - 细化 Label，使 Profit 与 Drawback 分别对齐各自的输入框
         html.Div(
             [
                 html.Div(
@@ -1124,125 +1124,146 @@ def build_exit_rules_card(cfg: dict) -> dbc.Card:
                 # Tier 1
                 html.Div(
                     [
-                        html.Label(
-                            "Tier 1 (TP Profit / Drawback)",
-                            className="mb-1 l2_label text-truncate w-100",
+                        html.Div(
+                            [
+                                html.Label(
+                                    "Tier 1 Profit",
+                                    className="mb-1 l2_label text-truncate",
+                                ),
+                                dbc.Input(
+                                    id="input_bt_trailing_tp_tier_1_threshold",
+                                    type="number",
+                                    value=exit_cfg.get(
+                                        "trailing_tp_tier_1_threshold", 1.0
+                                    ),
+                                    min=0,
+                                    max=5,
+                                    step=0.05,
+                                    placeholder="Profit",
+                                    className="custom-grp-input",
+                                ),
+                            ],
+                            style={"flex": "1"},
                         ),
                         html.Div(
                             [
-                                html.Div(
-                                    dbc.Input(
-                                        id="input_bt_trailing_tp_tier_1_threshold",
-                                        type="number",
-                                        value=exit_cfg.get(
-                                            "trailing_tp_tier_1_threshold", 1.0
-                                        ),
-                                        step=0.05,
-                                        placeholder="Profit",
-                                        className="custom-grp-input",
-                                    ),
-                                    style={"flex": "1"},
+                                html.Label(
+                                    "Tier 1 Drawback",
+                                    className="mb-1 l2_label text-truncate",
                                 ),
-                                html.Div(
-                                    dbc.Input(
-                                        id="input_bt_trailing_tp_tier_1_drawback",
-                                        type="number",
-                                        value=exit_cfg.get(
-                                            "trailing_tp_tier_1_drawback", 0.2
-                                        ),
-                                        step=0.05,
-                                        placeholder="Drawback",
-                                        className="custom-grp-input",
+                                dbc.Input(
+                                    id="input_bt_trailing_tp_tier_1_drawback",
+                                    type="number",
+                                    value=exit_cfg.get(
+                                        "trailing_tp_tier_1_drawback", 0.2
                                     ),
-                                    style={"flex": "1"},
+                                    min=0,
+                                    max=1,
+                                    step=0.05,
+                                    placeholder="Drawback",
+                                    className="custom-grp-input",
                                 ),
                             ],
-                            className="grp-inputs-row",
+                            style={"flex": "1"},
                         ),
                     ],
-                    className="mb-3",
+                    className="grp-inputs-row mb-3",
                 ),
                 # Tier 2
                 html.Div(
                     [
-                        html.Label(
-                            "Tier 2 (TP Profit / Drawback)",
-                            className="mb-1 l2_label text-truncate w-100",
+                        html.Div(
+                            [
+                                html.Label(
+                                    "Tier 2 Profit",
+                                    className="mb-1 l2_label text-truncate",
+                                ),
+                                dbc.Input(
+                                    id="input_bt_trailing_tp_tier_2_threshold",
+                                    type="number",
+                                    value=exit_cfg.get(
+                                        "trailing_tp_tier_2_threshold", 0.5
+                                    ),
+                                    min=0,
+                                    max=5,
+                                    step=0.05,
+                                    placeholder="Profit",
+                                    className="custom-grp-input",
+                                ),
+                            ],
+                            style={"flex": "1"},
                         ),
                         html.Div(
                             [
-                                html.Div(
-                                    dbc.Input(
-                                        id="input_bt_trailing_tp_tier_2_threshold",
-                                        type="number",
-                                        value=exit_cfg.get(
-                                            "trailing_tp_tier_2_threshold", 0.5
-                                        ),
-                                        step=0.05,
-                                        placeholder="Profit",
-                                        className="custom-grp-input",
-                                    ),
-                                    style={"flex": "1"},
+                                html.Label(
+                                    "Tier 2 Drawback",
+                                    className="mb-1 l2_label text-truncate",
                                 ),
-                                html.Div(
-                                    dbc.Input(
-                                        id="input_bt_trailing_tp_tier_2_drawback",
-                                        type="number",
-                                        value=exit_cfg.get(
-                                            "trailing_tp_tier_2_drawback", 0.3
-                                        ),
-                                        step=0.05,
-                                        placeholder="Drawback",
-                                        className="custom-grp-input",
+                                dbc.Input(
+                                    id="input_bt_trailing_tp_tier_2_drawback",
+                                    type="number",
+                                    value=exit_cfg.get(
+                                        "trailing_tp_tier_2_drawback", 0.3
                                     ),
-                                    style={"flex": "1"},
+                                    min=0,
+                                    max=1,
+                                    step=0.05,
+                                    placeholder="Drawback",
+                                    className="custom-grp-input",
                                 ),
                             ],
-                            className="grp-inputs-row",
+                            style={"flex": "1"},
                         ),
                     ],
-                    className="mb-3",
+                    className="grp-inputs-row mb-3",
                 ),
                 # Tier 3
                 html.Div(
                     [
-                        html.Label(
-                            "Tier 3 (TP Profit / Drawback)",
-                            className="mb-1 l2_label text-truncate w-100",
+                        html.Div(
+                            [
+                                html.Label(
+                                    "Tier 3 Profit",
+                                    className="mb-1 l2_label text-truncate",
+                                ),
+                                dbc.Input(
+                                    id="input_bt_trailing_tp_tier_3_threshold",
+                                    type="number",
+                                    value=exit_cfg.get(
+                                        "trailing_tp_tier_3_threshold", 0.2
+                                    ),
+                                    min=0,
+                                    max=5,
+                                    step=0.05,
+                                    placeholder="Profit",
+                                    className="custom-grp-input",
+                                ),
+                            ],
+                            style={"flex": "1"},
                         ),
                         html.Div(
                             [
-                                html.Div(
-                                    dbc.Input(
-                                        id="input_bt_trailing_tp_tier_3_threshold",
-                                        type="number",
-                                        value=exit_cfg.get(
-                                            "trailing_tp_tier_3_threshold", 0.2
-                                        ),
-                                        step=0.05,
-                                        placeholder="Profit",
-                                        className="custom-grp-input",
-                                    ),
-                                    style={"flex": "1"},
+                                html.Label(
+                                    "Tier 3 Drawback",
+                                    className="mb-1 l2_label text-truncate",
                                 ),
-                                html.Div(
-                                    dbc.Input(
-                                        id="input_bt_trailing_tp_tier_3_drawback",
-                                        type="number",
-                                        value=exit_cfg.get(
-                                            "trailing_tp_tier_3_drawback", 0.5
-                                        ),
-                                        step=0.05,
-                                        placeholder="Drawback",
-                                        className="custom-grp-input",
+                                dbc.Input(
+                                    id="input_bt_trailing_tp_tier_3_drawback",
+                                    type="number",
+                                    value=exit_cfg.get(
+                                        "trailing_tp_tier_3_drawback", 0.5
                                     ),
-                                    style={"flex": "1"},
+                                    min=0,
+                                    max=1,
+                                    step=0.05,
+                                    placeholder="Drawback",
+                                    className="custom-grp-input",
                                 ),
                             ],
-                            className="grp-inputs-row",
+                            style={"flex": "1"},
                         ),
                     ],
-                    className="mb-2",
+                    className="grp-inputs-row mb-2",
                 ),
             ]
         ),
