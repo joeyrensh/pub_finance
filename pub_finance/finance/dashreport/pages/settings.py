@@ -1529,7 +1529,7 @@ def create_layout(app: Dash):
                 className="py-2 rounded-2 weight-btn-save flex-btn-item flex-grow-1",
             ),
         ],
-        className="d-flex gap-4 mt-5 mb-4 flex-row",
+        className="d-flex gap-4 mt-5 mb-4 flex-row grp-inputs-row",
     )
 
     msg_section = html.Div(

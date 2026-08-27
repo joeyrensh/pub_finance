@@ -1156,18 +1156,17 @@ a:active { color: var(--text-color); text-decoration: underline; }
     font-weight: 400;
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
     border: 1px solid var(--gridcolor);
-    width: 49.45%;
+    width: 100%;
 }
 
 .weight-btn-save {
-    margin-left: 1%;
     border-color:#6c757d;
     font-size: inherit;
     line-height: 38px;
     font-weight: 400;
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
     border: 1px solid var(--gridcolor);
-    width: 49.45%;
+    width: 100%;
 }
 
 .l1_label { font-weight: 500; }
