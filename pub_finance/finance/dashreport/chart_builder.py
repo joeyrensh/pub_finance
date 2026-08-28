@@ -2541,7 +2541,6 @@ class ChartBuilder:
                     pnl.index.max() + timedelta(days=0.5),
                 ],
                 nticks=6,
-                tickmode="auto",
             ),
         )
 
@@ -3143,6 +3142,8 @@ class ChartBuilder:
             ticks="",  # 刻度线向内
             range=[xmin - timedelta(days=0.5), xmax + timedelta(days=2)],
             zeroline=False,
+            nticks=6,
+            tickmode="auto",
         )
 
         fig.update_yaxes(
