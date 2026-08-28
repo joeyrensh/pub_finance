@@ -1383,7 +1383,7 @@ def create_layout(app: Dash):
         [
             html.H6("WEIGHT CONFIGURATION", className="subtitle padded"),
             html.P(
-                "Drag and drop to adjust scoring weights freely. Profiles are autosaved into json.",
+                "Drag and drop to adjust scoring weights freely. Click [Save to Json] to save profiles.",
                 className="text-secondary text-center mb-4 small page-sub-desc",
             ),
         ]
@@ -1520,13 +1520,15 @@ def create_layout(app: Dash):
                 id="btn-reset",
                 color="secondary",
                 outline=True,
-                className="py-2 rounded-2 weight-btn-reset flex-btn-item flex-grow-1",
+                className="py-2 rounded-2 weight-btn-reset",
+                style={"flex": "1 1 0"},
             ),
             dbc.Button(
                 "Save to JSON",
                 id="btn-save",
                 color="primary",
-                className="py-2 rounded-2 weight-btn-save flex-btn-item flex-grow-1",
+                className="py-2 rounded-2 weight-btn-save",
+                style={"flex": "1 1 0"},
             ),
         ],
         className="d-flex gap-4 mt-5 mb-4 flex-row grp-inputs-row",
