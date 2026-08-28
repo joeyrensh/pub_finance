@@ -44,7 +44,7 @@ def retry_call(func, max_retries=3, delay=1, backoff=2, exceptions=(Exception,))
 # 主程序入口
 if __name__ == "__main__":
     """美股交易日期 utc-4"""
-    trade_date = ToolKit("获取最新交易日").get_us_latest_trade_date(1)
+    trade_date = ToolKit("获取最新交易日").get_us_latest_trade_date(0)
 
     """ 非交易日程序终止运行 """
     if ToolKit("判断是否休市").is_us_trade_date(trade_date):

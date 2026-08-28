@@ -202,6 +202,9 @@ class StockProposal:
         minichart_time_range = max(
             60, ToolKit.get_config("chart_display.minichart_time_range", default=60)
         )
+        short_term_window = ToolKit.get_config(
+            "backtest_settings.window_metrics.short_term_window", default=5
+        )
         start_date = pd_timeseries.iloc[-chart_time_range]["buy_date"]
         start_date_minichart = pd_timeseries.iloc[-minichart_time_range]["buy_date"]
         pd_timeseries = pd_timeseries.tail(chart_time_range)
@@ -438,7 +441,7 @@ class StockProposal:
         """
         spark_industry_history_tracking_lstndays = spark.sql(f"""
             WITH stock_daily_flat AS (
-                -- 核心融合层：只查一次表，同时把单股在最新日（1天前）和10天前的 pnl、adjbase 拉平到同一行
+                -- 核心融合层：只查一次表，同时把个股1天前和10天前的 pnl、adjbase 拉平到同一行
                 SELECT
                     t1.symbol,
                     t2.industry,
@@ -446,41 +449,38 @@ class StockProposal:
                     -- 新逻辑所需字段（1天前是区间终点，10天前是区间起点）
                     MAX(CASE WHEN t1.date = {get_date_rank_subquery(1)} THEN t1.adjbase END) AS adjbase_1,
                     MAX(CASE WHEN t1.date = {get_date_rank_subquery(1)} THEN t1.price END) AS base_1, -- 1天前的买入价
-                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(10)} THEN t1.adjbase END) AS adjbase_10,
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(short_term_window * 2)} THEN t1.adjbase END) AS adjbase_x,
                     -- 老逻辑所需字段
                     MAX(CASE WHEN t1.date = {get_date_rank_subquery(1)} THEN t1.pnl END) AS pnl_1,
-                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(10)} THEN t1.pnl END) AS pnl_10
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(short_term_window * 2)} THEN t1.pnl END) AS pnl_x
                 FROM temp_position_detail t1
                 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
-                WHERE t1.date IN ({get_date_rank_subquery(1)}, {get_date_rank_subquery(10)})
+                WHERE t1.date IN ({get_date_rank_subquery(1)}, {get_date_rank_subquery(short_term_window * 2)})
                 GROUP BY t1.symbol, t2.industry, t3.total_value
             )
-            -- 最终聚合层：直接在最外层按行业分组，分流输出新老两套指标
             SELECT
                 industry,
-                -- 1. 老逻辑：(最新 1 天前总 pnl - 10 日前总 pnl) / 总市值
-                -- (SUM(pnl_1 * total_value) - COALESCE(SUM(pnl_10 * total_value), 0)) / SUM(total_value) AS pnl_growth,
-
-                -- 2. 新逻辑：个股涨幅 (由10天前持有至1天前，新老股平替) 的市值加权平均
+                -- 1. 老逻辑：持仓盈利的市值加权平均
+                -- (SUM(pnl_1 * total_value) - COALESCE(SUM(pnl_x * total_value), 0)) / SUM(total_value) AS pnl_growth,
+                -- 2. 新逻辑：持仓个股单价涨幅（不考虑持仓额度）的市值加权平均
                 SUM(
-                  -- 修正此处：终点 (adjbase_1) 减去 起点 (COALESCE(adjbase_10, base_1))
-                  ( (adjbase_1 - COALESCE(adjbase_10, base_1)) / COALESCE(adjbase_10, base_1) )
+                  ( (adjbase_1 - COALESCE(adjbase_x, base_1)) / COALESCE(adjbase_x, base_1) )
                   * total_value
                 ) / SUM(total_value) AS pnl_growth
             FROM stock_daily_flat
             -- 修正过滤：确保最新日有持仓，且计算起点的价格大于 0
-            WHERE adjbase_1 IS NOT NULL AND COALESCE(adjbase_10, base_1) > 0
+            WHERE adjbase_1 IS NOT NULL AND COALESCE(adjbase_x, base_1) > 0
             GROUP BY industry
             HAVING SUM(total_value) > 0
             ORDER BY pnl_growth DESC
             """)
+
         """
         近5日 排名 vs 近10日 排名 ：短期对长期趋势的修正，寻找趋势共振/黄金交叉。适合做顺势突破或趋势跟踪。
         """
         spark_industry_history_tracking_ndaysbeforeyesterday = spark.sql(f"""
             WITH stock_daily_flat AS (
-                -- 核心融合层：只查一次表，同时把单股在最新日（1天前）和5天前的 pnl、adjbase 拉平到同一行
                 SELECT
                     t1.symbol,
                     t2.industry,
@@ -488,38 +488,35 @@ class StockProposal:
                     -- 新逻辑所需字段（1天前是区间终点，5天前是区间起点）
                     MAX(CASE WHEN t1.date = {get_date_rank_subquery(1)} THEN t1.adjbase END) AS adjbase_1,
                     MAX(CASE WHEN t1.date = {get_date_rank_subquery(1)} THEN t1.price END) AS base_1, -- 1天前的买入价
-                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(5)} THEN t1.adjbase END) AS adjbase_5,
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(short_term_window)} THEN t1.adjbase END) AS adjbase_x,
                     -- 老逻辑所需字段
                     MAX(CASE WHEN t1.date = {get_date_rank_subquery(1)} THEN t1.pnl END) AS pnl_1,
-                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(5)} THEN t1.pnl END) AS pnl_5
+                    MAX(CASE WHEN t1.date = {get_date_rank_subquery(short_term_window)} THEN t1.pnl END) AS pnl_x
                 FROM temp_position_detail t1
                 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
-                WHERE t1.date IN ({get_date_rank_subquery(1)}, {get_date_rank_subquery(5)})
+                WHERE t1.date IN ({get_date_rank_subquery(1)}, {get_date_rank_subquery(short_term_window)})
                 GROUP BY t1.symbol, t2.industry, t3.total_value
             )
-            -- 最终聚合层：直接在最外层按行业分组，分流输出新老两套指标
             SELECT
                 industry,
-                -- 1. 老逻辑：(最新 1 天前总 pnl - 5 日前总 pnl) / 总市值
-                -- (SUM(pnl_1 * total_value) - COALESCE(SUM(pnl_5 * total_value), 0)) / SUM(total_value) AS pnl_growth,
-                
-                -- 2. 新逻辑：个股涨幅 (由5天前持有至1天前，新老股平替) 的市值加权平均
+                -- 1. 老逻辑：持仓盈利的市值加权平均
+                -- (SUM(pnl_1 * total_value) - COALESCE(SUM(pnl_x * total_value), 0)) / SUM(total_value) AS pnl_growth,                
+                -- 2. 新逻辑：持仓个股单价涨幅（不考虑持仓额度）的市值加权平均
                 SUM(
-                  -- 修正此处：终点 (adjbase_1) 减去 起点 (COALESCE(adjbase_5, base_1)) 
-                  ( (adjbase_1 - COALESCE(adjbase_5, base_1)) / COALESCE(adjbase_5, base_1) ) 
+                  ( (adjbase_1 - COALESCE(adjbase_x, base_1)) / COALESCE(adjbase_x, base_1) ) 
                   * total_value
                 ) / SUM(total_value) AS pnl_growth
             FROM stock_daily_flat
-            -- 修正过滤：确保最新日有持仓，且计算起点的价格大于 0
-            WHERE adjbase_1 IS NOT NULL AND COALESCE(adjbase_5, base_1) > 0
+            -- 确保最新日有持仓，且计算起点的价格大于 0
+            WHERE adjbase_1 IS NOT NULL AND COALESCE(adjbase_x, base_1) > 0
             GROUP BY industry
             HAVING SUM(total_value) > 0
             ORDER BY pnl_growth DESC
             """)
 
         """
-        [1-5日] 排名 vs [6-10日] 排名：速度的绝对改变（加速度），寻找极速反转。适合做超跌反弹或极速动量破位。
+        近5日 排名 vs 近10日 排名 ：短期对长期趋势的修正，寻找趋势共振/黄金交叉。适合做顺势突破或趋势跟踪。
         """
         pd_industry_history_tracking_lstndays = (
             spark_industry_history_tracking_lstndays.toPandas()

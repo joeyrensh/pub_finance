@@ -828,19 +828,21 @@ class GlobalStrategy(bt.Strategy):
 
         return (
             sum(
-                1 for value in diff_array if value < self.p.ma_convergence_threshold_pct
+                1
+                for value in diff_array
+                if value < self.p.ma_convergence_threshold_pct * 100
             )
             >= self.p.ma_convergence_min_days
             and sum(
                 1
                 for value in diff_array2
-                if value < self.p.ma_convergence_threshold_pct
+                if value < self.p.ma_convergence_threshold_pct * 100
             )
             >= self.p.ma_convergence_min_days
             and sum(
                 1
                 for value in diff_array3
-                if value < self.p.ma_convergence_threshold_pct
+                if value < self.p.ma_convergence_threshold_pct * 100
             )
             >= self.p.ma_convergence_min_days
             and self.check_signal(symbol, "deviant")
@@ -1349,13 +1351,12 @@ class GlobalStrategy(bt.Strategy):
                 )
         else:
             holding_days = 0
-
         # 第一档止盈，盈利超过100%，回吐20%
         if (
             holding_days >= self.p.max_holding_days
             and peak_profit_pct >= self.p.trailing_tp_tier_1_threshold
             and current_close
-            <= entry_price + peak_profit * self.p.trailing_tp_tier_1_drawback
+            <= entry_price + peak_profit * (1 - self.p.trailing_tp_tier_1_drawback)
         ):
             self.execute_sell(
                 data, f"动态止盈({self.p.trailing_tp_tier_1_drawback:.0%})"
@@ -1367,7 +1368,7 @@ class GlobalStrategy(bt.Strategy):
             holding_days >= self.p.max_holding_days
             and peak_profit_pct >= self.p.trailing_tp_tier_2_threshold
             and current_close
-            <= entry_price + peak_profit * self.p.trailing_tp_tier_2_drawback
+            <= entry_price + peak_profit * (1 - self.p.trailing_tp_tier_2_drawback)
         ):
             self.execute_sell(
                 data, f"动态止盈({self.p.trailing_tp_tier_2_drawback:.0%})"
@@ -1379,7 +1380,7 @@ class GlobalStrategy(bt.Strategy):
             holding_days >= self.p.max_holding_days
             and peak_profit_pct >= self.p.trailing_tp_tier_3_threshold
             and current_close
-            <= entry_price + peak_profit * self.p.trailing_tp_tier_3_drawback
+            <= entry_price + peak_profit * (1 - self.p.trailing_tp_tier_3_drawback)
         ):
             self.execute_sell(
                 data, f"动态止盈({self.p.trailing_tp_tier_3_drawback:.0%})"

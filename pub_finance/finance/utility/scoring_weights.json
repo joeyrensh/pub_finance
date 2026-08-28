@@ -97,7 +97,7 @@
     },
     "schedule_settings": {
         "cn_stock_cron": "30 15 * * *",
-        "us_stock_cron": "00 07 * * *",
+        "us_stock_cron": "45 06 * * *",
         "cn_proxy_cron": "30 07 * * *",
         "oversea_proxy_cron": "30 08 * * *"
     }
