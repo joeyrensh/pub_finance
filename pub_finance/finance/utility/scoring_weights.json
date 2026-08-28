@@ -85,7 +85,7 @@
             "ma_convergence_min_days": 5
         },
         "exit_rules": {
-            "max_holding_days": 20,
+            "min_holding_days": 20,
             "hard_stop_loss_pct": 0.1,
             "trailing_tp_tier_1_threshold": 1,
             "trailing_tp_tier_1_drawback": 0.2,

@@ -64,7 +64,7 @@ DEFAULT_BACKTEST_SETTINGS = {
         "ma_convergence_min_days": 5,
     },
     "exit_rules": {
-        "max_holding_days": 20,
+        "min_holding_days": 20,
         "hard_stop_loss_pct": 0.10,
         "trailing_tp_tier_1_threshold": 1.00,
         "trailing_tp_tier_1_drawback": 0.20,
@@ -190,7 +190,7 @@ LABEL_MAPPING = {
     "ma_convergence_window": "MA Convergence Window",
     "ma_convergence_threshold_pct": "Convergence Dist Thresh (%)",
     "ma_convergence_min_days": "Convergence Min Days",
-    "max_holding_days": "Max Holding Days",
+    "min_holding_days": "Min Holding Days",
     "hard_stop_loss_pct": "Hard Stop Loss (%)",
     "trailing_tp_tier_1_threshold": "Tier 1 TP Profit (%)",
     "trailing_tp_tier_1_drawback": "Tier 1 TP Drawback (%)",
@@ -1086,16 +1086,16 @@ def build_exit_rules_card(cfg: dict) -> dbc.Card:
                 html.Div(
                     [
                         html.Label(
-                            LABEL_MAPPING.get("max_holding_days", "max_holding_days"),
+                            LABEL_MAPPING.get("min_holding_days", "min_holding_days"),
                             className="mb-1 l2_label text-truncate",
                         ),
                         dbc.Input(
-                            id="input_bt_max_holding_days",
+                            id="input_bt_min_holding_days",
                             type="number",
                             min=1,
                             max=120,
                             step=1,
-                            value=exit_cfg.get("max_holding_days", 20),
+                            value=exit_cfg.get("min_holding_days", 20),
                             className="custom-grp-input",
                         ),
                     ],

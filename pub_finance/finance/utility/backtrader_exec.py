@@ -79,7 +79,7 @@ class BacktraderExec:
             ),
             "ma_convergence_min_days": ma_sqz.get("ma_convergence_min_days", 5),
             # Exit Rules
-            "max_holding_days": exit_rules.get("max_holding_days", 20),
+            "min_holding_days": exit_rules.get("min_holding_days", 20),
             "hard_stop_loss_pct": exit_rules.get("hard_stop_loss_pct", 0.1),
             "trailing_tp_tier_1_threshold": exit_rules.get(
                 "trailing_tp_tier_1_threshold", 1.0

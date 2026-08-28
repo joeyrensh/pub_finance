@@ -92,7 +92,7 @@ class GlobalStrategy(bt.Strategy):
         ("ma_convergence_threshold_pct", 0.02),
         ("ma_convergence_min_days", 5),
         # Exit Rules
-        ("max_holding_days", 20),
+        ("min_holding_days", 20),
         ("hard_stop_loss_pct", 0.1),
         ("trailing_tp_tier_1_threshold", 1.0),
         ("trailing_tp_tier_1_drawback", 0.2),
@@ -187,7 +187,7 @@ class GlobalStrategy(bt.Strategy):
         - Convergence Min Days         : {self.p.ma_convergence_min_days}
 
         [Stop Loss & Trailing Take-Profit]
-        - Max Holding Days             : {self.p.max_holding_days}
+        - Max Holding Days             : {self.p.min_holding_days}
         - Hard Stop Loss Pct           : {self.p.hard_stop_loss_pct:.1%}
         - Trailing TP Tier 1 Threshold : {self.p.trailing_tp_tier_1_threshold:.1%}
         - Trailing TP Tier 1 Drawback  : {self.p.trailing_tp_tier_1_drawback:.0%}
@@ -1353,7 +1353,7 @@ class GlobalStrategy(bt.Strategy):
             holding_days = 0
         # 第一档止盈，盈利超过100%，回吐20%
         if (
-            holding_days >= self.p.max_holding_days
+            holding_days >= self.p.min_holding_days
             and peak_profit_pct >= self.p.trailing_tp_tier_1_threshold
             and current_close
             <= entry_price + peak_profit * (1 - self.p.trailing_tp_tier_1_drawback)
@@ -1365,7 +1365,7 @@ class GlobalStrategy(bt.Strategy):
 
         # 第二档止盈，盈利超过50%，回吐30%
         if (
-            holding_days >= self.p.max_holding_days
+            holding_days >= self.p.min_holding_days
             and peak_profit_pct >= self.p.trailing_tp_tier_2_threshold
             and current_close
             <= entry_price + peak_profit * (1 - self.p.trailing_tp_tier_2_drawback)
@@ -1377,7 +1377,7 @@ class GlobalStrategy(bt.Strategy):
 
         # 第三档止盈，盈利超过20%，回吐50%
         if (
-            holding_days >= self.p.max_holding_days
+            holding_days >= self.p.min_holding_days
             and peak_profit_pct >= self.p.trailing_tp_tier_3_threshold
             and current_close
             <= entry_price + peak_profit * (1 - self.p.trailing_tp_tier_3_drawback)
