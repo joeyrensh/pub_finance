@@ -78,7 +78,7 @@ class PageLayout:
                             type="circle",
                             delay_hide=1000,
                             style={"width": "100%", "height": "100%"},
-                            color="#119DFF",
+                            color="#0d876c",
                             fullscreen=False,
                             children=html.Div(
                                 id=self.app.kpi_callback.get_container_id(self.prefix),
@@ -135,7 +135,7 @@ class PageLayout:
                                 "justifyContent": "center",
                                 "alignItems": "center",
                             },
-                            color="#119DFF",
+                            color="#0d876c",
                             fullscreen=False,
                             children=[
                                 dcc.Graph(
@@ -238,7 +238,7 @@ class PageLayout:
                     dcc.Loading(
                         type="circle",
                         delay_hide=1000,
-                        color="#119DFF",
+                        color="#0d876c",
                         children=html.Div(
                             id={
                                 "type": "dynamic-table",
@@ -327,7 +327,7 @@ class PageLayout:
                         dcc.Loading(
                             id="loading_ai_summary_wrapper",
                             type="circle",
-                            color="#119DFF",
+                            color="#0d876c",
                             delay_hide=2000,
                             parent_style={"display": "contents"},
                             style={"position": "static", "transform": "none"},
