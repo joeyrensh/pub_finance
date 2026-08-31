@@ -2769,7 +2769,7 @@ class ChartBuilder:
                     x=[td],
                     y=[suspension_price],
                     mode="text",
-                    text="H",  # 使用 H+ 代表 Hold & Upgrade
+                    text="B",  # 使用 H+ 代表 Hold & Upgrade
                     textposition="top center",
                     textfont=dict(
                         size=int(9 * scale),
