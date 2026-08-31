@@ -936,33 +936,53 @@ a:active { color: var(--text-color); text-decoration: underline; }
 
 /* --- 回测动态进度条按钮 --- */
 .progress-btn {
-  border: 1px solid var(--gridcolor);
+  position: relative;
+  border: 1px solid var(--gridcolor, #ccc);
   height: 48px;
-}
-
-.progress-btn.running {
-  position: relative;
-  overflow: hidden;
+  padding: 0 20px;
   background-color: transparent;
-  color: var(--text-color);
+  color: var(--text-color, #333);
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* 文字与 Icon 间距 */
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
-.progress-btn.running span,
+/* ===== 运行状态 ===== */
 .progress-btn.running {
-  position: relative;
-  z-index: 1;
+  cursor: wait;
 }
 
-.progress-btn.running::after {
+/* 1. 左侧 Spinner 加载图标 (使用 ::before) */
+.progress-btn.running::before {
   content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 0%;
-  background-color: rgba(13, 135, 108, 0.4);
-  animation: queue-fill 20s linear infinite;
-  z-index: 0;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(13, 135, 108, 0.2);
+  border-top-color: #0d876c; /* 亮色主线 */
+  border-radius: 50%;
+  animation: btn-spin 0.8s linear infinite;
+  z-index: 2;
+}
+
+.progress-btn span {
+  position: relative;
+  z-index: 2;
+}
+
+/* 旋转动画 */
+@keyframes btn-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes queue-fill {
+  0% { width: 0%; }
+  100% { width: 100%; }
 }
 
 /* 表格外层容器，必须作为定位锚点 */
@@ -1578,6 +1598,11 @@ input[type="radio"]:checked::before {
 
   .progress-btn{
     height: 40px !important;
+  }
+
+  .progress-btn.running::before {
+    width: 16px;
+    height: 16px;
   }
   
   .nav-btn.left,
