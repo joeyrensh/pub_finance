@@ -2656,11 +2656,11 @@ class ChartBuilder:
         y_max = df["high"].max()
         price_range = y_max - y_min if y_max != y_min else 1.0
 
-        # 设定固定偏移步长（例如：悬浮高度恒定为全局视图高度的 2%，引线不会过长）
-        offset_base = price_range * 0.02  # B/S 悬浮基础高度
-        offset_upgrade = price_range * 0.04  # H+/UP 悬浮高度（错开梯队）
+        # 设定固定偏移步长（例如：悬浮高度恒定为全局视图高度的 2.5%）
+        offset_base = price_range * 0.025
+        offset_upgrade = price_range * 0.045  # 策略升级点错开更高高度
 
-        # ----- 2. 买卖点标记（恒定引线长度） -----
+        # ----- 2. 买卖点标记（改为专业箭头/几何 Marker） -----
         for t in trades:
             try:
                 td = pd.to_datetime(t["date"])
@@ -2674,33 +2674,34 @@ class ChartBuilder:
 
                 is_buy = tt == "买入"
                 color = cfg["long"] if is_buy else cfg["short"]
-                label_text = "B" if is_buy else "S"
+
+                # 专业金融样式：买入用向上箭头/三角形，卖出用向下箭头/三角形
+                marker_symbol = "triangle-up" if is_buy else "triangle-down"
 
                 # 悬浮点 = K线最高价 + 固定价格步长
                 suspension_price = bar_high + offset_base
-                # 引线只延伸至最高价 High（最干净），或者延伸至实际成交价 tp
-                # 建议：引线终点连到 bar_high，引线既精简好看，又绝对不会过长
                 stem_length = suspension_price - bar_high
 
                 fig.add_trace(
                     go.Scatter(
                         x=[td],
                         y=[suspension_price],
-                        mode="text",
-                        text=label_text,
-                        textposition="top center",
+                        mode="markers+text",  # 组合模式：同时显示 Marker 图形和节点文字
+                        text="B" if is_buy else "S",  # 标记内部或边缘的标注
+                        textposition="top center",  # 文字在 Marker 上方居中
                         textfont=dict(size=int(10 * scale), color=color, weight="bold"),
+                        marker=dict(
+                            symbol=marker_symbol,
+                            size=int(8 * scale),  # 专业 Marker 大小
+                            color=color,
+                        ),
                         error_y=dict(
                             type="data",
                             array=[0],
-                            arrayminus=[
-                                stem_length
-                            ],  # 向下拉一条固定长度的短竖线连接至 High
+                            arrayminus=[stem_length],  # 下拉连线连接至 Bar High
                             symmetric=False,
                             width=0,
-                            color=cfg.get(
-                                "gridcolor",
-                            ),
+                            color=cfg.get("gridcolor"),
                             thickness=1,
                         ),
                         showlegend=False,
@@ -2760,7 +2761,7 @@ class ChartBuilder:
                             )
                             current_strategy = rec["strategy"]
 
-        # ----- 3. 策略升级标记 (B) -----
+        # ----- 3. 策略升级标记 (改为专业菱形/星形 Marker) -----
         for up in upgrade_points:
             td = up["date"]
             price_row = df[df["datetime"] == td]
@@ -2769,7 +2770,6 @@ class ChartBuilder:
 
             bar_high = price_row["high"].iloc[0]
 
-            # 悬浮点 = K线最高价 + 更高的固定价格步长（错开 B/S）
             suspension_price = bar_high + offset_upgrade
             stem_length = suspension_price - bar_high
 
@@ -2777,11 +2777,16 @@ class ChartBuilder:
                 go.Scatter(
                     x=[td],
                     y=[suspension_price],
-                    mode="text",
+                    mode="markers+text",
                     text="B",
                     textposition="top center",
                     textfont=dict(
-                        size=int(9 * scale),
+                        size=int(10 * scale),
+                        color=cfg["upgrade-marker-color"],
+                    ),
+                    marker=dict(
+                        symbol="triangle-up",  # 策略节点采用“菱形”区分于常规买卖点
+                        size=int(8 * scale),
                         color=cfg["upgrade-marker-color"],
                     ),
                     error_y=dict(
@@ -2795,7 +2800,7 @@ class ChartBuilder:
                     ),
                     showlegend=False,
                     hovertemplate=(
-                        f"<b>策略升级</b><br>日期：%{{x|%Y-%m-%d}}<br>新策略：{up['strategy']}<extra></extra>"
+                        f"<b>策略更新</b><br>日期：%{{x|%Y-%m-%d}}<br>策略：{up['strategy']}<extra></extra>"
                     ),
                     hoverlabel=dict(
                         font_size=font_size,

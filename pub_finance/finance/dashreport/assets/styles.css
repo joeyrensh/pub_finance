@@ -694,19 +694,11 @@ legend {
   font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
 }
 
-.chart-container .js-plotly-plot .plotly text,
-.chart-container .js-plotly-plot .plotly tspan,
-.chart-container .js-plotly-plot .plotly .gtitle,
-.chart-container .js-plotly-plot .plotly .xtick text,
-.chart-container .js-plotly-plot .plotly .ytick text,
-.chart-container .js-plotly-plot .plotly .legendtext,
-.chart-container .js-plotly-plot .plotly .annotation-text,
-.chart-container .js-plotly-plot .plotly .table .header-cells text,
-.chart-container .js-plotly-plot .plotly .table .cells text {
+.chart-container .js-plotly-plot .plotly text{
   font-size: clamp(1.05rem, 2.5cqw, 1.5rem) !important;
 }
 
-.chart-container .js-plotly-plot .plotly .table .column-block#cells1 .column-cells .column-cell:first-child text.cell-text {
+.chart-container .plotly .table .column-block[id^="cells"] .column-cell:first-of-type text {
   font-size: clamp(1.3rem, 2.5cqw, 1.9rem) !important;
   font-weight: bold !important;
 }
