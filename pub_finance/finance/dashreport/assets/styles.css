@@ -1238,7 +1238,7 @@ input[type="radio"]:checked::before {
     top: auto !important;         
     height: 30px !important;
     margin-top: 0 !important;     
-    z-index: 20;
+    z-index: 20 !important;
     background: var(--kpi-background) !important;
     color: var(--text-color) !important;
     border-radius: 0 !important;
