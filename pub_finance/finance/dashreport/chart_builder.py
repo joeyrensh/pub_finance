@@ -2651,7 +2651,16 @@ class ChartBuilder:
             col=1,
         )
 
-        # ----- 买卖点标记（基于 High 决定悬浮高度）-----
+        # ----- 1. 提前计算全局价格跨度，锁定恒定的像素级偏移量 -----
+        y_min = df["low"].min()
+        y_max = df["high"].max()
+        price_range = y_max - y_min if y_max != y_min else 1.0
+
+        # 设定固定偏移步长（例如：悬浮高度恒定为全局视图高度的 2%，引线不会过长）
+        offset_base = price_range * 0.02  # B/S 悬浮基础高度
+        offset_upgrade = price_range * 0.04  # H+/UP 悬浮高度（错开梯队）
+
+        # ----- 2. 买卖点标记（恒定引线长度） -----
         for t in trades:
             try:
                 td = pd.to_datetime(t["date"])
@@ -2659,7 +2668,7 @@ class ChartBuilder:
                 tt = t["type"]
                 ts = t["strategy"]
 
-                # 找到对应日期的 K 线 High，无匹配则回退到 tp
+                # 获取当根 Bar 的 High
                 price_row = df[df["datetime"] == td]
                 bar_high = price_row["high"].iloc[0] if not price_row.empty else tp
 
@@ -2667,10 +2676,11 @@ class ChartBuilder:
                 color = cfg["long"] if is_buy else cfg["short"]
                 label_text = "B" if is_buy else "S"
 
-                # 悬浮基准：严格在当根 K 线最高价 High 上方 2.5%
-                suspension_price = bar_high * 1.025
-                # 引线由悬浮点向下拉回实际成交价 tp
-                stem_length = suspension_price - tp
+                # 悬浮点 = K线最高价 + 固定价格步长
+                suspension_price = bar_high + offset_base
+                # 引线只延伸至最高价 High（最干净），或者延伸至实际成交价 tp
+                # 建议：引线终点连到 bar_high，引线既精简好看，又绝对不会过长
+                stem_length = suspension_price - bar_high
 
                 fig.add_trace(
                     go.Scatter(
@@ -2679,18 +2689,18 @@ class ChartBuilder:
                         mode="text",
                         text=label_text,
                         textposition="top center",
-                        textfont=dict(
-                            size=int(10 * scale),
-                            color=color,
-                            # weight="bold",
-                        ),
+                        textfont=dict(size=int(10 * scale), color=color, weight="bold"),
                         error_y=dict(
                             type="data",
                             array=[0],
-                            arrayminus=[stem_length],  # 向下拉线穿过 High 连到 tp
+                            arrayminus=[
+                                stem_length
+                            ],  # 向下拉一条固定长度的短竖线连接至 High
                             symmetric=False,
                             width=0,
-                            color=cfg.get("gridcolor"),
+                            color=cfg.get(
+                                "gridcolor",
+                            ),
                             thickness=1,
                         ),
                         showlegend=False,
@@ -2750,7 +2760,7 @@ class ChartBuilder:
                             )
                             current_strategy = rec["strategy"]
 
-        # ----- 绘制策略升级标记-----
+        # ----- 3. 策略升级标记 (B) -----
         for up in upgrade_points:
             td = up["date"]
             price_row = df[df["datetime"] == td]
@@ -2758,23 +2768,21 @@ class ChartBuilder:
                 continue
 
             bar_high = price_row["high"].iloc[0]
-            bar_close = price_row["close"].iloc[0]
 
-            # 升级点悬浮在 High 上方 4.5%（梯队避让）
-            suspension_price = bar_high * 1.045
-            stem_length = suspension_price - bar_close
+            # 悬浮点 = K线最高价 + 更高的固定价格步长（错开 B/S）
+            suspension_price = bar_high + offset_upgrade
+            stem_length = suspension_price - bar_high
 
             fig.add_trace(
                 go.Scatter(
                     x=[td],
                     y=[suspension_price],
                     mode="text",
-                    text="B",  # 使用 H+ 代表 Hold & Upgrade
+                    text="B",
                     textposition="top center",
                     textfont=dict(
                         size=int(9 * scale),
                         color=cfg["upgrade-marker-color"],
-                        # weight="bold",
                     ),
                     error_y=dict(
                         type="data",
