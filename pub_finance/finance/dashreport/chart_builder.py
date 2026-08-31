@@ -2651,48 +2651,47 @@ class ChartBuilder:
             col=1,
         )
 
-        # ----- 买卖点标记 -----
+        # ----- 买卖点标记（基于 High 决定悬浮高度）-----
         for t in trades:
             try:
                 td = pd.to_datetime(t["date"])
                 tp = t["price"]
                 tt = t["type"]
                 ts = t["strategy"]
-                color = cfg["long"] if tt == "买入" else cfg["short"]
-                color_with_alpha = (
-                    self._get_alpha_color(cfg.get("long"), alpha=0.7)
-                    if tt == "买入"
-                    else self._get_alpha_color(cfg.get("short"), alpha=0.7)
-                )
-                # 虚线
-                fig.add_trace(
-                    go.Scatter(
-                        x=[td, td],
-                        y=[min_price, max_price],
-                        mode="lines",
-                        line=dict(
-                            color=color_with_alpha, width=1.2 * scale, dash="dash"
-                        ),
-                        opacity=0.7,
-                        showlegend=False,
-                        hoverinfo="skip",
-                    ),
-                    row=1,
-                    col=1,
-                )
-                # 圆点
+
+                # 找到对应日期的 K 线 High，无匹配则回退到 tp
+                price_row = df[df["datetime"] == td]
+                bar_high = price_row["high"].iloc[0] if not price_row.empty else tp
+
+                is_buy = tt == "买入"
+                color = cfg["long"] if is_buy else cfg["short"]
+                label_text = "B" if is_buy else "S"
+
+                # 悬浮基准：严格在当根 K 线最高价 High 上方 2.5%
+                suspension_price = bar_high * 1.025
+                # 引线由悬浮点向下拉回实际成交价 tp
+                stem_length = suspension_price - tp
+
                 fig.add_trace(
                     go.Scatter(
                         x=[td],
-                        y=[tp],
-                        mode="markers",
-                        marker=dict(
-                            symbol="circle",
-                            size=6,
-                            color="white",
-                            line=dict(
-                                color=color, width=2 if scale >= 1 else 3 * scale
-                            ),
+                        y=[suspension_price],
+                        mode="text",
+                        text=label_text,
+                        textposition="top center",
+                        textfont=dict(
+                            size=int(10 * scale),
+                            color=color,
+                            # weight="bold",
+                        ),
+                        error_y=dict(
+                            type="data",
+                            array=[0],
+                            arrayminus=[stem_length],  # 向下拉线穿过 High 连到 tp
+                            symmetric=False,
+                            width=0,
+                            color=cfg.get("gridcolor"),
+                            thickness=1,
                         ),
                         showlegend=False,
                         hovertemplate=(
@@ -2719,7 +2718,6 @@ class ChartBuilder:
             df_pos = df_pos.sort_values("date").reset_index(drop=True)
 
             if not df_pos.empty:
-                # 获取该股票的所有买入交易（在K线范围内）
                 buy_trades = [
                     t
                     for t in trades
@@ -2752,27 +2750,40 @@ class ChartBuilder:
                             )
                             current_strategy = rec["strategy"]
 
-        # ----- 绘制策略升级标记 -----
+        # ----- 绘制策略升级标记-----
         for up in upgrade_points:
             td = up["date"]
             price_row = df[df["datetime"] == td]
-            if not price_row.empty:
-                tp = price_row["close"].iloc[0]
-            else:
+            if price_row.empty:
                 continue
+
+            bar_high = price_row["high"].iloc[0]
+            bar_close = price_row["close"].iloc[0]
+
+            # 升级点悬浮在 High 上方 4.5%（梯队避让）
+            suspension_price = bar_high * 1.045
+            stem_length = suspension_price - bar_close
+
             fig.add_trace(
                 go.Scatter(
                     x=[td],
-                    y=[tp],
-                    mode="markers",
-                    marker=dict(
-                        symbol="circle",
-                        size=6,
-                        color="white",
-                        line=dict(
-                            color=cfg["upgrade-marker-color"],
-                            width=2 if scale >= 1 else 3 * scale,
-                        ),
+                    y=[suspension_price],
+                    mode="text",
+                    text="H",  # 使用 H+ 代表 Hold & Upgrade
+                    textposition="top center",
+                    textfont=dict(
+                        size=int(9 * scale),
+                        color=cfg["upgrade-marker-color"],
+                        # weight="bold",
+                    ),
+                    error_y=dict(
+                        type="data",
+                        array=[0],
+                        arrayminus=[stem_length],
+                        symmetric=False,
+                        width=0,
+                        color=cfg.get("gridcolor"),
+                        thickness=1,
                     ),
                     showlegend=False,
                     hovertemplate=(

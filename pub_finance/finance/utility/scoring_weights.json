@@ -3,13 +3,13 @@
         "industry": 0.2,
         "pnl": 0.3,
         "stability": 0.1,
-        "erp": 0.1,
-        "strategy": 0.3
+        "erp": 0.2,
+        "strategy": 0.2
     },
     "sub_weights": {
         "industry": {
-            "arrow": 0.5,
-            "bracket": 0.5
+            "arrow": 0.4,
+            "bracket": 0.6
         },
         "pnl": {
             "daily": 0.4,
@@ -18,8 +18,8 @@
         "stability": {
             "win_rate": 0.2,
             "avg_trans": 0.2,
-            "sortino": 0.2,
-            "maxdd": 0.4
+            "sortino": 0.3,
+            "maxdd": 0.3
         },
         "strategy": {
             "cnt": 0.6,
@@ -35,7 +35,7 @@
     "chart_display": {
         "chart_time_range": 100,
         "minichart_time_range": 60,
-        "kline_limit": 10
+        "kline_limit": 20
     },
     "grouping_settings_cn": {
         "grouping_mode": "manual",
@@ -52,7 +52,7 @@
     "grouping_settings_etf": {
         "min_threshold": "5e9",
         "n_groups": 1,
-        "top_n_per_group": 50
+        "top_n_per_group": 100
     },
     "backtest_settings": {
         "macd": {
