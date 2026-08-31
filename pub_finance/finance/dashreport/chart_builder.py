@@ -2687,6 +2687,7 @@ class ChartBuilder:
                         x=[td],
                         y=[suspension_price],
                         mode="markers+text",  # 组合模式：同时显示 Marker 图形和节点文字
+                        cliponaxis=False,
                         text="B" if is_buy else "S",  # 标记内部或边缘的标注
                         textposition="top center",  # 文字在 Marker 上方居中
                         textfont=dict(size=int(10 * scale), color=color, weight="bold"),
@@ -2778,6 +2779,7 @@ class ChartBuilder:
                     x=[td],
                     y=[suspension_price],
                     mode="markers+text",
+                    cliponaxis=False,
                     text="B",
                     textposition="top center",
                     textfont=dict(
