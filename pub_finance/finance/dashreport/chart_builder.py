@@ -2776,9 +2776,13 @@ class ChartBuilder:
                     y=[tp],
                     mode="markers",
                     marker=dict(
-                        symbol="triangle-up",
-                        size=int(8 * scale),
-                        color=cfg["upgrade-marker-color"],
+                        symbol="circle",
+                        size=6,
+                        color="white",
+                        line=dict(
+                            color=cfg["upgrade-marker-color"],
+                            width=2,
+                        ),
                     ),
                     showlegend=False,
                     hovertemplate=(
