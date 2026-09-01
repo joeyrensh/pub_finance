@@ -951,6 +951,10 @@ a:active { color: var(--text-color); text-decoration: underline; }
   transition: all 0.3s;
 }
 
+.progress-btn:hover {
+  color: var(--text-color) !important;
+}
+
 /* ===== 运行状态 ===== */
 .progress-btn.running {
   cursor: wait;
@@ -1169,6 +1173,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
     border: 1px solid var(--gridcolor);
     padding: 0;
+    color: var(--text-color);
 }
 
 .weight-btn-save {
@@ -1179,6 +1184,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
     font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
     border: 1px solid var(--gridcolor);
     padding: 0;
+    color: var(--text-color);
 }
 
 .l1_label { font-weight: 500; }

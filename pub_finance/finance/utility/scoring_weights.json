@@ -36,7 +36,7 @@
         "chart_time_range": 100,
         "minichart_time_range": 60,
         "kline_limit": 20,
-        "min_kline_time_range": 150
+        "min_kline_time_range": 200
     },
     "grouping_settings_cn": {
         "grouping_mode": "manual",
