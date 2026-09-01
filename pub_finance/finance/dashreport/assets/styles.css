@@ -1634,7 +1634,7 @@ input[type="radio"]:checked::before {
   
   .background-header::before {
     width: 10%;
-    margin-top: 6px;
+    margin-top: 0;
   }
   
   .company-logo {
@@ -1669,7 +1669,7 @@ input[type="radio"]:checked::before {
     gap: 4px;
     justify-content: flex-start !important; /* 覆盖原来的 center，防止溢出的菜单项无法滚动到左侧 */
     min-width: max-content !important;      /* 保持子菜单项按实际内容延伸，不被压缩 */
-    margin-top: 6px;
+    margin-top: 0;
   }
   
   .github-wrapper {
@@ -1697,7 +1697,7 @@ input[type="radio"]:checked::before {
   
   .bubble-text {
     margin-left: 5px;
-    margin-top: 10px;
+    margin-top: 4px;
     font-size: 1.4rem;
     padding: 0;
   }
@@ -1717,7 +1717,7 @@ input[type="radio"]:checked::before {
 
   .header-right-action {
     position: absolute;
-    top: 20px;
+    top: 15px;
     right: 2px;
     z-index: 100;
   }  

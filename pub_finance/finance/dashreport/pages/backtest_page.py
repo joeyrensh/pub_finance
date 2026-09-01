@@ -694,6 +694,9 @@ class BacktestPage:
             charts = []
             width = client_width or 1440
             kline_limit = ToolKit.get_config("chart_display.kline_limit", default=10)
+            kline_time_range = ToolKit.get_config(
+                "chart_display.min_kline_time_range", default=200
+            )
 
             for i in range(min(kline_limit, len(histories))):
                 stock_data = pd.DataFrame(histories[i])
@@ -702,7 +705,9 @@ class BacktestPage:
                     stock_data["datetime"] = pd.to_datetime(stock_data["datetime"])
                     stock_data = stock_data.sort_values("datetime")
                     cutoff = stock_data["datetime"].max() - pd.Timedelta(
-                        days=200 if width < 1440 else 360
+                        days=(
+                            kline_time_range if width < 1440 else kline_time_range * 1.8
+                        )
                     )
                     stock_data = stock_data[stock_data["datetime"] >= cutoff]
 

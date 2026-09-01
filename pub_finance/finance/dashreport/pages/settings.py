@@ -111,6 +111,7 @@ DEFAULT_CONFIG = {
         "chart_time_range": 120,
         "minichart_time_range": 60,
         "kline_limit": 10,
+        "min_kline_time_range": 200,
     },
     "grouping_settings_cn": DEFAULT_GROUPING_CN,
     "grouping_settings_us": DEFAULT_GROUPING_US,
@@ -156,6 +157,7 @@ LABEL_MAPPING = {
     "chart_time_range": "Chart Time Range",
     "minichart_time_range": "Mini Chart Time Range",
     "kline_limit": "Max Klines",
+    "min_kline_time_range": "Min Kline Time Range",
     # 股票分组设置
     "grouping_settings": "Market & Grouping Settings",
     "market": "Target Market Config",
@@ -638,6 +640,9 @@ def build_chart_display_card(cfg):
                 if k == "chart_time_range"
                 else {30: "30", 60: "60", 90: "90", 120: "120"}
             )
+        elif k == "min_kline_time_range":
+            min_v, max_v, step_v = 0, 400, 5
+            marks_v = {100: "100", 200: "200", 300: "300", 400: "400"}
         else:
             min_v, max_v, step_v = 0, 100, 1
             marks_v = {100: "100"}
