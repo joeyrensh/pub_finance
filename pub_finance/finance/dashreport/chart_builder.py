@@ -2777,11 +2777,11 @@ class ChartBuilder:
                     mode="markers",
                     marker=dict(
                         symbol="circle",
-                        size=6,
+                        size=max(int(8 * scale), 6),
                         color="white",
                         line=dict(
                             color=cfg["upgrade-marker-color"],
-                            width=2,
+                            width=2 if client_width > 1440 else 1.5,
                         ),
                     ),
                     showlegend=False,
