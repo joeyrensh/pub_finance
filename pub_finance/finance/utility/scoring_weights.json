@@ -8,8 +8,8 @@
     },
     "sub_weights": {
         "industry": {
-            "arrow": 0.4,
-            "bracket": 0.6
+            "arrow": 0.5,
+            "bracket": 0.5
         },
         "pnl": {
             "daily": 0.4,
@@ -28,8 +28,8 @@
     },
     "stock_filter": {
         "collection_days": 10,
-        "capital_flow": 0.6,
-        "up_days": 0.4,
+        "capital_flow": 0.5,
+        "up_days": 0.5,
         "quantile": 0.95
     },
     "chart_display": {

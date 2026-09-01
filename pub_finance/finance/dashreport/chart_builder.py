@@ -2766,39 +2766,19 @@ class ChartBuilder:
         for up in upgrade_points:
             td = up["date"]
             price_row = df[df["datetime"] == td]
-            if price_row.empty:
+            if not price_row.empty:
+                tp = price_row["close"].iloc[0]
+            else:
                 continue
-
-            bar_high = price_row["high"].iloc[0]
-
-            suspension_price = bar_high + offset_upgrade
-            stem_length = suspension_price - bar_high
-
             fig.add_trace(
                 go.Scatter(
                     x=[td],
-                    y=[suspension_price],
-                    mode="markers+text",
-                    cliponaxis=False,
-                    text="B",
-                    textposition="top center",
-                    textfont=dict(
-                        size=int(10 * scale),
-                        color=cfg["upgrade-marker-color"],
-                    ),
+                    y=[tp],
+                    mode="markers",
                     marker=dict(
-                        symbol="triangle-up",  # 策略节点采用“菱形”区分于常规买卖点
+                        symbol="triangle-up",
                         size=int(8 * scale),
                         color=cfg["upgrade-marker-color"],
-                    ),
-                    error_y=dict(
-                        type="data",
-                        array=[0],
-                        arrayminus=[stem_length],
-                        symmetric=False,
-                        width=0,
-                        color=cfg.get("gridcolor"),
-                        thickness=1,
                     ),
                     showlegend=False,
                     hovertemplate=(
