@@ -2629,7 +2629,11 @@ class ChartBuilder:
 
         if "datetime" in df.columns:
             df["datetime"] = pd.to_datetime(df["datetime"])
-        df = df.sort_values("datetime")
+        df = df.sort_values("datetime").reset_index(drop=True)
+        # 强制让 close == open 时比 open 稍大一点点（浮点数无法感知的级别）
+        df["close_plot"] = np.where(
+            df["close"] == df["open"], df["open"] + 1e-7, df["close"]
+        )
 
         # 主题配置
         cfg = self.theme_config.get(theme, self.theme_config["light"])
@@ -2671,7 +2675,7 @@ class ChartBuilder:
                 open=df["open"],
                 high=df["high"],
                 low=df["low"],
-                close=df["close"],
+                close=df["close_plot"],
                 name=legend_name,
                 increasing=dict(line_color=cfg["long"], fillcolor=cfg["long"]),
                 decreasing=dict(line_color=cfg["short"], fillcolor=cfg["short"]),
@@ -2694,11 +2698,8 @@ class ChartBuilder:
             col=1,
         )
 
-        # 成交量（颜色与K线涨跌一致）
-        colors = [
-            cfg["long"] if df["close"].iloc[i] >= df["open"].iloc[i] else cfg["short"]
-            for i in range(len(df))
-        ]
+        # 当 close >= open 时取 long 颜色，否则取 short 颜色
+        colors = np.where(df["close"] >= df["open"], cfg["long"], cfg["short"])
         fig.add_trace(
             go.Bar(
                 x=df["datetime"],
