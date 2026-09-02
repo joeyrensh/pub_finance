@@ -2888,7 +2888,7 @@ class ChartBuilder:
                     ),
                     showlegend=False,
                     hovertemplate=(
-                        f"<b>Strategy-Lv{up['label']}</b><br>Strategy：{up['strategy']}<br>Date：%{{x|%Y-%m-%d}}<extra></extra>"
+                        f"<b>Lv{up['label']}</b><br>Strategy：{up['strategy']}<br>Date：%{{x|%Y-%m-%d}}<extra></extra>"
                     ),
                     hoverlabel=dict(
                         bgcolor=cfg["upgrade-marker-color"],
