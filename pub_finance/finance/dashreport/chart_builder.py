@@ -26,20 +26,20 @@ class ChartBuilder:
                     "#0d876d",
                     "#0d876d",
                     "#0d876d",
-                    "#64748B",
-                    "#64748B",
-                    "#64748B",
+                    "#475569",
+                    "#475569",
+                    "#475569",
                 ],
-                "upgrade-marker-color": "#64748B",
-                "total-cnt-color": "#64748B",
+                "upgrade-marker-color": "#475569",
+                "total-cnt-color": "#475569",
                 "long": "#ff4444",
                 "short": "#0d876d",
                 "pnl-colors": [
                     "#0d876d",
                     "#FF4444",
-                    "#64748B",
-                    "#64748B",
-                    "#64748B",
+                    "#475569",
+                    "#475569",
+                    "#475569",
                 ],
                 "border-color": "#D1D5DB",
                 "outside-text-color": "#777777",
@@ -47,9 +47,9 @@ class ChartBuilder:
                 "drawdown-line-color": "#0d876d",
                 "table-header-color": "rgba(245,245,245,0)",
                 "table-cell-color": "rgba(0,0,0,0)",
-                "hover-bg-color": "#ffffff",
-                "hover-text-color": "#333333",
-                "hover-border-color": "#cccccc",
+                "hover-bg-color": "#334155",
+                "hover-text-color": "rgba(255, 255, 255, 0.9)",
+                "hover-border-color": "#475569",
             },
             "dark": {
                 "positive-int-color": "#ff4444",  # 亮红色 - 正数
@@ -64,30 +64,30 @@ class ChartBuilder:
                     "#00875A",
                     "#00875A",
                     "#00875A",
-                    "#64748B",
-                    "#64748B",
-                    "#64748B",
+                    "#334155",
+                    "#334155",
+                    "#334155",
                 ],
                 "upgrade-marker-color": "#64748B",
-                "total-cnt-color": "#64748B",
+                "total-cnt-color": "#334155",
                 "long": "#ff4444",
                 "short": "#00875A",
                 "pnl-colors": [
                     "#00875A",
                     "#FF4444",
-                    "#64748B",
-                    "#64748B",
-                    "#64748B",
+                    "#334155",
+                    "#334155",
+                    "#334155",
                 ],
                 "border-color": "#2D3748",
-                "outside-text-color": "#64748B",
+                "outside-text-color": "#334155",
                 "cumret-line-color": "#ff4444",
                 "drawdown-line-color": "#00875A",
                 "table-header-color": "rgba(64,64,64,0)",
                 "table-cell-color": "rgba(0,0,0,0)",
-                "hover-bg-color": "#1a1a1a",
+                "hover-bg-color": "#1E293B",
                 "hover-text-color": "rgba(255, 255, 255, 0.9)",
-                "hover-border-color": "#666666",
+                "hover-border-color": "#334155",
             },
         }
         self.font_family = '"SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif'
@@ -593,8 +593,10 @@ class ChartBuilder:
             dragmode=False,
             hoverlabel=dict(
                 bgcolor=hover_bg,
-                font_size=base_font_size,
-                # font_color=config["hover-text-color"],
+                bordercolor=hover_config.get("hover-border-color"),
+                font=dict(
+                    color=hover_config.get("hover-text-color"), size=base_font_size
+                ),
             ),
         )
 
@@ -833,16 +835,16 @@ class ChartBuilder:
             if bar_metric == "pnl":
                 df["bar_pos"] = df["pnl"].clip(lower=0)
                 df["bar_neg"] = df["pnl"].clip(upper=0)
-                bar_hover_fmt = "<b>持仓PnL</b>: %{y:,.2f}"
+                bar_hover_fmt = "<b>Position PnL</b>: %{y:,.2f}"
             elif bar_metric == "cnt":
                 df["bar_pos"] = df["cnt"]
                 df["bar_neg"] = 0
-                bar_hover_fmt = "<b>股票数量</b>: %{y:d}"
+                bar_hover_fmt = "<b>No. of Stocks</b>: %{y:d}"
             elif bar_metric == "avg":
                 df["avg"] = (df["pnl"] / df["cnt"].replace(0, np.nan)).fillna(0)
                 df["bar_pos"] = df["avg"].clip(lower=0)
                 df["bar_neg"] = df["avg"].clip(upper=0)
-                bar_hover_fmt = "<b>单票平均PnL</b>: %{y:,.2f}"
+                bar_hover_fmt = "<b>Avg PnL per Stock</b>: %{y:,.2f}"
             elif bar_metric == "future_pnl":
                 if future_pnl_col not in df.columns:
                     raise ValueError(
@@ -853,16 +855,18 @@ class ChartBuilder:
 
                 col_lower = future_pnl_col.lower()
                 day_prefix = (
-                    "1日" if "1d" in col_lower else ("5日" if "5d" in col_lower else "")
+                    "1d" if "1d" in col_lower else ("5d" if "5d" in col_lower else "")
                 )
 
                 if is_ratio_metric:
                     metric_label = (
-                        f"{day_prefix}预期收益率" if day_prefix else "预期收益率"
+                        f"Exp. Return({day_prefix})" if day_prefix else "Exp. Return"
                     )
                     bar_hover_fmt = f"<b>{metric_label}</b>: %{{y:+.2%}}"
                 else:
-                    metric_label = f"{day_prefix}预期PnL" if day_prefix else "预期PnL"
+                    metric_label = (
+                        f"Exp. PnL({day_prefix})" if day_prefix else "Exp. PnL"
+                    )
                     bar_hover_fmt = f"<b>{metric_label}</b>: %{{y:,.2f}}"
 
             df_pos_sum = df.groupby("date")["bar_pos"].sum()
@@ -915,11 +919,11 @@ class ChartBuilder:
                 if success_rate_col in df.columns
                 else "success_rate_5d"
             )
-            rate_label = "成功率(5日)" if "5d" in target_col else "成功率(1日)"
+            rate_label = "Win Rate(5d)" if "5d" in target_col else "Win Rate(1d)"
             hover_fmt = f"<b>{rate_label}</b>: %{{y:.2%}}"
         elif trend_metric == "symbol_ratio":
             target_col = "symbol_ratio"
-            hover_fmt = "<b>股票占比</b>: %{y:.2%}"
+            hover_fmt = "<b>Stock Weight</b>: %{y:.2%}"
         else:
             raise ValueError("trend_metric must be 'success_rate' or 'symbol_ratio'")
 
@@ -1439,7 +1443,10 @@ class ChartBuilder:
             autosize=True,
             dragmode=False,
             hovermode="x",
-            hoverlabel=dict(font_size=base_font_size),
+            hoverlabel=dict(
+                bordercolor=cfg.get("hover-border-color"),
+                font=dict(color=cfg.get("hover-text-color"), size=base_font_size),
+            ),
         )
         return fig
 
@@ -1478,7 +1485,7 @@ class ChartBuilder:
                 yaxis="y",
                 hovertemplate=(
                     # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
-                    "<b>总数</b>: %{y}<br><extra></extra>"
+                    "<b>Total</b>: %{y}<br><extra></extra>"
                 ),
             )
         )
@@ -1494,7 +1501,7 @@ class ChartBuilder:
                 yaxis="y",
                 hovertemplate=(
                     # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
-                    "<b>买入数量</b>: %{y}<br><extra></extra>"
+                    "<b>Buy Qty</b>: %{y}<br><extra></extra>"
                 ),
             )
         )
@@ -1510,7 +1517,7 @@ class ChartBuilder:
                 yaxis="y",
                 hovertemplate=(
                     # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
-                    "<b>卖出数量</b>: %{y}<br><extra></extra>"
+                    "<b>Sell Qty</b>: %{y}<br><extra></extra>"
                 ),
             )
         )
@@ -1603,7 +1610,10 @@ class ChartBuilder:
             autosize=True,
             dragmode=False,
             hovermode="x",
-            hoverlabel=dict(font_size=font_size),
+            hoverlabel=dict(
+                bordercolor=cfg.get("hover-border-color"),
+                font=dict(color=cfg.get("hover-text-color"), size=font_size),
+            ),
         )
 
         return fig
@@ -1642,7 +1652,7 @@ class ChartBuilder:
             line=dict(width=1.5),
             hovertemplate=(
                 # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
-                "<b>收益</b>: %{fullData.name} %{y}<br><extra></extra>"
+                "<b>PnL</b>: %{fullData.name} %{y}<br><extra></extra>"
             ),
         )
 
@@ -1736,7 +1746,14 @@ class ChartBuilder:
             autosize=True,
             dragmode=False,
             hovermode="x",
-            hoverlabel=dict(font_size=font_size),
+            hoverlabel=dict(
+                bordercolor=cfg.get("hover-border-color"),
+                font=dict(
+                    color=cfg.get("hover-text-color"),
+                    size=font_size,
+                    family=self.font_family,
+                ),
+            ),
         )
 
         return fig
@@ -1802,6 +1819,11 @@ class ChartBuilder:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             treemapcolorway=hex_colors,
+            hoverlabel=dict(
+                bgcolor=cfg["hover-bg-color"],
+                bordercolor=cfg.get("hover-border-color"),
+                font=dict(color=cfg.get("hover-text-color")),
+            ),
         )
 
         return fig
@@ -1871,6 +1893,11 @@ class ChartBuilder:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             treemapcolorway=hex_colors,
+            hoverlabel=dict(
+                bgcolor=cfg["hover-bg-color"],
+                bordercolor=cfg.get("hover-border-color"),
+                font=dict(color=cfg.get("hover-text-color")),
+            ),
         )
 
         return fig
@@ -2099,6 +2126,8 @@ class ChartBuilder:
                 hovertemplate=("<b>Drawdown</b>: %{y:.2%}<br><extra></extra>"),
                 hoverlabel=dict(
                     bgcolor=hover_config["drawdown-line-color"],
+                    bordercolor=hover_config.get("hover-border-color"),
+                    font=dict(color=hover_config.get("hover-text-color")),
                 ),
                 yaxis="y",
             )
@@ -2130,6 +2159,8 @@ class ChartBuilder:
                 hovertemplate=("<b>Cum. Return</b>: %{y:.4f}<br><extra></extra>"),
                 hoverlabel=dict(
                     bgcolor=hover_config["cumret-line-color"],
+                    bordercolor=hover_config.get("hover-border-color"),
+                    font=dict(color=hover_config.get("hover-text-color")),
                 ),
                 yaxis="y2",
             )
@@ -2227,7 +2258,11 @@ class ChartBuilder:
                     ),
                     showlegend=False,
                     hovertemplate=f"<b>Latest Cum. Return</b>: {last_y:.4f}<br><extra></extra>",
-                    hoverlabel=dict(bgcolor=hover_config["cumret-line-color"]),
+                    hoverlabel=dict(
+                        bgcolor=hover_config["cumret-line-color"],
+                        bordercolor=hover_config.get("hover-border-color"),
+                        font=dict(color=hover_config.get("hover-text-color")),
+                    ),
                     yaxis="y2",
                 )
             )
@@ -2257,7 +2292,11 @@ class ChartBuilder:
                     cliponaxis=False,
                     showlegend=False,
                     hovertemplate=f"<b>Max Cum. Return</b>: {cum_max_val:.4f}<br><extra></extra>",
-                    hoverlabel=dict(bgcolor=hover_config["cumret-line-color"]),
+                    hoverlabel=dict(
+                        bgcolor=hover_config["cumret-line-color"],
+                        bordercolor=hover_config.get("hover-border-color"),
+                        font=dict(color=hover_config.get("hover-text-color")),
+                    ),
                     yaxis="y2",
                 )
             )
@@ -2299,7 +2338,11 @@ class ChartBuilder:
                     cliponaxis=False,
                     showlegend=False,
                     hovertemplate=f"<b>Max Drawdown</b>: {max_dd_val:.2%}<br><extra></extra>",
-                    hoverlabel=dict(bgcolor=hover_config["drawdown-line-color"]),
+                    hoverlabel=dict(
+                        bgcolor=hover_config["drawdown-line-color"],
+                        bordercolor=hover_config.get("hover-border-color"),
+                        font=dict(color=hover_config.get("hover-text-color")),
+                    ),
                     yaxis="y",
                 )
             )
@@ -2337,7 +2380,9 @@ class ChartBuilder:
                             showlegend=False,
                             hovertemplate=f"<b>30D Max Drawdown</b>: {val_30:.2%}<br><extra></extra>",
                             hoverlabel=dict(
-                                bgcolor=hover_config["drawdown-line-color"]
+                                bgcolor=hover_config["drawdown-line-color"],
+                                bordercolor=hover_config.get("hover-border-color"),
+                                font=dict(color=hover_config.get("hover-text-color")),
                             ),
                             yaxis="y",
                         )
@@ -2378,7 +2423,9 @@ class ChartBuilder:
                             showlegend=False,
                             hovertemplate=f"<b>120D Max Drawdown</b>: {val_120:.2%}<br><extra></extra>",
                             hoverlabel=dict(
-                                bgcolor=hover_config["drawdown-line-color"]
+                                bgcolor=hover_config["drawdown-line-color"],
+                                bordercolor=hover_config.get("hover-border-color"),
+                                font=dict(color=hover_config.get("hover-text-color")),
                             ),
                             yaxis="y",
                         )
@@ -2467,7 +2514,14 @@ class ChartBuilder:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             hovermode="x",
-            hoverlabel=dict(font_size=base_font, font_family=self.font_family),
+            hoverlabel=dict(
+                bordercolor=cfg.get("hover-border-color"),
+                font=dict(
+                    color=hover_config.get("hover-text-color"),
+                    size=base_font,
+                    family=self.font_family,
+                ),
+            ),
             bargap=0,
             bargroupgap=0,
             boxgap=0,
@@ -2624,10 +2678,17 @@ class ChartBuilder:
                 line=dict(width=0.8 * scale),
                 showlegend=True,
                 hovertemplate=(
-                    "<b>%{x|%Y-%m-%d}</b><br>开盘: %{open:.2f}<br>最高: %{high:.2f}<br>"
-                    "最低: %{low:.2f}<br>收盘: %{close:.2f}<extra></extra>"
+                    "<b>%{x|%Y-%m-%d}</b><br>Open: %{open:.2f}<br>High: %{high:.2f}<br>"
+                    "Low: %{low:.2f}<br>Close: %{close:.2f}<extra></extra>"
                 ),
-                hoverlabel=dict(font_size=font_size, font_family=self.font_family),
+                hoverlabel=dict(
+                    font=dict(
+                        color=cfg.get("hover-text-color"),
+                        size=font_size,
+                        family=self.font_family,
+                    ),
+                    bordercolor=cfg.get("hover-border-color"),
+                ),
             ),
             row=1,
             col=1,
@@ -2642,7 +2703,7 @@ class ChartBuilder:
             go.Bar(
                 x=df["datetime"],
                 y=df["volume"],
-                name="成交量",
+                name="Volume",
                 marker=dict(color=colors, line=dict(color=colors, width=0.8 * scale)),
                 opacity=1.0,
                 showlegend=True,
@@ -2707,12 +2768,16 @@ class ChartBuilder:
                         ),
                         showlegend=False,
                         hovertemplate=(
-                            f"<b>{tt}</b><br>价格：{tp:.2f}<br>策略：{ts}<br>日期：%{{x|%Y-%m-%d}}<extra></extra>"
+                            f"<b>{tt}</b><br>Price：{tp:.2f}<br>Strategy：{ts}<br>Date：%{{x|%Y-%m-%d}}<extra></extra>"
                         ),
                         hoverlabel=dict(
-                            font_size=font_size,
-                            font_family=self.font_family,
+                            font=dict(
+                                color=cfg.get("hover-text-color"),
+                                size=font_size,
+                                family=self.font_family,
+                            ),
                             bgcolor=color,
+                            bordercolor=cfg.get("hover-border-color"),
                         ),
                     ),
                     row=1,
@@ -2822,12 +2887,16 @@ class ChartBuilder:
                     ),
                     showlegend=False,
                     hovertemplate=(
-                        f"<b>策略更新 (L{up['label']})</b><br>日期：%{{x|%Y-%m-%d}}<br>策略：{up['strategy']}<extra></extra>"
+                        f"<b>Strategy Update (L{up['label']})</b><br>Date：%{{x|%Y-%m-%d}}<br>Strategy：{up['strategy']}<extra></extra>"
                     ),
                     hoverlabel=dict(
-                        font_size=font_size,
-                        font_family=self.font_family,
                         bgcolor=cfg["upgrade-marker-color"],
+                        bordercolor=cfg.get("hover-border-color"),
+                        font=dict(
+                            color=cfg.get("hover-text-color"),
+                            size=font_size,
+                            family=self.font_family,
+                        ),
                     ),
                 ),
                 row=1,
@@ -3216,7 +3285,14 @@ class ChartBuilder:
             autosize=True,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
-            hoverlabel=dict(font_size=font_size, font_family=self.font_family),
+            hoverlabel=dict(
+                bordercolor=cfg.get("hover-border-color"),
+                font=dict(
+                    color=cfg.get("hover-text-color"),
+                    size=font_size,
+                    family=self.font_family,
+                ),
+            ),
             font=dict(family=self.font_family, size=font_size, color=cfg["text-color"]),
             hovermode="x",
             dragmode=False,
@@ -3453,10 +3529,12 @@ class ChartBuilder:
         # ------------------------------
         df["hover-text-color"] = df.apply(
             lambda row: (
-                f"<b>{row['date'].strftime('%Y-%m-%d')}</b><br>"
-                f"盈亏: {row['s_pnl']:,.2f}<br>"
-                f"行业:<br>"
-                f"{'<br>'.join(row['industry_top3_parsed']) if row['industry_top3_parsed'] else '无'}"
+                # 1. PnL 数值根据正负动态显示颜色（正数绿/负数红）
+                f"<span style='color:cfg.get('text-color');'>PnL:</span> "
+                f"<span style='color:{cfg.get('positive-int-color') if row['s_pnl'] >= 0 else cfg.get('negative-int-color')};font-weight:bold;'>"
+                f"{row['s_pnl']:,.2f}</span><br>"
+                f"<span style='color:cfg.get('text-color');'>Industry:</span> "
+                f"{' · '.join(row['industry_top3_parsed']) if row['industry_top3_parsed'] else '无'}"
             ),
             axis=1,
         )
@@ -3465,7 +3543,7 @@ class ChartBuilder:
             go.Scatter(
                 x=df["date"],
                 y=df["s_pnl"],
-                name="每日盈亏",
+                name="Daily PnL",
                 mode="lines+markers",
                 line=dict(color=cfg.get("cumret-line-color"), width=1.5),
                 marker=dict(size=6 * unified_scale, color=cfg.get("cumret-line-color")),
@@ -3520,7 +3598,15 @@ class ChartBuilder:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             hovermode="x",
-            hoverlabel=dict(font_size=font_size, font_family=self.font_family),
+            hoverlabel=dict(
+                bgcolor=cfg.get("hover-bg-color"),
+                bordercolor=cfg.get("hover-border-color"),
+                font=dict(
+                    color=cfg.get("hover-text-color"),
+                    size=font_size,
+                    family=self.font_family,
+                ),
+            ),
             xaxis=dict(
                 tickfont=dict(size=font_size, color=text_color),
                 mirror=False,
