@@ -49,7 +49,7 @@ class ChartBuilder:
                 "table-cell-color": "rgba(0,0,0,0)",
                 "hover-bg-color": "#334155",
                 "hover-text-color": "rgba(255, 255, 255, 0.9)",
-                "hover-border-color": "#475569",
+                "hover-border-color": "rgba(255, 255, 255, 0.9)",
             },
             "dark": {
                 "positive-int-color": "#ff4444",  # 亮红色 - 正数
