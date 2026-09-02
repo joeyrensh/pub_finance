@@ -2722,6 +2722,19 @@ class ChartBuilder:
                 pass
 
         # ----- 策略升级点计算 -----
+        STRATEGY_LEVELS = {
+            # 长线策略 (级别 1)
+            "多头排列": "1",
+            "突破年线": "1",
+            # 趋势策略 (级别 2)
+            "均线金叉": "2",
+            "突破半年线": "2",
+            "均线收敛": "2",
+            # 短线策略 (级别 3)
+            "成交量放大": "3",
+            "红三兵": "3",
+            "连续上涨": "3",
+        }
         upgrade_points = []
         if pos_detail:
             df_pos = pd.DataFrame(pos_detail)
@@ -2754,15 +2767,22 @@ class ChartBuilder:
                     current_strategy = buy_strategy
                     for _, rec in candidates.iterrows():
                         if rec["strategy"] != current_strategy:
+                            strat_name = rec["strategy"]
+                            # --- 获取策略等级映射 (未在字典中的兜底为 str(strat_name)) ---
+                            level = STRATEGY_LEVELS.get(strat_name, strat_name)
+
                             upgrade_points.append(
                                 {
                                     "date": rec["date"],
-                                    "strategy": rec["strategy"],
+                                    "strategy": strat_name,
+                                    "label": str(
+                                        level
+                                    ),  # 存储转换后的 1 / 2 / 3 文本标签
                                 }
                             )
-                            current_strategy = rec["strategy"]
+                            current_strategy = strat_name
 
-        # ----- 3. 策略升级标记 (改为专业菱形/星形 Marker) -----
+        # ----- 3. 策略升级标记 (改为专业 Marker) -----
         for up in upgrade_points:
             td = up["date"]
             price_row = df[df["datetime"] == td]
@@ -2779,12 +2799,12 @@ class ChartBuilder:
                     x=[td],
                     y=[suspension_price],
                     mode="markers+text",
-                    text="B",
+                    cliponaxis=False,
+                    text=up["label"],  # <-- 这里替换为映射好的 1/2/3 字符串
                     textposition="top center",
                     textfont=dict(
                         size=int(8 * scale),
                         color=cfg["upgrade-marker-color"],
-                        weight="bold",
                     ),
                     marker=dict(
                         symbol="triangle-up",
@@ -2802,7 +2822,7 @@ class ChartBuilder:
                     ),
                     showlegend=False,
                     hovertemplate=(
-                        f"<b>策略更新</b><br>日期：%{{x|%Y-%m-%d}}<br>策略：{up['strategy']}<extra></extra>"
+                        f"<b>策略更新 (L{up['label']})</b><br>日期：%{{x|%Y-%m-%d}}<br>策略：{up['strategy']}<extra></extra>"
                     ),
                     hoverlabel=dict(
                         font_size=font_size,
