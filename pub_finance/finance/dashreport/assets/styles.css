@@ -1280,7 +1280,7 @@ input[type="radio"]:checked::before {
 
 @media (hover: hover) {
     .ai-analysis-btn:hover {
-        background-color: var(--negative-databar-color) !important;
+        background-color: transparent !important;
     }
 }
 
