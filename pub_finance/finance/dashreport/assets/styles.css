@@ -882,6 +882,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
 
 .nav-btn {
   transition: all 0.2s ease;
+  font-weight: 900;
 }
 
 .nav-btn:hover {

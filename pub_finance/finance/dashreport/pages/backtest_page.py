@@ -989,7 +989,7 @@ class BacktestPage:
                                         html.Div(
                                             [
                                                 html.Button(
-                                                    "\u25c4",
+                                                    "\u27e8",
                                                     id="backtest-prev",
                                                     n_clicks=0,
                                                     className="btn btn-light backtest-label nav-btn left",
@@ -1001,7 +1001,7 @@ class BacktestPage:
                                                     className="btn btn-secondary backtest-label nav-btn middle",
                                                 ),
                                                 html.Button(
-                                                    "\u25ba",
+                                                    "\u27e9",
                                                     id="backtest-next",
                                                     n_clicks=0,
                                                     className="btn btn-light backtest-label nav-btn right",
