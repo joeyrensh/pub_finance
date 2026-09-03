@@ -1269,17 +1269,18 @@ input[type="radio"]:checked::before {
     background: var(--kpi-background) !important;
     color: var(--text-color) !important;
     border-radius: 0 !important;
-    border: 1px solid var(--gridcolor) !important;
+    border: 0.1px solid var(--gridcolor) !important;
     padding: 0 5px !important;
     font-size: 1.3rem;
     transition: background 0.2s;
     line-height: 30px;
     font-family: var(--font-family) !important;
+    font-weight: 400;
 }
 
 @media (hover: hover) {
     .ai-analysis-btn:hover {
-        background: #4096ff !important;
+        background-color: var(--negative-databar-color) !important;
     }
 }
 
