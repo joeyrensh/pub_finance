@@ -36,8 +36,8 @@ class ChartBuilder:
                 "long": "#ff4444",
                 "short": "#0d876d",
                 "pnl-colors": [
-                    "#0d876d",
                     "#FF4444",
+                    "#0d876d",
                     "#475A76",
                     "#475A76",
                     "#475A76",
@@ -74,8 +74,8 @@ class ChartBuilder:
                 "long": "#ff4444",
                 "short": "#00875A",
                 "pnl-colors": [
-                    "#00875A",
                     "#FF4444",
+                    "#00875A",
                     "#64748B",
                     "#64748B",
                     "#64748B",
@@ -1721,6 +1721,22 @@ class ChartBuilder:
         )
 
         # =========================
+        # 1. 计算 Legend 动态排序逻辑
+        # =========================
+        legend_order = []
+        if not df.empty and "buy_date" in df.columns and "pnl" in df.columns:
+            # 获取最新的日期（正序排列下的最后一行日期）
+            latest_date = df["buy_date"].iloc[-1]
+
+            # 提取最新日期的这组数据，按 pnl 降序排列，获取行业名称列表
+            legend_order = (
+                df[df["buy_date"] == latest_date]
+                .sort_values(by="pnl", ascending=False)["industry"]
+                .unique()
+                .tolist()
+            )
+
+        # =========================
         # 3. chart
         # =========================
         fig = px.line(
@@ -1730,6 +1746,7 @@ class ChartBuilder:
             color="industry",
             line_group="industry",
             color_discrete_sequence=cfg["pnl-colors"],
+            category_orders={"industry": legend_order},
         )
         for trace in fig.data:
             line_color = trace.line.color  # 获取 px 自动分配给该 Trace 的颜色
