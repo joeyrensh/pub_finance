@@ -1496,7 +1496,7 @@ input[type="radio"]:checked::before {
   }
 
   .all-tabs .tab.active .menu-name {
-    font-size: 1.6rem
+    font-size: 1.7rem
   }
   
   .tab {
@@ -1685,7 +1685,7 @@ input[type="radio"]:checked::before {
   }
 
   .all-tabs .tab.active .menu-name {
-    font-size: 1.4rem
+    font-size: 1.5rem
   }
   
   .tab {
@@ -1696,7 +1696,7 @@ input[type="radio"]:checked::before {
   }
   
   .tab .icon {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
   
   .bubble-logo {
