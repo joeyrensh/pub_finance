@@ -8,6 +8,7 @@ from datetime import timedelta
 from typing import Any, Literal
 from plotly.subplots import make_subplots
 import re
+import colorsys
 
 
 class ChartBuilder:
@@ -26,20 +27,20 @@ class ChartBuilder:
                     "#0d876d",
                     "#0d876d",
                     "#0d876d",
-                    "#5A6574",
-                    "#5A6574",
-                    "#5A6574",
+                    "#475A76",
+                    "#475A76",
+                    "#475A76",
                 ],
-                "upgrade-marker-color": "#475569",
-                "total-cnt-color": "#5A6574",
+                "upgrade-marker-color": "#475A76",
+                "total-cnt-color": "#475A76",
                 "long": "#ff4444",
                 "short": "#0d876d",
                 "pnl-colors": [
                     "#0d876d",
                     "#FF4444",
-                    "#5A6574",
-                    "#5A6574",
-                    "#5A6574",
+                    "#475A76",
+                    "#475A76",
+                    "#475A76",
                 ],
                 "border-color": "#D1D5DB",
                 "outside-text-color": "#777777",
@@ -163,6 +164,67 @@ class ChartBuilder:
 
         # 3. 兜底处理 (若配置传的是特殊值)
         return color_str
+
+    def darken_color(self, color_str, factor=0.35, theme="dark"):
+        """加深输入的颜色作为 Hover 背景：支持 HEX (#RRGGBB / #RGB), RGB(), RGBA() 格式
+
+        :param color_str: 输入颜色字符串 (如 "#2962FF", "#FFF", "rgb(41, 98, 255)", "rgba(41,
+            98, 255, 0.8)")
+        :param factor: Dark 模式下的加深比例 0.0 ~ 1.0 (例如 0.35 代表亮度降低 35%)
+        :param theme: 主题模式 "dark" 或 "light"。为 "light" 时，加深幅度自动取 factor
+            的 50%
+        :return: 对应的 HEX, rgb() 或 rgba() 加深字符串
+        """
+        if not color_str or not isinstance(color_str, str):
+            return color_str
+
+        color_str = color_str.strip()
+
+        r, g, b, alpha = None, None, None, None
+
+        # 1. 处理 RGBA / RGB 格式: rgb(r, g, b) 或 rgba(r, g, b, a)
+        rgba_match = re.match(
+            r"^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)$",
+            color_str,
+            re.IGNORECASE,
+        )
+        if rgba_match:
+            r = int(rgba_match.group(1)) / 255.0
+            g = int(rgba_match.group(2)) / 255.0
+            b = int(rgba_match.group(3)) / 255.0
+            alpha = rgba_match.group(4)  # None 或 透明度数值字符串
+
+        # 2. 处理 HEX 格式: #RGB, #RRGGBB
+        elif color_str.startswith("#"):
+            hex_str = color_str.lstrip("#")
+            if len(hex_str) == 3:
+                hex_str = "".join([c * 2 for c in hex_str])
+            if len(hex_str) >= 6:
+                r = int(hex_str[0:2], 16) / 255.0
+                g = int(hex_str[2:4], 16) / 255.0
+                b = int(hex_str[4:6], 16) / 255.0
+
+        # 无法解析时降级原样返回
+        if r is None:
+            return color_str
+
+        # 3. 计算加深比例：Light 模式下加深幅度减半 (50%)
+        effective_factor = factor * 0.5 if theme == "light" else factor
+
+        # 4. 降低 Lightness 加深颜色
+        h, l, s = colorsys.rgb_to_hls(r, g, b)
+        new_l = max(0.0, l * (1.0 - effective_factor))
+
+        new_r, new_g, new_b = colorsys.hls_to_rgb(h, new_l, s)
+        nr, ng, nb = int(new_r * 255), int(new_g * 255), int(new_b * 255)
+
+        # 5. 格式化输出 (保留原有的 alpha 透明度通道)
+        if alpha is not None:
+            return f"rgba({nr}, {ng}, {nb}, {alpha})"
+        if color_str.lower().startswith("rgb("):
+            return f"rgb({nr}, {ng}, {nb})"
+
+        return f"#{nr:02x}{ng:02x}{nb:02x}"
 
     @staticmethod
     def _truncate_text_by_display_width(text, max_display_width=16):
@@ -1145,6 +1207,9 @@ class ChartBuilder:
                                 showlegend=False,
                                 legendgroup=strat,
                                 hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
+                                hoverlabel=dict(
+                                    bgcolor=self.darken_color(color, 0.35, theme)
+                                ),
                                 visible=visibility,
                                 cliponaxis=False,
                             )
@@ -1163,6 +1228,9 @@ class ChartBuilder:
                                 showlegend=False,
                                 legendgroup=strat,
                                 hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
+                                hoverlabel=dict(
+                                    bgcolor=self.darken_color(color, 0.35, theme)
+                                ),
                                 visible=visibility,
                                 cliponaxis=False,
                             )
@@ -1180,6 +1248,9 @@ class ChartBuilder:
                             showlegend=False,
                             legendgroup=strat,
                             hovertemplate=f"{strat} {bar_hover_fmt}<extra></extra>",
+                            hoverlabel=dict(
+                                bgcolor=self.darken_color(color, 0.35, theme)
+                            ),
                             visible=visibility,
                             cliponaxis=False,
                         )
@@ -1256,6 +1327,9 @@ class ChartBuilder:
                     xaxis="x",
                     yaxis="y1",
                     hovertemplate=f"{strat} {hover_fmt}<extra></extra>",
+                    hoverlabel=dict(
+                        bgcolor=self.darken_color(cfg_item["color"], 0.35, theme)
+                    ),
                     legendgroup=strat,
                     legendrank=cfg_item["rank"],
                     cliponaxis=False,
@@ -1301,6 +1375,11 @@ class ChartBuilder:
                                 size=int(base_font_size),
                                 color=cfg_item["color"],
                                 family=self.font_family,
+                            ),
+                            hoverlabel=dict(
+                                bgcolor=self.darken_color(
+                                    cfg_item["color"], 0.35, theme
+                                )
                             ),
                             showlegend=False,
                             legendgroup=strat,
@@ -1487,6 +1566,9 @@ class ChartBuilder:
                     # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
                     "<b>Total</b>: %{y}<br><extra></extra>"
                 ),
+                hoverlabel=dict(
+                    bgcolor=self.darken_color(cfg["total-cnt-color"], 0.35, theme)
+                ),
             )
         )
 
@@ -1503,6 +1585,7 @@ class ChartBuilder:
                     # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
                     "<b>Buy Qty</b>: %{y}<br><extra></extra>"
                 ),
+                hoverlabel=dict(bgcolor=self.darken_color(cfg["long"], 0.35, theme)),
             )
         )
 
@@ -1519,6 +1602,7 @@ class ChartBuilder:
                     # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
                     "<b>Sell Qty</b>: %{y}<br><extra></extra>"
                 ),
+                hoverlabel=dict(bgcolor=self.darken_color(cfg["short"], 0.35, theme)),
             )
         )
 
@@ -1647,14 +1731,25 @@ class ChartBuilder:
             line_group="industry",
             color_discrete_sequence=cfg["pnl-colors"],
         )
-        fig.update_traces(
-            # line=dict(width=3 * unified_scale),
-            line=dict(width=1.5),
-            hovertemplate=(
-                # "<b>日期</b>: %{x|%Y-%m-%d}<br>"
-                "<b>PnL</b>: %{fullData.name} %{y}<br><extra></extra>"
-            ),
-        )
+        for trace in fig.data:
+            line_color = trace.line.color  # 获取 px 自动分配给该 Trace 的颜色
+
+            # 动态计算加深背景（兼顾 HEX / RGB / RGBA）
+            dark_bg = (
+                self.darken_color(line_color, factor=0.35, theme=theme)
+                if line_color
+                else None
+            )
+
+            # 更新单个 Trace 的属性
+            trace.update(
+                line=dict(width=1.5),
+                hovertemplate="<b>PnL</b>: %{fullData.name} %{y}<br><extra></extra>",
+                hoverlabel=dict(
+                    bgcolor=dark_bg,  # 动态深色背景
+                    bordercolor=line_color,  # 原始亮色线条边框
+                ),
+            )
 
         xmin = pd.to_datetime(df["buy_date"].min())
         xmax = pd.to_datetime(df["buy_date"].max())
@@ -2125,7 +2220,9 @@ class ChartBuilder:
                 line=dict(color=cfg["drawdown-line-color"], width=1),
                 hovertemplate=("<b>Drawdown</b>: %{y:.2%}<br><extra></extra>"),
                 hoverlabel=dict(
-                    bgcolor=hover_config["drawdown-line-color"],
+                    bgcolor=self.darken_color(
+                        hover_config["drawdown-line-color"], 0.35, theme
+                    ),
                     bordercolor=hover_config.get("hover-border-color"),
                     font=dict(color=hover_config.get("hover-text-color")),
                 ),
@@ -2158,7 +2255,9 @@ class ChartBuilder:
                 line=dict(color=cfg["cumret-line-color"], width=1.5),
                 hovertemplate=("<b>Cum. Return</b>: %{y:.4f}<br><extra></extra>"),
                 hoverlabel=dict(
-                    bgcolor=hover_config["cumret-line-color"],
+                    bgcolor=self.darken_color(
+                        hover_config["cumret-line-color"], 0.35, theme
+                    ),
                     bordercolor=hover_config.get("hover-border-color"),
                     font=dict(color=hover_config.get("hover-text-color")),
                 ),
@@ -2259,7 +2358,9 @@ class ChartBuilder:
                     showlegend=False,
                     hovertemplate=f"<b>Latest Cum. Return</b>: {last_y:.4f}<br><extra></extra>",
                     hoverlabel=dict(
-                        bgcolor=hover_config["cumret-line-color"],
+                        bgcolor=self.darken_color(
+                            hover_config["cumret-line-color"], 0.35, theme
+                        ),
                         bordercolor=hover_config.get("hover-border-color"),
                         font=dict(color=hover_config.get("hover-text-color")),
                     ),
@@ -2293,7 +2394,9 @@ class ChartBuilder:
                     showlegend=False,
                     hovertemplate=f"<b>Max Cum. Return</b>: {cum_max_val:.4f}<br><extra></extra>",
                     hoverlabel=dict(
-                        bgcolor=hover_config["cumret-line-color"],
+                        bgcolor=self.darken_color(
+                            hover_config["cumret-line-color"], 0.35, theme
+                        ),
                         bordercolor=hover_config.get("hover-border-color"),
                         font=dict(color=hover_config.get("hover-text-color")),
                     ),
@@ -2339,7 +2442,9 @@ class ChartBuilder:
                     showlegend=False,
                     hovertemplate=f"<b>Max Drawdown</b>: {max_dd_val:.2%}<br><extra></extra>",
                     hoverlabel=dict(
-                        bgcolor=hover_config["drawdown-line-color"],
+                        bgcolor=self.darken_color(
+                            hover_config["drawdown-line-color"], 0.35, theme
+                        ),
                         bordercolor=hover_config.get("hover-border-color"),
                         font=dict(color=hover_config.get("hover-text-color")),
                     ),
@@ -2380,7 +2485,9 @@ class ChartBuilder:
                             showlegend=False,
                             hovertemplate=f"<b>30D Max Drawdown</b>: {val_30:.2%}<br><extra></extra>",
                             hoverlabel=dict(
-                                bgcolor=hover_config["drawdown-line-color"],
+                                bgcolor=self.darken_color(
+                                    hover_config["drawdown-line-color"], 0.35, theme
+                                ),
                                 bordercolor=hover_config.get("hover-border-color"),
                                 font=dict(color=hover_config.get("hover-text-color")),
                             ),
@@ -2423,7 +2530,9 @@ class ChartBuilder:
                             showlegend=False,
                             hovertemplate=f"<b>120D Max Drawdown</b>: {val_120:.2%}<br><extra></extra>",
                             hoverlabel=dict(
-                                bgcolor=hover_config["drawdown-line-color"],
+                                bgcolor=self.darken_color(
+                                    hover_config["drawdown-line-color"], 0.35, theme
+                                ),
                                 bordercolor=hover_config.get("hover-border-color"),
                                 font=dict(color=hover_config.get("hover-text-color")),
                             ),
@@ -2777,7 +2886,7 @@ class ChartBuilder:
                                 size=font_size,
                                 family=self.font_family,
                             ),
-                            bgcolor=color,
+                            bgcolor=self.darken_color(color, factor=0.35, theme=theme),
                             bordercolor=cfg.get("hover-border-color"),
                         ),
                     ),
@@ -2891,7 +3000,9 @@ class ChartBuilder:
                         f"<b>Lv{up['label']}</b><br>Strategy：{up['strategy']}<br>Date：%{{x|%Y-%m-%d}}<extra></extra>"
                     ),
                     hoverlabel=dict(
-                        bgcolor=cfg["upgrade-marker-color"],
+                        bgcolor=self.darken_color(
+                            cfg["upgrade-marker-color"], factor=0.35, theme=theme
+                        ),
                         bordercolor=cfg.get("hover-border-color"),
                         font=dict(
                             color=cfg.get("hover-text-color"),
