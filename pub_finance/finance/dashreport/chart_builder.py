@@ -1753,13 +1753,12 @@ class ChartBuilder:
             # 动态计算加深背景（兼顾 HEX / RGB / RGBA）
             dark_bg = self.darken_color(line_color, theme=theme) if line_color else None
 
-            # 更新单个 Trace 的属性
+            # 更新单个 Trace 的属性：调整为 [行业名称] PnL: [格式化数值]
             trace.update(
                 line=dict(width=1.5),
-                hovertemplate="<b>PnL</b>: %{fullData.name} %{y}<br><extra></extra>",
+                hovertemplate="<b>%{fullData.name}</b> PnL: %{y:,.2f}<br><extra></extra>",
                 hoverlabel=dict(
                     bgcolor=dark_bg,  # 动态深色背景
-                    bordercolor=line_color,  # 原始亮色线条边框
                 ),
             )
 
@@ -2788,6 +2787,7 @@ class ChartBuilder:
         ]
 
         # K线
+        df["pct_change"] = (df["close"] - df["open"]) / df["open"]
         fig.add_trace(
             go.Candlestick(
                 x=df["datetime"],
@@ -2795,14 +2795,17 @@ class ChartBuilder:
                 high=df["high"],
                 low=df["low"],
                 close=df["close_plot"],
+                customdata=df[["pct_change"]].values,
                 name=legend_name,
                 increasing=dict(line_color=cfg["long"], fillcolor=cfg["long"]),
                 decreasing=dict(line_color=cfg["short"], fillcolor=cfg["short"]),
                 line=dict(width=0.8 * scale),
                 showlegend=True,
                 hovertemplate=(
-                    "<b>%{x|%Y-%m-%d}</b><br>Open: %{open:.2f}<br>High: %{high:.2f}<br>"
-                    "Low: %{low:.2f}<br>Close: %{close:.2f}<extra></extra>"
+                    "%{x|%Y-%m-%d}<br>"
+                    "Open: %{open:.2f} High: %{high:.2f}<br>"
+                    "Low: %{low:.2f}  Close: %{close:.2f} (%{customdata[0]:+.2%})"
+                    "<extra></extra>"
                 ),
                 hoverlabel=dict(
                     font=dict(
@@ -2840,14 +2843,32 @@ class ChartBuilder:
         # 设定固定偏移步长（例如：悬浮高度恒定为全局视图高度的 2.5%）
         offset_base = price_range * 0.025
         offset_upgrade = price_range * 0.045  # 策略升级点错开更高高度
+        # ----- 策略级别定义 -----
+        STRATEGY_LEVELS = {
+            # 长线策略 (级别 1)
+            "多头排列": "1",
+            "突破年线": "1",
+            # 趋势策略 (级别 2)
+            "均线金叉": "2",
+            "突破半年线": "2",
+            "均线收敛": "2",
+            # 短线策略 (级别 3)
+            "成交量放大": "3",
+            "红三兵": "3",
+            "连续上涨": "3",
+        }
 
-        # ----- 2. 买卖点标记（改为专业箭头/几何 Marker） -----
+        # ----- 1. 买卖点标记绘制 -----
         for t in trades:
             try:
                 td = pd.to_datetime(t["date"])
                 tp = t["price"]
                 tt = t["type"]
-                ts = t["strategy"]
+                ts = t.get("strategy", "")
+
+                # 获取策略对应的 Level 映射
+                strat_level = STRATEGY_LEVELS.get(ts)
+                strat_display = f"Lv{strat_level} · {ts}" if strat_level else f"{ts}"
 
                 # 获取当根 Bar 的 High
                 price_row = df[df["datetime"] == td]
@@ -2856,10 +2877,10 @@ class ChartBuilder:
                 is_buy = tt == "买入"
                 color = cfg["long"] if is_buy else cfg["short"]
 
-                # 专业金融样式：买入用向上箭头/三角形，卖出用向下箭头/三角形
+                # 专业金融样式与图标前缀
                 marker_symbol = "triangle-up" if is_buy else "triangle-down"
+                arrow_icon = "▲" if is_buy else "▼"
 
-                # 悬浮点 = K线最高价 + 固定价格步长
                 suspension_price = bar_high + offset_base
                 stem_length = suspension_price - bar_high
 
@@ -2867,28 +2888,31 @@ class ChartBuilder:
                     go.Scatter(
                         x=[td],
                         y=[suspension_price],
-                        mode="markers+text",  # 组合模式：同时显示 Marker 图形和节点文字
+                        mode="markers+text",
                         cliponaxis=False,
-                        text="B" if is_buy else "S",  # 标记内部或边缘的标注
-                        textposition="top center",  # 文字在 Marker 上方居中
+                        text="B" if is_buy else "S",
+                        textposition="top center",
                         textfont=dict(size=int(10 * scale), color=color, weight="bold"),
                         marker=dict(
                             symbol=marker_symbol,
-                            size=int(8 * scale),  # 专业 Marker 大小
+                            size=int(8 * scale),
                             color=color,
                         ),
                         error_y=dict(
                             type="data",
                             array=[0],
-                            arrayminus=[stem_length],  # 下拉连线连接至 Bar High
+                            arrayminus=[stem_length],
                             symmetric=False,
                             width=0,
                             color=cfg.get("gridcolor"),
                             thickness=1,
                         ),
                         showlegend=False,
+                        # 新 Hover 样式：[▲ 买入 | ￥10.50]
                         hovertemplate=(
-                            f"<b>{tt}</b><br>Price：{tp:.2f}<br>Strategy：{ts}<br>Date：%{{x|%Y-%m-%d}}<extra></extra>"
+                            f"[{arrow_icon} <b>{tt}</b> | ￥{tp:.2f}]<br>"
+                            f"Strategy: {strat_display}<br>"
+                            f"%{{x|%Y-%m-%d}}<extra></extra>"
                         ),
                         hoverlabel=dict(
                             font=dict(
@@ -2903,71 +2927,56 @@ class ChartBuilder:
                     row=1,
                     col=1,
                 )
-            except:
+            except Exception as e:
                 pass
 
-        # ----- 策略升级点计算 -----
-        STRATEGY_LEVELS = {
-            # 长线策略 (级别 1)
-            "多头排列": "1",
-            "突破年线": "1",
-            # 趋势策略 (级别 2)
-            "均线金叉": "2",
-            "突破半年线": "2",
-            "均线收敛": "2",
-            # 短线策略 (级别 3)
-            "成交量放大": "3",
-            "红三兵": "3",
-            "连续上涨": "3",
-        }
+        # ----- 2. 计算策略升级点 -----
         upgrade_points = []
         if pos_detail:
             df_pos = pd.DataFrame(pos_detail)
-            df_pos["date"] = pd.to_datetime(df_pos["date"], errors="coerce")
-            df_pos = df_pos.dropna(subset=["date"])
-            df_pos = df_pos.sort_values("date").reset_index(drop=True)
+            if "date" in df_pos.columns:
+                df_pos["date"] = pd.to_datetime(df_pos["date"], errors="coerce")
+                df_pos = df_pos.dropna(subset=["date"])
+                df_pos = df_pos.sort_values("date").reset_index(drop=True)
 
-            if not df_pos.empty:
-                buy_trades = [
-                    t
-                    for t in trades
-                    if t.get("type") == "买入"
-                    and pd.to_datetime(t["date"]) >= df["datetime"].min()
-                ]
-                buy_trades.sort(key=lambda x: pd.to_datetime(x["date"]))
-                buy_dates = [pd.to_datetime(b["date"]) for b in buy_trades]
-                buy_strategies = [b.get("strategy", "") for b in buy_trades]
+                if not df_pos.empty and "datetime" in df.columns:
+                    buy_trades = [
+                        t
+                        for t in trades
+                        if t.get("type") == "买入"
+                        and pd.to_datetime(t["date"]) >= df["datetime"].min()
+                    ]
+                    buy_trades.sort(key=lambda x: pd.to_datetime(x["date"]))
+                    buy_dates = [pd.to_datetime(b["date"]) for b in buy_trades]
+                    buy_strategies = [b.get("strategy", "") for b in buy_trades]
 
-                for idx, buy_date in enumerate(buy_dates):
-                    buy_strategy = buy_strategies[idx]
-                    next_buy_date = (
-                        buy_dates[idx + 1] if idx + 1 < len(buy_dates) else None
-                    )
-                    candidates = df_pos[df_pos["date"] > buy_date]
-                    if next_buy_date:
-                        candidates = candidates[candidates["date"] < next_buy_date]
-                    candidates = candidates.sort_values("date")
-                    if candidates.empty:
-                        continue
-                    current_strategy = buy_strategy
-                    for _, rec in candidates.iterrows():
-                        if rec["strategy"] != current_strategy:
-                            strat_name = rec["strategy"]
-                            # --- 获取策略等级映射 (未在字典中的兜底为 str(strat_name)) ---
-                            level = STRATEGY_LEVELS.get(strat_name, strat_name)
+                    for idx, buy_date in enumerate(buy_dates):
+                        buy_strategy = buy_strategies[idx]
+                        next_buy_date = (
+                            buy_dates[idx + 1] if idx + 1 < len(buy_dates) else None
+                        )
+                        candidates = df_pos[df_pos["date"] > buy_date]
+                        if next_buy_date:
+                            candidates = candidates[candidates["date"] < next_buy_date]
+                        candidates = candidates.sort_values("date")
+                        if candidates.empty:
+                            continue
+                        current_strategy = buy_strategy
+                        for _, rec in candidates.iterrows():
+                            if rec["strategy"] != current_strategy:
+                                strat_name = rec["strategy"]
+                                level = STRATEGY_LEVELS.get(strat_name, strat_name)
 
-                            upgrade_points.append(
-                                {
-                                    "date": rec["date"],
-                                    "strategy": strat_name,
-                                    "label": str(
-                                        level
-                                    ),  # 存储转换后的 1 / 2 / 3 文本标签
-                                }
-                            )
-                            current_strategy = strat_name
+                                upgrade_points.append(
+                                    {
+                                        "date": rec["date"],
+                                        "strategy": strat_name,
+                                        "label": str(level),
+                                    }
+                                )
+                                current_strategy = strat_name
 
-        # ----- 3. 策略升级标记 (改为专业 Marker) -----
+        # ----- 3. 策略升级标记绘制 -----
         for up in upgrade_points:
             td = up["date"]
             price_row = df[df["datetime"] == td]
@@ -2975,7 +2984,6 @@ class ChartBuilder:
                 continue
 
             bar_high = price_row["high"].iloc[0]
-
             suspension_price = bar_high + offset_upgrade
             stem_length = suspension_price - bar_high
 
@@ -2985,7 +2993,7 @@ class ChartBuilder:
                     y=[suspension_price],
                     mode="markers+text",
                     cliponaxis=False,
-                    text=up["label"],  # <-- 这里替换为映射好的 1/2/3 字符串
+                    text=up["label"],
                     textposition="top center",
                     textfont=dict(
                         size=int(8 * scale),
@@ -3006,8 +3014,11 @@ class ChartBuilder:
                         thickness=1,
                     ),
                     showlegend=False,
+                    # 新 Hover 样式：[▲ 升级 | ￥10.50]
                     hovertemplate=(
-                        f"<b>Lv{up['label']}</b><br>Strategy：{up['strategy']}<br>Date：%{{x|%Y-%m-%d}}<extra></extra>"
+                        f"[▲ <b>升级</b> | ￥{bar_high:.2f}]<br>"
+                        f"Strategy: Lv{up['label']} · {up['strategy']}<br>"
+                        f"%{{x|%Y-%m-%d}}<extra></extra>"
                     ),
                     hoverlabel=dict(
                         bgcolor=self.darken_color(
@@ -3651,12 +3662,18 @@ class ChartBuilder:
         # ------------------------------
         df["hover-text-color"] = df.apply(
             lambda row: (
-                # 1. PnL 数值根据正负动态显示颜色（正数绿/负数红）
-                f"<span style='color:cfg.get('text-color');'>PnL:</span> "
+                # PnL 数值根据正负动态显示颜色（修正了原代码中 cfg.get 内联单引号报错问题）
+                f"<span><b>PnL</b>:</span> "
                 f"<span style='color:{cfg.get('positive-int-color') if row['s_pnl'] >= 0 else cfg.get('negative-int-color')};font-weight:bold;'>"
-                f"{row['s_pnl']:,.2f}</span><br>"
-                f"<span style='color:cfg.get('text-color');'>Industry:</span> "
-                f"{' · '.join(row['industry_top3_parsed']) if row['industry_top3_parsed'] else '无'}"
+                f"{row['s_pnl']:+,.2f}</span><br>"
+                f"<span><b>Industry</b>:</span>"
+                # 核心改动：将 ' · '.join 替换为 带 <br> 换行和 └ 符号的纵向树状列表
+                + (
+                    "<br>&nbsp;&nbsp;· "
+                    + "<br>&nbsp;&nbsp;· ".join(row["industry_top3_parsed"])
+                    if row["industry_top3_parsed"]
+                    else " 无"
+                )
             ),
             axis=1,
         )
