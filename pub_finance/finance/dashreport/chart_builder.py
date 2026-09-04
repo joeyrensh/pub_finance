@@ -2910,7 +2910,7 @@ class ChartBuilder:
                         showlegend=False,
                         # 新 Hover 样式：[▲ 买入 | ￥10.50]
                         hovertemplate=(
-                            f"[{arrow_icon} <b>{tt}</b> | ￥{tp:.2f}]<br>"
+                            f"[{arrow_icon} <b>{tt}</b> | {tp:.2f}]<br>"
                             f"Strategy: {strat_display}<br>"
                             f"%{{x|%Y-%m-%d}}<extra></extra>"
                         ),
@@ -2984,6 +2984,7 @@ class ChartBuilder:
                 continue
 
             bar_high = price_row["high"].iloc[0]
+            bar_close = price_row["close"].iloc[0]
             suspension_price = bar_high + offset_upgrade
             stem_length = suspension_price - bar_high
 
@@ -3016,7 +3017,7 @@ class ChartBuilder:
                     showlegend=False,
                     # 新 Hover 样式：[▲ 升级 | ￥10.50]
                     hovertemplate=(
-                        f"[▲ <b>升级</b> | ￥{bar_high:.2f}]<br>"
+                        f"[▲ <b>升级</b> | {bar_close:.2f}]<br>"
                         f"Strategy: Lv{up['label']} · {up['strategy']}<br>"
                         f"%{{x|%Y-%m-%d}}<extra></extra>"
                     ),
