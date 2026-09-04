@@ -165,26 +165,24 @@ class ChartBuilder:
         # 3. 兜底处理 (若配置传的是特殊值)
         return color_str
 
-    def darken_color(self, color_str, factor=0.35, theme="dark"):
-        """加深输入的颜色作为 Hover 背景：支持 HEX (#RRGGBB / #RGB), RGB(), RGBA() 格式
+    def darken_color(self, color_str, factor=0.35, theme="dark", bg_color=None):
+        """物理底色混合算法：100% 保留原色纯度，通过与 CSS 背景色 Blend 生成高级沉淀色
 
-        :param color_str: 输入颜色字符串 (如 "#2962FF", "#FFF", "rgb(41, 98, 255)", "rgba(41,
-            98, 255, 0.8)")
-        :param factor: Dark 模式下的加深比例 0.0 ~ 1.0 (例如 0.35 代表亮度降低 35%)
-        :param theme: 主题模式 "dark" 或 "light"。为 "light" 时，加深幅度自动取 factor
-            的 50%
-        :return: 对应的 HEX, rgb() 或 rgba() 加深字符串
+        :param color_str: 输入折线颜色 (#HEX, rgb, rgba)
+        :param factor: 融合比例（原色占比）。例如 0.65 代表 65% 原色 + 35% 底色
+        :param theme: "dark" 或 "light"
+        :param bg_color: 可选，自动匹配 CSS 定义的 --background-color
+        :return: 完美纯正的 HEX 颜色
         """
         if not color_str or not isinstance(color_str, str):
             return color_str
 
         color_str = color_str.strip()
+        r, g, b = None, None, None
 
-        r, g, b, alpha = None, None, None, None
-
-        # 1. 处理 RGBA / RGB 格式: rgb(r, g, b) 或 rgba(r, g, b, a)
+        # 1. 解析 RGB / RGBA / HEX 格式
         rgba_match = re.match(
-            r"^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)$",
+            r"^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*[\d.]+)?\s*\)$",
             color_str,
             re.IGNORECASE,
         )
@@ -192,9 +190,6 @@ class ChartBuilder:
             r = int(rgba_match.group(1)) / 255.0
             g = int(rgba_match.group(2)) / 255.0
             b = int(rgba_match.group(3)) / 255.0
-            alpha = rgba_match.group(4)  # None 或 透明度数值字符串
-
-        # 2. 处理 HEX 格式: #RGB, #RRGGBB
         elif color_str.startswith("#"):
             hex_str = color_str.lstrip("#")
             if len(hex_str) == 3:
@@ -204,25 +199,38 @@ class ChartBuilder:
                 g = int(hex_str[2:4], 16) / 255.0
                 b = int(hex_str[4:6], 16) / 255.0
 
-        # 无法解析时降级原样返回
         if r is None:
             return color_str
 
-        # 3. 计算加深比例：Light 模式下加深幅度减半 (50%)
-        effective_factor = factor * 0.5 if theme == "light" else factor
+        # 2. 匹配 CSS 中定义的 --background-color
+        if bg_color is None:
+            css_bg_map = {
+                "light": "#F8F9FD",
+                "dark": "#12151a",
+            }
+            bg_color = css_bg_map.get(theme)
 
-        # 4. 降低 Lightness 加深颜色
-        h, l, s = colorsys.rgb_to_hls(r, g, b)
-        new_l = max(0.0, l * (1.0 - effective_factor))
+        bg_hex = bg_color.lstrip("#")
+        bg_r = int(bg_hex[0:2], 16) / 255.0
+        bg_g = int(bg_hex[2:4], 16) / 255.0
+        bg_b = int(bg_hex[4:6], 16) / 255.0
 
-        new_r, new_g, new_b = colorsys.hls_to_rgb(h, new_l, s)
-        nr, ng, nb = int(new_r * 255), int(new_g * 255), int(new_b * 255)
+        # 3. 确定 Blend 融合比例 (原色占比)
+        if theme == "light":
+            # Light Mode: 30% 原色 + 70% 淡底色，生成极浅的色调卡片，沉稳不沉重
+            blend_ratio = 0.95
+        else:
+            # Dark Mode: 60% 原色 + 40% 暗底色 (#12151a)
+            blend_ratio = 0.7
 
-        # 5. 格式化输出 (保留原有的 alpha 透明度通道)
-        if alpha is not None:
-            return f"rgba({nr}, {ng}, {nb}, {alpha})"
-        if color_str.lower().startswith("rgb("):
-            return f"rgb({nr}, {ng}, {nb})"
+        # 4. 直接做物理 Linear Interpolation (完全无需转换 HSL/HSV)
+        final_r = r * blend_ratio + bg_r * (1.0 - blend_ratio)
+        final_g = g * blend_ratio + bg_g * (1.0 - blend_ratio)
+        final_b = b * blend_ratio + bg_b * (1.0 - blend_ratio)
+
+        nr = int(max(0.0, min(1.0, final_r)) * 255)
+        ng = int(max(0.0, min(1.0, final_g)) * 255)
+        nb = int(max(0.0, min(1.0, final_b)) * 255)
 
         return f"#{nr:02x}{ng:02x}{nb:02x}"
 
