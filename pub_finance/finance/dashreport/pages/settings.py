@@ -1258,7 +1258,7 @@ def create_layout(app: Dash):
         [
             html.H6("WEIGHT CONFIGURATION", className="subtitle padded"),
             html.P(
-                "Drag and drop to adjust scoring weights freely. Click [Save to JSON] or [Save as Default].",
+                "Drag and drop to adjust scoring weights freely. Click [SAVE to JSON] or [SAVE as DEFAULT].",
                 className="text-secondary text-center mb-4 small page-sub-desc",
             ),
         ]
@@ -1389,7 +1389,7 @@ def create_layout(app: Dash):
     button_section = html.Div(
         [
             dbc.Button(
-                "Reset to Default",
+                "RESET to DEFAULT",
                 id="btn-reset",
                 color="secondary",
                 outline=True,
@@ -1397,14 +1397,14 @@ def create_layout(app: Dash):
                 style={"flex": "1 1 0"},
             ),
             dbc.Button(
-                "Save as Default",
+                "SAVE as DEFAULT",
                 id="btn-save-default",
                 color="warning",
                 className="py-2 rounded-2 weight-btn-save-default",
                 style={"flex": "1 1 0"},
             ),
             dbc.Button(
-                "Save to JSON",
+                "SAVE to JSON",
                 id="btn-save",
                 color="primary",
                 className="py-2 rounded-2 weight-btn-save",
