@@ -1180,6 +1180,19 @@ a:active { color: var(--text-color); text-decoration: underline; }
     border: 1px solid var(--gridcolor);
     padding: 0;
     color: var(--text-color);
+    text-transform: none;
+}
+
+.weight-btn-save-default {
+    border-color:#6c757d;
+    font-size: inherit;
+    line-height: 38px;
+    font-weight: 400;
+    font-family: var(--font-family) !important;
+    border: 1px solid var(--gridcolor);
+    padding: 0;
+    color: var(--text-color);
+    text-transform: none;
 }
 
 .weight-btn-save {
@@ -1191,6 +1204,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
     border: 1px solid var(--gridcolor);
     padding: 0;
     color: var(--text-color);
+    text-transform: none;
 }
 
 .l1_label { font-weight: 500; }
@@ -1624,6 +1638,10 @@ input[type="radio"]:checked::before {
   }
 
   .weight-btn-reset {
+    line-height: 30px;
+  }
+
+  .weight-btn-save-default {
     line-height: 30px;
   }
 
