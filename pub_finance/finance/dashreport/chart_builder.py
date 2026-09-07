@@ -2264,7 +2264,7 @@ class ChartBuilder:
                 ),
                 name="Cum. Return",
                 line=dict(color=cfg["cumret-line-color"], width=1.5),
-                hovertemplate=("<b>Cum. Return</b>: %{y:.4f}<br><extra></extra>"),
+                hovertemplate=("<b>Cum. Return</b>: %{y:.2f}<br><extra></extra>"),
                 hoverlabel=dict(
                     bgcolor=self.darken_color(hover_config["cumret-line-color"], theme),
                     bordercolor=hover_config.get("hover-border-color"),
@@ -2365,7 +2365,7 @@ class ChartBuilder:
                         symbol="circle", size=8 * scale, color=cfg["cumret-line-color"]
                     ),
                     showlegend=False,
-                    hovertemplate=f"<b>Latest Cum. Return</b>: {last_y:.4f}<br><extra></extra>",
+                    hovertemplate=f"<b>Latest Cum. Return</b>: {last_y:.2f}<br><extra></extra>",
                     hoverlabel=dict(
                         bgcolor=self.darken_color(
                             hover_config["cumret-line-color"], theme
@@ -2401,7 +2401,7 @@ class ChartBuilder:
                     ),
                     cliponaxis=False,
                     showlegend=False,
-                    hovertemplate=f"<b>Max Cum. Return</b>: {cum_max_val:.4f}<br><extra></extra>",
+                    hovertemplate=f"<b>Max Cum. Return</b>: {cum_max_val:.2f}<br><extra></extra>",
                     hoverlabel=dict(
                         bgcolor=self.darken_color(
                             hover_config["cumret-line-color"], theme
