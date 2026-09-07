@@ -11,7 +11,7 @@
   --positive-int-bg-color: #ff4444;
   --positive-databar-color: #ff444480;
   --negative-databar-color: #0d876d80;
-  --gridcolor: #D1D5DB80;
+  --gridcolor: #D1D5DBCC;
   
   /* 通用样式 */
   --background-color: #F8F9FD;
@@ -22,9 +22,9 @@
   --learn-more-button-color: #333333;
   --dash-table-border-color: rgba(211, 211, 211, 0.6);
   --flag-color: rgba(231, 127, 63, 0.97);
-  --border-left-color: #D1D5DB80;
+  --border-left-color: #D1D5DBCC;
   --bubble-background-color: linear-gradient(135deg, rgb(255, 68, 0), #fb0, #fb0);
-  --kpi-background: transparent;
+  --kpi-background: rgba(173, 178, 184, 0.13);
 
   /* 字体 */
   --font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", "Segoe UI", Arial, sans-serif;
@@ -39,7 +39,7 @@
     --positive-int-bg-color: #ff4444;    
     --positive-databar-color: #ff444480;
     --negative-databar-color: #00875A80;
-    --gridcolor: #2D374880;
+    --gridcolor: #2D3748CC;
     
     /* 通用样式 */
     --background-color: #12151a;
@@ -50,8 +50,8 @@
     --learn-more-button-color: #9fa6b7;
     --dash-table-border-color: rgba(255, 255, 255, 0.2);
     --flag-color: rgba(231, 127, 63, 0.97);
-    --border-left-color: #2D374880;
-    --kpi-background: transparent;
+    --border-left-color: #2D3748CC;
+    --kpi-background: rgba(54, 63, 68, 0.13);
   }
 }
 
@@ -536,7 +536,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
   padding: 15px 5px;
   border-radius: 2px;
   border: 1px solid var(--gridcolor);
-  /* background-color: var(--kpi-background); */
+  background-color: var(--kpi-background);
 }
 
 .kpi-label {

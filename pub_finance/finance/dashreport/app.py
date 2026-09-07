@@ -197,37 +197,7 @@ app.clientside_callback(
 
         if (width !== currentWidth) {
             console.log('Width changed:', currentWidth, '->', width);
-            widthOut = width;
-            
-            // ==================== 直接在此处嵌入字号冻结逻辑 ====================
-            requestAnimationFrame(() => {
-                const selector = [
-                    '.chart-container .js-plotly-plot .plotly text',
-                    '.js-plotly-plot .plotly .hoverlayer text',
-                    '.chart-container .plotly .table .column-block[id^="cells"] .column-cell:first-of-type text'
-                ].join(', ');
-
-                const textNodes = document.querySelectorAll(selector);
-
-                if (textNodes.length > 0) {
-                    // 1. 解冻：清除 inline 样式，回归 CSS cqw 动态计算
-                    textNodes.forEach(node => { node.style.fontSize = ''; });
-
-                    // 2. 冻结：抓取 CSS 计算后的实际 px 并硬编码写入 style
-                    requestAnimationFrame(() => {
-                        let sampleSize = '';
-                        textNodes.forEach((node, index) => {
-                            const computedSize = window.getComputedStyle(node).fontSize;
-                            if (computedSize && computedSize !== '0px') {
-                                node.style.fontSize = computedSize;
-                                if (index === 0) sampleSize = computedSize;
-                            }
-                        });
-                        console.log(`[FontFreeze] Frozen ${textNodes.length} text nodes to static px! (Sample: ${sampleSize})`);
-                    });
-                }
-            });
-            // ===================================================================               
+            widthOut = width;           
         }
 
         return [themeOut, widthOut];
