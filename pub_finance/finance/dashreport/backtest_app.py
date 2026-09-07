@@ -252,7 +252,7 @@ app.clientside_callback(
                 graphDiv._autoClearTimer = null;
             }
 
-            // 4. 为该特定图表设定 2 秒后清空 hover 浮窗
+            // 4. 为该特定图表设定 5 秒后清空 hover 浮窗
             graphDiv._autoClearTimer = setTimeout(function() {
                 // 检查 graphDiv 是否依然挂载在当前 DOM 树中
                 if (!document.body.contains(graphDiv)) {
@@ -267,7 +267,7 @@ app.clientside_callback(
                     }
                 });
                 graphDiv._autoClearTimer = null;
-            }, 2000);
+            }, 5000);
         }, { passive: true });
 
         return window.dash_clientside.no_update;
