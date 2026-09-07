@@ -198,6 +198,36 @@ app.clientside_callback(
         if (width !== currentWidth) {
             console.log('Width changed:', currentWidth, '->', width);
             widthOut = width;
+            
+            // ==================== 直接在此处嵌入字号冻结逻辑 ====================
+            requestAnimationFrame(() => {
+                const selector = [
+                    '.chart-container .js-plotly-plot .plotly text',
+                    '.js-plotly-plot .plotly .hoverlayer text',
+                    '.chart-container .plotly .table .column-block[id^="cells"] .column-cell:first-of-type text'
+                ].join(', ');
+
+                const textNodes = document.querySelectorAll(selector);
+
+                if (textNodes.length > 0) {
+                    // 1. 解冻：清除 inline 样式，回归 CSS cqw 动态计算
+                    textNodes.forEach(node => { node.style.fontSize = ''; });
+
+                    // 2. 冻结：抓取 CSS 计算后的实际 px 并硬编码写入 style
+                    requestAnimationFrame(() => {
+                        let sampleSize = '';
+                        textNodes.forEach((node, index) => {
+                            const computedSize = window.getComputedStyle(node).fontSize;
+                            if (computedSize && computedSize !== '0px') {
+                                node.style.fontSize = computedSize;
+                                if (index === 0) sampleSize = computedSize;
+                            }
+                        });
+                        console.log(`[FontFreeze] Frozen ${textNodes.length} text nodes to static px! (Sample: ${sampleSize})`);
+                    });
+                }
+            });
+            // ===================================================================               
         }
 
         return [themeOut, widthOut];
@@ -254,51 +284,51 @@ app.clientside_callback(
 )
 
 # IOS端 Hover自动清除机制
-app.clientside_callback(
-    """
-    function(appInit) {
-        if (window._plotlyTouchCleanerBound) return window.dash_clientside.no_update;
-        window._plotlyTouchCleanerBound = true;
+# app.clientside_callback(
+#     """
+#     function(appInit) {
+#         if (window._plotlyTouchCleanerBound) return window.dash_clientside.no_update;
+#         window._plotlyTouchCleanerBound = true;
 
-        document.addEventListener('pointerdown', function(e) {
-            // 1. 判断是否点击在 .chart-container 内部
-            var container = e.target.closest('.chart-container');
-            if (!container) return;
+#         document.addEventListener('pointerdown', function(e) {
+#             // 1. 判断是否点击在 .chart-container 内部
+#             var container = e.target.closest('.chart-container');
+#             if (!container) return;
 
-            // 2. 获取触发点击的特定图表
-            var graphDiv = e.target.closest('.js-plotly-plot');
-            if (!graphDiv || !window.Plotly) return;
+#             // 2. 获取触发点击的特定图表
+#             var graphDiv = e.target.closest('.js-plotly-plot');
+#             if (!graphDiv || !window.Plotly) return;
 
-            // 3. 清除该特定图表上已有的定时器
-            if (graphDiv._autoClearTimer) {
-                clearTimeout(graphDiv._autoClearTimer);
-                graphDiv._autoClearTimer = null;
-            }
+#             // 3. 清除该特定图表上已有的定时器
+#             if (graphDiv._autoClearTimer) {
+#                 clearTimeout(graphDiv._autoClearTimer);
+#                 graphDiv._autoClearTimer = null;
+#             }
 
-            // 4. 为该特定图表设定 5 秒后清空 hover 浮窗
-            graphDiv._autoClearTimer = setTimeout(function() {
-                // 检查 graphDiv 是否依然挂载在当前 DOM 树中
-                if (!document.body.contains(graphDiv)) {
-                    graphDiv._autoClearTimer = null;
-                    return;
-                }
+#             // 4. 为该特定图表设定 5 秒后清空 hover 浮窗
+#             graphDiv._autoClearTimer = setTimeout(function() {
+#                 // 检查 graphDiv 是否依然挂载在当前 DOM 树中
+#                 if (!document.body.contains(graphDiv)) {
+#                     graphDiv._autoClearTimer = null;
+#                     return;
+#                 }
 
-                requestAnimationFrame(function() {
-                    // 确保节点仍存在且 Plotly 数据完好
-                    if (document.body.contains(graphDiv) && graphDiv.data) {
-                        Plotly.Fx.hover(graphDiv, []);
-                    }
-                });
-                graphDiv._autoClearTimer = null;
-            }, 5000);
-        }, { passive: true });
+#                 requestAnimationFrame(function() {
+#                     // 确保节点仍存在且 Plotly 数据完好
+#                     if (document.body.contains(graphDiv) && graphDiv.data) {
+#                         Plotly.Fx.hover(graphDiv, []);
+#                     }
+#                 });
+#                 graphDiv._autoClearTimer = null;
+#             }, 5000);
+#         }, { passive: true });
 
-        return window.dash_clientside.no_update;
-    }
-    """,
-    Output("chart-touch-cleaner-dummy", "children"),
-    Input("chart-touch-cleaner-dummy", "id"),
-)
+#         return window.dash_clientside.no_update;
+#     }
+#     """,
+#     Output("chart-touch-cleaner-dummy", "children"),
+#     Input("chart-touch-cleaner-dummy", "id"),
+# )
 
 # 跳转backtest page需要重置到页面最上方
 app.clientside_callback(

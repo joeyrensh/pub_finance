@@ -18,7 +18,7 @@ class ChartBuilder:
                 "positive-int-color": "#ff4444",  # 红色 - 正数
                 "negative-int-color": "#0d876d",  # 绿色 - 负数
                 "text-color": "#333333",  # 黑色
-                "gridcolor": "#D1D5DB",  # 网格线
+                "gridcolor": "rgba(209, 213, 219, 0.5)",  # 网格线
                 "background-color": "rgba(255, 255, 255, 0)",  # 透明背景
                 "legend-bg-color": "rgba(246, 248, 249, 0.2)",
                 "strategy-colors": [
@@ -42,7 +42,7 @@ class ChartBuilder:
                     "#475A76",
                     "#475A76",
                 ],
-                "border-color": "#D1D5DB",
+                "border-color": "rgba(209, 213, 219, 0.5)",
                 "outside-text-color": "#777777",
                 "cumret-line-color": "#ff4444",
                 "drawdown-line-color": "#0d876d",
@@ -56,7 +56,7 @@ class ChartBuilder:
                 "positive-int-color": "#ff4444",  # 亮红色 - 正数
                 "negative-int-color": "#00875A",  # 亮绿色 - 负数
                 "text-color": "rgba(255, 255, 255, 0.9)",  # 白色
-                "gridcolor": "#2D3748",  # 网格线
+                "gridcolor": "rgba(45, 55, 72, 0.5)",  # 网格线
                 "background-color": "rgba(0, 0, 0, 0)",  # 透明背景
                 "legend-bg-color": "rgba(123, 50, 116, 0.02)",
                 "strategy-colors": [
@@ -80,7 +80,7 @@ class ChartBuilder:
                     "#64748B",
                     "#64748B",
                 ],
-                "border-color": "#2D3748",
+                "border-color": "rgba(45, 55, 72, 0.5)",
                 "outside-text-color": "#334155",
                 "cumret-line-color": "#ff4444",
                 "drawdown-line-color": "#00875A",
