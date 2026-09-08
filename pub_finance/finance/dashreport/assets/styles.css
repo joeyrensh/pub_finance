@@ -959,6 +959,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   gap: 8px; /* 文字与 Icon 间距 */
   cursor: pointer;
   transition: all 0.3s;
+  font-weight: 400;
 }
 
 .progress-btn:hover {
