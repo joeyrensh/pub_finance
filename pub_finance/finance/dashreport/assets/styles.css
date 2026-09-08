@@ -1170,6 +1170,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
     padding: 5px;
     background: var(--background-color);
     color: var(--text-color);
+    font-weight: 400;
 }
 
 .weight-btn-reset {
@@ -1260,6 +1261,7 @@ input[type="radio"]:checked::before {
     font-size: inherit;
     font-family: var(--font-family) !important;
     border: 1px solid var(--gridcolor);
+    font-weight: 300;
 }
 .save-message-tip,
 .save-message-tip span[style*="color:#198754"],
