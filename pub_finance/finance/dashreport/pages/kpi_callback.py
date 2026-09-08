@@ -120,28 +120,32 @@ class KpiCallback:
                 ),  # DATE 一栏不显示百分比，固定为 "Today"
             ]
 
+            # 6. 构建卡片列表
             cards = []
-            # 解包 3 个值 (label, value, pct)
-            for label, value, pct in kpis:
+            total = len(kpis)
+
+            for idx, (label, value, pct) in enumerate(kpis):
                 extra_class = "kpi-date" if label == "DATE" else ""
 
-                # 动态判断环比文字的颜色样式（A股红涨绿跌，Today保持中性）
                 if pct.startswith("+"):
-                    pct_class = "kpi-pct-up"  # A股红涨
+                    pct_class = "kpi-pct-up"
                 elif pct.startswith("-"):
-                    pct_class = "kpi-pct-down"  # A股绿跌
+                    pct_class = "kpi-pct-down"
                 else:
                     pct_class = "kpi-pct-neutral"
+
+                # 最后一个卡片不需要竖线分割
+                has_divider_class = "has-divider" if idx < total - 1 else ""
 
                 cards.append(
                     html.Div(
                         [
                             html.Div(label, className="kpi-label"),
                             html.Div(value, className=f"kpi-value {extra_class}"),
-                            # 环比/说明文本展示层
                             html.Div(pct, className=f"kpi-pct {pct_class}"),
                         ],
-                        className="kpi-card",
+                        # 保持原有 kpi-card 类名，追加 has-divider 类名
+                        className=f"kpi-card {has_divider_class}".strip(),
                     )
                 )
             return cards

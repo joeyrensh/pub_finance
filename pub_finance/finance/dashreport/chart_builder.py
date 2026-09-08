@@ -2590,7 +2590,7 @@ class ChartBuilder:
                         color=cfg["text-color"],
                         family=self.font_family,
                     ),
-                    align=["left"] * len(header_values),
+                    align=["center"] * len(header_values),
                     height=layout_cfg["header_h"],
                 ),
                 cells=dict(
@@ -2603,7 +2603,7 @@ class ChartBuilder:
                         family=self.font_family,
                         weight=font_weights_by_col,
                     ),
-                    align=["left"] * len(header_values),
+                    align=["center"] * len(header_values),
                     height=layout_cfg["cell_h"],
                 ),
             )

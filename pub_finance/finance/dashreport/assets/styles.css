@@ -528,52 +528,76 @@ table.tiny-header tr:first-child { font-size: 8px; }
 
 /* --- KPI 卡片组 --- */
 .kpi-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(1rem, 1fr));
-  gap: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-radius: 2px;
+    border: 1px solid var(--gridcolor);
+    background-color: transparent;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .kpi-card {
-  padding: 15px 5px;
-  border-radius: 2px;
-  border: 1px solid var(--gridcolor);
-  background-color: var(--kpi-background);
+    flex: 1 1 0%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    padding: 16px 5px;
+    position: relative;
+    border: medium;
+    background-color: transparent;
+}
+
+.kpi-card.has-divider::after {
+    content: "";
+    position: absolute;
+    right: 0px;
+    top: 15%;
+    height: 70%;
+    width: 1px;
+    background-color: var(--gridcolor);
 }
 
 .kpi-label {
-  color: var(--text-color);
-  margin-bottom: 10px;
-  font-size: 1.4rem;
-  font-weight: 300;
+    color: var(--text-color);
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+    font-weight: 300;
 }
 
 .kpi-value {
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  /* color: #ff4444; */
-  color: var(--text-color);
-  margin-bottom: 10px;
-  font-size: 1.7rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-color);
+    margin-bottom: 10px;
+    font-size: 1.8rem;
 }
 
 .kpi-date {
-  font-weight: 600;
+    font-weight: 600;
 }
 
 .kpi-pct {
-  font-size: 1.4rem;
+    font-size: 1.5rem;
+    font-weight: 500;
 }
 
-.kpi-pct-up{
-  font-variant-numeric: tabular-nums;
-  color: var(--positive-int-bg-color);
+.kpi-pct-up {
+    font-variant-numeric: tabular-nums;
+    color: var(--positive-int-bg-color);
 }
-.kpi-pct-down{
-  font-variant-numeric: tabular-nums;
-  color: var(--negative-int-bg-color);    
+
+.kpi-pct-down {
+    font-variant-numeric: tabular-nums;
+    color: var(--negative-int-bg-color);
 }
-.kpi-pct-neutral{
-  color: var(--text-color)
+
+.kpi-pct-neutral {
+    color: var(--text-color);
 }
 
 /* --- 回测页面按钮/摘要/文字 */
