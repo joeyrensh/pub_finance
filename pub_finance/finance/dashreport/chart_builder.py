@@ -2890,7 +2890,7 @@ class ChartBuilder:
                         y=[suspension_price],
                         mode="markers+text",
                         cliponaxis=False,
-                        text="B" if is_buy else "S",
+                        text="<b>B</b>" if is_buy else "<b>S</b>",
                         textposition="top center",
                         textfont=dict(size=int(10 * scale), color=color, weight="bold"),
                         marker=dict(
