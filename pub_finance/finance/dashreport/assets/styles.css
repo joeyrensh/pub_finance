@@ -598,6 +598,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 
 .kpi-pct-neutral {
     color: var(--text-color);
+    font-weight: 300;
 }
 
 /* --- 回测页面按钮/摘要/文字 */
