@@ -485,7 +485,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 }
 
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th.dash-filter {
-    background-color: var(--kpi-background) !important;
+    background-color: transparent !important;
 }
 
 .dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner tr:nth-child(2) th.dash-select-header  {
