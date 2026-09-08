@@ -15,11 +15,11 @@
   
   /* 通用样式 */
   --background-color: #F8F9FD;
-  --text-color: #333333;
+  --text-color: rgba(0, 0, 0, 0.9);
   --login-box-shadow-color: rgb(0 0 0 / 20%);
-  --subtitle-color: #333333;
-  --a-visited-color: #333333;
-  --learn-more-button-color: #333333;
+  --subtitle-color: rgba(0, 0, 0, 0.9);
+  --a-visited-color: rgba(0, 0, 0, 0.9);
+  --learn-more-button-color: rgba(0, 0, 0, 0.9);
   --dash-table-border-color: rgba(211, 211, 211, 0.6);
   --flag-color: rgba(231, 127, 63, 0.97);
   --border-left-color: #D1D5DBCC;

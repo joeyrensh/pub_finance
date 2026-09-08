@@ -17,7 +17,7 @@ class ChartBuilder:
             "light": {
                 "positive-int-color": "#ff4444",  # 红色 - 正数
                 "negative-int-color": "#0d876d",  # 绿色 - 负数
-                "text-color": "#333333",  # 黑色
+                "text-color": "rgba(0, 0, 0, 0.9)",  # 黑色
                 "gridcolor": "rgba(209, 213, 219, 0.8)",  # 网格线
                 "background-color": "rgba(255, 255, 255, 0)",  # 透明背景
                 "legend-bg-color": "rgba(246, 248, 249, 0.2)",
