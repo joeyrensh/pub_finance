@@ -12,9 +12,9 @@ import re
 import time
 from datetime import datetime
 
-from fake_useragent import UserAgent
 import pandas as pd
-import requests
+from curl_cffi import requests  # 替换为 curl_cffi
+from fake_useragent import UserAgent
 
 from finance import FINANCE_ROOT
 from finance.utility.emcookie_generation import CookieGeneration
@@ -38,10 +38,9 @@ class EMWebCrawlerUti:
         self.proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
 
         self.headers = {
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
             "Referer": "https://quote.eastmoney.com/center/gridlist.html",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
         }
         self.cg = CookieGeneration()
         self.cg.generate_em_cookies()
@@ -188,6 +187,7 @@ class EMWebCrawlerUti:
                     headers=self.headers,
                     cookies=self.cookie_str,
                     timeout=10,
+                    impersonate="chrome120",  # 使用 curl_cffi 模拟 Chrome 120 的 TLS 指纹
                 ).json()
                 if res["data"]["total"] < 1000:
                     self.proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
@@ -265,6 +265,7 @@ class EMWebCrawlerUti:
                             headers=self.headers,
                             cookies=cookie_str,
                             timeout=10,
+                            impersonate="chrome120",
                         ).json()
                         if (
                             res.get("rc") != 0
@@ -346,7 +347,7 @@ class EMWebCrawlerUti:
         # 原逻辑把 self.proxy 清空为 None，现改用 get_working_proxy
         self.proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
         url = "https://quote.eastmoney.com/center/api/qqzq.js?"
-        res = requests.get(url, proxies=self.proxy).text
+        res = requests.get(url, proxies=self.proxy, impersonate="chrome120").text
 
         lines = res.strip().split("\n")
         data = []
@@ -427,6 +428,7 @@ class EMWebCrawlerUti:
                             headers=self.headers,
                             cookies=cookie_str,
                             timeout=10,
+                            impersonate="chrome120",
                         ).json()
                         if (
                             res.get("rc") != 0
@@ -538,12 +540,13 @@ class EMWebCrawlerUti:
                     headers=self.headers,
                     cookies=cookie_str,
                     timeout=10,
+                    impersonate="chrome120",
                 ).json()
                 if res.get("rc") != 0 or not res.get("data"):
                     self.proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
                     continue
                 break
-            except requests.RequestException as e:
+            except Exception as e:  # 使用通用 Exception 兼容 curl_cffi 异常
                 print("请求失败，正在重试...", _)
                 self.proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
                 continue

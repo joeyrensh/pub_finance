@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-from finance.utility.toolkit import ToolKit
-import re
-import pandas as pd
-import requests
 import json
-from finance.utility.fileinfo import FileInfo
-from finance.utility.em_stock_uti import EMWebCrawlerUti
+import re
+from curl_cffi import requests  # 替换为 curl_cffi
+import pandas as pd
+
 from finance import FINANCE_ROOT
+from finance.utility.em_stock_uti import EMWebCrawlerUti
+from finance.utility.fileinfo import FileInfo
+from finance.utility.toolkit import ToolKit
 
 """ 东方财经A股股票对应行业板块数据获取接口 """
 
@@ -21,11 +22,9 @@ class EMCNTickerCategoryCrawler:
             "https": self.item,
         }
         self.proxy = None
+        # 使用 curl_cffi 时无需手动伪造 user-agent 和 accept-encoding，由 impersonate 参数自动生成
         self.headers = {
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
-            "host": "push2.eastmoney.com",
             "accept": "application/json, text/plain, */*",
-            "accept-encoding": "gzip, deflate, br",
             "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
         }
 
@@ -33,7 +32,7 @@ class EMCNTickerCategoryCrawler:
         """
         市场代码：
         0: 深证/创业板/新三板/ SZ
-        1: 上证/科创板		SH
+        1: 上证/科创板      SH
 
         https://emweb.securities.eastmoney.com/PC_HSF10/CompanySurvey/CompanySurveyAjax?code=SH688798
         """
@@ -127,7 +126,12 @@ class EMCNTickerCategoryCrawler:
                 params = {"code": symbol}
                 try:
                     res = requests.get(
-                        url, params=params, proxies=self.proxy
+                        url,
+                        params=params,
+                        proxies=self.proxy,
+                        headers=self.headers,
+                        impersonate="chrome120",
+                        timeout=10,
                     ).text.lower()
                     json_object = json.loads(res)
                 except Exception as e:
@@ -287,10 +291,7 @@ class EMCNTickerCategoryCrawler:
             batch_data = []
             header_written = True
 
-        # 调整 Host 适配当前 API 域名
         req_headers = self.headers.copy()
-        req_headers["host"] = "datacenter.eastmoney.com"
-
         base_url = "https://datacenter.eastmoney.com/securities/api/data/v1/get"
 
         try:
@@ -315,6 +316,7 @@ class EMCNTickerCategoryCrawler:
                         params=params,
                         headers=req_headers,
                         proxies=self.proxy,
+                        impersonate="chrome120",
                         timeout=10,
                     )
                     json_object = res.json()
