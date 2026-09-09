@@ -24,11 +24,57 @@ BACKTEST_LOCK = Lock()
 SINGLE_TASK_ID = "SINGLE_BACKTEST_TASK"
 
 # 跨进程任务状态存储 (使用 Manager)
-_manager = Manager()
-task_state = _manager.dict()
-task_state["status"] = "idle"  # idle, running, done, failed
-task_state["result"] = None
-task_state["error"] = None
+_manager = None
+_real_task_state = None
+
+
+def _get_task_state():
+    """按需延迟初始化多进程 Manager 资源"""
+    global _manager, _real_task_state
+    if _real_task_state is None:
+        _manager = Manager()
+        _real_task_state = _manager.dict(
+            {"status": "idle", "result": None, "error": None}
+        )
+    return _real_task_state
+
+
+class _TaskStateProxy:
+    """轻量字典代理类：在保持原业务字典调用语法的同时，实现延迟加载"""
+
+    def __getitem__(self, key):
+        return _get_task_state()[key]
+
+    def __setitem__(self, key, value):
+        _get_task_state()[key] = value
+
+    def __delitem__(self, key):
+        del _get_task_state()[key]
+
+    def __contains__(self, key):
+        return key in _get_task_state()
+
+    def __len__(self):
+        return len(_get_task_state())
+
+    def get(self, key, default=None):
+        return _get_task_state().get(key, default)
+
+    def update(self, *args, **kwargs):
+        return _get_task_state().update(*args, **kwargs)
+
+    def items(self):
+        return _get_task_state().items()
+
+    def keys(self):
+        return _get_task_state().keys()
+
+    def values(self):
+        return _get_task_state().values()
+
+
+# 全局声明代理对象，替代原先的直接初始化
+task_state = _TaskStateProxy()
 
 
 # ---------- 耗时任务函数 ----------
