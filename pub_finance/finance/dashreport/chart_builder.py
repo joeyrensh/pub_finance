@@ -3399,6 +3399,8 @@ class ChartBuilder:
         )
 
         fig.update_yaxes(
+            row=1,
+            col=1,
             mirror=False,
             tickfont=dict(
                 size=font_size,
@@ -3415,6 +3417,29 @@ class ChartBuilder:
             ticklabelposition="inside",
             tickangle=0,
             autorange=True,
+            nticks=5,
+        )
+
+        fig.update_yaxes(
+            row=2,
+            col=1,
+            mirror=False,
+            tickfont=dict(
+                size=font_size,
+                color=cfg["text-color"],
+                family=self.font_family,
+            ),
+            title=dict(text=None),
+            showline=False,
+            linecolor=cfg["gridcolor"],
+            linewidth=1,
+            zeroline=False,
+            gridcolor=cfg["gridcolor"],
+            gridwidth=0.5,
+            ticklabelposition="inside",
+            tickangle=0,
+            autorange=True,
+            nticks=3,  # 最多 3 个刻度标记 = 0-2 条内部网格线
         )
         # ----- 布局设置 -----
         fig.update_layout(

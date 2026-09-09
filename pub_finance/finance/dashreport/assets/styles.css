@@ -25,6 +25,8 @@
   --border-left-color: #D1D5DBCC;
   --bubble-background-color: linear-gradient(135deg, rgb(255, 68, 0), #fb0, #fb0);
   --kpi-background: rgba(173, 178, 184, 0.13);
+  --login-button-color: #0d876dcc;
+  --login-button-hover-color: #0d876d;
 
   /* 字体 */
   --font-family: "SF Pro Text", "PingFang SC", "Helvetica Neue", "Segoe UI", Arial, sans-serif;
@@ -52,6 +54,8 @@
     --flag-color: rgba(231, 127, 63, 0.97);
     --border-left-color: #2D3748CC;
     --kpi-background: rgba(54, 63, 68, 0.13);
+    --login-button-color: #0d876dcc;
+    --login-button-hover-color: #0d876d;
   }
 }
 
@@ -856,7 +860,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   padding: 10px;
   margin: 10px 0;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 2px !important;
 }
 
 .custom-input {
@@ -1346,25 +1350,25 @@ input[type="radio"]:checked::before {
 }
 
 .login-box {
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 5px var(--login-box-shadow-color);
+  padding: 10px;
+  border-radius: 2px;
+  box-shadow: 0 0 2px var(--login-box-shadow-color);
   text-align: center;
 }
 
 .login-button {
   width: 100%;
   padding: 0px;
-  background-color: #0074d9;
+  background-color: var(--login-button-color);
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 2px;
   cursor: pointer;
   filter: brightness(120%) contrast(105%) saturate(105%);
 }
 
 .login-button:hover {
-  background-color: #0056b3;
+  background-color: var(--login-button-hover-color);
 }
 
 /* --- 背景底纹与浮雕视觉 --- */
