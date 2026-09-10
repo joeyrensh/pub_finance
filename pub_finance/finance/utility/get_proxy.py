@@ -1,50 +1,94 @@
-import json
-import os
-import requests
-import math
-from datetime import datetime
-import pandas as pd
-import random
+import datetime
 import hashlib
+import json
+import math
+import os
+import random
 import time
+from pathlib import Path
+import pandas as pd
+from curl_cffi import requests
+
 from finance import FINANCE_ROOT
 
 
 class ProxyManager:
+
     def __init__(self, proxy_file_path=FINANCE_ROOT / "utility/proxy.txt"):
         self.proxy_file_path = proxy_file_path
         self.proxies_list = []
         self.current_proxy_index = 0
         self.load_proxies()
-        self.__url_list = "http://push2.eastmoney.com/api/qt/clist/get"
+
+        # 1. 切换为安全的 HTTPS 协议
+        self.__url_list = "https://push2.eastmoney.com/api/qt/clist/get"
+
+        # 2. 精简 Headers，只保留业务必需的 Referer/Accept，不手写 User-Agent 以免与 impersonate 冲突
         self.headers = {
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
             "Referer": "https://quote.eastmoney.com/center/gridlist.html",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-            "accept-encoding": "gzip, deflate, br",
-            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "Accept": "*/*",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
         }
-        self.cookie_str = self.parse_cookie_string()
+
+        # 3. 内存缓存 Cookie 基础模板与请求计数器
+        self._cookie_base = self.parse_cookie_string()
+        self.visit_count = 1
+
+        # 4. 东财通用固定 ut Token
+        self.COMMON_UT = "fa5fd1943c7b386f172d6893dbfba10b"
 
     def parse_cookie_string(self):
-        # 读取 JSON 格式的 cookie 文件
-        with open(
-            FINANCE_ROOT / "utility/eastmoney_cookie.json", "r", encoding="utf-8"
-        ) as f:
-            cookie_data = json.load(f)
-            print("已加载 JSON cookie 信息")
-        # 直接返回解析后的字典
-        return cookie_data
+        """读取 JSON 格式的 cookie 文件（仅在初始化时加载一次内存模板）"""
+        cookie_file = FINANCE_ROOT / "utility/eastmoney_cookie.json"
+        try:
+            with open(cookie_file, "r", encoding="utf-8") as f:
+                cookie_data = json.load(f)
+                print("已成功加载 JSON cookie 信息")
+                return cookie_data
+        except Exception as e:
+            print(f"读取 Cookie 文件异常: {e}，使用默认兜底配置")
+            return {
+                "qgqp_b_id": "64128e722243aac323ad9a57e33fe37f",
+                "st_pvi": "44203626923623",
+                "st_si": "04662034469518",
+            }
+
+    def get_dynamic_cookies(self):
+        """基于 JSON 模板生成包含最新时间戳与递增计数的 Cookie 字典"""
+        cookies = self._cookie_base.copy()
+
+        # 动态计算最新的 st_psi 前置时间戳 (YYYYMMDDHHMMSSmmm)
+        now_str = time.strftime("%Y%m%d%H%M%S")
+        ms_str = f"{int(time.time() * 1000) % 1000:03d}"
+
+        orig_psi = cookies.get("st_psi", "")
+        # 保留原 JSON 中的会话后缀标识
+        if "-" in orig_psi:
+            suffix = orig_psi[orig_psi.find("-") :]
+        else:
+            suffix = "-113200301321-6001712214"
+
+        cookies["st_psi"] = f"{now_str}{ms_str}{suffix}"
+
+        # 更新请求计数器
+        cookies["st_sn"] = str(self.visit_count)
+        self.visit_count += 1
+
+        # 移除可能存在的 delete 无效标记
+        if cookies.get("st_asi") == "delete":
+            cookies.pop("st_asi", None)
+
+        return cookies
 
     def randomize_cookie_string(
         self, cookie_dict, keys_to_randomize=None, key_lengths=None
     ):
-        """
-        增强版 cookie 字符串解析函数，支持为特定键生成随机值
+        """增强版 cookie 字符串解析函数，支持为特定键生成随机值
 
         Args:
             cookie_str (str): cookie 字符串
-            keys_to_randomize (list): 需要随机化的 cookie 键列表，默认为 ['nid', 'qgqp_b_id']
+            keys_to_randomize (list): 需要随机化的 cookie 键列表，默认为 ['nid',
+              'qgqp_b_id']
             key_lengths (dict): 特定键的随机值长度，例如 {'nid': 32, 'qgqp_b_id': 32}
 
         Returns:
@@ -162,12 +206,14 @@ class ProxyManager:
             self.proxies_list
         )
 
-        # 转换为 requests 需要的格式
-        proxy_dict = {"http": f"http://{proxy_str}", "https": f"http://{proxy_str}"}
+        # 转换为 curl_cffi / requests 需要的格式
+        proxy_dict = {
+            "http": f"http://{proxy_str}",
+            "https": f"http://{proxy_str}",
+        }
 
         return proxy_dict
 
-    # 在您的类中添加以下方法
     def validate_proxy(self, proxy_dict):
         """使用指定代理获取总页数"""
         params = {
@@ -175,45 +221,27 @@ class ProxyManager:
             "pz": "100",
             "po": "1",
             "np": "1",
-            "ut": self.generate_ut_param(),
+            "ut": self.COMMON_UT,  # 使用标准固定 ut Token
             "fltt": "2",
             "invt": "2",
             "fid": "f12",
             "fs": "m:0 t:6,m:0 t:80",
             "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
+            "_": str(int(time.time() * 1000)),  # 防缓存时间戳
         }
-        """
-        his info test
-        """
-        # his_url = "http://push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.600649&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&beg=20251101&end=20251130&smplmt=755&lmt=1000000"
-        # try:
-        #     res = requests.get(
-        #         his_url,
-        #         proxies=proxy_dict,
-        #         headers=self.headers,
-        #         cookies=self.cookie_str,
-        #         timeout=5,  # 添加超时设置
-        #     ).json()
-        #     klines = res.get("data", {}).get("klines", [])
-        #     if klines:
-        #         print(f"代理测试成功，获取到 {len(klines)} 条 K 线数据")
-        #         return True, len(klines)
-        #     else:
-        #         return False, 0
-        # except Exception as e:
-        #     return False, e
-        """
-        daily info test
-        """
+
         try:
+            # 使用 curl_cffi.requests，并通过 impersonate="chrome120" 模拟真实 Chrome 指纹与 User-Agent
             res = requests.get(
                 self.__url_list,
                 params=params,
                 proxies=proxy_dict,
                 headers=self.headers,
-                cookies=self.cookie_str,
-                timeout=5,  # 添加超时设置
+                cookies=self.get_dynamic_cookies(),
+                timeout=5,
+                impersonate="chrome120",
             ).json()
+
             total_page_no = math.ceil(res["data"]["total"] / 100)
             if total_page_no > 0:
                 return True, total_page_no
@@ -237,8 +265,8 @@ class ProxyManager:
             return False
 
     def get_working_proxy(self, max_retries=3, enable_proxy=True):
-        """
-        获取一个可用的代理。
+        """获取一个可用的代理。
+
         参数 max_retries: 轮询整个代理列表的最大次数（默认 3 轮）。
         返回代理字典，如果所有代理均不可用则返回 None。
         """
@@ -279,8 +307,8 @@ class ProxyManager:
     def save_working_proxies_to_file(
         self, output_file=FINANCE_ROOT / "utility/working_proxies.txt"
     ):
-        r"""
-        测试所有代理并将有效代理保存到指定文件
+        r"""测试所有代理并将有效代理保存到指定文件
+
         每次调用都会重新生成文件
         # 站大爷 IP 格式化命令：
         # 把 Port：改成 :
@@ -303,7 +331,10 @@ class ProxyManager:
         print(f"开始测试 {total_proxies} 个代理...")
 
         for i, proxy_str in enumerate(self.proxies_list):
-            proxy_dict = {"http": f"http://{proxy_str}", "https": f"http://{proxy_str}"}
+            proxy_dict = {
+                "http": f"http://{proxy_str}",
+                "https": f"http://{proxy_str}",
+            }
 
             # 显示进度
             progress = (i + 1) / total_proxies * 100
@@ -339,8 +370,8 @@ class ProxyManager:
         working_proxies_file=FINANCE_ROOT / "utility/working_proxies.txt",
         proxy_file=FINANCE_ROOT / "utility/proxy.txt",
     ):
-        """
-        将 working_proxies.txt 中的最新可用代理同步到 proxy.txt
+        """将 working_proxies.txt 中的最新可用代理同步到 proxy.txt
+
         - 检查新代理是否已存在于 proxy.txt
         - 如果不存在，append 到文件首行
         - 不添加任何注释

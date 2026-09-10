@@ -35,6 +35,8 @@ class EMWebCrawlerUti:
         self.use_proxy = use_proxy
         self.pm = ProxyManager()
         # 2. 初始化时将 enable_proxy 传入
+        self.cg = CookieGeneration()
+        self.cg.generate_em_cookies()
         self.proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
 
         self.headers = {
@@ -42,8 +44,7 @@ class EMWebCrawlerUti:
             "Accept": "application/json, text/plain, */*",
             "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
         }
-        self.cg = CookieGeneration()
-        self.cg.generate_em_cookies()
+
         # 4. 初始化 Cookie 数据与会话状态
         self._cookie_base = self.parse_cookie_string()
         self.visit_count = 1  # st_sn 请求递增计数器
