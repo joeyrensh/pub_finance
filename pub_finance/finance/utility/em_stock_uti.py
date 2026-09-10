@@ -29,8 +29,8 @@ class EMWebCrawlerUti:
         # 美股/A股日数据及历史数据爬虫
         :param use_proxy: 是否开启代理，默认 True。传入 False 则不使用代理直连。
         """
-        self.__url_list = "http://push2.eastmoney.com/api/qt/clist/get"
-        self.__url_history = "http://push2his.eastmoney.com/api/qt/stock/kline/get"
+        self.__url_list = "https://push2.eastmoney.com/api/qt/clist/get"
+        self.__url_history = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
 
         self.use_proxy = use_proxy
         self.pm = ProxyManager()
@@ -44,33 +44,54 @@ class EMWebCrawlerUti:
         }
         self.cg = CookieGeneration()
         self.cg.generate_em_cookies()
-        self.cookie_str = self.parse_cookie_string()
+        # 4. 初始化 Cookie 数据与会话状态
+        self._cookie_base = self.parse_cookie_string()
+        self.visit_count = 1  # st_sn 请求递增计数器
 
         self.pz = 100
 
     def parse_cookie_string(self):
-        # 读取 JSON 格式的 cookie 文件
-        with open(
-            FINANCE_ROOT / "utility" / "eastmoney_cookie.json", "r", encoding="utf-8"
-        ) as f:
-            cookie_data = json.load(f)
-            print("已加载 JSON cookie 信息")
-        return cookie_data
+        """读取 JSON 格式的 cookie 文件（只在初始化时读取一次）"""
+        cookie_file = FINANCE_ROOT / "utility" / "eastmoney_cookie.json"
+        try:
+            with open(cookie_file, "r", encoding="utf-8") as f:
+                cookie_data = json.load(f)
+                print("已成功加载 JSON cookie 信息")
+                return cookie_data
+        except Exception as e:
+            print(f"读取 Cookie 文件异常: {e}，使用兜底配置")
+            return {
+                "qgqp_b_id": "64128e722243aac323ad9a57e33fe37f",
+                "st_pvi": "44203626923623",
+                "st_si": "04662034469518",
+            }
 
-    def randomize_cookie_string(
-        self, cookie_dict, keys_to_randomize=None, key_lengths=None
-    ):
-        def generate_random_hex(length=32):
-            return "".join(random.choices("0123456789abcdef", k=length))
+    def get_dynamic_cookies(self):
+        """基于模板动态生成并更新包含最新时间戳与计数的 Cookie 字典"""
+        cookies = self._cookie_base.copy()
 
-        keys_to_randomize = ["nid"]
-        key_lengths = {"nid": 32}
+        # 更新 st_psi 的第一段时间戳 (YYYYMMDDHHMMSSmmm)
+        now_str = time.strftime("%Y%m%d%H%M%S")
+        ms_str = f"{int(time.time() * 1000) % 1000:03d}"
 
-        for key in keys_to_randomize:
-            if key in cookie_dict:
-                length = key_lengths.get(key, 32)
-                cookie_dict[key] = generate_random_hex(length)
-        return cookie_dict
+        orig_psi = cookies.get("st_psi", "")
+        # 保留 JSON 中原本真实的会话后缀标识
+        if "-" in orig_psi:
+            suffix = orig_psi[orig_psi.find("-") :]
+        else:
+            suffix = "-113200301321-6001712214"
+
+        cookies["st_psi"] = f"{now_str}{ms_str}{suffix}"
+
+        # 更新请求计数器
+        cookies["st_sn"] = str(self.visit_count)
+        self.visit_count += 1
+
+        # 清理 delete 标记
+        if cookies.get("st_asi") == "delete":
+            cookies.pop("st_asi", None)
+
+        return cookies
 
     def generate_ut_param(self):
         def generate_china_ip():
@@ -134,11 +155,13 @@ class EMWebCrawlerUti:
             "pz": self.pz,
             "po": "1",
             "np": "1",
-            "ut:": self.generate_ut_param(),
+            # "ut": self.generate_ut_param(),
+            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
             "fltt": "2",
             "invt": "2",
             "fid": "f12",
             "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
+            "_": str(int(time.time() * 1000)),
         }
 
         if market == "us":
@@ -185,7 +208,7 @@ class EMWebCrawlerUti:
                     params=params,
                     proxies=self.proxy,
                     headers=self.headers,
-                    cookies=self.cookie_str,
+                    cookies=self.get_dynamic_cookies(),
                     timeout=10,
                     impersonate="chrome120",  # 使用 curl_cffi 模拟 Chrome 120 的 TLS 指纹
                 ).json()
@@ -235,7 +258,7 @@ class EMWebCrawlerUti:
             if os.path.exists(target_file):
                 os.remove(target_file)
 
-        cookie_str = self.cookie_str
+        cookie_str = self.get_dynamic_cookies()
 
         if market == "us":
             mkt_codes = ["105", "106", "107"]
@@ -263,7 +286,7 @@ class EMWebCrawlerUti:
                             params=params,
                             proxies=self.proxy,
                             headers=self.headers,
-                            cookies=cookie_str,
+                            cookies=self.get_dynamic_cookies(),
                             timeout=10,
                             impersonate="chrome120",
                         ).json()
@@ -398,7 +421,7 @@ class EMWebCrawlerUti:
             if os.path.exists(file_name_d):
                 os.remove(file_name_d)
 
-        cookie_str = self.cookie_str
+        cookie_str = self.get_dynamic_cookies()
 
         if market == "us":
             mkt_codes = ["105", "106", "107"]
@@ -426,7 +449,7 @@ class EMWebCrawlerUti:
                             params=params,
                             proxies=self.proxy,
                             headers=self.headers,
-                            cookies=cookie_str,
+                            cookies=self.get_dynamic_cookies(),
                             timeout=10,
                             impersonate="chrome120",
                         ).json()
@@ -516,7 +539,7 @@ class EMWebCrawlerUti:
             symbol_val = symbol
         elif str(mkt_code) in ["0", "1"]:
             symbol_val = re.sub(r"^(ETF|SZ|SH)", "", symbol)
-        cookie_str = self.cookie_str
+        cookie_str = self.get_dynamic_cookies()
 
         params = {
             "secid": f"{mkt_code}.{symbol_val}",
