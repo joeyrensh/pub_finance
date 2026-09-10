@@ -42,7 +42,7 @@ class ProxyManager:
         }
 
         # 3. 内存缓存 Cookie 基础模板与请求计数器
-        self.cookie_path = FINANCE_ROOT / "utility/eastmoney_cookie.json"
+        self.cookie_path = FINANCE_ROOT / "utility" / "eastmoney_cookie.json"
         self._cookie_base = self.parse_cookie_string()
         # 使用线程安全的自增计数器替代非安全的 int += 1
         self._counter = itertools.count(start=1)
