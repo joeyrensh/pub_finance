@@ -21,16 +21,28 @@ from finance.utility.emcookie_generation import CookieGeneration
 from finance.utility.fileinfo import FileInfo
 from finance.utility.get_proxy import ProxyManager
 from finance.utility.toolkit import ToolKit
+import logging
+import itertools
+from typing import Any, Dict
+
+logger = logging.getLogger(__name__)
 
 
 class EMWebCrawlerUti:
+    DEFAULT_COOKIES: Dict[str, str] = {
+        "qgqp_b_id": "64128e722243aac323ad9a57e33fe37f",
+        "st_pvi": "44203626923623",
+        "st_si": "04662034469518",
+    }
+    DEFAULT_PSI_SUFFIX = "-113200301321-6001712214"
+
     def __init__(self, use_proxy=True):  # 1. 默认 use_proxy=True 兼容原有调用
         """
         # 美股/A股日数据及历史数据爬虫
         :param use_proxy: 是否开启代理，默认 True。传入 False 则不使用代理直连。
         """
-        self.__url_list = "https://push2.eastmoney.com/api/qt/clist/get"
-        self.__url_history = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
+        self.__url_list = "http://push2.eastmoney.com/api/qt/clist/get"
+        self.__url_history = "http://push2his.eastmoney.com/api/qt/stock/kline/get"
 
         self.use_proxy = use_proxy
         self.pm = ProxyManager()
@@ -46,109 +58,60 @@ class EMWebCrawlerUti:
         }
 
         # 4. 初始化 Cookie 数据与会话状态
+        self.cookie_path = FINANCE_ROOT / "utility" / "eastmoney_cookie.json"
         self._cookie_base = self.parse_cookie_string()
-        self.visit_count = 1  # st_sn 请求递增计数器
+        # 使用线程安全的自增计数器替代非安全的 int += 1
+        self._counter = itertools.count(start=1)
 
         self.pz = 100
 
-    def parse_cookie_string(self):
+    def parse_cookie_string(self) -> Dict[str, str]:
         """读取 JSON 格式的 cookie 文件（只在初始化时读取一次）"""
-        cookie_file = FINANCE_ROOT / "utility" / "eastmoney_cookie.json"
+        if not self.cookie_path.exists():
+            logger.warning(f"Cookie 文件不存在: {self.cookie_path}，使用默认兜底配置")
+            return self.DEFAULT_COOKIES.copy()
+
         try:
-            with open(cookie_file, "r", encoding="utf-8") as f:
+            with open(self.cookie_path, "r", encoding="utf-8") as f:
                 cookie_data = json.load(f)
-                print("已成功加载 JSON cookie 信息")
+                logger.info("已成功加载 JSON cookie 信息")
                 return cookie_data
         except Exception as e:
-            print(f"读取 Cookie 文件异常: {e}，使用兜底配置")
-            return {
-                "qgqp_b_id": "64128e722243aac323ad9a57e33fe37f",
-                "st_pvi": "44203626923623",
-                "st_si": "04662034469518",
-            }
+            logger.error(f"读取 Cookie 文件异常: {e}，使用兜底配置", exc_info=True)
+            return self.DEFAULT_COOKIES.copy()
 
-    def get_dynamic_cookies(self):
-        """基于模板动态生成并更新包含最新时间戳与计数的 Cookie 字典"""
+    def get_dynamic_cookies(self) -> Dict[str, str]:
+        """基于模板动态生成包含最新时间戳与计数的 Cookie 字典"""
         cookies = self._cookie_base.copy()
 
-        # 更新 st_psi 的第一段时间戳 (YYYYMMDDHHMMSSmmm)
-        now_str = time.strftime("%Y%m%d%H%M%S")
-        ms_str = f"{int(time.time() * 1000) % 1000:03d}"
+        # 1. 精准更新 st_psi 时间戳 (YYYYMMDDHHMMSSmmm)
+        now = datetime.now()
+        timestamp_str = now.strftime("%Y%m%d%H%M%S") + f"{now.microsecond // 1000:03d}"
 
         orig_psi = cookies.get("st_psi", "")
-        # 保留 JSON 中原本真实的会话后缀标识
-        if "-" in orig_psi:
-            suffix = orig_psi[orig_psi.find("-") :]
-        else:
-            suffix = "-113200301321-6001712214"
+        suffix = (
+            orig_psi[orig_psi.find("-") :]
+            if "-" in orig_psi
+            else self.DEFAULT_PSI_SUFFIX
+        )
+        cookies["st_psi"] = f"{timestamp_str}{suffix}"
 
-        cookies["st_psi"] = f"{now_str}{ms_str}{suffix}"
+        # 2. 线程安全地更新请求计数器
+        cookies["st_sn"] = str(next(self._counter))
 
-        # 更新请求计数器
-        cookies["st_sn"] = str(self.visit_count)
-        self.visit_count += 1
-
-        # 清理 delete 标记
+        # 3. 清理 delete 标识
         if cookies.get("st_asi") == "delete":
             cookies.pop("st_asi", None)
 
         return cookies
 
-    def generate_ut_param(self):
-        def generate_china_ip():
-            china_networks = [
-                (58, random.randint(0, 255)),
-                (59, random.randint(0, 255)),
-                (60, random.randint(0, 255)),
-                (61, random.randint(0, 255)),
-                (106, random.randint(0, 255)),
-                (110, random.randint(0, 255)),
-                (111, random.randint(0, 255)),
-                (112, random.randint(0, 255)),
-                (113, random.randint(0, 255)),
-                (114, random.randint(0, 255)),
-                (115, random.randint(0, 255)),
-                (116, random.randint(0, 255)),
-                (117, random.randint(0, 255)),
-                (118, random.randint(0, 255)),
-                (119, random.randint(0, 255)),
-                (120, random.randint(0, 255)),
-                (121, random.randint(0, 255)),
-                (122, random.randint(0, 255)),
-                (123, random.randint(0, 255)),
-                (124, random.randint(0, 255)),
-                (125, random.randint(0, 255)),
-                (171, random.randint(0, 255)),
-                (175, random.randint(0, 255)),
-                (180, random.randint(0, 255)),
-                (182, random.randint(0, 255)),
-                (183, random.randint(0, 255)),
-                (202, random.randint(0, 255)),
-                (210, random.randint(0, 255)),
-                (211, random.randint(0, 255)),
-                (218, random.randint(0, 255)),
-                (219, random.randint(0, 255)),
-                (220, random.randint(0, 255)),
-                (221, random.randint(0, 255)),
-                (222, random.randint(0, 255)),
-                (223, random.randint(0, 255)),
-            ]
-            network = random.choice(china_networks)
-            ip_parts = [
-                network[0],
-                network[1],
-                random.randint(1, 254),
-                random.randint(1, 254),
-            ]
-            return ".".join(map(str, ip_parts))
+    @staticmethod
+    def generate_ut_param() -> str:
+        """生成唯一的 ut 追踪参数（标准 32 位 MD5 格式）"""
+        # 前端 ut 参数实质上是一个 32 位唯一标识符，无需复杂模拟 IP，使用 uuid4 更加 Pythonic 且高效
+        import uuid
 
-        random_ip = generate_china_ip()
-        timestamp = int(time.time() * 1000)
-        random_num = random.randint(1000000000, 9999999999)
-
-        base_str = f"{timestamp}{random_num}{random_ip}"
-        ut_hash = hashlib.md5(base_str.encode()).hexdigest()
-        return ut_hash
+        return hashlib.md5(uuid.uuid4().bytes).hexdigest()
 
     def build_params(self, market, mkt_code, page_num):
         base_params = {
