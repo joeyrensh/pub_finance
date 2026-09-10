@@ -9,6 +9,7 @@
 *.md
 *.txt
 *.bk
+daily_stock_cache_*.json
 
 #忽略所有 __pycache__ 目录及其内容
 **/__pycache__/
