@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 """
-中国大陆代理 IP 获取与测试工具（异步版 v4.0）
-- 代理源：站大爷 + OpenProxyList + Geonode + Proxifly
-- 验证顺序：IP 地理位置（先）→ 百度访问 → 东方财富 API
-- 异步并发测试，支持自定义并发数
-- 代理池维护：3 次失效自动清理
-- 进度条：实时显示测试进度
+中国大陆代理 IP 获取与测试工具（异步 curl_cffi 版 v5.0）
+- 代理源：站大爷 + OpenProxyList + Geonode + Proxifly + 3366net + 66daili + 89ip + 快代理
+- 验证顺序：百度访问 -> IP 地理位置 -> 东方财富 API
+- 使用 curl_cffi 异步并发测试，支持伪装 Chrome 指纹
+- 代理池维护：达到最大失败次数自动清理
 
 用法：
     python3 fetch_cn_proxies.py --target 20 --max-pages 3 --timeout 3 --workers 10
 """
 
 import asyncio
-import aiohttp
 import requests
 import re
 import json
@@ -25,6 +23,7 @@ import hashlib
 from pathlib import Path
 import urllib3
 from lxml import html
+from curl_cffi.requests import AsyncSession
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -40,19 +39,23 @@ MAX_FAILURES = 100
 
 def parse_cookie_string():
     # 读取 JSON 格式的 cookie 文件
-    with open(COOKIE_DIR / "utility/eastmoney_cookie.json", "r", encoding="utf-8") as f:
-        cookie_data = json.load(f)
-        print("已加载 JSON cookie 信息")
-    # 直接返回解析后的字典
-    return cookie_data
+    cookie_file = COOKIE_DIR / "utility/eastmoney_cookie.json"
+    if cookie_file.exists():
+        with open(cookie_file, "r", encoding="utf-8") as f:
+            cookie_data = json.load(f)
+            print("已加载 JSON cookie 信息")
+            return cookie_data
+    return {}
 
 
 cookies = parse_cookie_string()
 
 
 def load_config():
-    with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    if CONFIG_FILE.exists():
+        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
 
 
 def load_proxy_pool():
@@ -77,11 +80,7 @@ def save_proxy_pool(pool):
 def sync_valid_proxies():
     """
     将 PROXIES_TXT 中的有效代理同步到 PROXIES_USED_TXT 文件中。
-    - 只追加新增的代理（不重复）
-    - 每次追加操作前写入时间注释标记
     """
-
-    # 1. 读取源文件中的有效代理（忽略注释和空行）
     source_proxies = set()
     if PROXIES_TXT.exists():
         with open(PROXIES_TXT, "r", encoding="utf-8") as f:
@@ -93,41 +92,40 @@ def sync_valid_proxies():
         print(f"源文件 {PROXIES_TXT} 不存在，无法同步")
         return
 
-    # 2. 读取目标文件中已有的代理（忽略注释和空行）
     existing_proxies = set()
     original_content = ""
     if PROXIES_USED_TXT.exists():
         with open(PROXIES_USED_TXT, "r", encoding="utf-8") as f:
-            original_content = f.read()  # 保存原有全部内容
+            original_content = f.read()
             for line in original_content.splitlines():
                 line = line.strip()
                 if line and not line.startswith("#"):
                     existing_proxies.add(line)
 
-    # 3. 计算需要新增的代理
     new_proxies = source_proxies - existing_proxies
     if not new_proxies:
         print("没有需要新增的代理")
         return
 
-    # 4. 构造要插入到文件开头的新内容（包含时间注释和代理列表）
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     new_content_parts = [
         f"# ===== 添加时间：{timestamp}，共 {len(new_proxies)} 个新代理 =====\n"
     ]
     for proxy in sorted(new_proxies):
         new_content_parts.append(f"{proxy}\n")
-    # 如果原有内容非空，添加一个空行分隔
     if original_content:
         new_content_parts.append("\n")
     new_content = "".join(new_content_parts)
 
-    # 5. 将新内容 + 原内容写回文件
+    PROXIES_USED_TXT.parent.mkdir(parents=True, exist_ok=True)
     with open(PROXIES_USED_TXT, "w", encoding="utf-8") as f:
         f.write(new_content)
         f.write(original_content)
 
     print(f"已成功将 {len(new_proxies)} 个新代理同步到 {PROXIES_USED_TXT} 的开头")
+
+
+# ========== 代理抓取逻辑 ==========
 
 
 def fetch_zdaye(max_pages=3):
@@ -137,13 +135,9 @@ def fetch_zdaye(max_pages=3):
         try:
             url = f"https://www.zdaye.com/free/{page}/?ip_adr=&checktime=&sleep=1&cunhuo=2&dengji=&protocol=http&yys=&px="
             headers = {
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             }
-            resp = requests.get(
-                url,
-                headers=headers,
-                timeout=REQUEST_TIMEOUT,
-            )
+            resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
             if resp.status_code == 200:
                 ips = re.findall(r'class="proxy_ip">([\d\.]+)</p>', resp.text)
                 ports = re.findall(r"Port：(\d+)", resp.text)
@@ -157,17 +151,10 @@ def fetch_zdaye(max_pages=3):
 
 
 def fetch_3366net_proxies(max_pages=10):
-    """
-    从 http://www.ip3366.net/free/ 抓取免费 HTTP 代理。
-    参数:
-        max_pages (int): 要抓取的页数（最多不超过 10 页）。
-    返回:
-        list: 包含 "ip:port" 格式代理地址的列表。
-    """
     base_url = "http://www.ip3366.net/free/"
     proxies = []
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
 
     for page in range(1, max_pages + 1):
@@ -181,38 +168,22 @@ def fetch_3366net_proxies(max_pages=10):
             resp.encoding = "utf-8"
             if resp.status_code != 200:
                 continue
-
-            # 正则匹配 IP 和端口：IP 在 <td> 内，端口在相邻 <td> 内
-            # 模式说明：捕获 IP 地址（数字+点）和端口（数字），它们之间用 </td><td> 分隔
             pattern = r"<td>(\d+\.\d+\.\d+\.\d+)</td>\s*<td>(\d+)</td>"
             matches = re.findall(pattern, resp.text)
             for ip, port in matches:
                 proxies.append(f"{ip}:{port}")
-
-            time.sleep(1)  # 礼貌抓取
-        except Exception as e:
-            print(f"第 {page} 页抓取出错: {e}")
+            time.sleep(1)
+        except Exception:
             continue
     print(f"   3366net：{len(proxies)} 个")
     return proxies
 
 
 def fetch_66daili_proxies(num=100):
-    """
-    从 66daili 免费代理 API 获取 HTTP 代理列表。
-    参数:
-        num (int): 请求的代理数量，默认 100。
-        timeout (int): 请求超时时间（秒），默认 10。
-    返回:
-        list: 包含 "ip:port" 格式代理地址的列表，请求失败返回空列表。
-    """
-    url = (
-        f"http://api.66daili.com/?num={num}&anonymity=%E6%99%AE%E5%8C%BF"
-        f"&response_time=3000&format=text"
-    )
+    url = f"http://api.66daili.com/?num={num}&anonymity=%E6%99%AE%E5%8C%BF&response_time=3000&format=text"
     proxies = []
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
     try:
         resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
@@ -223,7 +194,6 @@ def fetch_66daili_proxies(num=100):
                 line = line.strip()
                 if not line:
                     continue
-                # 去除 @HTTP 或 @HTTPS 后缀（如果存在）
                 if "@" in line:
                     line = line.split("@")[0]
                 proxies.append(line)
@@ -235,27 +205,18 @@ def fetch_66daili_proxies(num=100):
 
 
 def fetch_89ip_proxies(num=500):
-    """
-    从 89ip 代理 API 获取代理列表（如果返回 HTML 则尝试提取 IP:PORT）
-    返回格式: ["ip:port", ...]
-    """
     url = f"http://api.89ip.cn/tqdl.html?api=1&num={num}&port=&address=&isp="
     proxies = []
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
     try:
         resp = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
         resp.encoding = "utf-8"
         if resp.status_code == 200:
-            text = resp.text
-            # 使用正则提取所有 IP:PORT 格式
             pattern = r"\b(?:\d{1,3}\.){3}\d{1,3}:\d{1,5}\b"
-            matches = re.findall(pattern, text)
-            # 去重并返回
-            proxies_list = list(set(matches))
-            proxies.extend(proxies_list)
+            matches = re.findall(pattern, resp.text)
+            proxies.extend(list(set(matches)))
     except Exception as e:
         print(f"抓取代理出错: {e}")
     print(f"   89ip：{len(proxies)} 个")
@@ -263,53 +224,29 @@ def fetch_89ip_proxies(num=500):
 
 
 def fetch_kuaidaili_proxies(max_pages=20):
-    """
-    从快代理免费代理页面抓取代理列表。
-    参数:
-        max_pages (int): 要抓取的最大页数，默认抓取10页。
-    返回:
-        list: 包含 "ip:port" 格式代理地址的列表。
-    """
-    # 代理列表存储处
     proxies_list = []
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
 
     for page in range(1, max_pages + 1):
-        # 构造页面URL
         url = f"https://www.kuaidaili.com/free/inha/{page}/"
         try:
-            # 发送HTTP GET请求
             response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT)
             response.encoding = "utf-8"
-            response.raise_for_status()  # 检查HTTP请求状态，如果不是200，会抛出异常
+            if response.status_code != 200:
+                continue
 
-            # 使用lxml解析HTML
             tree = html.fromstring(response.content)
-
-            # 使用XPath定位包含代理信息的行
-            # '//tbody/tr' 选取代表每一行代理数据的 <tr> 元素
             proxy_rows = tree.xpath("//tbody/tr")
 
             for row in proxy_rows:
-                # 通过XPath提取该行中IP和端口所在的第四列数据
-                # 'td[1]' 代表第一个单元格（IP地址），'td[2]' 代表第二个单元格（端口号）
                 ip = row.xpath("./td[1]/text()")
                 port = row.xpath("./td[2]/text()")
-                # 检查提取的数据是否有效
                 if ip and port:
-                    proxy = f"{ip[0]}:{port[0]}"
-                    proxies_list.append(proxy)
-
-            # 模拟人类行为，抓取页面后暂停一秒，避免给服务器造成过大压力
+                    proxies_list.append(f"{ip[0]}:{port[0]}")
             time.sleep(1)
-
-        except requests.exceptions.RequestException as e:
-            print(f"第 {page} 页抓取失败: {e}")
-            continue
-        except Exception as e:
-            print(f"第 {page} 页解析失败: {e}")
+        except Exception:
             continue
     print(f"   快代理：{len(proxies_list)} 个")
     return proxies_list
@@ -368,170 +305,150 @@ def fetch_proxifly():
     return proxies
 
 
-# ========== 异步验证函数 ==========
-
-
-async def check_ip_location(ip, timeout):
-    """通过 ip-api.com 判断 IP 是否在中国大陆（不使用代理）"""
-    for attempt in range(2):  # 最多重试 1 次
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    f"https://api.ip.sb/geoip/{ip}",
-                    timeout=aiohttp.ClientTimeout(total=timeout),
-                ) as resp:
-                    if resp.status == 200:
-                        data = await resp.json()
-                        if data.get("country_code") == "CN":
-                            return True
-            await asyncio.sleep(0.5)
-        except:
-            await asyncio.sleep(0.5)
-    return False
-
-
-async def check_baidu_via_proxy(proxy, timeout):
-    """通过代理访问百度，返回是否成功"""
-    try:
-        conn = aiohttp.TCPConnector(ssl=False)
-        async with aiohttp.ClientSession(connector=conn) as session:
-            async with session.get(
-                "http://www.baidu.com",
-                proxy=f"http://{proxy}",
-                timeout=aiohttp.ClientTimeout(total=timeout),
-            ) as resp:
-                return resp.status == 200
-    except:
-        return False
+# ========== 异步验证逻辑 (基于 curl_cffi) ==========
 
 
 def generate_ut_param():
     """生成基于中国地区随机IP的32位十六进制格式ut参数"""
-
-    # 生成随机中国IP地址
-    def generate_china_ip():
-        # 中国IP地址的主要A类、B类网络号
-        china_networks = [
-            (58, random.randint(0, 255)),  # 58.x.x.x - 中国电信
-            (59, random.randint(0, 255)),  # 59.x.x.x - 中国电信
-            (60, random.randint(0, 255)),  # 60.x.x.x - 中国联通
-            (61, random.randint(0, 255)),  # 61.x.x.x - 中国电信
-            (106, random.randint(0, 255)),  # 106.x.x.x - 中国教育网
-            (110, random.randint(0, 255)),  # 110.x.x.x - 中国电信
-            (111, random.randint(0, 255)),  # 111.x.x.x - 中国联通
-            (112, random.randint(0, 255)),  # 112.x.x.x - 中国移动
-            (113, random.randint(0, 255)),  # 113.x.x.x - 中国电信
-            (114, random.randint(0, 255)),  # 114.x.x.x - 中国电信
-            (115, random.randint(0, 255)),  # 115.x.x.x - 中国电信
-            (116, random.randint(0, 255)),  # 116.x.x.x - 中国移动
-            (117, random.randint(0, 255)),  # 117.x.x.x - 中国移动
-            (118, random.randint(0, 255)),  # 118.x.x.x - 中国电信
-            (119, random.randint(0, 255)),  # 119.x.x.x - 中国电信
-            (120, random.randint(0, 255)),  # 120.x.x.x - 中国联通
-            (121, random.randint(0, 255)),  # 121.x.x.x - 中国联通
-            (122, random.randint(0, 255)),  # 122.x.x.x - 中国电信
-            (123, random.randint(0, 255)),  # 123.x.x.x - 中国联通
-            (124, random.randint(0, 255)),  # 124.x.x.x - 中国联通
-            (125, random.randint(0, 255)),  # 125.x.x.x - 中国电信
-            (171, random.randint(0, 255)),  # 171.x.x.x - 中国电信
-            (175, random.randint(0, 255)),  # 175.x.x.x - 中国电信
-            (180, random.randint(0, 255)),  # 180.x.x.x - 中国移动
-            (182, random.randint(0, 255)),  # 182.x.x.x - 中国电信
-            (183, random.randint(0, 255)),  # 183.x.x.x - 中国电信
-            (202, random.randint(0, 255)),  # 202.x.x.x - 中国教育和科研网
-            (210, random.randint(0, 255)),  # 210.x.x.x - 中国教育和科研网
-            (211, random.randint(0, 255)),  # 211.x.x.x - 中国教育和科研网
-            (218, random.randint(0, 255)),  # 218.x.x.x - 中国联通
-            (219, random.randint(0, 255)),  # 219.x.x.x - 中国联通
-            (220, random.randint(0, 255)),  # 220.x.x.x - 中国电信
-            (221, random.randint(0, 255)),  # 221.x.x.x - 中国联通
-            (222, random.randint(0, 255)),  # 222.x.x.x - 中国电信
-            (223, random.randint(0, 255)),  # 223.x.x.x - 中国移动
-        ]
-
-        network = random.choice(china_networks)
-        ip_parts = [
-            network[0],
-            network[1],
-            random.randint(1, 254),
-            random.randint(1, 254),
-        ]
-        return ".".join(map(str, ip_parts))
-
-    # 生成随机IP并用于ut参数
-    random_ip = generate_china_ip()
+    china_networks = [
+        (58, random.randint(0, 255)),
+        (59, random.randint(0, 255)),
+        (60, random.randint(0, 255)),
+        (61, random.randint(0, 255)),
+        (106, random.randint(0, 255)),
+        (110, random.randint(0, 255)),
+        (111, random.randint(0, 255)),
+        (112, random.randint(0, 255)),
+        (113, random.randint(0, 255)),
+        (114, random.randint(0, 255)),
+        (115, random.randint(0, 255)),
+        (116, random.randint(0, 255)),
+        (117, random.randint(0, 255)),
+        (118, random.randint(0, 255)),
+        (119, random.randint(0, 255)),
+        (120, random.randint(0, 255)),
+        (121, random.randint(0, 255)),
+        (122, random.randint(0, 255)),
+        (123, random.randint(0, 255)),
+        (124, random.randint(0, 255)),
+        (125, random.randint(0, 255)),
+        (171, random.randint(0, 255)),
+        (175, random.randint(0, 255)),
+        (180, random.randint(0, 255)),
+        (182, random.randint(0, 255)),
+        (183, random.randint(0, 255)),
+        (202, random.randint(0, 255)),
+        (210, random.randint(0, 255)),
+        (211, random.randint(0, 255)),
+        (218, random.randint(0, 255)),
+        (219, random.randint(0, 255)),
+        (220, random.randint(0, 255)),
+        (221, random.randint(0, 255)),
+        (222, random.randint(0, 255)),
+        (223, random.randint(0, 255)),
+    ]
+    network = random.choice(china_networks)
+    random_ip = (
+        f"{network[0]}.{network[1]}.{random.randint(1, 254)}.{random.randint(1, 254)}"
+    )
     timestamp = int(time.time() * 1000)
     random_num = random.randint(1000000000, 9999999999)
-
-    # 将IP地址加入基础字符串
     base_str = f"{timestamp}{random_num}{random_ip}"
-
-    # 使用MD5生成32位十六进制字符串
-    ut_hash = hashlib.md5(base_str.encode()).hexdigest()
-    return ut_hash
+    return hashlib.md5(base_str.encode()).hexdigest()
 
 
 def build_params(market, mkt_code, page_num):
-    """统一的参数构建函数"""
     base_params = {
         "pn": f"{page_num}",
-        "pz": 100,
+        "pz": "100",
         "po": "1",
         "np": "1",
-        # "ut": "fa5fd1943c7b386f172d6893dbfba10b",
-        "ut:": generate_ut_param(),
+        "ut": generate_ut_param(),
         "fltt": "2",
         "invt": "2",
         "fid": "f12",
         "fields": "f2,f5,f9,f12,f14,f15,f16,f17,f20",
     }
-
     if market == "us":
         base_params["fs"] = f"m:{mkt_code}"
     elif market == "cn":
-        # 简化的A股参数设置
-        if mkt_code == "0":  # 深交所
+        if mkt_code == "0":
             base_params["fs"] = "m:0 t:6,m:0 t:80"
-        elif mkt_code == "1":  # 上交所
+        elif mkt_code == "1":
             base_params["fs"] = "m:1 t:2,m:1 t:23"
-        elif mkt_code == "etf":  # ETF
+        elif mkt_code == "etf":
             base_params["fs"] = "b:MK0021,b:MK0022,b:MK0023,b:MK0024,b:MK0827"
             base_params["wbp2u"] = "|0|0|0|web"
-
     return base_params
 
 
+async def check_baidu_via_proxy(proxy, timeout):
+    """使用 curl_cffi 通过代理访问百度"""
+    proxy_url = f"http://{proxy}"
+    try:
+        async with AsyncSession(impersonate="chrome120", verify=False) as session:
+            resp = await session.get(
+                "http://www.baidu.com",
+                proxies={"http": proxy_url, "https": proxy_url},
+                timeout=timeout,
+            )
+            return resp.status_code == 200
+    except Exception:
+        return False
+
+
+async def check_ip_location(ip, timeout):
+    """通过 ip-api.com 判断 IP 是否在中国大陆（不使用代理）"""
+    for _ in range(2):
+        try:
+            async with AsyncSession(impersonate="chrome120", verify=False) as session:
+                resp = await session.get(
+                    f"https://api.ip.sb/geoip/{ip}", timeout=timeout
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    if data.get("country_code") == "CN":
+                        return True
+            await asyncio.sleep(0.5)
+        except Exception:
+            await asyncio.sleep(0.5)
+    return False
+
+
 async def check_eastmoney_via_proxy(proxy, timeout):
-    """通过代理访问东方财富 API，返回是否成功且 total > 1000"""
+    """通过代理访问东方财富 API，验证响应并确保 total >= 1000"""
     params = build_params("cn", "0", 1)
     headers = {
-        "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Referer": "https://quote.eastmoney.com/center/gridlist.html",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+        "Accept": "*/*",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
     }
+    proxy_url = f"http://{proxy}"
     try:
-        conn = aiohttp.TCPConnector(ssl=False)
-        async with aiohttp.ClientSession(connector=conn) as session:
-            async with session.get(
-                "http://push2.eastmoney.com/api/qt/clist/get",
+        async with AsyncSession(impersonate="chrome120", verify=False) as session:
+            resp = await session.get(
+                "https://push2.eastmoney.com/api/qt/clist/get",
                 params=params,
                 headers=headers,
-                proxy=f"http://{proxy}",
+                proxies={"http": proxy_url, "https": proxy_url},
                 cookies=cookies,
-                timeout=aiohttp.ClientTimeout(total=timeout),
-            ) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
-                    if data.get("data") and data["data"].get("total", 0) >= 1000:
-                        return True
+                timeout=timeout,
+            )
+            if resp.status_code == 200:
+                # 过滤 HTML 拦截响应
+                if resp.text.strip().startswith("<"):
+                    return False
+                data = resp.json()
+                if data.get("data") and data["data"].get("total", 0) >= 1000:
+                    return True
         return False
-    except:
+    except Exception:
         return False
 
 
 async def test_single_proxy(proxy, timeout):
-    """完整测试单个代理：顺序为 IP 地理位置 -> 百度 -> 东方财富"""
+    """完整测试单个代理：顺序为 百度 -> IP 地理位置 -> 东方财富"""
     start = time.time()
     ip = proxy.split(":")[0]
 
@@ -539,7 +456,7 @@ async def test_single_proxy(proxy, timeout):
     if not await check_baidu_via_proxy(proxy, timeout):
         return proxy, False, time.time() - start
 
-    # 2. IP 地理位置（先，不通过代理）
+    # 2. IP 地理位置校验
     if not await check_ip_location(ip, timeout):
         return proxy, False, time.time() - start
 
@@ -547,7 +464,6 @@ async def test_single_proxy(proxy, timeout):
     if await check_eastmoney_via_proxy(proxy, timeout):
         return proxy, True, time.time() - start
     else:
-        print(f" ⚠️ 代理{proxy}未通过东方财富API测试")
         return proxy, False, time.time() - start
 
 
@@ -566,11 +482,11 @@ async def test_proxies_async(proxies, target, timeout, workers):
             tested += 1
             if passed:
                 valid.append(proxy)
-            # 进度显示（每 10 个或最后一个）
+
             if tested % 10 == 0 or tested == total:
-                percent = int(100 * tested / total)
+                percent = int(100 * tested / total) if total else 0
                 bar_length = 40
-                filled = int(bar_length * tested / total)
+                filled = int(bar_length * tested / total) if total else 0
                 bar = "█" * filled + "░" * (bar_length - filled)
                 sys.stdout.write(
                     f"\r   [{bar}] {tested}/{total} ({percent}%) | 通过：{len(valid)} | 耗时：{time.time() - start_time:.1f}s"
@@ -587,54 +503,40 @@ async def test_proxies_async(proxies, target, timeout, workers):
             if len(valid) >= target:
                 break
     finally:
-        # 🚨 关键：显式取消未完成任务
         for t in tasks:
             if not t.done():
                 t.cancel()
-
-        # 🚨 等待所有任务真正退出，吞掉 CancelledError
         await asyncio.gather(*tasks, return_exceptions=True)
 
-    print()  # 换行
+    print()
     return valid
 
 
-def print_progress_bar(current, total, passed, elapsed):
-    percent = int(100 * current / total) if total else 0
-    bar_length = 40
-    filled = int(bar_length * current / total) if total else 0
-    bar = "█" * filled + "░" * (bar_length - filled)
-    sys.stdout.write(
-        f"\r   [{bar}] {current}/{total} ({percent}%) | 通过：{passed} | 耗时：{elapsed:.1f}s"
-    )
-    sys.stdout.flush()
-
-
 # ========== 主函数 ==========
+
+
 def main():
-    parser = argparse.ArgumentParser(description="中国大陆代理 IP 获取与测试（异步版）")
+    parser = argparse.ArgumentParser(
+        description="中国大陆代理 IP 获取与测试（curl_cffi 异步版）"
+    )
     parser.add_argument(
         "--target", type=int, default=20, help="目标代理数量 (默认：20)"
     )
     parser.add_argument(
-        "--max-pages", type=int, default=3, help="站大爷最大页数 (默认：3)"
+        "--max-pages", type=int, default=3, help="抓取最大页数 (默认：3)"
     )
     parser.add_argument("--timeout", type=int, default=3, help="测试超时 (秒)")
     parser.add_argument("--workers", type=int, default=10, help="并发数 (默认：10)")
     args = parser.parse_args()
 
     print("=" * 60)
-    print("🇨🇳 中国大陆代理获取与测试（异步版 v4.0）")
+    print("🇨🇳 中国大陆代理获取与测试（curl_cffi 异步版 v5.0）")
     print("=" * 60)
 
     def merge_proxies(pool, new_proxies):
-        # 获取现有代理的集合
         existing = set(pool.keys())
-        # 新代理中未存在的
         unique_new = set(new_proxies) - existing
-        # 合并所有待测试的代理（包括现有和新代理，但现有代理可能已经测试过，这里可以重新测试或只测试新的）
-        all_to_test = list(unique_new | existing)
-        return all_to_test
+        return list(unique_new | existing)
 
     config = load_config()
     pool = load_proxy_pool()
@@ -683,7 +585,7 @@ def main():
     print(f"\n{'=' * 60}")
     print(f"✅ 完成！可用代理：{count} 个")
     print(f"{'=' * 60}")
-    sync_valid_proxies()  # 同步到 proxy.txt
+    sync_valid_proxies()
 
 
 if __name__ == "__main__":

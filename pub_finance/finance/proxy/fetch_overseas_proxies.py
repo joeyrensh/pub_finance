@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-海外代理 IP 获取与测试工具（异步版 v14）
+海外代理 IP 获取与测试工具（curl_cffi 异步版 v15）
 - 代理源：OpenProxyList + Geonode API（中国大陆直连可用）
 - 验证：通过代理获取出口 IP → 查询地理位置（非中国即有效）
-- 异步并发测试，支持自定义并发数和超时
+- 使用 curl_cffi 异步并发测试，支持伪装 Chrome 指纹
 - 代理池维护：3 次失效自动清理
 - 进度条：实时显示测试进度，达到目标提前终止
 
@@ -16,13 +16,12 @@ import sys
 import json
 import time
 import asyncio
-import aiohttp
 import argparse
 import requests
-import threading
 from datetime import datetime
 from pathlib import Path
 import urllib3
+from curl_cffi.requests import AsyncSession
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -107,29 +106,27 @@ def fetch_geonode_api(url, source_name):
     return proxies
 
 
-# ===== 异步验证函数（抽象步骤）=====
+# ===== 异步验证函数（基于 curl_cffi）=====
 async def fetch_exit_ip_via_proxy(proxy, timeout):
     """
     通过代理访问 ip.sb，若返回的出口 IP 与代理 IP 相同则返回该 IP，否则返回 None
     """
+    proxy_ip = proxy.split(":")[0]  # 提取代理的 IP 地址
+    proxy_url = f"http://{proxy}"
     try:
-        proxy_ip = proxy.split(":")[0]  # 提取代理的 IP 地址
-        conn = aiohttp.TCPConnector(ssl=False)
-        async with aiohttp.ClientSession(connector=conn) as session:
-            async with session.get(
+        async with AsyncSession(impersonate="chrome120", verify=False) as session:
+            resp = await session.get(
                 "https://api.ip.sb/ip",
-                proxy=f"http://{proxy}",
-                timeout=aiohttp.ClientTimeout(total=timeout),
+                proxies={"http": proxy_url, "https": proxy_url},
+                timeout=timeout,
                 headers={"User-Agent": "curl/7.68.0"},
-            ) as resp:
-                if resp.status == 200:
-                    exit_ip = (await resp.text()).strip()
-                    # 只有出口 IP 与代理 IP 完全一致时才视为成功
-                    if exit_ip == proxy_ip:
-                        return exit_ip
-                    else:
-                        return None
-    except:
+            )
+            if resp.status_code == 200:
+                exit_ip = resp.text.strip()
+                # 只有出口 IP 与代理 IP 完全一致时才视为成功
+                if exit_ip == proxy_ip:
+                    return exit_ip
+    except Exception:
         return None
     return None
 
@@ -137,15 +134,12 @@ async def fetch_exit_ip_via_proxy(proxy, timeout):
 async def check_ip_country(ip, timeout):
     """通过 ip-api.com 查询 IP 所属国家（不使用代理）"""
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                f"https://api.ip.sb/geoip/{ip}",
-                timeout=aiohttp.ClientTimeout(total=timeout),
-            ) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
-                    return data.get("country_code", "")
-    except:
+        async with AsyncSession(impersonate="chrome120", verify=False) as session:
+            resp = await session.get(f"https://api.ip.sb/geoip/{ip}", timeout=timeout)
+            if resp.status_code == 200:
+                data = resp.json()
+                return data.get("country_code", "")
+    except Exception:
         pass
     return None
 
@@ -186,9 +180,9 @@ async def test_proxies_async(proxies, target, timeout, workers):
 
             # 进度显示（每 5 个或最后一个）
             if tested % 5 == 0 or tested == total:
-                percent = int(100 * tested / total)
+                percent = int(100 * tested / total) if total else 0
                 bar_length = 40
-                filled = int(bar_length * tested / total)
+                filled = int(bar_length * tested / total) if total else 0
                 bar = "█" * filled + "░" * (bar_length - filled)
                 sys.stdout.write(
                     f"\r   进度：[{bar}] {tested}/{total} ({percent}%) | 通过：{len(valid)} | 耗时：{time.time() - start_time:.1f}s"
@@ -205,12 +199,12 @@ async def test_proxies_async(proxies, target, timeout, workers):
             if len(valid) >= target:
                 break
     finally:
-        # 🚨 关键：显式取消未完成任务
+        # 显式取消未完成任务
         for t in tasks:
             if not t.done():
                 t.cancel()
 
-        # 🚨 等待所有任务真正退出，吞掉 CancelledError
+        # 等待所有任务退出，忽略异常
         await asyncio.gather(*tasks, return_exceptions=True)
 
     print()  # 换行
@@ -240,7 +234,9 @@ def update_proxy_pool(valid_proxies, existing_pool, max_failures=3):
 
 # ===== 主函数 =====
 def main():
-    parser = argparse.ArgumentParser(description="海外代理 IP 获取与测试（异步版）")
+    parser = argparse.ArgumentParser(
+        description="海外代理 IP 获取与测试（curl_cffi 异步版）"
+    )
     parser.add_argument("--target", type=int, default=20, help="目标代理数量")
     parser.add_argument("--timeout", type=int, default=3, help="测试超时（秒）")
     parser.add_argument("--workers", type=int, default=10, help="并发数")
@@ -248,7 +244,7 @@ def main():
     args = parser.parse_args()
 
     print("=" * 60)
-    print("🌏 海外代理 IP 获取（异步版 v14）")
+    print("🌏 海外代理 IP 获取（curl_cffi 异步版 v15）")
     print(f"验证：出口 IP → 非中国 | 并发：{args.workers} | 超时：{args.timeout} 秒")
     print("=" * 60)
 
@@ -257,7 +253,7 @@ def main():
         existing = set(pool.keys())
         # 新代理中未存在的
         unique_new = set(new_proxies) - existing
-        # 合并所有待测试的代理（包括现有和新代理，但现有代理可能已经测试过，这里可以重新测试或只测试新的）
+        # 合并所有待测试的代理
         all_to_test = list(unique_new | existing)
         return all_to_test
 
