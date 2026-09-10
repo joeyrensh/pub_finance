@@ -51,7 +51,7 @@ class StockProposal:
         发送邮件
         """
         # 启动Spark Session
-        spark = initialize_spark("StockAnalysis", memory="450m", partitions=1)
+        spark = initialize_spark("StockAnalysis", memory="512m", partitions=1)
         spark.conf.set("spark.sql.execution.arrow.pyspark.enabled", "false")
         spark.sparkContext.setLogLevel("ERROR")
 
