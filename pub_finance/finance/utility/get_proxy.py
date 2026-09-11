@@ -128,8 +128,8 @@ class ProxyManager:
 
         # 转换为 curl_cffi / requests 需要的格式
         proxy_dict = {
-            "http": f"http://{proxy_str}",
-            "https": f"http://{proxy_str}",
+            "http": proxy_str,
+            "https": proxy_str,
         }
 
         return proxy_dict
@@ -262,8 +262,8 @@ class ProxyManager:
 
         for i, proxy_str in enumerate(self.proxies_list):
             proxy_dict = {
-                "http": f"http://{proxy_str}",
-                "https": f"http://{proxy_str}",
+                "http": proxy_str,
+                "https": proxy_str,
             }
 
             # 显示进度
