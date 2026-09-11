@@ -49,7 +49,8 @@ class EMWebCrawlerUti:
         # 2. 初始化时将 enable_proxy 传入
         self.cg = CookieGeneration()
         self.cg.generate_em_cookies()
-        self.proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
+        # 初始化proxy为空，避免调用Class时立即获取代理，改为在需要时再获取
+        self.proxy = None
 
         self.headers = {
             "Referer": "https://quote.eastmoney.com/center/gridlist.html",

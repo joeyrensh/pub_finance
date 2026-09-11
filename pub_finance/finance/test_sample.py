@@ -67,14 +67,14 @@ if __name__ == "__main__":
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
     # ========== 1. 爬虫重试 ==========
-    print("开始爬取A股日线数据...")
-    em = EMWebCrawlerUti()
+    # print("开始爬取A股日线数据...")
+    # em = EMWebCrawlerUti()
 
-    def crawl():
-        return em.get_daily_stock_info("cn", trade_date)
+    # def crawl():
+    #     return em.get_daily_stock_info("cn", trade_date)
 
-    df_stock_daily = retry_call(crawl, max_retries=3, delay=2)
-    print("爬取完成")
+    # df_stock_daily = retry_call(crawl, max_retries=3, delay=2)
+    # print("爬取完成")
 
     # em = AKCNWebCrawler()
     # em.get_cn_daily_stock_info_ak(trade_date)
@@ -146,15 +146,15 @@ if __name__ == "__main__":
 
     # A股主要策略执行
     print("-----------A股主策略执行-----------")
-    retry_backtest_and_send("cn", trade_date)
+    retry_backtest_and_send("cn", trade_date, force_run=True)
 
     # ETF主要策略执行
     print("-----------A股ETF策略执行-----------")
-    retry_backtest_and_send("cnetf", trade_date)
+    retry_backtest_and_send("cnetf", trade_date, force_run=True)
 
     # A股动态列表执行
     print("-----------A股动态列表策略执行-----------")
-    retry_backtest_and_send("cn_dynamic", trade_date)
+    retry_backtest_and_send("cn_dynamic", trade_date, force_run=True)
 
     """ 结束进度条 """
     pbar.finish()
