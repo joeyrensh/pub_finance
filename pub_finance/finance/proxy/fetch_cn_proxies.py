@@ -544,14 +544,14 @@ def main():
 
     print(f"\n[步骤 2] 获取代理...")
     all_proxies = []
-    # all_proxies.extend(fetch_zdaye(args.max_pages))
-    # all_proxies.extend(fetch_3366net_proxies(args.max_pages))
-    # all_proxies.extend(fetch_66daili_proxies())
-    # all_proxies.extend(fetch_89ip_proxies())
-    # all_proxies.extend(fetch_kuaidaili_proxies(args.max_pages))
-    # all_proxies.extend(fetch_openproxylist())
-    # all_proxies.extend(fetch_geonode())
-    # all_proxies.extend(fetch_proxifly())
+    all_proxies.extend(fetch_zdaye(args.max_pages))
+    all_proxies.extend(fetch_3366net_proxies(args.max_pages))
+    all_proxies.extend(fetch_66daili_proxies())
+    all_proxies.extend(fetch_89ip_proxies())
+    all_proxies.extend(fetch_kuaidaili_proxies(args.max_pages))
+    all_proxies.extend(fetch_openproxylist())
+    all_proxies.extend(fetch_geonode())
+    all_proxies.extend(fetch_proxifly())
     all_proxies = merge_proxies(pool, all_proxies)
 
     all_proxies = list(set(all_proxies))
