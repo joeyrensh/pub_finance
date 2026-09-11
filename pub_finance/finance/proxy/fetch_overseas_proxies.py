@@ -1,38 +1,28 @@
 #!/usr/bin/env python3
 """
-海外代理 IP 获取与测试工具（curl_cffi 异步版 v15）
-- 代理源：OpenProxyList + Geonode API（中国大陆直连可用）
+海外代理 IP 获取与测试工具（curl_cffi 异步版 v16 - 支持 HTTP & SOCKS5）
+- 代理源：OpenProxyList + Geonode API + Proxifly（中国大陆直连可用）
 - 验证：通过代理获取出口 IP → 查询地理位置（非中国即有效）
-- 使用 curl_cffi 异步并发测试，支持伪装 Chrome 指纹
-- 代理池维护：3 次失效自动清理
-- 进度条：实时显示测试进度，达到目标提前终止
+- 支持 HTTP 与 SOCKS5 双协议混用测试
+- 自动平滑兼容历史 JSON 代理数据
 
 用法：
     python3 fetch_overseas_proxies.py --target 10 --timeout 3 --workers 5
 """
 
-import os
-import sys
-import json
-import time
-import asyncio
 import argparse
-import requests
+import asyncio
 from datetime import datetime
+import json
+import os
 from pathlib import Path
-import urllib3
+import sys
+import time
 from curl_cffi.requests import AsyncSession
+import requests
+import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# 尝试导入 yfinance（保留原逻辑，但实际未使用）
-try:
-    import yfinance as yf
-
-    YF_AVAILABLE = True
-except ImportError:
-    YF_AVAILABLE = False
-    print("⚠️ 警告：缺少 yfinance，但本版本已不再依赖，可忽略")
 
 SCRIPT_DIR = Path(__file__).parent
 CONFIG_FILE = SCRIPT_DIR / "overseas_proxy_sources.json"
@@ -48,9 +38,27 @@ def load_config():
 
 
 def load_proxy_pool():
+    """平滑升级并加载历史代理池数据。
+
+    如果历史 Key 是无协议前缀的 "IP:Port"，自动转换为 "http://IP:Port"，保证历史记忆不丢失。
+    """
     if PROXIES_JSON.exists():
         with open(PROXIES_JSON, "r", encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
+
+        migrated_pool = {}
+        for key, info in data.items():
+            # 历史数据迁移：补全协议前缀
+            if "://" not in key:
+                new_key = f"http://{key}"
+                info["protocol"] = info.get("protocol", "http")
+                migrated_pool[new_key] = info
+            else:
+                if "protocol" not in info:
+                    info["protocol"] = key.split("://")[0]
+                migrated_pool[key] = info
+
+        return migrated_pool
     return {}
 
 
@@ -66,8 +74,11 @@ def save_proxy_pool(pool):
     return len(valid)
 
 
-# ===== 代理获取函数（同步，与原逻辑完全相同）=====
+# ===== 代理获取函数（升级版：支持 HTTP / SOCKS5）=====
+
+
 def fetch_text_source(url, source_name):
+    """抓取文本格式代理源，自动提取 http/socks5 前缀；若无前缀则拆分为两者同时测试"""
     proxies = []
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
@@ -77,11 +88,17 @@ def fetch_text_source(url, source_name):
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
-                if ":" in line:
+
+                if line.startswith("http://") or line.startswith("socks5://"):
+                    proxies.append(line)
+                elif line.startswith("socks4://"):
+                    continue  # 忽略 socks4
+                elif ":" in line:
                     parts = line.split(":")
                     if len(parts) >= 2 and parts[-1].isdigit():
                         ip_port = f"{parts[0]}:{parts[1]}"
-                        proxies.append(ip_port)
+                        proxies.append(f"http://{ip_port}")
+                        proxies.append(f"socks5://{ip_port}")
             print(f"   {source_name}: {len(proxies)} 个")
     except Exception as e:
         print(f"   ⚠️ {source_name}: {str(e)[:50]}")
@@ -89,6 +106,7 @@ def fetch_text_source(url, source_name):
 
 
 def fetch_geonode_api(url, source_name):
+    """抓取 Geonode API，支持生成带对应协议的 URL"""
     proxies = []
     try:
         resp = requests.get(url, timeout=15)
@@ -98,8 +116,11 @@ def fetch_geonode_api(url, source_name):
                 for p in data["data"]:
                     ip = p.get("ip", "")
                     port = p.get("port", "")
+                    protocols = p.get("protocols", ["http"])
                     if ip and port:
-                        proxies.append(f"{ip}:{port}")
+                        for proto in protocols:
+                            if proto in ["http", "socks5"]:
+                                proxies.append(f"{proto}://{ip}:{port}")
                 print(f"   {source_name}: {len(proxies)} 个")
     except Exception as e:
         print(f"   ⚠️ {source_name}: {e}")
@@ -107,12 +128,14 @@ def fetch_geonode_api(url, source_name):
 
 
 # ===== 异步验证函数（基于 curl_cffi）=====
-async def fetch_exit_ip_via_proxy(proxy, timeout):
-    """
-    通过代理访问 ip.sb，若返回的出口 IP 与代理 IP 相同则返回该 IP，否则返回 None
-    """
-    proxy_ip = proxy.split(":")[0]  # 提取代理的 IP 地址
-    proxy_url = f"http://{proxy}"
+
+
+async def fetch_exit_ip_via_proxy(proxy_url, timeout):
+    """通过代理 (HTTP/SOCKS5) 访问 ip.sb，若返回的出口 IP 与代理 IP 相同则返回该 IP，否则返回 None"""
+    # 提取裸 IP，排除协议和端口
+    raw_host = proxy_url.split("://")[-1]
+    proxy_ip = raw_host.split(":")[0]
+
     try:
         async with AsyncSession(impersonate="chrome120", verify=False) as session:
             resp = await session.get(
@@ -132,7 +155,7 @@ async def fetch_exit_ip_via_proxy(proxy, timeout):
 
 
 async def check_ip_country(ip, timeout):
-    """通过 ip-api.com 查询 IP 所属国家（不使用代理）"""
+    """通过 ip-api.com 查询 IP 所属国家（直连不走代理）"""
     try:
         async with AsyncSession(impersonate="chrome120", verify=False) as session:
             resp = await session.get(f"https://api.ip.sb/geoip/{ip}", timeout=timeout)
@@ -144,24 +167,26 @@ async def check_ip_country(ip, timeout):
     return None
 
 
-async def test_proxy_async(proxy, timeout):
+async def test_proxy_async(proxy_url, timeout):
     """完整测试单个代理：获取出口 IP → 检查是否为非中国 IP"""
     start = time.time()
 
     # 1. 通过代理获取出口 IP
-    exit_ip = await fetch_exit_ip_via_proxy(proxy, timeout)
+    exit_ip = await fetch_exit_ip_via_proxy(proxy_url, timeout)
     if not exit_ip:
-        return proxy, False, time.time() - start
+        return proxy_url, False, time.time() - start
 
     # 2. 查询该 IP 的国家（本地请求）
     country = await check_ip_country(exit_ip, timeout)
     if country and country != "CN":
-        return proxy, True, time.time() - start
+        return proxy_url, True, time.time() - start
     else:
-        return proxy, False, time.time() - start
+        return proxy_url, False, time.time() - start
 
 
 # ===== 批量异步测试 =====
+
+
 async def test_proxies_async(proxies, target, timeout, workers):
     """异步并发测试代理，返回有效的代理列表"""
     valid = []
@@ -170,13 +195,13 @@ async def test_proxies_async(proxies, target, timeout, workers):
     start_time = time.time()
     semaphore = asyncio.Semaphore(workers)
 
-    async def test_with_semaphore(proxy):
+    async def test_with_semaphore(proxy_url):
         nonlocal tested, valid
         async with semaphore:
-            proxy, passed, elapsed = await test_proxy_async(proxy, timeout)
+            proxy_url, passed, elapsed = await test_proxy_async(proxy_url, timeout)
             tested += 1
             if passed:
-                valid.append(proxy)
+                valid.append(proxy_url)
 
             # 进度显示（每 5 个或最后一个）
             if tested % 5 == 0 or tested == total:
@@ -185,11 +210,12 @@ async def test_proxies_async(proxies, target, timeout, workers):
                 filled = int(bar_length * tested / total) if total else 0
                 bar = "█" * filled + "░" * (bar_length - filled)
                 sys.stdout.write(
-                    f"\r   进度：[{bar}] {tested}/{total} ({percent}%) | 通过：{len(valid)} | 耗时：{time.time() - start_time:.1f}s"
+                    f"\r   进度：[{bar}] {tested}/{total} ({percent}%) | 通过：{len(valid)} |"
+                    f" 耗时：{time.time() - start_time:.1f}s"
                 )
                 sys.stdout.flush()
 
-            return proxy, passed, elapsed
+            return proxy_url, passed, elapsed
 
     tasks = [asyncio.create_task(test_with_semaphore(p)) for p in proxies]
 
@@ -211,31 +237,51 @@ async def test_proxies_async(proxies, target, timeout, workers):
     return valid
 
 
-# ===== 代理池维护（与原逻辑完全相同）=====
+# ===== 代理池维护 =====
+
+
 def update_proxy_pool(valid_proxies, existing_pool, max_failures=3):
     new_pool = {}
     new_count = 0
+
+    # 处理现有代理池的更新与淘汰
     for proxy, info in existing_pool.items():
+        proto = proxy.split("://")[0]
         if proxy in valid_proxies:
-            new_pool[proxy] = {"failures": 0, "last_seen": datetime.now().isoformat()}
+            new_pool[proxy] = {
+                "protocol": proto,
+                "failures": 0,
+                "last_seen": datetime.now().isoformat(),
+            }
         else:
             failures = info.get("failures", 0) + 1
             if failures < max_failures:
                 new_pool[proxy] = {
+                    "protocol": proto,
                     "failures": failures,
                     "last_seen": info.get("last_seen"),
                 }
+
+    # 处理新加入的成功代理
     for proxy in valid_proxies:
+        proto = proxy.split("://")[0]
         if proxy not in new_pool:
-            new_pool[proxy] = {"failures": 0, "last_seen": datetime.now().isoformat()}
+            new_pool[proxy] = {
+                "protocol": proto,
+                "failures": 0,
+                "last_seen": datetime.now().isoformat(),
+            }
             new_count += 1
+
     return new_pool, new_count
 
 
 # ===== 主函数 =====
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="海外代理 IP 获取与测试（curl_cffi 异步版）"
+        description="海外代理 IP 获取与测试（curl_cffi 异步版 v16）"
     )
     parser.add_argument("--target", type=int, default=20, help="目标代理数量")
     parser.add_argument("--timeout", type=int, default=3, help="测试超时（秒）")
@@ -244,16 +290,13 @@ def main():
     args = parser.parse_args()
 
     print("=" * 60)
-    print("🌏 海外代理 IP 获取（curl_cffi 异步版 v15）")
+    print("🌏 海外代理 IP 获取（curl_cffi 异步版 v16 - 支持 HTTP & SOCKS5）")
     print(f"验证：出口 IP → 非中国 | 并发：{args.workers} | 超时：{args.timeout} 秒")
     print("=" * 60)
 
     def merge_proxies(pool, new_proxies):
-        # 获取现有代理的集合
         existing = set(pool.keys())
-        # 新代理中未存在的
         unique_new = set(new_proxies) - existing
-        # 合并所有待测试的代理
         all_to_test = list(unique_new | existing)
         return all_to_test
 
@@ -280,9 +323,10 @@ def main():
             all_proxies.extend(fetch_geonode_api(url, name))
         else:
             all_proxies.extend(fetch_text_source(url, name))
+
     all_proxies = merge_proxies(existing_pool, all_proxies)
     all_proxies = list(set(all_proxies))
-    print(f"\n   总计：{len(all_proxies)} 个")
+    print(f"\n   总计去重后候选代理：{len(all_proxies)} 个")
 
     if args.skip_verify:
         print(f"\n[跳过验证] 直接保存所有代理")

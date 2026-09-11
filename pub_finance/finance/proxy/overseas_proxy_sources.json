@@ -23,6 +23,13 @@
       "enabled": true,
       "note": "✅ API 可用，约 50 个"
     },
+    "geonode_socks5": {
+      "name": "Geonode-SOCKS5",
+      "url": "https://proxylist.geonode.com/api/proxy-list?limit=100&protocols=socks5",
+      "type": "requests",
+      "enabled": true,
+      "note": "✅ API 可用，约 100 个"
+    },    
     "proxifly": {
       "name": "Proxifly-GitHub",
       "url": "https://raw.githubusercontent.com/proxifly/free-proxy-list/main/proxies/all/data.txt",
