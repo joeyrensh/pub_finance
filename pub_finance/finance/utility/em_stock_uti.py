@@ -332,8 +332,8 @@ class EMWebCrawlerUti:
         return df_stock_list.to_dict(orient="records")
 
     def get_daily_gz_info(self, market, trade_date):
-        # 原逻辑把 self.proxy 清空为 None，现改用 get_working_proxy
-        self.proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
+        # 此API不需要代理，直接请求即可
+        self.proxy = None
         url = "https://quote.eastmoney.com/center/api/qqzq.js?"
         res = requests.get(url, proxies=self.proxy, impersonate="chrome120").text
 
