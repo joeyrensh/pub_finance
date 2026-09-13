@@ -2833,7 +2833,7 @@ class ChartBuilder:
                 marker=dict(color=colors, line=dict(color=colors, width=0.8 * scale)),
                 opacity=1.0,
                 showlegend=True,
-                hovertemplate="Volume: %{y:.2f}<extra></extra>",
+                hovertemplate="Volume: %{y:.2s}<extra></extra>",
             ),
             row=2,
             col=1,
