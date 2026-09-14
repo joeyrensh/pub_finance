@@ -304,7 +304,7 @@ if __name__ == "__main__":
     #     {"symbol": "ETF588920", "mkt_code": 1},
     #     {"symbol": "ETF159880", "mkt_code": 0},
     # ]
-    symbol_list = [{"symbol": "SH603606", "mkt_code": 1}, {"symbol": "SH688381", "mkt_code": 1}]
+    # symbol_list = [{"symbol": "SH603606", "mkt_code": 1}, {"symbol": "SH688381", "mkt_code": 1}]
 
     # 配置参数
     market = "cn"
@@ -317,7 +317,7 @@ if __name__ == "__main__":
         use_proxy=True,
     )
 
-    # symbol_list = detector.scan_suspicious_symbols()
+    symbol_list = detector.scan_suspicious_symbols()
     UPDATE_COLS = ["open", "close", "high", "low", "volume"]  # 需要更新的列
     NEW_DATA_PATH = DATA_DIR / "new_stock_data.csv"  # 新爬取的数据文件
     BATCH_SIZE = 10000  # 每批处理的行数
