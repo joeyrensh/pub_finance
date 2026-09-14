@@ -139,21 +139,19 @@ class BatchSplitDividendDetector:
         return symbol_list
 
     # ==================== Market Code 逻辑 ====================
-
     def _resolve_cn_mkt_code(self, symbol: str) -> int:
-        """CN 市场 mkt_code 规则计算"""
+        """CN 市场 mkt_code 规则计算 (已根据规范前缀简化)"""
         symbol_str = str(symbol).strip().upper()
 
         if symbol_str.startswith("ETF"):
-            clean_symbol = re.sub(r"^ETF", "", symbol_str)
+            # ETF5xxx (上交所 ETF -> 1), ETF1xxx/ETF159xxx (深交所 ETF -> 0)
+            clean_symbol = symbol_str[3:]  # 比 re.sub 更快的切片
             return 1 if clean_symbol.startswith("5") else 0
         elif symbol_str.startswith("SH"):
             return 1
-        elif symbol_str.startswith("SZ"):
-            return 0
-
-        clean_code = re.sub(r"^[^\d]+", "", symbol_str)
-        return 1 if clean_code.startswith(("5", "6", "9")) else 0
+        
+        # 既然数据文件已做全量前缀规范，剩下的必为 "SZ" 匹配，直接返回 0
+        return 0
 
     def _resolve_us_mkt_code_single(self, symbol: str) -> int:
         """US 市场 API 单线程检测 (轮询 105, 106, 107)，已包含 beg/end 补全"""
