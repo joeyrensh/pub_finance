@@ -508,7 +508,8 @@ class EMWebCrawlerUti:
 
         params = {
             "secid": f"{mkt_code}.{symbol_val}",
-            "ut:": self.generate_ut_param(),
+            # "ut": self.generate_ut_param(),
+            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
             "fields1": "f1,f2,f3,f4,f5,f6",
             "fields2": "f51,f52,f53,f54,f55,f56",
             "klt": "101",

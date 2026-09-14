@@ -248,29 +248,45 @@ class StockDataUpdater:
         print("所有 *_new.csv 文件已重命名为 *.csv")
 
     def get_latest_updated_data(
-        self, symbol_list, start_date, end_date, NEW_DATA_PATH, market
-    ):
-        em = EMWebCrawlerUti()
-        list_s = []
-        list = []
-        for h in range(0, len(symbol_list)):
-            mkt_code = symbol_list[h]["mkt_code"]
-            symbol = symbol_list[h]["symbol"]
-            try:
-                list_s = em.get_his_stock_info(
-                    mkt_code, symbol, start_date, end_date, cache_path=None
-                )
-            except Exception as e:
-                continue
-            list.extend(list_s)
-        df = pd.DataFrame(list)
-        df.to_csv(
-            NEW_DATA_PATH,
-            mode="w",
-            index=True,
-            header=True,
-        )
+            self, symbol_list, start_date, end_date, NEW_DATA_PATH, market
+        ):
+            em = EMWebCrawlerUti()
+            all_data = []  # 修正变量名，避免覆盖内置关键字 list
 
+            for h in range(0, len(symbol_list)):
+                mkt_code = symbol_list[h]["mkt_code"]
+                symbol = symbol_list[h]["symbol"]
+                
+                # 单个 Symbol 最多重试 3 次
+                max_retries = 3
+                for retry in range(max_retries):
+                    try:
+                        list_s = em.get_his_stock_info(
+                            mkt_code, symbol, start_date, end_date, cache_path=None
+                        )
+                        
+                        # 核心校验：如果 API 响应正常且返回了非空数据，说明成功提取
+                        if list_s:
+                            all_data.extend(list_s)
+                            break  # 成功获取数据，跳出重试循环
+                        
+                        # 若返回为空 (None 或 [])，触发重试
+                        print(
+                            f"  [Symbol: {symbol}] 数据返回为空，正在进行第 {retry + 1} 次重试..."
+                        )
+                    except Exception as e:
+                        print(
+                            f"  [Symbol: {symbol}] 请求异常: {e}，正在进行第 {retry + 1} 次重试..."
+                        )
+                        continue
+
+            df = pd.DataFrame(all_data)
+            df.to_csv(
+                NEW_DATA_PATH,
+                mode="w",
+                index=True,
+                header=True,
+            )
 
 # 使用示例
 if __name__ == "__main__":
@@ -288,9 +304,10 @@ if __name__ == "__main__":
     #     {"symbol": "ETF588920", "mkt_code": 1},
     #     {"symbol": "ETF159880", "mkt_code": 0},
     # ]
+    symbol_list = [{"symbol": "SH603606", "mkt_code": 1}, {"symbol": "SH688381", "mkt_code": 1}]
 
     # 配置参数
-    market = "us"
+    market = "cn"
     DATA_DIR = FINANCE_ROOT / f"{market}stockinfo"  # 数据文件目录
     detector = BatchSplitDividendDetector(
         data_dir=DATA_DIR,
@@ -300,14 +317,14 @@ if __name__ == "__main__":
         use_proxy=True,
     )
 
-    symbol_list = detector.scan_suspicious_symbols()
+    # symbol_list = detector.scan_suspicious_symbols()
     UPDATE_COLS = ["open", "close", "high", "low", "volume"]  # 需要更新的列
     NEW_DATA_PATH = DATA_DIR / "new_stock_data.csv"  # 新爬取的数据文件
     BATCH_SIZE = 10000  # 每批处理的行数
     # # 创建更新器
     updater = StockDataUpdater(DATA_DIR, UPDATE_COLS, batch_size=BATCH_SIZE)
     updater.get_latest_updated_data(
-        symbol_list, "20250101", "20260911", NEW_DATA_PATH, market=market
+        symbol_list, "20250101", "20260914", NEW_DATA_PATH, market=market
     )
 
     # 加载新数据到字典
