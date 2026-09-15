@@ -280,145 +280,187 @@ class BatchSplitDividendDetector:
     # ==================== 主流程控制 ====================
 
     def scan_suspicious_symbols(self) -> list[dict[str, any]]:
-        """主入口：具备双级缓存机制的自动扫描"""
-        
-        # 1. 第一级缓存检测：如果最终 csv 文件已存在且有内容，直接返回
-        final_cached_list = self._load_final_csv_cache()
-        if final_cached_list is not None:
-            return final_cached_list
+            """主入口：具备双级缓存机制与详细触发日志输出的自动扫描"""
 
-        # 2. 第二级缓存检测：尝试读取历史扫描出来的 raw_suspicious_symbols.txt
-        raw_suspicious_list = self._load_raw_cache()
+            # 1. 第一级缓存检测：如果最终 csv 文件已存在且有内容，直接返回
+            final_cached_list = self._load_final_csv_cache()
+            if final_cached_list is not None:
+                return final_cached_list
 
-        # 3. 缓存均未命中，执行全量历史文件扫描
-        if raw_suspicious_list is None:
-            sorted_files = self._get_sorted_files()
-            if not sorted_files:
-                return []
+            # 2. 第二级缓存检测：尝试读取历史扫描出来的 raw_suspicious_symbols.txt
+            raw_suspicious_list = self._load_raw_cache()
 
-            if len(sorted_files) > 1:
-                scan_files = sorted_files[1:]
-                print(
-                    f"[性能优化] 已跳过最早的历史大文件 [{sorted_files[0].name}]，本次仅扫描后续 {len(scan_files)} 个增量文件。"
-                )
-            else:
-                scan_files = sorted_files
-                print(f"仅存在 1 个数据文件 [{scan_files[0].name}]，将对其进行扫描。")
+            # 3. 缓存均未命中，执行全量历史文件扫描
+            if raw_suspicious_list is None:
+                sorted_files = self._get_sorted_files()
+                if not sorted_files:
+                    return []
 
-            base_symbols = self.get_base_symbols()
-            suspicious_symbols = set()
-            total_batches = (
-                len(base_symbols) + self.batch_size - 1
-            ) // self.batch_size
+                if len(sorted_files) > 1:
+                    scan_files = sorted_files[1:]
+                    print(
+                        f"[性能优化] 已跳过最早的历史大文件 [{sorted_files[0].name}]，本次仅扫描后续 {len(scan_files)} 个增量文件。"
+                    )
+                else:
+                    scan_files = sorted_files
+                    print(
+                        f"仅存在 1 个数据文件 [{scan_files[0].name}]，将对其进行扫描。"
+                    )
 
-            for i in range(0, len(base_symbols), self.batch_size):
-                batch_symbols = set(base_symbols[i : i + self.batch_size])
-                current_batch_num = i // self.batch_size + 1
+                base_symbols = self.get_base_symbols()
+                suspicious_symbols = set()
+                total_batches = (
+                    len(base_symbols) + self.batch_size - 1
+                ) // self.batch_size
 
-                print(
-                    f"\n--- 正在处理批次 [{current_batch_num}/{total_batches}] (包含 {len(batch_symbols)} 只股票) ---"
-                )
+                for i in range(0, len(base_symbols), self.batch_size):
+                    batch_symbols = set(base_symbols[i : i + self.batch_size])
+                    current_batch_num = i // self.batch_size + 1
 
-                batch_data_map = {sym: [] for sym in batch_symbols}
+                    print(
+                        f"\n--- 正在处理批次 [{current_batch_num}/{total_batches}] (包含 {len(batch_symbols)} 只股票) ---"
+                    )
 
-                for file_path in scan_files:
-                    try:
-                        chunk_list = []
-                        for chunk in pd.read_csv(
-                            file_path,
-                            usecols=[
-                                "symbol",
-                                "date",
-                                "open",
-                                "close",
-                                "high",
-                                "low",
-                            ],
-                            chunksize=50000,
-                        ):
-                            chunk["symbol"] = (
-                                chunk["symbol"].astype(str).str.strip()
-                            )
-                            filtered_chunk = chunk[
-                                chunk["symbol"].isin(batch_symbols)
-                            ]
-                            if not filtered_chunk.empty:
-                                chunk_list.append(filtered_chunk)
+                    batch_data_map = {sym: [] for sym in batch_symbols}
 
-                        if not chunk_list:
+                    for file_path in scan_files:
+                        try:
+                            chunk_list = []
+                            for chunk in pd.read_csv(
+                                file_path,
+                                usecols=[
+                                    "symbol",
+                                    "date",
+                                    "open",
+                                    "close",
+                                    "high",
+                                    "low",
+                                ],
+                                chunksize=50000,
+                            ):
+                                chunk["symbol"] = (
+                                    chunk["symbol"].astype(str).str.strip()
+                                )
+                                filtered_chunk = chunk[
+                                    chunk["symbol"].isin(batch_symbols)
+                                ]
+                                if not filtered_chunk.empty:
+                                    chunk_list.append(filtered_chunk)
+
+                            if not chunk_list:
+                                continue
+
+                            file_df = pd.concat(chunk_list, ignore_index=True)
+
+                            for sym, group in file_df.groupby("symbol"):
+                                batch_data_map[sym].append(group)
+
+                        except Exception as e:
+                            print(f"读取文件 {file_path.name} 异常: {e}")
+
+                    # 判定跳空断层并输出详细日志
+                    for sym, data_chunks in batch_data_map.items():
+                        if not data_chunks:
                             continue
 
-                        file_df = pd.concat(chunk_list, ignore_index=True)
-
-                        for sym, group in file_df.groupby("symbol"):
-                            batch_data_map[sym].append(group)
-
-                    except Exception as e:
-                        print(f"读取文件 {file_path.name} 异常: {e}")
-
-                # 判定跳空断层
-                for sym, data_chunks in batch_data_map.items():
-                    if not data_chunks:
-                        continue
-
-                    sym_df = pd.concat(data_chunks, ignore_index=True)
-                    sym_df["date"] = pd.to_datetime(sym_df["date"])
-                    sym_df = sym_df.sort_values("date").drop_duplicates(
-                        subset=["date"]
-                    )
-
-                    if len(sym_df) < 2:
-                        continue
-
-                    sym_df["prev_close"] = sym_df["close"].shift(1)
-
-                    valid_df = sym_df[
-                        (sym_df["prev_close"] >= self.min_price)
-                        & (sym_df["open"] >= self.min_price)
-                    ].copy()
-
-                    if valid_df.empty:
-                        continue
-
-                    valid_df["gap"] = (
-                        valid_df["open"] - valid_df["prev_close"]
-                    ) / valid_df["prev_close"]
-
-                    split_down = (valid_df["gap"] < -self.gap_threshold) & (
-                        valid_df["high"]
-                        < valid_df["prev_close"] * (1 - self.gap_threshold)
-                    )
-
-                    split_up = (valid_df["gap"] > self.gap_threshold) & (
-                        valid_df["low"]
-                        > valid_df["prev_close"] * (1 + self.gap_threshold)
-                    )
-
-                    if (split_down | split_up).any():
-                        suspicious_symbols.add(sym)
-                        date_min = sym_df["date"].min().strftime("%Y-%m-%d")
-                        date_max = sym_df["date"].max().strftime("%Y-%m-%d")
-                        print(
-                            f"  [锁定除权/拆股] 股票: {sym} (扫描区间: {date_min} ~ {date_max})"
+                        sym_df = pd.concat(data_chunks, ignore_index=True)
+                        sym_df["date"] = pd.to_datetime(sym_df["date"])
+                        sym_df = (
+                            sym_df.sort_values("date")
+                            .drop_duplicates(subset=["date"])
+                            .reset_index(drop=True)
                         )
 
-                del batch_data_map
-                gc.collect()
+                        if len(sym_df) < 2:
+                            continue
 
-            raw_suspicious_list = sorted(list(suspicious_symbols))
-            print(
-                f"\n全量文件扫描完成！累计锁定 {len(raw_suspicious_list)} 只真正存在除权/拆股断层的股票。"
-            )
-            # 写入中间 txt 缓存
-            self._save_raw_cache(raw_suspicious_list)
+                        sym_df["prev_close"] = sym_df["close"].shift(1)
 
-        # 4. 批量补充 mkt_code (单线程)
-        final_symbol_list = self.resolve_mkt_codes(raw_suspicious_list)
+                        # 1. 过滤符合最低股价限制的记录
+                        valid_df = sym_df[
+                            (sym_df["prev_close"] >= self.min_price)
+                            & (sym_df["open"] >= self.min_price)
+                        ].copy()
 
-        # 5. 写入最终 csv 文件 (生成一级缓存)
-        self._save_to_csv(final_symbol_list)
+                        if valid_df.empty:
+                            continue
 
-        return final_symbol_list
+                        # 2. 计算跳空缺口比例
+                        valid_df["gap"] = (
+                            valid_df["open"] - valid_df["prev_close"]
+                        ) / valid_df["prev_close"]
+
+                        # 3. 计算向下/向上拆股/除权条件
+                        valid_df["is_split_down"] = (
+                            valid_df["gap"] < -self.gap_threshold
+                        ) & (
+                            valid_df["high"]
+                            < valid_df["prev_close"] * (1 - self.gap_threshold)
+                        )
+
+                        valid_df["is_split_up"] = (
+                            valid_df["gap"] > self.gap_threshold
+                        ) & (
+                            valid_df["low"]
+                            > valid_df["prev_close"] * (1 + self.gap_threshold)
+                        )
+
+                        # 4. 提取触发条件的异动数据
+                        triggered_df = valid_df[
+                            valid_df["is_split_down"] | valid_df["is_split_up"]
+                        ]
+
+                        # 5. 命中处理：打印详细日志并记录 symbol
+                        if not triggered_df.empty:
+                            suspicious_symbols.add(sym)
+                            
+                            date_min = sym_df["date"].min().strftime("%Y-%m-%d")
+                            date_max = sym_df["date"].max().strftime("%Y-%m-%d")
+                            
+                            print(f"\n================ [锁定除权/拆股断层: {sym}] ================")
+                            print(f"扫描数据区间: {date_min} ~ {date_max} | 共触发 {len(triggered_df)} 次异动")
+                            
+                            for idx, row in triggered_df.iterrows():
+                                trigger_type = (
+                                    "向下跳空(拆股/分红/暴跌)"
+                                    if row["is_split_down"]
+                                    else "向上跳空(合股)"
+                                )
+                                date_str = row["date"].strftime("%Y-%m-%d")
+
+                                print(f"  📍 触发日期: {date_str} | 类型: {trigger_type}")
+                                print(f"     ├─ 前日收盘 (prev_close) : {row['prev_close']:.4f}")
+                                print(f"     ├─ 当日开盘 (open)       : {row['open']:.4f}")
+                                print(f"     ├─ 当日最高 (high)       : {row['high']:.4f}")
+                                print(f"     ├─ 当日最低 (low)        : {row['low']:.4f}")
+                                print(f"     ├─ 当日收盘 (close)      : {row['close']:.4f}")
+                                print(f"     ├─ 跳空幅度 (gap)        : {row['gap'] * 100:.2f}% (阈值: {self.gap_threshold * 100:.0f}%)")
+
+                                if row["is_split_down"]:
+                                    limit_val = row["prev_close"] * (1 - self.gap_threshold)
+                                    print(f"     └─ 判定条件: High({row['high']:.4f}) < Limit({limit_val:.4f})")
+                                elif row["is_split_up"]:
+                                    limit_val = row["prev_close"] * (1 + self.gap_threshold)
+                                    print(f"     └─ 判定条件: Low({row['low']:.4f}) > Limit({limit_val:.4f})")
+                            print("===============================================================\n")
+
+                    del batch_data_map
+                    gc.collect()
+
+                raw_suspicious_list = sorted(list(suspicious_symbols))
+                print(
+                    f"\n全量文件扫描完成！累计锁定 {len(raw_suspicious_list)} 只真正存在除权/拆股断层的股票。"
+                )
+                # 写入中间 txt 缓存
+                self._save_raw_cache(raw_suspicious_list)
+
+            # 4. 批量补充 mkt_code (单线程)
+            final_symbol_list = self.resolve_mkt_codes(raw_suspicious_list)
+
+            # 5. 写入最终 csv 文件 (生成一级缓存)
+            self._save_to_csv(final_symbol_list)
+
+            return final_symbol_list
 
     def _save_to_csv(self, symbol_list: list[dict[str, any]]):
         """覆盖保存包含 symbol 和 mkt_code 的 suspicious_symbols.csv 文件"""

@@ -307,7 +307,7 @@ if __name__ == "__main__":
     # symbol_list = [{"symbol": "SH603606", "mkt_code": 1}, {"symbol": "SH688381", "mkt_code": 1}]
 
     # 配置参数
-    market = "cn"
+    market = "us"
     DATA_DIR = FINANCE_ROOT / f"{market}stockinfo"  # 数据文件目录
     detector = BatchSplitDividendDetector(
         data_dir=DATA_DIR,
@@ -324,7 +324,7 @@ if __name__ == "__main__":
     # # 创建更新器
     updater = StockDataUpdater(DATA_DIR, UPDATE_COLS, batch_size=BATCH_SIZE)
     updater.get_latest_updated_data(
-        symbol_list, "20250101", "20260914", NEW_DATA_PATH, market=market
+        symbol_list, "20250101", "20260915", NEW_DATA_PATH, market=market
     )
 
     # 加载新数据到字典
