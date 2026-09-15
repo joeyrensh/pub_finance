@@ -197,7 +197,6 @@ class USStockActionsFetcher:
                     self.proxy_manager.mark_proxy_failed(proxy_str)
 
                 self.current_working_proxy = None
-                time.sleep(random.uniform(0.5, 1.5))
 
             finally:
                 # 必须清理代理配置环境变量
@@ -267,8 +266,6 @@ class USStockActionsFetcher:
             # 3. 内存回收
             del batch_records
             gc.collect()
-
-            time.sleep(0.5)
 
 
 if __name__ == "__main__":
