@@ -4,6 +4,7 @@ import json
 import logging
 import math
 import os
+import yfinance as yf
 import random
 import time
 import uuid
@@ -219,31 +220,38 @@ class ProxyManager:
             return False, f"请求/解析失败: {str(e)}"
 
     def validate_overseas_proxy_yfinance(
-            self, proxy_dict: Dict[str, str], test_symbol: str = "MSFT"
-        ) -> Tuple[bool, Any]:
+        self, proxy_dict: Dict[str, str], test_symbol: str = "MSFT"
+    ) -> Tuple[bool, Any]:
         """专门针对海外代理的校验函数（具备 NoneType 防崩与深度校验）"""
-        import yfinance as yf
 
-        proxy_str = (
+        raw_proxy = (
             proxy_dict.get("socks5")
             or proxy_dict.get("https")
             or proxy_dict.get("http")
         )
 
-        if not proxy_str:
+        if not raw_proxy:
             return False, "代理字典中未找到有效的 URL (http/https/socks5)"
+
+        # 补齐协议前缀
+        if not raw_proxy.startswith(("http://", "https://", "socks5://", "socks5h://")):
+            proxy_str = f"http://{raw_proxy}"
+        else:
+            proxy_str = raw_proxy
+
         os.environ.setdefault("CURL_CA_BUNDLE", "")
-        os.environ.setdefault("SSL_CERT_FILE", "")    
+        os.environ.setdefault("SSL_CERT_FILE", "")
         os.environ["HTTP_PROXY"] = proxy_str
         os.environ["HTTPS_PROXY"] = proxy_str
 
         try:
             ticker = yf.Ticker(test_symbol)
 
-            # 使用 fast_info 代替 info，响应更快且更不易触发 yfinance 底层 JSON 提取 Bug
-            fast_info = ticker.fast_info
-            
-            # 安全判断：提取最新价格或市值
+            # 使用 fast_info 校验行情数据
+            fast_info = getattr(ticker, "fast_info", None)
+            if fast_info is None:
+                return False, "Yahoo 返回数据为空 (fast_info 为 None)"
+
             last_price = getattr(fast_info, "last_price", None)
 
             if last_price is not None and not math.isnan(last_price):
@@ -254,11 +262,11 @@ class ProxyManager:
             else:
                 return (
                     False,
-                    f"yfinance 响应成功但未拿到有效行情 (可能是代理被 Yahoo 隐式拦截)",
+                    "yfinance 响应成功但未拿到有效行情 (可能是代理被 Yahoo 隐式拦截)",
                 )
 
-        except TypeError as te:
-            # 专门捕获 'NoneType' object is not subscriptable 等 yfinance 解析空数据的异常
+        except (TypeError, KeyError, AttributeError) as te:
+            # 专门捕获 'NoneType' object is not subscriptable 等解析异常
             return False, f"Yahoo 返回数据为空/格式被拦截 (yfinance 解析失败: {te})"
         except Exception as e:
             return False, f"yfinance 请求异常: {str(e)}"
