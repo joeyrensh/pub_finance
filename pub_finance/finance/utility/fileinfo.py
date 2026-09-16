@@ -69,6 +69,10 @@ class FileInfo:
         self._file_path_cash_asset = (
             FINANCE_ROOT / f"{decode_market}stockinfo" / f"{market}_cash_asset.csv"
         )
+        # 复权因子文件
+        self._file_path_actions_history = (
+            FINANCE_ROOT / f"{decode_market}stockinfo" / f"{decode_market}_stock_actions_history.csv"
+        )        
 
     """ 返回某日数据文件路径 """
 
@@ -156,3 +160,7 @@ class FileInfo:
     @property
     def get_file_path_cash_asset(self):
         return self._file_path_cash_asset
+
+    @property
+    def get_file_path_actions_history(self):
+        return self._file_path_actions_history        

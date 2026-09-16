@@ -34,6 +34,9 @@ class TickerInfo:
         self.file_fixed_list = file.get_file_path_fixed_list
         """ 获取动态追踪股票列表文件路径 """
         self.file_dynamic_list = file.get_file_path_dynamic_list
+        """ 获取复权因子文件路径 """
+        self.file_actions_history = file.get_file_path_actions_history
+
         # 获取交易日 & 股票过滤条件权重
         weights_cfg = ToolKit.get_config()
         self.collection_days = weights_cfg["stock_filter"]["collection_days"]
@@ -479,6 +482,8 @@ class TickerInfo:
     def get_backtrader_data_feed(self):
         tickers = self.get_stock_list()
         his_data = self.get_history_data().groupby(by="symbol")
+        # 切换不复权数据源
+        # his_data = self.get_history_data_fqt().groupby(by="symbol")
         t = ToolKit("读取历史数据文件")
         list_results = []
 
@@ -583,6 +588,8 @@ class TickerInfo:
     def get_backtrader_data_feed_testonly(self, stocklist):
         tickers = stocklist
         his_data = self.get_history_data().groupby(by="symbol")
+        # 切换不复权数据源
+        # his_data = self.get_history_data_fqt().groupby(by="symbol")
         t = ToolKit("读取历史数据文件")
         list_results = []
 
@@ -663,6 +670,8 @@ class TickerInfo:
     def get_etf_backtrader_data_feed(self):
         tickers = self.get_etf_list()
         his_data = self.get_history_data().groupby(by="symbol")
+        # 切换不复权数据源
+        # his_data = self.get_history_data_fqt().groupby(by="symbol")
         t = ToolKit("读取历史数据文件")
         list_results = []
 
@@ -780,6 +789,8 @@ class TickerInfo:
         ]
 
         his_data = self.get_history_data().groupby(by="symbol")
+        # 切换不复权数据源
+        # his_data = self.get_history_data_fqt().groupby(by="symbol")
         t = ToolKit("读取历史数据文件")
         list_results = []
 
@@ -837,6 +848,8 @@ class TickerInfo:
         ]
 
         his_data = self.get_history_data().groupby(by="symbol")
+        # 切换不复权数据源
+        his_data = self.get_history_data_fqt().groupby(by="symbol")
         t = ToolKit("读取历史数据文件")
         list_results = []
 
@@ -972,3 +985,108 @@ class TickerInfo:
                 print(traceback.format_exc())
 
         return pd.DataFrame(data) if data else pd.DataFrame(columns=["date", "new"])
+
+
+    def apply_forward_adjust(self, df_raw: pd.DataFrame, df_actions: pd.DataFrame) -> pd.DataFrame:
+        """
+        对单只股票 (By Symbol) 的不复权历史数据计算前复权
+        """
+        # 若无除权事件记录，直接原样返回，提升运行效率
+        if df_raw.empty or df_actions.empty:
+            return df_raw
+
+        df_stock = df_raw.sort_values("date").copy()
+        df_actions = df_actions.sort_values("date")
+
+        # 左连接匹配除权事件 (按 date 关联)
+        df_merged = pd.merge(
+            df_stock,
+            df_actions[["date", "dividend", "split_ratio"]],
+            on="date",
+            how="left"
+        )
+
+        # 没匹配到除权记录的日期，分红填 0，拆股填 1
+        df_merged["dividend"] = df_merged["dividend"].fillna(0.0).astype(float)
+        df_merged["split_ratio"] = df_merged["split_ratio"].fillna(1.0).astype(float)
+
+        closes = df_merged["close"].values
+        divs = df_merged["dividend"].values
+        splits = df_merged["split_ratio"].values
+        n = len(df_merged)
+
+        price_factors = [1.0] * n
+        vol_factors = [1.0] * n
+
+        cum_price_factor = 1.0
+        cum_vol_factor = 1.0
+
+        # 从最新一天向历史倒序累乘计算复权因子
+        for i in range(n - 1, -1, -1):
+            price_factors[i] = cum_price_factor
+            vol_factors[i] = cum_vol_factor
+
+            c_price = closes[i]
+            div = divs[i]
+            split = splits[i]
+
+            # 1. 拆合股调整 (成交量反向变化)
+            if split != 1.0 and split > 0:
+                cum_price_factor *= split
+                cum_vol_factor /= split
+
+            # 2. 现金分红调整
+            if div > 0 and c_price > 0:
+                div_factor = (c_price - div) / c_price
+                cum_price_factor *= div_factor
+
+        price_factors = np.array(price_factors, dtype=np.float32)
+        vol_factors = np.array(vol_factors, dtype=np.float64)
+
+        # 调整 OHLCV
+        df_merged["open"] = (df_merged["open"] * price_factors).round(4)
+        df_merged["high"] = (df_merged["high"] * price_factors).round(4)
+        df_merged["low"] = (df_merged["low"] * price_factors).round(4)
+        df_merged["close"] = (df_merged["close"] * price_factors).round(4)
+        df_merged["volume"] = (df_merged["volume"] * vol_factors).round(0)
+
+        # 清理临时列
+        df_merged.drop(columns=["dividend", "split_ratio"], inplace=True)
+
+        return df_merged
+
+    def get_history_data_fqt(self) -> pd.DataFrame:
+        """
+        读取不复权 K 线，实时计算前复权，返回统一格式的 DataFrame
+        """
+        df_raw = self.get_history_data()
+        if df_raw.empty:
+            return df_raw
+
+        # 直接使用 __init__ 中初始化的复权因子文件路径
+        actions_file = self.file_actions_history
+
+        # 如果文件不存在，直接返回原始不复权数据
+        if not os.path.exists(actions_file):
+            print(f"未找到复权因子文件: {actions_file}，使用原始不复权数据。")
+            return df_raw
+
+        df_actions_all = pd.read_csv(actions_file, dtype={"symbol": str, "date": str})
+        actions_grouped = df_actions_all.groupby("symbol")
+
+        # 按股票单只 (By Symbol) 分组计算
+        grouped = df_raw.groupby("symbol")
+        adjusted_dfs = []
+
+        for symbol, group_df in grouped:
+            sub_actions = (
+                actions_grouped.get_group(symbol)
+                if symbol in actions_grouped.groups
+                else pd.DataFrame()
+            )
+            df_adj = self.apply_forward_adjust(group_df, sub_actions)
+            adjusted_dfs.append(df_adj)
+
+        df_final = pd.concat(adjusted_dfs, ignore_index=True)
+        df_final.sort_values(by=["symbol", "date"], ascending=[True, True], inplace=True)
+        return df_final
