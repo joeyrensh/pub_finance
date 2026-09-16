@@ -988,7 +988,7 @@ class TickerInfo:
 
 
     def get_history_data_fqt(self) -> pd.DataFrame:
-        """极速版前复权：按需加载 + 全表向量化 (无逐股票 GroupBy 循环)"""
+        """实时计算前复权 (全表零 Loop 向量化版，完美支持 500+ 标的大规模回测)"""
         df_raw = self.get_history_data()
         if df_raw.empty:
             return df_raw
@@ -997,27 +997,25 @@ class TickerInfo:
         if not os.path.exists(actions_file):
             return df_raw
 
-        # 1. 提取当前数据集中实际包含的 target symbols
+        # 1. 按需提取当前回测标的的除权事件 (瞬间缩小数据量)
         target_symbols = set(df_raw["symbol"].unique())
 
-        # 2. 仅读取必要的列，并快速过滤出目标 symbol 的除权记录 (避免加载无用数据)
         df_actions_all = pd.read_csv(
             actions_file, 
             usecols=["symbol", "date", "dividend", "split_ratio"],
             dtype={"symbol": str, "date": str}
         )
         
-        # 过滤：仅保留当前 3 个 symbol 的事件
         df_actions = df_actions_all[df_actions_all["symbol"].isin(target_symbols)].copy()
 
-        # 【关键性能优化点】：如果这 3 个 symbol 没有任何除权事件，直接零开销返回原始数据！
+        # Fast-pass 1: 如果输入的 500 只股票在回测时间内没有任何除权事件，直接 0 开销返回
         if df_actions.empty:
             return df_raw
 
-        # 3. 排序 (确保后续累乘累加的顺序绝对正确)
+        # 2. 保证全局按 [symbol, date] 升序排列
         df_raw = df_raw.sort_values(["symbol", "date"]).reset_index(drop=True)
 
-        # 4. 一次性全表 Left Join (C 语言级别批量合并，远快于循环)
+        # 3. 批量 Left Join，一次性对齐所有股票的事件
         df_merged = pd.merge(
             df_raw,
             df_actions,
@@ -1025,57 +1023,50 @@ class TickerInfo:
             how="left"
         )
 
-        # 填充默认值
+        # 填补默认值
         df_merged["dividend"] = df_merged["dividend"].fillna(0.0)
         df_merged["split_ratio"] = df_merged["split_ratio"].fillna(1.0).replace(0.0, 1.0)
 
-        # 如果没有任何实际发生的派息/拆股，直接返回
+        # Fast-pass 2: 全表没有有效派息或拆股，直接返回
         if (df_merged["dividend"] == 0).all() and (df_merged["split_ratio"] == 1.0).all():
             df_merged.drop(columns=["dividend", "split_ratio"], inplace=True)
             return df_merged
 
-        # 5. 按 Symbol 分组，仅在底层 NumPy 数组上做快速向量化计算
-        def _adjust_group(group):
-            splits = group["split_ratio"].to_numpy(dtype=np.float64)
-            divs = group["dividend"].to_numpy(dtype=np.float64)
+        # ==================== 核心：全表零 Loop 倒序累乘/累加向量化 ====================
+        # 4. 为了进行倒序 cumprod/cumsum，我们将全表倒序排列
+        df_rev = df_merged.iloc[::-1].copy()
 
-            # 倒序累乘拆股因子
-            split_inv = 1.0 / splits
-            rev_split = split_inv[::-1]
-            cum_split_rev = np.cumprod(np.insert(rev_split[:-1], 0, 1.0))
-            cum_split = cum_split_rev[::-1]
-
-            # 倒序累加分红扣减额
-            adj_div = divs * cum_split
-            rev_div = adj_div[::-1]
-            cum_div_rev = np.cumsum(np.insert(rev_div[:-1], 0, 0.0))
-            cum_div = cum_div_rev[::-1]
-
-            # 计算复权价格与成交量
-            cum_div_scaled = cum_div / cum_split
-            for col in ["open", "high", "low", "close"]:
-                group[col] = ((group[col] - cum_div_scaled) * cum_split).round(4)
-            group["volume"] = (group["volume"] / cum_split).round(0)
-
-            return group
-
-        # 拆分处理：仅对发生过除权的股票执行 apply
-        affected_symbols = df_actions["symbol"].unique()
-        mask = df_merged["symbol"].isin(affected_symbols)
-
-        df_normal = df_merged[~mask].drop(columns=["dividend", "split_ratio"])
-        df_to_adjust = df_merged[mask]
-
-        # 【修复核心】：传入 include_groups=False
-        df_adjusted = df_to_adjust.groupby("symbol", as_index=False, group_keys=False).apply(
-            _adjust_group, include_groups=False
-        )
-
-        # 丢弃计算完成后的临时列
-        df_adjusted.drop(columns=["dividend", "split_ratio"], inplace=True, errors="ignore")
-
-        # 合并结果并保持原顺序
-        df_final = pd.concat([df_normal, df_adjusted], ignore_index=True)
-        df_final.sort_values(by=["symbol", "date"], ascending=[True, True], inplace=True)
+        # 倒序计算拆股因子：除权日当天的 split 影响历史，所以按组下移 (shift) 1 位
+        df_rev["split_inv"] = 1.0 / df_rev["split_ratio"]
+        df_rev["split_inv_shifted"] = df_rev.groupby("symbol")["split_inv"].shift(1, fill_value=1.0)
         
+        # 组内倒序累乘获取 cum_split (C 语言级别全表并行)
+        df_rev["cum_split"] = df_rev.groupby("symbol")["split_inv_shifted"].cumprod()
+
+        # 倒序计算分红扣减额：分红在拆股后需要被后续拆股乘数折算，当天的分红影响历史，按组下移 1 位
+        df_rev["adj_div"] = df_rev["dividend"] * df_rev["cum_split"]
+        df_rev["adj_div_shifted"] = df_rev.groupby("symbol")["adj_div"].shift(1, fill_value=0.0)
+        
+        # 组内倒序累加获取 cum_div (C 语言级别全表并行)
+        df_rev["cum_div"] = df_rev.groupby("symbol")["adj_div_shifted"].cumsum()
+
+        # 5. 翻转回正序
+        df_final = df_rev.iloc[::-1].copy()
+
+        # 6. 一次性批量计算价格与成交量
+        cum_div_scaled = df_final["cum_div"] / df_final["cum_split"]
+        
+        for col in ["open", "high", "low", "close"]:
+            df_final[col] = ((df_final[col] - cum_div_scaled) * df_final["cum_split"]).round(4)
+            
+        df_final["volume"] = (df_final["volume"] / df_final["cum_split"]).round(0)
+
+        # 7. 清理临时列，恢复原始列结构
+        cols_to_drop = [
+            "dividend", "split_ratio", "split_inv", 
+            "split_inv_shifted", "cum_split", "adj_div", 
+            "adj_div_shifted", "cum_div"
+        ]
+        df_final.drop(columns=cols_to_drop, inplace=True)
+
         return df_final
