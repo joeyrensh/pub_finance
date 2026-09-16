@@ -48,6 +48,7 @@ class StockActionsFetcher:
 
     - 屏蔽 AkShare 内部 tqdm 进度条，彻底解决终端闪屏与 0% 卡死
     - 修复无历史分红股票/新股触发的 'NoneType' object is not subscriptable 异常
+    - 统一中美股 split_ratio 语义：无拆分时均为 1.0，1拆N 时为 N.0
     - 基于全量股票数精准实时计算全局进度 %
     """
 
@@ -308,7 +309,7 @@ class StockActionsFetcher:
         )
 
     def fetch_actions_for_us_stock(self, symbol: str) -> List[Dict]:
-        """抓取美股数据：优先复用代理，带重试与校验控制"""
+        """抓取美股数据：统一拆分乘数语义，优先复用代理"""
         os.environ.setdefault("CURL_CA_BUNDLE", "")
         os.environ.setdefault("SSL_CERT_FILE", "")
 
@@ -347,14 +348,18 @@ class StockActionsFetcher:
                             continue
 
                         div = float(row.get("Dividends", 0.0))
-                        split = float(row.get("Stock Splits", 0.0))
+                        raw_split = float(row.get("Stock Splits", 0.0))
 
-                        if div != 0 or split != 0:
+                        # 核心改动：对齐中美股语义
+                        # 若 raw_split <= 0（即未发生拆分），则归一化为 1.0 拆分乘数
+                        split_ratio_val = raw_split if raw_split > 0.0 else 1.0
+
+                        if div > 0 or split_ratio_val != 1.0:
                             records.append({
                                 "symbol": symbol,
                                 "date": date_str,
                                 "dividend": div,
-                                "split_ratio": split,
+                                "split_ratio": split_ratio_val,  # 统一无拆分填 1.0
                             })
 
                 del actions
