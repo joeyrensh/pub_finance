@@ -15,6 +15,9 @@ import sys
 import time
 from datetime import datetime
 from typing import Any, Dict
+import tempfile
+import shutil
+import numpy as np
 
 import pandas as pd
 from curl_cffi import requests  # 替换为 curl_cffi
@@ -964,16 +967,22 @@ class EMWebCrawlerUti:
             # 内部函数：还原单个完整的 Symbol DataFrame 并追加写入目标临时 CSV
             def process_and_append_symbol(df_sym: pd.DataFrame):
                 nonlocal is_first_write
+
+                # 1. 确保将 Date 列解析为 DatetimeIndex/Series 类型
+                date_series = pd.to_datetime(df_sym[date_col])
                 
-                # 确保该 Symbol 的数据按日期正序
-                df_sym[date_col] = pd.to_datetime(df_sym[date_col])
-                df_sym = df_sym.sort_values(date_col).reset_index(drop=True)
+                # 2. 按日期正序重新排列
+                sort_idx = date_series.argsort()
+                df_sym = df_sym.iloc[sort_idx].reset_index(drop=True)
+                date_series = date_series.iloc[sort_idx].reset_index(drop=True)
 
                 current_symbol = str(df_sym[symbol_col].iloc[0])
-                date_str_series = df_sym[date_col].dt.strftime('%Y-%m-%d')
+                
+                # 3. 格式化日期字符串（此时 date_series 必定为 datetime 格式，.dt 不会报错）
+                date_str_series = date_series.dt.strftime('%Y-%m-%d')
                 splits_dict = symbol_splits_map.get(current_symbol, {})
 
-                # 若存在拆股记录，则执行向量化还原
+                # 4. 若存在拆股记录，则执行向量化还原
                 if splits_dict:
                     splits = date_str_series.map(splits_dict).fillna(1.0).values
                     
@@ -984,21 +993,21 @@ class EMWebCrawlerUti:
                         # 向后平移 1 位：t 日乘数为 t+1 日至最新日拆股因子之积
                         cum_factors[:-1] = split_factors_rev[1:]
 
-                    # 放大价格，缩小成交量
+                    # 放大价格
                     for p_col in ['Open', 'High', 'Low', 'Close', 'open', 'high', 'low', 'close']:
                         if p_col in df_sym.columns:
-                            df_sym[p_col] = df_sym[p_col] * cum_factors
+                            df_sym.loc[:, p_col] = df_sym[p_col] * cum_factors
 
+                    # 缩小成交量
                     for v_col in ['Volume', 'volume']:
                         if v_col in df_sym.columns:
-                            # 使用 Series 的 round 和 astype('int64') / 'Int64' (或直接 np.round)
                             vol_series = df_sym[v_col] / cum_factors
-                            df_sym[v_col] = vol_series.round().astype('int64')
+                            df_sym.loc[:, v_col] = vol_series.round().astype('int64')
 
-                # 恢复日期格式为字符串
-                df_sym[date_col] = date_str_series
+                # 5. 统一日期格式写入
+                df_sym.loc[:, date_col] = date_str_series
 
-                # 实时追加到 /tmp/output_restored.csv
+                # 6. 追加写入临时 CSV
                 df_sym.to_csv(
                     output_temp_file,
                     mode='a',
@@ -1027,7 +1036,7 @@ class EMWebCrawlerUti:
 
                 # 除了最后一个 Symbol 外，前面的 Symbol 在当前 Chunk 中必已完整包含
                 for sym in unique_symbols[:-1]:
-                    sym_df = chunk[chunk[symbol_col] == sym]
+                    sym_df = chunk[chunk[symbol_col] == sym].copy()  # 加上 .copy()
                     process_and_append_symbol(sym_df)
 
                 # 最后一个 Symbol 可能在下一个 Chunk 中还有后续行，暂存至 leftover_df
