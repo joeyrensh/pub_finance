@@ -25,6 +25,8 @@ from finance.utility.emcookie_generation import CookieGeneration
 from finance.utility.fileinfo import FileInfo
 from finance.utility.get_proxy import ProxyManager
 from finance.utility.toolkit import ToolKit
+import yfinance as yf
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +49,11 @@ class EMWebCrawlerUti:
 
         self.use_proxy = use_proxy
         self.pm = ProxyManager()
+        self.pm_us = ProxyManager(proxy_type="overseas")
+
+        # 专属 yfinance 的线程锁与当前有效代理（独立隔离）
+        self.current_working_proxy_us = None
+        self.proxy_lock_us = threading.Lock()
         # 2. 初始化时将 enable_proxy 传入
         self.cg = CookieGeneration()
         self.cg.generate_em_cookies()
@@ -243,36 +250,57 @@ class EMWebCrawlerUti:
 
                 params = self.build_params(market, m, i)
                 res = {}
-                for _ in range(3):
+                last_error_msg = ""
+
+                # 1. 使用局部变量保存当前代理，隔离多线程间的代理抢占与竞态冲突
+                current_proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
+
+                for attempt in range(1, 4):  # 尝试 3 次
                     try:
-                        res = requests.get(
+                        response = requests.get(
                             self.__url_list,
                             params=params,
-                            proxies=self.proxy,
+                            proxies=current_proxy,  # 使用局部独立的代理变量
                             headers=self.headers,
                             cookies=self.get_dynamic_cookies(),
                             timeout=10,
                             impersonate="chrome120",
-                        ).json()
+                        )
+
+                        # 校验 HTTP 响应状态码
+                        if response.status_code != 200:
+                            last_error_msg = f"HTTP 状态码异常: {response.status_code}"
+                            current_proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
+                            time.sleep(1)  # 2. 增加 1 秒退避休眠，防止高频被封
+                            continue
+
+                        res = response.json()
+
+                        # 校验业务层数据合法性
                         if (
-                            res.get("rc") != 0
+                            not isinstance(res, dict)
+                            or res.get("rc") != 0
                             or not res.get("data")
                             or not res["data"].get("diff")
                         ):
-                            self.proxy = self.pm.get_working_proxy(
-                                enable_proxy=self.use_proxy
-                            )
+                            last_error_msg = f"业务数据异常或被拦截: {res}"
+                            current_proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
+                            time.sleep(1)
                             continue
+
+                        # 校验全部通过，成功跳出循环，不会触发后面的 else 块
                         break
-                    except Exception:
-                        print("请求失败，正在重试...", _)
-                        self.proxy = self.pm.get_working_proxy(
-                            enable_proxy=self.use_proxy
-                        )
-                        continue
+
+                    except Exception as e:
+                        last_error_msg = f"网络请求/解析异常: {str(e)}"
+                        print(f"请求第 {attempt} 次失败，正在更换代理重试... 错误原因: {e}")
+                        current_proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
+                        time.sleep(1)
+
                 else:
+                    # 只有当 3 次重试全部失败（没有触发 break）时，才会走进这个 else 块
                     raise RuntimeError(
-                        f"获取接口数据失败，最后返回: {locals().get('res', None)}"
+                        f"获取接口数据失败(已重试3次) | 对应页码: {i} | 最终报错原因: {last_error_msg} | 接口最后返回: {res}"
                     )
 
                 page_data = []
@@ -649,17 +677,34 @@ class EMWebCrawlerUti:
                     batch_count += 1
                     batch_list = []
                     futures = []
+                    # 动态挑选抓取函数：美股使用 yfinance，A股沿用东财接口
+                    fetch_func = (
+                        self.get_us_his_stock_info_yf
+                        if market == "us"
+                        else self.get_his_stock_info
+                    )
+
                     for t in range(1, batch_size + 1):
                         index = h + t - 1
                         if index < len(tickinfo):
-                            future = executor.submit(
-                                self.get_his_stock_info,
-                                tickinfo[index]["mkt_code"],
-                                tickinfo[index]["symbol"],
-                                start_date,
-                                end_date,
-                                empty_klines_cache_path,
-                            )
+                            # 根据市场构建参数组
+                            if market == "us":
+                                args = (
+                                    tickinfo[index]["symbol"],
+                                    start_date,
+                                    end_date,
+                                    empty_klines_cache_path,
+                                )
+                            else:
+                                args = (
+                                    tickinfo[index]["mkt_code"],
+                                    tickinfo[index]["symbol"],
+                                    start_date,
+                                    end_date,
+                                    empty_klines_cache_path,
+                                )
+
+                            future = executor.submit(fetch_func, *args)
                             futures.append(future)
                     for future in concurrent.futures.as_completed(futures):
                         list1 = future.result()
@@ -690,3 +735,147 @@ class EMWebCrawlerUti:
                             )
                         except IOError:
                             pass
+
+    def format_proxy_url(self, proxy_input):
+        """格式化代理地址为标准 URL 字符串"""
+        if not proxy_input:
+            return None
+        if isinstance(proxy_input, str):
+            if not proxy_input.startswith(("http://", "https://", "socks5://")):
+                return f"http://{proxy_input}"
+            return proxy_input
+        if isinstance(proxy_input, (list, tuple)) and len(proxy_input) >= 2:
+            return f"http://{proxy_input[0]}:{proxy_input[1]}"
+        return str(proxy_input)
+
+    def get_us_his_stock_info_yf(
+        self, symbol, start_date, end_date, cache_path=None
+    ):
+        """基于 yfinance 获取美股不复权/真实历史日 K 数据
+
+        - 独占 self.pm_us 代理池与专属线程锁，与东财逻辑完全隔离
+        - 双重检查锁避免多线程并发测试代理
+        """
+        # 设置证书环境变量默认值
+        os.environ.setdefault("CURL_CA_BUNDLE", "")
+        os.environ.setdefault("SSL_CERT_FILE", "")
+
+        s_date = pd.to_datetime(start_date).strftime("%Y-%m-%d")
+        e_date = pd.to_datetime(end_date).strftime("%Y-%m-%d")
+
+        df_hist = pd.DataFrame()
+        company_name = symbol
+        last_error_msg = ""
+
+        for attempt in range(1, 4):
+            # ================= 专属 yfinance 线程锁逻辑 =================
+            # 1. 第一次检查（无锁快速复用）
+            proxy_dict = self.current_working_proxy_us
+
+            if not proxy_dict:
+                with self.proxy_lock_us:
+                    # 2. 第二次检查（排他锁内寻优）
+                    if not self.current_working_proxy_us:
+                        print(f"[US yfinance] 当前无可用海外代理，启动 pm_us 检索...")
+                        new_proxy = self.pm_us.get_working_proxy(
+                            enable_proxy=self.use_proxy
+                        )
+                        if not new_proxy:
+                            new_proxy = self.pm_us.get_next_proxy()
+                        self.current_working_proxy_us = new_proxy
+
+                    proxy_dict = self.current_working_proxy_us
+            # ============================================================
+
+            # 提取并格式化海外代理
+            raw_proxy = (
+                (proxy_dict.get("socks5") or proxy_dict.get("https") or proxy_dict.get("http"))
+                if isinstance(proxy_dict, dict) else None
+            )
+            proxy_str = self.format_proxy_url(raw_proxy) if raw_proxy else None
+
+            # 仅在请求发起瞬间通过 os.environ 注入
+            if proxy_str:
+                os.environ["HTTP_PROXY"] = proxy_str
+                os.environ["HTTPS_PROXY"] = proxy_str
+            else:
+                os.environ.pop("HTTP_PROXY", None)
+                os.environ.pop("HTTPS_PROXY", None)
+
+            try:
+                ticker = yf.Ticker(symbol)
+
+                # 获取公司真实名称（优先 longName，其次 shortName）
+                try:
+                    info = ticker.info
+                    company_name = (
+                        info.get("longName")
+                        or info.get("shortName")
+                        or symbol
+                    )
+                except Exception:
+                    company_name = symbol
+
+                # auto_adjust=False 确保获取原始不复权数据
+                df_hist = ticker.history(
+                    start=s_date, end=e_date, interval="1d", auto_adjust=False
+                )
+
+                if df_hist is not None and not df_hist.empty:
+                    break
+
+            except Exception as e:
+                last_error_msg = str(e)
+                print(f"[{symbol}] yfinance 第 {attempt} 次失败，标记 pm_us 代理失效... 错误: {e}")
+
+                # ================ 线程安全地清除 yfinance 专属代理 ================
+                with self.proxy_lock_us:
+                    if self.current_working_proxy_us == proxy_dict:
+                        self.current_working_proxy_us = None
+                # ================================================================
+
+                time.sleep(1)
+            finally:
+                # 及时清理环境变量，避免污染
+                os.environ.pop("HTTP_PROXY", None)
+                os.environ.pop("HTTPS_PROXY", None)
+        else:
+            print(f"[{symbol}] 抓取失败: {last_error_msg}")
+
+        # 处理无 K 线数据的股票
+        if df_hist is None or df_hist.empty:
+            if cache_path is not None:
+                with open(cache_path, "a", encoding="utf-8") as f:
+                    f.write(f"{symbol}\n")
+            return []
+
+        # 数据提取与格式统一
+        records = []
+        df_hist = df_hist.reset_index()
+
+        for _, row in df_hist.iterrows():
+            date_val = pd.to_datetime(row["Date"]).strftime("%Y-%m-%d")
+
+            open_p = row.get("Open", None)
+            close_p = row.get("Close", None)
+            high_p = row.get("High", None)
+            low_p = row.get("Low", None)
+            vol_p = row.get("Volume", None)
+
+            if pd.isna(open_p) or pd.isna(close_p) or pd.isna(vol_p):
+                continue
+
+            records.append(
+                {
+                    "symbol": symbol,
+                    "name": company_name,
+                    "open": str(round(float(open_p), 4)),
+                    "close": str(round(float(close_p), 4)),
+                    "high": str(round(float(high_p), 4)),
+                    "low": str(round(float(low_p), 4)),
+                    "volume": str(int(vol_p)),
+                    "date": date_val,
+                }
+            )
+
+        return records
