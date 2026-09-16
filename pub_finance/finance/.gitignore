@@ -21,10 +21,9 @@ check_logs.sh*
 !usstockinfo/industry_yfinance.csv
 !usstockinfo/industry_yfinance_mapping.csv
 !usstockinfo/industry.csv
-!usstockinfo/fixed_list.csv
+!usstockinfo/us_stock_actions_history.csv
 !cnstockinfo/industry.csv
-!dashreport/assets/cartoon.png
-!dashreport/assets/cartoon1.png
+!cnstockinfo/cn_stock_actions_history.csv
 !dashreport/assets/background-logo.png
 
 #例外文件 - 特殊txt文件
