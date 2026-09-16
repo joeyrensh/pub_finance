@@ -184,11 +184,13 @@ class StockActionsFetcher:
         return sorted(list(set(stocks))), sorted(list(set(etfs)))
 
     def fetch_actions_for_etfs(self, etf_list: List[str]) -> List[Dict]:
-        """批量获取 ETF 分红与拆分数据"""
+        """批量获取 ETF 分红与拆分数据（修复版：同日合并、严格填充 1.0）"""
         if not etf_list:
             return []
 
-        records = []
+        # 使用 dict 结构以 (symbol, date) 为 key 进行同日数据合并
+        action_map: Dict[Tuple[str, str], Dict[str, float]] = {}
+        
         start_year = int(self.start_date[:4]) if self.start_date else 2025
         current_year = datetime.datetime.now().year
         years_to_fetch = [str(y) for y in range(start_year, current_year + 1)]
@@ -207,19 +209,21 @@ class StockActionsFetcher:
                     for _, row in df_target_fh.iterrows():
                         code = row["基金代码"]
                         ex_date = str(row["除息日期"]).strip()
-                        div_val = float(row["分红"]) if row["分红"] else 0.0
+                        
+                        try:
+                            div_val = float(row["分红"]) if pd.notna(row["分红"]) else 0.0
+                        except (ValueError, TypeError):
+                            div_val = 0.0
 
                         if re.match(r"^\d{4}-\d{2}-\d{2}$", ex_date) and div_val > 0:
                             if self.start_date and ex_date < self.start_date:
                                 continue
                             
                             raw_sym = self.cn_symbol_map.get(code, f"ETF{code}")
-                            records.append({
-                                "symbol": raw_sym,
-                                "date": ex_date,
-                                "dividend": div_val,
-                                "split_ratio": 1.0,
-                            })
+                            key = (raw_sym, ex_date)
+                            if key not in action_map:
+                                action_map[key] = {"dividend": 0.0, "split_ratio": 1.0}
+                            action_map[key]["dividend"] = div_val
             except Exception as e:
                 logger.warning(f"[CN ETF] 抓取 {yr} 年分红数据失败: {e}")
 
@@ -233,27 +237,39 @@ class StockActionsFetcher:
                     for _, row in df_target_cf.iterrows():
                         code = row["基金代码"]
                         ex_date = str(row["拆分折算日"]).strip()
-                        ratio_val = float(row["拆分折算"]) if row["拆分折算"] else 1.0
+                        
+                        try:
+                            ratio_val = float(row["拆分折算"]) if pd.notna(row["拆分折算"]) else 1.0
+                        except (ValueError, TypeError):
+                            ratio_val = 1.0
 
-                        if re.match(r"^\d{4}-\d{2}-\d{2}$", ex_date) and ratio_val != 1.0:
+                        if re.match(r"^\d{4}-\d{2}-\d{2}$", ex_date) and ratio_val != 1.0 and ratio_val > 0:
                             if self.start_date and ex_date < self.start_date:
                                 continue
                             
                             raw_sym = self.cn_symbol_map.get(code, f"ETF{code}")
-                            records.append({
-                                "symbol": raw_sym,
-                                "date": ex_date,
-                                "dividend": 0.0,
-                                "split_ratio": ratio_val,
-                            })
+                            key = (raw_sym, ex_date)
+                            if key not in action_map:
+                                action_map[key] = {"dividend": 0.0, "split_ratio": 1.0}
+                            action_map[key]["split_ratio"] = ratio_val
             except Exception as e:
                 logger.warning(f"[CN ETF] 抓取 {yr} 年拆分数据失败: {e}")
+
+        # 转换回 record 列表
+        records = []
+        for (sym, date_str), data in action_map.items():
+            records.append({
+                "symbol": sym,
+                "date": date_str,
+                "dividend": float(data["dividend"]),
+                "split_ratio": float(data["split_ratio"]) if data["split_ratio"] > 0 else 1.0,
+            })
 
         logger.info(f"[CN ETF] 抓取完成，保留 {len(records)} 条符合条件的记录")
         return records
 
     def fetch_actions_for_cn_stock(self, symbol: str) -> List[Dict]:
-        """抓取单只 CN 股票的除权除息数据（优雅防崩溃处理）"""
+        """抓取单只 CN 股票的除权除息数据（换算为每股分红与拆分倍数）"""
         records = []
         raw_sym = self.cn_symbol_map.get(symbol, symbol)
         try:
@@ -263,31 +279,55 @@ class StockActionsFetcher:
 
                 for _, row in df_valid.iterrows():
                     ex_date = str(row.get("除权除息日", "")).strip()
-                    if not ex_date or ex_date == "-":
+                    if not ex_date or ex_date == "-" or ex_date.lower() == "nan":
                         continue
 
-                    date_str = pd.to_datetime(ex_date).strftime("%Y-%m-%d")
+                    try:
+                        date_str = pd.to_datetime(ex_date).strftime("%Y-%m-%d")
+                    except Exception:
+                        continue
 
                     if self.start_date and date_str < self.start_date:
                         continue
 
-                    cash_10 = float(row.get("现金分红-现金分红比例", 0.0) or 0.0)
+                    # 1. 严格解析现金分红 (每10股派现 -> 换算为每股派现)
+                    cash_raw = row.get("现金分红-现金分红比例", 0.0)
+                    try:
+                        cash_10 = float(cash_raw) if (pd.notna(cash_raw) and str(cash_raw).strip() not in ["-", "nan", ""]) else 0.0
+                    except (ValueError, TypeError):
+                        cash_10 = 0.0
                     div_val = cash_10 / 10.0
 
-                    song_10 = float(row.get("送转股份-送股比例", 0.0) or 0.0)
-                    zhuan_10 = float(row.get("送转股份-转股比例", 0.0) or 0.0)
+                    # 2. 严格解析送股比例 (每10股送N股)
+                    song_raw = row.get("送转股份-送股比例", 0.0)
+                    try:
+                        song_10 = float(song_raw) if (pd.notna(song_raw) and str(song_raw).strip() not in ["-", "nan", ""]) else 0.0
+                    except (ValueError, TypeError):
+                        song_10 = 0.0
+
+                    # 3. 严格解析转股比例 (每10股转N股)
+                    zhuan_raw = row.get("送转股份-转股比例", 0.0)
+                    try:
+                        zhuan_10 = float(zhuan_raw) if (pd.notna(zhuan_raw) and str(zhuan_raw).strip() not in ["-", "nan", ""]) else 0.0
+                    except (ValueError, TypeError):
+                        zhuan_10 = 0.0
+
+                    # 4. 计算拆分倍数：1 + (送股+转股)/10
+                    # 例如: 10转4股 -> 1 + (0 + 4)/10 = 1.4
+                    # 例如: 不送不转 -> 1 + (0 + 0)/10 = 1.0
                     split_ratio_val = 1.0 + ((song_10 + zhuan_10) / 10.0)
 
-                    if div_val > 0 or split_ratio_val != 1.0:
+                    if pd.isna(split_ratio_val) or split_ratio_val <= 0:
+                        split_ratio_val = 1.0
+
+                    # 只要存在现金分红(>0)或者发生股权拆分送转(!=1.0)，就写入记录
+                    if div_val > 0 or abs(split_ratio_val - 1.0) > 1e-6:
                         records.append({
                             "symbol": raw_sym,
                             "date": date_str,
-                            "dividend": div_val,
-                            "split_ratio": split_ratio_val,
+                            "dividend": float(div_val),
+                            "split_ratio": float(split_ratio_val),
                         })
-        except (TypeError, KeyError, AttributeError):
-            # 捕获次新股/未分红股票引发的 'NoneType' object is not subscriptable 异常，静默跳过
-            pass
         except Exception as e:
             logger.debug(f"获取 CN 股票 [{raw_sym}] 数据失败: {e}")
 
