@@ -991,7 +991,9 @@ class EMWebCrawlerUti:
 
                     for v_col in ['Volume', 'volume']:
                         if v_col in df_sym.columns:
-                            df_sym[v_col] = (df_sym[v_col] / cum_factors).round().astype('Int64')
+                            # 使用 Series 的 round 和 astype('int64') / 'Int64' (或直接 np.round)
+                            vol_series = df_sym[v_col] / cum_factors
+                            df_sym[v_col] = vol_series.round().astype('int64')
 
                 # 恢复日期格式为字符串
                 df_sym[date_col] = date_str_series

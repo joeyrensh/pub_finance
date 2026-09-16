@@ -20,6 +20,8 @@ em.get_his_stock_info_list(
     file_path,
 )
 
+em.restore_yfinance_raw_csv(trade_date=end_date, market=market, history_file_path=file_path)
+
 # 使用AKshare下载A股历史数据
 # ak_his = AKCNHistoryDataCrawler()
 # ak_his.get_cn_stock_history_ak(start_date, end_date, file_path)
