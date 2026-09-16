@@ -481,9 +481,9 @@ class TickerInfo:
 
     def get_backtrader_data_feed(self):
         tickers = self.get_stock_list()
-        his_data = self.get_history_data().groupby(by="symbol")
+        # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        # his_data = self.get_history_data_fqt().groupby(by="symbol")
+        his_data = self.get_history_data_fqt().groupby(by="symbol")
         t = ToolKit("读取历史数据文件")
         list_results = []
 
@@ -587,9 +587,9 @@ class TickerInfo:
 
     def get_backtrader_data_feed_testonly(self, stocklist):
         tickers = stocklist
-        his_data = self.get_history_data().groupby(by="symbol")
+        # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        # his_data = self.get_history_data_fqt().groupby(by="symbol")
+        his_data = self.get_history_data_fqt().groupby(by="symbol")
         t = ToolKit("读取历史数据文件")
         list_results = []
 
@@ -669,9 +669,9 @@ class TickerInfo:
 
     def get_etf_backtrader_data_feed(self):
         tickers = self.get_etf_list()
-        his_data = self.get_history_data().groupby(by="symbol")
+        # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        # his_data = self.get_history_data_fqt().groupby(by="symbol")
+        his_data = self.get_history_data_fqt().groupby(by="symbol")
         t = ToolKit("读取历史数据文件")
         list_results = []
 
@@ -788,9 +788,9 @@ class TickerInfo:
             t for t in tickers if isinstance(t, str) and t != "nan" and t != ""
         ]
 
-        his_data = self.get_history_data().groupby(by="symbol")
+        # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        # his_data = self.get_history_data_fqt().groupby(by="symbol")
+        his_data = self.get_history_data_fqt().groupby(by="symbol")
         t = ToolKit("读取历史数据文件")
         list_results = []
 
@@ -847,7 +847,7 @@ class TickerInfo:
             t for t in tickers if isinstance(t, str) and t != "nan" and t != ""
         ]
 
-        his_data = self.get_history_data().groupby(by="symbol")
+        # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
         his_data = self.get_history_data_fqt().groupby(by="symbol")
         t = ToolKit("读取历史数据文件")
@@ -987,10 +987,7 @@ class TickerInfo:
         return pd.DataFrame(data) if data else pd.DataFrame(columns=["date", "new"])
 
 
-
-
-
-    def apply_forward_adjust_exact(
+    def apply_forward_adjust(self,
         df_raw: pd.DataFrame, df_actions: pd.DataFrame
     ) -> pd.DataFrame:
         """对单只股票进行完全精确的前复权计算 (精确匹配交易所/行情软件标准)
