@@ -905,3 +905,144 @@ class EMWebCrawlerUti:
             )
 
         return records
+
+    def restore_yfinance_raw_csv(
+        self,
+        trade_date: str = None,
+        market: str = None,
+        history_file_path: str = None,
+        chunksize: int = 200000
+    ):
+        """
+        根据固定的复权因子文件 (symbol, date, dividend, split_ratio)，
+        通过流式 Batch 批次处理还原历史 K 线 CSV 中的拆股数据，无多余临时文件并原位覆盖。
+        """
+        # 1. 确定复权因子文件与历史 K 线文件路径
+        if hasattr(self, 'file_actions_history') and self.file_actions_history:
+            actions_file = self.file_actions_history
+        else:
+            file_info = FileInfo(trade_date, market)
+            actions_file = file_info.get_file_path_actions_history
+
+        target_history_file = history_file_path or file_info.get_file_path_history
+
+        if not os.path.exists(actions_file):
+            raise FileNotFoundError(f"未找到复权因子文件: {actions_file}")
+        if not os.path.exists(target_history_file):
+            raise FileNotFoundError(f"未找到历史K线文件: {target_history_file}")
+
+        # 2. 预载复权因子文件 (Schema: symbol, date, dividend, split_ratio)
+        df_actions = pd.read_csv(actions_file, dtype={'symbol': str, 'date': str})
+        df_actions['date'] = pd.to_datetime(df_actions['date']).dt.strftime('%Y-%m-%d')
+        
+        # 仅筛选存在实际拆股的记录
+        splits_df = df_actions[
+            (df_actions['split_ratio'].notnull()) & 
+            (df_actions['split_ratio'] != 0) & 
+            (df_actions['split_ratio'] != 1.0)
+        ][['symbol', 'date', 'split_ratio']]
+        
+        # 构建 {symbol: {date_str: split_ratio}} 快速字典索引
+        symbol_splits_map = {
+            sym: group.set_index('date')['split_ratio'].to_dict()
+            for sym, group in splits_df.groupby('symbol')
+        }
+
+        # 3. 在 /tmp 下仅建立 1 个最终输出临时文件
+        temp_dir = tempfile.mkdtemp(dir="/tmp", prefix="yf_restore_")
+        output_temp_file = os.path.join(temp_dir, "output_restored.csv")
+
+        try:
+            print(f"[Start] 开始流式批处理还原文件: {target_history_file}")
+
+            leftover_df = None
+            is_first_write = True
+            all_cols = []
+            symbol_col = None
+            date_col = None
+
+            # 内部函数：还原单个完整的 Symbol DataFrame 并追加写入目标临时 CSV
+            def process_and_append_symbol(df_sym: pd.DataFrame):
+                nonlocal is_first_write
+                
+                # 确保该 Symbol 的数据按日期正序
+                df_sym[date_col] = pd.to_datetime(df_sym[date_col])
+                df_sym = df_sym.sort_values(date_col).reset_index(drop=True)
+
+                current_symbol = str(df_sym[symbol_col].iloc[0])
+                date_str_series = df_sym[date_col].dt.strftime('%Y-%m-%d')
+                splits_dict = symbol_splits_map.get(current_symbol, {})
+
+                # 若存在拆股记录，则执行向量化还原
+                if splits_dict:
+                    splits = date_str_series.map(splits_dict).fillna(1.0).values
+                    
+                    # 倒序累乘未来发生的所有拆股倍数
+                    split_factors_rev = np.cumprod(splits[::-1])[::-1]
+                    cum_factors = np.ones(len(splits), dtype=float)
+                    if len(splits) > 1:
+                        # 向后平移 1 位：t 日乘数为 t+1 日至最新日拆股因子之积
+                        cum_factors[:-1] = split_factors_rev[1:]
+
+                    # 放大价格，缩小成交量
+                    for p_col in ['Open', 'High', 'Low', 'Close', 'open', 'high', 'low', 'close']:
+                        if p_col in df_sym.columns:
+                            df_sym[p_col] = df_sym[p_col] * cum_factors
+
+                    for v_col in ['Volume', 'volume']:
+                        if v_col in df_sym.columns:
+                            df_sym[v_col] = (df_sym[v_col] / cum_factors).round().astype('Int64')
+
+                # 恢复日期格式为字符串
+                df_sym[date_col] = date_str_series
+
+                # 实时追加到 /tmp/output_restored.csv
+                df_sym.to_csv(
+                    output_temp_file,
+                    mode='a',
+                    index=False,
+                    header=is_first_write,
+                    columns=all_cols
+                )
+                is_first_write = False
+
+            # -------------------------------------------------------------
+            # 单线程流式 Chunk 分批读取与粘合
+            # -------------------------------------------------------------
+            for chunk in pd.read_csv(target_history_file, chunksize=chunksize, low_memory=False):
+                if not all_cols:
+                    all_cols = chunk.columns.tolist()
+                    symbol_col = next(c for c in all_cols if c.lower() == 'symbol')
+                    date_col = next(c for c in all_cols if c.lower() == 'date')
+
+                # 若上一个 chunk 末尾有未处理完的 Symbol，拼接在当前 chunk 头部
+                if leftover_df is not None:
+                    chunk = pd.concat([leftover_df, chunk], ignore_index=True)
+                    leftover_df = None
+
+                # 保持原顺序获取 chunk 内出现的 Symbol 列表
+                unique_symbols = chunk[symbol_col].unique()
+
+                # 除了最后一个 Symbol 外，前面的 Symbol 在当前 Chunk 中必已完整包含
+                for sym in unique_symbols[:-1]:
+                    sym_df = chunk[chunk[symbol_col] == sym]
+                    process_and_append_symbol(sym_df)
+
+                # 最后一个 Symbol 可能在下一个 Chunk 中还有后续行，暂存至 leftover_df
+                last_sym = unique_symbols[-1]
+                leftover_df = chunk[chunk[symbol_col] == last_sym].copy()
+
+            # 处理全文件读取完毕后剩余的最后一个 Symbol
+            if leftover_df is not None and len(leftover_df) > 0:
+                process_and_append_symbol(leftover_df)
+
+            # -------------------------------------------------------------
+            # 原子覆盖原历史文件
+            # -------------------------------------------------------------
+            print(f"[Finish] 还原完毕，覆盖原文件: {target_history_file}")
+            shutil.move(output_temp_file, target_history_file)
+            print("拆股还原处理全部成功完成！")
+
+        finally:
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)        
