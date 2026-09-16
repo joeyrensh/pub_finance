@@ -753,10 +753,18 @@ class EMWebCrawlerUti:
     ):
         """基于 yfinance 获取美股不复权/真实历史日 K 数据
 
-        - 独占 self.pm_us 代理池与专属线程锁，与东财逻辑完全隔离
-        - 双重检查锁避免多线程并发测试代理
+        - 自动将 T_A 映射为 Yahoo 正确格式 T-PA (以及 T-A 备选)
+        - 导出 CSV / 返回数据严格保持原始输入 symbol (如 T_A)
         """
-        # 设置证书环境变量默认值
+        # 0. 防御校验：处理 NaN / float / None 等无效 symbol 输入
+        if pd.isna(symbol) or not symbol:
+            print(f"[Warning] 捕获到无效的 symbol 输入: {symbol}，已跳过。")
+            return []
+        
+        # 强制转换为标准的干净字符串
+        symbol = str(symbol).strip()
+        if not symbol or symbol.lower() == "nan":
+            return []        
         os.environ.setdefault("CURL_CA_BUNDLE", "")
         os.environ.setdefault("SSL_CERT_FILE", "")
 
@@ -767,14 +775,26 @@ class EMWebCrawlerUti:
         company_name = symbol
         last_error_msg = ""
 
+        # 1. 构建 Yahoo Finance 的候选 Symbol 尝试顺序
+        yf_candidates = []
+        if "_" in symbol:
+            # 优先股语法（最常见）：T_A -> T-PA
+            yf_candidates.append(symbol.replace("_", "-P"))
+            # 普通类股语法：T_A -> T-A
+            yf_candidates.append(symbol.replace("_", "-"))
+            # 点号语法：T_A -> T.A
+            yf_candidates.append(symbol.replace("_", "."))
+        else:
+            yf_candidates.append(symbol)
+
+        found_symbol_yf = None  # 记录在 yfinance 上实际匹配成功的符号
+
         for attempt in range(1, 4):
             # ================= 专属 yfinance 线程锁逻辑 =================
-            # 1. 第一次检查（无锁快速复用）
             proxy_dict = self.current_working_proxy_us
 
             if not proxy_dict:
                 with self.proxy_lock_us:
-                    # 2. 第二次检查（排他锁内寻优）
                     if not self.current_working_proxy_us:
                         print(f"[US yfinance] 当前无可用海外代理，启动 pm_us 检索...")
                         new_proxy = self.pm_us.get_working_proxy(
@@ -787,14 +807,12 @@ class EMWebCrawlerUti:
                     proxy_dict = self.current_working_proxy_us
             # ============================================================
 
-            # 提取并格式化海外代理
             raw_proxy = (
                 (proxy_dict.get("socks5") or proxy_dict.get("https") or proxy_dict.get("http"))
                 if isinstance(proxy_dict, dict) else None
             )
             proxy_str = self.format_proxy_url(raw_proxy) if raw_proxy else None
 
-            # 仅在请求发起瞬间通过 os.environ 注入
             if proxy_str:
                 os.environ["HTTP_PROXY"] = proxy_str
                 os.environ["HTTPS_PROXY"] = proxy_str
@@ -803,53 +821,60 @@ class EMWebCrawlerUti:
                 os.environ.pop("HTTPS_PROXY", None)
 
             try:
-                ticker = yf.Ticker(symbol)
-
-                # 获取公司真实名称（优先 longName，其次 shortName）
-                try:
-                    info = ticker.info
-                    company_name = (
-                        info.get("longName")
-                        or info.get("shortName")
-                        or symbol
+                # 2. 依次按候选优先级进行拉取测试
+                for candidate in yf_candidates:
+                    ticker = yf.Ticker(candidate)
+                    df_candidate = ticker.history(
+                        start=s_date, end=e_date, interval="1d", auto_adjust=False
                     )
-                except Exception:
-                    company_name = symbol
-
-                # auto_adjust=False 确保获取原始不复权数据
-                df_hist = ticker.history(
-                    start=s_date, end=e_date, interval="1d", auto_adjust=False
-                )
+                    if df_candidate is not None and not df_candidate.empty:
+                        df_hist = df_candidate
+                        found_symbol_yf = candidate  # 标记匹配成功的 Yahoo 符号（如 T-PA）
+                        break
 
                 if df_hist is not None and not df_hist.empty:
                     break
+                else:
+                    # 所有候选都尝试完毕仍无数据，抛出异常进入 catch
+                    raise Exception(f"404 Not Found for all candidates of {symbol}")
 
             except Exception as e:
-                last_error_msg = str(e)
-                print(f"[{symbol}] yfinance 第 {attempt} 次失败，标记 pm_us 代理失效... 错误: {e}")
+                err_str = str(e)
+                last_error_msg = err_str
 
-                # ================ 线程安全地清除 yfinance 专属代理 ================
+                # 精准拦截 404 / 资源不存在：退出尝试，不重试，不杀代理
+                if "404" in err_str or "Not Found" in err_str or "delisted" in err_str:
+                    print(f"[{symbol}] 尝试候选名 {yf_candidates} 均未找到数据，确定为不存在/退市。")
+                    df_hist = None
+                    break
+
+                # 真正的网络/超时问题才触发代理失效
+                print(f"[{symbol}] yfinance 第 {attempt} 次失败，标记 pm_us 代理失效... 错误: {e}")
                 with self.proxy_lock_us:
                     if self.current_working_proxy_us == proxy_dict:
                         self.current_working_proxy_us = None
-                # ================================================================
 
                 time.sleep(1)
             finally:
-                # 及时清理环境变量，避免污染
                 os.environ.pop("HTTP_PROXY", None)
                 os.environ.pop("HTTPS_PROXY", None)
-        else:
-            print(f"[{symbol}] 抓取失败: {last_error_msg}")
 
-        # 处理无 K 线数据的股票
+        # 3. 未找到数据的落盘缓存
         if df_hist is None or df_hist.empty:
             if cache_path is not None:
                 with open(cache_path, "a", encoding="utf-8") as f:
                     f.write(f"{symbol}\n")
             return []
 
-        # 数据提取与格式统一
+        # 获取真实公司名称（使用匹配成功的 found_symbol_yf，例如 T-PA）
+        try:
+            ticker = yf.Ticker(found_symbol_yf)
+            info = ticker.info
+            company_name = info.get("longName") or info.get("shortName") or symbol
+        except Exception:
+            company_name = symbol
+
+        # 4. 组装数据，强制恢复为原始的 symbol ("T_A")
         records = []
         df_hist = df_hist.reset_index()
 
@@ -867,6 +892,7 @@ class EMWebCrawlerUti:
 
             records.append(
                 {
+                    # 关键：落库依然保存原始格式 T_A
                     "symbol": symbol,
                     "name": company_name,
                     "open": str(round(float(open_p), 4)),

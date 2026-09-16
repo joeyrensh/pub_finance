@@ -12,7 +12,7 @@ import akshare as ak
 
 市场代码：
 0: 深证/创业板/新三板/ SZ
-1: 上证/科创板		SH
+1: 上证/科创板      SH
 
 股票列表URL：
 http://23.push2.eastmoney.com/api/qt/clist/get?cb=jQuery&pn=1&pz=20000&po=1&
@@ -41,6 +41,10 @@ class AKCNHistoryDataCrawler:
         """
         获取A股历史数据，上海市场
         """
+        batch_size = 50  # 每处理 50 只股票向 CSV 落盘一次，清理内存
+        is_first_write = True  # 控制全局仅第一次写入时保存 Header
+
+        # ==================== 1. 获取A股历史数据, 上海市场 ====================
         stock_sh_a_spot_em = ak.stock_sh_a_spot_em()
         pd_stock_sh = stock_sh_a_spot_em[
             [
@@ -70,18 +74,11 @@ class AKCNHistoryDataCrawler:
             }
         )
         tool = ToolKit("历史数据下载")
-        list = []
-        for index, row in pd_stock_sh.iterrows():
-            symbol = "sh" + row["symbol"]
-            # 获取历史数据-东方财富
-            # stock_zh_a_hist_df = ak.stock_zh_a_hist(
-            #     symbol=symbol,
-            #     period="daily",
-            #     start_date=start_date,
-            #     end_date=end_date,
-            #     adjust="qfq",
-            # )
-            # 获取历史数据-新浪
+        list_records = []
+        sh_total = len(pd_stock_sh)
+
+        for index, row in pd_stock_sh.reset_index(drop=True).iterrows():
+            symbol = "sh" + str(row["symbol"]).strip()
             try:
                 stock_zh_a_daily_df = ak.stock_zh_a_daily(
                     symbol=symbol,
@@ -90,7 +87,7 @@ class AKCNHistoryDataCrawler:
                     adjust="",
                 )
                 for i, r in stock_zh_a_daily_df.iterrows():
-                    dict = {
+                    item = {
                         "symbol": symbol.upper(),
                         "name": row["name"],
                         "open": r["open"],
@@ -100,21 +97,27 @@ class AKCNHistoryDataCrawler:
                         "volume": r["volume"],
                         "date": r["date"],
                     }
-                    list.append(dict)
+                    list_records.append(item)
             except Exception as e:
                 print("获取历史数据失败：", symbol, e)
                 continue
-            tool.progress_bar(len(pd_stock_sh), index)
-        df = pd.DataFrame(list)
-        df.to_csv(
-            file_path,
-            mode="a",
-            index=True,
-            header=True,
-        )
-        """
-        获取A股历史数据, 深圳市场
-        """
+
+            # 分批落盘
+            if (index + 1) % batch_size == 0 or (index + 1) == sh_total:
+                if list_records:
+                    df = pd.DataFrame(list_records)
+                    df.to_csv(
+                        file_path,
+                        mode="a",
+                        index=True,
+                        header=is_first_write,
+                    )
+                    is_first_write = False  # 首次写入后不再写入 Header
+                    list_records.clear()  # 释放内存
+
+            tool.progress_bar(sh_total, index)
+
+        # ==================== 2. 获取A股历史数据, 深圳市场 ====================
         stock_sz_a_spot_em = ak.stock_sz_a_spot_em()
         pd_stock_sz = stock_sz_a_spot_em[
             [
@@ -144,18 +147,11 @@ class AKCNHistoryDataCrawler:
             }
         )
         tool = ToolKit("历史数据下载")
-        list = []
-        for index, row in pd_stock_sz.iterrows():
-            symbol = "sz" + row["symbol"]
-            # 获取历史数据-东方财富
-            # stock_zh_a_hist_df = ak.stock_zh_a_hist(
-            #     symbol=symbol,
-            #     period="daily",
-            #     start_date=start_date,
-            #     end_date=end_date,
-            #     adjust="qfq",
-            # )
-            # 获取历史数据-新浪
+        list_records = []
+        sz_total = len(pd_stock_sz)
+
+        for index, row in pd_stock_sz.reset_index(drop=True).iterrows():
+            symbol = "sz" + str(row["symbol"]).strip()
             try:
                 stock_zh_a_daily_df = ak.stock_zh_a_daily(
                     symbol=symbol,
@@ -164,7 +160,7 @@ class AKCNHistoryDataCrawler:
                     adjust="",
                 )
                 for i, r in stock_zh_a_daily_df.iterrows():
-                    dict = {
+                    item = {
                         "symbol": symbol.upper(),
                         "name": row["name"],
                         "open": r["open"],
@@ -174,21 +170,27 @@ class AKCNHistoryDataCrawler:
                         "volume": r["volume"],
                         "date": r["date"],
                     }
-                    list.append(dict)
+                    list_records.append(item)
             except Exception as e:
                 print("获取历史数据失败：", symbol, e)
                 continue
-            tool.progress_bar(len(pd_stock_sz), index)
-        df = pd.DataFrame(list)
-        df.to_csv(
-            file_path,
-            mode="a",
-            index=True,
-            header=False,
-        )
-        """
-        ETF历史数据
-        """
+
+            # 分批落盘
+            if (index + 1) % batch_size == 0 or (index + 1) == sz_total:
+                if list_records:
+                    df = pd.DataFrame(list_records)
+                    df.to_csv(
+                        file_path,
+                        mode="a",
+                        index=True,
+                        header=is_first_write,
+                    )
+                    is_first_write = False
+                    list_records.clear()  # 释放内存
+
+            tool.progress_bar(sz_total, index)
+
+        # ==================== 3. ETF历史数据 ====================
         fund_etf_spot_em_df = ak.fund_etf_spot_em()
         pd_etf = fund_etf_spot_em_df[
             [
@@ -216,9 +218,11 @@ class AKCNHistoryDataCrawler:
             }
         )
         tool = ToolKit("历史数据下载")
-        list = []
-        for index, row in pd_etf.iterrows():
-            symbol = row["symbol"]
+        list_records = []
+        etf_total = len(pd_etf)
+
+        for index, row in pd_etf.reset_index(drop=True).iterrows():
+            symbol = str(row["symbol"]).strip()
             try:
                 time.sleep(1 + random.uniform(1, 3))
                 fund_etf_hist_em_df = ak.fund_etf_hist_em(
@@ -229,7 +233,7 @@ class AKCNHistoryDataCrawler:
                     adjust="",
                 )
                 for i, r in fund_etf_hist_em_df.iterrows():
-                    dict = {
+                    item = {
                         "symbol": "ETF" + symbol.upper(),
                         "name": row["name"],
                         "open": r["开盘"],
@@ -239,15 +243,22 @@ class AKCNHistoryDataCrawler:
                         "volume": r["成交量"],
                         "date": r["日期"],
                     }
-                    list.append(dict)
+                    list_records.append(item)
             except Exception as e:
                 print("获取ETF历史数据失败：", symbol, e)
                 continue
-            tool.progress_bar(len(pd_etf), index)
-        df = pd.DataFrame(list)
-        df.to_csv(
-            file_path,
-            mode="a",
-            index=True,
-            header=False,
-        )
+
+            # 分批落盘
+            if (index + 1) % batch_size == 0 or (index + 1) == etf_total:
+                if list_records:
+                    df = pd.DataFrame(list_records)
+                    df.to_csv(
+                        file_path,
+                        mode="a",
+                        index=True,
+                        header=is_first_write,
+                    )
+                    is_first_write = False
+                    list_records.clear()  # 释放内存
+
+            tool.progress_bar(etf_total, index)

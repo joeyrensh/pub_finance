@@ -987,68 +987,80 @@ class TickerInfo:
         return pd.DataFrame(data) if data else pd.DataFrame(columns=["date", "new"])
 
 
-    def apply_forward_adjust(self, df_raw: pd.DataFrame, df_actions: pd.DataFrame) -> pd.DataFrame:
+
+
+
+    def apply_forward_adjust_exact(
+        df_raw: pd.DataFrame, df_actions: pd.DataFrame
+    ) -> pd.DataFrame:
+        """对单只股票进行完全精确的前复权计算 (精确匹配交易所/行情软件标准)
+
+        :param df_raw: 原始日 K 数据，包含 ['date', 'open', 'high', 'low', 'close',
+            'volume']
+        :param df_actions: 除权事件表，包含 ['date', 'dividend', 'split_ratio']
         """
-        对单只股票 (By Symbol) 的不复权历史数据计算前复权
-        """
-        # 若无除权事件记录，直接原样返回，提升运行效率
-        if df_raw.empty or df_actions.empty:
+        if df_raw.empty:
             return df_raw
 
-        df_stock = df_raw.sort_values("date").copy()
-        df_actions = df_actions.sort_values("date")
+        # 1. 拷贝并按日期升序
+        df_stock = df_raw.sort_values("date").reset_index(drop=True).copy()
 
-        # 左连接匹配除权事件 (按 date 关联)
+        if df_actions is None or df_actions.empty:
+            return df_stock
+
+        # 2. 合并事件
         df_merged = pd.merge(
             df_stock,
             df_actions[["date", "dividend", "split_ratio"]],
             on="date",
-            how="left"
+            how="left",
         )
 
-        # 没匹配到除权记录的日期，分红填 0，拆股填 1
-        df_merged["dividend"] = df_merged["dividend"].fillna(0.0).astype(float)
-        df_merged["split_ratio"] = df_merged["split_ratio"].fillna(1.0).astype(float)
+        df_merged["dividend"] = (
+            df_merged["dividend"].fillna(0.0).astype(np.float64)
+        )
+        df_merged["split_ratio"] = (
+            df_merged["split_ratio"].fillna(1.0).astype(np.float64)
+        )
 
-        closes = df_merged["close"].values
-        divs = df_merged["dividend"].values
+        # 3. 逆序计算累积调整量 (从最新一天向历史追溯)
+        # 拆股因子：累乘 (倒序 cumprod)
+        # 注意：除权日当天的价格不需要做当天的 split 调整，调整作用于除权日之前的历史
         splits = df_merged["split_ratio"].values
+        divs = df_merged["dividend"].values
         n = len(df_merged)
 
-        price_factors = [1.0] * n
-        vol_factors = [1.0] * n
+        # 计算自未来向历史作用的累积拆股乘数与累积分红扣减额
+        cum_split_factor = np.ones(n, dtype=np.float64)
+        cum_div_subtraction = np.zeros(n, dtype=np.float64)
 
-        cum_price_factor = 1.0
-        cum_vol_factor = 1.0
+        running_split = 1.0
+        running_div = 0.0
 
-        # 从最新一天向历史倒序累乘计算复权因子
         for i in range(n - 1, -1, -1):
-            price_factors[i] = cum_price_factor
-            vol_factors[i] = cum_vol_factor
+            cum_split_factor[i] = running_split
+            cum_div_subtraction[i] = running_div
 
-            c_price = closes[i]
-            div = divs[i]
-            split = splits[i]
+            # 如果当天有拆股，影响历史价格 (历史价格除以 split)
+            if splits[i] > 0 and splits[i] != 1.0:
+                running_split *= 1.0 / splits[i]
+                # 历史分红额在拆股后也需要同步折算
+                running_div *= 1.0 / splits[i]
 
-            # 1. 拆合股调整 (成交量反向变化)
-            if split != 1.0 and split > 0:
-                cum_price_factor *= split
-                cum_vol_factor /= split
+            # 如果当天有现金分红，历史价格需要扣减该分红
+            if divs[i] > 0:
+                running_div += divs[i]
 
-            # 2. 现金分红调整
-            if div > 0 and c_price > 0:
-                div_factor = (c_price - div) / c_price
-                cum_price_factor *= div_factor
+        # 4. 应用精确前复权公式： P_adj = (P_raw - cum_div) * cum_split
+        # 或 P_adj = P_raw * cum_split - cum_div (取决于拆股与分红的交织顺序)
+        for col in ["open", "high", "low", "close"]:
+            df_merged[col] = (
+                (df_merged[col] - cum_div_subtraction) * cum_split_factor
+            ).round(4)
 
-        price_factors = np.array(price_factors, dtype=np.float32)
-        vol_factors = np.array(vol_factors, dtype=np.float64)
-
-        # 调整 OHLCV
-        df_merged["open"] = (df_merged["open"] * price_factors).round(4)
-        df_merged["high"] = (df_merged["high"] * price_factors).round(4)
-        df_merged["low"] = (df_merged["low"] * price_factors).round(4)
-        df_merged["close"] = (df_merged["close"] * price_factors).round(4)
-        df_merged["volume"] = (df_merged["volume"] * vol_factors).round(0)
+        # 成交量调整：仅受拆股影响 (送转股时成交量放大)
+        vol_factor = 1.0 / cum_split_factor
+        df_merged["volume"] = (df_merged["volume"] * vol_factor).round(0)
 
         # 清理临时列
         df_merged.drop(columns=["dividend", "split_ratio"], inplace=True)
