@@ -917,8 +917,8 @@ class TickerInfo:
 
     def get_history_data_fqt(self) -> pd.DataFrame:
         """
-        计算前复权历史数据 (对齐美股/A股券商APP标准算式)
-        支持: 多次拆股、现金分红、同时拆股派息、极低价负值防御
+        计算前复权历史数据 (对齐美股/A股券商APP标准比例复权算式)
+        支持: 多次拆股、合股(Reverse Split)、现金分红、组合事件
         """
         df_raw = self.get_history_data()
         if df_raw.empty:
@@ -936,6 +936,15 @@ class TickerInfo:
             dtype={"symbol": str, "date": str}
         )
         df_actions = df_actions_all[df_actions_all["symbol"].isin(target_symbols)].copy()
+        # ==================== 增加预处理：合并同日多次除权事件 ====================
+        if not df_actions.empty:
+            df_actions = (
+                df_actions.groupby(["symbol", "date"], as_index=False)
+                .agg({
+                    "dividend": "sum",       # 同日多次现金分红：累加 (例如 0.132 + 0.180 = 0.312)
+                    "split_ratio": "prod"    # 同日多次拆股/送转：累乘
+                })
+            )
 
         if df_actions.empty:
             return df_raw
@@ -948,61 +957,59 @@ class TickerInfo:
         df_merged["dividend"] = df_merged["dividend"].fillna(0.0)
         df_merged["split_ratio"] = df_merged["split_ratio"].fillna(1.0).replace(0.0, 1.0)
 
-        # 快速通道：无有效派息或拆股
+        # 快速通道
         if (df_merged["dividend"] == 0).all() and (df_merged["split_ratio"] == 1.0).all():
             df_merged.drop(columns=["dividend", "split_ratio"], inplace=True)
             return df_merged
 
-        # ==================== 4. 倒序向量化计算累积复权因子 ====================
-        # 物理翻转 DataFrame 并重置索引，隔离 Pandas 索引强行对齐
+        # ==================== 4. 计算单日除权因子 (Factor) ====================
+        # (A) 拆股/合股因子: split_factor = 1 / split_ratio
+        # 例如 1拆10 (split_ratio=10) -> factor = 0.1
+        # 例如 2合1  (split_ratio=0.5) -> factor = 2.0
+        split_factor = 1.0 / df_merged["split_ratio"]
+
+        # (B) 现金分红比例因子: div_factor = (除息前一日收盘价 - 分红) / 除息前一日收盘价
+        # 除息前一日收盘价 = close 的 shift(1)
+        prev_close = df_merged.groupby("symbol")["close"].shift(1)
+        
+        # 防防御性计算，避免除零或异常分红导致因子 <= 0
+        div_ratio = np.where(
+            (df_merged["dividend"] > 0) & (prev_close > 0),
+            (prev_close - df_merged["dividend"]) / prev_close,
+            1.0
+        )
+        div_factor = np.maximum(div_ratio, 0.0001)
+
+        # 当日综合单步复权因子
+        df_merged["step_factor"] = split_factor * div_factor
+
+        # ==================== 5. 倒序累乘计算累积前复权因子 ====================
+        # 物理翻转进行累乘
         df_rev = df_merged.iloc[::-1].copy().reset_index(drop=True)
 
-        # 拆股倒序倒数：1 / split_ratio (例如 1拆2 填 0.5; 2缩1 填 2.0)
-        df_rev["split_inv"] = 1.0 / df_rev["split_ratio"]
-
-        # (A) 拆股累积因子 cum_split
-        # 除权日 T 的拆股只影响 T-1 及之前的历史，倒序下 shift(1)
-        df_rev["cum_split"] = (
-            df_rev.groupby("symbol")["split_inv"]
+        # T 日发生的除权事件只影响 T-1 及之前的历史价格！
+        # 因此倒序下需要 shift(1)，最新一日（倒序第一行）累积因子必须严格等于 1.0
+        df_rev["cum_factor"] = (
+            df_rev.groupby("symbol")["step_factor"]
             .shift(1, fill_value=1.0)
             .groupby(df_rev["symbol"])
             .cumprod()
         )
 
-        # (B) 分红折算与累加 cum_div (标准券商模型)
-        # T 日发生的现金分红，在折算历史扣减额时，只需乘上 T 日之后(不含 T 日)的拆股累积因子
-        # 因此使用已 shift(1) 的 cum_split 进行折算
-        df_rev["adj_div"] = df_rev["dividend"] * df_rev["cum_split"]
-        
-        # 派息同样只影响 T-1 及之前的历史，倒序下再 shift(1) 后累加
-        df_rev["cum_div"] = (
-            df_rev.groupby("symbol")["adj_div"]
-            .shift(1, fill_value=0.0)
-            .groupby(df_rev["symbol"])
-            .cumsum()
-        )
-
-        # ==================== 5. 正序恢复与价格/成交量复权 ====================
+        # ==================== 6. 正序恢复并调整价格与成交量 ====================
         df_final = df_rev.iloc[::-1].copy().reset_index(drop=True)
+        cum_factor = df_final["cum_factor"]
 
-        cum_split = df_final["cum_split"]
-        cum_div = df_final["cum_div"]
-
-        # 算式：P_adj = P_raw * cum_split - cum_div
+        # 价格复权: P_adj = P_raw * cum_factor
         for col in ["open", "high", "low", "close"]:
-            adj_price = df_final[col] * cum_split - cum_div
-            
-            # 极低价/负价格防御 (美股/A股长周期回测必备)
-            # 券商 APP 在遇到历史复权价 <= 0 时，通常保底设为 0.0001 或 0.01，防止收益率计算出现 ZeroDivisionError
-            df_final[col] = np.maximum(adj_price, 0.0001).round(4)
+            df_final[col] = (df_final[col] * cum_factor).round(4)
 
-        # 成交量复权：Volume_adj = Volume_raw / cum_split
-        df_final["volume"] = (df_final["volume"] / cum_split).round(0)
+        # 成交量复权: Vol_adj = Vol_raw / cum_factor
+        df_final["volume"] = (df_final["volume"] / cum_factor).round(0)
 
         # 清理中间列
         cols_to_drop = [
-            "dividend", "split_ratio", "split_inv", 
-            "cum_split", "adj_div", "cum_div"
+            "dividend", "split_ratio", "step_factor", "cum_factor"
         ]
         df_final.drop(columns=cols_to_drop, inplace=True, errors="ignore")
 

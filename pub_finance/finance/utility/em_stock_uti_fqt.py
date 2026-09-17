@@ -274,7 +274,6 @@ class EMWebCrawlerUti:
                         if response.status_code != 200:
                             last_error_msg = f"HTTP 状态码异常: {response.status_code}"
                             current_proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
-                            time.sleep(1)  # 2. 增加 1 秒退避休眠，防止高频被封
                             continue
 
                         res = response.json()
@@ -288,7 +287,6 @@ class EMWebCrawlerUti:
                         ):
                             last_error_msg = f"业务数据异常或被拦截: {res}"
                             current_proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
-                            time.sleep(1)
                             continue
 
                         # 校验全部通过，成功跳出循环，不会触发后面的 else 块
@@ -298,7 +296,6 @@ class EMWebCrawlerUti:
                         last_error_msg = f"网络请求/解析异常: {str(e)}"
                         print(f"请求第 {attempt} 次失败，正在更换代理重试... 错误原因: {e}")
                         current_proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
-                        time.sleep(1)
 
                 else:
                     # 只有当 3 次重试全部失败（没有触发 break）时，才会走进这个 else 块
@@ -857,7 +854,6 @@ class EMWebCrawlerUti:
                     if self.current_working_proxy_us == proxy_dict:
                         self.current_working_proxy_us = None
 
-                time.sleep(1)
             finally:
                 os.environ.pop("HTTP_PROXY", None)
                 os.environ.pop("HTTPS_PROXY", None)
