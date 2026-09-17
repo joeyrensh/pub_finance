@@ -141,12 +141,14 @@ LABEL_MAPPING = {
     "schedule_settings": "Schedule Configuration",
     "strategy_schedule": "Strategy Schedule",
     "proxy_schedule": "Proxy Schedule",
+    "actions_schedule": "Corporate Actions Fetch Schedule",
     "cn_stock_cron": "A-Share Cron",
     "us_stock_cron": "US Market Cron",
     "cn_proxy_cron": "CN Proxy Cron",
     "oversea_proxy_cron": "Oversea Proxy Cron",
+    "cn_actions_cron": "CN Actions Cron",
+    "us_actions_cron": "US Actions Cron",
 }
-
 
 def parse_bins_str(bins_str: str) -> list:
     if not bins_str or not isinstance(bins_str, str):
@@ -260,6 +262,8 @@ if not SCHEDULE_KEYS:
         "us_stock_cron",
         "cn_proxy_cron",
         "oversea_proxy_cron",
+        "cn_actions_cron",
+        "us_actions_cron",
     ]
 
 
@@ -1186,6 +1190,11 @@ def create_schedule_card(config: dict) -> html.Div:
         ("oversea_proxy_cron", sch_cfg.get("oversea_proxy_cron", "30 08 * * *")),
     ]
 
+    actions_schedules = [
+        ("cn_actions_cron", sch_cfg.get("cn_actions_cron", "0 6 * * 0")),
+        ("us_actions_cron", sch_cfg.get("us_actions_cron", "30 6 * * 0")),
+    ]
+
     def render_cron_input(key_name: str, val: str):
         return html.Div(
             [
@@ -1197,7 +1206,7 @@ def create_schedule_card(config: dict) -> html.Div:
                     id=f"input_cron_{key_name}",
                     type="text",
                     value=val,
-                    placeholder="e.g. 30 15 * * *",
+                    placeholder="e.g. 0 6 * * 0",
                     className="custom-grp-input",
                 ),
             ],
@@ -1244,7 +1253,28 @@ def create_schedule_card(config: dict) -> html.Div:
         className="h-100 shadow-sm border-0 rounded-3 mb-4 weight-config-card",
     )
 
-    return html.Div([strategy_card, proxy_card])
+    actions_card = dbc.Card(
+        [
+            dbc.CardHeader(
+                html.Label(
+                    LABEL_MAPPING.get(
+                        "actions_schedule", "Corporate Actions Fetch Schedule"
+                    ),
+                    className="fs-5 fw-bold text-dark l1_label mb-0",
+                )
+            ),
+            dbc.CardBody(
+                html.Div(
+                    [render_cron_input(k, v) for k, v in actions_schedules],
+                    className="grp-inputs-row",
+                ),
+                className="py-3 card-body",
+            ),
+        ],
+        className="h-100 shadow-sm border-0 rounded-3 mb-4 weight-config-card",
+    )
+
+    return html.Div([strategy_card, proxy_card, actions_card])
 
 
 # -------------------------- 页面布局 --------------------------
