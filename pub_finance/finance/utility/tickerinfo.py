@@ -483,138 +483,119 @@ class TickerInfo:
         tickers = self.get_stock_list()
         # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        his_data = self.get_history_data_fqt().groupby(by="symbol")
-        t = ToolKit("读取历史数据文件")
-        list_results = []
-
-        with multiprocessing.Pool(processes=4) as pool:
-            results = [
-                pool.apply_async(self.reconstruct_dataframe, (his_data.get_group(i), i))
-                for i in tickers
-            ]
-            for idx, result in enumerate(results):
-                df = result.get()
-                if not df.empty:
-                    list_results.append(df)
-                t.progress_bar(len(results), idx)
-
-        # 手动清理不再需要的对象
-        his_data = None
-        gc.collect()
-        list_results.sort(key=lambda x: x["datetime"].min())
-        print(
-            f"第一组股票symbol为: {list_results[0]['symbol'].iloc[0]}, 数据起始日期: {list_results[0]['datetime'].min()}, 结束日期: {list_results[0]['datetime'].max()}"
+        his_data = self.get_history_data_fqt()
+        return self.format_backtrader_feed(
+            df_raw=his_data,
+            target_tickers=tickers,
+            trade_date=self.trade_date,
+            market_str=self.market,  # 内部自动精确判定 1 或 2
+            min_bars=61,
+            add_mock_bar=True
         )
-        print(
-            f"最后一组股票symbol为: {list_results[-1]['symbol'].iloc[0]}, 数据起始日期: {list_results[-1]['datetime'].min()}, 结束日期: {list_results[-1]['datetime'].max()}"
-        )
-        return list_results
 
     """ 重构dataframe封装 """
 
-    def reconstruct_dataframe(self, group_obj, i):
+    def format_backtrader_feed(
+        self,
+        df_raw: pd.DataFrame,
+        target_tickers: list,
+        trade_date: str,
+        market_str: str,
+        min_bars: int = 61,
+        add_mock_bar: bool = True
+    ) -> list[pd.DataFrame]:
         """
-        过滤历史数据不完整的股票
-        小于120天的股票暂时不进入回测列表
-        同时检查股票数据中是否存在交易日期对应的数据
+        通用 Backtrader 数据结构转换与格式化函数 (零 Loop 高性能向量化版)
+        
+        :param df_raw: 包含历史数据的 DataFrame (必须包含列: ['symbol', 'date', 'open', 'high', 'low', 'close', 'volume'])
+        :param target_tickers: 需要筛选的目标标的列表
+        :param trade_date: 必须包含的交易日期 (格式: 'YYYYMMDD' 或 'YYYY-MM-DD')
+        :param market_str: 对应 self.market 的字符串值
+        :param min_bars: 过滤的最小 K 线数量阈值，默认 61
+        :param add_mock_bar: 是否在末尾自动追加一天 Mock Bar
+        :return: 适合 Backtrader 加载的 List[pd.DataFrame]
         """
-        # 检查数据长度是否足够
-        if len(group_obj) < 61:
-            return pd.DataFrame()
+        if df_raw.empty or not target_tickers:
+            return []
 
-        # 将self.trade_date从"20251016"转换为"2025-10-16"格式
+        # 1. 规范化 trade_date 格式为 'YYYY-MM-DD'
+        clean_trade_date = str(trade_date).replace("-", "")
         try:
-            trade_date_dt = datetime.datetime.strptime(self.trade_date, "%Y%m%d")
+            trade_date_dt = datetime.datetime.strptime(clean_trade_date, "%Y%m%d")
             trade_date_formatted = trade_date_dt.strftime("%Y-%m-%d")
-        except ValueError as e:
-            print(f"交易日期格式错误: {self.trade_date}, 期望格式: YYYYMMDD, 错误: {e}")
-            return pd.DataFrame()
         except Exception as e:
-            print(f"交易日期处理未知错误: {e}")
-            return pd.DataFrame()
+            print(f"❌ 交易日期解析失败: {trade_date}, 错误: {e}")
+            return []
 
-        # 检查交易日期是否存在于股票数据中
-        if trade_date_formatted not in group_obj["date"].values:
-            return pd.DataFrame()
-        """ 适配BackTrader数据结构 """
-        if self.market in ("us", "us_special", "us_dynamic", "us_backtest"):
-            market = 1
-        elif self.market in ("cn", "cn_dynamic", "cnetf", "cn_backtest"):
-            market = 2
-        df_copy = pd.DataFrame(
-            {
-                "open": group_obj["open"]
-                .fillna(0)
-                .values.astype("float32")
-                .round(decimals=2),
-                "close": group_obj["close"]
-                .fillna(0)
-                .values.astype("float32")
-                .round(decimals=2),
-                "high": group_obj["high"]
-                .fillna(0)
-                .values.astype("float32")
-                .round(decimals=2),
-                "low": group_obj["low"]
-                .fillna(0)
-                .values.astype("float32")
-                .round(decimals=2),
-                "volume": group_obj["volume"].fillna(0).values.astype("int64"),
-                "symbol": i,
-                "market": market,
-                "datetime": pd.to_datetime(group_obj["date"].values, format="%Y-%m-%d"),
-            },
-        ).sort_values(by=["datetime"])
+        # 2. 严格遵循原语义的市场类型判定
+        if market_str in ("us", "us_special", "us_dynamic", "us_backtest"):
+            market_val = 1
+        elif market_str in ("cn", "cn_dynamic", "cnetf", "cn_backtest"):
+            market_val = 2
+        else:
+            market_val = 0
 
-        # ----------------------------
-        # 4. 构造 mock bar（关键新增部分）
-        # ----------------------------
-        last_row = df_copy.iloc[-1].copy()
+        # 3. 筛选指定 Target Symbols 范围的数据
+        tickers_set = set(target_tickers)
+        df = df_raw[df_raw["symbol"].isin(tickers_set)].copy()
+        if df.empty:
+            return []
 
-        # 日期 +1 天
-        last_row["datetime"] = last_row["datetime"] + datetime.timedelta(days=1)
+        # 4. 全表向量化过滤无效 Symbol (条数 < min_bars 或 不含特定交易日)
+        counts = df["symbol"].value_counts()
+        valid_len_symbols = set(counts[counts >= min_bars].index)
+        valid_date_symbols = set(df[df["date"] == trade_date_formatted]["symbol"].unique())
 
-        # volume 可设为 0（推荐）
-        # last_row["volume"] = 0
+        valid_symbols = valid_len_symbols.intersection(valid_date_symbols)
+        if not valid_symbols:
+            return []
 
-        # 拼接 mock bar
-        df_copy = pd.concat(
-            [df_copy, pd.DataFrame([last_row])],
-            ignore_index=True,
-        )
+        df = df[df["symbol"].isin(valid_symbols)].copy()
 
-        return df_copy
+        # 5. 全表向量化转换类型与字段重命名/规范
+        df["datetime"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
+        df["market"] = market_val
+
+        for col in ["open", "high", "low", "close"]:
+            df[col] = df[col].fillna(0.0).astype("float32").round(2)
+        df["volume"] = df["volume"].fillna(0).astype("int64")
+
+        # 保留标准列集合并组内升序
+        target_cols = ["datetime", "open", "high", "low", "close", "volume", "symbol", "market"]
+        df = df[target_cols].sort_values(by=["symbol", "datetime"]).reset_index(drop=True)
+
+        # 6. 向量化构造 Mock Bar (假数据追加)
+        if add_mock_bar:
+            mock_bars = df.groupby("symbol", as_index=False).last()
+            mock_bars["datetime"] = mock_bars["datetime"] + pd.Timedelta(days=1)
+            # mock_bars["volume"] = 0  # 可选：重置假数据的成交量
+            
+            df = pd.concat([df, mock_bars], ignore_index=True)
+            df.sort_values(by=["symbol", "datetime"], inplace=True)
+
+        # 7. 切分为按 Symbol 独立且按起始日期排序的 List[DataFrame]
+        list_results = [group.reset_index(drop=True) for _, group in df.groupby("symbol")]
+        list_results.sort(key=lambda x: x["datetime"].min())
+
+        # 强制清理局部临时数据源
+        del df
+        gc.collect()
+
+        return list_results
 
     def get_backtrader_data_feed_testonly(self, stocklist):
         tickers = stocklist
         # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        his_data = self.get_history_data_fqt().groupby(by="symbol")
-        t = ToolKit("读取历史数据文件")
-        list_results = []
-
-        with multiprocessing.Pool(processes=4) as pool:
-            results = [
-                pool.apply_async(self.reconstruct_dataframe, (his_data.get_group(i), i))
-                for i in tickers
-            ]
-            for idx, result in enumerate(results):
-                df = result.get()
-                if not df.empty:
-                    list_results.append(df)
-                t.progress_bar(len(results), idx)
-
-        # 手动清理不再需要的对象
-        his_data = None
-        gc.collect()
-        list_results.sort(key=lambda x: x["datetime"].min())
-        print(
-            f"第一组股票symbol为: {list_results[0]['symbol'].iloc[0]}, 数据起始日期: {list_results[0]['datetime'].min()}, 结束日期: {list_results[0]['datetime'].max()}"
+        his_data = self.get_history_data_fqt()
+        return self.format_backtrader_feed(
+            df_raw=his_data,
+            target_tickers=tickers,
+            trade_date=self.trade_date,
+            market_str=self.market,  # 内部自动精确判定 1 或 2
+            min_bars=61,
+            add_mock_bar=True
         )
-        print(
-            f"最后一组股票symbol为: {list_results[-1]['symbol'].iloc[0]}, 数据起始日期: {list_results[-1]['datetime'].min()}, 结束日期: {list_results[-1]['datetime'].max()}"
-        )
-        return list_results
 
     def get_etf_list(self):
         # 预定义列的数据类型
@@ -671,32 +652,15 @@ class TickerInfo:
         tickers = self.get_etf_list()
         # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        his_data = self.get_history_data_fqt().groupby(by="symbol")
-        t = ToolKit("读取历史数据文件")
-        list_results = []
-
-        with multiprocessing.Pool(processes=4) as pool:
-            results = [
-                pool.apply_async(self.reconstruct_dataframe, (his_data.get_group(i), i))
-                for i in tickers
-            ]
-            for idx, result in enumerate(results):
-                df = result.get()
-                if not df.empty:
-                    list_results.append(df)
-                t.progress_bar(len(results), idx)
-
-        # 手动清理不再需要的对象
-        his_data = None
-        gc.collect()
-        list_results.sort(key=lambda x: x["datetime"].min())
-        print(
-            f"第一组股票symbol为: {list_results[0]['symbol'].iloc[0]}, 数据起始日期: {list_results[0]['datetime'].min()}, 结束日期: {list_results[0]['datetime'].max()}"
+        his_data = self.get_history_data_fqt()
+        return self.format_backtrader_feed(
+            df_raw=his_data,
+            target_tickers=tickers,
+            trade_date=self.trade_date,
+            market_str=self.market,  # 内部自动精确判定 1 或 2
+            min_bars=61,
+            add_mock_bar=True
         )
-        print(
-            f"最后一组股票symbol为: {list_results[-1]['symbol'].iloc[0]}, 数据起始日期: {list_results[-1]['datetime'].min()}, 结束日期: {list_results[-1]['datetime'].max()}"
-        )
-        return list_results
 
     def get_special_us_stock_list_180d(self):
         """
@@ -790,33 +754,15 @@ class TickerInfo:
 
         # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        his_data = self.get_history_data_fqt().groupby(by="symbol")
-        t = ToolKit("读取历史数据文件")
-        list_results = []
-
-        with multiprocessing.Pool(processes=4) as pool:
-            results = [
-                pool.apply_async(self.reconstruct_dataframe, (his_data.get_group(i), i))
-                for i in tickers_clean
-            ]
-            for idx, result in enumerate(results):
-                df = result.get()
-                if not df.empty:
-                    list_results.append(df)
-                t.progress_bar(len(results), idx)
-
-        # 手动清理不再需要的对象
-        his_data = None
-        gc.collect()
-        list_results.sort(key=lambda x: x["datetime"].min())
-        print(
-            f"第一组股票symbol为: {list_results[0]['symbol'].iloc[0]}, 数据起始日期: {list_results[0]['datetime'].min()}, 结束日期: {list_results[0]['datetime'].max()}"
+        his_data = self.get_history_data_fqt()
+        return self.format_backtrader_feed(
+            df_raw=his_data,
+            target_tickers=tickers_clean,
+            trade_date=self.trade_date,
+            market_str=self.market,  # 内部自动精确判定 1 或 2
+            min_bars=61,
+            add_mock_bar=True
         )
-        print(
-            f"最后一组股票symbol为: {list_results[-1]['symbol'].iloc[0]}, 数据起始日期: {list_results[-1]['datetime'].min()}, 结束日期: {list_results[-1]['datetime'].max()}"
-        )
-
-        return list_results
 
     def get_dynamic_stock_list(self):
         # ===== 新增：读取 dynamic_list.csv 并合并 =====
@@ -849,33 +795,15 @@ class TickerInfo:
 
         # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        his_data = self.get_history_data_fqt().groupby(by="symbol")
-        t = ToolKit("读取历史数据文件")
-        list_results = []
-
-        with multiprocessing.Pool(processes=4) as pool:
-            results = [
-                pool.apply_async(self.reconstruct_dataframe, (his_data.get_group(i), i))
-                for i in tickers_clean
-            ]
-            for idx, result in enumerate(results):
-                df = result.get()
-                if not df.empty:
-                    list_results.append(df)
-                t.progress_bar(len(results), idx)
-
-        # 手动清理不再需要的对象
-        his_data = None
-        gc.collect()
-        list_results.sort(key=lambda x: x["datetime"].min())
-        print(
-            f"第一组股票symbol为: {list_results[0]['symbol'].iloc[0]}, 数据起始日期: {list_results[0]['datetime'].min()}, 结束日期: {list_results[0]['datetime'].max()}"
+        his_data = self.get_history_data_fqt()
+        return self.format_backtrader_feed(
+            df_raw=his_data,
+            target_tickers=tickers_clean,
+            trade_date=self.trade_date,
+            market_str=self.market,  # 内部自动精确判定 1 或 2
+            min_bars=61,
+            add_mock_bar=True
         )
-        print(
-            f"最后一组股票symbol为: {list_results[-1]['symbol'].iloc[0]}, 数据起始日期: {list_results[-1]['datetime'].min()}, 结束日期: {list_results[-1]['datetime'].max()}"
-        )
-
-        return list_results
 
     def get_recent_pe_data(self):
         """读取历史数据，过滤最近180天内存在pe和total_value的数据，并排除大于trade_date的数据"""
@@ -988,7 +916,10 @@ class TickerInfo:
 
 
     def get_history_data_fqt(self) -> pd.DataFrame:
-        """实时计算前复权 (全表零 Loop 向量化版，完美支持 500+ 标的大规模回测)"""
+        """
+        计算前复权历史数据 (对齐美股/A股券商APP标准算式)
+        支持: 多次拆股、现金分红、同时拆股派息、极低价负值防御
+        """
         df_raw = self.get_history_data()
         if df_raw.empty:
             return df_raw
@@ -997,76 +928,82 @@ class TickerInfo:
         if not os.path.exists(actions_file):
             return df_raw
 
-        # 1. 按需提取当前回测标的的除权事件 (瞬间缩小数据量)
+        # 1. 提取当前标的的除权事件
         target_symbols = set(df_raw["symbol"].unique())
-
         df_actions_all = pd.read_csv(
             actions_file, 
             usecols=["symbol", "date", "dividend", "split_ratio"],
             dtype={"symbol": str, "date": str}
         )
-        
         df_actions = df_actions_all[df_actions_all["symbol"].isin(target_symbols)].copy()
 
-        # Fast-pass 1: 如果输入的 500 只股票在回测时间内没有任何除权事件，直接 0 开销返回
         if df_actions.empty:
             return df_raw
 
         # 2. 保证全局按 [symbol, date] 升序排列
         df_raw = df_raw.sort_values(["symbol", "date"]).reset_index(drop=True)
 
-        # 3. 批量 Left Join，一次性对齐所有股票的事件
-        df_merged = pd.merge(
-            df_raw,
-            df_actions,
-            on=["symbol", "date"],
-            how="left"
-        )
-
-        # 填补默认值
+        # 3. 批量 Left Join 除权事件
+        df_merged = pd.merge(df_raw, df_actions, on=["symbol", "date"], how="left")
         df_merged["dividend"] = df_merged["dividend"].fillna(0.0)
         df_merged["split_ratio"] = df_merged["split_ratio"].fillna(1.0).replace(0.0, 1.0)
 
-        # Fast-pass 2: 全表没有有效派息或拆股，直接返回
+        # 快速通道：无有效派息或拆股
         if (df_merged["dividend"] == 0).all() and (df_merged["split_ratio"] == 1.0).all():
             df_merged.drop(columns=["dividend", "split_ratio"], inplace=True)
             return df_merged
 
-        # ==================== 核心：全表零 Loop 倒序累乘/累加向量化 ====================
-        # 4. 为了进行倒序 cumprod/cumsum，我们将全表倒序排列
-        df_rev = df_merged.iloc[::-1].copy()
+        # ==================== 4. 倒序向量化计算累积复权因子 ====================
+        # 物理翻转 DataFrame 并重置索引，隔离 Pandas 索引强行对齐
+        df_rev = df_merged.iloc[::-1].copy().reset_index(drop=True)
 
-        # 倒序计算拆股因子：除权日当天的 split 影响历史，所以按组下移 (shift) 1 位
+        # 拆股倒序倒数：1 / split_ratio (例如 1拆2 填 0.5; 2缩1 填 2.0)
         df_rev["split_inv"] = 1.0 / df_rev["split_ratio"]
-        df_rev["split_inv_shifted"] = df_rev.groupby("symbol")["split_inv"].shift(1, fill_value=1.0)
-        
-        # 组内倒序累乘获取 cum_split (C 语言级别全表并行)
-        df_rev["cum_split"] = df_rev.groupby("symbol")["split_inv_shifted"].cumprod()
 
-        # 倒序计算分红扣减额：分红在拆股后需要被后续拆股乘数折算，当天的分红影响历史，按组下移 1 位
+        # (A) 拆股累积因子 cum_split
+        # 除权日 T 的拆股只影响 T-1 及之前的历史，倒序下 shift(1)
+        df_rev["cum_split"] = (
+            df_rev.groupby("symbol")["split_inv"]
+            .shift(1, fill_value=1.0)
+            .groupby(df_rev["symbol"])
+            .cumprod()
+        )
+
+        # (B) 分红折算与累加 cum_div (标准券商模型)
+        # T 日发生的现金分红，在折算历史扣减额时，只需乘上 T 日之后(不含 T 日)的拆股累积因子
+        # 因此使用已 shift(1) 的 cum_split 进行折算
         df_rev["adj_div"] = df_rev["dividend"] * df_rev["cum_split"]
-        df_rev["adj_div_shifted"] = df_rev.groupby("symbol")["adj_div"].shift(1, fill_value=0.0)
         
-        # 组内倒序累加获取 cum_div (C 语言级别全表并行)
-        df_rev["cum_div"] = df_rev.groupby("symbol")["adj_div_shifted"].cumsum()
+        # 派息同样只影响 T-1 及之前的历史，倒序下再 shift(1) 后累加
+        df_rev["cum_div"] = (
+            df_rev.groupby("symbol")["adj_div"]
+            .shift(1, fill_value=0.0)
+            .groupby(df_rev["symbol"])
+            .cumsum()
+        )
 
-        # 5. 翻转回正序
-        df_final = df_rev.iloc[::-1].copy()
+        # ==================== 5. 正序恢复与价格/成交量复权 ====================
+        df_final = df_rev.iloc[::-1].copy().reset_index(drop=True)
 
-        # 6. 一次性批量计算价格与成交量
-        cum_div_scaled = df_final["cum_div"] / df_final["cum_split"]
-        
+        cum_split = df_final["cum_split"]
+        cum_div = df_final["cum_div"]
+
+        # 算式：P_adj = P_raw * cum_split - cum_div
         for col in ["open", "high", "low", "close"]:
-            df_final[col] = ((df_final[col] - cum_div_scaled) * df_final["cum_split"]).round(4)
+            adj_price = df_final[col] * cum_split - cum_div
             
-        df_final["volume"] = (df_final["volume"] / df_final["cum_split"]).round(0)
+            # 极低价/负价格防御 (美股/A股长周期回测必备)
+            # 券商 APP 在遇到历史复权价 <= 0 时，通常保底设为 0.0001 或 0.01，防止收益率计算出现 ZeroDivisionError
+            df_final[col] = np.maximum(adj_price, 0.0001).round(4)
 
-        # 7. 清理临时列，恢复原始列结构
+        # 成交量复权：Volume_adj = Volume_raw / cum_split
+        df_final["volume"] = (df_final["volume"] / cum_split).round(0)
+
+        # 清理中间列
         cols_to_drop = [
             "dividend", "split_ratio", "split_inv", 
-            "split_inv_shifted", "cum_split", "adj_div", 
-            "adj_div_shifted", "cum_div"
+            "cum_split", "adj_div", "cum_div"
         ]
-        df_final.drop(columns=cols_to_drop, inplace=True)
+        df_final.drop(columns=cols_to_drop, inplace=True, errors="ignore")
 
         return df_final

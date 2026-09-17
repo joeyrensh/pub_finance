@@ -9,6 +9,7 @@ import logging
 import os
 from pathlib import Path
 import re
+import shutil
 import sys
 import time
 from typing import Dict, List, Optional, Set, Tuple
@@ -19,8 +20,7 @@ from tqdm import tqdm
 import yfinance as yf
 
 # ==============================================================================
-# 关键修复：彻底全局禁用 tqdm 进度条
-# 解决 AkShare 内部调用 tqdm 导致的控制台闪屏刷新以及画面卡死在 "0%" 的问题
+# 屏蔽 tqdm 进度条，彻底解决终端闪屏与 0% 卡死
 # ==============================================================================
 tqdm.__init__ = partialmethod(tqdm.__init__, disable=True)
 
@@ -46,10 +46,9 @@ def format_proxy_url(proxy_str: str) -> str:
 class StockActionsFetcher:
     """中美股及 ETF 除权分红数据批量抓取器
 
-    - 屏蔽 AkShare 内部 tqdm 进度条，彻底解决终端闪屏与 0% 卡死
-    - 修复无历史分红股票/新股触发的 'NoneType' object is not subscriptable 异常
+    - 支持定时任务：跨天自动重置 Checkpoint 开启新一轮全量刷刷新，同天崩溃支持断点续传
+    - 安全文件轮换：数据实时写入带日期文件，完成后原文件备份为 .bak 并顺次重命名
     - 统一中美股 split_ratio 语义：无拆分时均为 1.0，1拆N 时为 N.0
-    - 基于全量股票数精准实时计算全局进度 %
     """
 
     CSV_HEADERS = ["symbol", "date", "dividend", "split_ratio"]
@@ -65,10 +64,13 @@ class StockActionsFetcher:
         batch_size: int = 50,
         max_retries_per_symbol: int = 3,
         start_date: Optional[str] = "2025-01-01",  # 格式: YYYY-MM-DD
+        force_refresh: bool = False,  # 是否强制重置 Checkpoint 重新抓取
     ):
         self.market = market.lower()
         if self.market not in ["cn", "us"]:
             raise ValueError("market 参数必须为 'cn' 或 'us'")
+
+        self.force_refresh = force_refresh
 
         # 1. 目录及路径定位
         default_dir = "cnstockinfo" if self.market == "cn" else "usstockinfo"
@@ -84,8 +86,18 @@ class StockActionsFetcher:
         default_out = f"{self.market}_stock_actions_history.csv"
         default_ckpt = f"{self.market}_actions_fetch_checkpoint.json"
 
-        self.output_csv_path = self.target_dir / (output_filename or default_out)
+        self.output_filename_str = output_filename or default_out
+        self.output_csv_path = self.target_dir / self.output_filename_str
         self.checkpoint_path = self.target_dir / (checkpoint_filename or default_ckpt)
+
+        # 构建带当前日期的文件路径与 .bak 文件路径
+        # 例如: cn_stock_actions_history_20260917.csv 与 cn_stock_actions_history.bak
+        today_str = datetime.datetime.now().strftime("%Y%m%d")
+        stem = Path(self.output_filename_str).stem
+        suffix = Path(self.output_filename_str).suffix
+
+        self.dated_csv_path = self.target_dir / f"{stem}_{today_str}{suffix}"
+        self.bak_csv_path = self.target_dir / f"{stem}.bak"
 
         # 2. 参数与网络设置
         self.batch_size = batch_size
@@ -99,7 +111,7 @@ class StockActionsFetcher:
             self.current_working_proxy: Optional[Dict[str, str]] = None
 
         # 3. 映射表与断点记录
-        self.cn_symbol_map: Dict[str, str] = {}  # 纯数字代码 -> 原始带前缀 Symbol (如 510300 -> ETF510300)
+        self.cn_symbol_map: Dict[str, str] = {}  # 纯数字代码 -> 原始带前缀 Symbol
         self.processed_symbols: Set[str] = self._load_checkpoint()
 
         if self.market == "cn":
@@ -135,14 +147,46 @@ class StockActionsFetcher:
             self.cn_symbol_map[clean_code] = raw_sym
 
     def _load_checkpoint(self) -> Set[str]:
-        """读取断点记录"""
+        """智能加载断点记录：
+        1. 若启用 force_refresh，直接重置。
+        2. 若 Checkpoint 修改日期不是今天（跨天/每周定时任务），自动重置清空。
+        3. 若为当天留下的记录，说明中途崩溃，恢复断点续传。
+        """
+        if self.force_refresh:
+            logger.info("⚡ [定时模式] 已开启 force_refresh，清空旧 Checkpoint，开启全新抓取周期。")
+            self._clear_checkpoint()
+            return set()
+
         if self.checkpoint_path.exists():
             try:
+                mtime = datetime.datetime.fromtimestamp(self.checkpoint_path.stat().st_mtime)
+                today = datetime.datetime.now().date()
+
+                if mtime.date() < today:
+                    logger.info(
+                        f"📅 检测到 Checkpoint 为历史日期 ({mtime.strftime('%Y-%m-%d')})，"
+                        f"判定为新一轮定时任务，自动重置 Checkpoint。"
+                    )
+                    self._clear_checkpoint()
+                    return set()
+
                 with open(self.checkpoint_path, "r", encoding="utf-8") as f:
-                    return set(json.load(f))
+                    symbols = set(json.load(f))
+                    logger.info(f"🔄 检测到当日 Checkpoint，成功载入 {len(symbols)} 条已处理记录 (断点续传模式)")
+                    return symbols
+
             except Exception as e:
                 logger.warning(f"读取 Checkpoint 失败，将重新建立: {e}")
+
         return set()
+
+    def _clear_checkpoint(self):
+        """清空 checkpoint 文件"""
+        if self.checkpoint_path.exists():
+            try:
+                os.remove(self.checkpoint_path)
+            except Exception as e:
+                logger.warning(f"删除旧 Checkpoint 文件失败: {e}")
 
     def _save_checkpoint(self):
         """保存断点记录"""
@@ -150,26 +194,49 @@ class StockActionsFetcher:
             json.dump(list(self.processed_symbols), f)
 
     def _save_records_to_csv(self, records: List[Dict]):
-        """统一落盘逻辑，确保追加时严格符合规范 Header"""
+        """执行安全落盘与轮换逻辑:
+        1. 实时数据追加写入到 cn_stock_actions_history_20260917.csv
+        2. 原文件 cn_stock_actions_history.csv 暂时更名为 .bak 备份
+        3. 将 cn_stock_actions_history_20260917.csv 命名为 cn_stock_actions_history.csv 主文件
+        4. 最后将 .bak 文件重命名回 cn_stock_actions_history_20260917.csv
+        """
         if not records:
             return
 
-        df = pd.DataFrame(records)
-        df = df[self.CSV_HEADERS]  # 强行按统一 Header 调整顺序
+        df = pd.DataFrame(records)[self.CSV_HEADERS]
 
-        file_exists = (
-            self.output_csv_path.exists()
-            and os.path.getsize(self.output_csv_path) > 0
+        # 若当天的文件不存在，但主文件已存在，复制主文件作为当天基础数据，防止历史记录遗失
+        if not self.dated_csv_path.exists() and self.output_csv_path.exists():
+            shutil.copy2(self.output_csv_path, self.dated_csv_path)
+
+        dated_file_exists = (
+            self.dated_csv_path.exists() and os.path.getsize(self.dated_csv_path) > 0
         )
 
+        # 1. 追加写入到当日带日期的 CSV 文件
         df.to_csv(
-            self.output_csv_path,
+            self.dated_csv_path,
             mode="a",
             index=False,
-            header=not file_exists,  # 仅文件不存在/为空时写 Header
+            header=not dated_file_exists,
             encoding="utf-8-sig",
         )
         del df
+
+        # 2. 将主文件暂存为 .bak
+        if self.output_csv_path.exists():
+            if self.bak_csv_path.exists():
+                os.remove(self.bak_csv_path)
+            os.rename(self.output_csv_path, self.bak_csv_path)
+
+        # 3. 将新的带日期文件复制一份更新为主文件
+        shutil.copy2(self.dated_csv_path, self.output_csv_path)
+
+        # 4. 将 .bak 文件替换为带日期归档的文件
+        if self.bak_csv_path.exists():
+            if self.dated_csv_path.exists():
+                os.remove(self.dated_csv_path)
+            os.rename(self.bak_csv_path, self.dated_csv_path)
 
     # ==================== CN (AkShare) 处理逻辑 ====================
     def load_cn_symbols(self) -> Tuple[List[str], List[str]]:
@@ -184,13 +251,12 @@ class StockActionsFetcher:
         return sorted(list(set(stocks))), sorted(list(set(etfs)))
 
     def fetch_actions_for_etfs(self, etf_list: List[str]) -> List[Dict]:
-        """批量获取 ETF 分红与拆分数据（修复版：同日合并、严格填充 1.0）"""
+        """批量获取 ETF 分红与拆分数据"""
         if not etf_list:
             return []
 
-        # 使用 dict 结构以 (symbol, date) 为 key 进行同日数据合并
         action_map: Dict[Tuple[str, str], Dict[str, float]] = {}
-        
+
         start_year = int(self.start_date[:4]) if self.start_date else 2025
         current_year = datetime.datetime.now().year
         years_to_fetch = [str(y) for y in range(start_year, current_year + 1)]
@@ -199,7 +265,6 @@ class StockActionsFetcher:
         logger.info(f"[CN ETF] 开始获取 {len(etf_list)} 只 ETF 在 {years_to_fetch} 年份内的数据...")
 
         for yr in years_to_fetch:
-            # 1. 抓取分红 (ak.fund_fh_em)
             try:
                 df_fh = ak.fund_fh_em(year=yr, page=-1)
                 if df_fh is not None and not df_fh.empty and "基金代码" in df_fh.columns:
@@ -209,7 +274,7 @@ class StockActionsFetcher:
                     for _, row in df_target_fh.iterrows():
                         code = row["基金代码"]
                         ex_date = str(row["除息日期"]).strip()
-                        
+
                         try:
                             div_val = float(row["分红"]) if pd.notna(row["分红"]) else 0.0
                         except (ValueError, TypeError):
@@ -218,7 +283,7 @@ class StockActionsFetcher:
                         if re.match(r"^\d{4}-\d{2}-\d{2}$", ex_date) and div_val > 0:
                             if self.start_date and ex_date < self.start_date:
                                 continue
-                            
+
                             raw_sym = self.cn_symbol_map.get(code, f"ETF{code}")
                             key = (raw_sym, ex_date)
                             if key not in action_map:
@@ -227,7 +292,6 @@ class StockActionsFetcher:
             except Exception as e:
                 logger.warning(f"[CN ETF] 抓取 {yr} 年分红数据失败: {e}")
 
-            # 2. 抓取拆分折算 (ak.fund_cf_em)
             try:
                 df_cf = ak.fund_cf_em(year=yr, page=-1)
                 if df_cf is not None and not df_cf.empty and "基金代码" in df_cf.columns:
@@ -237,7 +301,7 @@ class StockActionsFetcher:
                     for _, row in df_target_cf.iterrows():
                         code = row["基金代码"]
                         ex_date = str(row["拆分折算日"]).strip()
-                        
+
                         try:
                             ratio_val = float(row["拆分折算"]) if pd.notna(row["拆分折算"]) else 1.0
                         except (ValueError, TypeError):
@@ -246,7 +310,7 @@ class StockActionsFetcher:
                         if re.match(r"^\d{4}-\d{2}-\d{2}$", ex_date) and ratio_val != 1.0 and ratio_val > 0:
                             if self.start_date and ex_date < self.start_date:
                                 continue
-                            
+
                             raw_sym = self.cn_symbol_map.get(code, f"ETF{code}")
                             key = (raw_sym, ex_date)
                             if key not in action_map:
@@ -255,7 +319,6 @@ class StockActionsFetcher:
             except Exception as e:
                 logger.warning(f"[CN ETF] 抓取 {yr} 年拆分数据失败: {e}")
 
-        # 转换回 record 列表
         records = []
         for (sym, date_str), data in action_map.items():
             records.append({
@@ -269,7 +332,7 @@ class StockActionsFetcher:
         return records
 
     def fetch_actions_for_cn_stock(self, symbol: str) -> List[Dict]:
-        """抓取单只 CN 股票的除权除息数据（换算为每股分红与拆分倍数）"""
+        """抓取单只 CN 股票的除权除息数据"""
         records = []
         raw_sym = self.cn_symbol_map.get(symbol, symbol)
         try:
@@ -290,7 +353,6 @@ class StockActionsFetcher:
                     if self.start_date and date_str < self.start_date:
                         continue
 
-                    # 1. 严格解析现金分红 (每10股派现 -> 换算为每股派现)
                     cash_raw = row.get("现金分红-现金分红比例", 0.0)
                     try:
                         cash_10 = float(cash_raw) if (pd.notna(cash_raw) and str(cash_raw).strip() not in ["-", "nan", ""]) else 0.0
@@ -298,29 +360,23 @@ class StockActionsFetcher:
                         cash_10 = 0.0
                     div_val = cash_10 / 10.0
 
-                    # 2. 严格解析送股比例 (每10股送N股)
                     song_raw = row.get("送转股份-送股比例", 0.0)
                     try:
                         song_10 = float(song_raw) if (pd.notna(song_raw) and str(song_raw).strip() not in ["-", "nan", ""]) else 0.0
                     except (ValueError, TypeError):
                         song_10 = 0.0
 
-                    # 3. 严格解析转股比例 (每10股转N股)
                     zhuan_raw = row.get("送转股份-转股比例", 0.0)
                     try:
                         zhuan_10 = float(zhuan_raw) if (pd.notna(zhuan_raw) and str(zhuan_raw).strip() not in ["-", "nan", ""]) else 0.0
                     except (ValueError, TypeError):
                         zhuan_10 = 0.0
 
-                    # 4. 计算拆分倍数：1 + (送股+转股)/10
-                    # 例如: 10转4股 -> 1 + (0 + 4)/10 = 1.4
-                    # 例如: 不送不转 -> 1 + (0 + 0)/10 = 1.0
                     split_ratio_val = 1.0 + ((song_10 + zhuan_10) / 10.0)
 
                     if pd.isna(split_ratio_val) or split_ratio_val <= 0:
                         split_ratio_val = 1.0
 
-                    # 只要存在现金分红(>0)或者发生股权拆分送转(!=1.0)，就写入记录
                     if div_val > 0 or abs(split_ratio_val - 1.0) > 1e-6:
                         records.append({
                             "symbol": raw_sym,
@@ -390,8 +446,6 @@ class StockActionsFetcher:
                         div = float(row.get("Dividends", 0.0))
                         raw_split = float(row.get("Stock Splits", 0.0))
 
-                        # 核心改动：对齐中美股语义
-                        # 若 raw_split <= 0（即未发生拆分），则归一化为 1.0 拆分乘数
                         split_ratio_val = raw_split if raw_split > 0.0 else 1.0
 
                         if div > 0 or split_ratio_val != 1.0:
@@ -399,7 +453,7 @@ class StockActionsFetcher:
                                 "symbol": symbol,
                                 "date": date_str,
                                 "dividend": div,
-                                "split_ratio": split_ratio_val,  # 统一无拆分填 1.0
+                                "split_ratio": split_ratio_val,
                             })
 
                 del actions
@@ -430,7 +484,6 @@ class StockActionsFetcher:
         if self.market == "cn":
             all_stocks, etf_list = self.load_cn_symbols()
 
-            # 1. 判断未处理的 ETF 并落盘
             pending_etfs = [e for e in etf_list if e not in self.processed_symbols]
             if pending_etfs:
                 logger.info(f"检测到未处理 ETF 共 {len(pending_etfs)} 只，开始提取...")
@@ -456,7 +509,6 @@ class StockActionsFetcher:
             logger.warning("未检测到待处理的股票，任务终止。")
             return
 
-        # 精确计算股票维度已处理和未处理的列表
         finished_stocks = [s for s in all_symbols if s in self.processed_symbols]
         pending_symbols = [s for s in all_symbols if s not in self.processed_symbols]
 
@@ -483,7 +535,6 @@ class StockActionsFetcher:
 
             batch_records = []
             for idx_in_batch, symbol in enumerate(batch_symbols, 1):
-                # 计算绝对真实的全局当前处理位置与百分比
                 current_global_idx = processed_count + idx_in_batch
                 progress_pct = (current_global_idx / total_count) * 100
                 display_symbol = self.cn_symbol_map.get(symbol, symbol) if self.market == "cn" else symbol
@@ -492,17 +543,15 @@ class StockActionsFetcher:
                 if records:
                     batch_records.extend(records)
 
-                # 强行每处理一只打印一次全局百分比进度
                 logger.info(
                     f"[{progress_pct:6.2f}%] [{current_global_idx:4d}/{total_count:4d}] "
                     f"[Batch {batch_idx + 1}/{total_batches}] [{display_symbol}] 抓取完成 (保留 {len(records)} 条除权记录)"
                 )
 
-            # 批次落盘 CSV
+            # 批次落盘 CSV（安全轮换逻辑）
             if batch_records:
                 self._save_records_to_csv(batch_records)
 
-            # 更新计数和 Checkpoint
             processed_count += len(batch_symbols)
             self.processed_symbols.update(batch_symbols)
             self._save_checkpoint()
