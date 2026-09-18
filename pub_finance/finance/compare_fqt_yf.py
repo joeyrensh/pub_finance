@@ -135,23 +135,25 @@ def compare_kline_data(df_my_fqt, df_yf, actions_path=None):
     actions_map = {}
     if actions_path and os.path.exists(actions_path):
         try:
-            # 💡 强类型解析，避免字符串或类型混淆
+            # 读取 CSV 并确保字符串列没有隐式空格
             df_act = pd.read_csv(actions_path, dtype=str)
             df_act['symbol'] = df_act['symbol'].astype(str).str.strip().str.upper()
-            df_act['date'] = pd.to_datetime(df_act['date']).dt.strftime('%Y-%m-%d')
+            df_act['date'] = pd.to_datetime(df_act['date'].astype(str).str.strip()).dt.strftime('%Y-%m-%d')
             
-            # 数值类型安全转换
-            df_act['dividend'] = pd.to_numeric(df_act.get('dividend', 0), errors='coerce').fillna(0.0)
-            df_act['split_ratio'] = pd.to_numeric(df_act.get('split_ratio', 1.0), errors='coerce').fillna(1.0)
+            # 💡 关键防御 1：显式转换为 float 类型，失败的填入默认值
+            df_act['dividend'] = pd.to_numeric(df_act.get('dividend'), errors='coerce').fillna(0.0)
+            df_act['split_ratio'] = pd.to_numeric(df_act.get('split_ratio'), errors='coerce').fillna(1.0)
             
-            # 💡 精准过滤：存在现金分红(>0) 或 拆股(!=1.0，留出浮点数误差余量)
-            df_act_valid = df_act[
-                (df_act['dividend'] > 0) | (np.abs(df_act['split_ratio'] - 1.0) > 1e-6)
-            ].sort_values('date')
+            # 💡 关键防御 2：精准判断事件（支持小数拆股 1.025 / 1.01，以及 0.0 现金分红但有拆股的情况）
+            has_dividend = df_act['dividend'] > 1e-6
+            has_split = ~np.isclose(df_act['split_ratio'], 1.0, atol=1e-5) # 不等于 1.0 (容忍浮点数微小误差)
+            
+            df_act_valid = df_act[has_dividend | has_split].sort_values('date')
 
             for sym, group in df_act_valid.groupby('symbol'):
                 actions_map[sym] = group['date'].tolist()
                 
+            print(f"✅ 成功加载 Actions 复权事件：涵盖 {len(actions_map)} 只股票的除权除息记录。")
         except Exception as e:
             print(f"⚠️ 读取复权因子事件文件失败: {e}")
 

@@ -40,7 +40,7 @@ class StockDataUpdater:
 
     def get_latest_stock_file(self) -> Path:
         """获取 data_dir 目录下修改时间最新的 stock_*.csv 文件"""
-        files = [Path(f) for f in self.all_files if not f.endswith("_new.csv")]
+        files = [Path(f) for f in self.all_files if not f.name.endswith("_new.csv")]
         if not files:
             raise FileNotFoundError(f"未在目录 {self.data_dir} 下找到任何 stock_*.csv 文件")
         latest_file = max(files, key=lambda f: f.stat().st_mtime)
@@ -50,8 +50,8 @@ class StockDataUpdater:
     def get_symbols_from_latest_file(self) -> List[str]:
         """从最新的股票数据文件中提取去重后的 Symbol 列表"""
         latest_file = self.get_latest_stock_file()
-        df = pd.read_csv(latest_file, usecols=lambda c: c in ["symbol", "Symbol"])
-        col_name = "symbol" if "symbol" in df.columns else "Symbol"
+        df = pd.read_csv(latest_file, usecols=lambda c: c.lower() in ["symbol"])
+        col_name = next(c for c in df.columns if c.lower() == "symbol")
         symbols = (
             df[col_name]
             .dropna()
@@ -76,15 +76,11 @@ class StockDataUpdater:
         """使用 yfinance 方法按批次（Batch）拉取不复权历史数据，支持分批低内存检查与断点续抓"""
         em = EMWebCrawlerUti()
 
-        # -------------------------------------------------------------
-        # 1. 检查断点：低内存分批读取已存在的目标 CSV 文件，获取已完成的 Symbol 集合
-        # -------------------------------------------------------------
         fetched_symbols: Set[str] = set()
         
         if new_data_path.exists() and new_data_path.stat().st_size > 0:
             print(f"🔍 检测到已存在缓存文件 {new_data_path.name}，正在分批扫描已抓取的 Symbol...")
             try:
-                # 使用 chunksize 分批读取 symbol 列，防止超大文件导致的 OOM
                 for chunk in pd.read_csv(
                     new_data_path,
                     usecols=lambda c: c.lower() in ["symbol"],
@@ -107,10 +103,7 @@ class StockDataUpdater:
                 new_data_path.unlink()
                 fetched_symbols.clear()
 
-        # 控制 CSV Header 的写入：如果文件不存在或为空，则需要写入 Header；若已有内容，则只追加数据行
         is_first_write = not (new_data_path.exists() and new_data_path.stat().st_size > 0)
-
-        # 过滤出未抓取的 Symbol 列表
         remaining_symbols = [s for s in symbols if s.upper() not in fetched_symbols]
         skipped_count = len(symbols) - len(remaining_symbols)
 
@@ -125,17 +118,12 @@ class StockDataUpdater:
 
         batch_buffer = []
         total_fetched_count = 0
-
-        # -------------------------------------------------------------
-        # 2. 遍历剩余 Symbol 进行抓取与追加落盘
-        # -------------------------------------------------------------
         total_remaining = len(remaining_symbols)
 
         for idx, symbol in enumerate(remaining_symbols, 1):
             symbol_data = None
             for retry in range(max_retries):
                 try:
-                    # 调用 yfinance 历史数据抓取函数
                     symbol_data = em.get_us_his_stock_info_yf(
                         symbol=symbol,
                         start_date=start_date,
@@ -152,20 +140,15 @@ class StockDataUpdater:
                 except Exception as e:
                     print(f"  ❌ [Symbol: {symbol}] 请求异常: {e}，进行第 {retry + 1} 次重试...")
 
-            # -------------------------------------------------------------
-            # 3. 缓冲区达到 batch_size 或处理到最后一个 Symbol 时落盘
-            # -------------------------------------------------------------
             if len(batch_buffer) >= symbol_batch_size or idx == total_remaining:
                 if batch_buffer:
                     df_batch = pd.DataFrame(batch_buffer)
                     
-                    # 校验必要字段
                     required_cols = set(self.key_cols + self.update_cols)
                     missing_cols = required_cols - set(df_batch.columns)
                     if missing_cols:
                         raise ValueError(f"抓取的数据缺少以下必要字段: {missing_cols}")
 
-                    # 按批次追加写入 CSV
                     df_batch.to_csv(
                         new_data_path,
                         mode="a",
@@ -176,7 +159,7 @@ class StockDataUpdater:
                     
                     total_fetched_count += len(batch_buffer)
                     is_first_write = False
-                    batch_buffer.clear()  # 及时释放内存
+                    batch_buffer.clear()
                     print(f"💾 [Progress] 已累积追加保存 {total_fetched_count} 条记录至 {new_data_path.name}")
 
         if not new_data_path.exists() or new_data_path.stat().st_size == 0:
@@ -188,12 +171,10 @@ class StockDataUpdater:
         """加载新爬取的股票数据并构建快速查找字典"""
         new_df = pd.read_csv(new_data_path, dtype={col: str for col in self.key_cols})
 
-        # 确保更新列格式正确
         for col in self.update_cols:
             if col in new_df.columns:
                 new_df[col] = pd.to_numeric(new_df[col], errors="coerce")
 
-        # 去重并构建查找字典 {(symbol, date): {col: value}}
         new_df = new_df.drop_duplicates(subset=self.key_cols, keep="last")
         return new_df.set_index(self.key_cols)[self.update_cols].to_dict("index")
 
@@ -211,9 +192,11 @@ class StockDataUpdater:
             self._process_single_file(file_path, new_file_path, new_data_dict)
 
     def _process_single_file(self, input_path: str, output_path: str, new_data_dict: Dict):
+        # 💡 1. 精确读取原始文件的 Header 字符串列表
         with open(input_path, "r", encoding="utf-8") as f:
+            reader = csv.reader(f)
             try:
-                header = next(csv.reader(f))
+                raw_header = next(reader)
             except StopIteration:
                 print(f"文件 {input_path} 为空，跳过。")
                 return
@@ -221,12 +204,13 @@ class StockDataUpdater:
         existing_keys = set()
         file_dates = set()
 
+        # 💡 2. 扫描原有文件 Key 集合
         for chunk in self._read_csv_in_chunks(input_path):
-            if chunk is None:
+            if chunk is None or chunk.empty:
                 continue
-            keys = set(zip(chunk[self.key_cols[0]], chunk[self.key_cols[1]]))
+            keys = set(zip(chunk[self.key_cols[0]].astype(str), chunk[self.key_cols[1]].astype(str)))
             existing_keys.update(keys)
-            dates_in_chunk = set(chunk[self.key_cols[1]].dropna().unique())
+            dates_in_chunk = set(chunk[self.key_cols[1]].dropna().astype(str).unique())
             file_dates.update(dates_in_chunk)
 
         if not file_dates:
@@ -258,103 +242,114 @@ class StockDataUpdater:
         temp_file = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".csv", newline="", encoding="utf-8")
         temp_path = temp_file.name
         try:
-            temp_writer = csv.DictWriter(temp_file, fieldnames=header)
-            temp_writer.writeheader()
-
+            # 💡 3. 逐块更新并临时落盘
+            is_first_chunk = True
             for chunk in self._read_csv_in_chunks(input_path):
-                if chunk is None:
+                if chunk is None or chunk.empty:
                     continue
                 updated_chunk = self._update_chunk_with_dict(chunk, update_dict)
-                for _, row in updated_chunk.iterrows():
-                    row_dict = row.to_dict()
-                    filtered_dict = {k: v for k, v in row_dict.items() if k in header}
-                    temp_writer.writerow(filtered_dict)
+                updated_chunk.to_csv(
+                    temp_path,
+                    mode="a",
+                    index=False,
+                    header=is_first_chunk,
+                    encoding="utf-8"
+                )
+                is_first_chunk = False
 
+            # 💡 4. 追加新数据行（若有）
             if append_dict:
-                new_rows_df = self._build_new_rows_df(append_dict, header)
-                for _, row in new_rows_df.iterrows():
-                    row_dict = row.to_dict()
-                    filtered_dict = {k: v for k, v in row_dict.items() if k in header}
-                    temp_writer.writerow(filtered_dict)
+                # 获取非索引列的实际列名列表
+                data_columns = [c for c in raw_header if c != ""]
+                new_rows_df = self._build_new_rows_df(append_dict, data_columns)
+                new_rows_df.to_csv(
+                    temp_path,
+                    mode="a",
+                    index=False,
+                    header=is_first_chunk,
+                    encoding="utf-8"
+                )
 
             temp_file.close()
-            self._sort_and_save(temp_path, output_path, header)
+            
+            # 💡 5. 统一排序，并重建原汁原味的 `0,1,2...` 索引列与原始 Header 格式
+            self._sort_and_save(temp_path, output_path, raw_header)
 
         finally:
             if os.path.exists(temp_path):
                 os.remove(temp_path)
 
     def _read_csv_in_chunks(self, file_path: str):
+        """低内存分块读取 CSV 文件，自动跳过第一列无名索引"""
+        return pd.read_csv(
+            file_path,
+            chunksize=self.batch_size,
+            index_col=0 if self._has_unnamed_index(file_path) else None,
+            dtype={col: str for col in self.key_cols},
+        )
+
+    def _has_unnamed_index(self, file_path: str) -> bool:
+        """检查 CSV 文件首列是否为无名索引列"""
         with open(file_path, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             try:
                 header = next(reader)
+                return len(header) > 0 and header[0] == ""
             except StopIteration:
-                return
-
-        if header[0] == "":
-            return pd.read_csv(
-                file_path,
-                chunksize=self.batch_size,
-                header=0,
-                dtype={col: str for col in self.key_cols},
-            )
-        else:
-            return pd.read_csv(
-                file_path,
-                chunksize=self.batch_size,
-                header=0,
-                names=header,
-                dtype={col: str for col in self.key_cols},
-            )
+                return False
 
     def _update_chunk_with_dict(self, chunk_df: pd.DataFrame, update_dict: Dict) -> pd.DataFrame:
         if not update_dict:
             return chunk_df
         
-        chunk_df["temp_key"] = chunk_df.apply(
-            lambda row: (str(row[self.key_cols[0]]), str(row[self.key_cols[1]])), axis=1
+        # 建立匹配 Key
+        temp_keys = zip(
+            chunk_df[self.key_cols[0]].astype(str),
+            chunk_df[self.key_cols[1]].astype(str)
         )
         
-        for key, values in update_dict.items():
-            mask = chunk_df["temp_key"] == key
-            if mask.any():
-                idx = chunk_df[mask].index[0]
-                for col, new_val in values.items():
+        for idx, key in zip(chunk_df.index, temp_keys):
+            if key in update_dict:
+                vals = update_dict[key]
+                for col, new_val in vals.items():
                     if col in chunk_df.columns:
                         chunk_df.at[idx, col] = new_val
 
-        chunk_df.drop(columns=["temp_key"], inplace=True, errors="ignore")
         return chunk_df
 
-    def _build_new_rows_df(self, append_dict: Dict, header: List[str]) -> pd.DataFrame:
+    def _build_new_rows_df(self, append_dict: Dict, columns: List[str]) -> pd.DataFrame:
         rows = []
         for (symbol, date), values in append_dict.items():
-            row = {col: None for col in header}
+            row = {col: None for col in columns}
             row[self.key_cols[0]] = symbol
             row[self.key_cols[1]] = date
             for col, val in values.items():
                 if col in row:
                     row[col] = val
             rows.append(row)
-        return pd.DataFrame(rows)
+        return pd.DataFrame(rows)[columns]
 
-    def _sort_and_save(self, temp_path: str, output_path: str, header: List[str]):
-        full_df = pd.read_csv(temp_path)
+    def _sort_and_save(self, temp_path: str, output_path: str, raw_header: List[str]):
+        """全量加载临时文件，按 key_cols 排序，并完美重建原始 Header 与递增索引列"""
+        full_df = pd.read_csv(temp_path, dtype={col: str for col in self.key_cols})
 
+        # 按关键列 (symbol, date) 字典序排序
         if self.key_cols[0] in full_df.columns and self.key_cols[1] in full_df.columns:
-            full_df.sort_values(by=self.key_cols, inplace=True)
+            full_df.sort_values(by=self.key_cols, ascending=[True, True], inplace=True)
 
-        if not (header[0] == "" or header[0].lower() == "unnamed: 0"):
-            full_df.reset_index(drop=True, inplace=True)
+        # 重置索引为标准的 0, 1, 2...
+        full_df.reset_index(drop=True, inplace=True)
 
-        full_df = full_df[[col for col in header if col in full_df.columns]]
+        # 判断原始 Header 是否以空字符串开头（即第一列是无名索引列）
+        has_unnamed_first_col = len(raw_header) > 0 and raw_header[0] == ""
 
-        with open(output_path, "w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(header)
-            for idx, row in full_df.iterrows():
-                writer.writerow([idx] + list(row))
+        if has_unnamed_first_col:
+            # 写出 CSV，保留 index（作为第一列无名索引），不写出默认 column 名称
+            full_df.to_csv(output_path, index=True, index_label="", encoding="utf-8")
+        else:
+            # 如果原始文件本来就没有无名索引列，则正常写出
+            full_df.to_csv(output_path, index=False, encoding="utf-8")
+
 
     def replace_old_files_with_new(self):
         """将所有 stock_xxx_new.csv 文件覆写回原 stock_xxx.csv 文件"""
@@ -366,21 +361,17 @@ class StockDataUpdater:
 
 
 if __name__ == "__main__":
-    # 配置参数
     MARKET = "us"
-    DATA_DIR = FINANCE_ROOT / f"{MARKET}stockinfo"  # 美股数据文件目录
-    UPDATE_COLS = ["open", "close", "high", "low", "volume"]  # 需要更新矫正的数值列
-    NEW_DATA_PATH = DATA_DIR / "new_stock_data.csv"  # 缓存新抓取的数据文件
+    DATA_DIR = FINANCE_ROOT / f"{MARKET}stockinfo"
+    UPDATE_COLS = ["open", "close", "high", "low", "volume"]
+    NEW_DATA_PATH = DATA_DIR / "new_stock_data.csv"
     START_DATE = "20260915"
     END_DATE = "20260916"
 
-    # 1. 初始化更新器
     updater = StockDataUpdater(data_dir=DATA_DIR, update_cols=UPDATE_COLS, batch_size=10000)
 
-    # 2. 从 usstockinfo 目录下最新的 stock_*.csv 文件中提取 symbol 列表
     symbol_list = updater.get_symbols_from_latest_file()
 
-    # 3. 通过 yfinance 方法拉取这些 Symbol 在指定日期区间内的不复权历史数据
     updater.fetch_yfinance_data(
         symbols=symbol_list,
         start_date=START_DATE,
@@ -388,7 +379,6 @@ if __name__ == "__main__":
         new_data_path=NEW_DATA_PATH,
     )
 
-    # 4. 加载新数据并解析为查找字典
     try:
         new_data_dict = updater.load_new_data(NEW_DATA_PATH)
         print(f"📖 成功加载了 {len(new_data_dict)} 条待回刷的差异记录")
@@ -396,10 +386,7 @@ if __name__ == "__main__":
         print(f"❌ 加载新数据失败: {e}")
         sys.exit(1)
 
-    # 5. 回刷替换目录下对应的 CSV 文件
     updater.process_files(new_data_dict)
-
-    # 6. 安全替换，覆盖原始文件
     updater.replace_old_files_with_new()
 
-    print("✨ 全部美股历史数据回刷工作完美结束！")
+    print("✨ 全部历史数据回刷工作完美结束！")
