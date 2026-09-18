@@ -103,121 +103,113 @@ class BacktraderExec:
 
     def run_strategy(self):
         """运行 backtrader 策略并返回 pnl, cash, total_value 。同时覆盖缓存文件。"""
-        # 创建cerebro对象
+        # 1. 变量命名修复：避免使用 list 关键字，改用 data_feeds
+        data_feeds = []
         cerebro = bt.Cerebro(stdstats=False, maxcpus=0)
-        # cerebro.broker.set_coc(True)
-        # 添加bt相关的策略
-        # 获取最新 JSON 动态配置
-        dynamic_params = self._get_bt_params()
-        cerebro.addstrategy(
-            GlobalStrategy,
-            trade_date=self.trade_date,
-            market=self.market,
-            **dynamic_params,
-        )
-        # 回测时需要添加 TimeReturn 分析器
-        cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
-        # 每手10000块/美金
-        if self.market in ("cn", "cnetf", "cn_dynamic", "cn_backtest"):
-            cerebro.addsizer(cnFixedAmount, amount=10000)
-        elif self.market in ("us", "us_special", "us_dynamic", "us_backtest"):
-            cerebro.addsizer(usFixedAmount, amount=10000)
-        # 费率千分之一
-        cerebro.broker.setcommission(commission=0, stocklike=True)
-        cerebro.broker.set_coc(True)  # 设置以当日收盘价成交
-        # 添加股票当日即历史数据
-        if self.test == False:
-            if self.market in ("cn", "us"):
-                list = TickerInfo(
-                    self.trade_date, self.market
-                ).get_backtrader_data_feed()
-            elif self.market == "cnetf":
-                list = TickerInfo(
-                    self.trade_date, self.market
-                ).get_etf_backtrader_data_feed()
-            elif self.market == "us_special":
-                list = TickerInfo(
-                    self.trade_date, self.market
-                ).get_special_us_backtrader_data_feed()
-            elif self.market in ("cn_dynamic", "us_dynamic"):
-                list = TickerInfo(
-                    self.trade_date, self.market
-                ).get_dynamic_backtrader_data_feed()
-        else:
-            if self.market in ("cn_backtest", "us_backtest"):
-                list = TickerInfo(
-                    self.trade_date, self.market
-                ).get_backtrader_data_feed_testonly(stocklist=self.stocklist)
-        # 计算每只股票所需最低资金，并汇总初始总资金
-        total_cash_needed = 0
-        for h in list:
-            # 获取最新收盘价（DataFrame 的 close 列最后一值）
-            last_price = h["close"].iloc[-1]
-            if self.market in ("cn", "cn_dynamic", "cn_backtest"):
-                if last_price > 100:
-                    cash_per_stock = last_price * 100
+
+        try:
+            dynamic_params = self._get_bt_params()
+            cerebro.addstrategy(
+                GlobalStrategy,
+                trade_date=self.trade_date,
+                market=self.market,
+                **dynamic_params,
+            )
+            cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
+
+            if self.market in ("cn", "cnetf", "cn_dynamic", "cn_backtest"):
+                cerebro.addsizer(cnFixedAmount, amount=10000)
+            elif self.market in ("us", "us_special", "us_dynamic", "us_backtest"):
+                cerebro.addsizer(usFixedAmount, amount=10000)
+
+            cerebro.broker.setcommission(commission=0, stocklike=True)
+            cerebro.broker.set_coc(True)
+
+            # 获取 K 线数据
+            ticker_info = TickerInfo(self.trade_date, self.market)
+            if not self.test:
+                if self.market in ("cn", "us"):
+                    data_feeds = ticker_info.get_backtrader_data_feed()
+                elif self.market == "cnetf":
+                    data_feeds = ticker_info.get_etf_backtrader_data_feed()
+                elif self.market == "us_special":
+                    data_feeds = ticker_info.get_special_us_backtrader_data_feed()
+                elif self.market in ("cn_dynamic", "us_dynamic"):
+                    data_feeds = ticker_info.get_dynamic_backtrader_data_feed()
+            else:
+                if self.market in ("cn_backtest", "us_backtest"):
+                    data_feeds = ticker_info.get_backtrader_data_feed_testonly(stocklist=self.stocklist)
+
+            # 计算初始资金
+            total_cash_needed = 0
+            for h in data_feeds:
+                last_price = h["close"].iloc[-1]
+                if self.market in ("cn", "cn_dynamic", "cn_backtest"):
+                    cash_per_stock = last_price * 100 if last_price > 100 else 10000
                 else:
                     cash_per_stock = 10000
-            else:
-                # 美股及ETF保持原逻辑（每只1万）
-                cash_per_stock = 10000
-            print(
-                f"股票 {h['symbol'][0]} 最新价: {last_price:.2f}, 每只资金需求: {cash_per_stock:.2f}"
-            )
-            total_cash_needed += cash_per_stock
+                total_cash_needed += cash_per_stock
 
-        # 动态列表或测试模式下，原逻辑是 len(list) * 20000，即每只2倍资金
-        if self.test == True or self.market in ("cn_dynamic", "us_dynamic"):
-            total_cash_needed *= 1.5
+            if self.test or self.market in ("cn_dynamic", "us_dynamic"):
+                total_cash_needed *= 1.5
 
-        cerebro.broker.setcash(total_cash_needed)
-        print(f"初始资金设置为: {total_cash_needed:.2f}")
-        # 循环初始化数据进入cerebro
-        for h in list:
-            # 历史数据最早不超过2021-01-01
-            data = BTPandasDataExt(
-                dataname=h,
-                name=h["symbol"][0],
-                fromdate=datetime(2025, 1, 1),
-                # todate=datetime.strptime(date, "%Y%m%d"),
-                datetime=-1,
-                timeframe=bt.TimeFrame.Days,
-            )
-            cerebro.adddata(data, name=h["symbol"][0])
-        # 起始资金池
-        print("\nStarting Portfolio Value: %.2f" % cerebro.broker.getvalue())
+            cerebro.broker.setcash(total_cash_needed)
 
-        # 节约内存
-        list = None
-        data = None
-        gc.collect()
+            # 装载数据到 Backtrader
+            for h in data_feeds:
+                data = BTPandasDataExt(
+                    dataname=h,
+                    name=h["symbol"][0],
+                    fromdate=datetime(2025, 1, 1),
+                    datetime=-1,
+                    timeframe=bt.TimeFrame.Days,
+                )
+                cerebro.adddata(data, name=h["symbol"][0])
 
-        # 运行cerebro
-        result = cerebro.run()
-        # 最终资金池
-        print("\n当前现金持有: ", cerebro.broker.get_cash())
-        print("\nFinal Portfolio Value: %.2f" % cerebro.broker.getvalue())
+            # 💡【关键内存优化 1】：加载完数据后立即释放外层 DataFrame 列表
+            data_feeds.clear()
+            del data_feeds
+            gc.collect()
 
-        # 提取收益序列
-        pnl = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
+            # 运行策略
+            results = cerebro.run()
+            strat = results[0]
 
-        # 去掉最后一个虚拟 bar
-        pnl = pnl.iloc[:-1]
+            # 提取结果（浅拷贝数据，避免绑定分析器）
+            raw_pnl = strat.analyzers._TimeReturn.get_analysis()
+            pnl = pd.Series(raw_pnl).iloc[:-1].copy()
 
-        cash = round(cerebro.broker.get_cash(), 2)
-        total_value = round(cerebro.broker.getvalue(), 2)
+            cash = round(cerebro.broker.get_cash(), 2)
+            total_value = round(cerebro.broker.getvalue(), 2)
 
-        # 保存缓存（覆盖）
-        cache_dir = FINANCE_ROOT / "cache"
-        os.makedirs(cache_dir, exist_ok=True)
-        cache_path = os.path.join(cache_dir, f"pnl_{self.market}_{self.trade_date}.pkl")
-        try:
-            with open(cache_path, "wb") as f:
-                pickle.dump((pnl, cash, total_value), f)
-        except Exception:
-            pass
+            # 写入 Pickle 缓存
+            cache_dir = FINANCE_ROOT / "cache"
+            os.makedirs(cache_dir, exist_ok=True)
+            cache_path = os.path.join(cache_dir, f"pnl_{self.market}_{self.trade_date}.pkl")
+            try:
+                with open(cache_path, "wb") as f:
+                    pickle.dump((pnl, cash, total_value), f)
+            except Exception:
+                pass
 
-        return pnl, cash, total_value
+            return pnl, cash, total_value
+
+        finally:
+            # 💡【关键内存优化 2】：无论成功或失败，强制解绑和清空 Cerebro 内部所有对象
+            if 'cerebro' in locals():
+                cerebro.datas.clear()
+                cerebro.strats.clear()
+                del cerebro
+            if 'results' in locals():
+                del results
+            
+            # 强制 GC 及 C 堆内存释放
+            gc.collect()
+            try:
+                import ctypes
+                ctypes.CDLL('libc.so.6').malloc_trim(0)
+            except Exception:
+                pass
 
     def plot_from_pnl(self, pnl, cash, total_value):
         """根据 pnl 进行绘图和统计（无返回值）"""
@@ -575,6 +567,7 @@ class BacktraderExec:
             out_path = (
                 FINANCE_ROOT / f"dashreport/assets/images/{self.market}_tr_{theme}.svg"
             )
+            # 在 plot_chart 函数的最后 savefig 之后：
             plt.savefig(
                 out_path,
                 format="svg",
@@ -582,11 +575,24 @@ class BacktraderExec:
                 transparent=True,
                 pad_inches=0.2,
             )
-            plt.close()
-
+            
+            # 💡【关键内存优化 3】：彻底销毁 Matplotlib 图形对象与子轴
+            fig.clf()
+            plt.close(fig)
+            plt.close('all')
+            
         # 生成两种主题图表
         plot_chart(theme="light")
         plot_chart(theme="dark")
+
+        # 【关键内存优化 4】：绘图完成后彻底清理所有局部变量并强制回收内存
+        plt.close('all')
+        gc.collect()
+        try:
+            import ctypes
+            ctypes.CDLL('libc.so.6').malloc_trim(0)
+        except Exception:
+            pass
 
     def exec_btstrategy(self, force_run=False):
         """执行器：优先读取缓存（当 force_run=False 且缓存存在），否则运行策略并生成缓存，最后调用绘图函数。返回 (cash, total_value)"""

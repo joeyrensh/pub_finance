@@ -598,7 +598,6 @@ class TickerInfo:
         )
 
     def get_etf_list(self):
-        # 预定义列的数据类型
         column_dtypes = {
             "symbol": str,
             "name": str,
@@ -611,42 +610,48 @@ class TickerInfo:
             "date": str,
         }
 
+        use_cols = list(column_dtypes.keys())
+
         dfs = []
         for file in self.files:
-            # 读取数据
-            df = pd.read_csv(file)
+            # 1. 动态判断 total_value 是否存在
+            sample_df = pd.read_csv(file, nrows=1)
+            actual_use_cols = [c for c in use_cols if c in sample_df.columns]
 
-            # 检查并添加 total_value 列（如果不存在）
-            if "total_value" not in df.columns:
-                df["total_value"] = 0.0
+            # 2. 分块读取，在内存载入的第一时间立刻用 startswith 过滤
+            for chunk in pd.read_csv(file, usecols=actual_use_cols, chunksize=100000):
+                # 💡 极其高效的前缀过滤：只保留 symbol 以 'ETF' 开头的行
+                chunk_etf = chunk[chunk["symbol"].astype(str).str.startswith("ETF")]
 
-            # 选择我们需要的列并转换数据类型
-            df = df[list(column_dtypes.keys())].astype(column_dtypes)
-            dfs.append(df)
+                if not chunk_etf.empty:
+                    chunk_etf = chunk_etf.copy()
+                    if "total_value" not in chunk_etf.columns:
+                        chunk_etf["total_value"] = 0.0
 
+                    chunk_etf = chunk_etf[use_cols].astype(column_dtypes)
+                    dfs.append(chunk_etf)
+
+        if not dfs:
+            return []
+
+        # 3. 合并全量 ETF 数据（此时内存占用极小）
         df_all = pd.concat(dfs, ignore_index=True)
         df_all.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
-        # 2. 取近60天的日期
+
+        # 4. 近 60 天筛选
         date_threshold_str = datetime.datetime.strptime(
             self.date_threshold, "%Y%m%d"
         ).strftime("%Y-%m-%d")
 
-        # 使用相同格式的字符串进行筛选
-        df_recent = df_all[df_all["date"] >= date_threshold_str]
+        df_recent = df_all[df_all["date"] >= date_threshold_str].copy()
 
-        # 3. 条件筛选
-        cond = (df_recent["total_value"] > self.etf_min_threshold) & (
-            df_recent["name"].str.upper().str.contains("ETF")
-        )
+        # 5. 条件筛选
+        cond = df_recent["total_value"] > self.etf_min_threshold
         etf_top = self._top_by_activity(
             cond, df_recent, n_groups=self.etf_n_groups, top_n_per_group=self.etf_top_n
         )
 
-        combined_symbols = list(set(etf_top))
-
-        dfs, df_all, df_recent, df = None, None, None, None
-        gc.collect()
-        return combined_symbols
+        return list(set(etf_top))
 
     def get_etf_backtrader_data_feed(self):
         tickers = self.get_etf_list()
