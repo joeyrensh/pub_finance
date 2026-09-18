@@ -8,6 +8,7 @@ import time
 import functools
 import multiprocessing
 from multiprocessing import Queue
+import traceback
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from finance.utility.toolkit import ToolKit
@@ -42,26 +43,27 @@ def retry_call(func, max_retries=3, delay=1, backoff=2, exceptions=(Exception,))
     raise RuntimeError("重试失败")
 
 
-# ------------------- 子进程执行器 -------------------
+# ------------------- 子进程 worker 顶层定义（解决 pickle 序列化问题） -------------------
+def _subprocess_worker(q, func, func_args):
+    """全局 worker 函数，保证 spawn 模式下子进程能够被 pickle 序列化"""
+    try:
+        res = func(*func_args)
+        q.put(("success", res))
+    except Exception as e:
+        q.put(("error", f"{e}\n{traceback.format_exc()}"))
+
+
 def run_in_subprocess(task_func, *args, timeout=3600):
     """
     在独立子进程中运行指定任务，任务结束后操作系统会自动回收该进程占用的所有内存与 Swap
-    :param task_func: 目标执行函数
+    :param task_func: 必须是顶层定义的函数（不能是局部函数或 lambda）
     :param args: 传给目标函数的参数
     :param timeout: 超时时间（秒）
     :return: 目标函数的返回值
     """
-    def _worker(q, func, func_args):
-        try:
-            res = func(*func_args)
-            q.put(("success", res))
-        except Exception as e:
-            import traceback
-            q.put(("error", f"{e}\n{traceback.format_exc()}"))
-
     ctx = multiprocessing.get_context("spawn")
     q = ctx.Queue()
-    p = ctx.Process(target=_worker, args=(q, task_func, args))
+    p = ctx.Process(target=_subprocess_worker, args=(q, task_func, args))
     p.start()
     p.join(timeout=timeout)
 
@@ -78,6 +80,21 @@ def run_in_subprocess(task_func, *args, timeout=3600):
         raise RuntimeError(f"子进程执行出错: {result}")
 
     return result
+
+
+# ------------------- 业务任务顶层封装（解决 lambda 序列化问题） -------------------
+def _exec_backtest_task(market, trade_date, force_run):
+    """在子进程中运行回测的顶层函数"""
+    return BacktraderExec(market, trade_date).exec_btstrategy(force_run=force_run)
+
+
+def _exec_spark_and_email(market, trade_date, cash, final_value):
+    """在子进程中运行 Spark 分析与发送邮件的顶层函数"""
+    proposal = StockProposal(market, trade_date)
+    if market == "cnetf":
+        proposal.send_etf_btstrategy_by_email(cash, final_value)
+    else:
+        proposal.send_btstrategy_by_email(cash, final_value)
 
 
 # 主程序入口
@@ -121,26 +138,6 @@ if __name__ == "__main__":
 
     """ 执行bt相关策略 """
 
-    def run_backtest_in_process(date, exec_func):
-        """在独立进程中运行回测，确保内存完全释放。
-
-        参数:
-            date: 交易日期，传递给 exec_func
-            exec_func: 可调用对象，签名为 exec_func(date)，返回 (cash, final_value)
-        """
-        def _exec_wrapper(d):
-            return exec_func(d)
-
-        return run_in_subprocess(_exec_wrapper, date, timeout=3600)
-
-    def _exec_spark_and_email(market, trade_date, cash, final_value):
-        """在子进程中独立运行 Spark 分析并发送邮件"""
-        proposal = StockProposal(market, trade_date)
-        if market == "cnetf":
-            proposal.send_etf_btstrategy_by_email(cash, final_value)
-        else:
-            proposal.send_btstrategy_by_email(cash, final_value)
-
     def run_backtest_and_send(market, trade_date, force_run=False):
         """
         运行指定市场的回测并发送邮件
@@ -148,16 +145,17 @@ if __name__ == "__main__":
         - market: 市场标识 ("us", "us_special", "us_dynamic")
         - trade_date: 交易日期
         """
-        # 1. 在独立子进程运行回测，跑完强行释放物理内存
-        cash, final_value = run_backtest_in_process(
-            trade_date,
-            lambda d: BacktraderExec(market, d).exec_btstrategy(force_run=force_run),
+        # 1. 在独立子进程运行回测，运行结束后操作系统强行回收物理内存
+        cash, final_value = run_in_subprocess(
+            _exec_backtest_task, market, trade_date, force_run, timeout=3600
         )
         collected = gc.collect()
         print("Garbage collector: collected %d objects." % (collected))
 
-        # 2. 将 Spark 分析与邮件发送同样放入子进程，隔离 Spark 占用的内存与 Swap
-        run_in_subprocess(_exec_spark_and_email, market, trade_date, cash, final_value)
+        # 2. 将 Spark 分析与邮件发送放入独立子进程，完全隔离 Spark 与 Swap 空间
+        run_in_subprocess(
+            _exec_spark_and_email, market, trade_date, cash, final_value, timeout=3600
+        )
 
     # ========== 2. 策略执行与邮件发送重试 ==========
     def retry_backtest_and_send(market, trade_date, force_run=False, max_retries=3):
