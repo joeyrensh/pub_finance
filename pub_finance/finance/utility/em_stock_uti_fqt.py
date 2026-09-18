@@ -199,7 +199,72 @@ class EMWebCrawlerUti:
         print(f"市场: {mkt_code}, 总页数: {total_page_no}")
         return total_page_no
 
-    def get_stock_list(self, market, trade_date, target_file=None):
+    def get_stock_list(self, market, trade_date, target_file=None, from_latest_file=False):
+        """
+        获取股票/基金列表及对应 mkt_code
+        :param market: 市场标识 ("us" 或 "cn")
+        :param trade_date: 交易日期标识
+        :param target_file: 导出的目标文件路径（保留原逻辑）
+        :param from_latest_file: 是否直接从本地最新的 stock_*.csv 文件中提取 unique symbol
+        """
+        if target_file is None:
+            target_file = FINANCE_ROOT / f"{market}stockinfo" / f"stock_list_{trade_date}.csv"
+
+        # =========================================================================
+        # 分支 1：从本地最新日期的 stock_*.csv 文件直接构建 Symbol List
+        # =========================================================================
+        if from_latest_file:
+            data_dir = FINANCE_ROOT / f"{market}stockinfo"
+            
+            # 💡 调用 FileInfo 获取严格过滤且已按日期升序排序的文件列表
+            file_info = FileInfo(file_path_dir=data_dir, trade_date=trade_date)
+            files = file_info.get_file_list
+
+            if not files:
+                raise FileNotFoundError(f"未在目录 {data_dir} 下找到任何交易日期 <= {trade_date} 的合法 stock_*.csv 文件")
+
+            # 获取最后一个（即最新日期）文件
+            latest_file = files[-1]
+            print(f"📌 [from_latest_file=True] 正在从最新数据文件提取 Symbol 列表: {latest_file.name}")
+
+            df = pd.read_csv(latest_file, usecols=lambda c: c.lower() in ["symbol"])
+            col_name = next(c for c in df.columns if c.lower() == "symbol")
+
+            unique_symbols = (
+                df[col_name]
+                .dropna()
+                .astype(str)
+                .str.strip()
+                .str.upper()
+                .unique()
+            )
+
+            result = []
+            if market == "us":
+                # 美股后续走 yfinance 无需精确 mkt_code，默认初始化为 "0"
+                for sym in sorted(unique_symbols):
+                    result.append({"symbol": sym, "mkt_code": "0"})
+
+            elif market == "cn":
+                # A 股根据 Symbol 前缀解析 mkt_code
+                for sym in sorted(unique_symbols):
+                    actual_mkt_code = "0"
+                    if sym.startswith("SH"):
+                        actual_mkt_code = "1"
+                    elif sym.startswith("SZ"):
+                        actual_mkt_code = "0"
+                    elif sym.startswith("ETF"):
+                        raw_code = sym[3:]  # 去掉 ETF 前缀
+                        actual_mkt_code = self.get_etf_market_code(raw_code)
+                    
+                    result.append({"symbol": sym, "mkt_code": actual_mkt_code})
+
+            print(f"✅ 成功从 {latest_file.name} 提取并还原了 {len(result)} 个 Symbol 记录")
+            return result
+
+        # =========================================================================
+        # 分支 2：原逻辑 —— 通过东财 API 接口在线抓取并维护缓存文件
+        # =========================================================================
         cache_file = (
             FINANCE_ROOT / f"{market}stockinfo" / f"daily_stock_cache_{trade_date}.json"
         )

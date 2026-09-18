@@ -94,16 +94,25 @@ class FileInfo:
 
     @property
     def get_file_list(self):
-        path_list = os.listdir(self._file_path_dir)
+        """
+        获取小于等于当前交易日期的合法 stock_*.csv 文件列表
+        自动排除 .bk 备份文件、_new 缓存文件等非标准文件
+        """
         file_list = []
-        for file in path_list:
-            """返回小于等于当前交易日期的文件列表"""
-            if (
-                re.search("stock_", file)
-                and str(file).replace("stock_", "").replace(".csv", "")
-                <= self.trade_date
-            ):
-                file_list.append(self._file_path_dir / file)
+        if not os.path.exists(self._file_path_dir):
+            return file_list
+
+        # 正则精准匹配: 以 stock_ 开头，中间 8 位数字日期，以 .csv 结尾
+        pattern = re.compile(r"^stock_(\d{8})\.csv$")
+
+        for file in os.listdir(self._file_path_dir):
+            match = pattern.match(file)
+            if match:
+                file_date = match.group(1)
+                # 校验日期范围并保留 Path 对象
+                if file_date <= str(self.trade_date):
+                    file_list.append(self._file_path_dir / file)
+
         file_list.sort()
         return file_list
 
