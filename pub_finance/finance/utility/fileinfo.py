@@ -102,6 +102,9 @@ class FileInfo:
         if not os.path.exists(self._file_path_dir):
             return file_list
 
+        # 1. 强制将 trade_date 转化为纯 8 位数字格式（去除 "-"、"/" 及空白字符）
+        clean_trade_date = re.sub(r"\D", "", str(self.trade_date))
+
         # 正则精准匹配: 以 stock_ 开头，中间 8 位数字日期，以 .csv 结尾
         pattern = re.compile(r"^stock_(\d{8})\.csv$")
 
@@ -109,10 +112,11 @@ class FileInfo:
             match = pattern.match(file)
             if match:
                 file_date = match.group(1)
-                # 校验日期范围并保留 Path 对象
-                if file_date <= str(self.trade_date):
+                
+                if file_date <= clean_trade_date:
                     file_list.append(self._file_path_dir / file)
 
+        # 按 Path 对象按路径/文件名升序排序
         file_list.sort()
         return file_list
 

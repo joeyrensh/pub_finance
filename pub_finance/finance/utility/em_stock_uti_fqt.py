@@ -199,7 +199,7 @@ class EMWebCrawlerUti:
         print(f"市场: {mkt_code}, 总页数: {total_page_no}")
         return total_page_no
 
-    def get_stock_list(self, market, trade_date, target_file=None, from_latest_file=False):
+    def get_stock_list(self, market, trade_date, target_file=None, from_latest_file=True):
         """
         获取股票/基金列表及对应 mkt_code
         :param market: 市场标识 ("us" 或 "cn")
@@ -217,8 +217,9 @@ class EMWebCrawlerUti:
             data_dir = FINANCE_ROOT / f"{market}stockinfo"
             
             # 💡 调用 FileInfo 获取严格过滤且已按日期升序排序的文件列表
-            file_info = FileInfo(file_path_dir=data_dir, trade_date=trade_date)
+            file_info = FileInfo(trade_date=trade_date, market=market)
             files = file_info.get_file_list
+            print("files: ", files)
 
             if not files:
                 raise FileNotFoundError(f"未在目录 {data_dir} 下找到任何交易日期 <= {trade_date} 的合法 stock_*.csv 文件")
