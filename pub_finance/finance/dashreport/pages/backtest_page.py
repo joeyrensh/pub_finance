@@ -30,7 +30,6 @@ task_state["status"] = "idle"  # idle, running, done, failed
 task_state["result"] = None
 task_state["error"] = None
 
-
 # ---------- 耗时任务函数 ----------
 def run_bt_task(stock_list, date_str, market):
     """在子进程中执行回测并更新 task_state"""
@@ -39,6 +38,8 @@ def run_bt_task(stock_list, date_str, market):
         tr, pos_detail_df = load_logs(stock_list, date_str, market)
 
         hist_data = load_hist(stock_list, date_str, market)
+        # 加载分红/拆股 actions 数据
+        actions_data = load_actions_history(stock_list, date_str, market)
 
         pnl_data = (
             {
@@ -54,17 +55,18 @@ def run_bt_task(stock_list, date_str, market):
             else 0
         )
         # 先构建 symbol -> 数据 的字典
-        hist_dict = {df["symbol"].iloc[0]: df for df in hist_data}
+        hist_dict = {df["symbol"].iloc[0]: df for df in hist_data if not df.empty}
         data = {
             "pnl": pnl_data,
             "tr": tr,
             "pos_detail": (
                 pos_detail_df.to_dict("records") if not pos_detail_df.empty else []
             ),
+            "actions": actions_data,  # 传入 actions 数组
             "h": [
                 (
                     hist_dict[sym].iloc[:-1].to_dict("records")
-                    if len(hist_dict[sym]) > 1
+                    if sym in hist_dict and len(hist_dict[sym]) > 1
                     else []
                 )
                 for sym in stock_list
@@ -190,6 +192,59 @@ def load_hist(stocks, dt, m):
         TickerInfo(dt, f"{m}_backtest").get_backtrader_data_feed_testonly(stocks) or []
     )
 
+def load_actions_history(stocks, dt, m):
+    """
+    加载并过滤除权分红、拆合股等复权行为历史数据
+    Schema: symbol / date / dividend / split_ratio
+    """
+    try:
+        # 1. 匹配准确的文件名路径
+        actions_file_name = f"{m}_stock_actions_history.csv"
+        actions_path = FINANCE_ROOT / (
+            f"cnstockinfo/{actions_file_name}"
+            if m == "cn"
+            else f"usstockinfo/{actions_file_name}"
+        )
+
+        if not actions_path.exists():
+            return []
+
+        # 2. 读取 CSV 数据
+        df_actions = pd.read_csv(
+            actions_path,
+            usecols=["symbol", "date", "dividend", "split_ratio"],
+            dtype={"symbol": str, "date": str},
+        )
+
+        if df_actions.empty:
+            return []
+
+        # 3. 过滤目标股票列表
+        df_actions = df_actions[df_actions["symbol"].isin(stocks)].copy()
+
+        # 4. 数值转换并过滤掉无效记录（dividend 为 0 且 split_ratio 为 1/0 的无行为记录）
+        df_actions["dividend"] = pd.to_numeric(
+            df_actions["dividend"], errors="coerce"
+        ).fillna(0)
+        df_actions["split_ratio"] = pd.to_numeric(
+            df_actions["split_ratio"], errors="coerce"
+        ).fillna(1)
+
+        # 只保留有实质分红或拆合股行为的数据
+        df_actions = df_actions[
+            (df_actions["dividend"] > 0) | (df_actions["split_ratio"] != 1)
+        ]
+
+        if df_actions.empty:
+            return []
+
+        # 5. 格式化 date 格式统一为 YYYY-MM-DD
+        df_actions["date"] = pd.to_datetime(df_actions["date"]).dt.strftime("%Y-%m-%d")
+
+        return df_actions.to_dict("records")
+    except Exception as e:
+        print(f"加载 actions history 异常: {e}")
+        return []
 
 def get_end_date_from_prefix(prefix: str) -> str:
     data = ReportDataLoader.load(prefix=prefix, datasets=("overall",))
@@ -689,14 +744,16 @@ class BacktestPage:
                 )
             stocks = d.get("s", [])
             histories = d.get("h", [])
-            all_tr = d.get("tr", [])  # 所有交易记录
+            all_tr = d.get("tr", [])        # 所有交易记录
             all_pos = d.get("pos_detail", [])  # 所有持仓明细
+            all_actions = d.get("actions", [])  # 所有除权行为（dividend/split_ratio）
             charts = []
             width = client_width or 1440
             kline_limit = ToolKit.get_config("chart_display.kline_limit", default=10)
             kline_time_range = ToolKit.get_config(
                 "chart_display.min_kline_time_range", default=200
             )
+            market = d.get("market", "cn")
 
             for i in range(min(kline_limit, len(histories))):
                 stock_data = pd.DataFrame(histories[i])
@@ -711,9 +768,11 @@ class BacktestPage:
                     )
                     stock_data = stock_data[stock_data["datetime"] >= cutoff]
 
-                # 预先过滤当前股票的交易记录和持仓明细
+                # 预先过滤当前股票的交易记录、持仓明细以及除权行为
                 filtered_tr = [t for t in all_tr if t.get("symbol") == symbol]
                 filtered_pos = [p for p in all_pos if p.get("symbol") == symbol]
+                filtered_actions = [a for a in all_actions if a.get("symbol") == symbol]
+
                 # 判断是否是最后一张图表
                 is_last = i == min(kline_limit, len(histories)) - 1
                 base_style = {
@@ -731,6 +790,8 @@ class BacktestPage:
                     his=stock_data,
                     trades=filtered_tr,
                     pos_detail=filtered_pos,
+                    market=market,
+                    actions=filtered_actions,  # 传入当前股票的 actions
                     symbol=symbol,
                     theme=theme,
                     client_width=width,

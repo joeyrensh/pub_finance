@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
+
 import progressbar
 from pathlib import Path
 import sys
@@ -14,7 +15,7 @@ from finance.utility.toolkit import ToolKit
 from finance.utility.stock_analysis_simplify import StockProposal
 import gc
 from finance.utility.em_stock_uti import EMWebCrawlerUti
-from finance.cncrawler.ak_incre_crawler import AKCNWebCrawler
+from finance.uscrawler.ak_incre_crawler import AKUSWebCrawler
 from finance.utility.backtrader_exec import BacktraderExec
 
 
@@ -44,7 +45,7 @@ def retry_call(func, max_retries=3, delay=1, backoff=2, exceptions=(Exception,))
 
 # ------------------- 子进程 worker 顶层定义（解决 pickle 序列化问题） -------------------
 def _subprocess_worker(q, func, func_args):
-    """全局 worker 函数，确保支持 spawn 模式下的 pickle 序列化"""
+    """全局 worker 函数，保证 spawn 模式下子进程能够被 pickle 序列化"""
     try:
         res = func(*func_args)
         q.put(("success", res))
@@ -81,14 +82,14 @@ def run_in_subprocess(task_func, *args, timeout=3600):
     return result
 
 
-# ------------------- 业务任务顶层包装 -------------------
+# ------------------- 业务任务顶层封装（解决 lambda 序列化问题） -------------------
 def _exec_backtest_task(market, trade_date, force_run):
-    """在子进程中执行回测的顶层函数"""
+    """在子进程中运行回测的顶层函数"""
     return BacktraderExec(market, trade_date).exec_btstrategy(force_run=force_run)
 
 
 def _exec_spark_and_email(market, trade_date, cash, final_value):
-    """在子进程中执行 Spark 分析与邮件发送的顶层函数"""
+    """在子进程中运行 Spark 分析与发送邮件的顶层函数"""
     proposal = StockProposal(market, trade_date)
     if market == "cnetf":
         proposal.send_etf_btstrategy_by_email(cash, final_value)
@@ -98,11 +99,11 @@ def _exec_spark_and_email(market, trade_date, cash, final_value):
 
 # 主程序入口
 if __name__ == "__main__":
-    """美股交易日期 utc+8"""
-    trade_date = ToolKit("获取最新交易日").get_cn_latest_trade_date(0)
+    """美股交易日期 utc-4"""
+    trade_date = ToolKit("获取最新交易日").get_us_latest_trade_date(1)
 
     """ 非交易日程序终止运行 """
-    if ToolKit("判断是否休市").is_cn_trade_date(trade_date):
+    if ToolKit("判断是否休市").is_us_trade_date(trade_date):
         pass
     else:
         sys.exit()
@@ -122,21 +123,18 @@ if __name__ == "__main__":
 
     """ 东方财经爬虫 """
     """ 爬取每日最新股票数据 """
-    # ========== 1. 爬虫重试 ==========
-    # print("开始爬取A股日线数据...")
     # em = EMWebCrawlerUti()
+    # em.get_daily_stock_info("us", trade_date)
+
+    # ========== 1. 爬虫重试 ==========
+    # print("开始爬取美股日线数据...")
+    # ak_daily_crawler = AKUSWebCrawler()
 
     # def crawl():
-    #     return em.get_daily_stock_info("cn", trade_date)
+    #     return ak_daily_crawler.get_us_daily_stock_info_ak(trade_date)
 
     # df_stock_daily = retry_call(crawl, max_retries=3, delay=2)
     # print("爬取完成")
-
-    # em = AKCNWebCrawler()
-    # em.get_cn_daily_stock_info_ak(trade_date)
-
-    # em = EMWebCrawlerUti()
-    # em.get_daily_gz_info("cn", trade_date)
 
     """ 执行bt相关策略 """
 
@@ -147,14 +145,14 @@ if __name__ == "__main__":
         - market: 市场标识 ("us", "us_special", "us_dynamic")
         - trade_date: 交易日期
         """
-        # 1. 在独立子进程运行回测，结束即彻底回收物理内存
+        # 1. 在独立子进程运行回测，运行结束后操作系统强行回收物理内存
         cash, final_value = run_in_subprocess(
             _exec_backtest_task, market, trade_date, force_run, timeout=3600
         )
         collected = gc.collect()
         print("Garbage collector: collected %d objects." % (collected))
 
-        # 2. 将 Spark 分析与邮件发送放入子进程，完全清理 Spark/JVM 占用的内存和 Swap
+        # 2. 将 Spark 分析与邮件发送放入独立子进程，完全隔离 Spark 与 Swap 空间
         run_in_subprocess(
             _exec_spark_and_email, market, trade_date, cash, final_value, timeout=3600
         )
@@ -168,17 +166,17 @@ if __name__ == "__main__":
 
         retry_call(do_task, max_retries=max_retries, delay=3)
 
-    # A股主要策略执行
-    print("-----------A股主策略执行-----------")
-    retry_backtest_and_send("cn", trade_date, force_run=True)
+    # 美股主要策略执行
+    print("-----------美股主策略执行-----------")
+    retry_backtest_and_send("us", trade_date, force_run=True)
 
-    # ETF主要策略执行
-    print("-----------A股ETF策略执行-----------")
-    retry_backtest_and_send("cnetf", trade_date, force_run=True)
+    # # 固定列表追踪
+    # print("-----------美股固定列表策略执行-----------")
+    # retry_backtest_and_send("us_special", trade_date)
 
-    # A股动态列表执行
-    print("-----------A股动态列表策略执行-----------")
-    retry_backtest_and_send("cn_dynamic", trade_date, force_run=True)
+    # 动态列表追踪
+    print("-----------美股动态列表策略执行-----------")
+    retry_backtest_and_send("us_dynamic", trade_date, force_run=True)
 
     """ 结束进度条 """
     pbar.finish()

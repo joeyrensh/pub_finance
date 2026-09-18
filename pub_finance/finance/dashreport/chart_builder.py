@@ -2726,6 +2726,8 @@ class ChartBuilder:
         his,
         trades,
         pos_detail=None,
+        market='cn',
+        actions=None,
         symbol=None,
         theme="light",
         client_width=1440,
@@ -2737,6 +2739,7 @@ class ChartBuilder:
             his: pd.DataFrame, 历史行情，必须包含 ['datetime','open','high','low','close','volume']
             trades: list[dict], 交易记录，每条 dict 应已过滤为当前股票，至少包含 {'date','price','type','strategy'}
             pos_detail: pd.DataFrame, 持仓明细（已过滤为当前股票）
+            actions: list[dict], 除权行为明细，每条 dict 包含 {'date','dividend','split_ratio'}
             symbol: str, 股票代码（仅用于图例名称）
             theme: str, 'light' 或 'dark'
             client_width: int, 客户端宽度
@@ -2785,9 +2788,24 @@ class ChartBuilder:
         trades = [
             t for t in trades if pd.to_datetime(t["date"]) >= df["datetime"].min()
         ]
-        pos_detail = [
-            t for t in pos_detail if pd.to_datetime(t["date"]) >= df["datetime"].min()
-        ]
+        pos_detail = (
+            [
+                t
+                for t in pos_detail
+                if pd.to_datetime(t["date"]) >= df["datetime"].min()
+            ]
+            if pos_detail is not None
+            else []
+        )
+        actions = (
+            [
+                a
+                for a in actions
+                if pd.to_datetime(a["date"]) >= df["datetime"].min()
+            ]
+            if actions is not None
+            else []
+        )
 
         # K线
         df["pct_change"] = (df["close"] - df["open"]) / df["open"]
@@ -2847,6 +2865,8 @@ class ChartBuilder:
         # 设定固定偏移步长（例如：悬浮高度恒定为全局视图高度的 2.5%）
         offset_base = price_range * 0.025
         offset_upgrade = price_range * 0.045  # 策略升级点错开更高高度
+        offset_action = price_range * 0.065   # 除权行为事件错开高度
+
         # ----- 策略级别定义 -----
         STRATEGY_LEVELS = {
             # 长线策略 (级别 1)
@@ -3040,6 +3060,99 @@ class ChartBuilder:
                 row=1,
                 col=1,
             )
+
+        # ----- 4. 除权分红与拆合股 (Actions) 标记绘制 -----
+        action_color = cfg.get("upgrade-marker-color")
+
+        for act in actions:
+            try:
+                ad = pd.to_datetime(act["date"])
+                div = float(act.get("dividend", 0) or 0)
+                split = float(act.get("split_ratio", 1) or 1)
+
+                if div <= 0 and split == 1.0:
+                    continue
+
+                price_row = df[df["datetime"] == ad]
+                if price_row.empty:
+                    continue
+
+                bar_high = price_row["high"].iloc[0]
+                suspension_price = bar_high + offset_action
+                stem_length = suspension_price - bar_high
+
+                hover_details = []
+                if div > 0:
+                    if market == "cn":
+                        cn_div = div * 10
+                        hover_details.append(f"分红派息: 每10股派现 {cn_div:.2f}元")
+                    else:
+                        hover_details.append(f"分红派息: 每1股派现 ${div:.2f}")
+
+                if split != 1.0 and split > 0:
+                    if split > 1.0:
+                        split_str = (
+                            f"{split:.0f}" if split.is_integer() else f"{split:.2f}"
+                        )
+                        hover_details.append(f"拆股: 1 拆 {split_str}")
+                    else:
+                        reverse_split = 1.0 / split
+                        rev_str = (
+                            f"{reverse_split:.0f}"
+                            if reverse_split.is_integer()
+                            else f"{reverse_split:.2f}"
+                        )
+                        hover_details.append(f"合股: {rev_str} 合 1")
+
+                action_info_str = "<br>".join(hover_details)
+
+                fig.add_trace(
+                    go.Scatter(
+                        x=[ad],
+                        y=[suspension_price],
+                        mode="markers+text",
+                        cliponaxis=False,
+                        text="<b>F</b>",
+                        textposition="top center",
+                        textfont=dict(
+                            size=int(8 * scale),
+                            color=action_color,
+                        ),
+                        marker=dict(
+                            symbol="triangle-up",
+                            size=int(8 * scale),
+                            color=action_color,
+                        ),
+                        error_y=dict(
+                            type="data",
+                            array=[0],
+                            arrayminus=[stem_length],
+                            symmetric=False,
+                            width=0,
+                            color=cfg.get("gridcolor"),
+                            thickness=1,
+                        ),
+                        showlegend=False,
+                        hovertemplate=(
+                            f"[Ⓕ <b>除权事件</b>]<br>"
+                            f"{action_info_str}<br>"
+                            f"%{{x|%Y-%m-%d}}<extra></extra>"
+                        ),
+                        hoverlabel=dict(
+                            bgcolor=self.darken_color(action_color, theme=theme),
+                            bordercolor=cfg.get("hover-border-color"),
+                            font=dict(
+                                color=cfg.get("hover-text-color"),
+                                size=font_size,
+                                family=self.font_family,
+                            ),
+                        ),
+                    ),
+                    row=1,
+                    col=1,
+                )
+            except Exception:
+                pass
         """
         斜向阻力和支撑通道线
         """
