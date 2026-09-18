@@ -841,7 +841,8 @@ class EMWebCrawlerUti:
 
         df_hist = pd.DataFrame()
         found_symbol_yf = None  # 记录在 yfinance 上实际匹配成功的符号
-        matched_ticker = None   # 💡 关键：保存已成功获取数据的 ticker 句柄，避免重新实例化
+        matched_ticker = None   # 保存已成功获取数据的 ticker 句柄，避免重新实例化
+        company_name = None #默认symbol为company name
 
         # 1. 构建 Yahoo Finance 的候选 Symbol 尝试顺序
         # 仅当包含 '_' 时构建多种替换规则；普通 symbol 只有其自身 1 个候选，避免无谓开销
@@ -895,8 +896,18 @@ class EMWebCrawlerUti:
                     if df_candidate is not None and not df_candidate.empty:
                         df_hist = df_candidate
                         found_symbol_yf = candidate  # 标记匹配成功的 Yahoo 符号（如 T-PA）
-                        matched_ticker = ticker     # 💡 直接保留成功的 ticker 对象
+                        matched_ticker = ticker     # 直接保留成功的 ticker 对象
                         break
+
+                # ==================== 4. 获取真实公司名称 (复用句柄 + 轻量读取) ====================
+                company_name = symbol
+                # 提升性能，跳过company name获取请求
+                # if matched_ticker is not None:
+                #     try:
+                #         info = matched_ticker.info
+                #         company_name = info.get("longName") or info.get("shortName") or symbol
+                #     except Exception:
+                #         company_name = symbol
 
                 if df_hist is not None and not df_hist.empty:
                     break
@@ -929,20 +940,6 @@ class EMWebCrawlerUti:
                 with open(cache_path, "a", encoding="utf-8") as f:
                     f.write(f"{symbol}\n")
             return []
-
-        # ==================== 4. 获取真实公司名称 (复用句柄 + 轻量读取) ====================
-        company_name = symbol
-        # if matched_ticker is not None:
-        #     try:
-        #         # 优先调用轻量 fast_info，无需额外发请求，不易被限流卡死
-        #         company_name = getattr(matched_ticker.fast_info, "company_name", None)
-                
-        #         # 如果 fast_info 为空，再尝试降级读取 .info 属性
-        #         if not company_name:
-        #             info = matched_ticker.info
-        #             company_name = info.get("longName") or info.get("shortName") or symbol
-        #     except Exception:
-        #         company_name = symbol
 
         # ==================== 5. 高性能向量化数据格式化 ====================
         df_res = df_hist.reset_index().copy()
