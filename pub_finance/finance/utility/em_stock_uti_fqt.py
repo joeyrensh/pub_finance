@@ -932,17 +932,17 @@ class EMWebCrawlerUti:
 
         # ==================== 4. 获取真实公司名称 (复用句柄 + 轻量读取) ====================
         company_name = symbol
-        if matched_ticker is not None:
-            try:
-                # 优先调用轻量 fast_info，无需额外发请求，不易被限流卡死
-                company_name = getattr(matched_ticker.fast_info, "company_name", None)
+        # if matched_ticker is not None:
+        #     try:
+        #         # 优先调用轻量 fast_info，无需额外发请求，不易被限流卡死
+        #         company_name = getattr(matched_ticker.fast_info, "company_name", None)
                 
-                # 如果 fast_info 为空，再尝试降级读取 .info 属性
-                if not company_name:
-                    info = matched_ticker.info
-                    company_name = info.get("longName") or info.get("shortName") or symbol
-            except Exception:
-                company_name = symbol
+        #         # 如果 fast_info 为空，再尝试降级读取 .info 属性
+        #         if not company_name:
+        #             info = matched_ticker.info
+        #             company_name = info.get("longName") or info.get("shortName") or symbol
+        #     except Exception:
+        #         company_name = symbol
 
         # ==================== 5. 高性能向量化数据格式化 ====================
         df_res = df_hist.reset_index().copy()
