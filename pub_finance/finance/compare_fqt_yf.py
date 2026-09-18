@@ -113,7 +113,7 @@ def compare_kline_data(df_my_fqt, df_yf, actions_path=None):
     # 1. 规范列名与类型
     cols_to_check = ['open', 'high', 'low', 'close', 'volume']
     for df in [df_my, df_yf]:
-        df['symbol'] = df['symbol'].astype(str).str.strip()
+        df['symbol'] = df['symbol'].astype(str).str.strip().str.upper()
         df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
         for col in cols_to_check:
             df[col] = pd.to_numeric(df[col], errors='coerce')
@@ -135,13 +135,23 @@ def compare_kline_data(df_my_fqt, df_yf, actions_path=None):
     actions_map = {}
     if actions_path and os.path.exists(actions_path):
         try:
-            df_act = pd.read_csv(actions_path)
-            df_act['symbol'] = df_act['symbol'].astype(str).str.strip()
-            df_act['date'] = pd.to_datetime(df_act['date'].astype(str)).dt.strftime('%Y-%m-%d')
-            # 过滤出有实际分红或拆股的记录
-            df_act_valid = df_act[(df_act.get('dividend', 0) > 0) | (df_act.get('split_ratio', 1) != 1)]
+            # 💡 强类型解析，避免字符串或类型混淆
+            df_act = pd.read_csv(actions_path, dtype=str)
+            df_act['symbol'] = df_act['symbol'].astype(str).str.strip().str.upper()
+            df_act['date'] = pd.to_datetime(df_act['date']).dt.strftime('%Y-%m-%d')
+            
+            # 数值类型安全转换
+            df_act['dividend'] = pd.to_numeric(df_act.get('dividend', 0), errors='coerce').fillna(0.0)
+            df_act['split_ratio'] = pd.to_numeric(df_act.get('split_ratio', 1.0), errors='coerce').fillna(1.0)
+            
+            # 💡 精准过滤：存在现金分红(>0) 或 拆股(!=1.0，留出浮点数误差余量)
+            df_act_valid = df_act[
+                (df_act['dividend'] > 0) | (np.abs(df_act['split_ratio'] - 1.0) > 1e-6)
+            ].sort_values('date')
+
             for sym, group in df_act_valid.groupby('symbol'):
                 actions_map[sym] = group['date'].tolist()
+                
         except Exception as e:
             print(f"⚠️ 读取复权因子事件文件失败: {e}")
 
@@ -177,27 +187,35 @@ def compare_kline_data(df_my_fqt, df_yf, actions_path=None):
         sym_df = merged[merged['symbol'] == sym].sort_values('date')
         sym_diff_df = sym_df[sym_df['has_diff']]
 
-        # 获取事件发生日
+        # 获取事件发生日列表
         act_dates = actions_map.get(sym, [])
-        first_act_date = act_dates[0] if act_dates else "无/未匹配"
 
         # 区分复权事件发生前/发生后的差异日期范围
         if act_dates:
-            event_d = act_dates[0]
-            pre_event_diffs = sym_diff_df[sym_diff_df['date'] < event_d]['date'].tolist()
-            post_event_diffs = sym_diff_df[sym_diff_df['date'] >= event_d]['date'].tolist()
+            min_event_d = act_dates[0]    # 最早事件日
+            max_event_d = act_dates[-1]   # 最近事件日
+            
+            pre_event_diffs = sym_diff_df[sym_diff_df['date'] < min_event_d]['date'].tolist()
+            post_event_diffs = sym_diff_df[sym_diff_df['date'] >= min_event_d]['date'].tolist()
             
             pre_range = f"{pre_event_diffs[0]} ~ {pre_event_diffs[-1]}" if pre_event_diffs else "无"
             post_range = f"{post_event_diffs[0]} ~ {post_event_diffs[-1]}" if post_event_diffs else "无"
+            
+            # 格式化事件日：如果事件过多，截断显示
+            if len(act_dates) <= 3:
+                event_str = ", ".join(act_dates)
+            else:
+                event_str = f"{act_dates[0]} ~ {act_dates[-1]} (共{len(act_dates)}次)"
         else:
             diff_dates = sym_diff_df['date'].tolist()
+            event_str = "未在Actions中找到"
             pre_range = f"{diff_dates[0]} ~ {diff_dates[-1]}" if diff_dates else "无"
             post_range = "N/A"
 
         # 各指标异常天数统计
         sym_report = {
             "Symbol": sym,
-            "复权事件日": ", ".join(act_dates) if act_dates else "未在Actions中找到",
+            "复权事件日": event_str,
             "事件前差异区间": pre_range,
             "事件后差异区间": post_range,
             "Open偏差数": int(sym_df['diff_open'].sum()),
@@ -250,7 +268,7 @@ def compare_kline_data(df_my_fqt, df_yf, actions_path=None):
 
         print("\n💡 排查建议指南：")
         print("1. 若【事件前存在差异】而【事件后完全一致】：说明除权除息日之后数据未受影响，重点排查复权因子的【累乘/累加方向】或【拆股比例分子分母颠倒】。")
-        print("2. 若【仅 Volume 存在偏差】：说明价格复权正确，但成交量未按照拆股比例做反向缩放/扩股调整。")
+        print("2. 若【仅 Volume 存在偏差】：说明价格复权正确，但成交量未按照拆股比例做反向缩放/扩股调整（注意：现金分红通常不触发 Volume 复权调整）。")
         print("3. 若【仅 Close/Open 存在微小偏差】：可能由 Yahoo Finance 现金分红扣税(Net Dividend)或浮点舍入精度导致。")
     print("="*80)
 
