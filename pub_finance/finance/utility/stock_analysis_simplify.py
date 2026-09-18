@@ -1457,22 +1457,6 @@ class StockProposal:
             FINANCE_ROOT / f"data/{self.market}_df_result.csv", header=True
         )
 
-        # 1. 批量清理 Python 中对 PySpark DataFrame (spark_xxx) 和 Pandas (pd_xxx) 的变量引用
-        vars_to_del = [
-            var_name
-            for var_name in list(locals().keys())
-            if var_name.startswith("spark_") or var_name.startswith("pd_")
-        ]
-        for var_name in vars_to_del:
-            del locals()[var_name]
-
-        # 2. 清理 Spark 引擎内部的 Catalog 元数据和缓存（必须在 stop 前调用！）
-        spark.catalog.clearCache()
-
-        # 3. 强制 Python 进行垃圾回收，释放 Python 进程内存
-        gc.collect()
-
-        # 4. 最后停止 SparkSession，关闭 JVM 进程并把内存归还给操作系统
         spark.stop()
         subject = f"""{self.market.upper()} Stock Market Trends - {end_date}""".format(
             end_date=end_date
@@ -2121,22 +2105,6 @@ class StockProposal:
             """.format(start_date, start_date))
         pd_trade_info_lstndays = spark_trade_info_lstndays.toPandas()
 
-        # 1. 批量清理 Python 中对 PySpark DataFrame (spark_xxx) 和 Pandas (pd_xxx) 的变量引用
-        vars_to_del = [
-            var_name
-            for var_name in list(locals().keys())
-            if var_name.startswith("spark_") or var_name.startswith("pd_")
-        ]
-        for var_name in vars_to_del:
-            del locals()[var_name]
-
-        # 2. 清理 Spark 引擎内部的 Catalog 元数据和缓存（必须在 stop 前调用！）
-        spark.catalog.clearCache()
-
-        # 3. 强制 Python 进行垃圾回收，释放 Python 进程内存
-        gc.collect()
-
-        # 4. 最后停止 SparkSession，关闭 JVM 进程并把内存归还给操作系统
         spark.stop()
 
         subject = f"""CN Stock Market ETF Trends - {end_date}""".format(

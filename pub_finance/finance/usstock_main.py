@@ -6,6 +6,8 @@ from pathlib import Path
 import sys
 import time
 import functools
+import multiprocessing
+from multiprocessing import Queue
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from finance.utility.toolkit import ToolKit
@@ -14,7 +16,6 @@ import gc
 from finance.utility.em_stock_uti import EMWebCrawlerUti
 from finance.uscrawler.ak_incre_crawler import AKUSWebCrawler
 from finance.utility.backtrader_exec import BacktraderExec
-import sys
 
 
 # ------------------- 重试机制 -------------------
@@ -35,10 +36,48 @@ def retry_call(func, max_retries=3, delay=1, backoff=2, exceptions=(Exception,))
             if attempt == max_retries - 1:
                 raise  # 最后一次失败则抛出异常
             wait = delay * (backoff**attempt)
-            print(f"⚠️ 重试第 {attempt+1} 次，等待 {wait:.1f} 秒后重试，错误: {e}")
+            print(f"重试第 {attempt+1} 次，等待 {wait:.1f} 秒后重试，错误: {e}")
             time.sleep(wait)
     # 理论上不会执行到这里
     raise RuntimeError("重试失败")
+
+
+# ------------------- 子进程执行器 -------------------
+def run_in_subprocess(task_func, *args, timeout=3600):
+    """
+    在独立子进程中运行指定任务，任务结束后操作系统会自动回收该进程占用的所有内存与 Swap
+    :param task_func: 目标执行函数
+    :param args: 传给目标函数的参数
+    :param timeout: 超时时间（秒）
+    :return: 目标函数的返回值
+    """
+    def _worker(q, func, func_args):
+        try:
+            res = func(*func_args)
+            q.put(("success", res))
+        except Exception as e:
+            import traceback
+            q.put(("error", f"{e}\n{traceback.format_exc()}"))
+
+    ctx = multiprocessing.get_context("spawn")
+    q = ctx.Queue()
+    p = ctx.Process(target=_worker, args=(q, task_func, args))
+    p.start()
+    p.join(timeout=timeout)
+
+    if p.is_alive():
+        p.terminate()
+        p.join()
+        raise TimeoutError(f"任务 {task_func.__name__} 执行超时 (限制: {timeout}s)")
+
+    if q.empty():
+        raise RuntimeError(f"任务 {task_func.__name__} 子进程异常退出，未返回结果")
+
+    status, result = q.get()
+    if status == "error":
+        raise RuntimeError(f"子进程执行出错: {result}")
+
+    return result
 
 
 # 主程序入口
@@ -89,29 +128,18 @@ if __name__ == "__main__":
             date: 交易日期，传递给 exec_func
             exec_func: 可调用对象，签名为 exec_func(date)，返回 (cash, final_value)
         """
-        import multiprocessing
-        from multiprocessing import Queue
+        def _exec_wrapper(d):
+            return exec_func(d)
 
-        def _worker(q, trade_date):
-            try:
-                cash, final_value = exec_func(trade_date)
-                q.put((cash, final_value))
-            except Exception as e:
-                q.put(("error", str(e)))
+        return run_in_subprocess(_exec_wrapper, date, timeout=3600)
 
-        q = Queue()
-        p = multiprocessing.Process(target=_worker, args=(q, date))
-        p.start()
-        p.join(timeout=3600)  # 1小时超时
-
-        if p.is_alive():
-            p.terminate()
-            raise TimeoutError("Backtest timed out")
-
-        result = q.get()
-        if result[0] == "error":
-            raise RuntimeError(result[1])
-        return result[0], result[1]
+    def _exec_spark_and_email(market, trade_date, cash, final_value):
+        """在子进程中独立运行 Spark 分析并发送邮件"""
+        proposal = StockProposal(market, trade_date)
+        if market == "cnetf":
+            proposal.send_etf_btstrategy_by_email(cash, final_value)
+        else:
+            proposal.send_btstrategy_by_email(cash, final_value)
 
     def run_backtest_and_send(market, trade_date, force_run=False):
         """
@@ -120,6 +148,7 @@ if __name__ == "__main__":
         - market: 市场标识 ("us", "us_special", "us_dynamic")
         - trade_date: 交易日期
         """
+        # 1. 在独立子进程运行回测，跑完强行释放物理内存
         cash, final_value = run_backtest_in_process(
             trade_date,
             lambda d: BacktraderExec(market, d).exec_btstrategy(force_run=force_run),
@@ -127,11 +156,8 @@ if __name__ == "__main__":
         collected = gc.collect()
         print("Garbage collector: collected %d objects." % (collected))
 
-        proposal = StockProposal(market, trade_date)
-        if market == "cnetf":
-            proposal.send_etf_btstrategy_by_email(cash, final_value)
-        else:
-            proposal.send_btstrategy_by_email(cash, final_value)
+        # 2. 将 Spark 分析与邮件发送同样放入子进程，隔离 Spark 占用的内存与 Swap
+        run_in_subprocess(_exec_spark_and_email, market, trade_date, cash, final_value)
 
     # ========== 2. 策略执行与邮件发送重试 ==========
     def retry_backtest_and_send(market, trade_date, force_run=False, max_retries=3):
