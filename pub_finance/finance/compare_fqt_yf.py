@@ -140,11 +140,11 @@ def compare_kline_data(df_my_fqt, df_yf, actions_path=None):
             df_act['symbol'] = df_act['symbol'].astype(str).str.strip().str.upper()
             df_act['date'] = pd.to_datetime(df_act['date'].astype(str).str.strip()).dt.strftime('%Y-%m-%d')
             
-            # 💡 关键防御 1：显式转换为 float 类型，失败的填入默认值
+            # 关键防御 1：显式转换为 float 类型，失败的填入默认值
             df_act['dividend'] = pd.to_numeric(df_act.get('dividend'), errors='coerce').fillna(0.0)
             df_act['split_ratio'] = pd.to_numeric(df_act.get('split_ratio'), errors='coerce').fillna(1.0)
             
-            # 💡 关键防御 2：精准判断事件（支持小数拆股 1.025 / 1.01，以及 0.0 现金分红但有拆股的情况）
+            # 关键防御 2：精准判断事件（支持小数拆股 1.025 / 1.01，以及 0.0 现金分红但有拆股的情况）
             has_dividend = df_act['dividend'] > 1e-6
             has_split = ~np.isclose(df_act['split_ratio'], 1.0, atol=1e-5) # 不等于 1.0 (容忍浮点数微小误差)
             

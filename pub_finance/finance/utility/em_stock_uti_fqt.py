@@ -216,7 +216,7 @@ class EMWebCrawlerUti:
         if from_latest_file:
             data_dir = FINANCE_ROOT / f"{market}stockinfo"
             
-            # 💡 调用 FileInfo 获取严格过滤且已按日期升序排序的文件列表
+            # 调用 FileInfo 获取严格过滤且已按日期升序排序的文件列表
             file_info = FileInfo(trade_date=trade_date, market=market)
             files = file_info.get_file_list
             print("files: ", files)

@@ -34,7 +34,7 @@ class StockDataUpdater:
         self.key_cols = key_cols
         self.batch_size = batch_size
         
-        # 💡 排除 .bk 备份文件与 _new.csv 文件
+        # 排除 .bk 备份文件与 _new.csv 文件
         raw_files = sorted(glob.glob(os.path.join(self.data_dir, "stock_*.csv")))
         self.all_files = [f for f in raw_files if not f.endswith(".bk")]
 
@@ -357,15 +357,15 @@ class StockDataUpdater:
             old_file = new_file.replace("_new.csv", ".csv")
             bk_file = f"{old_file}.bk"
 
-            # 💡 1. 备份原文件
+            # 1. 备份原文件
             if os.path.exists(old_file):
                 shutil.copy2(old_file, bk_file)
                 print(f"📦 已备份原文件: {os.path.basename(old_file)} -> {os.path.basename(bk_file)}")
 
-            # 💡 2. 用 _new.csv 覆盖原文件
+            # 2. 用 _new.csv 覆盖原文件
             os.replace(new_file, old_file)
 
-        print("🎉 所有新生成的文件更名成功，原文件已成功备份为 .bk 并完成替换覆盖！")
+        print("所有新生成的文件更名成功，原文件已成功备份为 .bk 并完成替换覆盖！")
 
 
 if __name__ == "__main__":

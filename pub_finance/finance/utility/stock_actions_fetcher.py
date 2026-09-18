@@ -65,14 +65,14 @@ class StockActionsFetcher:
         max_retries_per_symbol: int = 3,
         start_date: Optional[str] = "2025-01-01",  # 格式: YYYY-MM-DD
         force_refresh: bool = False,  # 是否强制重置 Checkpoint 重新抓取
-        symbol_list: Optional[List[str]] = None,  # 💡 新增：支持指定 symbol_list，默认 None
+        symbol_list: Optional[List[str]] = None,  # 新增：支持指定 symbol_list，默认 None
     ):
         self.market = market.lower()
         if self.market not in ["cn", "us"]:
             raise ValueError("market 参数必须为 'cn' 或 'us'")
 
         self.force_refresh = force_refresh
-        self.symbol_list = symbol_list  # 💡 新增属性保存
+        self.symbol_list = symbol_list  # 新增属性保存
 
         # 1. 目录及路径定位
         default_dir = "cnstockinfo" if self.market == "cn" else "usstockinfo"
@@ -121,7 +121,7 @@ class StockActionsFetcher:
 
     def _get_latest_stock_info_file(self) -> Path:
         """获取 target_dir 目录下最新的 stock_*.csv 文件路径"""
-        # 💡 若指定了 symbol_list 且文件不存在，返回虚拟路径避免报错
+        # 若指定了 symbol_list 且文件不存在，返回虚拟路径避免报错
         files = list(self.target_dir.glob("stock_*.csv"))
         if not files:
             if self.symbol_list is not None:
@@ -133,7 +133,7 @@ class StockActionsFetcher:
 
     def _init_cn_symbol_mapping(self):
         """为 CN 市场解析列表，构建 纯数字代码 -> 原始 Symbol 的双向映射"""
-        # 💡 若指定了 symbol_list，直接从 symbol_list 构建映射
+        # 若指定了 symbol_list，直接从 symbol_list 构建映射
         if self.symbol_list is not None:
             for sym in self.symbol_list:
                 raw_sym = str(sym).strip()
@@ -264,7 +264,7 @@ class StockActionsFetcher:
                 etfs.append(clean_code)
             elif raw_sym.upper().startswith(("SH", "SZ")):
                 stocks.append(clean_code)
-            else:  # 💡 若未带 SH/SZ 前缀，默认归为股票
+            else:  # 若未带 SH/SZ 前缀，默认归为股票
                 stocks.append(clean_code)
 
         return sorted(list(set(stocks))), sorted(list(set(etfs)))
@@ -409,7 +409,7 @@ class StockActionsFetcher:
     # ==================== US (yfinance) 处理逻辑 ====================
     def load_us_symbols(self) -> List[str]:
         """载入待处理的美股 Symbol 列表"""
-        # 💡 若指定了 symbol_list，优先使用
+        # 若指定了 symbol_list，优先使用
         if self.symbol_list is not None:
             return sorted(list(set(str(s).strip().upper() for s in self.symbol_list)))
 

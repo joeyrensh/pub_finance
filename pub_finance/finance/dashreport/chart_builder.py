@@ -566,7 +566,7 @@ class ChartBuilder:
             #             industry_text_bottom, 12
             #         )
 
-            #     # ⭐ Top3 行业加粗
+            #     # Top3 行业加粗
             #     if rank_text_bottom in rank_symbols:
             #         industry_text_bottom = (
             #             f"{rank_symbols[rank_text_bottom]} {industry_text_bottom}"

@@ -41,7 +41,7 @@ def parse_args():
         action="store_true",
         help="是否强制清空 Checkpoint 重新抓取 (定时任务/手动全量重跑时加上此标记)",
     )
-    # 💡 新增 --symbols 参数，支持传入单个或多个股票代码
+    # 新增 --symbols 参数，支持传入单个或多个股票代码
     parser.add_argument(
         "--symbols",
         nargs="+",
@@ -79,7 +79,7 @@ def run_cn(batch_size: int, start_date: str, force_refresh: bool, symbol_list: O
         batch_size=batch_size,
         start_date=start_date,
         force_refresh=force_refresh,
-        symbol_list=symbol_list,  # 💡 传递 symbol_list
+        symbol_list=symbol_list,  # 传递 symbol_list
     )
     fetcher_cn.run()
 
@@ -96,7 +96,7 @@ def run_us(batch_size: int, start_date: str, force_refresh: bool, symbol_list: O
         batch_size=batch_size,
         start_date=start_date,
         force_refresh=force_refresh,
-        symbol_list=symbol_list,  # 💡 传递 symbol_list
+        symbol_list=symbol_list,  # 传递 symbol_list
     )
     fetcher_us.run()
 
@@ -115,7 +115,7 @@ def main():
     symbol_list = parse_symbol_list(args.symbols)
 
     if symbol_list:
-        logging.info(f"🎯 指定处理特定 Symbol 列表 ({len(symbol_list)} 只): {symbol_list}")
+        logging.info(f"指定处理特定 Symbol 列表 ({len(symbol_list)} 只): {symbol_list}")
 
     # 根据选定的市场和指定的批次大小执行对应流程
     if market in ["cn", "all"]:

@@ -194,7 +194,7 @@ class ChartCallback:
             datasets = info["datasets"]
 
             try:
-                # 🚀 核心：真正命中 mtime-aware LRU
+                # 核心：真正命中 mtime-aware LRU
                 data_bundle = ReportDataLoader.load(
                     prefix=page,
                     datasets=datasets,

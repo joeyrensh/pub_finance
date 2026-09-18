@@ -731,7 +731,7 @@ class ToolKit:
         )
         plt.close(fig)
 
-        # 🌟 核心修复：100% 保持单行字符串格式返回，拒绝换行与多余样式，防止上游 Markdown/AIO 解析器产生 unpack 报错
+        # 核心修复：100% 保持单行字符串格式返回，拒绝换行与多余样式，防止上游 Markdown/AIO 解析器产生 unpack 报错
         return (
             f'<img src="data:image/png;base64,{b64encode(buf.getvalue()).decode()}" />'
         )
