@@ -166,7 +166,7 @@ class BacktraderExec:
                 )
                 cerebro.adddata(data, name=h["symbol"][0])
 
-            # 💡【关键内存优化 1】：加载完数据后立即释放外层 DataFrame 列表
+            #【关键内存优化 1】：加载完数据后立即释放外层 DataFrame 列表
             data_feeds.clear()
             del data_feeds
             gc.collect()
@@ -195,7 +195,7 @@ class BacktraderExec:
             return pnl, cash, total_value
 
         finally:
-            # 💡【关键内存优化 2】：无论成功或失败，强制解绑和清空 Cerebro 内部所有对象
+            #【关键内存优化 2】：无论成功或失败，强制解绑和清空 Cerebro 内部所有对象
             if 'cerebro' in locals():
                 cerebro.datas.clear()
                 cerebro.strats.clear()
@@ -576,7 +576,7 @@ class BacktraderExec:
                 pad_inches=0.2,
             )
             
-            # 💡【关键内存优化 3】：彻底销毁 Matplotlib 图形对象与子轴
+            # 【关键内存优化 3】：彻底销毁 Matplotlib 图形对象与子轴
             fig.clf()
             plt.close(fig)
             plt.close('all')
