@@ -403,7 +403,7 @@ class BacktestPage:
             # 分页每页3个
             total = len(symbols)
             start = 0
-            end = min(3, total)
+            end = min(6, total)
             current_stocks = symbols[start:end]
             button_text = f"{1}-{end} / {total}"
 
@@ -433,7 +433,7 @@ class BacktestPage:
             if not full_list:
                 return "", 0, "0-0"
             total = len(full_list)
-            page_size = 3
+            page_size = 6
             max_page = (total - 1) // page_size if total > 0 else 0
             if trigger == "backtest-next":
                 next_page = 0 if current_page == max_page else current_page + 1
