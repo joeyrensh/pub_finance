@@ -3085,9 +3085,9 @@ class ChartBuilder:
                 if div > 0:
                     if market == "cn":
                         cn_div = div * 10
-                        hover_details.append(f"分红派息: 每10股派现 {cn_div:.2f}元")
+                        hover_details.append(f"分红: 每10股 ￥{cn_div:.2f}")
                     else:
-                        hover_details.append(f"分红派息: 每1股派现 ${div:.2f}")
+                        hover_details.append(f"分红: 每1股 ${div:.2f}")
 
                 if split != 1.0 and split > 0:
                     if split > 1.0:
@@ -3134,7 +3134,7 @@ class ChartBuilder:
                         ),
                         showlegend=False,
                         hovertemplate=(
-                            f"[Ⓕ <b>除权事件</b>]<br>"
+                            f"[Ⓕ <b>除权</b>]<br>"
                             f"{action_info_str}<br>"
                             f"%{{x|%Y-%m-%d}}<extra></extra>"
                         ),
