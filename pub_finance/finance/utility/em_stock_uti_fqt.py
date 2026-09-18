@@ -749,11 +749,12 @@ class EMWebCrawlerUti:
         return str(proxy_input)
 
     def get_us_his_stock_info_yf(
-        self, symbol, start_date, end_date, cache_path=None
+        self, symbol, start_date, end_date, cache_path=None, auto_adjust=False
     ):
-        """基于 yfinance 获取美股不复权/真实历史日 K 数据
+        """基于 yfinance 获取美股历史日 K 数据
 
-        - 自动将 T_A 映射为 Yahoo 正确格式 T-PA (以及 T-A 备选)
+        :param auto_adjust: 是否自动调整（前复权/除权调整），默认 False (不复权)
+        - 自动将 T_A 映射为 Yahoo 正确格式 T-PA (以及 T-A, T.A 备选)
         - 导出 CSV / 返回数据严格保持原始输入 symbol (如 T_A)
         """
         # 0. 防御校验：处理 NaN / float / None 等无效 symbol 输入
@@ -765,6 +766,7 @@ class EMWebCrawlerUti:
         symbol = str(symbol).strip()
         if not symbol or symbol.lower() == "nan":
             return []        
+        
         os.environ.setdefault("CURL_CA_BUNDLE", "")
         os.environ.setdefault("SSL_CERT_FILE", "")
 
@@ -772,22 +774,19 @@ class EMWebCrawlerUti:
         e_date = pd.to_datetime(end_date).strftime("%Y-%m-%d")
 
         df_hist = pd.DataFrame()
-        company_name = symbol
-        last_error_msg = ""
+        found_symbol_yf = None  # 记录在 yfinance 上实际匹配成功的符号
+        matched_ticker = None   # 💡 关键：保存已成功获取数据的 ticker 句柄，避免重新实例化
 
         # 1. 构建 Yahoo Finance 的候选 Symbol 尝试顺序
-        yf_candidates = []
+        # 仅当包含 '_' 时构建多种替换规则；普通 symbol 只有其自身 1 个候选，避免无谓开销
         if "_" in symbol:
-            # 优先股语法（最常见）：T_A -> T-PA
-            yf_candidates.append(symbol.replace("_", "-P"))
-            # 普通类股语法：T_A -> T-A
-            yf_candidates.append(symbol.replace("_", "-"))
-            # 点号语法：T_A -> T.A
-            yf_candidates.append(symbol.replace("_", "."))
+            yf_candidates = [
+                symbol.replace("_", "-P"),  # 优先股语法（最常见）：T_A -> T-PA
+                symbol.replace("_", "-"),   # 普通类股语法：T_A -> T-A
+                symbol.replace("_", "."),   # 点号语法：T_A -> T.A
+            ]
         else:
-            yf_candidates.append(symbol)
-
-        found_symbol_yf = None  # 记录在 yfinance 上实际匹配成功的符号
+            yf_candidates = [symbol]
 
         for attempt in range(1, 4):
             # ================= 专属 yfinance 线程锁逻辑 =================
@@ -825,11 +824,12 @@ class EMWebCrawlerUti:
                 for candidate in yf_candidates:
                     ticker = yf.Ticker(candidate)
                     df_candidate = ticker.history(
-                        start=s_date, end=e_date, interval="1d", auto_adjust=False
+                        start=s_date, end=e_date, interval="1d", auto_adjust=auto_adjust
                     )
                     if df_candidate is not None and not df_candidate.empty:
                         df_hist = df_candidate
                         found_symbol_yf = candidate  # 标记匹配成功的 Yahoo 符号（如 T-PA）
+                        matched_ticker = ticker     # 💡 直接保留成功的 ticker 对象
                         break
 
                 if df_hist is not None and not df_hist.empty:
@@ -840,7 +840,6 @@ class EMWebCrawlerUti:
 
             except Exception as e:
                 err_str = str(e)
-                last_error_msg = err_str
 
                 # 精准拦截 404 / 资源不存在：退出尝试，不重试，不杀代理
                 if "404" in err_str or "Not Found" in err_str or "delisted" in err_str:
@@ -865,45 +864,46 @@ class EMWebCrawlerUti:
                     f.write(f"{symbol}\n")
             return []
 
-        # 获取真实公司名称（使用匹配成功的 found_symbol_yf，例如 T-PA）
-        try:
-            ticker = yf.Ticker(found_symbol_yf)
-            info = ticker.info
-            company_name = info.get("longName") or info.get("shortName") or symbol
-        except Exception:
-            company_name = symbol
+        # ==================== 4. 获取真实公司名称 (复用句柄 + 轻量读取) ====================
+        company_name = symbol
+        if matched_ticker is not None:
+            try:
+                # 优先调用轻量 fast_info，无需额外发请求，不易被限流卡死
+                company_name = getattr(matched_ticker.fast_info, "company_name", None)
+                
+                # 如果 fast_info 为空，再尝试降级读取 .info 属性
+                if not company_name:
+                    info = matched_ticker.info
+                    company_name = info.get("longName") or info.get("shortName") or symbol
+            except Exception:
+                company_name = symbol
 
-        # 4. 组装数据，强制恢复为原始的 symbol ("T_A")
-        records = []
-        df_hist = df_hist.reset_index()
+        # ==================== 5. 高性能向量化数据格式化 ====================
+        df_res = df_hist.reset_index().copy()
 
-        for _, row in df_hist.iterrows():
-            date_val = pd.to_datetime(row["Date"]).strftime("%Y-%m-%d")
+        # 校验必填列
+        req_cols = ["Date", "Open", "Close", "High", "Low", "Volume"]
+        missing_cols = [c for c in req_cols if c not in df_res.columns]
+        if missing_cols:
+            return []
 
-            open_p = row.get("Open", None)
-            close_p = row.get("Close", None)
-            high_p = row.get("High", None)
-            low_p = row.get("Low", None)
-            vol_p = row.get("Volume", None)
+        # 过滤关键数值缺失的数据行
+        df_res = df_res.dropna(subset=["Open", "Close", "Volume"])
+        if df_res.empty:
+            return []
 
-            if pd.isna(open_p) or pd.isna(close_p) or pd.isna(vol_p):
-                continue
+        # 向量化转换列与数据格式
+        df_res["symbol"] = symbol
+        df_res["name"] = company_name
+        df_res["date"] = pd.to_datetime(df_res["Date"]).dt.strftime("%Y-%m-%d")
+        df_res["open"] = df_res["Open"].astype(float).round(4).astype(str)
+        df_res["close"] = df_res["Close"].astype(float).round(4).astype(str)
+        df_res["high"] = df_res["High"].astype(float).round(4).astype(str)
+        df_res["low"] = df_res["Low"].astype(float).round(4).astype(str)
+        df_res["volume"] = df_res["Volume"].astype(int).astype(str)
 
-            records.append(
-                {
-                    # 关键：落库依然保存原始格式 T_A
-                    "symbol": symbol,
-                    "name": company_name,
-                    "open": str(round(float(open_p), 4)),
-                    "close": str(round(float(close_p), 4)),
-                    "high": str(round(float(high_p), 4)),
-                    "low": str(round(float(low_p), 4)),
-                    "volume": str(int(vol_p)),
-                    "date": date_val,
-                }
-            )
-
-        return records
+        out_cols = ["symbol", "name", "open", "close", "high", "low", "volume", "date"]
+        return df_res[out_cols].to_dict("records")
 
     def restore_yfinance_raw_csv(
         self,

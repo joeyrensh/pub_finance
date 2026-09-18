@@ -65,18 +65,21 @@ class StockActionsFetcher:
         max_retries_per_symbol: int = 3,
         start_date: Optional[str] = "2025-01-01",  # 格式: YYYY-MM-DD
         force_refresh: bool = False,  # 是否强制重置 Checkpoint 重新抓取
+        symbol_list: Optional[List[str]] = None,  # 💡 新增：支持指定 symbol_list，默认 None
     ):
         self.market = market.lower()
         if self.market not in ["cn", "us"]:
             raise ValueError("market 参数必须为 'cn' 或 'us'")
 
         self.force_refresh = force_refresh
+        self.symbol_list = symbol_list  # 💡 新增属性保存
 
         # 1. 目录及路径定位
         default_dir = "cnstockinfo" if self.market == "cn" else "usstockinfo"
         self.target_dir = target_dir or (FINANCE_ROOT / default_dir)
         os.makedirs(self.target_dir, exist_ok=True)
 
+        # 若未提供 symbol_list，才强行要求 stock_list_path 文件存在
         self.stock_list_path = (
             self.target_dir / stock_filename
             if stock_filename
@@ -91,7 +94,6 @@ class StockActionsFetcher:
         self.checkpoint_path = self.target_dir / (checkpoint_filename or default_ckpt)
 
         # 构建带当前日期的文件路径与 .bak 文件路径
-        # 例如: cn_stock_actions_history_20260917.csv 与 cn_stock_actions_history.bak
         today_str = datetime.datetime.now().strftime("%Y%m%d")
         stem = Path(self.output_filename_str).stem
         suffix = Path(self.output_filename_str).suffix
@@ -119,8 +121,11 @@ class StockActionsFetcher:
 
     def _get_latest_stock_info_file(self) -> Path:
         """获取 target_dir 目录下最新的 stock_*.csv 文件路径"""
+        # 💡 若指定了 symbol_list 且文件不存在，返回虚拟路径避免报错
         files = list(self.target_dir.glob("stock_*.csv"))
         if not files:
+            if self.symbol_list is not None:
+                return self.target_dir / "stock_placeholder.csv"
             raise FileNotFoundError(f"未在目录 '{self.target_dir}' 下找到任何 stock_*.csv 文件")
         latest_file = max(files, key=lambda f: f.stat().st_mtime)
         logger.info(f"[{self.market.upper()}] 自动定位最新股票列表文件: {latest_file.name}")
@@ -128,6 +133,14 @@ class StockActionsFetcher:
 
     def _init_cn_symbol_mapping(self):
         """为 CN 市场解析列表，构建 纯数字代码 -> 原始 Symbol 的双向映射"""
+        # 💡 若指定了 symbol_list，直接从 symbol_list 构建映射
+        if self.symbol_list is not None:
+            for sym in self.symbol_list:
+                raw_sym = str(sym).strip()
+                clean_code = re.sub(r"\D", "", raw_sym).zfill(6)
+                self.cn_symbol_map[clean_code] = raw_sym
+            return
+
         if not self.stock_list_path.exists():
             raise FileNotFoundError(f"未找到股票列表文件: {self.stock_list_path}")
 
@@ -147,11 +160,6 @@ class StockActionsFetcher:
             self.cn_symbol_map[clean_code] = raw_sym
 
     def _load_checkpoint(self) -> Set[str]:
-        """智能加载断点记录：
-        1. 若启用 force_refresh，直接重置。
-        2. 若 Checkpoint 修改日期不是今天（跨天/每周定时任务），自动重置清空。
-        3. 若为当天留下的记录，说明中途崩溃，恢复断点续传。
-        """
         if self.force_refresh:
             logger.info("⚡ [定时模式] 已开启 force_refresh，清空旧 Checkpoint，开启全新抓取周期。")
             self._clear_checkpoint()
@@ -181,7 +189,6 @@ class StockActionsFetcher:
         return set()
 
     def _clear_checkpoint(self):
-        """清空 checkpoint 文件"""
         if self.checkpoint_path.exists():
             try:
                 os.remove(self.checkpoint_path)
@@ -189,50 +196,60 @@ class StockActionsFetcher:
                 logger.warning(f"删除旧 Checkpoint 文件失败: {e}")
 
     def _save_checkpoint(self):
-        """保存断点记录"""
         with open(self.checkpoint_path, "w", encoding="utf-8") as f:
             json.dump(list(self.processed_symbols), f)
 
     def _save_records_to_csv(self, records: List[Dict]):
-        """执行安全落盘与轮换逻辑:
-        1. 实时数据追加写入到 cn_stock_actions_history_20260917.csv
-        2. 原文件 cn_stock_actions_history.csv 暂时更名为 .bak 备份
-        3. 将 cn_stock_actions_history_20260917.csv 命名为 cn_stock_actions_history.csv 主文件
-        4. 最后将 .bak 文件重命名回 cn_stock_actions_history_20260917.csv
-        """
         if not records:
             return
 
-        df = pd.DataFrame(records)[self.CSV_HEADERS]
+        # 1. 将本次批次新抓取到的记录转换为 DataFrame
+        new_df = pd.DataFrame(records)[self.CSV_HEADERS]
 
-        # 若当天的文件不存在，但主文件已存在，复制主文件作为当天基础数据，防止历史记录遗失
-        if not self.dated_csv_path.exists() and self.output_csv_path.exists():
-            shutil.copy2(self.output_csv_path, self.dated_csv_path)
+        # 2. 读取已存在的历史 CSV 数据（优先从 output_csv_path 或 dated_csv_path 中读取）
+        existing_df = pd.DataFrame(columns=self.CSV_HEADERS)
+        
+        target_read_path = None
+        if self.dated_csv_path.exists() and os.path.getsize(self.dated_csv_path) > 0:
+            target_read_path = self.dated_csv_path
+        elif self.output_csv_path.exists() and os.path.getsize(self.output_csv_path) > 0:
+            target_read_path = self.output_csv_path
 
-        dated_file_exists = (
-            self.dated_csv_path.exists() and os.path.getsize(self.dated_csv_path) > 0
-        )
+        if target_read_path:
+            try:
+                existing_df = pd.read_csv(target_read_path, dtype=str)
+                # 类型转换，确保数值列精度统一
+                existing_df["dividend"] = existing_df["dividend"].astype(float)
+                existing_df["split_ratio"] = existing_df["split_ratio"].astype(float)
+            except Exception as e:
+                logger.warning(f"读取原有数据文件失败，将全新创建: {e}")
 
-        # 1. 追加写入到当日带日期的 CSV 文件
-        df.to_csv(
+        # 3. 合并新旧数据，并按 ['symbol', 'date'] 复合主键去重 (keep='last' 确保新抓取的数据覆盖旧数据)
+        combined_df = pd.concat([existing_df, new_df], ignore_index=True)
+        combined_df.drop_duplicates(subset=["symbol", "date"], keep="last", inplace=True)
+        
+        # 4. 重新排序：按 symbol, date 字典序升序，保证文件可读性
+        combined_df.sort_values(by=["symbol", "date"], ascending=[True, True], inplace=True)
+
+        # 5. 安全覆盖落盘到带有日期标记的 CSV 中 (mode="w")
+        combined_df.to_csv(
             self.dated_csv_path,
-            mode="a",
+            mode="w",
             index=False,
-            header=not dated_file_exists,
+            header=True,
             encoding="utf-8-sig",
         )
-        del df
+        
+        del combined_df, existing_df, new_df
 
-        # 2. 将主文件暂存为 .bak
+        # 6. 安全原子替换主文件逻辑 (保持原有 .bak 轮换逻辑)
         if self.output_csv_path.exists():
             if self.bak_csv_path.exists():
                 os.remove(self.bak_csv_path)
             os.rename(self.output_csv_path, self.bak_csv_path)
 
-        # 3. 将新的带日期文件复制一份更新为主文件
         shutil.copy2(self.dated_csv_path, self.output_csv_path)
 
-        # 4. 将 .bak 文件替换为带日期归档的文件
         if self.bak_csv_path.exists():
             if self.dated_csv_path.exists():
                 os.remove(self.dated_csv_path)
@@ -247,11 +264,12 @@ class StockActionsFetcher:
                 etfs.append(clean_code)
             elif raw_sym.upper().startswith(("SH", "SZ")):
                 stocks.append(clean_code)
+            else:  # 💡 若未带 SH/SZ 前缀，默认归为股票
+                stocks.append(clean_code)
 
         return sorted(list(set(stocks))), sorted(list(set(etfs)))
 
     def fetch_actions_for_etfs(self, etf_list: List[str]) -> List[Dict]:
-        """批量获取 ETF 分红与拆分数据"""
         if not etf_list:
             return []
 
@@ -332,7 +350,6 @@ class StockActionsFetcher:
         return records
 
     def fetch_actions_for_cn_stock(self, symbol: str) -> List[Dict]:
-        """抓取单只 CN 股票的除权除息数据"""
         records = []
         raw_sym = self.cn_symbol_map.get(symbol, symbol)
         try:
@@ -392,6 +409,10 @@ class StockActionsFetcher:
     # ==================== US (yfinance) 处理逻辑 ====================
     def load_us_symbols(self) -> List[str]:
         """载入待处理的美股 Symbol 列表"""
+        # 💡 若指定了 symbol_list，优先使用
+        if self.symbol_list is not None:
+            return sorted(list(set(str(s).strip().upper() for s in self.symbol_list)))
+
         df = pd.read_csv(self.stock_list_path)
         target_col = "symbol" if "symbol" in df.columns else "Symbol"
         return (
@@ -405,7 +426,6 @@ class StockActionsFetcher:
         )
 
     def fetch_actions_for_us_stock(self, symbol: str) -> List[Dict]:
-        """抓取美股数据：统一拆分乘数语义，优先复用代理"""
         os.environ.setdefault("CURL_CA_BUNDLE", "")
         os.environ.setdefault("SSL_CERT_FILE", "")
 
@@ -495,7 +515,7 @@ class StockActionsFetcher:
                 self._save_checkpoint()
                 logger.info("✅ ETF 阶段完成！相关 Checkpoint 已落盘更新。")
                 gc.collect()
-            else:
+            elif etf_list:
                 logger.info("所有 ETF 均已在 Checkpoint 记录中，跳过 ETF 处理。")
 
             all_symbols = all_stocks
