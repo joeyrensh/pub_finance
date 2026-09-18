@@ -5,6 +5,7 @@ import csv
 import glob
 import os
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 from typing import Dict, List, Set
@@ -32,15 +33,21 @@ class StockDataUpdater:
         self.update_cols = update_cols
         self.key_cols = key_cols
         self.batch_size = batch_size
-        self.all_files = sorted(glob.glob(os.path.join(self.data_dir, "stock_*.csv")))
+        
+        # 💡 排除 .bk 备份文件与 _new.csv 文件
+        raw_files = sorted(glob.glob(os.path.join(self.data_dir, "stock_*.csv")))
+        self.all_files = [f for f in raw_files if not f.endswith(".bk")]
 
         # 验证关键列和更新列不重叠
         if set(key_cols) & set(update_cols):
             raise ValueError("关键列和更新列不能重叠")
 
     def get_latest_stock_file(self) -> Path:
-        """获取 data_dir 目录下修改时间最新的 stock_*.csv 文件"""
-        files = [Path(f) for f in self.all_files if not f.name.endswith("_new.csv")]
+        """获取 data_dir 目录下修改时间最新的 stock_*.csv 文件（排除 _new 和 .bk）"""
+        files = [
+            Path(f) for f in self.all_files 
+            if not f.endswith("_new.csv") and not f.endswith(".bk")
+        ]
         if not files:
             raise FileNotFoundError(f"未在目录 {self.data_dir} 下找到任何 stock_*.csv 文件")
         latest_file = max(files, key=lambda f: f.stat().st_mtime)
@@ -181,7 +188,7 @@ class StockDataUpdater:
     def process_files(self, new_data_dict: Dict):
         """处理所有历史数据文件，逐个替换更新并生成 _new.csv"""
         for file_path in tqdm(self.all_files, desc="回刷历史 CSV 文件中"):
-            if file_path.endswith("_new.csv"):
+            if file_path.endswith("_new.csv") or file_path.endswith(".bk"):
                 continue
 
             base_name = os.path.basename(file_path)
@@ -192,7 +199,7 @@ class StockDataUpdater:
             self._process_single_file(file_path, new_file_path, new_data_dict)
 
     def _process_single_file(self, input_path: str, output_path: str, new_data_dict: Dict):
-        # 💡 1. 精确读取原始文件的 Header 字符串列表
+        # 精确读取原始文件的 Header 字符串列表
         with open(input_path, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             try:
@@ -204,7 +211,7 @@ class StockDataUpdater:
         existing_keys = set()
         file_dates = set()
 
-        # 💡 2. 扫描原有文件 Key 集合
+        # 扫描原有文件 Key 集合
         for chunk in self._read_csv_in_chunks(input_path):
             if chunk is None or chunk.empty:
                 continue
@@ -242,7 +249,6 @@ class StockDataUpdater:
         temp_file = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".csv", newline="", encoding="utf-8")
         temp_path = temp_file.name
         try:
-            # 💡 3. 逐块更新并临时落盘
             is_first_chunk = True
             for chunk in self._read_csv_in_chunks(input_path):
                 if chunk is None or chunk.empty:
@@ -257,9 +263,7 @@ class StockDataUpdater:
                 )
                 is_first_chunk = False
 
-            # 💡 4. 追加新数据行（若有）
             if append_dict:
-                # 获取非索引列的实际列名列表
                 data_columns = [c for c in raw_header if c != ""]
                 new_rows_df = self._build_new_rows_df(append_dict, data_columns)
                 new_rows_df.to_csv(
@@ -271,8 +275,6 @@ class StockDataUpdater:
                 )
 
             temp_file.close()
-            
-            # 💡 5. 统一排序，并重建原汁原味的 `0,1,2...` 索引列与原始 Header 格式
             self._sort_and_save(temp_path, output_path, raw_header)
 
         finally:
@@ -302,7 +304,6 @@ class StockDataUpdater:
         if not update_dict:
             return chunk_df
         
-        # 建立匹配 Key
         temp_keys = zip(
             chunk_df[self.key_cols[0]].astype(str),
             chunk_df[self.key_cols[1]].astype(str)
@@ -333,31 +334,38 @@ class StockDataUpdater:
         """全量加载临时文件，按 key_cols 排序，并完美重建原始 Header 与递增索引列"""
         full_df = pd.read_csv(temp_path, dtype={col: str for col in self.key_cols})
 
-        # 按关键列 (symbol, date) 字典序排序
         if self.key_cols[0] in full_df.columns and self.key_cols[1] in full_df.columns:
             full_df.sort_values(by=self.key_cols, ascending=[True, True], inplace=True)
 
-        # 重置索引为标准的 0, 1, 2...
         full_df.reset_index(drop=True, inplace=True)
-
-        # 判断原始 Header 是否以空字符串开头（即第一列是无名索引列）
         has_unnamed_first_col = len(raw_header) > 0 and raw_header[0] == ""
 
         if has_unnamed_first_col:
-            # 写出 CSV，保留 index（作为第一列无名索引），不写出默认 column 名称
             full_df.to_csv(output_path, index=True, index_label="", encoding="utf-8")
         else:
-            # 如果原始文件本来就没有无名索引列，则正常写出
             full_df.to_csv(output_path, index=False, encoding="utf-8")
 
-
     def replace_old_files_with_new(self):
-        """将所有 stock_xxx_new.csv 文件覆写回原 stock_xxx.csv 文件"""
+        """备份原始 stock_xxx.csv 为 stock_xxx.csv.bk，并将 stock_xxx_new.csv 覆写回原文件"""
         new_files = glob.glob(os.path.join(self.data_dir, "stock_*_new.csv"))
+        
+        if not new_files:
+            print("⚠️ 未找到任何待更新的 _new.csv 文件。")
+            return
+
         for new_file in new_files:
             old_file = new_file.replace("_new.csv", ".csv")
+            bk_file = f"{old_file}.bk"
+
+            # 💡 1. 备份原文件
+            if os.path.exists(old_file):
+                shutil.copy2(old_file, bk_file)
+                print(f"📦 已备份原文件: {os.path.basename(old_file)} -> {os.path.basename(bk_file)}")
+
+            # 💡 2. 用 _new.csv 覆盖原文件
             os.replace(new_file, old_file)
-        print("🎉 所有新生成的文件更名成功，历史 CSV 替换覆盖完成！")
+
+        print("🎉 所有新生成的文件更名成功，原文件已成功备份为 .bk 并完成替换覆盖！")
 
 
 if __name__ == "__main__":

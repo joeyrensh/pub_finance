@@ -10,7 +10,7 @@ from finance import FINANCE_ROOT
 # 文件名称定义
 start_date = "20250101"
 end_date = "20260916" # yfinance的start/end为左闭右开
-market = "cn"
+market = "us"
 file_path = FINANCE_ROOT / f"{market}stockinfo" / "new_stock_data_fqt.csv"
 em = EMWebCrawlerUti(use_proxy=True)
 em.get_his_stock_info_list(
