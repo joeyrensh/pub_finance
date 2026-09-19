@@ -455,7 +455,7 @@ class StockActionsFetcher:
                 ticker = yf.Ticker(symbol)
                 actions = ticker.actions
 
-                records = []
+                raw_records = []
                 if actions is not None and not actions.empty:
                     for date, row in actions.iterrows():
                         date_str = date.strftime("%Y-%m-%d")
@@ -469,12 +469,43 @@ class StockActionsFetcher:
                         split_ratio_val = raw_split if raw_split > 0.0 else 1.0
 
                         if div > 0 or split_ratio_val != 1.0:
-                            records.append({
+                            raw_records.append({
                                 "symbol": symbol,
                                 "date": date_str,
                                 "dividend": div,
                                 "split_ratio": split_ratio_val,
                             })
+
+                # ==================== 新增：去重清洗逻辑 ====================
+                # 相邻 3 天内发生的相同金额分红或相同拆股比例，保留靠后（晚）的日期
+                records = []
+                if raw_records:
+                    i = 0
+                    n = len(raw_records)
+                    while i < n:
+                        curr = raw_records[i]
+                        curr_dt = pd.to_datetime(curr["date"])
+
+                        while i + 1 < n:
+                            next_rec = raw_records[i + 1]
+                            next_dt = pd.to_datetime(next_rec["date"])
+                            day_diff = (next_dt - curr_dt).days
+
+                            # 判定条件：间隔 <= 3 天 且 分红金额相同 且 拆股比例相同
+                            same_div = abs(next_rec["dividend"] - curr["dividend"]) < 1e-4
+                            same_split = abs(next_rec["split_ratio"] - curr["split_ratio"]) < 1e-4
+
+                            if day_diff <= 3 and same_div and same_split:
+                                # 保留最后一条（晚的日期）
+                                curr = next_rec
+                                curr_dt = next_dt
+                                i += 1  # 游标后移，跳过前面被覆盖的记录
+                            else:
+                                break
+
+                        records.append(curr)
+                        i += 1
+                # ============================================================
 
                 del actions
                 del ticker
