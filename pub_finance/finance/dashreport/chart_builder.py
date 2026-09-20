@@ -2865,7 +2865,7 @@ class ChartBuilder:
         # 设定固定偏移步长（例如：悬浮高度恒定为全局视图高度的 2.5%）
         offset_base = price_range * 0.025
         offset_upgrade = price_range * 0.045  # 策略升级点错开更高高度
-        offset_action = price_range * 0.065   # 除权行为事件错开高度
+        offset_action = price_range * 0.09   # 除权行为事件错开高度
 
         # ----- 策略级别定义 -----
         STRATEGY_LEVELS = {
@@ -3062,7 +3062,7 @@ class ChartBuilder:
             )
 
         # ----- 4. 除权分红与拆合股 (Actions) 标记绘制 -----
-        action_color = cfg.get("upgrade-marker-color")
+        action_color = cfg.get("long")
 
         for act in actions:
             try:
@@ -3076,10 +3076,6 @@ class ChartBuilder:
                 price_row = df[df["datetime"] == ad]
                 if price_row.empty:
                     continue
-
-                bar_high = price_row["high"].iloc[0]
-                suspension_price = bar_high + offset_action
-                stem_length = suspension_price - bar_high
 
                 hover_details = []
                 if div > 0:
@@ -3106,31 +3102,39 @@ class ChartBuilder:
 
                 action_info_str = "<br>".join(hover_details)
 
+                # 1. 绘制贯穿整个主图 (Row 1) 的垂直虚线
+                fig.add_vline(
+                    x=ad,
+                    line_width=1,
+                    line_dash="dash",  # 设置为虚线
+                    line_color=action_color,
+                    opacity=0.6,
+                    row=1,
+                    col=1,
+                )
+
+                # 2. 计算图标标记在图表底部的纵坐标（在最低价下方留出一定间距）
+                chart_min_price = df["low"].min()
+                chart_price_range = df["high"].max() - chart_min_price
+                bottom_y = chart_min_price - (chart_price_range * 0.03)  # 在最低价下方 3% 处绘制
+
+                # 3. 绘制底部的圆点与 F Label
                 fig.add_trace(
                     go.Scatter(
                         x=[ad],
-                        y=[suspension_price],
+                        y=[bottom_y],
                         mode="markers+text",
                         cliponaxis=False,
                         text="<b>F</b>",
-                        textposition="top center",
+                        textposition="top left",  # 文字位于圆点上方，亦可设为 "middle center" 居于圆点内部
                         textfont=dict(
                             size=int(8 * scale),
-                            color=action_color,
+                            color=cfg["upgrade-marker-color"],
                         ),
                         marker=dict(
-                            symbol="triangle-up",
+                            symbol="circle",  # 更改为圆点样式
                             size=int(8 * scale),
                             color=action_color,
-                        ),
-                        error_y=dict(
-                            type="data",
-                            array=[0],
-                            arrayminus=[stem_length],
-                            symmetric=False,
-                            width=0,
-                            color=cfg.get("gridcolor"),
-                            thickness=1,
                         ),
                         showlegend=False,
                         hovertemplate=(
@@ -3139,7 +3143,9 @@ class ChartBuilder:
                             f"%{{x|%Y-%m-%d}}<extra></extra>"
                         ),
                         hoverlabel=dict(
-                            bgcolor=self.darken_color(action_color, theme=theme),
+                            bgcolor=self.darken_color(
+                                cfg["upgrade-marker-color"], theme=theme
+                            ),
                             bordercolor=cfg.get("hover-border-color"),
                             font=dict(
                                 color=cfg.get("hover-text-color"),

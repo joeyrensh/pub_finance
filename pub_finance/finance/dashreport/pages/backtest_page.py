@@ -955,8 +955,8 @@ class BacktestPage:
                     category_str = f"{sector}-{industry}" if sector != "-" else industry
 
                     item_md = (
-                            f"{sym} / **{name}** / 板块: **{category_str}** / 市值: **{val_str}** / PE: **{pe_str}**"
-                            )
+                        f"{sym} / **{name}** / Sec: **{category_str}** / MCap: **{val_str}** / PE: **{pe_str}**"
+                    )
                     parts.append(item_md)
 
                 if not parts:
