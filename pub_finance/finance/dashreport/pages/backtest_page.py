@@ -872,7 +872,7 @@ class BacktestPage:
             trade_date = get_default_date(market)
             return make_dash_format_table(df, cols_format, market, trade_date, "trade")
 
-        # ---------- 新增：更新股票摘要 ----------
+        # ---------- 更新股票摘要 ----------
         @self.app.callback(
             Output("backtest-stock-summary", "children"),
             Input("backtest-stocks", "value"),
@@ -889,58 +889,81 @@ class BacktestPage:
 
             try:
                 dt = datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
-                # 读取行业信息
+                
+                # 1. 读取行业及板块信息
                 f_industry = FINANCE_ROOT / (
                     "cnstockinfo/industry.csv"
                     if market == "cn"
                     else "usstockinfo/industry.csv"
                 )
-                df_industry = pd.DataFrame(columns=["symbol", "industry"])
+                df_industry = pd.DataFrame(columns=["symbol", "sector", "industry"])
                 if f_industry.exists():
-                    df_industry = pd.read_csv(
-                        f_industry, usecols=["symbol", "industry"], dtype=str
-                    )
+                    cols_to_read = ["symbol", "industry"]
+                    temp_df = pd.read_csv(f_industry, nrows=1)
+                    if "sector" in temp_df.columns:
+                        cols_to_read.append("sector")
+                    
+                    df_industry = pd.read_csv(f_industry, usecols=cols_to_read, dtype=str)
                     df_industry = df_industry[df_industry["symbol"].isin(stock_list)]
 
-                # 读取最新股票名称
+                # 2. 读取最新股票名称、市值与 PE
                 f_latest = FINANCE_ROOT / (
                     f"cnstockinfo/stock_{dt}.csv"
                     if market == "cn"
                     else f"usstockinfo/stock_{dt}.csv"
                 )
-                df_latest = pd.DataFrame(columns=["symbol", "name"])
+                df_latest = pd.DataFrame(columns=["symbol", "name", "total_value", "pe"])
                 if f_latest.exists():
-                    df_latest = pd.read_csv(
-                        f_latest, usecols=["symbol", "name"], dtype=str
-                    )
+                    cols_to_read = ["symbol", "name"]
+                    temp_df = pd.read_csv(f_latest, nrows=1)
+                    for col in ["total_value", "pe"]:
+                        if col in temp_df.columns:
+                            cols_to_read.append(col)
+                            
+                    df_latest = pd.read_csv(f_latest, usecols=cols_to_read, dtype=str)
                     df_latest = df_latest[df_latest["symbol"].isin(stock_list)]
 
-                # 合并并按输入顺序排列
+                # 3. 合并数据并按输入顺序排序
                 df = pd.merge(df_industry, df_latest, on="symbol", how="outer")
                 sym_order = {sym: i for i, sym in enumerate(stock_list)}
                 df["_order"] = df["symbol"].map(sym_order)
                 df = df.sort_values("_order").dropna(subset=["symbol"])
 
-                # 构造显示字符串： symbol (name) [industry]
+                # 4. 构造纯 Markdown 文本
                 parts = []
                 for _, row in df.iterrows():
                     sym = row["symbol"]
                     name = row.get("name", "-") if pd.notna(row.get("name")) else "-"
-                    industry = (
-                        row.get("industry", "-")
-                        if pd.notna(row.get("industry"))
-                        else "-"
-                    )
-                    if name == "-" and industry == "-":
-                        parts.append(f"**{sym}**")
-                    else:
-                        parts.append(f"**{sym}** ({name} / *{industry}*)")
-                        # parts.append(f"* **`{sym}`** | **{name}** | *{industry}*")
+                    industry = row.get("industry", "-") if pd.notna(row.get("industry")) else "-"
+                    sector = row.get("sector", "-") if pd.notna(row.get("sector")) else "-"
+                    
+                    # PE 取整处理
+                    pe_raw = row.get("pe")
+                    try:
+                        pe_str = f"{int(round(float(pe_raw)))}" if pd.notna(pe_raw) else "-"
+                    except (ValueError, TypeError):
+                        pe_str = "-"
+
+                    # 市值（total_value）转换为“亿/万”单位
+                    val_raw = row.get("total_value")
+                    try:
+                        val_num = float(val_raw)
+                        val_str = f"{val_num / 1e8:.1f}亿" if val_num >= 1e8 else f"{val_num / 1e4:.0f}万"
+                    except (ValueError, TypeError):
+                        val_str = "-"
+
+                    category_str = f"{sector}-{industry}" if sector != "-" else industry
+
+                    item_md = (
+                            f"{sym} / **{name}** / 板块: **{category_str}** / 市值: **{val_str}** / PE: **{pe_str}**"
+                            )
+                    parts.append(item_md)
 
                 if not parts:
                     return "No information found for the given symbols."
-                return " &nbsp;─&nbsp; ".join(parts)
-                # return "\n".join(parts)
+
+                # 5. 用 3 个不间断空格（&nbsp;）做股票间的间隔，无连接符自然换行
+                return "\n".join(parts)
 
             except Exception as e:
                 print(f"Error updating stock summary: {e}")
@@ -1015,11 +1038,12 @@ class BacktestPage:
                         dcc.Markdown(
                             id="backtest-stock-summary",
                             className="backtest-label symbol_summary_box",
+                            dangerously_allow_html=True,
                             style={
                                 "height": "auto",  # 随内容垂直自动扩展高度
-                                "whiteSpace": "pre-wrap",
+                                "whiteSpace": "pre",
                                 "width": "100%",
-                                "wordBreak": "break-all",
+                                "overflow": "auto",
                             },
                             children="Loading stock info...",
                         ),

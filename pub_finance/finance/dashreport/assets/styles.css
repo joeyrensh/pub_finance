@@ -1141,8 +1141,13 @@ a:active { color: var(--text-color); text-decoration: underline; }
     border: 1px solid var(--gridcolor);
     padding: 6px 2px;
     align-content: center;
-    font-weight: 400;
+    font-weight: 300;
 }
+.symbol_summary_box strong,
+.symbol_summary_box b {
+    font-weight: 500 !important;
+}
+
 
 /* --- 权重滑块核心美化 (RC-Slider) --- */
 .card-body {
