@@ -16,8 +16,15 @@ from typing import Dict, List, Optional, Set, Tuple
 
 import akshare as ak
 import pandas as pd
+import requests
 from tqdm import tqdm
 import yfinance as yf
+
+# 尝试导入 curl_cffi 以更好地对抗 Yahoo 反爬，若不存在则回退至 requests
+try:
+    from curl_cffi import requests as curl_requests
+except ImportError:
+    curl_requests = None
 
 # ==============================================================================
 # 屏蔽 tqdm 进度条，彻底解决终端闪屏与 0% 卡死
@@ -46,7 +53,9 @@ def format_proxy_url(proxy_str: str) -> str:
 class StockActionsFetcher:
     """中美股及 ETF 除权分红数据批量抓取器
 
-    - 支持定时任务：跨天自动重置 Checkpoint 开启新一轮全量刷刷新，同天崩溃支持断点续传
+    - 支持定时任务：跨天自动重置 Checkpoint 开启新一轮全量刷新，同天崩溃支持断点续传
+    - 支持 CN 增量更新模式：利用东财筛选接口提取近 1~2 周有除权的动态标的，毫秒级更新
+    - 美股仅支持全量抓取模式：读取本地 stock_*.csv 匹配全部标的
     - 安全文件轮换：数据实时写入带日期文件，完成后原文件备份为 .bak 并顺次重命名
     - 统一中美股 split_ratio 语义：无拆分时均为 1.0，1拆N 时为 N.0
     """
@@ -65,21 +74,25 @@ class StockActionsFetcher:
         max_retries_per_symbol: int = 3,
         start_date: Optional[str] = "2025-01-01",  # 格式: YYYY-MM-DD
         force_refresh: bool = False,  # 是否强制重置 Checkpoint 重新抓取
-        symbol_list: Optional[List[str]] = None,  # 新增：支持指定 symbol_list，默认 None
+        symbol_list: Optional[List[str]] = None,  # 支持指定 symbol_list
+        incremental: bool = False,  # 是否开启增量更新模式 (仅 CN 生效)
+        lookback_period: str = "1w",  # 增量更新回溯周期 ('1w', '2w', '3w', '1m')
     ):
         self.market = market.lower()
         if self.market not in ["cn", "us"]:
             raise ValueError("market 参数必须为 'cn' 或 'us'")
 
         self.force_refresh = force_refresh
-        self.symbol_list = symbol_list  # 新增属性保存
+        self.symbol_list = symbol_list
+        # 仅 CN 市场允许启用增量更新
+        self.incremental = incremental if self.market == "cn" else False
+        self.lookback_period = lookback_period.lower()
 
         # 1. 目录及路径定位
         default_dir = "cnstockinfo" if self.market == "cn" else "usstockinfo"
         self.target_dir = target_dir or (FINANCE_ROOT / default_dir)
         os.makedirs(self.target_dir, exist_ok=True)
 
-        # 若未提供 symbol_list，才强行要求 stock_list_path 文件存在
         self.stock_list_path = (
             self.target_dir / stock_filename
             if stock_filename
@@ -104,7 +117,17 @@ class StockActionsFetcher:
         # 2. 参数与网络设置
         self.batch_size = batch_size
         self.max_retries_per_symbol = max_retries_per_symbol
-        self.start_date = start_date
+
+        # 处理增量模式与起始/结束日期
+        self.end_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        if self.incremental:
+            self.start_date = self._calculate_incremental_start_date()
+            logger.info(
+                f"⚡ [{self.market.upper()}] 已开启增量更新模式 (Lookback: {self.lookback_period}), "
+                f"查询时间窗口: [{self.start_date} ~ {self.end_date}]"
+            )
+        else:
+            self.start_date = start_date
 
         if self.market == "us":
             self.proxy_manager = (
@@ -119,12 +142,26 @@ class StockActionsFetcher:
         if self.market == "cn":
             self._init_cn_symbol_mapping()
 
+    def _calculate_incremental_start_date(self) -> str:
+        """根据 lookback_period 计算增量起始日期"""
+        now = datetime.datetime.now()
+        if self.lookback_period == "1w":
+            delta = datetime.timedelta(days=7)
+        elif self.lookback_period == "2w":
+            delta = datetime.timedelta(days=14)
+        elif self.lookback_period == "3w":
+            delta = datetime.timedelta(days=21)
+        elif self.lookback_period == "1m":
+            delta = datetime.timedelta(days=30)
+        else:
+            delta = datetime.timedelta(days=14)  # 默认 2 周冗余
+        return (now - delta).strftime("%Y-%m-%d")
+
     def _get_latest_stock_info_file(self) -> Path:
         """获取 target_dir 目录下最新的 stock_*.csv 文件路径"""
-        # 若指定了 symbol_list 且文件不存在，返回虚拟路径避免报错
         files = list(self.target_dir.glob("stock_*.csv"))
         if not files:
-            if self.symbol_list is not None:
+            if self.symbol_list is not None or self.incremental:
                 return self.target_dir / "stock_placeholder.csv"
             raise FileNotFoundError(f"未在目录 '{self.target_dir}' 下找到任何 stock_*.csv 文件")
         latest_file = max(files, key=lambda f: f.stat().st_mtime)
@@ -133,7 +170,6 @@ class StockActionsFetcher:
 
     def _init_cn_symbol_mapping(self):
         """为 CN 市场解析列表，构建 纯数字代码 -> 原始 Symbol 的双向映射"""
-        # 若指定了 symbol_list，直接从 symbol_list 构建映射
         if self.symbol_list is not None:
             for sym in self.symbol_list:
                 raw_sym = str(sym).strip()
@@ -142,6 +178,8 @@ class StockActionsFetcher:
             return
 
         if not self.stock_list_path.exists():
+            if self.incremental:
+                return
             raise FileNotFoundError(f"未找到股票列表文件: {self.stock_list_path}")
 
         df = pd.read_csv(self.stock_list_path, dtype=str)
@@ -160,8 +198,11 @@ class StockActionsFetcher:
             self.cn_symbol_map[clean_code] = raw_sym
 
     def _load_checkpoint(self) -> Set[str]:
-        if self.force_refresh:
-            logger.info("⚡ [定时模式] 已开启 force_refresh，清空旧 Checkpoint，开启全新抓取周期。")
+        if self.force_refresh or self.incremental:
+            if self.incremental:
+                logger.info("⚡ [CN 增量模式] 不加载历史 Checkpoint，直接执行增量刷新。")
+            else:
+                logger.info("⚡ [定时全量模式] 已开启 force_refresh，清空旧 Checkpoint。")
             self._clear_checkpoint()
             return set()
 
@@ -173,14 +214,14 @@ class StockActionsFetcher:
                 if mtime.date() < today:
                     logger.info(
                         f"📅 检测到 Checkpoint 为历史日期 ({mtime.strftime('%Y-%m-%d')})，"
-                        f"判定为新一轮定时任务，自动重置 Checkpoint。"
+                        f"自动重置 Checkpoint。"
                     )
                     self._clear_checkpoint()
                     return set()
 
                 with open(self.checkpoint_path, "r", encoding="utf-8") as f:
                     symbols = set(json.load(f))
-                    logger.info(f"🔄 检测到当日 Checkpoint，成功载入 {len(symbols)} 条已处理记录 (断点续传模式)")
+                    logger.info(f"🔄 检测到当日 Checkpoint，成功载入 {len(symbols)} 条已处理记录")
                     return symbols
 
             except Exception as e:
@@ -203,12 +244,10 @@ class StockActionsFetcher:
         if not records:
             return
 
-        # 1. 将本次批次新抓取到的记录转换为 DataFrame
         new_df = pd.DataFrame(records)[self.CSV_HEADERS]
 
-        # 2. 读取已存在的历史 CSV 数据（优先从 output_csv_path 或 dated_csv_path 中读取）
         existing_df = pd.DataFrame(columns=self.CSV_HEADERS)
-        
+
         target_read_path = None
         if self.dated_csv_path.exists() and os.path.getsize(self.dated_csv_path) > 0:
             target_read_path = self.dated_csv_path
@@ -218,20 +257,15 @@ class StockActionsFetcher:
         if target_read_path:
             try:
                 existing_df = pd.read_csv(target_read_path, dtype=str)
-                # 类型转换，确保数值列精度统一
                 existing_df["dividend"] = existing_df["dividend"].astype(float)
                 existing_df["split_ratio"] = existing_df["split_ratio"].astype(float)
             except Exception as e:
                 logger.warning(f"读取原有数据文件失败，将全新创建: {e}")
 
-        # 3. 合并新旧数据，并按 ['symbol', 'date'] 复合主键去重 (keep='last' 确保新抓取的数据覆盖旧数据)
         combined_df = pd.concat([existing_df, new_df], ignore_index=True)
         combined_df.drop_duplicates(subset=["symbol", "date"], keep="last", inplace=True)
-        
-        # 4. 重新排序：按 symbol, date 字典序升序，保证文件可读性
         combined_df.sort_values(by=["symbol", "date"], ascending=[True, True], inplace=True)
 
-        # 5. 安全覆盖落盘到带有日期标记的 CSV 中 (mode="w")
         combined_df.to_csv(
             self.dated_csv_path,
             mode="w",
@@ -239,10 +273,9 @@ class StockActionsFetcher:
             header=True,
             encoding="utf-8-sig",
         )
-        
+
         del combined_df, existing_df, new_df
 
-        # 6. 安全原子替换主文件逻辑 (保持原有 .bak 轮换逻辑)
         if self.output_csv_path.exists():
             if self.bak_csv_path.exists():
                 os.remove(self.bak_csv_path)
@@ -255,16 +288,90 @@ class StockActionsFetcher:
                 os.remove(self.dated_csv_path)
             os.rename(self.bak_csv_path, self.dated_csv_path)
 
-    # ==================== CN (AkShare) 处理逻辑 ====================
+    # ==================== CN 动态/增量筛选与获取 ====================
+    def get_cn_stock_symbols_with_actions(self, start_date: str, end_date: str) -> Set[str]:
+        """通过东财 API 快速查询指定区间内有除权事件的 A 股股票代码"""
+        url = "https://datacenter-web.eastmoney.com/api/data/v1/get"
+        headers = {"Referer": "https://data.eastmoney.com/"}
+        filter_str = f"(EX_DIVIDEND_DATE>='{start_date}')(EX_DIVIDEND_DATE<='{end_date}')"
+
+        page_size = 500
+        page_number = 1
+        stock_symbols = set()
+
+        while True:
+            params = {
+                "sortColumns": "EX_DIVIDEND_DATE",
+                "sortTypes": "-1",
+                "pageSize": str(page_size),
+                "pageNumber": str(page_number),
+                "reportName": "RPT_SHAREBONUS_DET",
+                "columns": "SECURITY_CODE,EX_DIVIDEND_DATE",
+                "filter": filter_str,
+            }
+
+            try:
+                res = requests.get(url, params=params, headers=headers, timeout=10).json()
+                if not res.get("success") or not res.get("result"):
+                    break
+
+                data_list = res["result"].get("data") or []
+                for item in data_list:
+                    code = str(item.get("SECURITY_CODE", "")).zfill(6)
+                    if code and code != "000000":
+                        stock_symbols.add(code)
+
+                total_pages = res["result"].get("pages") or 1
+                if page_number >= total_pages or not data_list:
+                    break
+                page_number += 1
+            except Exception as e:
+                logger.warning(f"[CN Incremental API Error] {e}")
+                break
+
+        return stock_symbols
+
     def load_cn_symbols(self) -> Tuple[List[str], List[str]]:
-        """依据前缀提取 CN 股票和 ETF"""
+        """依据模式提取 CN 股票和 ETF"""
+        if self.symbol_list is not None:
+            stocks, etfs = [], []
+            for clean_code, raw_sym in self.cn_symbol_map.items():
+                if raw_sym.upper().startswith("ETF"):
+                    etfs.append(clean_code)
+                else:
+                    stocks.append(clean_code)
+            return sorted(list(set(stocks))), sorted(list(set(etfs)))
+
+        if self.incremental:
+            # 1. 股票增量：直接调东财接口获取区间有除权事件的股票
+            inc_stocks = self.get_cn_stock_symbols_with_actions(self.start_date, self.end_date)
+
+            # 为新找出的 code 补全默认的 cn_symbol_map 前缀映射
+            for clean_code in inc_stocks:
+                if clean_code not in self.cn_symbol_map:
+                    prefix = "SH" if clean_code.startswith("6") else "SZ"
+                    self.cn_symbol_map[clean_code] = f"{prefix}{clean_code}"
+
+            # 2. ETF 保持全量 fund_fh_em，由 fetch_actions_for_etfs 进行时间过滤
+            stocks, etfs = [], []
+            if self.stock_list_path.exists():
+                df = pd.read_csv(self.stock_list_path, dtype=str)
+                target_col = next((c for c in ["symbol", "Symbol", "code", "Code"] if c in df.columns), None)
+                if target_col:
+                    for sym in df[target_col].dropna():
+                        raw_sym = str(sym).strip()
+                        clean_code = re.sub(r"\D", "", raw_sym).zfill(6)
+                        if raw_sym.upper().startswith("ETF"):
+                            etfs.append(clean_code)
+
+            return sorted(list(inc_stocks)), sorted(list(set(etfs)))
+
+        # 全量模式
         stocks, etfs = [], []
         for clean_code, raw_sym in self.cn_symbol_map.items():
             if raw_sym.upper().startswith("ETF"):
                 etfs.append(clean_code)
-            elif raw_sym.upper().startswith(("SH", "SZ")):
-                stocks.append(clean_code)
-            else:  # 若未带 SH/SZ 前缀，默认归为股票
+            else:
                 stocks.append(clean_code)
 
         return sorted(list(set(stocks))), sorted(list(set(etfs)))
@@ -301,6 +408,8 @@ class StockActionsFetcher:
                         if re.match(r"^\d{4}-\d{2}-\d{2}$", ex_date) and div_val > 0:
                             if self.start_date and ex_date < self.start_date:
                                 continue
+                            if self.end_date and ex_date > self.end_date:
+                                continue
 
                             raw_sym = self.cn_symbol_map.get(code, f"ETF{code}")
                             key = (raw_sym, ex_date)
@@ -327,6 +436,8 @@ class StockActionsFetcher:
 
                         if re.match(r"^\d{4}-\d{2}-\d{2}$", ex_date) and ratio_val != 1.0 and ratio_val > 0:
                             if self.start_date and ex_date < self.start_date:
+                                continue
+                            if self.end_date and ex_date > self.end_date:
                                 continue
 
                             raw_sym = self.cn_symbol_map.get(code, f"ETF{code}")
@@ -369,6 +480,8 @@ class StockActionsFetcher:
 
                     if self.start_date and date_str < self.start_date:
                         continue
+                    if self.end_date and date_str > self.end_date:
+                        continue
 
                     cash_raw = row.get("现金分红-现金分红比例", 0.0)
                     try:
@@ -406,12 +519,14 @@ class StockActionsFetcher:
 
         return records
 
-    # ==================== US (yfinance) 处理逻辑 ====================
+    # ==================== US 符号加载与获取 (全量/按传入 Symbol 模式) ====================
     def load_us_symbols(self) -> List[str]:
-        """载入待处理的美股 Symbol 列表"""
-        # 若指定了 symbol_list，优先使用
+        """载入待处理的美股 Symbol 列表（仅全量或从传入的 symbol_list 获取）"""
         if self.symbol_list is not None:
             return sorted(list(set(str(s).strip().upper() for s in self.symbol_list)))
+
+        if not self.stock_list_path.exists():
+            return []
 
         df = pd.read_csv(self.stock_list_path)
         target_col = "symbol" if "symbol" in df.columns else "Symbol"
@@ -462,6 +577,8 @@ class StockActionsFetcher:
 
                         if self.start_date and date_str < self.start_date:
                             continue
+                        if self.end_date and date_str > self.end_date:
+                            continue
 
                         div = float(row.get("Dividends", 0.0))
                         raw_split = float(row.get("Stock Splits", 0.0))
@@ -476,8 +593,6 @@ class StockActionsFetcher:
                                 "split_ratio": split_ratio_val,
                             })
 
-                # ==================== 新增：去重清洗逻辑 ====================
-                # 相邻 3 天内发生的相同金额分红或相同拆股比例，保留靠后（晚）的日期
                 records = []
                 if raw_records:
                     i = 0
@@ -491,21 +606,18 @@ class StockActionsFetcher:
                             next_dt = pd.to_datetime(next_rec["date"])
                             day_diff = (next_dt - curr_dt).days
 
-                            # 判定条件：间隔 <= 3 天 且 分红金额相同 且 拆股比例相同
                             same_div = abs(next_rec["dividend"] - curr["dividend"]) < 1e-4
                             same_split = abs(next_rec["split_ratio"] - curr["split_ratio"]) < 1e-4
 
                             if day_diff <= 3 and same_div and same_split:
-                                # 保留最后一条（晚的日期）
                                 curr = next_rec
                                 curr_dt = next_dt
-                                i += 1  # 游标后移，跳过前面被覆盖的记录
+                                i += 1
                             else:
                                 break
 
                         records.append(curr)
                         i += 1
-                # ============================================================
 
                 del actions
                 del ticker
@@ -530,14 +642,14 @@ class StockActionsFetcher:
     def run(self):
         logger.info(f"[{self.market.upper()}] 启动除权分红抓取任务...")
         logger.info(f"目标目录: {self.target_dir.resolve()}")
-        logger.info(f"起始筛选日期: {self.start_date or '不限制(全量历史)'}")
+        logger.info(f"模式区间: [{self.start_date or '不限制'} ~ {self.end_date}]")
 
         if self.market == "cn":
             all_stocks, etf_list = self.load_cn_symbols()
 
             pending_etfs = [e for e in etf_list if e not in self.processed_symbols]
             if pending_etfs:
-                logger.info(f"检测到未处理 ETF 共 {len(pending_etfs)} 只，开始提取...")
+                logger.info(f"检测到待处理 ETF 共 {len(pending_etfs)} 只，开始提取...")
                 etf_records = self.fetch_actions_for_etfs(pending_etfs)
                 if etf_records:
                     self._save_records_to_csv(etf_records)
@@ -599,7 +711,6 @@ class StockActionsFetcher:
                     f"[Batch {batch_idx + 1}/{total_batches}] [{display_symbol}] 抓取完成 (保留 {len(records)} 条除权记录)"
                 )
 
-            # 批次落盘 CSV（安全轮换逻辑）
             if batch_records:
                 self._save_records_to_csv(batch_records)
 
