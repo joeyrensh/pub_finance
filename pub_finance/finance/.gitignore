@@ -11,6 +11,7 @@
 *.bk
 *.swp
 daily_stock_cache_*.json
+actions_fetch_checkpoint.json
 
 #忽略所有 __pycache__ 目录及其内容
 **/__pycache__/
