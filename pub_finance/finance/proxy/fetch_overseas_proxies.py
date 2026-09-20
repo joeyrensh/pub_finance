@@ -29,9 +29,6 @@ CONFIG_FILE = SCRIPT_DIR / "overseas_proxy_sources.json"
 PROXIES_TXT = SCRIPT_DIR / "overseas_proxies.txt"
 PROXIES_JSON = SCRIPT_DIR / "overseas_proxies.json"
 
-MAX_FAILURES = 100
-
-
 def load_config():
     with open(CONFIG_FILE, "r", encoding="utf-8") as f:
         return json.load(f)

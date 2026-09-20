@@ -58,8 +58,8 @@
     "note": "高并发 + 短超时，快速测试"
   },
   "maintenance": {
-    "target_count": 5,
-    "max_failures": 3,
+    "target_count": 500,
+    "max_failures": 100,
     "proxies_file": "overseas_proxies.txt",
     "proxies_json": "overseas_proxies.json"
   }

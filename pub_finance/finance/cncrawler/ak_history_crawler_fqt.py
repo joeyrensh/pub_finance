@@ -6,7 +6,7 @@ import os
 import random
 import time
 from pathlib import Path
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Set, Union
 
 import akshare as ak
 import numpy as np
@@ -97,7 +97,6 @@ class AKCNHistoryDataCrawler:
 
         try:
             print(f"正在扫描已落盘目标文件 [{file_path}] 以获取断点续传列表...")
-            # 每块读取 10 万行，只读取 symbol 列
             for chunk in pd.read_csv(
                 file_path, usecols=["symbol"], chunksize=100000, dtype=str
             ):
@@ -110,7 +109,12 @@ class AKCNHistoryDataCrawler:
         return downloaded
 
     def get_cn_stock_history_ak(
-        self, start_date, end_date, file_path, source_type="file"
+        self,
+        start_date: str,
+        end_date: str,
+        file_path: str,
+        source_type: str = "file",
+        symbols: Optional[Union[str, List[str]]] = None,
     ):
         """获取A股及ETF历史数据（新浪ETF直连 + 高性能向量化 + 断点续传版）
 
@@ -118,9 +122,18 @@ class AKCNHistoryDataCrawler:
         :param end_date: 结束日期 (YYYYMMDD 或 YYYY-MM-DD)
         :param file_path: 输出文件路径
         :param source_type: "file" 从本地文件读取列表；"akshare" 从网络实时获取列表
+        :param symbols: 可选参数。单个标的字符串如 "SH600000"，或标的列表如 ["SH600000", "ETF510300"]。未指定时获取全量。
         """
         batch_size = 50
         is_first_write = not os.path.exists(file_path)
+
+        # 统一把传入的 symbols 转为标准大写的 set 集合
+        target_symbols: Optional[Set[str]] = None
+        if symbols is not None:
+            if isinstance(symbols, str):
+                target_symbols = {symbols.strip().upper()}
+            elif isinstance(symbols, (list, tuple, set)):
+                target_symbols = {str(s).strip().upper() for s in symbols}
 
         # 1. 动态扫描已落盘数据的 unique symbol 集合
         downloaded_symbols = self._get_downloaded_symbols(file_path)
@@ -130,6 +143,11 @@ class AKCNHistoryDataCrawler:
             sh_tickers, sz_tickers, etf_tickers = (
                 self._get_tickers_from_local_csv()
             )
+            # 如果指定了 target_symbols，在本地列表的基础上进行过滤
+            if target_symbols:
+                sh_tickers = [x for x in sh_tickers if x["symbol_out"] in target_symbols]
+                sz_tickers = [x for x in sz_tickers if x["symbol_out"] in target_symbols]
+                etf_tickers = [x for x in etf_tickers if x["symbol_out"] in target_symbols]
         else:
             sh_tickers, sz_tickers, etf_tickers = [], [], []
 
@@ -156,13 +174,15 @@ class AKCNHistoryDataCrawler:
             pd_stock_sh = pd_stock_sh[pd_stock_sh["最新价"] > 0]
             for _, row in pd_stock_sh.reset_index(drop=True).iterrows():
                 raw_num = str(row["代码"]).strip()
-                sh_tickers.append(
-                    {
-                        "symbol_ak": "sh" + raw_num,
-                        "symbol_out": "SH" + raw_num,
-                        "name": row["名称"],
-                    }
-                )
+                symbol_out = "SH" + raw_num
+                if target_symbols is None or symbol_out in target_symbols:
+                    sh_tickers.append(
+                        {
+                            "symbol_ak": "sh" + raw_num,
+                            "symbol_out": symbol_out,
+                            "name": row["名称"],
+                        }
+                    )
 
         tool = ToolKit("上证历史数据下载")
         list_dfs = []
@@ -189,7 +209,6 @@ class AKCNHistoryDataCrawler:
                 if df_raw is not None and not df_raw.empty:
                     df_raw["symbol"] = symbol_out
                     df_raw["name"] = name
-                    # reset_index(drop=True) 抹平股票接口自带的索引
                     df_sub = df_raw[
                         [
                             "symbol",
@@ -240,13 +259,15 @@ class AKCNHistoryDataCrawler:
             pd_stock_sz = pd_stock_sz[pd_stock_sz["最新价"] > 0]
             for _, row in pd_stock_sz.reset_index(drop=True).iterrows():
                 raw_num = str(row["代码"]).strip()
-                sz_tickers.append(
-                    {
-                        "symbol_ak": "sz" + raw_num,
-                        "symbol_out": "SZ" + raw_num,
-                        "name": row["名称"],
-                    }
-                )
+                symbol_out = "SZ" + raw_num
+                if target_symbols is None or symbol_out in target_symbols:
+                    sz_tickers.append(
+                        {
+                            "symbol_ak": "sz" + raw_num,
+                            "symbol_out": symbol_out,
+                            "name": row["名称"],
+                        }
+                    )
 
         tool = ToolKit("深证历史数据下载")
         list_dfs = []
@@ -273,7 +294,6 @@ class AKCNHistoryDataCrawler:
                 if df_raw is not None and not df_raw.empty:
                     df_raw["symbol"] = symbol_out
                     df_raw["name"] = name
-                    # reset_index(drop=True) 抹平股票接口自带的索引
                     df_sub = df_raw[
                         [
                             "symbol",
@@ -324,13 +344,15 @@ class AKCNHistoryDataCrawler:
             for _, row in pd_etf.reset_index(drop=True).iterrows():
                 raw_num = str(row["代码"]).strip()
                 prefix = "sh" if raw_num.startswith(("5", "6", "9")) else "sz"
-                etf_tickers.append(
-                    {
-                        "symbol_ak": f"{prefix}{raw_num}",  # 新浪接口所需的 sh510300 格式
-                        "symbol_out": f"ETF{raw_num}",       # 落盘标示 ETF510300 格式
-                        "name": row["名称"],
-                    }
-                )
+                symbol_out = f"ETF{raw_num}"
+                if target_symbols is None or symbol_out in target_symbols:
+                    etf_tickers.append(
+                        {
+                            "symbol_ak": f"{prefix}{raw_num}",  # 新浪接口所需的 sh510300 格式
+                            "symbol_out": symbol_out,           # 落盘标示 ETF510300 格式
+                            "name": row["名称"],
+                        }
+                    )
 
         tool = ToolKit("ETF历史数据下载(新浪接口)")
         list_dfs = []
@@ -420,14 +442,13 @@ class AKCNHistoryDataCrawler:
                 if list_dfs:
                     batch_df = pd.concat(list_dfs, ignore_index=True)
                     
-                    # ==================== 【关键新增】对齐股票格式：插入第一列自增 index ====================
+                    # 对齐股票格式：插入第一列自增 index
                     batch_df.insert(0, "index", range(len(batch_df)))
-                    # ====================================================================================
 
                     batch_df.to_csv(
                         file_path,
                         mode="a",
-                        index=False, # 此处保持 False，因为 index 已经作为第一物理列插入进去了
+                        index=False,
                         header=is_first_write,
                     )
                     is_first_write = False
