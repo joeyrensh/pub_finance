@@ -116,17 +116,30 @@ PYSPARK_DRIVER_PYTHON=/home/ubuntu/miniconda3/bin/python
 ```
 ### Crontab Configuration
 ```
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:/root/miniconda3/envs/dash_env/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+PYSPARK_PYTHON = /root/miniconda3/envs/dash_env/bin/python
+
+PYSPARK_DRIVER_PYTHON = /root/miniconda3/envs/dash_env/bin/python
+
 # Run US stock strategy daily at 07:00
-00 7 * * * cd /home/ubuntu/pub_finance/finance ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/usstock_main.py > /home/ubuntu/pub_finance/finance/us.log 2>&1
+45 06 * * * cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/usstock_main.py > /root/pub_finance/finance/us.log 2>&1
 
 # Run A-Share strategy daily at 15:30
-30 15 * * * cd /home/ubuntu/pub_finance/finance ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/cnstock_main.py > /home/ubuntu/pub_finance/finance/cn.log 2>&1
+20 15 * * * cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/cnstock_main.py > /root/pub_finance/finance/cn.log 2>&1
 
 # Maintain Mainland China proxy pool daily at 07:30
-30 7 * * * cd /home/ubuntu/pub_finance/finance/proxy ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/proxy/fetch_cn_proxies.py --target 200 --workers 20 > /home/ubuntu/pub_finance/finance/proxy/cn_proxy.log 2>&1
+30 07 * * * cd /root/pub_finance/finance/proxy ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/proxy/fetch_cn_proxies.py --target 200 --workers 20 > /root/pub_finance/finance/proxy/cn_proxy.log 2>&1
 
 # Maintain Overseas proxy pool daily at 08:30
-30 8 * * * cd /home/ubuntu/pub_finance/finance/proxy ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/proxy/fetch_overseas_proxies.py --target 100 --workers 20 > /home/ubuntu/pub_finance/finance/proxy/overseas_proxy.log 2>&1
+30 08 * * * cd /root/pub_finance/finance/proxy ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/proxy/fetch_overseas_proxies.py --target 1000 --workers 20 > /root/pub_finance/finance/proxy/overseas_proxy.log 2>&1
+
+# Fetch CN stock actions data every Sunday at 06:00
+0 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market cn --incremental --lookback 2w > /root/pub_finance/finance/cn_actions.log 2>&1
+
+# Fetch US stock actions data every Sunday at 06:30 (staggered by 30 mins to avoid concurrency issues and log overlapping)
+30 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market us > /root/pub_finance/finance/us_actions.log 2>&1
 ```
 
 ## Contributing
@@ -274,17 +287,30 @@ PYSPARK_DRIVER_PYTHON=/home/ubuntu/miniconda3/bin/python
 ```
 ### Crontab 定时任务
 ```
-# 每日 07:00 执行美股策略
-00 7 * * * cd /home/ubuntu/pub_finance/finance ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/usstock_main.py > /home/ubuntu/pub_finance/finance/us.log 2>&1
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:/root/miniconda3/envs/dash_env/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-# 每日 15:30 执行 A 股策略
-30 15 * * * cd /home/ubuntu/pub_finance/finance ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/cnstock_main.py > /home/ubuntu/pub_finance/finance/cn.log 2>&1
+PYSPARK_PYTHON = /root/miniconda3/envs/dash_env/bin/python
 
-# 每日 07:30 执行中国大陆IP池维护
-30 7 * * * cd /home/ubuntu/pub_finance/finance/proxy ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/proxy/fetch_cn_proxies.py --target 200 --workers 20 > /home/ubuntu/pub_finance/finance/proxy/cn_proxy.log 2>&1
+PYSPARK_DRIVER_PYTHON = /root/miniconda3/envs/dash_env/bin/python
 
-# 每日 08:30 执行海外IP池维护
-30 8 * * * cd /home/ubuntu/pub_finance/finance/proxy ; /home/ubuntu/miniconda3/bin/python -u /home/ubuntu/pub_finance/finance/proxy/fetch_overseas_proxies.py --target 100 --workers 20 > /home/ubuntu/pub_finance/finance/proxy/overseas_proxy.log 2>&1
+# 美股主策略
+45 06 * * * cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/usstock_main.py > /root/pub_finance/finance/us.log 2>&1
+
+# A股主策略
+20 15 * * * cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/cnstock_main.py > /root/pub_finance/finance/cn.log 2>&1
+
+# A股代理获取
+30 07 * * * cd /root/pub_finance/finance/proxy ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/proxy/fetch_cn_proxies.py --target 200 --workers 20 > /root/pub_finance/finance/proxy/cn_proxy.log 2>&1
+
+# 美股代理获取
+30 08 * * * cd /root/pub_finance/finance/proxy ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/proxy/fetch_overseas_proxies.py --target 1000 --workers 20 > /root/pub_finance/finance/proxy/overseas_proxy.log 2>&1
+
+# 每周日早上 6:00 抓取 CN 市场除权数据
+0 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market cn --incremental --lookback 2w > /root/pub_finance/finance/cn_actions.log 2>&1
+
+# 每周日早上 6:30 抓取 US 市场除权数据 (错开 30 分钟避免并发冲撞与日志混淆)
+30 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market us > /root/pub_finance/finance/us_actions.log 2>&1
 ```
 ## 参与贡献
 欢迎大家提交 Issue 和 Pull Request，共同完善项目：
