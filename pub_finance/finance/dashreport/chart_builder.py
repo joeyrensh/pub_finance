@@ -3126,7 +3126,7 @@ class ChartBuilder:
                         mode="markers+text",
                         cliponaxis=False,
                         text="<b>F</b>",
-                        textposition="top left",  # 文字位于圆点上方，亦可设为 "middle center" 居于圆点内部
+                        textposition="bottom left",  # 文字位于圆点上方，亦可设为 "middle center" 居于圆点内部
                         textfont=dict(
                             size=int(8 * scale),
                             color=cfg["upgrade-marker-color"],
