@@ -1158,8 +1158,8 @@ a:active { color: var(--text-color); text-decoration: underline; }
 .symbol_summary_box table td {
     color: var(--text-color) !important;
     border: none !important; /* 先清空 4 周边框 */
-    border-bottom: 0.5px solid var(--gridcolor) !important; /* 底部横线 */
-    border-right: 0.5px solid var(--gridcolor) !important;  /* 右侧竖线 */
+    border-bottom: 1px solid var(--gridcolor) !important; /* 底部横线 */
+    border-right: 1px solid var(--gridcolor) !important;  /* 右侧竖线 */
     text-align: left !important;
     padding: 0 2px 0 2px !important;
     white-space: nowrap !important;
