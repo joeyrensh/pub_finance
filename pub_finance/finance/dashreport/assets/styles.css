@@ -464,7 +464,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
 
 .default-table .dash-filter input:not([type=radio]):not([type=checkbox]) {
   padding: 0 !important;
-  font-size: 0.9rem !important;  
+  font-size: 0.9rem !important;
   color: var(--text-color) !important;
   text-align: left !important;
   padding: 0 2px !important;
@@ -1175,6 +1175,11 @@ a:active { color: var(--text-color); text-decoration: underline; }
 }
 
 /* 3. 取消最后一列的右边框（消除最右侧外竖线） */
+.symbol_summary_box table th:nth-child(1),
+.symbol_summary_box table td:nth-child(1) {
+    width: 40% !important;
+}
+
 .symbol_summary_box table th:last-child,
 .symbol_summary_box table td:last-child {
     border-right: none !important;
