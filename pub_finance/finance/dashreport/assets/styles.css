@@ -1161,7 +1161,8 @@ a:active { color: var(--text-color); text-decoration: underline; }
     border-bottom: 0.5px solid var(--gridcolor) !important; /* 底部横线 */
     border-right: 0.5px solid var(--gridcolor) !important;  /* 右侧竖线 */
     text-align: left !important;
-    padding: 0 0 0 2px !important;
+    padding: 0 2px 0 2px !important;
+    white-space: nowrap !important;
 }
 
 .symbol_summary_box table th {
