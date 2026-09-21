@@ -467,6 +467,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
   font-size: 0.9rem !important;  
   color: var(--text-color) !important;
   text-align: left !important;
+  padding: 0 2px !important;
 }
 @media (prefers-color-scheme: dark) {
   .default-table .dash-filter input:not([type=radio]):not([type=checkbox]) {
