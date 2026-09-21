@@ -1175,6 +1175,11 @@ a:active { color: var(--text-color); text-decoration: underline; }
     font-weight: 350 !important;
 }
 
+.symbol_summary_box table th:nth-child(1),
+.symbol_summary_box table td:nth-child(1) {
+    width: 40% !important;
+}
+
 /* 核心：只在 Sector 组末尾（sector-group-end）添加下横线 */
 .symbol_summary_box table tr.sector-group-end td {
     border-bottom: 1px solid var(--gridcolor) !important;
