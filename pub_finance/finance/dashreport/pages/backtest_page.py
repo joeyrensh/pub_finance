@@ -30,6 +30,73 @@ task_state["status"] = "idle"  # idle, running, done, failed
 task_state["result"] = None
 task_state["error"] = None
 
+
+# ---------- 统一排序工具函数 ----------
+def sort_symbols_by_sector_pe(symbol_list, market, date_str):
+    """按 Sector 字母序 + 组内 PE 升序统一对股票列表排序"""
+    if not symbol_list:
+        return []
+
+    dt = ""
+    if date_str:
+        try:
+            dt = datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
+        except Exception:
+            dt = ""
+
+    # 1. 读取 Sector 信息
+    f_industry = FINANCE_ROOT / (
+        "cnstockinfo/industry.csv" if market == "cn" else "usstockinfo/industry.csv"
+    )
+    sector_dict = {}
+    if f_industry.exists():
+        try:
+            cols_to_read = ["symbol"]
+            temp_df = pd.read_csv(f_industry, nrows=1)
+            if "sector" in temp_df.columns:
+                cols_to_read.append("sector")
+            df_ind = pd.read_csv(f_industry, usecols=cols_to_read, dtype=str)
+            if "sector" in df_ind.columns:
+                sector_dict = df_ind.set_index("symbol")["sector"].to_dict()
+        except Exception as e:
+            print(f"Failed to load industry file for sorting: {e}")
+
+    # 2. 读取 PE 信息
+    f_stock = FINANCE_ROOT / (
+        f"cnstockinfo/stock_{dt}.csv" if market == "cn" else f"usstockinfo/stock_{dt}.csv"
+    )
+    pe_dict = {}
+    if dt and f_stock.exists():
+        try:
+            cols_to_read = ["symbol"]
+            temp_df = pd.read_csv(f_stock, nrows=1)
+            if "pe" in temp_df.columns:
+                cols_to_read.append("pe")
+            df_stock = pd.read_csv(f_stock, usecols=cols_to_read, dtype=str)
+            if "pe" in df_stock.columns:
+                for _, row in df_stock.iterrows():
+                    pe_val = row.get("pe")
+                    if pe_val and pe_val != "nan":
+                        try:
+                            num = float(pe_val)
+                            if not np.isnan(num):
+                                pe_dict[row["symbol"]] = num
+                        except (ValueError, TypeError):
+                            pass
+        except Exception as e:
+            print(f"Failed to load stock file for sorting: {e}")
+
+    # 3. 构造排序 key
+    def sort_key(sym):
+        sector = sector_dict.get(sym)
+        sector_str = "zzz" if (not sector or pd.isna(sector) or sector == "-") else str(sector)
+        pe = pe_dict.get(sym)
+        pe_num = pe if pe is not None else float("inf")
+        return (sector_str, pe_num)
+
+    return sorted(symbol_list, key=sort_key)
+
+
 # ---------- 耗时任务函数 ----------
 def run_bt_task(stock_list, date_str, market):
     """在子进程中执行回测并更新 task_state"""
@@ -316,6 +383,7 @@ class BacktestPage:
                 symbols = stored_data.get("symbols", [])
 
                 if symbols:
+                    symbols = sort_symbols_by_sector_pe(symbols, market, date_str)
                     stocks_value = ",".join(symbols)
                     total = len(symbols)
                     button_text = f"Total: {total}"
@@ -348,59 +416,9 @@ class BacktestPage:
                     if market == "cn"
                     else ["AAPL", "MSFT", "GOOGL"]
                 )
-            # 排序（按PE、市值）
-            stock_file_exists = False
-            if date_str:
-                try:
-                    dt = datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
-                    stock_file = FINANCE_ROOT / (
-                        f"cnstockinfo/stock_{dt}.csv"
-                        if market == "cn"
-                        else f"usstockinfo/stock_{dt}.csv"
-                    )
-                    if stock_file.exists():
-                        stock_file_exists = True
-                        df_stock = pd.read_csv(
-                            stock_file,
-                            usecols=["symbol", "pe", "total_value"],
-                            dtype=str,
-                        )
-                        pe_dict = {}
-                        tv_dict = {}
-                        for _, row in df_stock.iterrows():
-                            sym = row["symbol"]
-                            pe = row.get("pe")
-                            tv = row.get("total_value")
-                            if pe and pe != "nan":
-                                try:
-                                    pe_dict[sym] = float(pe)
-                                except:
-                                    pass
-                            if tv and tv != "nan":
-                                try:
-                                    tv_dict[sym] = float(tv)
-                                except:
-                                    pass
-
-                        def sort_key(symbol):
-                            pe = pe_dict.get(symbol)
-                            tv = tv_dict.get(symbol)
-                            return (
-                                pe if (pe is not None and pe > 0) else float("inf"),
-                                tv if (tv is not None and tv > 0) else float("inf"),
-                            )
-
-                        symbols.sort(key=sort_key)
-                        print(
-                            f"Sorted by PE/total market cap based on {stock_file}; {len(pe_dict)} data entries in total."
-                        )
-                except Exception as e:
-                    print(f"Failed to read the stock information file: {e}")
-            if not stock_file_exists:
-                print(
-                    f"No corresponding date stock file found, keeping the original order of dynamic_list"
-                )
-            # 分页每页3个
+            # 统一按 Sector 字母序 + PE 升序排序
+            symbols = sort_symbols_by_sector_pe(symbols, market, date_str)
+            # 分页每页6个
             total = len(symbols)
             start = 0
             end = min(6, total)
@@ -567,7 +585,7 @@ class BacktestPage:
                     "Run Backtest",
                     "btn btn-primary backtest-label progress-btn",
                     {"display": "none"},
-                    "⚠️ System is currently running backtest, please wait",
+                    "System is currently running backtest, please wait",
                     True,
                 )
             stock_list = [s.strip().upper() for s in stocks.split(",") if s.strip()]
@@ -585,6 +603,8 @@ class BacktestPage:
             try:
                 date_obj = datetime.strptime(date, "%Y-%m-%d")
                 date_str = date_obj.strftime("%Y%m%d")
+                # 按照统一规则对输入列表做一次排序
+                stock_list = sort_symbols_by_sector_pe(stock_list, market, date)
                 # 重置任务状态
                 task_state["status"] = "running"
                 task_state["result"] = None
@@ -1006,7 +1026,7 @@ class BacktestPage:
 
             except Exception as e:
                 print(f"Error updating stock summary: {e}")
-                return f"⚠️ Error loading stock info: {e}"
+                return f"Error loading stock info: {e}"
 
     # ---------- 布局构建 ----------
     def build_control_panel(self):
