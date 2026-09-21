@@ -924,24 +924,28 @@ class TickerInfo:
         """
         计算前复权历史数据 (对齐美股/A股券商APP及Yahoo Finance官方标准)
         支持: 多次拆股、合股(Reverse Split)、现金分红、组合事件
-        性能: 纯向量化矩阵运算，无 for 循环，支持数百上千只股票同时高速计算
+        性能: 纯向量化矩阵运算，精准内存管控，极致降低 Peak Memory
         """
-        df_raw = self.get_history_data()
-        if df_raw.empty:
-            return df_raw
+        df = self.get_history_data()
+        if df.empty:
+            return df
 
         actions_file = self.file_actions_history
         if not os.path.exists(actions_file):
-            return df_raw
+            return df
 
-        # 1. 提取当前标的的除权事件
-        target_symbols = set(df_raw["symbol"].unique())
+        # 1. 提取当前标的的除权事件 (优化：仅过滤 target_symbols 涉及的数据)
+        target_symbols = set(df["symbol"].unique())
+        
         df_actions_all = pd.read_csv(
             actions_file, 
             usecols=["symbol", "date", "dividend", "split_ratio"],
             dtype={"symbol": str, "date": str}
         )
-        df_actions = df_actions_all[df_actions_all["symbol"].isin(target_symbols)].copy()
+        
+        # 过滤并及时释放全量除权表内存
+        df_actions = df_actions_all[df_actions_all["symbol"].isin(target_symbols)]
+        del df_actions_all  # 显式释放全量除权表
 
         # ==================== 预处理：合并同日多次除权事件 ====================
         if not df_actions.empty:
@@ -954,13 +958,18 @@ class TickerInfo:
             )
 
         if df_actions.empty:
-            return df_raw
+            del df_actions
+            return df
 
         # 2. 保证全局按 [symbol, date] 升序排列
-        df = df_raw.sort_values(["symbol", "date"]).reset_index(drop=True)
+        df.sort_values(["symbol", "date"], inplace=True)
+        df.reset_index(drop=True, inplace=True)
 
         # 3. 批量 Left Join 除权事件
         df = pd.merge(df, df_actions, on=["symbol", "date"], how="left")
+        del df_actions  # 合并完成后，除权临时表已无用，立即释放
+
+        # 填充默认值
         df["dividend"] = df["dividend"].fillna(0.0)
         df["split_ratio"] = df["split_ratio"].fillna(1.0).replace(0.0, 1.0)
 
@@ -969,40 +978,38 @@ class TickerInfo:
             df.drop(columns=["dividend", "split_ratio"], inplace=True)
             return df
 
-        # 4. 计算基础单步拆股/合股因子
-        df["price_split_factor"] = 1.0 / df["split_ratio"]
-        df["vol_split_factor"] = df["split_ratio"]
+        # 4. 计算基础单步拆股/合股因子 (优化：作为独立 Series 计算，不挂载回 DataFrame 膨胀列)
+        price_split_factor = 1.0 / df["split_ratio"]
+        vol_split_factor = df["split_ratio"]
 
         # ==================== 5. 倒序向量化计算 (核心算式) ====================
-        # (A) 倒序物理翻转 DataFrame
-        df_rev = df.iloc[::-1].copy()
+        # (A) 倒序计算累积因子 (无需使用 .copy() 复制整表，仅对关键 Series 倒序切片)
+        rev_symbol = df["symbol"].iloc[::-1]
 
-        # 计算倒序累积拆股因子 (T 日发生影响 T-1 及之前)
-        df_rev["cum_split_price"] = (
-            df_rev.groupby("symbol")["price_split_factor"]
+        cum_split_price = (
+            price_split_factor.iloc[::-1]
+            .groupby(rev_symbol)
             .shift(1, fill_value=1.0)
-            .groupby(df_rev["symbol"])
+            .groupby(rev_symbol)
             .cumprod()
+            .iloc[::-1]  # 恢复正序
         )
 
-        df_rev["cum_vol_factor"] = (
-            df_rev.groupby("symbol")["vol_split_factor"]
+        cum_vol_factor = (
+            vol_split_factor.iloc[::-1]
+            .groupby(rev_symbol)
             .shift(1, fill_value=1.0)
-            .groupby(df_rev["symbol"])
+            .groupby(rev_symbol)
             .cumprod()
+            .iloc[::-1]  # 恢复正序
         )
 
-        # (B) 正序恢复，计算“剔除未来的拆股影响后的等价收盘价”
-        df_step2 = df_rev.iloc[::-1].copy()
-        
-        # 将历史原始收盘价乘以未来的拆股累积因子（例如 10合1 后，历史收盘价会被放大 10 倍）
-        adjusted_close = df_step2["close"] * df_step2["cum_split_price"]
-        
-        # 提取 T-1 日的准复权收盘价作为分红扣除基准 (修正: 采用 Series 分组 shift)
-        prev_adjusted_close = adjusted_close.groupby(df_step2["symbol"]).shift(1)
+        # (B) 计算“剔除未来的拆股影响后的等价收盘价”与分红扣除因子
+        adjusted_close = df["close"] * cum_split_price
+        prev_adjusted_close = adjusted_close.groupby(df["symbol"]).shift(1)
 
-        # 向量化计算分红比例因子：(prev_p - dividend) / prev_p
-        div = df_step2["dividend"].values
+        # 向量化计算分红比例因子
+        div = df["dividend"].values
         prev_p = prev_adjusted_close.values
         
         div_factor = np.where(
@@ -1010,32 +1017,36 @@ class TickerInfo:
             (prev_p - div) / prev_p,
             1.0
         )
-        div_factor = np.maximum(div_factor, 0.0001)
+        np.maximum(div_factor, 0.0001, out=div_factor)
 
-        # (C) 结合拆股因子与分红因子，倒序计算最终【总价格累积复权因子】
-        df_step2["step_price_factor"] = df_step2["price_split_factor"] * div_factor
+        # 清理无用的中间变量，释放内存
+        del adjusted_close, prev_adjusted_close, div, prev_p
 
-        df_rev2 = df_step2.iloc[::-1]
-        df_step2["cum_price_factor"] = (
-            df_rev2.groupby("symbol")["step_price_factor"]
+        # (C) 倒序计算最终【总价格累积复权因子】
+        step_price_factor = price_split_factor * div_factor
+        del price_split_factor, div_factor
+
+        cum_price_factor = (
+            step_price_factor.iloc[::-1]
+            .groupby(rev_symbol)
             .shift(1, fill_value=1.0)
-            .groupby(df_rev2["symbol"])
+            .groupby(rev_symbol)
             .cumprod()
             .iloc[::-1]  # 恢复正序
         )
+        del step_price_factor, rev_symbol
 
         # ==================== 6. 最终调整价格与成交量 ====================
-        cum_p_factor = df_step2["cum_price_factor"]
         for col in ["open", "high", "low", "close"]:
-            df_step2[col] = (df_step2[col] * cum_p_factor).round(4)
+            df[col] = (df[col] * cum_price_factor).round(4)
 
-        df_step2["volume"] = (df_step2["volume"] * df_step2["cum_vol_factor"]).round(0)
+        df["volume"] = (df["volume"] * cum_vol_factor).round(0)
 
-        # 清理中间计算列
-        cols_to_drop = [
-            "dividend", "split_ratio", "price_split_factor", "vol_split_factor",
-            "cum_split_price", "step_price_factor", "cum_price_factor", "cum_vol_factor"
-        ]
-        df_step2.drop(columns=cols_to_drop, inplace=True, errors="ignore")
+        # 7. 清理追加的临时列及变量
+        df.drop(columns=["dividend", "split_ratio"], inplace=True)
+        del cum_price_factor, cum_vol_factor, cum_split_price
 
-        return df_step2
+        # 触发垃圾回收（可选，按需开启）
+        # gc.collect()
+
+        return df

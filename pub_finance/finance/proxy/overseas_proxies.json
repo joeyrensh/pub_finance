@@ -2,3116 +2,3496 @@
   "http://176.111.37.216:39811": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343559"
+    "last_seen": "2026-09-21T09:05:48.379976"
   },
   "http://47.81.56.193:8888": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.303028"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380000"
   },
   "http://95.211.174.135:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343604"
+    "last_seen": "2026-09-21T09:05:48.380009"
   },
   "http://95.3.69.222:8080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343609"
+    "last_seen": "2026-09-21T09:05:48.380012"
   },
   "http://130.110.103.245:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343614"
+    "last_seen": "2026-09-21T09:05:48.380016"
   },
   "http://91.134.141.4:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343624"
+    "last_seen": "2026-09-21T09:05:48.380019"
   },
   "http://47.91.65.23:3128": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.303218"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380024"
   },
   "http://129.226.89.151:80": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343636"
+    "last_seen": "2026-09-21T09:05:48.380028"
   },
   "http://116.202.108.111:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343641"
+    "last_seen": "2026-09-21T09:05:48.380031"
   },
   "http://47.85.161.37:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343647"
+    "last_seen": "2026-09-21T09:05:48.380034"
   },
   "socks5://72.223.188.67:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343652"
+    "last_seen": "2026-09-21T09:05:48.380038"
   },
   "socks5://51.178.49.241:1088": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.303282"
   },
   "socks5://199.66.182.232:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343667"
+    "last_seen": "2026-09-21T09:05:48.380056"
   },
   "socks5://24.249.199.4:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343673"
+    "last_seen": "2026-09-21T09:05:48.380060"
   },
   "socks5://169.58.97.115:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.343679"
   },
   "socks5://72.195.101.99:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343686"
+    "last_seen": "2026-09-21T09:05:48.380069"
   },
   "socks5://198.8.94.170:4145": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.343691"
   },
   "socks5://67.201.35.145:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343695"
+    "last_seen": "2026-09-21T09:05:48.380077"
   },
   "socks5://72.49.49.11:31034": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343702"
+    "last_seen": "2026-09-21T09:05:48.380080"
   },
   "socks5://72.195.34.41:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343707"
+    "last_seen": "2026-09-21T09:05:48.380085"
   },
   "socks5://98.170.57.231:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343712"
+    "last_seen": "2026-09-21T09:05:48.380087"
   },
   "socks5://192.252.208.70:14282": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343714"
+    "last_seen": "2026-09-21T09:05:48.380143"
   },
   "socks5://184.178.172.13:15311": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343720"
+    "last_seen": "2026-09-21T09:05:48.380152"
   },
   "http://144.124.251.24:10001": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.343725"
   },
   "socks5://67.201.39.14:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343728"
+    "last_seen": "2026-09-21T09:05:48.380165"
   },
   "socks5://98.191.0.47:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343731"
+    "last_seen": "2026-09-21T09:05:48.380172"
   },
   "socks5://70.166.65.160:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343735"
+    "last_seen": "2026-09-21T09:05:48.380177"
   },
   "socks5://206.220.175.2:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343740"
+    "last_seen": "2026-09-21T09:05:48.380184"
   },
   "socks5://72.195.34.35:27360": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343743"
+    "last_seen": "2026-09-21T09:05:48.380188"
   },
   "socks5://98.182.147.97:4145": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.304353"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380193"
   },
   "socks5://184.178.172.5:15303": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343757"
+    "last_seen": "2026-09-21T09:05:48.380202"
   },
   "socks5://142.54.229.249:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343762"
+    "last_seen": "2026-09-21T09:05:48.380209"
   },
   "socks5://199.116.112.6:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343767"
+    "last_seen": "2026-09-21T09:05:48.380218"
   },
   "socks5://98.170.57.241:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343770"
+    "last_seen": "2026-09-21T09:05:48.380225"
   },
   "socks5://142.54.237.38:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343773"
+    "last_seen": "2026-09-21T09:05:48.380234"
   },
   "socks5://192.111.137.37:18762": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343778"
+    "last_seen": "2026-09-21T09:05:48.380240"
   },
   "socks5://72.195.34.60:27391": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343782"
+    "last_seen": "2026-09-21T09:05:48.380246"
   },
   "socks5://184.170.245.148:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343785"
+    "last_seen": "2026-09-21T09:05:48.380251"
   },
   "socks5://174.77.111.196:4145": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.343790"
   },
   "socks5://174.64.199.79:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343807"
+    "last_seen": "2026-09-21T09:05:48.380262"
   },
   "socks5://68.71.247.130:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343813"
+    "last_seen": "2026-09-21T09:05:48.380267"
   },
   "socks5://184.181.217.213:4145": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.304482"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380271"
   },
   "socks5://72.194.42.156:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343825"
+    "last_seen": "2026-09-21T09:05:48.380280"
   },
   "socks5://98.175.31.222:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343834"
+    "last_seen": "2026-09-21T09:05:48.380289"
   },
   "socks5://72.195.34.58:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343841"
+    "last_seen": "2026-09-21T09:05:48.380299"
   },
   "socks5://184.181.217.206:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343844"
+    "last_seen": "2026-09-21T09:05:48.380307"
   },
   "socks5://192.111.137.35:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343853"
+    "last_seen": "2026-09-21T09:05:48.380312"
   },
   "socks5://72.195.34.42:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343862"
+    "last_seen": "2026-09-21T09:05:48.380320"
   },
   "socks5://98.191.0.37:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343869"
+    "last_seen": "2026-09-21T09:05:48.380326"
   },
   "http://144.124.251.24:10997": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343877"
+    "last_seen": "2026-09-21T09:05:48.380335"
   },
   "socks5://70.166.167.55:57745": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343880"
+    "last_seen": "2026-09-21T09:05:48.380344"
   },
   "socks5://184.178.172.23:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343886"
+    "last_seen": "2026-09-21T09:05:48.380348"
   },
   "http://190.97.241.106:999": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343891"
+    "last_seen": "2026-09-21T09:05:48.380355"
   },
   "http://45.194.41.43:8080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.926199"
   },
   "http://107.150.41.226:18080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343907"
+    "last_seen": "2026-09-21T09:05:48.380367"
   },
   "socks5://107.150.41.226:18080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343912"
+    "last_seen": "2026-09-21T09:05:48.380374"
   },
   "http://144.124.251.24:10086": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343921"
+    "last_seen": "2026-09-21T09:05:48.380380"
   },
   "socks5://192.111.139.165:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343930"
+    "last_seen": "2026-09-21T09:05:48.380388"
   },
   "socks5://74.119.147.209:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343939"
+    "last_seen": "2026-09-21T09:05:48.380393"
   },
   "socks5://72.207.33.64:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343945"
+    "last_seen": "2026-09-21T09:05:48.380401"
   },
   "socks5://8.215.25.3:2080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.343950"
   },
   "socks5://184.178.172.25:15291": {
     "protocol": "socks5",
-    "failures": 2,
-    "last_seen": "2026-09-18T09:20:55.926233"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380409"
   },
   "socks5://70.166.167.38:57728": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343962"
+    "last_seen": "2026-09-21T09:05:48.380412"
   },
   "socks5://45.32.160.61:1088": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343969"
+    "last_seen": "2026-09-21T09:05:48.380417"
   },
   "socks5://192.111.130.2:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343979"
+    "last_seen": "2026-09-21T09:05:48.380420"
   },
   "socks5://192.252.209.155:14455": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343984"
+    "last_seen": "2026-09-21T09:05:48.380424"
   },
   "socks5://192.111.138.29:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343987"
+    "last_seen": "2026-09-21T09:05:48.380428"
   },
   "socks5://199.102.106.94:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343993"
+    "last_seen": "2026-09-21T09:05:48.380433"
   },
   "socks5://72.195.34.59:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.343997"
+    "last_seen": "2026-09-21T09:05:48.380438"
   },
   "socks5://67.201.33.10:25283": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344002"
+    "last_seen": "2026-09-21T09:05:48.380443"
   },
   "socks5://142.54.236.97:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344007"
+    "last_seen": "2026-09-21T09:05:48.380448"
   },
   "socks5://216.105.128.144:4145": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344012"
   },
   "socks5://68.71.254.6:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344017"
+    "last_seen": "2026-09-21T09:05:48.380455"
   },
   "socks5://184.170.248.5:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344022"
+    "last_seen": "2026-09-21T09:05:48.380461"
   },
   "socks5://192.252.220.92:17328": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344025"
+    "last_seen": "2026-09-21T09:05:48.380467"
   },
   "socks5://68.71.251.134:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344028"
+    "last_seen": "2026-09-21T09:05:48.380470"
   },
   "socks5://192.252.211.193:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344034"
+    "last_seen": "2026-09-21T09:05:48.380473"
   },
   "socks5://184.170.249.65:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344037"
+    "last_seen": "2026-09-21T09:05:48.380478"
   },
   "socks5://72.207.109.5:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344044"
+    "last_seen": "2026-09-21T09:05:48.380482"
   },
   "socks5://14.225.204.32:10800": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344049"
   },
   "socks5://142.54.239.1:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344054"
+    "last_seen": "2026-09-21T09:05:48.380491"
   },
   "socks5://98.181.137.83:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344059"
+    "last_seen": "2026-09-21T09:05:48.380495"
   },
   "socks5://174.77.111.197:4145": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.305745"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380501"
   },
   "socks5://213.199.47.140:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344069"
+    "last_seen": "2026-09-21T09:05:48.380504"
   },
   "socks5://192.252.215.2:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344072"
+    "last_seen": "2026-09-21T09:05:48.380507"
   },
   "http://43.128.112.151:80": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344076"
   },
   "socks5://72.207.113.97:4145": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.305795"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380518"
   },
   "socks5://199.66.183.251:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344088"
+    "last_seen": "2026-09-21T09:05:48.380521"
   },
   "http://144.124.251.24:10744": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344110"
   },
   "socks5://72.206.74.126:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344114"
+    "last_seen": "2026-09-21T09:05:48.380529"
   },
   "socks5://142.54.237.34:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344119"
+    "last_seen": "2026-09-21T09:05:48.380533"
   },
   "socks5://107.152.98.5:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344126"
+    "last_seen": "2026-09-21T09:05:48.380535"
   },
   "socks5://144.126.197.184:1088": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.926399"
   },
   "socks5://199.58.184.97:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344133"
+    "last_seen": "2026-09-21T09:05:48.380543"
   },
   "socks5://192.252.220.89:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344139"
+    "last_seen": "2026-09-21T09:05:48.380546"
   },
   "http://168.144.84.188:3129": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344144"
+    "last_seen": "2026-09-21T09:05:48.380552"
   },
   "http://144.124.251.24:10187": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344149"
+    "last_seen": "2026-09-21T09:05:48.380556"
   },
   "http://144.124.251.24:10088": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344152"
+    "last_seen": "2026-09-21T09:05:48.380559"
   },
   "socks5://174.75.211.193:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344155"
+    "last_seen": "2026-09-21T09:05:48.380562"
   },
   "http://144.124.251.24:10610": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344161"
+    "last_seen": "2026-09-21T09:05:48.380567"
   },
   "socks5://68.71.249.158:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344165"
+    "last_seen": "2026-09-21T09:05:48.380570"
   },
   "http://144.124.251.24:10082": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344170"
+    "last_seen": "2026-09-21T09:05:48.380573"
   },
   "http://144.124.251.24:11450": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.305958"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380578"
   },
   "socks5://199.102.104.70:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344178"
+    "last_seen": "2026-09-21T09:05:48.380581"
   },
   "http://144.124.251.24:10453": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344182"
+    "last_seen": "2026-09-21T09:05:48.380584"
   },
   "http://144.124.251.24:10176": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344187"
+    "last_seen": "2026-09-21T09:05:48.380590"
   },
   "socks5://81.29.249.82:5071": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344189"
   },
   "socks5://98.178.72.21:10919": {
     "protocol": "socks5",
-    "failures": 2,
-    "last_seen": "2026-09-18T09:20:55.926459"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380597"
   },
   "socks5://68.1.210.163:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344198"
+    "last_seen": "2026-09-21T09:05:48.380601"
   },
   "http://144.124.251.24:11491": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344202"
+    "last_seen": "2026-09-21T09:05:48.380604"
   },
   "socks5://72.194.42.131:4145": {
     "protocol": "socks5",
-    "failures": 2,
-    "last_seen": "2026-09-18T09:20:55.926473"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380609"
   },
   "socks5://192.252.209.158:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344213"
+    "last_seen": "2026-09-21T09:05:48.380613"
   },
   "socks5://68.71.252.38:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344216"
+    "last_seen": "2026-09-21T09:05:48.380615"
   },
   "socks5://193.25.215.182:22222": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344220"
+    "last_seen": "2026-09-21T09:05:48.380618"
   },
   "socks5://192.111.139.162:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344230"
+    "last_seen": "2026-09-21T09:05:48.380623"
   },
   "http://144.124.251.24:10104": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344235"
+    "last_seen": "2026-09-21T09:05:48.380628"
   },
   "socks5://192.252.214.20:15864": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344240"
+    "last_seen": "2026-09-21T09:05:48.380633"
   },
   "http://144.124.251.24:10337": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344245"
   },
   "socks5://121.169.46.116:1090": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344248"
   },
   "http://144.124.251.24:10526": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344257"
+    "last_seen": "2026-09-21T09:05:48.380646"
   },
   "http://144.124.251.24:10819": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344262"
+    "last_seen": "2026-09-21T09:05:48.380650"
   },
   "http://128.140.113.110:4145": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344267"
   },
   "socks5://45.61.188.134:44499": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344271"
+    "last_seen": "2026-09-21T09:05:48.380658"
   },
   "http://144.124.251.24:10274": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344277"
+    "last_seen": "2026-09-21T09:05:48.380661"
   },
   "socks5://192.252.215.5:16137": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344282"
+    "last_seen": "2026-09-21T09:05:48.380664"
   },
   "socks5://192.252.211.197:14921": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344286"
+    "last_seen": "2026-09-21T09:05:48.380666"
   },
   "socks5://199.116.114.11:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344289"
+    "last_seen": "2026-09-21T09:05:48.380670"
   },
   "socks5://172.105.192.212:9080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344293"
+    "last_seen": "2026-09-21T09:05:48.380673"
   },
   "http://103.237.102.191:11111": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344297"
+    "last_seen": "2026-09-21T09:05:48.380678"
   },
   "socks5://81.236.184.63:1080": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.306256"
   },
   "http://144.124.251.24:10000": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344307"
+    "last_seen": "2026-09-21T09:05:48.380685"
   },
   "socks5://198.8.84.3:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344310"
+    "last_seen": "2026-09-21T09:05:48.380689"
   },
   "http://159.223.41.216:9090": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344314"
+    "last_seen": "2026-09-21T09:05:48.380694"
   },
   "socks5://184.178.172.18:15280": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344317"
+    "last_seen": "2026-09-21T09:05:48.380697"
   },
   "socks5://83.147.216.208:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344321"
   },
   "http://1.231.81.166:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344325"
+    "last_seen": "2026-09-21T09:05:48.380706"
   },
   "socks5://98.188.47.132:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344328"
+    "last_seen": "2026-09-21T09:05:48.380711"
   },
   "socks5://184.178.172.3:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344333"
+    "last_seen": "2026-09-21T09:05:48.380714"
   },
   "socks5://144.91.121.61:1088": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.926619"
   },
   "http://144.124.251.24:11377": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.306350"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380721"
   },
   "http://144.124.251.24:11280": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344344"
+    "last_seen": "2026-09-21T09:05:48.380724"
   },
   "socks5://68.71.249.153:48606": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344348"
+    "last_seen": "2026-09-21T09:05:48.380728"
   },
   "socks5://98.170.57.249:4145": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344351"
   },
   "socks5://184.170.251.30:11288": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.306377"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380737"
   },
   "http://47.89.184.18:3128": {
     "protocol": "http",
-    "failures": 2,
-    "last_seen": "2026-09-18T09:20:55.926646"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380742"
   },
   "socks5://101.36.104.239:10808": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344362"
+    "last_seen": "2026-09-21T09:05:48.380746"
   },
   "http://144.124.251.24:11403": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344365"
+    "last_seen": "2026-09-21T09:05:48.380750"
   },
   "socks5://184.178.172.14:4145": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344377"
   },
   "socks5://199.102.105.242:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344382"
+    "last_seen": "2026-09-21T09:05:48.380759"
   },
   "socks5://67.201.58.190:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344386"
+    "last_seen": "2026-09-21T09:05:48.380764"
   },
   "http://35.228.49.168:9443": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.306512"
   },
   "http://165.154.162.73:8888": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344399"
+    "last_seen": "2026-09-21T09:05:48.380771"
   },
   "socks5://192.252.216.86:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344405"
+    "last_seen": "2026-09-21T09:05:48.380773"
   },
   "socks5://98.181.137.80:4145": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.306532"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380777"
   },
   "http://43.153.123.79:80": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.926696"
   },
   "http://144.124.251.24:10228": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344416"
+    "last_seen": "2026-09-21T09:05:48.380784"
   },
   "socks5://68.71.243.14:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344419"
+    "last_seen": "2026-09-21T09:05:48.380788"
   },
   "http://144.124.251.24:10002": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344423"
+    "last_seen": "2026-09-21T09:05:48.380794"
   },
   "socks5://27.124.12.186:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344429"
+    "last_seen": "2026-09-21T09:05:48.380799"
   },
   "socks5://199.66.183.226:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344432"
+    "last_seen": "2026-09-21T09:05:48.380809"
   },
   "socks5://191.223.220.23:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.926726"
   },
   "socks5://142.54.231.38:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344438"
+    "last_seen": "2026-09-21T09:05:48.380817"
   },
   "http://144.124.251.24:10188": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344442"
+    "last_seen": "2026-09-21T09:05:48.380822"
   },
   "socks5://38.76.212.39:8181": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.926740"
   },
   "socks5://192.111.134.10:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344452"
+    "last_seen": "2026-09-21T09:05:48.380831"
   },
   "http://144.124.251.24:11198": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344454"
+    "last_seen": "2026-09-21T09:05:48.380835"
   },
   "http://144.124.251.24:10407": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344456"
+    "last_seen": "2026-09-21T09:05:48.380840"
   },
   "socks5://107.181.168.145:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344460"
+    "last_seen": "2026-09-21T09:05:48.380846"
   },
   "http://144.124.251.24:10810": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344465"
+    "last_seen": "2026-09-21T09:05:48.380851"
   },
   "http://144.124.251.24:10829": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344469"
   },
   "http://144.124.251.24:11265": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344472"
+    "last_seen": "2026-09-21T09:05:48.380860"
   },
   "http://8.209.255.13:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344478"
+    "last_seen": "2026-09-21T09:05:48.380865"
   },
   "http://144.124.251.24:10601": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.306769"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380868"
   },
   "http://47.243.92.199:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344486"
+    "last_seen": "2026-09-21T09:05:48.380872"
   },
   "http://144.124.251.24:10261": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344492"
+    "last_seen": "2026-09-21T09:05:48.380875"
   },
   "http://144.124.251.24:11480": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344497"
+    "last_seen": "2026-09-21T09:05:48.380879"
   },
   "socks5://24.249.199.12:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344502"
+    "last_seen": "2026-09-21T09:05:48.380882"
   },
   "socks5://72.195.114.184:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344506"
+    "last_seen": "2026-09-21T09:05:48.380885"
   },
   "http://144.124.251.24:10058": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.306831"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380889"
   },
   "socks5://184.185.2.12:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344512"
+    "last_seen": "2026-09-21T09:05:48.380893"
   },
   "socks5://192.252.214.17:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344516"
+    "last_seen": "2026-09-21T09:05:48.380901"
   },
   "http://144.124.251.24:10021": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344518"
+    "last_seen": "2026-09-21T09:05:48.380904"
   },
   "http://144.124.251.24:10440": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344521"
+    "last_seen": "2026-09-21T09:05:48.380909"
   },
   "socks5://31.76.111.88:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344525"
   },
   "socks5://147.45.234.180:1080": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.307500"
   },
   "http://8.213.151.128:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344534"
+    "last_seen": "2026-09-21T09:05:48.380928"
   },
   "socks5://68.1.210.189:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344539"
+    "last_seen": "2026-09-21T09:05:48.380932"
   },
   "socks5://199.66.182.243:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344542"
+    "last_seen": "2026-09-21T09:05:48.380937"
   },
   "http://144.124.251.24:10167": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.307547"
   },
   "http://190.0.246.210:4040": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344556"
+    "last_seen": "2026-09-21T09:05:48.380949"
   },
   "socks5://98.175.31.195:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344562"
+    "last_seen": "2026-09-21T09:05:48.380954"
   },
   "http://193.104.179.115:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344565"
+    "last_seen": "2026-09-21T09:05:48.380957"
   },
   "http://144.124.251.24:10555": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344570"
+    "last_seen": "2026-09-21T09:05:48.380961"
   },
   "http://124.156.194.52:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344575"
   },
   "socks5://199.229.254.129:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344579"
+    "last_seen": "2026-09-21T09:05:48.380968"
   },
   "http://144.124.251.24:10953": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344583"
+    "last_seen": "2026-09-21T09:05:48.380973"
   },
   "socks5://202.79.26.242:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344588"
   },
   "socks5://184.178.172.28:15294": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344591"
+    "last_seen": "2026-09-21T09:05:48.380981"
   },
   "http://144.124.251.24:10809": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344597"
   },
   "http://144.124.251.24:11180": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344600"
+    "last_seen": "2026-09-21T09:05:48.380990"
   },
   "socks5://98.190.239.3:4145": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.307678"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.380995"
   },
   "socks5://104.37.135.145:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344607"
+    "last_seen": "2026-09-21T09:05:48.381000"
   },
   "socks5://142.54.226.214:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344612"
+    "last_seen": "2026-09-21T09:05:48.381003"
   },
   "socks5://104.200.135.46:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344614"
+    "last_seen": "2026-09-21T09:05:48.381006"
   },
   "http://144.124.251.24:10800": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344623"
+    "last_seen": "2026-09-21T09:05:48.381011"
   },
   "socks5://192.111.135.17:18302": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344628"
+    "last_seen": "2026-09-21T09:05:48.381015"
   },
   "socks5://192.111.135.18:18301": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.308309"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381017"
   },
   "http://152.42.177.32:8888": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344638"
+    "last_seen": "2026-09-21T09:05:48.381020"
   },
   "socks5://184.181.217.194:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344643"
+    "last_seen": "2026-09-21T09:05:48.381023"
   },
   "http://144.124.251.24:10443": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344648"
+    "last_seen": "2026-09-21T09:05:48.381027"
   },
   "socks5://123.58.219.171:10808": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344652"
+    "last_seen": "2026-09-21T09:05:48.381031"
   },
   "http://144.124.251.24:10338": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344658"
+    "last_seen": "2026-09-21T09:05:48.381033"
   },
   "socks5://184.181.217.220:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344661"
+    "last_seen": "2026-09-21T09:05:48.381037"
   },
   "http://144.124.251.24:11270": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344663"
+    "last_seen": "2026-09-21T09:05:48.381042"
   },
   "http://144.124.251.24:11351": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344668"
+    "last_seen": "2026-09-21T09:05:48.381046"
   },
   "http://144.124.251.24:10084": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344671"
+    "last_seen": "2026-09-21T09:05:48.381049"
   },
   "socks5://5.175.192.43:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344676"
   },
   "socks5://192.252.216.81:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344679"
+    "last_seen": "2026-09-21T09:05:48.381056"
   },
   "http://144.124.251.24:10232": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344684"
+    "last_seen": "2026-09-21T09:05:48.381059"
   },
   "http://159.65.152.239:3129": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.308521"
   },
   "http://168.144.68.176:3129": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927035"
   },
   "socks5://104.200.152.30:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344699"
+    "last_seen": "2026-09-21T09:05:48.381075"
   },
   "http://142.93.217.232:3129": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344704"
+    "last_seen": "2026-09-21T09:05:48.381079"
   },
   "socks5://174.75.211.222:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344709"
+    "last_seen": "2026-09-21T09:05:48.381083"
   },
   "http://144.124.251.24:10808": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.308599"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381087"
   },
   "socks5://5.253.59.150:1082": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344719"
+    "last_seen": "2026-09-21T09:05:48.381120"
   },
   "socks5://103.210.161.8:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344722"
+    "last_seen": "2026-09-21T09:05:48.381123"
   },
   "http://195.158.8.123:3128": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.308623"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381128"
   },
   "http://144.124.251.24:10123": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344729"
+    "last_seen": "2026-09-21T09:05:48.381131"
   },
   "http://103.164.55.81:3128": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344733"
   },
   "socks5://216.105.130.131:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344735"
+    "last_seen": "2026-09-21T09:05:48.381140"
   },
   "http://144.124.251.24:10412": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.308681"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381144"
   },
   "socks5://213.111.146.36:18080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344744"
+    "last_seen": "2026-09-21T09:05:48.381148"
   },
   "socks5://84.38.187.157:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927119"
   },
   "socks5://192.111.130.5:17002": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344761"
+    "last_seen": "2026-09-21T09:05:48.381159"
   },
   "http://144.124.251.24:10628": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344765"
+    "last_seen": "2026-09-21T09:05:48.381164"
   },
   "socks5://107.181.161.81:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344770"
+    "last_seen": "2026-09-21T09:05:48.381170"
   },
   "http://144.124.251.24:10551": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.308738"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381176"
   },
   "http://144.124.251.24:10250": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.344781"
   },
   "http://43.156.227.68:80": {
     "protocol": "http",
-    "failures": 2,
-    "last_seen": "2026-09-18T09:20:55.927141"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381186"
   },
   "http://144.124.251.24:10689": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344789"
+    "last_seen": "2026-09-21T09:05:48.381190"
   },
   "http://144.124.251.24:10279": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.308786"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381196"
   },
   "http://144.124.251.24:10658": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.308796"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381201"
   },
   "http://144.124.251.24:10846": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344802"
+    "last_seen": "2026-09-21T09:05:48.381204"
   },
   "socks5://192.111.129.150:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344804"
+    "last_seen": "2026-09-21T09:05:48.381208"
   },
   "socks5://66.42.224.229:41679": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927169"
   },
   "socks5://184.178.172.17:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344814"
+    "last_seen": "2026-09-21T09:05:48.381218"
   },
   "socks5://192.111.137.34:18765": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344817"
+    "last_seen": "2026-09-21T09:05:48.381221"
   },
   "http://176.111.37.5:39811": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344820"
+    "last_seen": "2026-09-21T09:05:48.381225"
   },
   "http://34.88.38.81:9443": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.308886"
   },
   "http://38.194.226.210:999": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.308901"
   },
   "socks5://43.135.176.121:1080": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.308917"
   },
   "http://144.124.251.24:10376": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344837"
+    "last_seen": "2026-09-21T09:05:48.381241"
   },
   "http://144.124.251.24:10566": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344841"
+    "last_seen": "2026-09-21T09:05:48.381244"
   },
   "http://144.124.251.24:11274": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344848"
+    "last_seen": "2026-09-21T09:05:48.381246"
   },
   "http://144.124.251.24:11415": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.308971"
   },
   "socks5://184.181.217.210:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344857"
+    "last_seen": "2026-09-21T09:05:48.381253"
   },
   "http://101.36.112.205:1081": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344862"
+    "last_seen": "2026-09-21T09:05:48.381255"
   },
   "socks5://174.64.199.82:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344867"
+    "last_seen": "2026-09-21T09:05:48.381257"
   },
   "socks5://68.71.240.210:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344870"
+    "last_seen": "2026-09-21T09:05:48.381261"
   },
   "socks5://199.187.210.54:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344873"
+    "last_seen": "2026-09-21T09:05:48.381266"
   },
   "socks5://185.195.71.218:18080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344878"
+    "last_seen": "2026-09-21T09:05:48.381269"
   },
   "socks5://174.77.111.198:49547": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344881"
+    "last_seen": "2026-09-21T09:05:48.381273"
   },
   "http://43.99.60.244:8089": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344885"
+    "last_seen": "2026-09-21T09:05:48.381276"
   },
   "socks5://68.71.242.118:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344888"
+    "last_seen": "2026-09-21T09:05:48.381278"
   },
   "socks5://142.54.235.9:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344894"
+    "last_seen": "2026-09-21T09:05:48.381281"
   },
   "socks5://199.58.185.9:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344898"
+    "last_seen": "2026-09-21T09:05:48.381286"
   },
   "http://189.51.168.164:999": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344900"
+    "last_seen": "2026-09-21T09:05:48.381288"
   },
   "socks5://192.252.208.67:14287": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.309224"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381290"
   },
   "http://65.109.217.164:3128": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927313"
   },
   "socks5://68.71.241.33:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344911"
+    "last_seen": "2026-09-21T09:05:48.381298"
   },
   "socks5://162.253.68.97:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344916"
+    "last_seen": "2026-09-21T09:05:48.381300"
   },
   "socks5://142.54.232.6:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344919"
+    "last_seen": "2026-09-21T09:05:48.381305"
   },
   "socks5://98.178.72.30:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344922"
+    "last_seen": "2026-09-21T09:05:48.381310"
   },
   "socks5://72.214.108.67:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344925"
+    "last_seen": "2026-09-21T09:05:48.381314"
   },
   "http://157.173.115.35:1081": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344928"
+    "last_seen": "2026-09-21T09:05:48.381318"
   },
   "socks5://184.178.172.26:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344931"
+    "last_seen": "2026-09-21T09:05:48.381320"
   },
   "socks5://68.71.245.206:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344937"
+    "last_seen": "2026-09-21T09:05:48.381324"
   },
   "socks5://98.188.47.150:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344940"
+    "last_seen": "2026-09-21T09:05:48.381341"
   },
   "socks5://184.181.217.201:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344945"
+    "last_seen": "2026-09-21T09:05:48.381347"
   },
   "http://43.98.172.166:3128": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.309969"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381352"
   },
   "socks5://184.178.172.11:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344952"
+    "last_seen": "2026-09-21T09:05:48.381357"
   },
   "http://168.144.117.43:3129": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.310022"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381363"
   },
   "http://213.111.146.36:18080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344959"
+    "last_seen": "2026-09-21T09:05:48.381370"
   },
   "socks5://192.252.210.233:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344962"
+    "last_seen": "2026-09-21T09:05:48.381375"
   },
   "socks5://198.8.94.174:39078": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344967"
+    "last_seen": "2026-09-21T09:05:48.381382"
   },
   "socks5://72.205.0.67:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.344970"
+    "last_seen": "2026-09-21T09:05:48.381386"
   },
   "socks5://34.84.162.206:38081": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.310080"
   },
   "socks5://72.205.0.93:4145": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.310129"
   },
   "http://103.172.42.115:1111": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927449"
   },
   "http://5.129.254.154:8888": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345002"
   },
   "socks5://172.86.88.139:1082": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927471"
   },
   "socks5://192.111.129.145:16894": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345019"
+    "last_seen": "2026-09-21T09:05:48.381432"
   },
   "socks5://216.68.128.121:4145": {
     "protocol": "socks5",
-    "failures": 2,
-    "last_seen": "2026-09-18T09:20:55.927480"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381437"
   },
   "socks5://184.182.240.12:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345039"
+    "last_seen": "2026-09-21T09:05:48.381441"
   },
   "socks5://199.102.107.145:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345054"
+    "last_seen": "2026-09-21T09:05:48.381448"
   },
   "socks5://45.194.33.12:30001": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345060"
+    "last_seen": "2026-09-21T09:05:48.381455"
   },
   "http://153.51.201.35:999": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345081"
+    "last_seen": "2026-09-21T09:05:48.381459"
   },
   "http://172.104.56.95:8888": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927537"
   },
   "socks5://142.54.228.193:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345096"
+    "last_seen": "2026-09-21T09:05:48.381472"
   },
   "socks5://195.135.255.98:1080": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.310387"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381477"
   },
   "socks5://72.223.188.92:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345114"
+    "last_seen": "2026-09-21T09:05:48.381485"
   },
   "http://194.31.108.109:2080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345117"
+    "last_seen": "2026-09-21T09:05:48.381493"
   },
   "socks5://103.189.218.76:6969": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927568"
   },
   "http://47.91.104.88:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345132"
+    "last_seen": "2026-09-21T09:05:48.381509"
   },
   "http://129.226.206.61:80": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345135"
+    "last_seen": "2026-09-21T09:05:48.381513"
   },
   "socks5://72.37.217.3:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345140"
+    "last_seen": "2026-09-21T09:05:48.381517"
   },
   "socks5://172.86.88.139:1081": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927588"
   },
   "socks5://104.128.138.101:1088": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927610"
   },
   "socks5://109.172.55.177:1082": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.310597"
   },
   "socks5://45.194.33.12:30002": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345187"
+    "last_seen": "2026-09-21T09:05:48.381547"
   },
   "socks5://72.37.216.68:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345191"
+    "last_seen": "2026-09-21T09:05:48.381554"
   },
   "socks5://45.40.136.39:45741": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345201"
   },
   "socks5://184.182.240.211:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345206"
+    "last_seen": "2026-09-21T09:05:48.381570"
   },
   "http://43.156.199.63:8081": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.310677"
   },
   "socks5://69.61.200.104:36181": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345218"
+    "last_seen": "2026-09-21T09:05:48.381581"
   },
   "socks5://34.220.80.147:12345": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927652"
   },
   "http://43.156.199.63:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345260"
   },
   "http://74.50.211.190:8080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927686"
   },
   "socks5://150.136.58.221:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927689"
   },
   "http://188.132.249.157:8080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927692"
   },
   "socks5://5.161.115.244:1080": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.310780"
   },
   "http://172.210.12.8:3128": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.310788"
   },
   "socks5://178.150.77.204:10801": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.310794"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381616"
   },
   "http://103.79.238.227:8080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927702"
   },
   "http://172.232.236.77:8888": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927705"
   },
   "socks5://103.163.244.106:1080": {
     "protocol": "socks5",
-    "failures": 2,
-    "last_seen": "2026-09-18T09:20:55.927707"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381629"
   },
   "socks5://72.255.38.180:1080": {
     "protocol": "socks5",
-    "failures": 2,
-    "last_seen": "2026-09-18T09:20:55.927709"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381633"
   },
   "socks5://129.146.30.123:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927712"
   },
   "http://203.76.117.226:8118": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.310841"
   },
   "socks5://103.206.68.241:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927718"
   },
   "socks5://47.251.127.154:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345326"
   },
   "http://103.176.96.218:8080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927726"
   },
   "socks5://89.111.170.4:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927729"
   },
   "http://85.85.187.31:8080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927731"
   },
   "http://202.5.47.60:1080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927733"
   },
   "http://85.112.65.130:8080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927735"
   },
   "socks5://47.252.47.39:1080": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.310899"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381675"
   },
   "http://144.126.137.165:1080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345376"
+    "last_seen": "2026-09-21T09:05:48.381679"
   },
   "http://91.203.61.52:6789": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927744"
   },
   "socks5://144.91.111.48:1088": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.310922"
   },
   "socks5://223.25.110.37:8199": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927749"
   },
   "http://43.160.255.142:7890": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927751"
   },
   "http://27.147.168.150:8158": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.310945"
   },
   "socks5://103.75.118.84:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345417"
+    "last_seen": "2026-09-21T09:05:48.381710"
   },
   "socks5://152.228.134.176:48080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345421"
   },
   "socks5://43.160.255.142:7890": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927761"
   },
   "http://195.26.243.76:3128": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927763"
   },
   "http://62.193.104.26:1981": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927765"
   },
   "socks5://103.75.197.9:1080": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.310992"
   },
   "socks5://192.111.139.163:19404": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345443"
+    "last_seen": "2026-09-21T09:05:48.381734"
   },
   "socks5://113.176.118.150:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927772"
   },
   "socks5://172.86.88.139:1083": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927777"
   },
   "http://95.215.161.153:8080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927780"
   },
   "http://103.175.202.165:8090": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927782"
   },
   "socks5://31.47.103.207:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927784"
   },
   "socks5://80.65.21.57:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927786"
   },
   "socks5://85.192.2.50:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927789"
   },
   "socks5://82.202.163.222:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927791"
   },
   "socks5://47.85.37.60:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345482"
   },
   "socks5://185.225.42.91:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927795"
   },
   "http://218.102.111.110:1080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927797"
   },
   "http://16.79.71.2:8888": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927802"
   },
   "socks5://172.86.88.139:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927805"
   },
   "socks5://46.8.126.205:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927809"
   },
   "socks5://103.162.30.189:10808": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927812"
   },
   "socks5://202.79.27.12:1080": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311168"
   },
   "socks5://109.206.143.77:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345518"
   },
   "http://45.174.243.232:999": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927819"
   },
   "http://209.97.149.157:80": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927821"
   },
   "socks5://212.46.215.90:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927824"
   },
   "socks5://194.190.80.36:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927826"
   },
   "http://102.207.191.161:8081": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927828"
   },
   "socks5://213.171.212.110:8989": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927830"
   },
   "http://135.181.116.225:3001": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927832"
   },
   "socks5://84.42.19.54:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927834"
   },
   "http://102.216.85.18:8080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927836"
   },
   "http://49.145.189.114:8081": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927838"
   },
   "http://103.79.183.133:8080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927841"
   },
   "http://181.119.67.73:999": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927843"
   },
   "socks5://94.228.240.23:1080": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311287"
   },
   "http://35.194.4.51:3128": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927847"
   },
   "http://164.52.11.194:18080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311304"
   },
   "http://165.101.25.186:8080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927852"
   },
   "socks5://85.142.124.27:1080": {
     "protocol": "socks5",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927855"
   },
   "http://73.162.86.230:8194": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311324"
   },
   "socks5://67.201.59.70:4145": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345605"
+    "last_seen": "2026-09-21T09:05:48.381887"
   },
   "http://178.236.16.4:8888": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927861"
   },
   "http://49.145.62.154:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311344"
   },
   "http://139.162.89.198:3128": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927866"
   },
   "http://146.190.60.147:8003": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927868"
   },
   "http://49.147.109.196:8082": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311365"
   },
   "http://160.19.146.220:2022": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345631"
   },
   "http://94.102.193.91:8080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927876"
   },
   "socks5://185.179.188.54:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345639"
   },
   "http://35.207.219.84:8899": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927883"
   },
   "http://103.31.135.214:8080": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927885"
   },
   "http://144.124.251.24:10226": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.311413"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381937"
   },
   "http://144.124.251.24:10818": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345658"
   },
   "http://91.233.223.147:3128": {
     "protocol": "http",
-    "failures": 2,
-    "last_seen": "2026-09-18T09:20:55.927892"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.381945"
   },
   "http://140.238.32.108:3128": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927893"
   },
   "http://24.55.20.6:3030": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927896"
   },
   "http://43.156.153.104:8081": {
     "protocol": "http",
-    "failures": 2,
+    "failures": 3,
     "last_seen": "2026-09-18T09:20:55.927899"
   },
   "socks5://43.160.245.155:8080": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311494"
   },
   "http://144.79.180.37:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311513"
   },
   "http://103.76.108.249:3125": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311525"
   },
   "socks5://67.207.92.87:1088": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345690"
+    "last_seen": "2026-09-21T09:05:48.381972"
   },
   "http://103.28.112.246:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311535"
   },
   "http://200.31.12.189:999": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311541"
   },
   "http://45.43.60.220:8080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345701"
+    "last_seen": "2026-09-21T09:05:48.381984"
   },
   "http://103.154.231.61:8090": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311552"
   },
   "http://171.5.187.180:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311556"
   },
   "http://128.140.113.110:8081": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345715"
   },
   "http://144.124.251.24:10811": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345718"
+    "last_seen": "2026-09-21T09:05:48.382001"
   },
   "http://119.93.153.10:8087": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311576"
   },
   "socks5://152.53.183.107:8081": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345727"
+    "last_seen": "2026-09-21T09:05:48.382010"
   },
   "http://38.180.95.216:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345731"
   },
   "socks5://176.37.107.86:11111": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.311602"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382016"
   },
   "http://144.124.251.24:10333": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.311609"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382020"
   },
   "http://144.124.251.24:10007": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.311615"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382024"
   },
   "socks5://195.19.50.226:1080": {
     "protocol": "socks5",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.311620"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382028"
   },
   "http://223.207.98.219:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311625"
   },
   "http://45.194.90.194:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311632"
   },
   "socks5://160.22.200.60:69": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311637"
   },
   "http://43.134.230.44:8081": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311644"
   },
   "http://103.227.187.23:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311649"
   },
   "http://194.87.187.145:8118": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311656"
   },
   "http://2.26.89.85:3128": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311660"
   },
   "socks5://18.222.132.180:17973": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311665"
   },
   "http://180.194.83.62:8082": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311674"
   },
   "http://138.2.12.69:21080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311681"
   },
   "http://167.71.233.240:3129": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345799"
+    "last_seen": "2026-09-21T09:05:48.382071"
   },
   "http://110.139.17.247:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311693"
   },
   "socks5://37.232.218.12:1080": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311698"
   },
   "socks5://54.67.110.244:42363": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311702"
   },
   "http://144.124.251.24:10366": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345815"
+    "last_seen": "2026-09-21T09:05:48.382086"
   },
   "socks5://15.223.218.32:2074": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311711"
   },
   "socks5://208.102.51.6:58208": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345824"
+    "last_seen": "2026-09-21T09:05:48.382110"
   },
   "http://103.165.157.241:8090": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311727"
   },
   "socks5://18.231.126.121:19050": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311731"
   },
   "http://124.156.194.52:8081": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345837"
   },
   "http://45.194.91.166:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311743"
   },
   "http://51.170.133.249:80": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345843"
+    "last_seen": "2026-09-21T09:05:48.382130"
   },
   "http://43.163.7.224:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311755"
   },
   "http://144.124.251.24:10372": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345852"
+    "last_seen": "2026-09-21T09:05:48.382137"
   },
   "http://43.156.174.122:8080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345857"
+    "last_seen": "2026-09-21T09:05:48.382140"
   },
   "http://43.156.248.220:80": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345861"
+    "last_seen": "2026-09-21T09:05:48.382143"
   },
   "http://54.205.1.212:3128": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311782"
   },
   "http://43.156.120.151:80": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345869"
+    "last_seen": "2026-09-21T09:05:48.382149"
   },
   "http://43.163.124.191:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345872"
   },
   "socks5://18.132.38.209:5300": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311801"
   },
   "http://43.156.166.134:8080": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.311811"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382162"
   },
   "http://102.0.36.166:3128": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311819"
   },
   "http://103.156.17.125:8818": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311826"
   },
   "http://144.124.251.24:10117": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345892"
+    "last_seen": "2026-09-21T09:05:48.382176"
   },
   "http://178.17.48.189:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311840"
   },
   "http://43.163.78.54:3128": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311855"
   },
   "http://191.44.127.94:8080": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.311863"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382189"
   },
   "http://103.166.0.25:1111": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311869"
   },
   "http://43.134.16.198:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311874"
   },
   "socks5://18.191.250.90:25964": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311883"
   },
   "http://5.129.249.123:61925": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311889"
   },
   "http://5.129.254.60:8888": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.311895"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382208"
   },
   "http://43.134.17.145:8080": {
     "protocol": "http",
-    "failures": 1,
-    "last_seen": "2026-09-19T09:04:36.311900"
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382212"
   },
   "http://87.236.167.19:808": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311908"
   },
   "socks5://15.217.107.97:9150": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311916"
   },
   "http://27.147.138.166:8158": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311921"
   },
   "socks5://84.42.63.113:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345946"
   },
   "socks5://43.216.197.62:34340": {
     "protocol": "socks5",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311937"
   },
   "http://223.204.50.245:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311945"
   },
   "http://131.222.244.16:8080": {
     "protocol": "http",
-    "failures": 1,
+    "failures": 2,
     "last_seen": "2026-09-19T09:04:36.311950"
   },
   "http://108.61.160.231:1080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345966"
   },
   "http://103.247.13.192:1111": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345969"
   },
   "socks5://38.190.208.53:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345971"
+    "last_seen": "2026-09-21T09:05:48.382251"
   },
   "http://103.147.134.121:3125": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345974"
+    "last_seen": "2026-09-21T09:05:48.382255"
   },
   "socks5://188.128.86.74:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345976"
   },
   "http://193.33.157.18:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345978"
   },
   "http://49.0.26.97:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345980"
   },
   "http://43.128.76.140:8081": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345983"
+    "last_seen": "2026-09-21T09:05:48.382270"
   },
   "socks5://176.124.205.244:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345985"
   },
   "http://178.92.72.194:8080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345988"
+    "last_seen": "2026-09-21T09:05:48.382279"
   },
   "http://151.158.121.73:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345991"
   },
   "http://103.102.14.48:1111": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345994"
   },
   "http://47.254.36.25:11080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.345996"
   },
   "http://152.53.183.107:8081": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.345998"
+    "last_seen": "2026-09-21T09:05:48.382296"
   },
   "socks5://141.148.206.170:1088": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346001"
+    "last_seen": "2026-09-21T09:05:48.382299"
   },
   "http://188.132.222.142:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346003"
   },
   "http://103.180.123.103:8090": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346005"
   },
   "http://217.142.24.106:8085": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346007"
   },
   "http://43.242.241.47:8080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346008"
+    "last_seen": "2026-09-21T09:05:48.382319"
   },
   "socks5://172.86.88.139:1088": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346010"
   },
   "http://178.92.72.78:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346013"
   },
   "http://160.250.6.18:8082": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346015"
+    "last_seen": "2026-09-21T09:05:48.382332"
   },
   "socks5://116.118.147.196:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346017"
+    "last_seen": "2026-09-21T09:05:48.382338"
   },
   "http://103.17.215.9:8089": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346019"
   },
   "http://160.19.146.128:2022": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346021"
   },
   "http://43.156.40.114:8081": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346024"
+    "last_seen": "2026-09-21T09:05:48.382351"
   },
   "http://58.147.186.218:8081": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346026"
   },
   "socks5://62.152.37.189:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346029"
   },
   "socks5://150.109.247.86:8443": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346030"
+    "last_seen": "2026-09-21T09:05:48.382362"
   },
   "socks5://43.159.139.115:32080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346032"
   },
   "http://102.208.228.90:8080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346034"
+    "last_seen": "2026-09-21T09:05:48.382369"
   },
   "http://205.164.192.115:999": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346037"
   },
   "http://178.92.72.129:8080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346039"
+    "last_seen": "2026-09-21T09:05:48.382375"
   },
   "socks5://47.254.36.25:11080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346041"
+    "last_seen": "2026-09-21T09:05:48.382380"
   },
   "socks5://130.17.13.182:8080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346043"
   },
   "socks5://108.61.160.231:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346045"
   },
   "http://185.200.188.234:10001": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346047"
+    "last_seen": "2026-09-21T09:05:48.382394"
   },
   "http://27.147.177.74:8158": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346049"
   },
   "http://84.0.153.71:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346052"
   },
   "http://43.157.98.90:8080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346054"
+    "last_seen": "2026-09-21T09:05:48.382405"
   },
   "socks5://213.67.114.78:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346055"
   },
   "socks5://46.8.31.104:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346058"
   },
   "http://197.248.16.109:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346060"
   },
   "socks5://117.244.114.54:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346062"
+    "last_seen": "2026-09-21T09:05:48.382421"
   },
   "socks5://2.56.108.184:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346064"
   },
   "socks5://188.168.51.56:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346066"
   },
   "http://196.61.42.26:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346069"
+    "last_seen": "2026-09-21T09:05:48.382432"
   },
   "socks5://203.91.76.32:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346071"
   },
   "http://178.92.72.94:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346074"
   },
   "socks5://195.9.192.50:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346077"
   },
   "http://220.128.223.136:8085": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346079"
   },
   "socks5://62.245.48.172:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346081"
   },
   "http://59.153.83.186:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346083"
   },
   "http://38.226.49.202:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346086"
   },
   "socks5://109.123.251.109:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346096"
+    "last_seen": "2026-09-21T09:05:48.382466"
   },
   "http://116.204.166.148:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346099"
   },
   "http://178.92.72.162:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346100"
   },
   "http://90.161.220.67:3128": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346103"
   },
   "http://41.209.57.199:80": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346106"
   },
   "http://188.132.221.186:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346108"
   },
   "http://178.92.72.229:8080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346110"
+    "last_seen": "2026-09-21T09:05:48.382489"
   },
   "http://210.211.113.36:80": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346113"
   },
   "http://95.153.31.228:3128": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346115"
   },
   "http://167.172.84.23:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346118"
+    "last_seen": "2026-09-21T09:05:48.382499"
   },
   "http://34.84.162.206:38080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346120"
+    "last_seen": "2026-09-21T09:05:48.382502"
   },
   "http://203.177.217.222:8082": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346123"
+    "last_seen": "2026-09-21T09:05:48.382506"
   },
   "http://43.159.54.178:80": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346125"
+    "last_seen": "2026-09-21T09:05:48.382509"
   },
   "http://178.92.72.134:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346128"
   },
   "http://103.255.146.238:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346130"
   },
   "socks5://68.183.116.10:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346132"
   },
   "http://112.205.37.114:8085": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346134"
   },
   "http://49.146.155.183:8082": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346136"
   },
   "http://103.153.142.18:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346138"
   },
   "http://186.180.66.138:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346140"
   },
   "http://58.69.179.40:8085": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346142"
   },
   "socks5://124.248.177.44:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346145"
   },
   "http://191.44.71.238:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346146"
   },
   "socks5://92.60.91.130:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346150"
+    "last_seen": "2026-09-21T09:05:48.382552"
   },
   "http://146.190.60.147:8002": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346152"
+    "last_seen": "2026-09-21T09:05:48.382557"
   },
   "http://5.129.254.51:8888": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346154"
+    "last_seen": "2026-09-21T09:05:48.382560"
   },
   "http://177.139.174.81:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346156"
   },
   "socks5://160.25.83.52:1083": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346158"
   },
   "socks5://95.31.40.173:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346161"
   },
   "socks5://89.189.132.154:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346163"
+    "last_seen": "2026-09-21T09:05:48.382576"
   },
   "http://152.70.198.2:1080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346166"
   },
   "http://178.92.72.54:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346168"
   },
   "http://152.228.134.176:48080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346170"
   },
   "socks5://5.45.119.70:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346173"
   },
   "http://126.209.49.150:8082": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346175"
   },
   "http://113.23.230.90:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346177"
   },
   "socks5://83.147.217.103:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346180"
+    "last_seen": "2026-09-21T09:05:48.382604"
   },
   "socks5://182.163.96.66:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346182"
   },
   "http://178.92.72.149:8080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346184"
+    "last_seen": "2026-09-21T09:05:48.382611"
   },
   "socks5://217.12.209.4:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346187"
   },
   "socks5://91.107.122.209:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346189"
+    "last_seen": "2026-09-21T09:05:48.382620"
   },
   "http://161.248.171.25:8585": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346191"
   },
   "http://103.191.165.140:8081": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346193"
   },
   "http://179.1.221.26:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346195"
+    "last_seen": "2026-09-21T09:05:48.382631"
   },
   "http://43.159.139.115:32080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346197"
   },
   "socks5://171.33.246.100:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346200"
   },
   "socks5://150.241.70.126:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346202"
   },
   "http://144.124.251.24:10164": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346204"
+    "last_seen": "2026-09-21T09:05:48.382646"
   },
   "http://144.124.251.24:10008": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346206"
+    "last_seen": "2026-09-21T09:05:48.382649"
   },
   "socks5://101.36.104.46:10808": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346208"
+    "last_seen": "2026-09-21T09:05:48.382652"
   },
   "http://64.188.71.169:3128": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346210"
   },
   "socks5://109.123.240.32:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346212"
+    "last_seen": "2026-09-21T09:05:48.382658"
   },
   "http://171.4.176.16:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346215"
   },
   "socks5://91.151.195.138:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346218"
   },
   "socks5://181.94.197.37:13049": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346220"
   },
   "http://178.92.72.68:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346222"
   },
   "http://117.236.124.166:3128": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346229"
   },
   "http://219.94.75.224:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346232"
   },
   "http://195.19.217.200:3128": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346235"
+    "last_seen": "2026-09-21T09:05:48.382687"
   },
   "http://91.210.25.75:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346236"
   },
   "socks5://78.109.137.53:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346239"
+    "last_seen": "2026-09-21T09:05:48.382695"
   },
   "socks5://85.94.21.103:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346241"
   },
   "http://103.130.61.61:8081": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346243"
+    "last_seen": "2026-09-21T09:05:48.382703"
   },
   "socks5://216.173.68.250:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346246"
+    "last_seen": "2026-09-21T09:05:48.382706"
   },
   "socks5://103.231.172.117:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346248"
   },
   "socks5://20.83.154.79:7070": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346254"
   },
   "http://49.146.164.100:5050": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346256"
   },
   "http://190.121.157.41:999": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346258"
   },
   "http://89.251.21.147:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346261"
   },
   "http://165.101.26.18:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346263"
   },
   "http://122.53.48.41:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346266"
   },
   "http://102.66.8.18:9999": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346268"
   },
   "http://203.150.113.171:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346270"
   },
   "http://68.183.88.189:3129": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346273"
+    "last_seen": "2026-09-21T09:05:48.382746"
   },
   "socks5://66.97.37.159:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346275"
   },
   "socks5://178.92.72.205:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346276"
+    "last_seen": "2026-09-21T09:05:48.382755"
   },
   "http://103.156.75.243:3125": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346278"
   },
   "http://115.187.29.25:89": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346280"
   },
   "socks5://140.82.16.82:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346282"
   },
   "http://218.102.111.110:1081": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346284"
   },
   "http://38.7.22.165:999": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346287"
   },
   "socks5://144.31.255.9:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346289"
   },
   "http://112.216.54.226:12121": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346291"
   },
   "http://43.134.79.76:8081": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346293"
   },
   "socks5://194.87.200.213:1080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346295"
   },
   "http://58.69.124.137:8080": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346297"
+    "last_seen": "2026-09-21T09:05:48.382796"
   },
   "http://95.153.31.226:3128": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346299"
   },
   "socks5://109.73.181.233:7080": {
     "protocol": "socks5",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346301"
   },
   "http://62.90.73.225:3128": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346304"
   },
   "http://197.248.164.161:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346306"
   },
   "socks5://185.87.255.54:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346308"
+    "last_seen": "2026-09-21T09:05:48.382817"
   },
   "socks5://85.190.106.223:1080": {
     "protocol": "socks5",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346310"
+    "last_seen": "2026-09-21T09:05:48.382819"
   },
   "http://189.193.225.86:999": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346312"
   },
   "http://95.214.123.141:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346314"
   },
   "http://113.161.93.6:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346317"
   },
   "http://187.190.127.212:8081": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346320"
   },
   "http://142.93.216.52:3129": {
     "protocol": "http",
     "failures": 0,
-    "last_seen": "2026-09-20T09:31:30.346322"
+    "last_seen": "2026-09-21T09:05:48.382839"
   },
   "http://178.92.72.73:8080": {
     "protocol": "http",
-    "failures": 0,
+    "failures": 1,
     "last_seen": "2026-09-20T09:31:30.346324"
+  },
+  "socks5://140.238.28.230:10808": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382850"
+  },
+  "http://103.97.140.52:1111": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382858"
+  },
+  "http://64.227.162.18:3129": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382862"
+  },
+  "http://43.156.236.238:80": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382863"
+  },
+  "socks5://178.236.16.4:1080": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382866"
+  },
+  "http://157.20.121.37:1080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382870"
+  },
+  "http://176.88.166.219:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382873"
+  },
+  "http://31.135.214.17:8026": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382874"
+  },
+  "socks5://213.32.70.99:3128": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382877"
+  },
+  "http://213.32.70.99:3128": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382879"
+  },
+  "socks5://47.254.122.220:5443": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382881"
+  },
+  "http://47.254.122.220:5443": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382883"
+  },
+  "http://5.129.249.123:1080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382886"
+  },
+  "http://5.129.254.70:8888": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382888"
+  },
+  "socks5://83.237.214.70:1080": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382896"
+  },
+  "http://43.156.114.4:80": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382899"
+  },
+  "http://43.134.186.82:8081": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382901"
+  },
+  "socks5://103.191.218.119:69": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382903"
+  },
+  "http://101.255.117.138:2020": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382905"
+  },
+  "http://119.93.30.233:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382907"
+  },
+  "socks5://45.11.56.70:2080": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382911"
+  },
+  "http://158.101.89.163:3123": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382914"
+  },
+  "http://103.147.135.19:8082": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382918"
+  },
+  "http://14.225.68.207:1337": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382920"
+  },
+  "http://167.86.104.220:80": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382923"
+  },
+  "socks5://14.225.68.207:1337": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382926"
+  },
+  "http://102.208.228.90:3128": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382928"
+  },
+  "http://45.174.243.160:999": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382931"
+  },
+  "socks5://163.47.37.190:1080": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382933"
+  },
+  "http://186.146.183.8:999": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382935"
+  },
+  "http://41.78.170.178:8040": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382940"
+  },
+  "http://185.118.51.230:3128": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382942"
+  },
+  "http://124.217.108.12:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382944"
+  },
+  "socks5://149.248.21.106:8080": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382947"
+  },
+  "http://159.65.233.169:54321": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382950"
+  },
+  "http://161.118.152.153:8118": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382952"
+  },
+  "socks5://165.154.20.187:10808": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382956"
+  },
+  "http://119.28.156.42:3128": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382959"
+  },
+  "socks5://185.228.89.74:1080": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382962"
+  },
+  "socks5://195.98.82.63:1080": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382965"
+  },
+  "http://111.90.188.156:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382968"
+  },
+  "http://185.109.244.69:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382972"
+  },
+  "socks5://91.144.170.116:1080": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382974"
+  },
+  "http://78.155.67.224:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382978"
+  },
+  "http://223.25.110.76:3125": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382980"
+  },
+  "http://177.193.203.146:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382985"
+  },
+  "http://45.174.77.224:999": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382987"
+  },
+  "http://52.140.40.92:80": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382989"
+  },
+  "http://45.174.242.142:999": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382991"
+  },
+  "http://37.187.109.70:10111": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382993"
+  },
+  "http://43.156.237.221:80": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382995"
+  },
+  "http://171.244.199.151:1337": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.382998"
+  },
+  "http://178.92.72.154:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383000"
+  },
+  "http://45.133.251.223:3128": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383003"
+  },
+  "http://220.128.223.136:8084": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383005"
+  },
+  "socks5://151.243.196.252:1081": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383006"
+  },
+  "socks5://101.36.112.205:1081": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383008"
+  },
+  "http://45.7.64.8:999": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383011"
+  },
+  "http://123.253.4.50:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383013"
+  },
+  "http://122.52.185.85:8082": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383015"
+  },
+  "http://193.43.140.222:7890": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383028"
+  },
+  "http://89.43.135.182:8085": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383030"
+  },
+  "http://181.78.73.117:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383032"
+  },
+  "socks5://31.220.40.59:5080": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383035"
+  },
+  "http://210.211.113.33:80": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383037"
+  },
+  "http://103.103.145.13:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383040"
+  },
+  "http://167.99.8.113:8007": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383042"
+  },
+  "socks5://130.255.94.32:5080": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383045"
+  },
+  "http://49.48.81.71:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383047"
+  },
+  "http://182.253.109.234:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383050"
+  },
+  "http://8.220.189.51:8118": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383052"
+  },
+  "http://192.42.85.14:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383054"
+  },
+  "socks5://185.133.239.244:16299": {
+    "protocol": "socks5",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383056"
+  },
+  "http://43.134.186.82:8080": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383058"
+  },
+  "http://108.165.233.48:1020": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383060"
+  },
+  "http://49.145.55.76:5050": {
+    "protocol": "http",
+    "failures": 0,
+    "last_seen": "2026-09-21T09:05:48.383063"
   }
 }
