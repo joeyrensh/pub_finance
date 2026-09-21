@@ -929,22 +929,24 @@ class BacktestPage:
                 df["_order"] = df["symbol"].map(sym_order)
                 df = df.sort_values("_order").dropna(subset=["symbol"])
 
-                # 4. 构造纯 Markdown 文本
-                parts = []
+                # 构造标准 Markdown 表格
+                table_lines = [
+                    "| Symbol/Name | Sector | MCap | PE |",
+                    "| :--- | :--- | :---: | :---: |"
+                ]
+
                 for _, row in df.iterrows():
                     sym = row["symbol"]
                     name = row.get("name", "-") if pd.notna(row.get("name")) else "-"
                     industry = row.get("industry", "-") if pd.notna(row.get("industry")) else "-"
                     sector = row.get("sector", "-") if pd.notna(row.get("sector")) else "-"
                     
-                    # PE 取整处理
                     pe_raw = row.get("pe")
                     try:
                         pe_str = f"{int(round(float(pe_raw)))}" if pd.notna(pe_raw) else "-"
                     except (ValueError, TypeError):
                         pe_str = "-"
 
-                    # 市值（total_value）转换为“亿/万”单位
                     val_raw = row.get("total_value")
                     try:
                         val_num = float(val_raw)
@@ -952,18 +954,17 @@ class BacktestPage:
                     except (ValueError, TypeError):
                         val_str = "-"
 
-                    category_str = f"{sector}-{industry}" if sector != "-" else industry
+                    category_str = f"{sector}-**{industry}**" if sector != "-" else industry
 
-                    item_md = (
-                        f"{sym} / **{name}** / Sec: **{category_str}** / MCap: **{val_str}** / PE: **{pe_str}**"
-                    )
-                    parts.append(item_md)
+                    code_name = f"{sym} **{name}**"
+                    
+                    row_md = f"| {code_name} | {category_str} | **{val_str}** | **{pe_str}** |"
+                    table_lines.append(row_md)
 
-                if not parts:
+                if len(table_lines) <= 2:
                     return "No information found for the given symbols."
 
-                # 5. 用 3 个不间断空格（&nbsp;）做股票间的间隔，无连接符自然换行
-                return "\n".join(parts)
+                return "\n".join(table_lines)
 
             except Exception as e:
                 print(f"Error updating stock summary: {e}")

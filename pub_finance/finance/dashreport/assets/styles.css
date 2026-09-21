@@ -1143,10 +1143,45 @@ a:active { color: var(--text-color); text-decoration: underline; }
     align-content: center;
     font-weight: 300;
 }
-.symbol_summary_box strong,
-.symbol_summary_box b {
-    font-weight: 500 !important;
+/* 1. 表格主体与行容器：清空背景和外框 */
+.symbol_summary_box table,
+.symbol_summary_box table tr {
+    background-color: transparent !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
+
+/* 2. 单元格：保留底部分割线与右侧竖向分割线 */
+.symbol_summary_box table th,
+.symbol_summary_box table td {
+    color: var(--text-color) !important;
+    border: none !important; /* 先清空 4 周边框 */
+    border-bottom: 0.5px solid var(--gridcolor) !important; /* 底部横线 */
+    border-right: 0.5px solid var(--gridcolor) !important;  /* 右侧竖线 */
+    text-align: left !important;
+    padding: 0 0 0 2px !important;
+}
+
+.symbol_summary_box table th {
+    font-weight: 300 !important;
+}
+.symbol_summary_box table td {
+    font-weight: 350 !important;
+}
+
+/* 3. 取消最后一列的右边框（消除最右侧外竖线） */
+.symbol_summary_box table th:last-child,
+.symbol_summary_box table td:last-child {
+    border-right: none !important;
+}
+
+/* 4. 取消最后一行的底边框（消除最下侧外横线） */
+.symbol_summary_box table tr:last-child td {
+    border-bottom: none !important;
+}
+
 
 
 /* --- 权重滑块核心美化 (RC-Slider) --- */
