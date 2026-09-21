@@ -388,6 +388,7 @@ td, th {
   text-align: left;
   border-spacing: 0 !important;
   border-collapse: separate !important;
+  padding: 0 2px !important;
 }
 
 td {
