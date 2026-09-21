@@ -53,11 +53,8 @@ def format_proxy_url(proxy_str: str) -> str:
 class StockActionsFetcher:
     """中美股及 ETF 除权分红数据批量抓取器
 
-    - 支持定时任务：跨天自动重置 Checkpoint 开启新一轮全量刷新，同天崩溃支持断点续传
     - 支持 CN 增量更新模式：利用东财筛选接口提取近 1~2 周有除权的动态标的，毫秒级更新
-    - 美股仅支持全量抓取模式：读取本地 stock_*.csv 匹配全部标的
-    - 安全文件轮换：数据实时写入带日期文件，完成后原文件备份为 .bak 并顺次重命名
-    - 统一中美股 split_ratio 语义：无拆分时均为 1.0，1拆N 时为 N.0
+    - 支持 US 增量更新模式：利用 yf.download 分批拉取行情并在内存中实时过滤除权 Symbol，用完即销毁 DataFrame，零磁盘开销且极省内存
     """
 
     CSV_HEADERS = ["symbol", "date", "dividend", "split_ratio"]
@@ -75,7 +72,7 @@ class StockActionsFetcher:
         start_date: Optional[str] = "2025-01-01",  # 格式: YYYY-MM-DD
         force_refresh: bool = False,  # 是否强制重置 Checkpoint 重新抓取
         symbol_list: Optional[List[str]] = None,  # 支持指定 symbol_list
-        incremental: bool = False,  # 是否开启增量更新模式 (仅 CN 生效)
+        incremental: bool = False,  # 是否开启增量更新模式 (CN/US 均生效)
         lookback_period: str = "1w",  # 增量更新回溯周期 ('1w', '2w', '3w', '1m')
     ):
         self.market = market.lower()
@@ -84,8 +81,7 @@ class StockActionsFetcher:
 
         self.force_refresh = force_refresh
         self.symbol_list = symbol_list
-        # 仅 CN 市场允许启用增量更新
-        self.incremental = incremental if self.market == "cn" else False
+        self.incremental = incremental
         self.lookback_period = lookback_period.lower()
 
         # 1. 目录及路径定位
@@ -154,7 +150,7 @@ class StockActionsFetcher:
         elif self.lookback_period == "1m":
             delta = datetime.timedelta(days=30)
         else:
-            delta = datetime.timedelta(days=14)  # 默认 2 周冗余
+            delta = datetime.timedelta(days=14)
         return (now - delta).strftime("%Y-%m-%d")
 
     def _get_latest_stock_info_file(self) -> Path:
@@ -200,7 +196,7 @@ class StockActionsFetcher:
     def _load_checkpoint(self) -> Set[str]:
         if self.force_refresh or self.incremental:
             if self.incremental:
-                logger.info("⚡ [CN 增量模式] 不加载历史 Checkpoint，直接执行增量刷新。")
+                logger.info(f"⚡ [{self.market.upper()} 增量模式] 不加载历史 Checkpoint，直接执行增量刷新。")
             else:
                 logger.info("⚡ [定时全量模式] 已开启 force_refresh，清空旧 Checkpoint。")
             self._clear_checkpoint()
@@ -343,16 +339,13 @@ class StockActionsFetcher:
             return sorted(list(set(stocks))), sorted(list(set(etfs)))
 
         if self.incremental:
-            # 1. 股票增量：直接调东财接口获取区间有除权事件的股票
             inc_stocks = self.get_cn_stock_symbols_with_actions(self.start_date, self.end_date)
 
-            # 为新找出的 code 补全默认的 cn_symbol_map 前缀映射
             for clean_code in inc_stocks:
                 if clean_code not in self.cn_symbol_map:
                     prefix = "SH" if clean_code.startswith("6") else "SZ"
                     self.cn_symbol_map[clean_code] = f"{prefix}{clean_code}"
 
-            # 2. ETF 保持全量 fund_fh_em，由 fetch_actions_for_etfs 进行时间过滤
             stocks, etfs = [], []
             if self.stock_list_path.exists():
                 df = pd.read_csv(self.stock_list_path, dtype=str)
@@ -366,7 +359,6 @@ class StockActionsFetcher:
 
             return sorted(list(inc_stocks)), sorted(list(set(etfs)))
 
-        # 全量模式
         stocks, etfs = [], []
         for clean_code, raw_sym in self.cn_symbol_map.items():
             if raw_sym.upper().startswith("ETF"):
@@ -519,28 +511,134 @@ class StockActionsFetcher:
 
         return records
 
-    # ==================== US 符号加载与获取 (全量/按传入 Symbol 模式) ====================
-    def load_us_symbols(self) -> List[str]:
-        """载入待处理的美股 Symbol 列表（仅全量或从传入的 symbol_list 获取）"""
-        if self.symbol_list is not None:
-            return sorted(list(set(str(s).strip().upper() for s in self.symbol_list)))
-
-        if not self.stock_list_path.exists():
-            return []
-
-        df = pd.read_csv(self.stock_list_path)
-        target_col = "symbol" if "symbol" in df.columns else "Symbol"
-        return (
-            df[target_col]
-            .dropna()
-            .astype(str)
-            .str.strip()
-            .str.upper()
-            .unique()
-            .tolist()
+    # ==================== US 矩阵分批下载与内存筛选 (大 Batch 低内存版) ====================
+    def _scan_us_symbols_with_actions(self, all_us_symbols: List[str]) -> Set[str]:
+        """利用大 Batch (500) + yf.download 原生并发，极省内存且大幅提升速度"""
+        total_symbols_count = len(all_us_symbols)
+        logger.info(
+            f"⚡ [US 矩阵扫描] 开始分批下载历史数据筛选除权标的，总数: {total_symbols_count} 只，"
+            f"窗口: [{self.start_date} ~ {self.end_date}]"
         )
 
+        # 1. 代理设置
+        if not self.current_working_proxy:
+            self.current_working_proxy = self.proxy_manager.get_working_proxy(
+                max_retries=2, enable_proxy=True
+            )
+            if not self.current_working_proxy:
+                self.current_working_proxy = self.proxy_manager.get_next_proxy()
+
+        proxy_dict = self.current_working_proxy
+        raw_proxy = (
+            (proxy_dict.get("socks5") or proxy_dict.get("https") or proxy_dict.get("http"))
+            if proxy_dict else None
+        )
+        proxy_str = format_proxy_url(raw_proxy) if raw_proxy else None
+
+        if proxy_str:
+            os.environ["HTTP_PROXY"] = proxy_str
+            os.environ["HTTPS_PROXY"] = proxy_str
+
+        target_symbols: Set[str] = set()
+
+        # 2. 将 Batch Size 提升至 500 (10,000 只股票仅需 20 次请求)
+        chunk_batch_size = 500
+        total_batches = (total_symbols_count + chunk_batch_size - 1) // chunk_batch_size
+
+        try:
+            for idx in range(total_batches):
+                batch = all_us_symbols[idx * chunk_batch_size : (idx + 1) * chunk_batch_size]
+                batch_hits = 0
+
+                scanned_so_far = min((idx + 1) * chunk_batch_size, total_symbols_count)
+                scan_progress_pct = (scanned_so_far / total_symbols_count) * 100
+
+                logger.info(
+                    f"📥 [US 下载进度] 正在下载 Batch [{idx + 1}/{total_batches}] "
+                    f"({len(batch)} 只) | 总体进度: {scanned_so_far}/{total_symbols_count} ({scan_progress_pct:.2f}%)"
+                )
+
+                try:
+                    # threads=True 会在底层利用轻量并发解析 HTTP 数据，速度极快
+                    df = yf.download(
+                        batch,
+                        start=self.start_date,
+                        end=self.end_date,
+                        actions=True,
+                        progress=False,
+                        group_by="ticker",
+                        threads=True,  # 开启原生内部并发
+                    )
+
+                    if df is not None and not df.empty:
+                        if len(batch) == 1:
+                            sym = batch[0]
+                            has_div = "Dividends" in df.columns and (df["Dividends"] > 0).any()
+                            has_split = "Stock Splits" in df.columns and (df["Stock Splits"] != 0).any()
+                            if has_div or has_split:
+                                target_symbols.add(sym)
+                                batch_hits += 1
+                        else:
+                            for sym in batch:
+                                if hasattr(df.columns, "levels") and sym in df.columns.levels[0]:
+                                    sub_df = df[sym]
+                                    has_div = "Dividends" in sub_df.columns and (sub_df["Dividends"] > 0).any()
+                                    has_split = "Stock Splits" in sub_df.columns and (sub_df["Stock Splits"] != 0).any()
+                                    if has_div or has_split:
+                                        target_symbols.add(sym)
+                                        batch_hits += 1
+
+                except Exception as b_err:
+                    logger.warning(f"Batch [{idx + 1}/{total_batches}] yf.download 失败: {b_err}")
+
+                finally:
+                    # 关键：销毁当前 Batch 的大 DataFrame 释放内存
+                    if 'df' in locals():
+                        del df
+                    gc.collect()
+
+                logger.info(
+                    f"🔍 [US 矩阵扫描] Batch [{idx + 1}/{total_batches}] 完成，"
+                    f"本批命中: {batch_hits} 只，累计除权标的: {len(target_symbols)} 只"
+                )
+
+        finally:
+            os.environ.pop("HTTP_PROXY", None)
+            os.environ.pop("HTTPS_PROXY", None)
+
+        return target_symbols
+
+    def load_us_symbols(self) -> List[str]:
+        """载入待处理的美股 Symbol 列表"""
+        # 1. 从文件中获取全量 symbol list
+        if self.symbol_list is not None:
+            all_symbols = sorted(list(set(str(s).strip().upper() for s in self.symbol_list)))
+        elif not self.stock_list_path.exists():
+            all_symbols = []
+        else:
+            df = pd.read_csv(self.stock_list_path)
+            target_col = "symbol" if "symbol" in df.columns else "Symbol"
+            all_symbols = (
+                df[target_col]
+                .dropna()
+                .astype(str)
+                .str.strip()
+                .str.upper()
+                .unique()
+                .tolist()
+            )
+
+        if not all_symbols:
+            return []
+
+        # 2. 批量拉取 lookback_period 内的历史数据，纯内存中高效筛选
+        target_symbols = self._scan_us_symbols_with_actions(all_symbols)
+
+        logger.info(f"🎯 最终筛选出发生过除权/拆股的标的共: {len(target_symbols)} 只")
+        return sorted(list(target_symbols))
+
     def fetch_actions_for_us_stock(self, symbol: str) -> List[Dict]:
+        """请求筛选出的 symbol 的 ticker.actions，进行增量更新"""
         os.environ.setdefault("CURL_CA_BUNDLE", "")
         os.environ.setdefault("SSL_CERT_FILE", "")
 
@@ -658,8 +756,6 @@ class StockActionsFetcher:
                 self._save_checkpoint()
                 logger.info("✅ ETF 阶段完成！相关 Checkpoint 已落盘更新。")
                 gc.collect()
-            elif etf_list:
-                logger.info("所有 ETF 均已在 Checkpoint 记录中，跳过 ETF 处理。")
 
             all_symbols = all_stocks
             fetch_func = self.fetch_actions_for_cn_stock
