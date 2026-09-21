@@ -1137,7 +1137,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   color: #ffffff !important;
 }
 
-.symbol_summary_box{
+.symbol_summary_box {
     min-height: 45px;
     line-height: 1.6;
     border: 1px solid var(--gridcolor);
@@ -1145,47 +1145,48 @@ a:active { color: var(--text-color); text-decoration: underline; }
     align-content: center;
     font-weight: 300;
 }
-/* 1. 表格主体与行容器：清空背景和外框 */
+
+/* 清空原有的内部 table 样式开销 */
 .symbol_summary_box table,
 .symbol_summary_box table tr {
-    background-color: transparent !important;
     background: transparent !important;
     border: none !important;
-    outline: none !important;
     box-shadow: none !important;
+    width: 100%;
 }
 
-/* 2. 单元格：保留底部分割线与右侧竖向分割线 */
+/* 单元格基础样式：只有右竖线，没有下横线 */
 .symbol_summary_box table th,
 .symbol_summary_box table td {
     color: var(--text-color) !important;
-    border: none !important; /* 先清空 4 周边框 */
-    border-bottom: 1px solid var(--gridcolor) !important; /* 底部横线 */
-    border-right: 1px solid var(--gridcolor) !important;  /* 右侧竖线 */
+    border: none !important;
+    border-right: 1px solid var(--gridcolor) !important;
     text-align: left !important;
-    padding: 0 2px 0 2px !important;
+    padding: 0px 2px !important;
     white-space: nowrap !important;
 }
 
 .symbol_summary_box table th {
     font-weight: 300 !important;
+    border-bottom: 1px solid var(--gridcolor) !important; /* 表头下保留横线 */
 }
+
 .symbol_summary_box table td {
     font-weight: 350 !important;
 }
 
-/* 3. 取消最后一列的右边框（消除最右侧外竖线） */
-.symbol_summary_box table th:nth-child(1),
-.symbol_summary_box table td:nth-child(1) {
-    width: 40% !important;
+/* 核心：只在 Sector 组末尾（sector-group-end）添加下横线 */
+.symbol_summary_box table tr.sector-group-end td {
+    border-bottom: 1px solid var(--gridcolor) !important;
 }
 
+/* 消除最右边框 */
 .symbol_summary_box table th:last-child,
 .symbol_summary_box table td:last-child {
     border-right: none !important;
 }
 
-/* 4. 取消最后一行的底边框（消除最下侧外横线） */
+/* 消除最后一行下边框防止重叠 */
 .symbol_summary_box table tr:last-child td {
     border-bottom: none !important;
 }

@@ -923,30 +923,59 @@ class BacktestPage:
                     df_latest = pd.read_csv(f_latest, usecols=cols_to_read, dtype=str)
                     df_latest = df_latest[df_latest["symbol"].isin(stock_list)]
 
-                # 3. 合并数据并按输入顺序排序
+                # 3. 合并数据
                 df = pd.merge(df_industry, df_latest, on="symbol", how="outer")
-                sym_order = {sym: i for i, sym in enumerate(stock_list)}
-                df["_order"] = df["symbol"].map(sym_order)
-                df = df.sort_values("_order").dropna(subset=["symbol"])
+                df = df.dropna(subset=["symbol"]).copy()
 
-                # 构造标准 Markdown 表格
-                table_lines = [
-                    "| Symbol/Name | Sector | MCap | PE |",
-                    "| :--- | :--- | :---: | :---: |"
+                # 补全缺失值方便排序
+                df["sector"] = df["sector"].fillna("-")
+                df["industry"] = df["industry"].fillna("-")
+                
+                # 转换 PE 为数值辅助排序 (把无法转为 float 的或 NaN 设置为无穷大 inf，排在最后)
+                def parse_pe_num(val):
+                    try:
+                        num = float(val)
+                        return num if not np.isnan(num) else float('inf')
+                    except (ValueError, TypeError):
+                        return float('inf')
+
+                df["_pe_num"] = df["pe"].apply(parse_pe_num)
+
+                # ---------------- 先按 Sector 分组，组内按 PE 升序 ----------------
+                df["_sector_sort"] = df["sector"].apply(lambda x: "zzz" if x == "-" else x)
+                df = df.sort_values(by=["_sector_sort", "_pe_num"], ascending=[True, True])
+
+                if df.empty:
+                    return "No information found for the given symbols."
+
+                # 4. 生成纯 HTML 字符串给 dcc.Markdown 渲染
+                df_list = df.to_dict("records")
+                total_rows = len(df_list)
+
+                html_lines = [
+                    '<table class="custom-symbol-table">',
+                    '  <thead>',
+                    '    <tr>',
+                    '      <th>Symbol/Name</th>',
+                    '      <th>Sector</th>',
+                    '      <th style="text-align:center;">MCap</th>',
+                    '      <th style="text-align:center;">PE</th>',
+                    '    </tr>',
+                    '  </thead>',
+                    '  <tbody>'
                 ]
 
-                for _, row in df.iterrows():
+                for i, row in enumerate(df_list):
                     sym = row["symbol"]
                     name = row.get("name", "-") if pd.notna(row.get("name")) else "-"
                     industry = row.get("industry", "-") if pd.notna(row.get("industry")) else "-"
                     sector = row.get("sector", "-") if pd.notna(row.get("sector")) else "-"
                     
-                    pe_raw = row.get("pe")
-                    try:
-                        pe_str = f"{int(round(float(pe_raw)))}" if pd.notna(pe_raw) else "-"
-                    except (ValueError, TypeError):
-                        pe_str = "-"
+                    # PE 格式化
+                    pe_num = row["_pe_num"]
+                    pe_str = f"{int(round(pe_num))}" if pe_num != float('inf') else "-"
 
+                    # 市值格式化
                     val_raw = row.get("total_value")
                     try:
                         val_num = float(val_raw)
@@ -954,17 +983,26 @@ class BacktestPage:
                     except (ValueError, TypeError):
                         val_str = "-"
 
-                    category_str = f"{sector}-**{industry}**" if sector != "-" else industry
+                    cat_str = f"{sector}-<b>{industry}</b>" if sector != "-" else f"<b>{industry}</b>"
 
-                    code_name = f"{sym} **{name}**"
-                    
-                    row_md = f"| {code_name} | {category_str} | **{val_str}** | **{pe_str}** |"
-                    table_lines.append(row_md)
+                    # 判断是否是当前 Sector 的最后一行，用来打标记画分割线
+                    is_group_end = (i == total_rows - 1) or (df_list[i + 1]["sector"] != sector)
+                    tr_class = ' class="sector-group-end"' if is_group_end else ''
 
-                if len(table_lines) <= 2:
-                    return "No information found for the given symbols."
+                    row_html = (
+                        f'    <tr{tr_class}>'
+                        f'<td>{sym} <b>{name}</b></td>'
+                        f'<td>{cat_str}</td>'
+                        f'<td style="text-align:center;"><b>{val_str}</b></td>'
+                        f'<td style="text-align:center;"><b>{pe_str}</b></td>'
+                        f'</tr>'
+                    )
+                    html_lines.append(row_html)
 
-                return "\n".join(table_lines)
+                html_lines.append('  </tbody>')
+                html_lines.append('</table>')
+
+                return "\n".join(html_lines)
 
             except Exception as e:
                 print(f"Error updating stock summary: {e}")
