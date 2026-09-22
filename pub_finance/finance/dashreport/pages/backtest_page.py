@@ -978,8 +978,8 @@ class BacktestPage:
                     '    <tr>',
                     '      <th>Symbol/Name</th>',
                     '      <th>Sector</th>',
-                    '      <th style="text-align:left;">MCap</th>',
-                    '      <th style="text-align:left;">PE</th>',
+                    '      <th>MCap</th>',
+                    '      <th>PE</th>',
                     '    </tr>',
                     '  </thead>',
                     '  <tbody>'
@@ -1011,10 +1011,10 @@ class BacktestPage:
 
                     row_html = (
                         f'    <tr{tr_class}>'
-                        f'<td>{sym}/<b>{name}</b></td>'
+                        f'<td>{sym}-<b>{name}</b></td>'
                         f'<td>{cat_str}</td>'
-                        f'<td style="text-align:left;"><b>{val_str}</b></td>'
-                        f'<td style="text-align:left;"><b>{pe_str}</b></td>'
+                        f'<td><b>{val_str}</b></td>'
+                        f'<td><b>{pe_str}</b></td>'
                         f'</tr>'
                     )
                     html_lines.append(row_html)
