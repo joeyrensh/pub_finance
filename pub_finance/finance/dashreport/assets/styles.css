@@ -1167,13 +1167,14 @@ a:active { color: var(--text-color); text-decoration: underline; }
 }
 
 .symbol_summary_box table th {
-    /* font-weight: 300 !important; */
+    font-weight: 500 !important;
     border-bottom: 1px solid var(--gridcolor) !important; /* 表头下保留横线 */
 }
 
-/* .symbol_summary_box table td {
-    font-weight: 350 !important;
-} */
+.symbol_summary_box table b
+{
+    font-weight: 400 !important;
+}
 
 .symbol_summary_box table th:nth-child(1),
 .symbol_summary_box table td:nth-child(1) {
