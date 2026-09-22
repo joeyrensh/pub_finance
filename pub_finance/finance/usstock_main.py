@@ -123,10 +123,18 @@ if __name__ == "__main__":
       default=False,
       help="是否强制运行回测策略（默认不强制）",
   )
+  parser.add_argument(
+      "--trade-date-offset",
+      type=int,
+      default=0,
+      help="交易日偏移量，0表示取当前交易日，1表示T-1，2表示T-2（默认0）",
+  )
   args = parser.parse_args()
 
   """美股交易日期 utc-4"""
-  trade_date = ToolKit("获取最新交易日").get_us_latest_trade_date(0)
+  trade_date = ToolKit("获取最新交易日").get_us_latest_trade_date(
+      args.trade_date_offset
+  )
 
   """ 非交易日程序终止运行 """
   if ToolKit("判断是否休市").is_us_trade_date(trade_date):
