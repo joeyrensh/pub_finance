@@ -33,7 +33,7 @@ task_state["error"] = None
 
 # ---------- 统一排序工具函数 ----------
 def sort_symbols_by_sector_pe(symbol_list, market, date_str):
-    """按 Sector 字母序 + 组内 PE 升序统一对股票列表排序"""
+    """按 Sector 字母序 + Industry 字母序 + 组内 PE 升序统一对股票列表排序"""
     if not symbol_list:
         return []
 
@@ -44,20 +44,29 @@ def sort_symbols_by_sector_pe(symbol_list, market, date_str):
         except Exception:
             dt = ""
 
-    # 1. 读取 Sector 信息
+    # 1. 读取 Sector 和 Industry 信息
     f_industry = FINANCE_ROOT / (
         "cnstockinfo/industry.csv" if market == "cn" else "usstockinfo/industry.csv"
     )
     sector_dict = {}
+    industry_dict = {}
     if f_industry.exists():
         try:
             cols_to_read = ["symbol"]
             temp_df = pd.read_csv(f_industry, nrows=1)
+            
+            # 检查并添加需要读取的列
             if "sector" in temp_df.columns:
                 cols_to_read.append("sector")
+            if "industry" in temp_df.columns:
+                cols_to_read.append("industry")
+                
             df_ind = pd.read_csv(f_industry, usecols=cols_to_read, dtype=str)
+            
             if "sector" in df_ind.columns:
                 sector_dict = df_ind.set_index("symbol")["sector"].to_dict()
+            if "industry" in df_ind.columns:
+                industry_dict = df_ind.set_index("symbol")["industry"].to_dict()
         except Exception as e:
             print(f"Failed to load industry file for sorting: {e}")
 
@@ -86,13 +95,21 @@ def sort_symbols_by_sector_pe(symbol_list, market, date_str):
         except Exception as e:
             print(f"Failed to load stock file for sorting: {e}")
 
-    # 3. 构造排序 key
+    # 3. 构造三元组排序 key: (sector, industry, pe)
     def sort_key(sym):
+        # 处理 Sector
         sector = sector_dict.get(sym)
         sector_str = "zzz" if (not sector or pd.isna(sector) or sector == "-") else str(sector)
+        
+        # 处理 Industry
+        industry = industry_dict.get(sym)
+        industry_str = "zzz" if (not industry or pd.isna(industry) or industry == "-") else str(industry)
+        
+        # 处理 PE
         pe = pe_dict.get(sym)
         pe_num = pe if pe is not None else float("inf")
-        return (sector_str, pe_num)
+        
+        return (sector_str, industry_str, pe_num)
 
     return sorted(symbol_list, key=sort_key)
 
@@ -963,7 +980,8 @@ class BacktestPage:
 
                 # ---------------- 先按 Sector 分组，组内按 PE 升序 ----------------
                 df["_sector_sort"] = df["sector"].apply(lambda x: "zzz" if x == "-" else x)
-                df = df.sort_values(by=["_sector_sort", "_pe_num"], ascending=[True, True])
+                df["_industry_sort"] = df["industry"].apply(lambda x: "zzz" if x == "-" else x)
+                df = df.sort_values(by=["_sector_sort", "_industry_sort", "_pe_num"], ascending=[True, True, True])
 
                 if df.empty:
                     return "No information found for the given symbols."
