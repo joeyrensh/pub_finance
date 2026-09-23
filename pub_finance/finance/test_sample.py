@@ -19,4 +19,4 @@ from finance.utility.stock_analysis_simplify import StockProposal
 from finance.utility.toolkit import ToolKit
 
 em = EMWebCrawlerUti()
-em.get_daily_gz_info("cn", '20260923')
+em.get_daily_gz_info("us", '20260922')
