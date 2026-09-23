@@ -920,11 +920,80 @@ class TickerInfo:
         return pd.DataFrame(data) if data else pd.DataFrame(columns=["date", "new"])
 
 
-    def get_history_data_fqt(self, is_etf: bool = False) -> pd.DataFrame:
+    def _prepare_etf_actions(
+        self, df_actions: pd.DataFrame, df_kline: pd.DataFrame
+    ) -> pd.DataFrame:
+        """专用于 ETF 的因子表转换逻辑 (零 Datetime 转换，极致性能版)
+
+        1. 仅送转：日期推迟至下一个交易日 (T+1)
+        2. 既送转又分红：拆分为 T 日（仅分红）与 T+1 日（仅送转）
         """
-        计算前复权历史数据 (对齐美股/A股券商APP及Yahoo Finance官方标准)
-        支持: 多次拆股、合股(Reverse Split)、现金分红、组合事件、ETF特殊送转推迟
-        性能: 纯向量化矩阵运算，精准内存管控，极致降低 Peak Memory
+        mask_has_split = (
+            (df_actions["split_ratio"].notna())
+            & (df_actions["split_ratio"] != 1.0)
+            & (df_actions["split_ratio"] != 0.0)
+        )
+        if not mask_has_split.any():
+            return df_actions
+
+        # 1. 在 K 线数据上抽取 (symbol, date) -> next_date 映射表 (极轻量操作，不拷贝 K 线大列)
+        df_dates = df_kline[["symbol", "date"]].drop_duplicates().copy()
+        df_dates["next_date"] = df_dates.groupby("symbol")["date"].shift(-1)
+
+        # 构建高效率 Lookup 字典: (symbol, date) -> next_date
+        next_date_map = df_dates.set_index(["symbol", "date"])[
+            "next_date"
+        ].to_dict()
+        del df_dates
+
+        # 2. 分离普通事件与包含送转/拆股的事件
+        df_normal = df_actions[~mask_has_split].copy()
+        df_splits = df_actions[mask_has_split].copy()
+
+        # 3. 查表匹配 T+1 交易日
+        lookup_keys = list(zip(df_splits["symbol"], df_splits["date"]))
+        df_splits["next_date"] = [next_date_map.get(k) for k in lookup_keys]
+
+        # 4. 处理无 T+1 交易日（事件发生于最新交易日）的边缘情况：自然日 +1 天
+        invalid_mask = df_splits["next_date"].isna()
+        if invalid_mask.any():
+            fallback_dates = pd.to_datetime(
+                df_splits.loc[invalid_mask, "date"]
+            ) + pd.Timedelta(days=1)
+            df_splits.loc[invalid_mask, "next_date"] = (
+                fallback_dates.dt.strftime("%Y-%m-%d")
+            )
+
+        mask_combo = df_splits["dividend"] > 0  # 既送转又分红
+
+        # 5. 轻量三路拆分与重组
+        # Part A: 纯送转 -> 日期调整为 T+1 (next_date)
+        df_pure_splits = df_splits[~mask_combo].copy()
+        df_pure_splits["date"] = df_pure_splits["next_date"]
+        df_pure_splits.drop(columns=["next_date"], inplace=True)
+
+        # Part B: 组合事件 T 日 -> 保留分红，split_ratio 重置为 1.0
+        df_combo_t = df_splits[mask_combo].copy()
+        df_combo_t["split_ratio"] = 1.0
+        df_combo_t.drop(columns=["next_date"], inplace=True)
+
+        # Part C: 组合事件 T+1 日 -> 日期为 T+1，dividend 清零
+        df_combo_t1 = df_splits[mask_combo].copy()
+        df_combo_t1["date"] = df_combo_t1["next_date"]
+        df_combo_t1["dividend"] = 0.0
+        df_combo_t1.drop(columns=["next_date"], inplace=True)
+
+        # 拼合所有预处理后的事件
+        return pd.concat(
+            [df_normal, df_pure_splits, df_combo_t, df_combo_t1],
+            ignore_index=True,
+        )
+
+    def get_history_data_fqt(self, is_etf: bool = False) -> pd.DataFrame:
+        """计算前复权历史数据 (对齐美股/A股券商APP及Yahoo Finance官方标准)
+
+        支持: 多次拆股、合股(Reverse Split)、现金分红、组合事件、ETF特殊送转推迟 性能:
+        纯向量化矩阵运算，精准内存管控，极致降低 Peak Memory
         """
         df = self.get_history_data()
         if df.empty:
@@ -936,14 +1005,16 @@ class TickerInfo:
 
         # 1. 提取当前标的的除权事件 (优化：仅过滤 target_symbols 涉及的数据)
         target_symbols = set(df["symbol"].unique())
-        
+
         df_actions_all = pd.read_csv(
-            actions_file, 
+            actions_file,
             usecols=["symbol", "date", "dividend", "split_ratio"],
-            dtype={"symbol": str, "date": str}
+            dtype={"symbol": str, "date": str},
         )
-        
-        df_actions = df_actions_all[df_actions_all["symbol"].isin(target_symbols)].copy()
+
+        df_actions = df_actions_all[
+            df_actions_all["symbol"].isin(target_symbols)
+        ].copy()
         del df_actions_all  # 显式释放全量除权表内存
 
         if df_actions.empty:
@@ -956,85 +1027,16 @@ class TickerInfo:
 
         # ==================== ETF 组合事件特殊向量化拆分 ====================
         if is_etf and not df_actions.empty:
-            mask_has_split = (
-                (df_actions["split_ratio"].notna()) & 
-                (df_actions["split_ratio"] != 1.0) & 
-                (df_actions["split_ratio"] != 0.0)
-            )
-
-            if mask_has_split.any():
-                # 提取无拆股的普通事件（如纯分红派息，保持T日不动）
-                df_normal = df_actions[~mask_has_split].copy()
-                
-                # 提取涉及拆股/送转的事件
-                df_splits = df_actions[mask_has_split].copy()
-
-                # 构建全局 K 线交易日的 next_date (T+1) 映射表
-                df_dates = df[["symbol", "date"]].drop_duplicates().copy()
-                df_dates["next_date"] = df_dates.groupby("symbol")["date"].shift(-1)
-
-                # 按 date 排序以满足 merge_asof 依赖条件
-                df_splits.sort_values("date", inplace=True)
-                df_dates.sort_values("date", inplace=True)
-
-                # merge_asof 向前向量化匹配，获取拆股事件对应的下一个交易日(T+1)
-                merged_splits = pd.merge_asof(
-                    df_splits,
-                    df_dates,
-                    on="date",
-                    by="symbol",
-                    direction="forward"
-                )
-
-                # 区分【只送转】与【既送转又分红】
-                mask_combo = merged_splits["dividend"] > 0  # 既送转又分红
-
-                # -------------------------------------------------------------
-                # 修复点：处理无 T+1 交易日（事件发生于最新交易日）的边缘情况
-                # 若 next_date 为空，说明该事件发生在已有 K 线的最后一天，
-                # 此时应将其递延至自然日的下一天 (T + 1 Calendar Day)
-                # -------------------------------------------------------------
-                invalid_next_mask = merged_splits["next_date"].isna()
-                if invalid_next_mask.any():
-                    fallback_dates = pd.to_datetime(merged_splits.loc[invalid_next_mask, "date"]) + pd.Timedelta(days=1)
-                    merged_splits.loc[invalid_next_mask, "next_date"] = fallback_dates.dt.strftime("%Y-%m-%d")
-
-                # 拆分集合 1：处理纯送转 (日期调整为 T+1，保留原 dividend 和 split_ratio)
-                df_pure_splits = merged_splits[~mask_combo].copy()
-                df_pure_splits["date"] = df_pure_splits["next_date"]
-                df_pure_splits.drop(columns=["next_date"], inplace=True)
-
-                # 拆分集合 2：处理组合事件中的 T 日部分 (保留原日期 T，记录分红，split_ratio 重置为 1.0)
-                df_combo_t = merged_splits[mask_combo].copy()
-                df_combo_t["split_ratio"] = 1.0
-                df_combo_t.drop(columns=["next_date"], inplace=True)
-
-                # 拆分集合 3：处理组合事件中的 T+1 日新增送转部分 (日期为 T+1，dividend 清零，保留原 split_ratio)
-                df_combo_t1 = merged_splits[mask_combo].copy()
-                df_combo_t1["date"] = df_combo_t1["next_date"]
-                df_combo_t1["dividend"] = 0.0
-                df_combo_t1.drop(columns=["next_date"], inplace=True)
-
-                # 重新拼合所有事件
-                df_actions = pd.concat(
-                    [df_normal, df_pure_splits, df_combo_t, df_combo_t1], 
-                    ignore_index=True
-                )
-                
-                del (
-                    df_normal, df_splits, df_dates, merged_splits, 
-                    df_pure_splits, df_combo_t, df_combo_t1
-                )
+            df_actions = self._prepare_etf_actions(df_actions, df)
 
         # ==================== 预处理：合并同日多次除权事件 ====================
         if not df_actions.empty:
-            df_actions = (
-                df_actions.groupby(["symbol", "date"], as_index=False)
-                .agg({
-                    "dividend": "sum",       # 同日多次现金分红：累加
-                    "split_ratio": "prod"    # 同日多次拆股/送转：累乘
-                })
-            )
+            df_actions = df_actions.groupby(
+                ["symbol", "date"], as_index=False
+            ).agg({
+                "dividend": "sum",  # 同日多次现金分红：累加
+                "split_ratio": "prod",  # 同日多次拆股/送转：累乘
+            })
 
         if df_actions.empty:
             del df_actions
@@ -1086,11 +1088,9 @@ class TickerInfo:
         # 向量化计算分红比例因子
         div = df["dividend"].values
         prev_p = prev_adjusted_close.values
-        
+
         div_factor = np.where(
-            (div > 0) & (prev_p > 0),
-            (prev_p - div) / prev_p,
-            1.0
+            (div > 0) & (prev_p > 0), (prev_p - div) / prev_p, 1.0
         )
         np.maximum(div_factor, 0.0001, out=div_factor)
 
