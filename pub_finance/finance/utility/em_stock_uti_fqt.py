@@ -9,6 +9,8 @@ import json
 import logging
 import math
 import os
+import glob
+from pathlib import Path
 import random
 import re
 import sys
@@ -449,11 +451,40 @@ class EMWebCrawlerUti:
                     new = row[5]
                     filtered_rows.append([code, name, date, new])
 
-        output_filename = FileInfo(trade_date, market).get_file_path_gz
-        with open(output_filename, mode="w", newline="", encoding="utf-8") as file:
+        # 获取输出文件路径与所在目录
+        output_filepath = Path(FileInfo(trade_date, market).get_file_path_gz)
+        output_dir = output_filepath.parent
+
+        # 1. 写入当日最新数据
+        with open(output_filepath, mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
             writer.writerow(["code", "name", "date", "new"])
             writer.writerows(filtered_rows)
+
+        # 2. 清理历史 gz_*.csv 数据文件（保留最近 10%，清理早期 90%）
+        self._clean_old_gz_files(output_dir)
+
+    def _clean_old_gz_files(self, gz_dir: Path):
+        """扫描 gz_dir 目录下的 gz_*.csv 文件，按日期排序并删除前 90% 的历史文件"""
+        gz_files = sorted(glob.glob(os.path.join(gz_dir, "gz_*.csv")))
+        total_files = len(gz_files)
+
+        if total_files == 0:
+            return
+
+        # 计算待删除的文件数量 (清理前 90%)
+        delete_count = int(total_files * 0.9)
+
+        if delete_count > 0:
+            files_to_delete = gz_files[:delete_count]
+            print(f"🧹 触发历史文件清理: 共发现 {total_files} 个文件，将清理较早的 {delete_count} 个 (90%)...")
+            
+            for file_path in files_to_delete:
+                try:
+                    os.remove(file_path)
+                    print(f"  🗑️ 已删除历史文件: {os.path.basename(file_path)}")
+                except Exception as e:
+                    print(f"  ⚠️ 删除文件失败 {os.path.basename(file_path)}: {e}")
 
     def get_daily_stock_info(self, market, trade_date):
         if self.proxy is None:
