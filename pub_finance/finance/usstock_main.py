@@ -13,9 +13,8 @@ import traceback
 import progressbar
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from finance.uscrawler.ak_incre_crawler import AKUSWebCrawler
+from finance.uscrawler.ak_incre_crawler_sina import AKUSWebCrawler
 from finance.utility.backtrader_exec import BacktraderExec
-from finance.utility.em_stock_uti import EMWebCrawlerUti
 from finance.utility.stock_analysis_simplify import StockProposal
 from finance.utility.toolkit import ToolKit
 
@@ -157,9 +156,6 @@ if __name__ == "__main__":
 
   """ 东方财经爬虫 """
   """ 爬取每日最新股票数据 """
-  # em = EMWebCrawlerUti()
-  # em.get_daily_stock_info("us", trade_date)
-
   # ========== 1. 爬虫流程（根据参数决定是否跳过） ==========
   if args.skip_crawl:
     print("已使用 --skip-crawl 参数，跳过爬虫流程。")

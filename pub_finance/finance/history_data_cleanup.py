@@ -255,7 +255,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--date",
         type=str,
-        default="2024-01-01",
+        default="2025-01-01",
         help="删除早于此日期的数据，格式: YYYY-MM-DD",
     )
     parser.add_argument(

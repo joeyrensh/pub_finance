@@ -26,7 +26,6 @@ from finance.backtraderref.usfixedamount import FixedAmount as usFixedAmount
 from finance.backtraderref.cnfixedamount import FixedAmount as cnFixedAmount
 from matplotlib import rcParams
 import matplotlib.colors as mcolors
-from finance.utility.em_stock_uti import EMWebCrawlerUti
 import numpy as np
 import os
 import pickle

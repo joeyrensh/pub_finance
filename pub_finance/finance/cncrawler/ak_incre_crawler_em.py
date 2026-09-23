@@ -5,7 +5,7 @@ from datetime import datetime
 import os
 from finance.utility.fileinfo import FileInfo
 import akshare as ak
-from finance.utility.em_stock_uti import EMWebCrawlerUti
+from finance.utility.em_stock_uti_fqt import EMWebCrawlerUti
 
 
 class AKCNWebCrawler:

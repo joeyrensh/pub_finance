@@ -14,7 +14,7 @@ import yfinance as yf
 # ========== 1. 项目路径规范导入 ==========
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from finance import FINANCE_ROOT
-from finance.utility.em_stock_uti import EMWebCrawlerUti
+from finance.utility.em_stock_uti_fqt import EMWebCrawlerUti
 from finance.utility.get_proxy import ProxyManager
 from finance.utility.toolkit import ToolKit
 
@@ -141,23 +141,36 @@ def get_industry_info(
 
 
 def get_processed_symbols(output_file: Path) -> set:
-    """读取已处理的股票代码"""
-    processed = set()
-    if output_file.exists():
-        try:
-            with open(output_file, "r", encoding="utf-8-sig") as f:
-                reader = csv.reader(f)
-                next(reader, None)  # 跳过表头
-                for row in reader:
-                    if len(row) >= 2:
-                        processed.add(row[1])
-        except Exception as e:
-            logger.error(f"读取已处理文件失败: {str(e)}")
-    return processed
+    """读取已处理的股票代码，统一清洗空格并转大写"""
+    if not output_file.exists():
+        return set()
+
+    try:
+        df = pd.read_csv(
+            output_file,
+            usecols=["symbol"],
+            on_bad_lines="skip",
+            engine="python",
+            encoding="utf-8-sig",
+        )
+        # 精确读取 symbol 列，统一转为大写字符串集合
+        processed = set(
+            df["symbol"]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .str.upper()
+            .tolist()
+        )
+        logger.info(f"从 {output_file.name} 中成功解析出 {len(processed)} 个已处理代码")
+        return processed
+    except Exception as e:
+        logger.error(f"读取已处理文件失败: {str(e)}")
+        return set()
 
 
 def get_us_stock_symbols(cache_file: Path, output_file: Path) -> list:
-    """获取未处理的美股代码列表（带 CSV 缓存）"""
+    """获取未处理的美股代码列表（兼容 dict 和 str 结构）"""
     processed = get_processed_symbols(output_file)
     trade_date = ToolKit("获取最新交易日").get_us_latest_trade_date(1)
     em = EMWebCrawlerUti()
@@ -169,35 +182,44 @@ def get_us_stock_symbols(cache_file: Path, output_file: Path) -> list:
                 usecols=["symbol"],
                 on_bad_lines="skip",
                 engine="python",
-                encoding="utf-8",
+                encoding="utf-8-sig",
             )
-            stock_list = stock_df["symbol"].tolist()
-            logger.info(f"从缓存文件 {cache_file} 加载股票代码")
+            raw_symbols = stock_df["symbol"].dropna().tolist()
+            logger.info(f"从缓存文件 {cache_file.name} 加载股票代码")
         else:
-            logger.info("未找到缓存文件，开始请求原始数据...")
-            stock_list = em.get_stock_list(
+            logger.info("未找到缓存文件，开始从数据源提取原始数据...")
+            raw_symbols = em.get_stock_list(
                 market="us", trade_date=trade_date, target_file=cache_file
             )
 
-        all_symbols = stock_list
-        logger.info(f"总代码数量：{len(all_symbols)}")
+        # 1. 兼容解析 dict 或 str 类型的 symbol 提取
+        all_symbols = []
+        for item in raw_symbols:
+            if isinstance(item, dict):
+                symbol_str = str(item.get("symbol", "")).strip().upper()
+            elif isinstance(item, str):
+                symbol_str = item.strip().upper()
+            else:
+                continue
 
-        filtered = [
-            s
-            for s in all_symbols
-            if isinstance(s, str) and s.strip() != "" and s not in processed
-        ]
+            if symbol_str:
+                all_symbols.append(symbol_str)
+
+        logger.info(f"解析后的总代码数量：{len(all_symbols)}")
+
+        # 2. 过滤已处理与重复的代码
+        filtered = []
+        seen = set()
+        for s in all_symbols:
+            if s not in processed and s not in seen:
+                filtered.append(s)
+                seen.add(s)
+
         logger.info(f"待处理代码数量：{len(filtered)}")
         return filtered
 
     except Exception as e:
         logger.error(f"股票代码获取失败: {str(e)}")
-        if cache_file.exists():
-            try:
-                os.remove(cache_file)
-                logger.warning(f"已移除损坏的缓存文件 {cache_file}")
-            except Exception as remove_error:
-                logger.error(f"无法移除损坏文件: {str(remove_error)}")
         return []
 
 

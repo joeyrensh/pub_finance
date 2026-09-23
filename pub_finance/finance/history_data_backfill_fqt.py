@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
+import argparse
 import csv
+import datetime
 import glob
 import os
 from pathlib import Path
 import shutil
 import sys
 import tempfile
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Union
 
 import pandas as pd
 from tqdm import tqdm
@@ -20,7 +22,11 @@ from finance.utility.em_stock_uti_fqt import EMWebCrawlerUti
 
 class StockDataUpdater:
     def __init__(
-        self, data_dir: Path, update_cols: List[str], key_cols: List[str] = ["symbol", "date"], batch_size: int = 10000
+        self,
+        data_dir: Path,
+        update_cols: List[str],
+        key_cols: List[str] = ["symbol", "date"],
+        batch_size: int = 10000,
     ):
         """
         指定特定股票进行历史数据回刷，解决不复权/复权纠偏问题
@@ -33,7 +39,7 @@ class StockDataUpdater:
         self.update_cols = update_cols
         self.key_cols = key_cols
         self.batch_size = batch_size
-        
+
         # 排除 .bk 备份文件与 _new.csv 文件
         raw_files = sorted(glob.glob(os.path.join(self.data_dir, "stock_*.csv")))
         self.all_files = [f for f in raw_files if not f.endswith(".bk")]
@@ -45,21 +51,35 @@ class StockDataUpdater:
     def get_latest_stock_file(self) -> Path:
         """获取 data_dir 目录下修改时间最新的 stock_*.csv 文件（排除 _new 和 .bk）"""
         files = [
-            Path(f) for f in self.all_files 
+            Path(f)
+            for f in self.all_files
             if not f.endswith("_new.csv") and not f.endswith(".bk")
         ]
         if not files:
-            raise FileNotFoundError(f"未在目录 {self.data_dir} 下找到任何 stock_*.csv 文件")
+            raise FileNotFoundError(
+                f"未在目录 {self.data_dir} 下找到任何 stock_*.csv 文件"
+            )
         latest_file = max(files, key=lambda f: f.stat().st_mtime)
         print(f"📌 自动从最新数据文件提取 Symbol 列表: {latest_file.name}")
         return latest_file
 
-    def get_symbols_from_latest_file(self) -> List[str]:
-        """从最新的股票数据文件中提取去重后的 Symbol 列表"""
+    def get_etf_market_code(self, symbol: str) -> str:
+        """根据去掉 ETF 前缀后的纯数字 symbol 判定市场代码 (1: 上交所 SH, 0: 深交所 SZ)"""
+        symbol = symbol.strip()
+        if symbol.startswith("5"):
+            return "1"
+        elif symbol.startswith("1"):
+            return "0"
+        else:
+            return "0"
+
+    def get_symbols_from_latest_file(self, market: str = "us") -> List[Dict[str, str]]:
+        """从最新的股票数据文件中提取去重后的 Symbol 记录及其准确的 mkt_code"""
         latest_file = self.get_latest_stock_file()
         df = pd.read_csv(latest_file, usecols=lambda c: c.lower() in ["symbol"])
         col_name = next(c for c in df.columns if c.lower() == "symbol")
-        symbols = (
+
+        unique_symbols = (
             df[col_name]
             .dropna()
             .astype(str)
@@ -68,25 +88,51 @@ class StockDataUpdater:
             .unique()
             .tolist()
         )
-        print(f"✅ 成功从 {latest_file.name} 中提取到 {len(symbols)} 个 Symbol")
-        return sorted(symbols)
 
-    def fetch_yfinance_data(
+        result = []
+        if market == "us":
+            # 美股后续走 yfinance 无需精确 mkt_code，默认初始化为 "0"
+            for sym in sorted(unique_symbols):
+                result.append({"symbol": sym, "mkt_code": "0"})
+
+        elif market == "cn":
+            # A 股根据 Symbol 前缀解析 mkt_code
+            for sym in sorted(unique_symbols):
+                actual_mkt_code = "0"
+                if sym.startswith("SH"):
+                    actual_mkt_code = "1"
+                elif sym.startswith("SZ"):
+                    actual_mkt_code = "0"
+                elif sym.startswith("ETF"):
+                    raw_code = sym[3:]  # 去掉 ETF 前缀
+                    actual_mkt_code = self.get_etf_market_code(raw_code)
+
+                result.append({"symbol": sym, "mkt_code": str(actual_mkt_code)})
+
+        print(
+            f"✅ 成功从 {latest_file.name} 提取并还原了 {len(result)} 个 Symbol 记录"
+        )
+        return result
+
+    def fetch_market_data(
         self,
-        symbols: List[str],
+        symbol_items: List[Dict[str, str]],
         start_date: str,
         end_date: str,
         new_data_path: Path,
+        market: str = "us",
         max_retries: int = 3,
-        symbol_batch_size: int = 100,  # 每抓取 100 只股票追加写入一次 CSV
+        symbol_batch_size: int = 100,
     ):
-        """使用 yfinance 方法按批次（Batch）拉取不复权历史数据，支持分批低内存检查与断点续抓"""
+        """根据 market 参数分流抓取逻辑：'us' 走 yfinance (海外 Proxy)，'cn' 走东财接口 (国内 Proxy)"""
         em = EMWebCrawlerUti()
-
         fetched_symbols: Set[str] = set()
-        
+
+        # 检查是否存在已抓取的断点缓存文件
         if new_data_path.exists() and new_data_path.stat().st_size > 0:
-            print(f"🔍 检测到已存在缓存文件 {new_data_path.name}，正在分批扫描已抓取的 Symbol...")
+            print(
+                f"🔍 检测到已存在缓存文件 {new_data_path.name}，正在分批扫描已抓取的 Symbol..."
+            )
             try:
                 for chunk in pd.read_csv(
                     new_data_path,
@@ -96,78 +142,113 @@ class StockDataUpdater:
                 ):
                     col_name = next(c for c in chunk.columns if c.lower() == "symbol")
                     unique_in_chunk = (
-                        chunk[col_name]
-                        .dropna()
-                        .str.strip()
-                        .str.upper()
-                        .unique()
+                        chunk[col_name].dropna().str.strip().str.upper().unique()
                     )
                     fetched_symbols.update(unique_in_chunk)
 
-                print(f"✅ 成功提取到已完成的 {len(fetched_symbols)} 个 Symbol，将自动启用断点续抓。")
+                print(
+                    f"✅ 成功提取到已完成的 {len(fetched_symbols)} 个 Symbol，自动启用断点续抓。"
+                )
             except Exception as e:
                 print(f"⚠️ 解析缓存文件失败 ({e})，将重置临时文件并重新抓取。")
                 new_data_path.unlink()
                 fetched_symbols.clear()
 
-        is_first_write = not (new_data_path.exists() and new_data_path.stat().st_size > 0)
-        remaining_symbols = [s for s in symbols if s.upper() not in fetched_symbols]
-        skipped_count = len(symbols) - len(remaining_symbols)
+        is_first_write = not (
+            new_data_path.exists() and new_data_path.stat().st_size > 0
+        )
+        remaining_items = [
+            item
+            for item in symbol_items
+            if item["symbol"].upper() not in fetched_symbols
+        ]
+        skipped_count = len(symbol_items) - len(remaining_items)
 
         if skipped_count > 0:
-            print(f"⏭️ 自动跳过已抓取的 {skipped_count} 个 Symbol，剩余 {len(remaining_symbols)} 个 Symbol 待抓取。")
+            print(
+                f"⏭️ 自动跳过已抓取的 {skipped_count} 个 Symbol，剩余 {len(remaining_items)} 个 Symbol 待抓取。"
+            )
 
-        if not remaining_symbols:
-            print(f"🎉 所有 {len(symbols)} 个 Symbol 均已抓取完毕，跳过 API 请求流程。")
+        if not remaining_items:
+            print(
+                f"🎉 所有 {len(symbol_items)} 个 Symbol 均已抓取完毕，跳过数据请求流程。"
+            )
             return
 
-        print(f"🚀 开始通过 yfinance 分批抓取历史数据 ({start_date} ~ {end_date})...")
+        print(
+            f"🚀 开始抓取 [{market.upper()}] 历史数据 ({start_date} ~ {end_date})..."
+        )
 
         batch_buffer = []
         total_fetched_count = 0
-        total_remaining = len(remaining_symbols)
+        total_remaining = len(remaining_items)
 
-        for idx, symbol in enumerate(remaining_symbols, 1):
+        for idx, item in enumerate(remaining_items, 1):
+            symbol = item["symbol"]
+            mkt_code = int(item.get("mkt_code", "0"))
             symbol_data = None
+
             for retry in range(max_retries):
                 try:
-                    symbol_data = em.get_us_his_stock_info_yf(
-                        symbol=symbol,
-                        start_date=start_date,
-                        end_date=end_date,
-                        cache_path=None,
-                    )
+                    if market == "us":
+                        # 美股使用 yfinance (海外 Proxy)
+                        symbol_data = em.get_us_his_stock_info_yf(
+                            symbol=symbol,
+                            start_date=start_date,
+                            end_date=end_date,
+                            cache_path=None,
+                        )
+                    elif market == "cn":
+                        # A 股使用已判定的精确 mkt_code 调用东财 API (国内 Proxy)
+                        symbol_data = em.get_his_stock_info(
+                            mkt_code=mkt_code,
+                            symbol=symbol,
+                            start_date=start_date,
+                            end_date=end_date,
+                            cache_path=None,
+                        )
 
                     if symbol_data:
                         batch_buffer.extend(symbol_data)
-                        print(f"[{idx}/{total_remaining}] Symbol: {symbol} | 成功获取 {len(symbol_data)} 条数据")
+                        print(
+                            f"[{idx}/{total_remaining}] Symbol: {symbol} (mkt_code: {mkt_code}) | 成功获取 {len(symbol_data)} 条数据"
+                        )
                         break
 
-                    print(f"  ⚠️ [Symbol: {symbol}] 数据返回为空，进行第 {retry + 1} 次重试...")
+                    print(
+                        f"  ⚠️ [Symbol: {symbol}] 数据返回为空，进行第 {retry + 1} 次重试..."
+                    )
                 except Exception as e:
-                    print(f"  ❌ [Symbol: {symbol}] 请求异常: {e}，进行第 {retry + 1} 次重试...")
+                    print(
+                        f"  ❌ [Symbol: {symbol}] 请求异常: {e}，进行第 {retry + 1} 次重试..."
+                    )
 
+            # 分批保存，降低内存消耗并防跌落
             if len(batch_buffer) >= symbol_batch_size or idx == total_remaining:
                 if batch_buffer:
                     df_batch = pd.DataFrame(batch_buffer)
-                    
+
                     required_cols = set(self.key_cols + self.update_cols)
                     missing_cols = required_cols - set(df_batch.columns)
                     if missing_cols:
-                        raise ValueError(f"抓取的数据缺少以下必要字段: {missing_cols}")
+                        raise ValueError(
+                            f"抓取的数据缺少以下必要字段: {missing_cols}"
+                        )
 
                     df_batch.to_csv(
                         new_data_path,
                         mode="a",
                         index=False,
                         header=is_first_write,
-                        encoding="utf-8"
+                        encoding="utf-8",
                     )
-                    
+
                     total_fetched_count += len(batch_buffer)
                     is_first_write = False
                     batch_buffer.clear()
-                    print(f"💾 [Progress] 已累积追加保存 {total_fetched_count} 条记录至 {new_data_path.name}")
+                    print(
+                        f"💾 [Progress] 已累积追加保存 {total_fetched_count} 条记录至 {new_data_path.name}"
+                    )
 
         if not new_data_path.exists() or new_data_path.stat().st_size == 0:
             raise RuntimeError("未抓取到任何有效数据，终止后续更新流程。")
@@ -198,8 +279,9 @@ class StockDataUpdater:
 
             self._process_single_file(file_path, new_file_path, new_data_dict)
 
-    def _process_single_file(self, input_path: str, output_path: str, new_data_dict: Dict):
-        # 精确读取原始文件的 Header 字符串列表
+    def _process_single_file(
+        self, input_path: str, output_path: str, new_data_dict: Dict
+    ):
         with open(input_path, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             try:
@@ -211,11 +293,15 @@ class StockDataUpdater:
         existing_keys = set()
         file_dates = set()
 
-        # 扫描原有文件 Key 集合
         for chunk in self._read_csv_in_chunks(input_path):
             if chunk is None or chunk.empty:
                 continue
-            keys = set(zip(chunk[self.key_cols[0]].astype(str), chunk[self.key_cols[1]].astype(str)))
+            keys = set(
+                zip(
+                    chunk[self.key_cols[0]].astype(str),
+                    chunk[self.key_cols[1]].astype(str),
+                )
+            )
             existing_keys.update(keys)
             dates_in_chunk = set(chunk[self.key_cols[1]].dropna().astype(str).unique())
             file_dates.update(dates_in_chunk)
@@ -246,7 +332,9 @@ class StockDataUpdater:
             f"文件 {os.path.basename(input_path)}: 待更新 {len(update_dict)} 行, 待追加 {len(append_dict)} 行"
         )
 
-        temp_file = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".csv", newline="", encoding="utf-8")
+        temp_file = tempfile.NamedTemporaryFile(
+            mode="w", delete=False, suffix=".csv", newline="", encoding="utf-8"
+        )
         temp_path = temp_file.name
         try:
             is_first_chunk = True
@@ -259,7 +347,7 @@ class StockDataUpdater:
                     mode="a",
                     index=False,
                     header=is_first_chunk,
-                    encoding="utf-8"
+                    encoding="utf-8",
                 )
                 is_first_chunk = False
 
@@ -271,7 +359,7 @@ class StockDataUpdater:
                     mode="a",
                     index=False,
                     header=is_first_chunk,
-                    encoding="utf-8"
+                    encoding="utf-8",
                 )
 
             temp_file.close()
@@ -282,7 +370,6 @@ class StockDataUpdater:
                 os.remove(temp_path)
 
     def _read_csv_in_chunks(self, file_path: str):
-        """低内存分块读取 CSV 文件，自动跳过第一列无名索引"""
         return pd.read_csv(
             file_path,
             chunksize=self.batch_size,
@@ -291,7 +378,6 @@ class StockDataUpdater:
         )
 
     def _has_unnamed_index(self, file_path: str) -> bool:
-        """检查 CSV 文件首列是否为无名索引列"""
         with open(file_path, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             try:
@@ -300,15 +386,17 @@ class StockDataUpdater:
             except StopIteration:
                 return False
 
-    def _update_chunk_with_dict(self, chunk_df: pd.DataFrame, update_dict: Dict) -> pd.DataFrame:
+    def _update_chunk_with_dict(
+        self, chunk_df: pd.DataFrame, update_dict: Dict
+    ) -> pd.DataFrame:
         if not update_dict:
             return chunk_df
-        
+
         temp_keys = zip(
             chunk_df[self.key_cols[0]].astype(str),
-            chunk_df[self.key_cols[1]].astype(str)
+            chunk_df[self.key_cols[1]].astype(str),
         )
-        
+
         for idx, key in zip(chunk_df.index, temp_keys):
             if key in update_dict:
                 vals = update_dict[key]
@@ -331,7 +419,6 @@ class StockDataUpdater:
         return pd.DataFrame(rows)[columns]
 
     def _sort_and_save(self, temp_path: str, output_path: str, raw_header: List[str]):
-        """全量加载临时文件，按 key_cols 排序，并完美重建原始 Header 与递增索引列"""
         full_df = pd.read_csv(temp_path, dtype={col: str for col in self.key_cols})
 
         if self.key_cols[0] in full_df.columns and self.key_cols[1] in full_df.columns:
@@ -346,9 +433,8 @@ class StockDataUpdater:
             full_df.to_csv(output_path, index=False, encoding="utf-8")
 
     def replace_old_files_with_new(self):
-        """备份原始 stock_xxx.csv 为 stock_xxx.csv.bk，并将 stock_xxx_new.csv 覆写回原文件"""
         new_files = glob.glob(os.path.join(self.data_dir, "stock_*_new.csv"))
-        
+
         if not new_files:
             print("⚠️ 未找到任何待更新的 _new.csv 文件。")
             return
@@ -357,36 +443,105 @@ class StockDataUpdater:
             old_file = new_file.replace("_new.csv", ".csv")
             bk_file = f"{old_file}.bk"
 
-            # 1. 备份原文件
             if os.path.exists(old_file):
                 shutil.copy2(old_file, bk_file)
-                print(f"📦 已备份原文件: {os.path.basename(old_file)} -> {os.path.basename(bk_file)}")
+                print(
+                    f"📦 已备份原文件: {os.path.basename(old_file)} -> {os.path.basename(bk_file)}"
+                )
 
-            # 2. 用 _new.csv 覆盖原文件
             os.replace(new_file, old_file)
 
         print("所有新生成的文件更名成功，原文件已成功备份为 .bk 并完成替换覆盖！")
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="股票历史数据采集与回刷工具")
+    parser.add_argument(
+        "-m",
+        "--market",
+        type=str,
+        default="us",
+        choices=["us", "cn"],
+        help="目标市场: us (美股) 或 cn (A股)，默认 us",
+    )
+    parser.add_argument(
+        "-s",
+        "--start",
+        type=str,
+        default="20250101",
+        help="开始日期 (YYYYMMDD)，默认 20250101",
+    )
+    parser.add_argument(
+        "-e",
+        "--end",
+        type=str,
+        default=datetime.datetime.now().strftime("%Y%m%d"),
+        help="结束日期 (YYYYMMDD)，默认今天",
+    )
+    parser.add_argument(
+        "--symbols",
+        nargs="+",
+        default=None,
+        help="手动指定的 Symbol 列表 (例如: --symbols AAPL TSLA 或 --symbols SZ000001 SH600000 ETF510300)。若不传则默认从最新数据文件提取全量 Symbol",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    MARKET = "us"
+    args = parse_args()
+
+    MARKET = args.market.lower()
     DATA_DIR = FINANCE_ROOT / f"{MARKET}stockinfo"
     UPDATE_COLS = ["open", "close", "high", "low", "volume"]
     NEW_DATA_PATH = DATA_DIR / "new_stock_data.csv"
-    START_DATE = "20260915"
-    END_DATE = "20260916"
+    START_DATE = args.start
+    END_DATE = args.end
 
-    updater = StockDataUpdater(data_dir=DATA_DIR, update_cols=UPDATE_COLS, batch_size=10000)
+    print(
+        f"🎯 当前运行模式: [Market: {MARKET.upper()}] | [Date: {START_DATE} ~ {END_DATE}]"
+    )
 
-    symbol_list = updater.get_symbols_from_latest_file()
+    updater = StockDataUpdater(
+        data_dir=DATA_DIR, update_cols=UPDATE_COLS, batch_size=10000
+    )
 
-    updater.fetch_yfinance_data(
-        symbols=symbol_list,
+    symbol_items = []
+    # 1. 如果命令行手工传入了 --symbols，则进行解析判定
+    if args.symbols:
+        raw_symbols = [s.strip().upper() for s in args.symbols]
+        print(f"📌 使用手动输入的 Symbol 列表 ({len(raw_symbols)} 个)")
+
+        if MARKET == "us":
+            symbol_items = [{"symbol": sym, "mkt_code": "0"} for sym in raw_symbols]
+        else:
+            for sym in raw_symbols:
+                mkt_code = "0"
+                if sym.startswith("SH"):
+                    mkt_code = "1"
+                elif sym.startswith("SZ"):
+                    mkt_code = "0"
+                elif sym.startswith("ETF"):
+                    mkt_code = updater.get_etf_market_code(sym[3:])
+
+                symbol_items.append({"symbol": sym, "mkt_code": mkt_code})
+    else:
+        # 2. 默认：自动从目录下最新的文件提取并在内部判定 mkt_code
+        symbol_items = updater.get_symbols_from_latest_file(market=MARKET)
+
+    if not symbol_items:
+        print("❌ 未获取到有效的 Symbol 记录，退出执行。")
+        sys.exit(1)
+
+    # 执行分流抓取逻辑
+    updater.fetch_market_data(
+        symbol_items=symbol_items,
         start_date=START_DATE,
         end_date=END_DATE,
         new_data_path=NEW_DATA_PATH,
+        market=MARKET,
     )
 
+    # 加载新数据字典
     try:
         new_data_dict = updater.load_new_data(NEW_DATA_PATH)
         print(f"📖 成功加载了 {len(new_data_dict)} 条待回刷的差异记录")
@@ -394,7 +549,8 @@ if __name__ == "__main__":
         print(f"❌ 加载新数据失败: {e}")
         sys.exit(1)
 
+    # 替换更新与备份
     updater.process_files(new_data_dict)
     updater.replace_old_files_with_new()
 
-    print("✨ 全部历史数据回刷工作完美结束！")
+    print("🎉 全部历史数据回刷工作完美结束！")
