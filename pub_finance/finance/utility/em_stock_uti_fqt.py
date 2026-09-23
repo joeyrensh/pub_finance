@@ -464,21 +464,35 @@ class EMWebCrawlerUti:
         # 2. 清理历史 gz_*.csv 数据文件（保留最近 10%，清理早期 90%）
         self._clean_old_gz_files(output_dir)
 
-    def _clean_old_gz_files(self, gz_dir: Path):
-        """扫描 gz_dir 目录下的 gz_*.csv 文件，按日期排序并删除前 90% 的历史文件"""
+    def _clean_old_gz_files(self, gz_dir: Path, min_keep: int = 10, clean_ratio: float = 0.9):
+        """
+        扫描 gz_dir 目录下的 gz_*.csv 文件，按日期排序并安全清理历史文件
+        :param gz_dir: 文件所在目录
+        :param min_keep: 最少保留的文件底线数量，默认 10 个
+        :param clean_ratio: 触发清理时的删除比例，默认 90%
+        """
         gz_files = sorted(glob.glob(os.path.join(gz_dir, "gz_*.csv")))
         total_files = len(gz_files)
 
-        if total_files == 0:
+        # 底线防御：总文件数未达到最小保留数，直接返回，绝不多删
+        if total_files <= min_keep:
             return
 
-        # 计算待删除的文件数量 (清理前 90%)
-        delete_count = int(total_files * 0.9)
+        # 按照 90% 计算理论清理数，但绝不能突破 min_keep 的底线
+        ratio_delete_count = int(total_files * clean_ratio)
+        max_allow_delete = total_files - min_keep
+        
+        # 取二者最小值，确保清理后至少保留 min_keep 个文件
+        delete_count = min(ratio_delete_count, max_allow_delete)
 
         if delete_count > 0:
             files_to_delete = gz_files[:delete_count]
-            print(f"🧹 触发历史文件清理: 共发现 {total_files} 个文件，将清理较早的 {delete_count} 个 (90%)...")
-            
+            remaining_count = total_files - delete_count
+            print(
+                f"🧹 触发历史文件清理: 当前共 {total_files} 个文件，"
+                f"清理较早的 {delete_count} 个，清理后保留 {remaining_count} 个..."
+            )
+
             for file_path in files_to_delete:
                 try:
                     os.remove(file_path)
