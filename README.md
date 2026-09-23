@@ -70,12 +70,21 @@ Clone the repository and install the required quantitative base dependencies:
 ```bash
 git clone [https://github.com/joeyrensh/pub_finance.git](https://github.com/joeyrensh/pub_finance.git)
 cd pub_finance
+
+# 1. activate virtual env
+conda create -n dash_env python=3.13.5 -y
+conda activate dash_env
+
+# 2. update fundamental tools
+pip install --upgrade pip setuptools wheel
+
+# 3. install dependency
 pip install -r requirements.txt
 ```
 ### 2. Cold Start (Download Historical Data)
 Run the bootstrap script to pull and initialize the historical market database with a single click:
 ```bash
-python -u finance/utility/history_data_download.py
+python -u finance/utility/history_data_download_fqt.py
 ```
 ### 3. Configure Scheduled Cron Jobs
 To maintain incremental updates for local data and enable automated strategy calculations, please refer to the Service Deployment (Crontab) section below to configure Linux scheduled tasks.
@@ -139,7 +148,7 @@ PYSPARK_DRIVER_PYTHON = /root/miniconda3/envs/dash_env/bin/python
 0 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market cn --incremental --lookback 2w > /root/pub_finance/finance/cn_actions.log 2>&1
 
 # Fetch US stock actions data every Sunday at 06:30 (staggered by 30 mins to avoid concurrency issues and log overlapping)
-30 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market us > /root/pub_finance/finance/us_actions.log 2>&1
+30 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market us --incremental --lookback 2w > /root/pub_finance/finance/us_actions.log 2>&1
 ```
 
 ## Contributing
@@ -242,6 +251,15 @@ Pub Finance 采用轻量低耦合的模块化设计，核心链路如下：
 ```bash
 git clone [https://github.com/joeyrensh/pub_finance.git](https://github.com/joeyrensh/pub_finance.git)
 cd pub_finance
+
+# 1. 创建并激活相同的 Python 3.13 环境
+conda create -n dash_env python=3.13.5 -y
+conda activate dash_env
+
+# 2. 升级基础构建工具（防止编译 C 扩展库时报错，如 curl_cffi, pyarrow 等）
+pip install --upgrade pip setuptools wheel
+
+# 3. 一次性精准安装所有依赖
 pip install -r requirements.txt
 ```
 ### 2. 环境冷启动（下载历史数据）
@@ -310,7 +328,7 @@ PYSPARK_DRIVER_PYTHON = /root/miniconda3/envs/dash_env/bin/python
 0 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market cn --incremental --lookback 2w > /root/pub_finance/finance/cn_actions.log 2>&1
 
 # 每周日早上 6:30 抓取 US 市场除权数据 (错开 30 分钟避免并发冲撞与日志混淆)
-30 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market us > /root/pub_finance/finance/us_actions.log 2>&1
+30 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market us --incremental --lookback 2w > /root/pub_finance/finance/us_actions.log 2>&1
 ```
 ## 参与贡献
 欢迎大家提交 Issue 和 Pull Request，共同完善项目：
