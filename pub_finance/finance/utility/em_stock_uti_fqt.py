@@ -1108,14 +1108,17 @@ class EMWebCrawlerUti:
                             vol_series = df_sym[v_col] / cum_factors
                             df_sym.loc[:, v_col] = vol_series.round().astype('int64')
 
-                # 5. 统一日期格式写入
+                # 5. 统一日期格式
                 df_sym.loc[:, date_col] = date_str_series
 
-                # 6. 追加写入临时 CSV
+                # 6. 设置无名索引列，追加写入临时 CSV
+                df_sym.index = range(len(df_sym))
+                df_sym.index.name = None  # 清空索引名，写入 CSV 时保持首列列名为空
+
                 df_sym.to_csv(
                     output_temp_file,
                     mode='a',
-                    index=False,
+                    index=True,           # 写出索引列作为无名的第一列
                     header=is_first_write,
                     columns=all_cols
                 )
@@ -1126,7 +1129,8 @@ class EMWebCrawlerUti:
             # -------------------------------------------------------------
             for chunk in pd.read_csv(target_history_file, chunksize=chunksize, low_memory=False):
                 if not all_cols:
-                    all_cols = chunk.columns.tolist()
+                    # 过滤掉读取时自动产生的 Unnamed 索引列，仅保留业务字段
+                    all_cols = [c for c in chunk.columns if not str(c).startswith('Unnamed:')]
                     symbol_col = next(c for c in all_cols if c.lower() == 'symbol')
                     date_col = next(c for c in all_cols if c.lower() == 'date')
 
@@ -1160,4 +1164,4 @@ class EMWebCrawlerUti:
 
         finally:
             if os.path.exists(temp_dir):
-                shutil.rmtree(temp_dir)        
+                shutil.rmtree(temp_dir) 

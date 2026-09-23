@@ -657,7 +657,7 @@ class TickerInfo:
         tickers = self.get_etf_list()
         # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        his_data = self.get_history_data_fqt()
+        his_data = self.get_history_data_fqt(is_etf=True)
         return self.format_backtrader_feed(
             df_raw=his_data,
             target_tickers=tickers,
@@ -920,10 +920,10 @@ class TickerInfo:
         return pd.DataFrame(data) if data else pd.DataFrame(columns=["date", "new"])
 
 
-    def get_history_data_fqt(self) -> pd.DataFrame:
+    def get_history_data_fqt(self, is_etf: bool = False) -> pd.DataFrame:
         """
         计算前复权历史数据 (对齐美股/A股券商APP及Yahoo Finance官方标准)
-        支持: 多次拆股、合股(Reverse Split)、现金分红、组合事件
+        支持: 多次拆股、合股(Reverse Split)、现金分红、组合事件、ETF特殊送转推迟
         性能: 纯向量化矩阵运算，精准内存管控，极致降低 Peak Memory
         """
         df = self.get_history_data()
@@ -943,9 +943,88 @@ class TickerInfo:
             dtype={"symbol": str, "date": str}
         )
         
-        # 过滤并及时释放全量除权表内存
-        df_actions = df_actions_all[df_actions_all["symbol"].isin(target_symbols)]
-        del df_actions_all  # 显式释放全量除权表
+        df_actions = df_actions_all[df_actions_all["symbol"].isin(target_symbols)].copy()
+        del df_actions_all  # 显式释放全量除权表内存
+
+        if df_actions.empty:
+            del df_actions
+            return df
+
+        # 2. 保证全局按 [symbol, date] 升序排列
+        df.sort_values(["symbol", "date"], inplace=True)
+        df.reset_index(drop=True, inplace=True)
+
+        # ==================== ETF 组合事件特殊向量化拆分 ====================
+        if is_etf and not df_actions.empty:
+            mask_has_split = (
+                (df_actions["split_ratio"].notna()) & 
+                (df_actions["split_ratio"] != 1.0) & 
+                (df_actions["split_ratio"] != 0.0)
+            )
+
+            if mask_has_split.any():
+                # 提取无拆股的普通事件（如纯分红派息，保持T日不动）
+                df_normal = df_actions[~mask_has_split].copy()
+                
+                # 提取涉及拆股/送转的事件
+                df_splits = df_actions[mask_has_split].copy()
+
+                # 构建全局 K 线交易日的 next_date (T+1) 映射表
+                df_dates = df[["symbol", "date"]].drop_duplicates().copy()
+                df_dates["next_date"] = df_dates.groupby("symbol")["date"].shift(-1)
+
+                # 按 date 排序以满足 merge_asof 依赖条件
+                df_splits.sort_values("date", inplace=True)
+                df_dates.sort_values("date", inplace=True)
+
+                # merge_asof 向前向量化匹配，获取拆股事件对应的下一个交易日(T+1)
+                merged_splits = pd.merge_asof(
+                    df_splits,
+                    df_dates,
+                    on="date",
+                    by="symbol",
+                    direction="forward"
+                )
+
+                # 区分【只送转】与【既送转又分红】
+                mask_combo = merged_splits["dividend"] > 0  # 既送转又分红
+
+                # -------------------------------------------------------------
+                # 修复点：处理无 T+1 交易日（事件发生于最新交易日）的边缘情况
+                # 若 next_date 为空，说明该事件发生在已有 K 线的最后一天，
+                # 此时应将其递延至自然日的下一天 (T + 1 Calendar Day)
+                # -------------------------------------------------------------
+                invalid_next_mask = merged_splits["next_date"].isna()
+                if invalid_next_mask.any():
+                    fallback_dates = pd.to_datetime(merged_splits.loc[invalid_next_mask, "date"]) + pd.Timedelta(days=1)
+                    merged_splits.loc[invalid_next_mask, "next_date"] = fallback_dates.dt.strftime("%Y-%m-%d")
+
+                # 拆分集合 1：处理纯送转 (日期调整为 T+1，保留原 dividend 和 split_ratio)
+                df_pure_splits = merged_splits[~mask_combo].copy()
+                df_pure_splits["date"] = df_pure_splits["next_date"]
+                df_pure_splits.drop(columns=["next_date"], inplace=True)
+
+                # 拆分集合 2：处理组合事件中的 T 日部分 (保留原日期 T，记录分红，split_ratio 重置为 1.0)
+                df_combo_t = merged_splits[mask_combo].copy()
+                df_combo_t["split_ratio"] = 1.0
+                df_combo_t.drop(columns=["next_date"], inplace=True)
+
+                # 拆分集合 3：处理组合事件中的 T+1 日新增送转部分 (日期为 T+1，dividend 清零，保留原 split_ratio)
+                df_combo_t1 = merged_splits[mask_combo].copy()
+                df_combo_t1["date"] = df_combo_t1["next_date"]
+                df_combo_t1["dividend"] = 0.0
+                df_combo_t1.drop(columns=["next_date"], inplace=True)
+
+                # 重新拼合所有事件
+                df_actions = pd.concat(
+                    [df_normal, df_pure_splits, df_combo_t, df_combo_t1], 
+                    ignore_index=True
+                )
+                
+                del (
+                    df_normal, df_splits, df_dates, merged_splits, 
+                    df_pure_splits, df_combo_t, df_combo_t1
+                )
 
         # ==================== 预处理：合并同日多次除权事件 ====================
         if not df_actions.empty:
@@ -961,10 +1040,6 @@ class TickerInfo:
             del df_actions
             return df
 
-        # 2. 保证全局按 [symbol, date] 升序排列
-        df.sort_values(["symbol", "date"], inplace=True)
-        df.reset_index(drop=True, inplace=True)
-
         # 3. 批量 Left Join 除权事件
         df = pd.merge(df, df_actions, on=["symbol", "date"], how="left")
         del df_actions  # 合并完成后，除权临时表已无用，立即释放
@@ -978,12 +1053,12 @@ class TickerInfo:
             df.drop(columns=["dividend", "split_ratio"], inplace=True)
             return df
 
-        # 4. 计算基础单步拆股/合股因子 (优化：作为独立 Series 计算，不挂载回 DataFrame 膨胀列)
+        # 4. 计算基础单步拆股/合股因子 (作为独立 Series 计算，不挂载回 DataFrame 膨胀列)
         price_split_factor = 1.0 / df["split_ratio"]
         vol_split_factor = df["split_ratio"]
 
         # ==================== 5. 倒序向量化计算 (核心算式) ====================
-        # (A) 倒序计算累积因子 (无需使用 .copy() 复制整表，仅对关键 Series 倒序切片)
+        # (A) 倒序计算累积因子
         rev_symbol = df["symbol"].iloc[::-1]
 
         cum_split_price = (
@@ -1045,8 +1120,5 @@ class TickerInfo:
         # 7. 清理追加的临时列及变量
         df.drop(columns=["dividend", "split_ratio"], inplace=True)
         del cum_price_factor, cum_vol_factor, cum_split_price
-
-        # 触发垃圾回收（可选，按需开启）
-        # gc.collect()
 
         return df

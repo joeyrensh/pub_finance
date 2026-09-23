@@ -229,6 +229,8 @@ class AKCNHistoryDataCrawler:
             if (index + 1) % batch_size == 0 or (index + 1) == sh_total:
                 if list_dfs:
                     batch_df = pd.concat(list_dfs, ignore_index=True)
+                    # 重新生成 0..N-1 序号列并插在第一列（列名为 ""，符合标准要求）
+                    batch_df.insert(0, "", range(len(batch_df)))
                     batch_df.to_csv(
                         file_path,
                         mode="a",
@@ -314,6 +316,8 @@ class AKCNHistoryDataCrawler:
             if (index + 1) % batch_size == 0 or (index + 1) == sz_total:
                 if list_dfs:
                     batch_df = pd.concat(list_dfs, ignore_index=True)
+                    # 重新生成 0..N-1 序号列并插在第一列（列名为 ""，符合标准要求）
+                    batch_df.insert(0, "", range(len(batch_df)))
                     batch_df.to_csv(
                         file_path,
                         mode="a",
@@ -358,20 +362,6 @@ class AKCNHistoryDataCrawler:
         list_dfs = []
         etf_total = len(etf_tickers)
 
-        # 1. 预先加载除权派息/拆股因子库
-        file = FileInfo("20260101", "cn")
-        actions_file_path = file.get_file_path_actions_history
-
-        try:
-            df_actions = pd.read_csv(actions_file_path)
-            df_actions["date"] = df_actions["date"].astype(str)
-            # 填充空值，默认无分红(0.0)，无拆股(1.0)
-            df_actions["dividend"] = df_actions["dividend"].fillna(0.0)
-            df_actions["split_ratio"] = df_actions["split_ratio"].replace(0.0, np.nan).fillna(1.0)
-        except Exception as e:
-            print(f"⚠️ 无法加载公司行为历史文件: {e}")
-            df_actions = pd.DataFrame(columns=["symbol", "date", "dividend", "split_ratio"])
-
         for index, item_info in enumerate(etf_tickers):
             symbol_ak = item_info["symbol_ak"]  # 例如 "sh510300"
             symbol_out = item_info["symbol_out"]  # 例如 "ETF510300"
@@ -383,33 +373,11 @@ class AKCNHistoryDataCrawler:
                 continue
 
             try:
-                # 直接调用新浪接口获取 ETF 历史日线
+                # 直接调用新浪接口获取 ETF 原始非复权历史日线
                 df_sina = ak.fund_etf_hist_sina(symbol=symbol_ak)
 
                 if df_sina is not None and not df_sina.empty:
                     df_sina["date"] = df_sina["date"].astype(str)
-
-                    # ==================== 对齐除权日真实价格 ====================
-                    actions_sub = df_actions[df_actions["symbol"] == symbol_out][["date", "dividend", "split_ratio"]]
-                    
-                    if not actions_sub.empty:
-                        df_sina = pd.merge(df_sina, actions_sub, on="date", how="left")
-                        df_sina["dividend"] = df_sina["dividend"].fillna(0.0)
-                        df_sina["split_ratio"] = df_sina["split_ratio"].fillna(1.0)
-
-                        needs_fix = (df_sina["dividend"] > 0) | (df_sina["split_ratio"] != 1.0)
-                        
-                        if needs_fix.any():
-                            price_cols = ["open", "high", "low", "close"]
-                            for col in price_cols:
-                                df_sina[col] = df_sina[col].astype(float)
-                                df_sina[col] = (df_sina[col] - df_sina["dividend"]) / df_sina["split_ratio"]
-                                df_sina[col] = df_sina[col].round(3)
-
-                            df_sina["volume"] = (df_sina["volume"].astype(float) * df_sina["split_ratio"]).round(0)
-
-                        df_sina.drop(columns=["dividend", "split_ratio"], inplace=True)
-                    # ==========================================================
 
                     # 按照日期范围进行切片
                     df_filtered = df_sina[
@@ -441,10 +409,8 @@ class AKCNHistoryDataCrawler:
             if (index + 1) % batch_size == 0 or (index + 1) == etf_total:
                 if list_dfs:
                     batch_df = pd.concat(list_dfs, ignore_index=True)
-                    
-                    # 对齐股票格式：插入第一列自增 index
-                    batch_df.insert(0, "index", range(len(batch_df)))
-
+                    # 重新生成 0..N-1 序号列并插在第一列（列名为 ""，符合标准要求）
+                    batch_df.insert(0, "", range(len(batch_df)))
                     batch_df.to_csv(
                         file_path,
                         mode="a",
