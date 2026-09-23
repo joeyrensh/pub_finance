@@ -13,15 +13,15 @@ end_date = "20260922" # yfinance的start/end为左闭右开
 market = "us"
 file_path = FINANCE_ROOT / f"{market}stockinfo" / "new_stock_data_fqt.csv"
 em = EMWebCrawlerUti(use_proxy=True)
-# em.get_his_stock_info_list(
-#     market,
-#     start_date,
-#     end_date,
-#     file_path,
-# )
+em.get_his_stock_info_list(
+    market,
+    start_date,
+    end_date,
+    file_path,
+)
 
 em.restore_yfinance_raw_csv(trade_date=end_date, market=market, history_file_path=file_path)
 
 # 使用AKshare下载A股历史数据
-# ak_his = AKCNHistoryDataCrawler()
-# ak_his.get_cn_stock_history_ak(start_date, end_date, file_path, source_type="file")
+ak_his = AKCNHistoryDataCrawler()
+ak_his.get_cn_stock_history_ak(start_date, end_date, file_path, source_type="file")
