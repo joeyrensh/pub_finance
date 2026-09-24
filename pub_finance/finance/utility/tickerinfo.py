@@ -10,6 +10,7 @@ import datetime
 import os
 import json
 from finance import FINANCE_ROOT
+from typing import List, Optional
 
 """ 组合每日股票数据为一个dataframe """
 
@@ -444,8 +445,16 @@ class TickerInfo:
 
     """ 获取历史数据 """
 
-    def get_history_data(self):
+    def get_history_data(
+        self, target_symbols: Optional[List[str]] = None
+    ) -> pd.DataFrame:
+        """读取历史 K 线数据
+
+        :param target_symbols: 目标股票代码列表，用于源头过滤以提升性能
+        """
+        ticker_set = set(target_symbols) if target_symbols else None
         dic = {}
+
         for j in range(len(self.files)):
             df = pd.read_csv(
                 self.files[j],
@@ -468,10 +477,35 @@ class TickerInfo:
                     "date": str,
                 },
             )
-            df.drop_duplicates(subset=["symbol", "date"], keep="first", inplace=True)
-            dic[j] = df
+
+            # 根据 target_symbols 过滤数据
+            if ticker_set is not None:
+                df["symbol"] = df["symbol"].str.strip()
+                df = df[df["symbol"].isin(ticker_set)]
+
+            if not df.empty:
+                df.drop_duplicates(
+                    subset=["symbol", "date"], keep="first", inplace=True
+                )
+                dic[j] = df
+
+        if not dic:
+            return pd.DataFrame(
+                columns=[
+                    "symbol",
+                    "open",
+                    "close",
+                    "high",
+                    "low",
+                    "volume",
+                    "date",
+                ]
+            )
+
         df = pd.concat(list(dic.values()), ignore_index=True)
-        df.sort_values(by=["symbol", "date"], ascending=[True, True], inplace=True)
+        df.sort_values(
+            by=["symbol", "date"], ascending=[True, True], inplace=True
+        )
         return df
 
     """ 
@@ -481,9 +515,8 @@ class TickerInfo:
 
     def get_backtrader_data_feed(self):
         tickers = self.get_stock_list()
-        # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        his_data = self.get_history_data_fqt()
+        his_data = self.get_history_data_fqt(target_symbols=tickers)
         return self.format_backtrader_feed(
             df_raw=his_data,
             target_tickers=tickers,
@@ -585,9 +618,8 @@ class TickerInfo:
 
     def get_backtrader_data_feed_testonly(self, stocklist):
         tickers = stocklist
-        # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        his_data = self.get_history_data_fqt()
+        his_data = self.get_history_data_fqt(target_symbols=tickers)
         return self.format_backtrader_feed(
             df_raw=his_data,
             target_tickers=tickers,
@@ -655,9 +687,8 @@ class TickerInfo:
 
     def get_etf_backtrader_data_feed(self):
         tickers = self.get_etf_list()
-        # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        his_data = self.get_history_data_fqt()
+        his_data = self.get_history_data_fqt(target_symbols=tickers)
         return self.format_backtrader_feed(
             df_raw=his_data,
             target_tickers=tickers,
@@ -756,10 +787,8 @@ class TickerInfo:
         tickers_clean = [
             t for t in tickers if isinstance(t, str) and t != "nan" and t != ""
         ]
-
-        # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        his_data = self.get_history_data_fqt()
+        his_data = self.get_history_data_fqt(target_symbols=tickers_clean)
         return self.format_backtrader_feed(
             df_raw=his_data,
             target_tickers=tickers_clean,
@@ -797,10 +826,8 @@ class TickerInfo:
         tickers_clean = [
             t for t in tickers if isinstance(t, str) and t != "nan" and t != ""
         ]
-
-        # his_data = self.get_history_data().groupby(by="symbol")
         # 切换不复权数据源
-        his_data = self.get_history_data_fqt()
+        his_data = self.get_history_data_fqt(target_symbols=tickers_clean)
         return self.format_backtrader_feed(
             df_raw=his_data,
             target_tickers=tickers_clean,
@@ -919,12 +946,16 @@ class TickerInfo:
 
         return pd.DataFrame(data) if data else pd.DataFrame(columns=["date", "new"])
 
-    def get_history_data_fqt(self) -> pd.DataFrame:
+    def get_history_data_fqt(
+        self, target_symbols: Optional[List[str]] = None
+    ) -> pd.DataFrame:
         """计算前复权历史数据（支持股票与 ETF 动态自动识别计算）
+
         - ETF 标的：拆并股事件平移至 T+1（下一个交易日）生效；
         - 普通股票：除权拆股事件保留在 T 日生效。
         """
-        df = self.get_history_data()
+        # 1. 传递 target_symbols 给底层 get_history_data，源头过滤 K 线数据
+        df = self.get_history_data(target_symbols=target_symbols)
         if df.empty:
             return df
 
@@ -932,14 +963,15 @@ class TickerInfo:
         if not os.path.exists(actions_file):
             return df
 
-        # 1. 基础类型清洗与去空
+        # 基础类型清洗与去空
         df["symbol"] = df["symbol"].astype(str).str.strip()
         df["date"] = df["date"].astype(str).str.strip()
 
         df.sort_values(["symbol", "date"], ascending=[True, True], inplace=True)
         df.reset_index(drop=True, inplace=True)
 
-        target_symbols = set(df["symbol"].unique())
+        # 获取实际加载成功的 symbol 集合
+        active_target_symbols = set(df["symbol"].unique())
 
         # 2. 读取除权分红事件表
         df_actions = pd.read_csv(
@@ -950,14 +982,15 @@ class TickerInfo:
         df_actions["symbol"] = df_actions["symbol"].astype(str).str.strip()
         df_actions["date"] = df_actions["date"].astype(str).str.strip()
 
-        df_actions = df_actions[df_actions["symbol"].isin(target_symbols)]
+        # 核心优化：仅保留 active_target_symbols 对应的事件数据
+        df_actions = df_actions[df_actions["symbol"].isin(active_target_symbols)]
         if df_actions.empty:
             return df
 
         # 预处理：合并同一标的同一天的多个事件
-        df_actions = df_actions.groupby(
-            ["symbol", "date"], as_index=False
-        ).agg({"dividend": "sum", "split_ratio": "prod"})
+        df_actions = df_actions.groupby(["symbol", "date"], as_index=False).agg(
+            {"dividend": "sum", "split_ratio": "prod"}
+        )
 
         # ==================== 动态识别 ETF 并执行事件平移 ====================
         if not df_actions.empty:
