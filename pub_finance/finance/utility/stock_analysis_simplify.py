@@ -1198,7 +1198,7 @@ class StockProposal:
             )
             SELECT 
                 t1.buy_date AS buy_date
-                ,IFNULL(t1.total_cnt, 0) + IFNULL(t2.buy_cnt, 0) - IFNULL(t2.sell_cnt, 0) AS total_cnt
+                ,IFNULL(t1.total_cnt, 0) AS total_cnt
                 ,IFNULL(t2.buy_cnt, 0) AS buy_cnt
                 ,IFNULL(t2.sell_cnt, 0) AS sell_cnt
             FROM tmp11 t1 
