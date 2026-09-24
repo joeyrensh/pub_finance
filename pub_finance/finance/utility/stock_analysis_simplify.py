@@ -1171,17 +1171,17 @@ class StockProposal:
                     date
                     ,COUNT(symbol) AS total_cnt
                 FROM temp_position_detail
-                WHERE date >='{}'
+                WHERE date >= '{}'
                 GROUP BY date
             ), 
             tmp11 AS (
-                -- 直接在外面套 LAST_VALUE，当 tmp1.total_cnt 为 NULL 时，会自动向前找最近的非空持仓数
+                -- 当 tmp1.total_cnt 为 NULL 时，向前填充最近的非空期初持仓数
                 SELECT 
                     ts.buy_date
                     ,LAST_VALUE(t1.total_cnt) IGNORE NULLS OVER (
                         PARTITION BY ts.partition_key 
                         ORDER BY ts.buy_date
-                    ) AS total_cnt
+                    ) AS bod_cnt
                 FROM (
                     SELECT *, 1 AS partition_key FROM temp_timeseries
                 ) AS ts 
@@ -1198,12 +1198,14 @@ class StockProposal:
             )
             SELECT 
                 t1.buy_date AS buy_date
-                ,IFNULL(t1.total_cnt, 0) AS total_cnt
+                -- 期末持仓 = 期初持仓 + 当日买入 - 当日卖出
+                ,(IFNULL(t1.bod_cnt, 0) + IFNULL(t2.buy_cnt, 0) - IFNULL(t2.sell_cnt, 0)) AS total_cnt
                 ,IFNULL(t2.buy_cnt, 0) AS buy_cnt
                 ,IFNULL(t2.sell_cnt, 0) AS sell_cnt
             FROM tmp11 t1 
             LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
-            """.format(start_date, start_date))
+            ORDER BY t1.buy_date
+        """.format(start_date, start_date))
         pd_trade_info_lstndays = spark_trade_info_lstndays.toPandas()
 
         # 导出 CSV 供 Dash 使用 (duplicate section for other market blocks)
@@ -2080,7 +2082,7 @@ class StockProposal:
                     ,LAST_VALUE(t1.total_cnt) IGNORE NULLS OVER (
                         PARTITION BY ts.partition_key 
                         ORDER BY ts.buy_date
-                    ) AS total_cnt
+                    ) AS bod_cnt
                 FROM (
                     SELECT *, 1 AS partition_key FROM temp_timeseries
                 ) AS ts 
@@ -2097,7 +2099,7 @@ class StockProposal:
             )
             SELECT 
                 t1.buy_date AS buy_date
-                ,IFNULL(t1.total_cnt, 0) AS total_cnt
+                ,(IFNULL(t1.bod_cnt, 0) + IFNULL(t2.buy_cnt, 0) - IFNULL(t2.sell_cnt, 0)) AS total_cnt
                 ,IFNULL(t2.buy_cnt, 0) AS buy_cnt
                 ,IFNULL(t2.sell_cnt, 0) AS sell_cnt
             FROM tmp11 t1 
