@@ -78,7 +78,7 @@ class AKCNHistoryDataCrawler:
             elif sym_raw.startswith("ETF"):
                 raw_num = sym_raw[3:]
                 # 新浪接口要求带 sh/sz 前缀，如 sh510300, sz159915
-                prefix = "sh" if raw_num.startswith(("5", "6", "9")) else "sz"
+                prefix = "sh" if raw_num.startswith("5") else "sz"
                 etf_list.append(
                     {
                         "symbol_ak": f"{prefix}{raw_num}",  # 新浪接口专用
@@ -116,7 +116,7 @@ class AKCNHistoryDataCrawler:
         source_type: str = "file",
         symbols: Optional[Union[str, List[str]]] = None,
     ):
-        """获取A股及ETF历史数据（新浪ETF直连 + 高性能向量化 + 断点续传版）
+        """获取A股及ETF历史数据（新浪接口直连 + 成交量统一换算为手 + 高性能向量化 + 断点续传版）
 
         :param start_date: 开始日期 (YYYYMMDD 或 YYYY-MM-DD)
         :param end_date: 结束日期 (YYYYMMDD 或 YYYY-MM-DD)
@@ -209,6 +209,12 @@ class AKCNHistoryDataCrawler:
                 if df_raw is not None and not df_raw.empty:
                     df_raw["symbol"] = symbol_out
                     df_raw["name"] = name
+
+                    # 🔍 转换 volume：新浪接口返回单位为“股”，除以 100 转换为“手”
+                    df_raw["volume"] = (
+                        pd.to_numeric(df_raw["volume"], errors="coerce") / 100
+                    )
+
                     df_sub = df_raw[
                         [
                             "symbol",
@@ -296,6 +302,12 @@ class AKCNHistoryDataCrawler:
                 if df_raw is not None and not df_raw.empty:
                     df_raw["symbol"] = symbol_out
                     df_raw["name"] = name
+
+                    # 🔍 转换 volume：新浪接口返回单位为“股”，除以 100 转换为“手”
+                    df_raw["volume"] = (
+                        pd.to_numeric(df_raw["volume"], errors="coerce") / 100
+                    )
+
                     df_sub = df_raw[
                         [
                             "symbol",
@@ -347,7 +359,7 @@ class AKCNHistoryDataCrawler:
             pd_etf = pd_etf[pd_etf["最新价"] > 0]
             for _, row in pd_etf.reset_index(drop=True).iterrows():
                 raw_num = str(row["代码"]).strip()
-                prefix = "sh" if raw_num.startswith(("5", "6", "9")) else "sz"
+                prefix = "sh" if raw_num.startswith("5") else "sz"
                 symbol_out = f"ETF{raw_num}"
                 if target_symbols is None or symbol_out in target_symbols:
                     etf_tickers.append(
@@ -387,6 +399,11 @@ class AKCNHistoryDataCrawler:
                     if not df_filtered.empty:
                         df_filtered["symbol"] = symbol_out
                         df_filtered["name"] = name
+
+                        # 🔍 转换 volume：新浪接口返回单位为“份/股”，除以 100 转换为“手”
+                        df_filtered["volume"] = (
+                            pd.to_numeric(df_filtered["volume"], errors="coerce") / 100
+                        )
 
                         # 向量化提取并格式化
                         df_sub = df_filtered[
