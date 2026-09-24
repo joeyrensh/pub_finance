@@ -961,75 +961,62 @@ class TickerInfo:
 
         # ==================== 动态识别 ETF 并执行事件平移 ====================
         if not df_actions.empty:
-            # 建立映射：(symbol, current_date) -> next_trading_date
-            dates_df = df[["symbol", "date"]].copy()
-            dates_df["next_date"] = dates_df.groupby("symbol")["date"].shift(
-                -1
-            )
-
-            # 关联 next_date 到事件表中
-            act_m = pd.merge(
-                df_actions, dates_df, on=["symbol", "date"], how="left"
-            )
-
             # 1. 检查 market 是否以 'cn' 开头（忽略大小写，例如 'cn', 'cn_a', 'cn_etf'）
             is_cn_market = str(getattr(self, "market", "")).lower().startswith("cn")
 
-            # 2. 检查 symbol 是否以 'ETF' 开头（忽略大小写）
-            is_etf_prefix = act_m["symbol"].str.upper().str.startswith("ETF")
+            # 如果不是中国市场，美股等其它市场无需处理 ETF 拆并股平移，直接保持原 df_actions
+            if is_cn_market:
+                # 建立映射：(symbol, current_date) -> next_trading_date
+                dates_df = df[["symbol", "date"]].copy()
+                dates_df["next_date"] = dates_df.groupby("symbol")["date"].shift(-1)
 
-            # 3. 只有同时满足 market 为 CN 且 symbol 为 ETF 前缀时，才应用 ETF 拆并股平移规则
-            is_etf_symbol = is_cn_market & is_etf_prefix
-
-            # 判定基础条件
-            has_div = act_m["dividend"] > 0
-            has_split = (act_m["split_ratio"] != 1.0) & (
-                act_m["split_ratio"] > 0
-            )
-            can_shift = act_m["next_date"].notna() & (
-                act_m["next_date"] != ""
-            )  # 有效的 T+1 交易日
-
-            # 切片处理逻辑：
-            # 1) 普通股票 OR 边界最新一天交易日 -> 保留原样（T 日）
-            df_no_shift = act_m[(~is_etf_symbol) | (~can_shift)][
-                ["symbol", "date", "dividend", "split_ratio"]
-            ].copy()
-
-            # 2) ETF 的现金分红事件 -> 保留在 T 日，拆股比率置 1.0
-            etf_div_mask = is_etf_symbol & can_shift & has_div
-            df_etf_div = act_m[etf_div_mask][
-                ["symbol", "date", "dividend", "split_ratio"]
-            ].copy()
-            if not df_etf_div.empty:
-                df_etf_div["split_ratio"] = 1.0
-
-            # 3) ETF 的拆并股事件 -> 向量化平移至 T+1 日（next_date），分红置 0.0
-            etf_split_mask = is_etf_symbol & can_shift & has_split
-            df_etf_split = act_m[etf_split_mask][
-                ["symbol", "next_date", "dividend", "split_ratio"]
-            ].copy()
-            if not df_etf_split.empty:
-                df_etf_split.rename(
-                    columns={"next_date": "date"}, inplace=True
+                # 关联 next_date 到事件表中
+                act_m = pd.merge(
+                    df_actions, dates_df, on=["symbol", "date"], how="left"
                 )
-                df_etf_split["dividend"] = 0.0
 
-            # 重新拼接组装
-            frames = [
-                f
-                for f in [df_no_shift, df_etf_div, df_etf_split]
-                if not f.empty
-            ]
-            if frames:
-                df_actions = pd.concat(frames, ignore_index=True)
-                df_actions = df_actions.groupby(
-                    ["symbol", "date"], as_index=False
-                ).agg({"dividend": "sum", "split_ratio": "prod"})
-            else:
-                df_actions = pd.DataFrame(
-                    columns=["symbol", "date", "dividend", "split_ratio"]
-                )
+                # 2. 检查 symbol 是否以 'ETF' 开头（忽略大小写）
+                is_etf_symbol = act_m["symbol"].str.upper().str.startswith("ETF")
+
+                # 判定基础条件
+                has_div = act_m["dividend"] > 0
+                has_split = (act_m["split_ratio"] != 1.0) & (act_m["split_ratio"] > 0)
+                can_shift = act_m["next_date"].notna() & (act_m["next_date"] != "")  # 有效的 T+1 交易日
+
+                # 切片处理逻辑：
+                # 1) 普通股票 OR 边界最新一天交易日 -> 保留原样（T 日）
+                df_no_shift = act_m[(~is_etf_symbol) | (~can_shift)][
+                    ["symbol", "date", "dividend", "split_ratio"]
+                ]
+
+                # 2) ETF 的现金分红事件 -> 保留在 T 日，拆股比率置 1.0
+                etf_div_mask = is_etf_symbol & can_shift & has_div
+                df_etf_div = act_m[etf_div_mask][
+                    ["symbol", "date", "dividend", "split_ratio"]
+                ].copy()
+                if not df_etf_div.empty:
+                    df_etf_div["split_ratio"] = 1.0
+
+                # 3) ETF 的拆并股事件 -> 向量化平移至 T+1 日（next_date），分红置 0.0
+                etf_split_mask = is_etf_symbol & can_shift & has_split
+                df_etf_split = act_m[etf_split_mask][
+                    ["symbol", "next_date", "dividend", "split_ratio"]
+                ].copy()
+                if not df_etf_split.empty:
+                    df_etf_split.rename(columns={"next_date": "date"}, inplace=True)
+                    df_etf_split["dividend"] = 0.0
+
+                # 重新拼接组装
+                frames = [f for f in [df_no_shift, df_etf_div, df_etf_split] if not f.empty]
+                if frames:
+                    df_actions = pd.concat(frames, ignore_index=True)
+                    df_actions = df_actions.groupby(
+                        ["symbol", "date"], as_index=False
+                    ).agg({"dividend": "sum", "split_ratio": "prod"})
+                else:
+                    df_actions = pd.DataFrame(
+                        columns=["symbol", "date", "dividend", "split_ratio"]
+                    )
 
         # ==================== 标准向量化复权计算引擎 ====================
         df = pd.merge(df, df_actions, on=["symbol", "date"], how="left")
