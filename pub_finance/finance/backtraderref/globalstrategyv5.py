@@ -1145,7 +1145,7 @@ class GlobalStrategy(bt.Strategy):
                     if len(d) > d.buflen() - 1:
                         return None
 
-                    dt = d.datetime.date(0).isoformat()
+                    dt = self.datas[0].datetime.date(0).isoformat()
                     symbol = d._name
 
                     # 计算收益率
