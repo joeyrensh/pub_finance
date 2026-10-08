@@ -28,7 +28,7 @@ def parse_args():
         "--batch",
         type=int,
         default=None,
-        help="批量落盘大小 (如果不传，CN 默认 100，US 默认 30)",
+        help="批量落盘大小 (如果不传，CN 默认 100，US 默认 100)",
     )
     parser.add_argument(
         "--start-date",
@@ -158,7 +158,7 @@ def main():
         )
 
     if market in ["us", "all"]:
-        batch_size_us = args.batch if args.batch is not None else 30
+        batch_size_us = args.batch if args.batch is not None else 100
         run_us(
             batch_size=batch_size_us,
             start_date=args.start_date,
