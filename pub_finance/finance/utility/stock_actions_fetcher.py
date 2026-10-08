@@ -568,25 +568,18 @@ class StockActionsFetcher:
                         progress=False,
                         group_by="ticker",
                         threads=True,  # 开启原生内部并发
+                        multi_level_index=True,
                     )
 
                     if df is not None and not df.empty:
-                        if len(batch) == 1:
-                            sym = batch[0]
-                            has_div = "Dividends" in df.columns and (df["Dividends"] > 0).any()
-                            has_split = "Stock Splits" in df.columns and (df["Stock Splits"] != 0).any()
-                            if has_div or has_split:
-                                target_symbols.add(sym)
-                                batch_hits += 1
-                        else:
-                            for sym in batch:
-                                if hasattr(df.columns, "levels") and sym in df.columns.levels[0]:
-                                    sub_df = df[sym]
-                                    has_div = "Dividends" in sub_df.columns and (sub_df["Dividends"] > 0).any()
-                                    has_split = "Stock Splits" in sub_df.columns and (sub_df["Stock Splits"] != 0).any()
-                                    if has_div or has_split:
-                                        target_symbols.add(sym)
-                                        batch_hits += 1
+                        for sym in batch:
+                            if hasattr(df.columns, "levels") and sym in df.columns.levels[0]:
+                                sub_df = df[sym]
+                                has_div = "Dividends" in sub_df.columns and (sub_df["Dividends"] > 0).any()
+                                has_split = "Stock Splits" in sub_df.columns and (sub_df["Stock Splits"] != 0).any()
+                                if has_div or has_split:
+                                    target_symbols.add(sym)
+                                    batch_hits += 1
 
                 except Exception as b_err:
                     logger.warning(f"Batch [{idx + 1}/{total_batches}] yf.download 失败: {b_err}")
