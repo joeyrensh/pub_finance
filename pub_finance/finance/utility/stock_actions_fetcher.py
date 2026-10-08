@@ -511,9 +511,9 @@ class StockActionsFetcher:
 
         return records
 
-    # ==================== US 矩阵分批下载与内存筛选 (大 Batch 低内存版) ====================
+    # ==================== US 矩阵分批下载与内存筛选 (带失败自动 Retry 版) ====================
     def _scan_us_symbols_with_actions(self, all_us_symbols: List[str]) -> Set[str]:
-        """利用大 Batch (500) + yf.download 原生并发，极省内存且大幅提升速度"""
+        """利用大 Batch (500) + yf.download 原生并发，极省内存且大幅提升速度，缺失/失败 Symbol 自动重试"""
         total_symbols_count = len(all_us_symbols)
         logger.info(
             f"⚡ [US 矩阵扫描] 开始分批下载历史数据筛选除权标的，总数: {total_symbols_count} 只，"
@@ -541,7 +541,7 @@ class StockActionsFetcher:
 
         target_symbols: Set[str] = set()
 
-        # 2. 将 Batch Size 提升至 500 (10,000 只股票仅需 20 次请求)
+        # 2. 将 Batch Size 提升至 500
         chunk_batch_size = 500
         total_batches = (total_symbols_count + chunk_batch_size - 1) // chunk_batch_size
 
@@ -559,7 +559,6 @@ class StockActionsFetcher:
                 )
 
                 try:
-                    # threads=True 会在底层利用轻量并发解析 HTTP 数据，速度极快
                     df = yf.download(
                         batch,
                         start=self.start_date,
@@ -571,35 +570,58 @@ class StockActionsFetcher:
                         multi_level_index=True,
                     )
 
+                    downloaded_tickers = set()
                     if df is not None and not df.empty:
+                        if isinstance(df.columns, pd.MultiIndex):
+                            downloaded_tickers = set(df.columns.get_level_values(0).unique())
+                        else:
+                            downloaded_tickers = set(batch)
+
+                        # 1. 解析主批次中下载成功的 Symbol
                         for sym in batch:
-                            if isinstance(df.columns, pd.MultiIndex):
-                                # 获取当前 DataFrame 实际存在的 Top-level Ticker 列表
-                                existing_tickers = df.columns.get_level_values(0).unique()
-                                if sym in existing_tickers:
-                                    sub_df = df[sym]
-                                    
-                                    # 提取 Dividends 列并排除 NaN 干扰
-                                    has_div = False
-                                    if "Dividends" in sub_df.columns:
-                                        div_series = sub_df["Dividends"].fillna(0.0)
-                                        has_div = (div_series > 0).any()
+                            if sym in downloaded_tickers:
+                                sub_df = df[sym] if isinstance(df.columns, pd.MultiIndex) else df
+                                
+                                has_div = False
+                                if "Dividends" in sub_df.columns:
+                                    div_series = sub_df["Dividends"].fillna(0.0)
+                                    has_div = (div_series > 0).any()
 
-                                    # 提取 Stock Splits 列并排除 NaN 干扰
-                                    has_split = False
-                                    if "Stock Splits" in sub_df.columns:
-                                        split_series = sub_df["Stock Splits"].fillna(0.0)
-                                        has_split = (split_series != 0).any()
+                                has_split = False
+                                if "Stock Splits" in sub_df.columns:
+                                    split_series = sub_df["Stock Splits"].fillna(0.0)
+                                    has_split = (split_series != 0).any()
 
-                                    if has_div or has_split:
-                                        target_symbols.add(sym)
-                                        batch_hits += 1
+                                if has_div or has_split:
+                                    target_symbols.add(sym)
+                                    batch_hits += 1
+
+                    # 2. 计算本批次下载失败/缺失的 Symbol 列表
+                    failed_syms = set(batch) - downloaded_tickers
+
+                    # 3. 对失败/缺失的 Symbol 自动重试 2 次
+                    if failed_syms:
+                        logger.warning(
+                            f"⚠️ Batch [{idx + 1}/{total_batches}] 有 {len(failed_syms)} 只股票下载缺失，准备自动重试..."
+                        )
+                        retry_hits = self._retry_failed_symbols(
+                            failed_symbols=list(failed_syms),
+                            max_retries=2,
+                            target_symbols=target_symbols
+                        )
+                        batch_hits += retry_hits
 
                 except Exception as b_err:
-                    logger.warning(f"Batch [{idx + 1}/{total_batches}] yf.download 失败: {b_err}")
+                    logger.warning(f"Batch [{idx + 1}/{total_batches}] yf.download 整体失败: {b_err}")
+                    # 全批次下载异常时，对整个 batch 触发重试
+                    retry_hits = self._retry_failed_symbols(
+                        failed_symbols=batch,
+                        max_retries=2,
+                        target_symbols=target_symbols
+                    )
+                    batch_hits += retry_hits
 
                 finally:
-                    # 关键：销毁当前 Batch 的大 DataFrame 释放内存
                     if 'df' in locals():
                         del df
                     gc.collect()
@@ -614,6 +636,77 @@ class StockActionsFetcher:
             os.environ.pop("HTTPS_PROXY", None)
 
         return target_symbols
+
+    def _retry_failed_symbols(
+        self, failed_symbols: List[str], max_retries: int, target_symbols: Set[str]
+    ) -> int:
+        """针对大 Batch 丢包/缺失的 Symbol 进行小批次/单条的重试处理"""
+        retry_hits = 0
+        pending_retry = list(failed_symbols)
+
+        for attempt in range(1, max_retries + 1):
+            if not pending_retry:
+                break
+
+            logger.info(f"🔄 [重试模式] 第 {attempt}/{max_retries} 次重试，剩余待处理: {len(pending_retry)} 只...")
+
+            # 重试时改用小 Batch (50 只)，降频避开并发限流丢包
+            retry_batch_size = 50
+            still_failed = []
+
+            for i in range(0, len(pending_retry), retry_batch_size):
+                sub_batch = pending_retry[i : i + retry_batch_size]
+                try:
+                    retry_df = yf.download(
+                        sub_batch,
+                        start=self.start_date,
+                        end=self.end_date,
+                        actions=True,
+                        progress=False,
+                        group_by="ticker",
+                        threads=True,
+                        multi_level_index=True,
+                    )
+
+                    downloaded = set()
+                    if retry_df is not None and not retry_df.empty:
+                        if isinstance(retry_df.columns, pd.MultiIndex):
+                            downloaded = set(retry_df.columns.get_level_values(0).unique())
+                        else:
+                            downloaded = set(sub_batch)
+
+                    for sym in sub_batch:
+                        if sym in downloaded:
+                            sub_df = retry_df[sym] if isinstance(retry_df.columns, pd.MultiIndex) else retry_df
+                            
+                            has_div = "Dividends" in sub_df.columns and (sub_df["Dividends"].fillna(0.0) > 0).any()
+                            has_split = "Stock Splits" in sub_df.columns and (sub_df["Stock Splits"].fillna(0.0) != 0).any()
+
+                            if has_div or has_split:
+                                if sym not in target_symbols:
+                                    target_symbols.add(sym)
+                                    retry_hits += 1
+                        else:
+                            still_failed.append(sym)
+
+                except Exception as r_err:
+                    logger.warning(f"重试子批次 ({len(sub_batch)} 只) 异常: {r_err}")
+                    still_failed.extend(sub_batch)
+
+                finally:
+                    if 'retry_df' in locals():
+                        del retry_df
+
+            pending_retry = still_failed
+            if pending_retry and attempt < max_retries:
+                time.sleep(1)  # 简短退避休息，提高下一次重试成功率
+
+        if pending_retry:
+            logger.warning(
+                f"❌ 经过 {max_retries} 次重试后，仍有 {len(pending_retry)} 只股票无法获取数据 (示例: {pending_retry[:5]})"
+            )
+
+        return retry_hits
 
     def load_us_symbols(self) -> List[str]:
         """载入待处理的美股 Symbol 列表"""
