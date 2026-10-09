@@ -511,42 +511,122 @@ class StockActionsFetcher:
 
         return records
 
-    # ==================== US 矩阵分批下载与内存筛选 (带失败自动 Retry 版) ====================
-    def _scan_us_symbols_with_actions(self, all_us_symbols: List[str]) -> Set[str]:
-        """利用大 Batch (500) + yf.download 原生并发，极省内存且大幅提升速度，缺失/失败 Symbol 自动重试"""
-        total_symbols_count = len(all_us_symbols)
-        logger.info(
-            f"⚡ [US 矩阵扫描] 开始分批下载历史数据筛选除权标的，总数: {total_symbols_count} 只，"
-            f"窗口: [{self.start_date} ~ {self.end_date}]"
-        )
+    def _apply_proxy_env(self, proxy_dict: Optional[dict]) -> Optional[str]:
+        """将代理字典应用到系统环境变量，并返回格式化后的代理字符串"""
+        if not proxy_dict:
+            os.environ.pop("HTTP_PROXY", None)
+            os.environ.pop("HTTPS_PROXY", None)
+            return None
 
-        # 1. 代理设置
-        if not self.current_working_proxy:
-            self.current_working_proxy = self.proxy_manager.get_working_proxy(
-                max_retries=2, enable_proxy=True
-            )
-            if not self.current_working_proxy:
-                self.current_working_proxy = self.proxy_manager.get_next_proxy()
-
-        proxy_dict = self.current_working_proxy
         raw_proxy = (
-            (proxy_dict.get("socks5") or proxy_dict.get("https") or proxy_dict.get("http"))
-            if proxy_dict else None
+            proxy_dict.get("socks5") or proxy_dict.get("https") or proxy_dict.get("http")
         )
         proxy_str = format_proxy_url(raw_proxy) if raw_proxy else None
 
         if proxy_str:
             os.environ["HTTP_PROXY"] = proxy_str
             os.environ["HTTPS_PROXY"] = proxy_str
+        else:
+            os.environ.pop("HTTP_PROXY", None)
+            os.environ.pop("HTTPS_PROXY", None)
+
+        return proxy_str
+
+    def _rotate_to_working_proxy(self) -> Optional[str]:
+        """获取并验证一个真正可用的代理，并同步刷新环境变量与日志"""
+        # 1. 优先获取经过健康检测验证的有效代理
+        new_proxy = None
+        if self.proxy_manager:
+            new_proxy = self.proxy_manager.get_working_proxy(max_retries=2, enable_proxy=True)
+            # 2. 保底兜底：若拿不到验证代理，退而求其次盲切下一个
+            if not new_proxy:
+                new_proxy = self.proxy_manager.get_next_proxy()
+
+        self.current_working_proxy = new_proxy
+        return self._apply_proxy_env(self.current_working_proxy)        
+
+    def _retry_failed_symbols(
+        self, failed_symbols: List[str], max_retries: int, target_symbols: Set[str]
+    ) -> int:
+        """针对丢包/缺失的 Symbol 进行重试 (每次重试主动获取真正有效的代理 IP)"""
+        retry_hits = 0
+        pending_retry = list(failed_symbols)
+
+        for attempt in range(1, max_retries + 1):
+            if not pending_retry:
+                break
+
+            # 关键修改：调用 _rotate_to_working_proxy，获取强健验证过的代理 IP
+            proxy_str = self._rotate_to_working_proxy()
+
+            logger.info(
+                f"🔄 [重试模式] 第 {attempt}/{max_retries} 次重试 | "
+                f"📡 切换有效代理: {proxy_str or '直连'} | 剩余待处理: {len(pending_retry)} 只..."
+            )
+
+            retry_batch_size = 20
+            still_failed = []
+
+            for i in range(0, len(pending_retry), retry_batch_size):
+                sub_batch = pending_retry[i : i + retry_batch_size]
+                try:
+                    retry_df = yf.download(
+                        sub_batch,
+                        start=self.start_date,
+                        end=self.end_date,
+                        actions=True,
+                        progress=False,
+                        group_by="ticker",
+                        threads=False,
+                        multi_level_index=True,
+                    )
+
+                    downloaded = set()
+                    if retry_df is not None and not retry_df.empty:
+                        if isinstance(retry_df.columns, pd.MultiIndex):
+                            all_cols = set(retry_df.columns.get_level_values(0).unique())
+                            for sym in sub_batch:
+                                if sym in all_cols:
+                                    sub_df = retry_df[sym]
+                                    if "Close" in sub_df.columns and sub_df["Close"].dropna().shape[0] > 0:
+                                        downloaded.add(sym)
+
+                                        has_div = "Dividends" in sub_df.columns and (pd.to_numeric(sub_df["Dividends"], errors="coerce").fillna(0.0) > 0).any()
+                                        has_split = "Stock Splits" in sub_df.columns and (pd.to_numeric(sub_df["Stock Splits"], errors="coerce").fillna(0.0) != 0).any()
+
+                                        if has_div or has_split:
+                                            target_symbols.add(sym)
+                                            retry_hits += 1
+
+                    unfetched = set(sub_batch) - downloaded
+                    still_failed.extend(list(unfetched))
+
+                except Exception:
+                    still_failed.extend(sub_batch)
+
+            pending_retry = still_failed
+
+        return retry_hits
+
+    def _scan_us_symbols_with_actions(self, all_us_symbols: List[str]) -> Set[str]:
+        total_symbols_count = len(all_us_symbols)
+        logger.info(
+            f"⚡ [US 矩阵扫描] 开始分批下载历史数据筛选除权标的，总数: {total_symbols_count} 只，"
+            f"窗口: [{self.start_date} ~ {self.end_date}]"
+        )
 
         target_symbols: Set[str] = set()
-
-        # 2. 将 Batch Size 提升至 500
-        chunk_batch_size = 50
+        chunk_batch_size = 100
         total_batches = (total_symbols_count + chunk_batch_size - 1) // chunk_batch_size
 
         try:
             for idx in range(total_batches):
+                # 确保获取到一个健康有效的代理
+                if not self.current_working_proxy:
+                    proxy_str = self._rotate_to_working_proxy()
+                else:
+                    proxy_str = self._apply_proxy_env(self.current_working_proxy)
+
                 batch = all_us_symbols[idx * chunk_batch_size : (idx + 1) * chunk_batch_size]
                 batch_hits = 0
 
@@ -554,8 +634,9 @@ class StockActionsFetcher:
                 scan_progress_pct = (scanned_so_far / total_symbols_count) * 100
 
                 logger.info(
-                    f"📥 [US 下载进度] 正在下载 Batch [{idx + 1}/{total_batches}] "
-                    f"({len(batch)} 只) | 总体进度: {scanned_so_far}/{total_symbols_count} ({scan_progress_pct:.2f}%)"
+                    f"📥 [US 下载进度] Batch [{idx + 1}/{total_batches}] ({len(batch)} 只) | "
+                    f"总体进度: {scanned_so_far}/{total_symbols_count} ({scan_progress_pct:.2f}%) | "
+                    f"📡 当前代理: {proxy_str or '直连'}"
                 )
 
                 try:
@@ -566,44 +647,39 @@ class StockActionsFetcher:
                         actions=True,
                         progress=False,
                         group_by="ticker",
-                        threads=True,  # 开启原生内部并发
+                        threads=True,
                         multi_level_index=True,
                     )
 
-                    downloaded_tickers = set()
+                    valid_downloaded_tickers = set()
+
                     if df is not None and not df.empty:
                         if isinstance(df.columns, pd.MultiIndex):
-                            downloaded_tickers = set(df.columns.get_level_values(0).unique())
-                        else:
-                            downloaded_tickers = set(batch)
+                            all_cols = set(df.columns.get_level_values(0).unique())
+                            for sym in batch:
+                                if sym in all_cols:
+                                    sub_df = df[sym]
+                                    if "Close" in sub_df.columns and sub_df["Close"].dropna().shape[0] > 0:
+                                        valid_downloaded_tickers.add(sym)
 
-                        # 1. 解析主批次中下载成功的 Symbol
-                        for sym in batch:
-                            if sym in downloaded_tickers:
-                                sub_df = df[sym] if isinstance(df.columns, pd.MultiIndex) else df
-                                
-                                has_div = False
-                                if "Dividends" in sub_df.columns:
-                                    div_series = sub_df["Dividends"].fillna(0.0)
-                                    has_div = (div_series > 0).any()
+                                        has_div = "Dividends" in sub_df.columns and (pd.to_numeric(sub_df["Dividends"], errors="coerce").fillna(0.0) > 0).any()
+                                        has_split = "Stock Splits" in sub_df.columns and (pd.to_numeric(sub_df["Stock Splits"], errors="coerce").fillna(0.0) != 0).any()
 
-                                has_split = False
-                                if "Stock Splits" in sub_df.columns:
-                                    split_series = sub_df["Stock Splits"].fillna(0.0)
-                                    has_split = (split_series != 0).any()
+                                        if has_div or has_split:
+                                            target_symbols.add(sym)
+                                            batch_hits += 1
 
-                                if has_div or has_split:
-                                    target_symbols.add(sym)
-                                    batch_hits += 1
+                    failed_syms = set(batch) - valid_downloaded_tickers
 
-                    # 2. 计算本批次下载失败/缺失的 Symbol 列表
-                    failed_syms = set(batch) - downloaded_tickers
-
-                    # 3. 对失败/缺失的 Symbol 自动重试 2 次
-                    if failed_syms:
+                    # 失败率超过 10% 强行切换至【已验证有效】的新代理
+                    if len(failed_syms) > len(batch) * 0.10:
+                        new_proxy_str = self._rotate_to_working_proxy()
                         logger.warning(
-                            f"⚠️ Batch [{idx + 1}/{total_batches}] 有 {len(failed_syms)} 只股票下载缺失，准备自动重试..."
+                            f"⚠️ Batch [{idx + 1}/{total_batches}] 有 {len(failed_syms)}/{len(batch)} 只股票未拿到有效数据 (失败率 > 10%)，"
+                            f"判定当前代理响应不佳，强行切换有效代理 -> 📡 {new_proxy_str or '直连'}"
                         )
+
+                    if failed_syms:
                         retry_hits = self._retry_failed_symbols(
                             failed_symbols=list(failed_syms),
                             max_retries=2,
@@ -612,8 +688,11 @@ class StockActionsFetcher:
                         batch_hits += retry_hits
 
                 except Exception as b_err:
-                    logger.warning(f"Batch [{idx + 1}/{total_batches}] yf.download 整体失败: {b_err}")
-                    # 全批次下载异常时，对整个 batch 触发重试
+                    new_proxy_str = self._rotate_to_working_proxy()
+                    logger.warning(
+                        f"Batch [{idx + 1}/{total_batches}] 下载异常: {b_err}，"
+                        f"强行切换有效代理 -> 📡 {new_proxy_str or '直连'}"
+                    )
                     retry_hits = self._retry_failed_symbols(
                         failed_symbols=batch,
                         max_retries=2,
@@ -632,114 +711,9 @@ class StockActionsFetcher:
                 )
 
         finally:
-            os.environ.pop("HTTP_PROXY", None)
-            os.environ.pop("HTTPS_PROXY", None)
+            self._apply_proxy_env(None)
 
         return target_symbols
-
-    def _retry_failed_symbols(
-        self, failed_symbols: List[str], max_retries: int, target_symbols: Set[str]
-    ) -> int:
-        """针对大 Batch 丢包/缺失的 Symbol 进行小批次/单条的重试处理"""
-        retry_hits = 0
-        pending_retry = list(failed_symbols)
-
-        for attempt in range(1, max_retries + 1):
-            if not pending_retry:
-                break
-
-            logger.info(f"🔄 [重试模式] 第 {attempt}/{max_retries} 次重试，剩余待处理: {len(pending_retry)} 只...")
-
-            # 重试时改用小 Batch (50 只)，降频避开并发限流丢包
-            retry_batch_size = 50
-            still_failed = []
-
-            for i in range(0, len(pending_retry), retry_batch_size):
-                sub_batch = pending_retry[i : i + retry_batch_size]
-                try:
-                    retry_df = yf.download(
-                        sub_batch,
-                        start=self.start_date,
-                        end=self.end_date,
-                        actions=True,
-                        progress=False,
-                        group_by="ticker",
-                        threads=True,
-                        multi_level_index=True,
-                    )
-
-                    downloaded = set()
-                    if retry_df is not None and not retry_df.empty:
-                        if isinstance(retry_df.columns, pd.MultiIndex):
-                            downloaded = set(retry_df.columns.get_level_values(0).unique())
-                        else:
-                            downloaded = set(sub_batch)
-
-                    for sym in sub_batch:
-                        if sym in downloaded:
-                            sub_df = retry_df[sym] if isinstance(retry_df.columns, pd.MultiIndex) else retry_df
-                            
-                            has_div = "Dividends" in sub_df.columns and (sub_df["Dividends"].fillna(0.0) > 0).any()
-                            has_split = "Stock Splits" in sub_df.columns and (sub_df["Stock Splits"].fillna(0.0) != 0).any()
-
-                            if has_div or has_split:
-                                if sym not in target_symbols:
-                                    target_symbols.add(sym)
-                                    retry_hits += 1
-                        else:
-                            still_failed.append(sym)
-
-                except Exception as r_err:
-                    logger.warning(f"重试子批次 ({len(sub_batch)} 只) 异常: {r_err}")
-                    still_failed.extend(sub_batch)
-
-                finally:
-                    if 'retry_df' in locals():
-                        del retry_df
-
-            pending_retry = still_failed
-            if pending_retry and attempt < max_retries:
-                time.sleep(1)  # 简短退避休息，提高下一次重试成功率
-
-        if pending_retry:
-            logger.warning(
-                f"❌ 经过 {max_retries} 次重试后，仍有 {len(pending_retry)} 只股票无法获取数据 (示例: {pending_retry[:5]})"
-            )
-
-        return retry_hits
-
-    def load_us_symbols(self) -> List[str]:
-        """载入待处理的美股 Symbol 列表"""
-        # 1. 从命令行参数或本地 stock_*.csv 获取全量 symbol list
-        if self.symbol_list is not None:
-            all_symbols = sorted(list(set(str(s).strip().upper() for s in self.symbol_list)))
-        elif not self.stock_list_path.exists():
-            all_symbols = []
-        else:
-            df = pd.read_csv(self.stock_list_path)
-            target_col = "symbol" if "symbol" in df.columns else "Symbol"
-            all_symbols = (
-                df[target_col]
-                .dropna()
-                .astype(str)
-                .str.strip()
-                .str.upper()
-                .unique()
-                .tolist()
-            )
-
-        if not all_symbols:
-            return []
-
-        # 2. 仅在增量模式 (incremental=True) 下，调用矩阵扫描过滤
-        if self.incremental:
-            target_symbols = self._scan_us_symbols_with_actions(all_symbols)
-            logger.info(f"🎯 [增量模式] 筛选出发生过除权/拆股的标的共: {len(target_symbols)} 只")
-            return sorted(list(target_symbols))
-
-        # 3. 全量模式 (incremental=False) 下，直接返回全量列表，直接进行全量获取
-        logger.info(f"🌐 [全量模式] 准备处理全量美股标的共: {len(all_symbols)} 只")
-        return sorted(all_symbols)
 
     def fetch_actions_for_us_stock(self, symbol: str) -> List[Dict]:
         """请求筛选出的 symbol 的 ticker.actions，进行增量更新"""
@@ -748,25 +722,9 @@ class StockActionsFetcher:
 
         for attempt in range(1, self.max_retries_per_symbol + 1):
             if not self.current_working_proxy:
-                self.current_working_proxy = self.proxy_manager.get_working_proxy(
-                    max_retries=2, enable_proxy=True
-                )
-                if not self.current_working_proxy:
-                    self.current_working_proxy = self.proxy_manager.get_next_proxy()
-
-            proxy_dict = self.current_working_proxy
-            raw_proxy = (
-                (proxy_dict.get("socks5") or proxy_dict.get("https") or proxy_dict.get("http"))
-                if proxy_dict else None
-            )
-            proxy_str = format_proxy_url(raw_proxy) if raw_proxy else None
-
-            if proxy_str:
-                os.environ["HTTP_PROXY"] = proxy_str
-                os.environ["HTTPS_PROXY"] = proxy_str
+                proxy_str = self._rotate_to_working_proxy()
             else:
-                os.environ.pop("HTTP_PROXY", None)
-                os.environ.pop("HTTPS_PROXY", None)
+                proxy_str = self._apply_proxy_env(self.current_working_proxy)
 
             try:
                 ticker = yf.Ticker(symbol)
@@ -832,13 +790,47 @@ class StockActionsFetcher:
             except Exception as e:
                 if proxy_str and hasattr(self.proxy_manager, "mark_proxy_failed"):
                     self.proxy_manager.mark_proxy_failed(proxy_str)
+                # 异常时清空当前代理，触发下一次循环调用 _rotate_to_working_proxy 获取经测有效的新代理
                 self.current_working_proxy = None
 
             finally:
-                os.environ.pop("HTTP_PROXY", None)
-                os.environ.pop("HTTPS_PROXY", None)
+                self._apply_proxy_env(None)
 
         return []
+
+    def load_us_symbols(self) -> List[str]:
+        """载入待处理的美股 Symbol 列表"""
+        # 1. 从命令行参数或本地 stock_*.csv 获取全量 symbol list
+        if self.symbol_list is not None:
+            all_symbols = sorted(list(set(str(s).strip().upper() for s in self.symbol_list)))
+        elif not self.stock_list_path.exists():
+            all_symbols = []
+        else:
+            df = pd.read_csv(self.stock_list_path)
+            target_col = "symbol" if "symbol" in df.columns else "Symbol"
+            all_symbols = (
+                df[target_col]
+                .dropna()
+                .astype(str)
+                .str.strip()
+                .str.upper()
+                .unique()
+                .tolist()
+            )
+
+        if not all_symbols:
+            return []
+
+        # 2. 仅在增量模式 (incremental=True) 下，调用矩阵扫描过滤
+        if self.incremental:
+            target_symbols = self._scan_us_symbols_with_actions(all_symbols)
+            logger.info(f"🎯 [增量模式] 筛选出发生过除权/拆股的标的共: {len(target_symbols)} 只")
+            return sorted(list(target_symbols))
+
+        # 3. 全量模式 (incremental=False) 下，直接返回全量列表，直接进行全量获取
+        logger.info(f"🌐 [全量模式] 准备处理全量美股标的共: {len(all_symbols)} 只")
+        return sorted(all_symbols)
+
 
     # ==================== 执行调度入口 ====================
     def run(self):
