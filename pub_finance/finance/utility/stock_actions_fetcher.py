@@ -850,7 +850,7 @@ class StockActionsFetcher:
             finally:
                 self._apply_proxy_env(None)
 
-        return []            
+        return []      
 
     def load_us_symbols(self) -> List[str]:
         """载入待处理的美股 Symbol 列表"""
