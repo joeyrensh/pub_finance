@@ -542,7 +542,7 @@ class StockActionsFetcher:
         target_symbols: Set[str] = set()
 
         # 2. 将 Batch Size 提升至 500
-        chunk_batch_size = 500
+        chunk_batch_size = 100
         total_batches = (total_symbols_count + chunk_batch_size - 1) // chunk_batch_size
 
         try:
@@ -710,7 +710,7 @@ class StockActionsFetcher:
 
     def load_us_symbols(self) -> List[str]:
         """载入待处理的美股 Symbol 列表"""
-        # 1. 从文件中获取全量 symbol list
+        # 1. 从命令行参数或本地 stock_*.csv 获取全量 symbol list
         if self.symbol_list is not None:
             all_symbols = sorted(list(set(str(s).strip().upper() for s in self.symbol_list)))
         elif not self.stock_list_path.exists():
@@ -731,11 +731,15 @@ class StockActionsFetcher:
         if not all_symbols:
             return []
 
-        # 2. 批量拉取 lookback_period 内的历史数据，纯内存中高效筛选
-        target_symbols = self._scan_us_symbols_with_actions(all_symbols)
+        # 2. 仅在增量模式 (incremental=True) 下，调用矩阵扫描过滤
+        if self.incremental:
+            target_symbols = self._scan_us_symbols_with_actions(all_symbols)
+            logger.info(f"🎯 [增量模式] 筛选出发生过除权/拆股的标的共: {len(target_symbols)} 只")
+            return sorted(list(target_symbols))
 
-        logger.info(f"🎯 最终筛选出发生过除权/拆股的标的共: {len(target_symbols)} 只")
-        return sorted(list(target_symbols))
+        # 3. 全量模式 (incremental=False) 下，直接返回全量列表，直接进行全量获取
+        logger.info(f"🌐 [全量模式] 准备处理全量美股标的共: {len(all_symbols)} 只")
+        return sorted(all_symbols)
 
     def fetch_actions_for_us_stock(self, symbol: str) -> List[Dict]:
         """请求筛选出的 symbol 的 ticker.actions，进行增量更新"""
