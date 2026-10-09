@@ -542,7 +542,7 @@ class StockActionsFetcher:
         target_symbols: Set[str] = set()
 
         # 2. 将 Batch Size 提升至 500
-        chunk_batch_size = 100
+        chunk_batch_size = 50
         total_batches = (total_symbols_count + chunk_batch_size - 1) // chunk_batch_size
 
         try:
