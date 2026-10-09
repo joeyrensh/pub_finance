@@ -306,7 +306,7 @@ class StockActionsFetcher:
             }
 
             try:
-                res = requests.get(url, params=params, headers=headers, timeout=10).json()
+                res = curl_requests.get(url, params=params, headers=headers, timeout=10).json()
                 if not res.get("success") or not res.get("result"):
                     break
 
