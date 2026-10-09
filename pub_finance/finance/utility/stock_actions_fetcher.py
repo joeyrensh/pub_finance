@@ -575,9 +575,9 @@ class StockActionsFetcher:
                         start=self.start_date,
                         end=self.end_date,
                         actions=True,
-                        progress=False,
+                        progress=True,
                         group_by="ticker",
-                        threads=False,
+                        threads=2,
                         multi_level_index=True,
                     )
 
@@ -645,9 +645,9 @@ class StockActionsFetcher:
                         start=self.start_date,
                         end=self.end_date,
                         actions=True,
-                        progress=False,
+                        progress=True,
                         group_by="ticker",
-                        threads=True,
+                        threads=2,
                         multi_level_index=True,
                     )
 
