@@ -1248,6 +1248,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
     color: var(--grid-color) !important;
     font-size : 1rem;
     margin-top: -5px;
+    font-weight: 100;    
 }
 
 .rc-slider-tooltip-inner {
