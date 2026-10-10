@@ -99,8 +99,6 @@ def get_industry_info(
 
             # 成功后锁定当前代理，供后续股票持续使用
             CURRENT_WORKING_PROXY = proxy_dict
-            if proxy_str and hasattr(proxy_manager, "mark_proxy_working"):
-                proxy_manager.mark_proxy_working(proxy_str)
 
             logger.info(f"✅ 成功获取 {symbol} 行业信息: {industry} | {sector}")
             return industry, sector, proxy_dict
@@ -110,8 +108,6 @@ def get_industry_info(
                 f"[{symbol}] 代理 [{proxy_str}] 网络错误: {str(e)}"
             )
             # 标记代理失效并重置粘性代理
-            if proxy_str and hasattr(proxy_manager, "mark_proxy_failed"):
-                proxy_manager.mark_proxy_failed(proxy_str)
             CURRENT_WORKING_PROXY = None
             time.sleep(random.uniform(1, 2))
 
@@ -126,8 +122,6 @@ def get_industry_info(
                 logger.warning(
                     f"[{symbol}] 代理 [{proxy_str}] 处理错误: {error_msg}"
                 )
-                if proxy_str and hasattr(proxy_manager, "mark_proxy_failed"):
-                    proxy_manager.mark_proxy_failed(proxy_str)
                 CURRENT_WORKING_PROXY = None
             time.sleep(random.uniform(1, 2))
 
