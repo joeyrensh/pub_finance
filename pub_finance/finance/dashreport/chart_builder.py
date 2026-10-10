@@ -2367,6 +2367,7 @@ class ChartBuilder:
                     marker=dict(
                         symbol="circle", size=8 * scale, color=cfg["cumret-line-color"]
                     ),
+                    cliponaxis=False,
                     showlegend=False,
                     hovertemplate=f"<b>Latest Cum. Return</b>: {last_y:.2f}<br><extra></extra>",
                     hoverlabel=dict(
@@ -2618,7 +2619,7 @@ class ChartBuilder:
         fig.update_layout(
             dragmode=False,
             autosize=True,
-            margin=dict(l=0, r=1, t=0, b=0),
+            margin=dict(l=0, r=0, t=0, b=0),
             font=dict(size=base_font, color=text_color, family=self.font_family),
             legend=dict(
                 x=legend_absolute_x,
