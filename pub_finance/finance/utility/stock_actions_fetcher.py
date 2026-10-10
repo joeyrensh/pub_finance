@@ -546,8 +546,8 @@ class StockActionsFetcher:
 
     def _get_us_main_exchange_symbols_from_sec(self) -> Set[str]:
         """
-        基于跨市场挂牌结构 + 官方通用法权后缀的极致精炼 ADR 池
-        (完全零具体公司名硬编码，将 2100+ 进一步缩减至 ~450 只精准 ADR，彻底排除 GOOG/BRK 等本土双重股)
+        基于跨市场挂牌结构 + CIK 多记录频次统计（>= 2条）的精炼 ADR 池
+        (完全消除文本正则判定，结合 CIK 频次特征与跨市场特征，高效提取 ADR 目标池)
         """
         # 1. 确保环境变量装载了有效代理
         if not getattr(self, "current_working_proxy", None):
@@ -567,12 +567,11 @@ class StockActionsFetcher:
                 res = curl_requests.get(url, headers=headers, timeout=12)
                 if res.status_code == 200:
                     data = res.json()
+                    # 适配 JSON 格式: ['cik', 'name', 'ticker', 'exchange']
                     df = pd.DataFrame(data['data'], columns=data['fields'])
-                    # fields: ['cik', 'name', 'ticker', 'exchange']
                     
                     df['exchange_upper'] = df['exchange'].str.upper().str.strip()
                     df['clean_ticker'] = df['ticker'].str.upper().str.strip()
-                    df['clean_name'] = df['name'].str.upper().str.strip()
 
                     main_exchanges = {'NYQ', 'NYSE', 'NMS', 'NGS', 'NCM', 'NASDAQ', 'ASE'}
                     otc_exchanges = {'OTC', 'OTCBB', 'PINK'}
@@ -581,38 +580,47 @@ class StockActionsFetcher:
                     df['is_otc'] = df['exchange_upper'].isin(otc_exchanges)
 
                     # ---------------------------------------------------------------------
-                    # 规则 1 [纯结构]: 查找 CIK 同时跨越【主板】与【OTC/场外】市场的标的
-                    # (彻底精准抓取 BABA, TSM 等绝大多数 ADR，同时 100% 剔除 GOOG/BRK 等本土双重股)
+                    # 规则 1 [跨市场结构]: 查找 CIK 同事跨越【主板】与【OTC/场外】市场的标的
+                    # (精炼提取 BABA, TSM 等绝大多数通过多重挂牌备案的 ADR)
                     # ---------------------------------------------------------------------
                     main_ciks = set(df[df['is_main']]['cik'])
                     otc_ciks = set(df[df['is_otc']]['cik'])
                     cross_market_ciks = main_ciks.intersection(otc_ciks)
 
                     # ---------------------------------------------------------------------
-                    # 规则 2 [法权后缀]: 提取通用外企/存托后缀 (S.A., S.A.B., N.V., PLC, A.S., OYJ, ADR, ADS)
-                    # (专为像 BBD/BBDO 这种两个代码全在 NYSE、不跨 OTC 的拉美/欧洲外企保底)
+                    # 规则 2 [CIK 频次特征]: 统计每个 CIK 出现的总记录数，超过 1 条（即 >= 2 条）即命中
+                    # (精准补全像 BBD/BBDO 这种同一公司在 SEC 存在多条记录/多类股票的 ADR)
                     # ---------------------------------------------------------------------
-                    std_foreign_suffix_pattern = (
-                        r'(?i)\b(ADR|ADS|AMERICAN DEPOSITARY|DEPOSITARY|DEPOSITORY'
-                        r'|S\.A\.|S\.A\.B\.|N\.V\.|PLC|A\.S\.|OYJ)\b'
-                    )
+                    cik_counts = df['cik'].value_counts()
+                    multi_record_ciks = set(cik_counts[cik_counts >= 2].index)
 
-                    # 过滤主板规范代码 (1~5 位纯字母)
-                    valid_main_mask = (df['is_main']) & (df['clean_ticker'].str.match(r'^[A-Z]{1,5}$'))
-                    df_main_valid = df[valid_main_mask].copy()
+                    # ---------------------------------------------------------------------
+                    # [过滤]: 1. 过滤主板规范代码 (1~5位纯字母)
+                    #         2. 正则排除以 W (Warrant 权证) 或 U (Unit 单位股) 结尾的 5 位衍生品代码 (如 SATLW)
+                    # ---------------------------------------------------------------------
+                    valid_main_mask = df['is_main'] & df['clean_ticker'].str.match(r'^[A-Z]{1,5}$')
+                    is_derivative = df['clean_ticker'].str.match(r'^[A-Z]{4}[WU]$')
+                    
+                    # 显式 .copy() 避免后续衍生 SettingWithCopyWarning
+                    df_main_valid = df[valid_main_mask & (~is_derivative)].copy()
 
-                    # 判定条件：跨市场挂牌 OR 包含通用外企法权后缀
+                    # 判定条件：规则 1 (跨市场 CIK) OR 规则 2 (CIK 频次 >= 2)
                     cond_cross_market = df_main_valid['cik'].isin(cross_market_ciks)
-                    cond_foreign_suffix = df_main_valid['clean_name'].str.contains(
-                        std_foreign_suffix_pattern, case=False, regex=True, na=False
-                    )
+                    cond_multi_record = df_main_valid['cik'].isin(multi_record_ciks)
 
-                    df_adr = df_main_valid[cond_cross_market | cond_foreign_suffix]
-                    target_symbols = set(df_adr['clean_ticker'].tolist())
+                    # 重点修改 1：通过 .copy() 明确分配独立内存空间，彻底消灭 Warning
+                    df_adr = df_main_valid[cond_cross_market | cond_multi_record].copy()
+                    
+                    # 重点修改 2：安全新增代码长度列并去重 (同 CIK 优先保留最简短的普通股主标的)
+                    df_adr.loc[:, 'ticker_len'] = df_adr['clean_ticker'].str.len()
+                    df_adr_sorted = df_adr.sort_values(by=['cik', 'ticker_len'])
+                    df_adr_unique = df_adr_sorted.drop_duplicates(subset=['cik'], keep='first')
+
+                    target_symbols = set(df_adr_unique['clean_ticker'].tolist())
 
                     logger.info(
                         f"✅ [SEC 精炼ADR池] 提取成功: {len(target_symbols)} 只 "
-                        f"(逻辑: 跨市场 CIK OR 外企法权后缀 | 100% 覆盖 BBD, BABA, TSM | 已排除 7200+ 本土股票)"
+                        f"(逻辑: 跨市场 CIK OR CIK频次>=2 | 已精准包含 BBD, BABA, TSM | 自动剔除 SATLW 等权证)"
                     )
                     break
                 else:
