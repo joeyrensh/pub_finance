@@ -1163,7 +1163,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
     border-right: 1px solid var(--gridcolor) !important;
     text-align: left !important;
     padding: 0px 2px !important;
-    white-space: nowrap !important;
+    white-space: normal !important;
 }
 
 .symbol_summary_box table th {
