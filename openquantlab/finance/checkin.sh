@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SRC_DIR="./pub_finance"
-DST_DIR="./git-repo/pub_finance/pub_finance"
+SRC_DIR="./openquantlab"
+DST_DIR="./git-repo/openquantlab/openquantlab"
 
 # 清空目标
 rm -rf "$DST_DIR"/*
@@ -29,8 +29,8 @@ for special in cnstockinfo usstockinfo; do
         find "$src" -mindepth 1 -type d -exec mkdir -p "$dst"/{} \;
     fi
 done
-printf "mail_name,mail_password\nmail_name1\n" > ./git-repo/pub_finance/pub_finance/finance/conf/mail.conf
-cd ./git-repo/pub_finance/pub_finance/
+printf "mail_name,mail_password\nmail_name1\n" > ./git-repo/openquantlab/openquantlab/finance/conf/mail.conf
+cd ./git-repo/openquantlab/openquantlab/
 git add *
 git status
 git commit -a -m "update"

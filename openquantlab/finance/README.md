@@ -1,18 +1,18 @@
-# Pub Finance
+# OpenQuantLab
 
 > 🌟 Free & Open-Source Quantitative Analysis Framework | Supporting A-Shares & US Stocks | Strategy Backtesting + Dynamic Visual Analytics
 
-[![GitHub Stars](https://img.shields.io/github/stars/joeyrensh/pub_finance?style=flat-square)](https://github.com/joeyrensh/pub_finance)
-[![Package Size](https://img.shields.io/github/languages/code-size/joeyrensh/pub_finance)](https://github.com/joeyrensh/pub_finance)
-[![License](https://img.shields.io/github/license/joeyrensh/pub_finance?color=blue)](https://github.com/joeyrensh/pub_finance)
+[![GitHub Stars](https://img.shields.io/github/stars/joeyrensh/openquantlab?style=flat-square)](https://github.com/joeyrensh/openquantlab)
+[![Package Size](https://img.shields.io/github/languages/code-size/joeyrensh/openquantlab)](https://github.com/joeyrensh/openquantlab)
+[![License](https://img.shields.io/github/license/joeyrensh/openquantlab?color=blue)](https://github.com/joeyrensh/openquantlab)
 
 ## 📌 Introduction
-Pub Finance is a **full-lifecycle, open-source quantitative analysis framework** that provides an end-to-end closed loop spanning data pipelines, a backtesting engine, and interactive Web dashboards. Seamlessly supporting both the **A-Share** and **US Stock** markets, it is designed to help individual investors and quant enthusiasts rapidly validate, optimize, and deploy trading strategies.
+OpenQuantLab is a **full-lifecycle, open-source quantitative analysis framework** that provides an end-to-end closed loop spanning data pipelines, a backtesting engine, and interactive Web dashboards. Seamlessly supporting both the **A-Share** and **US Stock** markets, it is designed to help individual investors and quant enthusiasts rapidly validate, optimize, and deploy trading strategies.
 
 ---
 
 ## 🏗️ Architecture & Core Data Flow
-Pub Finance features a lightweight, decoupled modular design. The core pipeline is structured as follows:
+OpenQuantLab features a lightweight, decoupled modular design. The core pipeline is structured as follows:
 
 ```text
  📊 Multi-Source Data           🧠 Backtesting Engine            🎨 Web Visualization
@@ -25,12 +25,12 @@ Pub Finance features a lightweight, decoupled modular design. The core pipeline 
 
 ## 界面预览
 <p align="center">
-  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Frontpage.png" height="320" alt="回测分析主界面">
-  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Backtest.png" height="320" alt="买卖点K线分析">
-  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Config.png" height="320" alt="自定义偏好">
+  <img src="https://github.com/joeyrensh/openquantlab/raw/master/openquantlab/finance/Frontpage.png" height="320" alt="回测分析主界面">
+  <img src="https://github.com/joeyrensh/openquantlab/raw/master/openquantlab/finance/Backtest.png" height="320" alt="买卖点K线分析">
+  <img src="https://github.com/joeyrensh/openquantlab/raw/master/openquantlab/finance/Config.png" height="320" alt="自定义偏好">
 </p>
 <p align="center">
-  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/AI_Analysis.png" height="100" alt="AI智能摘要">
+  <img src="https://github.com/joeyrensh/openquantlab/raw/master/openquantlab/finance/AI_Analysis.png" height="100" alt="AI智能摘要">
 </p>
 <p align="center">
   left：Candlestick with Buy/Sell Signals | Trade Log &nbsp;&nbsp; Right: Weight Configuration & Returns & Drawdowns
@@ -68,8 +68,8 @@ Pub Finance features a lightweight, decoupled modular design. The core pipeline 
 ### 1. Prerequisites & Dependencies Installation
 Clone the repository and install the required quantitative base dependencies:
 ```bash
-git clone [https://github.com/joeyrensh/pub_finance.git](https://github.com/joeyrensh/pub_finance.git)
-cd pub_finance
+git clone [https://github.com/joeyrensh/openquantlab.git](https://github.com/joeyrensh/openquantlab.git)
+cd openquantlab
 
 # 1. activate virtual env
 conda create -n dash_env python=3.13.5 -y
@@ -96,7 +96,7 @@ nohup python -m finance.dashreport.dash_wsgi > dash_server.log 2>&1 &
 ```
 ## Directory Structure
 ```text
-pub_finance/
+openquantlab/
 └── finance/
     ├── data/                # Data storage
     │   ├── us_stockdetail.csv  # US stock positions data
@@ -133,22 +133,22 @@ PYSPARK_PYTHON = /root/miniconda3/envs/dash_env/bin/python
 PYSPARK_DRIVER_PYTHON = /root/miniconda3/envs/dash_env/bin/python
 
 # Run US stock strategy daily at 07:00
-45 06 * * * cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/usstock_main.py > /root/pub_finance/finance/us.log 2>&1
+45 06 * * * cd /root/openquantlab/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/openquantlab/finance/usstock_main.py > /root/openquantlab/finance/us.log 2>&1
 
 # Run A-Share strategy daily at 15:30
-20 15 * * * cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/cnstock_main.py > /root/pub_finance/finance/cn.log 2>&1
+20 15 * * * cd /root/openquantlab/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/openquantlab/finance/cnstock_main.py > /root/openquantlab/finance/cn.log 2>&1
 
 # Maintain Mainland China proxy pool daily at 07:30
-30 07 * * * cd /root/pub_finance/finance/proxy ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/proxy/fetch_cn_proxies.py --target 200 --workers 20 > /root/pub_finance/finance/proxy/cn_proxy.log 2>&1
+30 07 * * * cd /root/openquantlab/finance/proxy ; /root/miniconda3/envs/dash_env/bin/python -u /root/openquantlab/finance/proxy/fetch_cn_proxies.py --target 200 --workers 20 > /root/openquantlab/finance/proxy/cn_proxy.log 2>&1
 
 # Maintain Overseas proxy pool daily at 08:30
-30 08 * * * cd /root/pub_finance/finance/proxy ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/proxy/fetch_overseas_proxies.py --target 1000 --workers 20 > /root/pub_finance/finance/proxy/overseas_proxy.log 2>&1
+30 08 * * * cd /root/openquantlab/finance/proxy ; /root/miniconda3/envs/dash_env/bin/python -u /root/openquantlab/finance/proxy/fetch_overseas_proxies.py --target 1000 --workers 20 > /root/openquantlab/finance/proxy/overseas_proxy.log 2>&1
 
 # Fetch CN stock actions data every Sunday at 06:00
-0 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market cn --incremental --lookback 2w > /root/pub_finance/finance/cn_actions.log 2>&1
+0 6 * * 0 cd /root/openquantlab/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/openquantlab/finance/fetch_symbol_actions.py --market cn --incremental --lookback 2w > /root/openquantlab/finance/cn_actions.log 2>&1
 
 # Fetch US stock actions data every Sunday at 06:30 (staggered by 30 mins to avoid concurrency issues and log overlapping)
-30 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market us --incremental --lookback 2w > /root/pub_finance/finance/us_actions.log 2>&1
+30 6 * * 0 cd /root/openquantlab/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/openquantlab/finance/fetch_symbol_actions.py --market us --incremental --lookback 2w > /root/openquantlab/finance/us_actions.log 2>&1
 ```
 
 ## Contributing
@@ -166,7 +166,7 @@ Contributions make the open-source community an amazing place to learn, inspire,
 
 ## Contact & Feedback
 - Email: haifengreal@qq.com
-- Issues: https://github.com/joeyrensh/pub_finance/issues
+- Issues: https://github.com/joeyrensh/openquantlab/issues
 
 **⭐ If this project helped you, please give us a Star!**
 
@@ -174,21 +174,21 @@ Contributions make the open-source community an amazing place to learn, inspire,
 
 
 
-# Pub Finance [中文版]
+# OpenQuantLab [中文版]
 
 > 🌟 开源免费量化分析框架 | 支持 A股 / 美股 | 策略回测 + 动态可视化分析
 
-[![GitHub Stars](https://img.shields.io/github/stars/joeyrensh/pub_finance?style=flat-square)](https://github.com/joeyrensh/pub_finance)
-[![Package Size](https://img.shields.io/github/languages/code-size/joeyrensh/pub_finance)](https://github.com/joeyrensh/pub_finance)
-[![License](https://img.shields.io/github/license/joeyrensh/pub_finance?color=blue)](https://github.com/joeyrensh/pub_finance)
+[![GitHub Stars](https://img.shields.io/github/stars/joeyrensh/openquantlab?style=flat-square)](https://github.com/joeyrensh/openquantlab)
+[![Package Size](https://img.shields.io/github/languages/code-size/joeyrensh/openquantlab)](https://github.com/joeyrensh/openquantlab)
+[![License](https://img.shields.io/github/license/joeyrensh/openquantlab?color=blue)](https://github.com/joeyrensh/openquantlab)
 
 ## 📌 简介
-Pub Finance 是一套**全流程开源量化分析框架**，提供从数据流、策略引擎到交互式 Web 报表的全链路闭环。框架原生支持 **A 股、美股** 两大市场，旨在帮助个人投资者与量化爱好者快速验证、优化并落地交易策略。
+OpenQuantLab 是一套**全流程开源量化分析框架**，提供从数据流、策略引擎到交互式 Web 报表的全链路闭环。框架原生支持 **A 股、美股** 两大市场，旨在帮助个人投资者与量化爱好者快速验证、优化并落地交易策略。
 
 ---
 
 ## 🏗️ 技术架构与核心数据流
-Pub Finance 采用轻量低耦合的模块化设计，核心链路如下：
+OpenQuantLab 采用轻量低耦合的模块化设计，核心链路如下：
 
 ```text
  📊 多源数据流                 🧠 策略回测引擎               🎨 Web 可视化面板
@@ -201,12 +201,12 @@ Pub Finance 采用轻量低耦合的模块化设计，核心链路如下：
 
 ## 界面预览
 <p align="center">
-  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Frontpage.png" height="320" alt="回测分析主界面">
-  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Backtest.png" height="320" alt="买卖点K线分析">
-  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/Config.png" height="320" alt="自定义偏好">
+  <img src="https://github.com/joeyrensh/openquantlab/raw/master/openquantlab/finance/Frontpage.png" height="320" alt="回测分析主界面">
+  <img src="https://github.com/joeyrensh/openquantlab/raw/master/openquantlab/finance/Backtest.png" height="320" alt="买卖点K线分析">
+  <img src="https://github.com/joeyrensh/openquantlab/raw/master/openquantlab/finance/Config.png" height="320" alt="自定义偏好">
 </p>
 <p align="center">
-  <img src="https://github.com/joeyrensh/pub_finance/raw/master/pub_finance/finance/AI_Analysis.png" height="100" alt="AI智能摘要">
+  <img src="https://github.com/joeyrensh/openquantlab/raw/master/openquantlab/finance/AI_Analysis.png" height="100" alt="AI智能摘要">
 </p>
 <p align="center">
   左侧：K线图 + 买卖信号标记 &nbsp;&nbsp; 右侧：回测配置 & 绩效指标面板
@@ -249,8 +249,8 @@ Pub Finance 采用轻量低耦合的模块化设计，核心链路如下：
 ### 1. 环境准备与依赖安装
 克隆代码库并安装所需的量化基础依赖：
 ```bash
-git clone [https://github.com/joeyrensh/pub_finance.git](https://github.com/joeyrensh/pub_finance.git)
-cd pub_finance
+git clone [https://github.com/joeyrensh/openquantlab.git](https://github.com/joeyrensh/openquantlab.git)
+cd openquantlab
 
 # 1. 创建并激活相同的 Python 3.13 环境
 conda create -n dash_env python=3.13.5 -y
@@ -278,7 +278,7 @@ nohup python -m finance.dashreport.dash_wsgi > dash_server.log 2>&1 &
 
 ## 项目目录结构
 ```text
-pub_finance/
+openquantlab/
 └── finance/
     ├── data/                # 数据存储目录
     │   ├── us_stockdetail.csv  # 美股持仓数据
@@ -313,22 +313,22 @@ PYSPARK_PYTHON = /root/miniconda3/envs/dash_env/bin/python
 PYSPARK_DRIVER_PYTHON = /root/miniconda3/envs/dash_env/bin/python
 
 # 美股主策略
-45 06 * * * cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/usstock_main.py > /root/pub_finance/finance/us.log 2>&1
+45 06 * * * cd /root/openquantlab/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/openquantlab/finance/usstock_main.py > /root/openquantlab/finance/us.log 2>&1
 
 # A股主策略
-20 15 * * * cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/cnstock_main.py > /root/pub_finance/finance/cn.log 2>&1
+20 15 * * * cd /root/openquantlab/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/openquantlab/finance/cnstock_main.py > /root/openquantlab/finance/cn.log 2>&1
 
 # A股代理获取
-30 07 * * * cd /root/pub_finance/finance/proxy ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/proxy/fetch_cn_proxies.py --target 200 --workers 20 > /root/pub_finance/finance/proxy/cn_proxy.log 2>&1
+30 07 * * * cd /root/openquantlab/finance/proxy ; /root/miniconda3/envs/dash_env/bin/python -u /root/openquantlab/finance/proxy/fetch_cn_proxies.py --target 200 --workers 20 > /root/openquantlab/finance/proxy/cn_proxy.log 2>&1
 
 # 美股代理获取
-30 08 * * * cd /root/pub_finance/finance/proxy ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/proxy/fetch_overseas_proxies.py --target 1000 --workers 20 > /root/pub_finance/finance/proxy/overseas_proxy.log 2>&1
+30 08 * * * cd /root/openquantlab/finance/proxy ; /root/miniconda3/envs/dash_env/bin/python -u /root/openquantlab/finance/proxy/fetch_overseas_proxies.py --target 1000 --workers 20 > /root/openquantlab/finance/proxy/overseas_proxy.log 2>&1
 
 # 每周日早上 6:00 抓取 CN 市场除权数据
-0 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market cn --incremental --lookback 2w > /root/pub_finance/finance/cn_actions.log 2>&1
+0 6 * * 0 cd /root/openquantlab/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/openquantlab/finance/fetch_symbol_actions.py --market cn --incremental --lookback 2w > /root/openquantlab/finance/cn_actions.log 2>&1
 
 # 每周日早上 6:30 抓取 US 市场除权数据 (错开 30 分钟避免并发冲撞与日志混淆)
-30 6 * * 0 cd /root/pub_finance/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/pub_finance/finance/fetch_symbol_actions.py --market us --incremental --lookback 2w > /root/pub_finance/finance/us_actions.log 2>&1
+30 6 * * 0 cd /root/openquantlab/finance ; /root/miniconda3/envs/dash_env/bin/python -u /root/openquantlab/finance/fetch_symbol_actions.py --market us --incremental --lookback 2w > /root/openquantlab/finance/us_actions.log 2>&1
 ```
 ## 参与贡献
 欢迎大家提交 Issue 和 Pull Request，共同完善项目：
@@ -339,7 +339,7 @@ PYSPARK_DRIVER_PYTHON = /root/miniconda3/envs/dash_env/bin/python
 5. 提交 Pull Request
 ## 联系方式
 - Email: haifengreal@qq.com
-- Issues: https://github.com/joeyrensh/pub_finance/issues
+- Issues: https://github.com/joeyrensh/openquantlab/issues
 
 **⭐ 如果这个项目对你有帮助，请给一个 Star!**
 

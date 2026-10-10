@@ -7,7 +7,7 @@ This is a demo of the [Dash] financial report app developed in Plotly.
 
 ### Running the app locally
 
-At pub_finance directory, execute the command "sudo nohup /home/ubuntu/miniconda3/bin/python -m finance.dashreport.dash_wsgi > dash.log 2>&1 &"
+At openquantlab directory, execute the command "sudo nohup /home/ubuntu/miniconda3/bin/python -m finance.dashreport.dash_wsgi > dash.log 2>&1 &"
 
 Debug command "sudo nohup /home/ubuntu/miniconda3/bin/python -u -m finance.dashreport.dash_wsgi 2>&1 | tee dash.log &"
 

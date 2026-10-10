@@ -49,7 +49,7 @@ def get_header(app):
                                     ],
                                     id="learn-more-button",
                                 ),
-                                href="https://github.com/joeyrensh/pub_finance/tree/master/pub_finance/finance",
+                                href="https://github.com/joeyrensh/OpenQuantLab/tree/master/openquantlab/finance",
                                 target="_blank",
                                 style={"textDecoration": "none"},
                             )
