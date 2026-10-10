@@ -3081,9 +3081,11 @@ class ChartBuilder:
                 if div > 0:
                     if market == "cn":
                         cn_div = div * 10
-                        hover_details.append(f"分红: 每10股 ￥{cn_div:.2f}")
+                        cn_div_str = f"{cn_div:.3f}".rstrip('0').rstrip('.')
+                        hover_details.append(f"分红: 每10股 ￥{cn_div_str}")
                     else:
-                        hover_details.append(f"分红: 每1股 ${div:.2f}")
+                        div_str = f"{div:.3f}".rstrip('0').rstrip('.')
+                        hover_details.append(f"分红: 每1股 ${div_str}")
 
                 if split != 1.0 and split > 0:
                     if split > 1.0:
