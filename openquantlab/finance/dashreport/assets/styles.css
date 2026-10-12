@@ -546,13 +546,13 @@ table.tiny-header tr:first-child { font-size: 8px; }
 }
 
 .kpi-card {
-    flex: 1 1 0%;
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
     text-align: flex-start;
-    padding: 16px 5px 16px 8px;
+    padding: 16px 8px 16px 8px;
     position: relative;
     border: medium;
     background-color: transparent;
