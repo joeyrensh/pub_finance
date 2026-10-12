@@ -1370,6 +1370,7 @@ class ChartBuilder:
                                 size=6 * unified_scale,
                                 color=cfg_item["color"],
                             ),
+                            cliponaxis=False,
                             text=[f"{max_val_str}"],
                             textposition=smart_pos,
                             textfont=dict(
@@ -3836,6 +3837,7 @@ class ChartBuilder:
                 y=df["s_pnl"],
                 name="Daily PnL",
                 mode="lines+markers",
+                cliponaxis=False,
                 line=dict(color=cfg.get("cumret-line-color"), width=1.5),
                 marker=dict(size=6 * unified_scale, color=cfg.get("cumret-line-color")),
                 text=df["hover-text-color"],
