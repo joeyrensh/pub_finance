@@ -2826,8 +2826,8 @@ class ChartBuilder:
                 showlegend=True,
                 hovertemplate=(
                     "%{x|%Y-%m-%d}<br>"
-                    "Open: %{open:.2f} High: %{high:.2f}<br>"
-                    "Low: %{low:.2f}  Close: %{close:.2f} (%{customdata[0]:+.2%})"
+                    "O: %{open:.2f} H: %{high:.2f}<br>"
+                    "L: %{low:.2f}  C: %{close:.2f} (%{customdata[0]:+.2%})"
                     "<extra></extra>"
                 ),
                 hoverlabel=dict(
@@ -2916,7 +2916,7 @@ class ChartBuilder:
                         y=[suspension_price],
                         mode="markers+text",
                         cliponaxis=False,
-                        text="<b>B</b>" if is_buy else "<b>S</b>",
+                        text="B" if is_buy else "S",
                         textposition="top center",
                         textfont=dict(size=int(10 * scale), color=color, weight="bold"),
                         marker=dict(
@@ -2937,7 +2937,7 @@ class ChartBuilder:
                         # 新 Hover 样式：[▲ 买入 | ￥10.50]
                         hovertemplate=(
                             f"[{arrow_icon} <b>{tt}</b> | {tp:.2f}]<br>"
-                            f"Strategy: {strat_display}<br>"
+                            f"Strat: {strat_display}<br>"
                             f"%{{x|%Y-%m-%d}}<extra></extra>"
                         ),
                         hoverlabel=dict(
@@ -3044,7 +3044,7 @@ class ChartBuilder:
                     # 新 Hover 样式：[▲ 升级 | ￥10.50]
                     hovertemplate=(
                         f"[▲ <b>升级</b> | {bar_close:.2f}]<br>"
-                        f"Strategy: Lv{up['label']} · {up['strategy']}<br>"
+                        f"Strat: Lv{up['label']} · {up['strategy']}<br>"
                         f"%{{x|%Y-%m-%d}}<extra></extra>"
                     ),
                     hoverlabel=dict(
@@ -3129,7 +3129,7 @@ class ChartBuilder:
                         y=[bottom_y],
                         mode="markers+text",
                         cliponaxis=False,
-                        text="<b>F</b>",
+                        text="F",
                         textposition="bottom left",  # 文字位于圆点上方，亦可设为 "middle center" 居于圆点内部
                         textfont=dict(
                             size=int(8 * scale),
