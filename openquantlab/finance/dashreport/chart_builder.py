@@ -2988,16 +2988,27 @@ class ChartBuilder:
                         if candidates.empty:
                             continue
                         current_strategy = buy_strategy
+                        last_emitted_level = None  # 记录上一次已显示文本的 level
+
                         for _, rec in candidates.iterrows():
                             if rec["strategy"] != current_strategy:
                                 strat_name = rec["strategy"]
-                                level = STRATEGY_LEVELS.get(strat_name, strat_name)
+                                level_val = STRATEGY_LEVELS.get(strat_name, strat_name)
+                                level_str = str(level_val)
+
+                                # 判定 K 线图上是否要隐藏文本
+                                if level_str == last_emitted_level:
+                                    display_label = ""  # 相同 level：隐藏图表上的文本
+                                else:
+                                    display_label = level_str
+                                    last_emitted_level = level_str  # 更新上一次显示的 level
 
                                 upgrade_points.append(
                                     {
                                         "date": rec["date"],
                                         "strategy": strat_name,
-                                        "label": str(level),
+                                        "level": level_str,      # 真实 level，供 Hover 始终精准显示
+                                        "label": display_label,  # 仅供 K 线图 Marker 上方文本显示
                                     }
                                 )
                                 current_strategy = strat_name
@@ -3020,7 +3031,7 @@ class ChartBuilder:
                     y=[suspension_price],
                     mode="markers+text",
                     cliponaxis=False,
-                    text=up["label"],
+                    text=up["label"],  # 为 "" 时图表上隐藏数字，只保留 ▲ Marker
                     textposition="top center",
                     textfont=dict(
                         size=int(8 * scale),
@@ -3041,10 +3052,10 @@ class ChartBuilder:
                         thickness=1,
                     ),
                     showlegend=False,
-                    # 新 Hover 样式：[▲ Up | ￥10.50]
+                    # 关键修改：Hover 模板强制使用 up['level']，不受图表文本去重影响
                     hovertemplate=(
                         f"[▲ <b>Up</b> | {bar_close:.2f}]<br>"
-                        f"<b>Strat</b>: Lv{up['label']} · {up['strategy']}<br>"
+                        f"<b>Strat</b>: Lv{up['level']} · {up['strategy']}<br>"
                         f"%{{x|%Y-%m-%d}}<extra></extra>"
                     ),
                     hoverlabel=dict(
