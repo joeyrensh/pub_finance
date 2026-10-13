@@ -2224,7 +2224,7 @@ class ChartBuilder:
                         (
                             1.0,
                             self._get_alpha_color(
-                                cfg.get("drawdown-line-color"), alpha=0.2
+                                cfg.get("drawdown-line-color"), alpha=0.1
                             ),
                         ),
                     ],
@@ -2261,7 +2261,7 @@ class ChartBuilder:
                         (
                             1.0,
                             self._get_alpha_color(
-                                cfg.get("cumret-line-color"), alpha=0.2
+                                cfg.get("cumret-line-color"), alpha=0.1
                             ),
                         ),
                     ],
@@ -3109,7 +3109,7 @@ class ChartBuilder:
                 # 1. 绘制贯穿整个主图 (Row 1) 的垂直虚线
                 fig.add_vline(
                     x=ad,
-                    line_width=1,
+                    line_width= 1 * scale,
                     line_dash="dash",  # 设置为虚线
                     line_color=action_color,
                     opacity=0.6,
@@ -3473,7 +3473,7 @@ class ChartBuilder:
                     y1=res_p,
                     line=dict(
                         color=self._get_alpha_color(cfg.get("short"), alpha=0.7),
-                        width=1.2 * scale,
+                        width=1 * scale,
                         dash="solid",
                     ),
                     row=row,
@@ -3491,7 +3491,7 @@ class ChartBuilder:
                     y1=sup_p,
                     line=dict(
                         color=self._get_alpha_color(cfg.get("long"), alpha=0.7),
-                        width=1.2 * scale,
+                        width=1 * scale,
                         dash="solid",
                     ),
                     row=row,

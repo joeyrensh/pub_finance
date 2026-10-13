@@ -2,14 +2,14 @@
     "weights": {
         "industry": 0.2,
         "pnl": 0.3,
-        "stability": 0.1,
-        "erp": 0.2,
+        "stability": 0.2,
+        "erp": 0.1,
         "strategy": 0.2
     },
     "sub_weights": {
         "industry": {
-            "arrow": 0.5,
-            "bracket": 0.5
+            "arrow": 0.4,
+            "bracket": 0.6
         },
         "pnl": {
             "daily": 0.4,
@@ -17,9 +17,9 @@
         },
         "stability": {
             "win_rate": 0.2,
-            "avg_trans": 0.2,
+            "avg_trans": 0.1,
             "sortino": 0.3,
-            "maxdd": 0.3
+            "maxdd": 0.4
         },
         "strategy": {
             "cnt": 0.6,
@@ -28,8 +28,8 @@
     },
     "stock_filter": {
         "collection_days": 10,
-        "capital_flow": 0.5,
-        "up_days": 0.5,
+        "capital_flow": 0.4,
+        "up_days": 0.6,
         "quantile": 0.95
     },
     "chart_display": {
@@ -97,11 +97,11 @@
         }
     },
     "schedule_settings": {
-        "cn_stock_cron": "30 15 * * *",
-        "us_stock_cron": "45 06 * * *",
+        "cn_stock_cron": "20 15 * * *",
+        "us_stock_cron": "30 06 * * *",
         "cn_proxy_cron": "30 07 * * *",
         "oversea_proxy_cron": "30 08 * * *",
         "cn_actions_cron": "0 6 * * 0",
-        "us_actions_cron": "30 6 * * 0"        
+        "us_actions_cron": "30 6 * * 0"
     }
 }

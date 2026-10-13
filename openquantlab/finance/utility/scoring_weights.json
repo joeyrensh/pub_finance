@@ -1,8 +1,8 @@
 {
     "weights": {
-        "industry": 0.2,
+        "industry": 0.25,
         "pnl": 0.3,
-        "stability": 0.2,
+        "stability": 0.15,
         "erp": 0.1,
         "strategy": 0.2
     },
@@ -17,9 +17,9 @@
         },
         "stability": {
             "win_rate": 0.2,
-            "avg_trans": 0.2,
+            "avg_trans": 0.1,
             "sortino": 0.3,
-            "maxdd": 0.3
+            "maxdd": 0.4
         },
         "strategy": {
             "cnt": 0.6,
