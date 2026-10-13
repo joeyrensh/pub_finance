@@ -108,16 +108,30 @@ class KpiCallback:
             shares_pct = calc_pct(stock_cnt_today, stock_cnt_prev)
 
             # 6. 构建升级版的 KPI 结构 (格式: (指标名, 最新值, 环比值/补充说明))
+            # 1. 确定货币符号 ($ 或 ￥)
+            currency_symbol = "$" if page.startswith("us") else "￥"
+
+            # 2. 根据 page 模式格式化 ASSETS 和 CASH 的数值
+            if page in ("us", "cn"):
+                # 方案 1: 百万级别 (M)
+                fmt_val = f"{currency_symbol}{val_today / 1e6:,.2f}M"
+                fmt_cash = f"{currency_symbol}{cash_today / 1e6:,.2f}M"
+            else:
+                # 方案 2: 千级别 (k) — 覆盖 "us_dynamic", "cn_dynamic" 等
+                fmt_val = f"{currency_symbol}{val_today / 1e3:,.1f}k"
+                fmt_cash = f"{currency_symbol}{cash_today / 1e3:,.1f}k"
+
+            # 3. 构建 KPI 列表
             kpis = [
                 ("S&W500", swdi_today, swdi_pct),
-                ("ASSETS", f"{val_today / 10000:,.2f} 万", assets_pct),
-                ("CASH", f"{cash_today / 10000:,.2f} 万", cash_pct),
+                ("ASSETS", fmt_val, assets_pct),
+                ("CASH", fmt_cash, cash_pct),
                 ("SHARES", f"{stock_cnt_today}", shares_pct),
                 (
                     "DATE",
                     row_today.get("end_date", "")[-5:],
                     "Today",
-                ),  # DATE 一栏不显示百分比，固定为 "Today"
+                ),
             ]
 
             # 6. 构建卡片列表
