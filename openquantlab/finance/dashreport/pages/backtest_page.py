@@ -227,7 +227,7 @@ def load_logs(stocks, dt, m):
             }
         )
         df_logs["type"] = (
-            df_logs["type"].map({"buy": "买入", "sell": "卖出"}).fillna(df_logs["type"])
+            df_logs["type"].map({"buy": "Buy", "sell": "Sell"}).fillna(df_logs["type"])
         )
         df_logs = df_logs.merge(df_industry, on="symbol", how="left")
         df_logs = df_logs.merge(df_latest, on="symbol", how="left")
@@ -246,8 +246,8 @@ def load_logs(stocks, dt, m):
         # 2. 计算基础盈亏比例
         calc_ratio = (df_logs["close"] - df_logs["price"]) / df_logs["price"]
 
-        # 3. 根据 type == "买入" 条件赋值，不满足条件的设为 "-"
-        df_logs["pnl_ratio"] = np.where(df_logs["type"] == "买入", calc_ratio, "-")
+        # 3. 根据 type == "Buy" 条件赋值，不满足条件的设为 "-"
+        df_logs["pnl_ratio"] = np.where(df_logs["type"] == "Buy", calc_ratio, "-")
         logs = df_logs.to_dict("records")
     # 持仓明细
     pos_path = FINANCE_ROOT / (

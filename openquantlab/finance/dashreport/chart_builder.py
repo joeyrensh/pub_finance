@@ -2900,7 +2900,7 @@ class ChartBuilder:
                 price_row = df[df["datetime"] == td]
                 bar_high = price_row["high"].iloc[0] if not price_row.empty else tp
 
-                is_buy = tt == "买入"
+                is_buy = tt == "Buy"
                 color = cfg["long"] if is_buy else cfg["short"]
 
                 # 专业金融样式与图标前缀
@@ -2934,7 +2934,7 @@ class ChartBuilder:
                             thickness=1,
                         ),
                         showlegend=False,
-                        # 新 Hover 样式：[▲ 买入 | ￥10.50]
+                        # 新 Hover 样式：[▲ Buy | ￥10.50]
                         hovertemplate=(
                             f"[{arrow_icon} <b>{tt}</b> | {tp:.2f}]<br>"
                             f"Strat: {strat_display}<br>"
@@ -2969,7 +2969,7 @@ class ChartBuilder:
                     buy_trades = [
                         t
                         for t in trades
-                        if t.get("type") == "买入"
+                        if t.get("type") == "Buy"
                         and pd.to_datetime(t["date"]) >= df["datetime"].min()
                     ]
                     buy_trades.sort(key=lambda x: pd.to_datetime(x["date"]))
@@ -3041,9 +3041,9 @@ class ChartBuilder:
                         thickness=1,
                     ),
                     showlegend=False,
-                    # 新 Hover 样式：[▲ 升级 | ￥10.50]
+                    # 新 Hover 样式：[▲ Up | ￥10.50]
                     hovertemplate=(
-                        f"[▲ <b>升级</b> | {bar_close:.2f}]<br>"
+                        f"[▲ <b>Up</b> | {bar_close:.2f}]<br>"
                         f"Strat: Lv{up['label']} · {up['strategy']}<br>"
                         f"%{{x|%Y-%m-%d}}<extra></extra>"
                     ),
@@ -3084,17 +3084,17 @@ class ChartBuilder:
                     if market == "cn":
                         cn_div = div * 10
                         cn_div_str = f"{cn_div:.3f}".rstrip('0').rstrip('.')
-                        hover_details.append(f"分红: 每10股 ￥{cn_div_str}")
+                        hover_details.append(f"Div (10sh): ￥{cn_div_str}")
                     else:
                         div_str = f"{div:.3f}".rstrip('0').rstrip('.')
-                        hover_details.append(f"分红: 每1股 ${div_str}")
+                        hover_details.append(f"Dividend: ${div_str}")
 
                 if split != 1.0 and split > 0:
                     if split > 1.0:
                         split_str = (
                             f"{split:.0f}" if split.is_integer() else f"{split:.2f}"
                         )
-                        hover_details.append(f"拆股: 1 拆 {split_str}")
+                        hover_details.append(f"Split: 1 to {split_str}")
                     else:
                         reverse_split = 1.0 / split
                         rev_str = (
@@ -3102,7 +3102,7 @@ class ChartBuilder:
                             if reverse_split.is_integer()
                             else f"{reverse_split:.2f}"
                         )
-                        hover_details.append(f"合股: {rev_str} 合 1")
+                        hover_details.append(f"Rev-Split: {rev_str} to 1")
 
                 action_info_str = "<br>".join(hover_details)
 
@@ -3142,7 +3142,7 @@ class ChartBuilder:
                         ),
                         showlegend=False,
                         hovertemplate=(
-                            f"[Ⓕ <b>除权</b>]<br>"
+                            f"[Ⓕ <b>Ex-Action</b>]<br>"
                             f"{action_info_str}<br>"
                             f"%{{x|%Y-%m-%d}}<extra></extra>"
                         ),

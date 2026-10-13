@@ -628,7 +628,7 @@ def make_dash_format_table(df, cols_format, market, trade_date, table_name):
             {
                 "if": {
                     "filter_query": "{{{column}}} = {value} and {{{column}}} != 'nan'".format(
-                        column=col + "_o", value="买入"
+                        column=col + "_o", value="Buy"
                     ),
                     "column_id": col,
                 },
