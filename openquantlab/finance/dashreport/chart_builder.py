@@ -2969,7 +2969,7 @@ class ChartBuilder:
                     buy_trades = [
                         t
                         for t in trades
-                        if t.get("type") == "买入"
+                        if t.get("type") == "Buy"
                         and pd.to_datetime(t["date"]) >= df["datetime"].min()
                     ]
                     buy_trades.sort(key=lambda x: pd.to_datetime(x["date"]))
