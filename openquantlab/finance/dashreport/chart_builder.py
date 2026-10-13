@@ -2773,7 +2773,7 @@ class ChartBuilder:
         fig = make_subplots(
             rows=2,
             cols=1,
-            row_heights=[0.8, 0.2],
+            row_heights=[0.85, 0.15],
             vertical_spacing=0,
             shared_xaxes=True,
         )
