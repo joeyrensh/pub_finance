@@ -2825,9 +2825,9 @@ class ChartBuilder:
                 line=dict(width=0.8 * scale),
                 showlegend=True,
                 hovertemplate=(
+                    "<b>O</b>: %{open:.2f} <b>H</b>: %{high:.2f}<br>"
+                    "<b>L</b>: %{low:.2f} <b>C</b>: %{close:.2f} (%{customdata[0]:+.2%})<br>"
                     "%{x|%Y-%m-%d}<br>"
-                    "O: %{open:.2f} H: %{high:.2f}<br>"
-                    "L: %{low:.2f}  C: %{close:.2f} (%{customdata[0]:+.2%})"
                     "<extra></extra>"
                 ),
                 hoverlabel=dict(
@@ -2937,7 +2937,7 @@ class ChartBuilder:
                         # 新 Hover 样式：[▲ Buy | ￥10.50]
                         hovertemplate=(
                             f"[{arrow_icon} <b>{tt}</b> | {tp:.2f}]<br>"
-                            f"Strat: {strat_display}<br>"
+                            f"<b>Strat</b>: {strat_display}<br>"
                             f"%{{x|%Y-%m-%d}}<extra></extra>"
                         ),
                         hoverlabel=dict(
@@ -3044,7 +3044,7 @@ class ChartBuilder:
                     # 新 Hover 样式：[▲ Up | ￥10.50]
                     hovertemplate=(
                         f"[▲ <b>Up</b> | {bar_close:.2f}]<br>"
-                        f"Strat: Lv{up['label']} · {up['strategy']}<br>"
+                        f"<b>Strat</b>: Lv{up['label']} · {up['strategy']}<br>"
                         f"%{{x|%Y-%m-%d}}<extra></extra>"
                     ),
                     hoverlabel=dict(
@@ -3142,7 +3142,7 @@ class ChartBuilder:
                         ),
                         showlegend=False,
                         hovertemplate=(
-                            f"[Ⓕ <b>Ex-Action</b>]<br>"
+                            f"[<b>Ⓕ Ex-Action</b>]<br>"
                             f"{action_info_str}<br>"
                             f"%{{x|%Y-%m-%d}}<extra></extra>"
                         ),
