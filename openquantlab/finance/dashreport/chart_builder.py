@@ -1454,6 +1454,7 @@ class ChartBuilder:
         )
 
         common_xaxis_args = dict(
+            rangebreaks=[dict(values=pd.date_range(df["date"].min(), df["date"].max()).difference(pd.to_datetime(df["date"])).strftime("%Y-%m-%d").tolist())],
             mirror=False,
             automargin=False,
             tickangle=0,
@@ -1516,7 +1517,7 @@ class ChartBuilder:
             ),
             barmode="relative",
             bargap=0.4,
-            bargroupgap=0.2,
+            bargroupgap=0.4,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=5, l=0, r=0),
@@ -1628,6 +1629,7 @@ class ChartBuilder:
             # ),
             title="",
             xaxis=dict(
+                rangebreaks=[dict(values=pd.date_range(df["buy_date"].min(), df["buy_date"].max()).difference(pd.to_datetime(df["buy_date"])).strftime("%Y-%m-%d").tolist())],
                 mirror=False,
                 automargin=False,
                 tickangle=0,
@@ -1689,7 +1691,7 @@ class ChartBuilder:
             ),
             barmode="stack",
             bargap=0.4,
-            bargroupgap=0.2,
+            bargroupgap=0.4,
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(t=0, b=5, l=0, r=0),
@@ -1771,6 +1773,7 @@ class ChartBuilder:
 
         fig.update_xaxes(
             title=None,
+            rangebreaks=[dict(values=pd.date_range(df["buy_date"].min(), df["buy_date"].max()).difference(pd.to_datetime(df["buy_date"])).strftime("%Y-%m-%d").tolist())],
             mirror=False,
             automargin=False,
             tickangle=0,
@@ -2696,6 +2699,8 @@ class ChartBuilder:
             ),
             # X轴设置
             xaxis=dict(
+                # 动态提取缺失日期并应用 rangebreaks（兼容字符串/datetime，自动忽略非交易日）
+                rangebreaks=[dict(values=pd.date_range(pnl.index.min(), pnl.index.max()).difference(pd.to_datetime(pnl.index.date)).strftime("%Y-%m-%d").tolist())],
                 gridcolor=cfg["gridcolor"],
                 tickfont=dict(
                     size=base_font, color=text_color, family=self.font_family
@@ -3504,6 +3509,7 @@ class ChartBuilder:
         xmax = df["datetime"].max()
         # 1. 蜡烛图 X轴
         fig.update_xaxes(
+            rangebreaks=[dict(values=pd.date_range(df["datetime"].min(), df["datetime"].max()).difference(pd.to_datetime(df["datetime"])).strftime("%Y-%m-%d").tolist())],
             mirror=False,
             tickangle=0,
             rangeslider_visible=False,
@@ -3582,8 +3588,8 @@ class ChartBuilder:
             hovermode="x",
             dragmode=False,
             showlegend=True,
-            bargap=0.3 / scale,
-            bargroupgap=0.3 / scale,
+            bargap=0.4 / scale,
+            bargroupgap=0.4 / scale,
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -3618,8 +3624,8 @@ class ChartBuilder:
         df = df.copy()
         if "date" in df.columns:
             df["date"] = pd.to_datetime(df["date"])
-        if "day_of_week" in df.columns:
-            df = df[(df["day_of_week"] <= 4) & (df["week_order"] >= 1)].copy()
+        # if "day_of_week" in df.columns:
+        #     df = df[(df["day_of_week"] <= 4) & (df["week_order"] >= 1)].copy()
         df = df.sort_values("date").reset_index(drop=True)
 
         if df.empty:
@@ -3900,6 +3906,7 @@ class ChartBuilder:
                 ),
             ),
             xaxis=dict(
+                rangebreaks=[dict(values=pd.date_range(df["date"].min(), df["date"].max()).difference(pd.to_datetime(df["date"])).strftime("%Y-%m-%d").tolist())],
                 tickfont=dict(size=font_size, color=text_color),
                 mirror=False,
                 showline=False,
