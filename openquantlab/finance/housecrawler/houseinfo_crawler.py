@@ -754,7 +754,7 @@ def houseinfo_to_csv_s(file_path, file_path_bk, file_path_s_cp):
 
 def map_plot(df, legend_title, legend_fmt, png_path, k, col_formats):
     col_name = col_formats["count"]
-    fmt_string = "{:." f"{legend_fmt}" "}"
+    fmt_string = f"{{:.{legend_fmt}}}"
     legend_kwargs = {"fmt": fmt_string, "title": legend_title}
     missing_kwds = {
         "facecolor": "lightgrey",

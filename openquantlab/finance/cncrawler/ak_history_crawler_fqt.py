@@ -17,7 +17,6 @@ from finance.utility.toolkit import ToolKit
 
 
 class AKCNHistoryDataCrawler:
-
     def __init__(self):
         self.proxy = None
 
@@ -82,7 +81,7 @@ class AKCNHistoryDataCrawler:
                 etf_list.append(
                     {
                         "symbol_ak": f"{prefix}{raw_num}",  # 新浪接口专用
-                        "symbol_out": f"ETF{raw_num}",      # 落盘标示专用
+                        "symbol_out": f"ETF{raw_num}",  # 落盘标示专用
                         "name": name,
                     }
                 )
@@ -102,7 +101,9 @@ class AKCNHistoryDataCrawler:
             ):
                 if "symbol" in chunk.columns:
                     downloaded.update(chunk["symbol"].dropna().unique())
-            print(f"扫描完成！共检测到 {len(downloaded)} 个股票/ETF 已经成功下载，将自动跳过。")
+            print(
+                f"扫描完成！共检测到 {len(downloaded)} 个股票/ETF 已经成功下载，将自动跳过。"
+            )
         except Exception as e:
             print(f"读取已落盘文件出现警告（如果是空文件可忽略）: {e}")
 
@@ -140,14 +141,18 @@ class AKCNHistoryDataCrawler:
 
         # 2. 准备基础列表中数据
         if source_type == "file":
-            sh_tickers, sz_tickers, etf_tickers = (
-                self._get_tickers_from_local_csv()
-            )
+            sh_tickers, sz_tickers, etf_tickers = self._get_tickers_from_local_csv()
             # 如果指定了 target_symbols，在本地列表的基础上进行过滤
             if target_symbols:
-                sh_tickers = [x for x in sh_tickers if x["symbol_out"] in target_symbols]
-                sz_tickers = [x for x in sz_tickers if x["symbol_out"] in target_symbols]
-                etf_tickers = [x for x in etf_tickers if x["symbol_out"] in target_symbols]
+                sh_tickers = [
+                    x for x in sh_tickers if x["symbol_out"] in target_symbols
+                ]
+                sz_tickers = [
+                    x for x in sz_tickers if x["symbol_out"] in target_symbols
+                ]
+                etf_tickers = [
+                    x for x in etf_tickers if x["symbol_out"] in target_symbols
+                ]
         else:
             sh_tickers, sz_tickers, etf_tickers = [], [], []
 
@@ -365,7 +370,7 @@ class AKCNHistoryDataCrawler:
                     etf_tickers.append(
                         {
                             "symbol_ak": f"{prefix}{raw_num}",  # 新浪接口所需的 sh510300 格式
-                            "symbol_out": symbol_out,           # 落盘标示 ETF510300 格式
+                            "symbol_out": symbol_out,  # 落盘标示 ETF510300 格式
                             "name": row["名称"],
                         }
                     )

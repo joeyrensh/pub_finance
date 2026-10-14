@@ -250,7 +250,8 @@ class StockProposal:
         """
         临时视图，方便复用
         """
-        spark_transaction_logs = spark.sql("""
+        spark_transaction_logs = spark.sql(
+            """
             WITH tmp AS (
                 SELECT symbol
                     ,date
@@ -306,7 +307,8 @@ class StockProposal:
                 ,null AS adj_size
                 ,null AS sell_strategy
             FROM tmp WHERE trade_type = 'buy' AND l_date IS NULL          
-            """.format(start_date))
+            """.format(start_date)
+        )
         spark_transaction_logs.createOrReplaceTempView("temp_transaction_logs")
 
         """
@@ -857,9 +859,7 @@ class StockProposal:
                     "padding": "0",
                 },
                 overwrite=False,
-            ).set_sticky(
-                axis="columns"
-            ).to_html(
+            ).set_sticky(axis="columns").to_html(
                 doctype_html=False,
                 escape=False,
                 table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
@@ -1210,9 +1210,7 @@ class StockProposal:
                     "SORTINO RATIO": "{:.2f}",
                     "MAX DD": "{:.2%}",
                 }
-            ).apply(
-                highlight_row, axis=1
-            ).background_gradient(
+            ).apply(highlight_row, axis=1).background_gradient(
                 subset=["BASE", "ADJBASE"], cmap=cm
             ).bar(
                 subset=["PNL RATIO", "TOTAL PNL RATIO"],
@@ -1267,9 +1265,7 @@ class StockProposal:
                     "padding": "0",
                 },
                 overwrite=False,
-            ).set_sticky(
-                axis="columns"
-            ).to_html(
+            ).set_sticky(axis="columns").to_html(
                 doctype_html=False,
                 escape=False,
                 table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
@@ -1478,72 +1474,77 @@ class StockProposal:
                 page_data = pd_position_reduction.iloc[start_row:end_row]
 
                 # 生成表格 HTML
-                table_html = "<h2>Close Position List Last 5 Days</h2>" + page_data.style.hide(
-                    axis=1, subset=["PNL", "pnl_growth"]
-                ).format(
-                    {
-                        "TOTAL VALUE": "{:.2f}",
-                        "BASE": "{:.2f}",
-                        "ADJBASE": "{:.2f}",
-                        "HIS DAYS": "{:.0f}",
-                        "PNL RATIO": "{:.2%}",
-                        "ERP": "{:.1f}",
-                    }
-                ).background_gradient(
-                    subset=["BASE", "ADJBASE"], cmap=cm
-                ).bar(
-                    subset=["PNL RATIO"],
-                    align="mid",
-                    color=["#99CC66", "#FF6666"],
-                    vmin=-0.8,
-                    vmax=0.8,
-                ).set_properties(
-                    **{
-                        "text-align": "left",
-                        "border": "1px solid #ccc",
-                        "cellspacing": "0",
-                        "style": "border-collapse: collapse; ",
-                    }
-                ).set_table_styles(
-                    [
-                        # 表头样式
-                        dict(
-                            selector="th",
-                            props=[
-                                ("border", "1px solid #ccc"),
-                                ("text-align", "left"),
-                                ("padding", "2px"),
-                                # ("font-size", "20px"),
-                            ],
-                        ),
-                        # 表格数据单元格样式
-                        dict(
-                            selector="td",
-                            props=[
-                                ("border", "1px solid #ccc"),
-                                ("text-align", "left"),
-                                ("padding", "2px"),
-                                # (
-                                #     "font-size",
-                                #     "20px",
-                                # ),
-                            ],
-                        ),
-                    ]
-                ).set_properties(
-                    subset=["NAME", "IND"],
-                    **{
-                        "min-width": "150px !important",
-                        "max-width": "100%",
-                        "padding": "0",
-                    },
-                    overwrite=False,
-                ).set_sticky(
-                    axis="columns"
-                ).to_html(
-                    doctype_html=False,
-                    escape=False,
-                    table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
+                table_html = (
+                    "<h2>Close Position List Last 5 Days</h2>"
+                    + page_data.style.hide(axis=1, subset=["PNL", "pnl_growth"])
+                    .format(
+                        {
+                            "TOTAL VALUE": "{:.2f}",
+                            "BASE": "{:.2f}",
+                            "ADJBASE": "{:.2f}",
+                            "HIS DAYS": "{:.0f}",
+                            "PNL RATIO": "{:.2%}",
+                            "ERP": "{:.1f}",
+                        }
+                    )
+                    .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
+                    .bar(
+                        subset=["PNL RATIO"],
+                        align="mid",
+                        color=["#99CC66", "#FF6666"],
+                        vmin=-0.8,
+                        vmax=0.8,
+                    )
+                    .set_properties(
+                        **{
+                            "text-align": "left",
+                            "border": "1px solid #ccc",
+                            "cellspacing": "0",
+                            "style": "border-collapse: collapse; ",
+                        }
+                    )
+                    .set_table_styles(
+                        [
+                            # 表头样式
+                            dict(
+                                selector="th",
+                                props=[
+                                    ("border", "1px solid #ccc"),
+                                    ("text-align", "left"),
+                                    ("padding", "2px"),
+                                    # ("font-size", "20px"),
+                                ],
+                            ),
+                            # 表格数据单元格样式
+                            dict(
+                                selector="td",
+                                props=[
+                                    ("border", "1px solid #ccc"),
+                                    ("text-align", "left"),
+                                    ("padding", "2px"),
+                                    # (
+                                    #     "font-size",
+                                    #     "20px",
+                                    # ),
+                                ],
+                            ),
+                        ]
+                    )
+                    .set_properties(
+                        subset=["NAME", "IND"],
+                        **{
+                            "min-width": "150px !important",
+                            "max-width": "100%",
+                            "padding": "0",
+                        },
+                        overwrite=False,
+                    )
+                    .set_sticky(axis="columns")
+                    .to_html(
+                        doctype_html=False,
+                        escape=False,
+                        table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
+                    )
                 )
 
                 # 添加分页导航
@@ -2016,7 +2017,8 @@ class StockProposal:
         print("Tree Map-PnL生成完成...")
 
         # N天内策略交易概率
-        spark_strategy_tracking_lstndays = spark.sql(""" 
+        spark_strategy_tracking_lstndays = spark.sql(
+            """ 
             WITH tmp1 AS (
                 SELECT t1.date
                     ,t1.symbol
@@ -2047,7 +2049,8 @@ class StockProposal:
             WHERE rn = 1
             GROUP BY date, strategy
             ORDER BY date, pnl
-            """.format(start_date_200))
+            """.format(start_date_200)
+        )
         pd_strategy_tracking_lstndays = spark_strategy_tracking_lstndays.toPandas()
         pd_strategy_tracking_lstndays["date"] = pd.to_datetime(
             pd_strategy_tracking_lstndays["date"]
@@ -2376,7 +2379,8 @@ class StockProposal:
         print("Strategy Chart生成完成...")
 
         # N天内交易明细分析
-        spark_trade_info_lstndays = spark.sql(""" 
+        spark_trade_info_lstndays = spark.sql(
+            """ 
             WITH tmp1 AS (
                 SELECT 
                     date
@@ -2414,7 +2418,8 @@ class StockProposal:
                 ,IFNULL(t2.sell_cnt, 0) AS sell_cnt
             FROM tmp11 t1 
             LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
-            """.format(start_date, start_date))
+            """.format(start_date, start_date)
+        )
         pd_trade_info_lstndays = spark_trade_info_lstndays.toPandas()
 
         # 导出 CSV 供 Dash 使用 (duplicate section for other market blocks)
@@ -2584,7 +2589,8 @@ class StockProposal:
         print("Trade Trend生成完成...")
 
         # TOPN行业仓位变化趋势
-        spark_topn_industry_position_trend = spark.sql("""
+        spark_topn_industry_position_trend = spark.sql(
+            """
             WITH tmp AS ( 
                 SELECT industry
                     ,cnt 
@@ -2609,7 +2615,8 @@ class StockProposal:
                 ,SUM(IF(t2.symbol IS NOT NULL, 1, 0)) AS total_cnt
             FROM tmp1 t1 LEFT JOIN tmp2 t2 ON t1.industry = t2.industry AND t1.buy_date = t2.date
             GROUP BY t1.buy_date, t1.industry
-            """.format(start_date))
+            """.format(start_date)
+        )
         pd_topn_industry_position_trend = spark_topn_industry_position_trend.toPandas()
         pd_topn_industry_position_trend.sort_values(
             by=["buy_date", "total_cnt"], ascending=[False, False], inplace=True
@@ -2726,7 +2733,8 @@ class StockProposal:
         spark_industry_history_tracking_lstndays.createOrReplaceTempView(
             "temp_industry_history_tracking_lstndays"
         )
-        spark_topn_industry_profit_trend = spark.sql("""
+        spark_topn_industry_profit_trend = spark.sql(
+            """
             WITH tmp AS ( 
                 SELECT industry
                     ,pl 
@@ -2757,7 +2765,8 @@ class StockProposal:
             FROM (SELECT * FROM temp_industry_history_tracking_lstndays ORDER BY pnl_growth DESC LIMIT 5) t1
             LEFT JOIN tmp3 t2 ON t1.industry = t2.industry
             ORDER BY t2.buy_date ASC, t1.pnl_growth DESC
-            """.format(start_date))
+            """.format(start_date)
+        )
         pd_topn_industry_profit_trend = spark_topn_industry_profit_trend.toPandas()
         pd_topn_industry_profit_trend.sort_values(
             by=["buy_date", "pnl"], ascending=[False, False], inplace=True
@@ -4095,7 +4104,8 @@ class StockProposal:
             "temp_cur_position_with_latest_stock_info"
         )
 
-        spark_transaction_logs = spark.sql("""
+        spark_transaction_logs = spark.sql(
+            """
             WITH tmp AS (
                 SELECT symbol
                     ,date
@@ -4151,7 +4161,8 @@ class StockProposal:
                 ,null AS adj_size
                 ,null AS sell_strategy
             FROM tmp WHERE trade_type = 'buy' AND l_date IS NULL
-            """.format(start_date))
+            """.format(start_date)
+        )
         spark_transaction_logs.createOrReplaceTempView("temp_transaction_logs")
 
         """
@@ -4166,7 +4177,8 @@ class StockProposal:
             ) WHERE rn = {rank_num})
             """
 
-        spark_position_history = spark.sql(""" 
+        spark_position_history = spark.sql(
+            """ 
             WITH tmp2 AS (
                 SELECT symbol
                     ,COUNT(symbol) AS his_trade_cnt
@@ -4248,7 +4260,8 @@ class StockProposal:
                     ) t
                     WHERE rn = 1
                 ) t3 ON t1.symbol = t3.symbol
-            """.format(end_date))
+            """.format(end_date)
+        )
 
         pd_position_history = spark_position_history.toPandas()
 
@@ -4314,9 +4327,7 @@ class StockProposal:
                     "WIN RATE": "{:.2%}",
                     "TOTAL PNL RATIO": "{:.2%}",
                 }
-            ).apply(
-                highlight_row, axis=1
-            ).background_gradient(
+            ).apply(highlight_row, axis=1).background_gradient(
                 subset=["BASE", "ADJBASE"], cmap=cm
             ).bar(
                 subset=["PNL RATIO", "TOTAL PNL RATIO"],
@@ -4371,9 +4382,7 @@ class StockProposal:
                     "padding": "0",
                 },
                 overwrite=False,
-            ).set_sticky(
-                axis="columns"
-            ).to_html(
+            ).set_sticky(axis="columns").to_html(
                 doctype_html=True,
                 escape=False,
                 table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
@@ -4551,71 +4560,76 @@ class StockProposal:
                 page_data = pd_position_reduction.iloc[start_row:end_row]
 
                 # 生成表格 HTML
-                table_html = "<h2>Close Position List Last 5 Days</h2>" + page_data.style.hide(
-                    axis=1, subset=["PNL"]
-                ).format(
-                    {
-                        "TOTAL VALUE": "{:.2f}",
-                        "BASE": "{:.2f}",
-                        "ADJBASE": "{:.2f}",
-                        "PNL RATIO": "{:.2%}",
-                        "HIS DAYS": "{:.0f}",
-                    }
-                ).background_gradient(
-                    subset=["BASE", "ADJBASE"], cmap=cm
-                ).bar(
-                    subset=["PNL RATIO"],
-                    align="mid",
-                    color=["#99CC66", "#FF6666"],
-                    vmin=-0.8,
-                    vmax=0.8,
-                ).set_properties(
-                    **{
-                        "text-align": "left",
-                        "border": "1px solid #ccc",
-                        "cellspacing": "0",
-                        "style": "border-collapse: collapse; ",
-                    }
-                ).set_table_styles(
-                    [
-                        # 表头样式
-                        dict(
-                            selector="th",
-                            props=[
-                                ("border", "1px solid #ccc"),
-                                ("text-align", "left"),
-                                ("padding", "2px"),
-                                # ("font-size", "20px"),
-                            ],
-                        ),
-                        # 表格数据单元格样式
-                        dict(
-                            selector="td",
-                            props=[
-                                ("border", "1px solid #ccc"),
-                                ("text-align", "left"),
-                                ("padding", "2px"),
-                                # (
-                                #     "font-size",
-                                #     "20px",
-                                # ),
-                            ],
-                        ),
-                    ]
-                ).set_properties(
-                    subset=["NAME"],
-                    **{
-                        "min-width": "100px !important",
-                        "max-width": "100%",
-                        "padding": "0",
-                    },
-                    overwrite=False,
-                ).set_sticky(
-                    axis="columns"
-                ).to_html(
-                    doctype_html=True,
-                    escape=False,
-                    table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
+                table_html = (
+                    "<h2>Close Position List Last 5 Days</h2>"
+                    + page_data.style.hide(axis=1, subset=["PNL"])
+                    .format(
+                        {
+                            "TOTAL VALUE": "{:.2f}",
+                            "BASE": "{:.2f}",
+                            "ADJBASE": "{:.2f}",
+                            "PNL RATIO": "{:.2%}",
+                            "HIS DAYS": "{:.0f}",
+                        }
+                    )
+                    .background_gradient(subset=["BASE", "ADJBASE"], cmap=cm)
+                    .bar(
+                        subset=["PNL RATIO"],
+                        align="mid",
+                        color=["#99CC66", "#FF6666"],
+                        vmin=-0.8,
+                        vmax=0.8,
+                    )
+                    .set_properties(
+                        **{
+                            "text-align": "left",
+                            "border": "1px solid #ccc",
+                            "cellspacing": "0",
+                            "style": "border-collapse: collapse; ",
+                        }
+                    )
+                    .set_table_styles(
+                        [
+                            # 表头样式
+                            dict(
+                                selector="th",
+                                props=[
+                                    ("border", "1px solid #ccc"),
+                                    ("text-align", "left"),
+                                    ("padding", "2px"),
+                                    # ("font-size", "20px"),
+                                ],
+                            ),
+                            # 表格数据单元格样式
+                            dict(
+                                selector="td",
+                                props=[
+                                    ("border", "1px solid #ccc"),
+                                    ("text-align", "left"),
+                                    ("padding", "2px"),
+                                    # (
+                                    #     "font-size",
+                                    #     "20px",
+                                    # ),
+                                ],
+                            ),
+                        ]
+                    )
+                    .set_properties(
+                        subset=["NAME"],
+                        **{
+                            "min-width": "100px !important",
+                            "max-width": "100%",
+                            "padding": "0",
+                        },
+                        overwrite=False,
+                    )
+                    .set_sticky(axis="columns")
+                    .to_html(
+                        doctype_html=True,
+                        escape=False,
+                        table_attributes='style="border-collapse: collapse; border: 0.2px solid #ccc"; width: 100%;',
+                    )
                 )
 
                 # 添加分页导航
@@ -4691,7 +4705,8 @@ class StockProposal:
         gc.collect()
 
         # N天内交易明细分析
-        spark_trade_info_lstndays = spark.sql(""" 
+        spark_trade_info_lstndays = spark.sql(
+            """ 
             WITH tmp1 AS (
                 SELECT 
                     date
@@ -4729,7 +4744,8 @@ class StockProposal:
                 ,IFNULL(t2.sell_cnt, 0) AS sell_cnt
             FROM tmp11 t1 
             LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
-            """.format(start_date, start_date))
+            """.format(start_date, start_date)
+        )
         pd_trade_info_lstndays = spark_trade_info_lstndays.toPandas()
 
         # 设置图像的宽度和高度（例如，1920x1080像素）

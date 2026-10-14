@@ -201,7 +201,9 @@ class EMWebCrawlerUti:
         print(f"市场: {mkt_code}, 总页数: {total_page_no}")
         return total_page_no
 
-    def get_stock_list(self, market, trade_date, target_file=None, from_latest_file=True):
+    def get_stock_list(
+        self, market, trade_date, target_file=None, from_latest_file=True
+    ):
         """
         获取股票/基金列表及对应 mkt_code
         :param market: 市场标识 ("us" 或 "cn")
@@ -210,36 +212,37 @@ class EMWebCrawlerUti:
         :param from_latest_file: 是否直接从本地最新的 stock_*.csv 文件中提取 unique symbol
         """
         if target_file is None:
-            target_file = FINANCE_ROOT / f"{market}stockinfo" / f"stock_list_{trade_date}.csv"
+            target_file = (
+                FINANCE_ROOT / f"{market}stockinfo" / f"stock_list_{trade_date}.csv"
+            )
 
         # =========================================================================
         # 分支 1：从本地最新日期的 stock_*.csv 文件直接构建 Symbol List
         # =========================================================================
         if from_latest_file:
             data_dir = FINANCE_ROOT / f"{market}stockinfo"
-            
+
             # 调用 FileInfo 获取严格过滤且已按日期升序排序的文件列表
             file_info = FileInfo(trade_date=trade_date, market=market)
             files = file_info.get_file_list
             print("files: ", files)
 
             if not files:
-                raise FileNotFoundError(f"未在目录 {data_dir} 下找到任何交易日期 <= {trade_date} 的合法 stock_*.csv 文件")
+                raise FileNotFoundError(
+                    f"未在目录 {data_dir} 下找到任何交易日期 <= {trade_date} 的合法 stock_*.csv 文件"
+                )
 
             # 获取最后一个（即最新日期）文件
             latest_file = files[-1]
-            print(f"📌 [from_latest_file=True] 正在从最新数据文件提取 Symbol 列表: {latest_file.name}")
+            print(
+                f"📌 [from_latest_file=True] 正在从最新数据文件提取 Symbol 列表: {latest_file.name}"
+            )
 
             df = pd.read_csv(latest_file, usecols=lambda c: c.lower() in ["symbol"])
             col_name = next(c for c in df.columns if c.lower() == "symbol")
 
             unique_symbols = (
-                df[col_name]
-                .dropna()
-                .astype(str)
-                .str.strip()
-                .str.upper()
-                .unique()
+                df[col_name].dropna().astype(str).str.strip().str.upper().unique()
             )
 
             result = []
@@ -259,10 +262,12 @@ class EMWebCrawlerUti:
                     elif sym.startswith("ETF"):
                         raw_code = sym[3:]  # 去掉 ETF 前缀
                         actual_mkt_code = self.get_etf_market_code(raw_code)
-                    
+
                     result.append({"symbol": sym, "mkt_code": actual_mkt_code})
 
-            print(f"✅ 成功从 {latest_file.name} 提取并还原了 {len(result)} 个 Symbol 记录")
+            print(
+                f"✅ 成功从 {latest_file.name} 提取并还原了 {len(result)} 个 Symbol 记录"
+            )
             return result
 
         # =========================================================================
@@ -341,7 +346,9 @@ class EMWebCrawlerUti:
                         # 校验 HTTP 响应状态码
                         if response.status_code != 200:
                             last_error_msg = f"HTTP 状态码异常: {response.status_code}"
-                            current_proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
+                            current_proxy = self.pm.get_working_proxy(
+                                enable_proxy=self.use_proxy
+                            )
                             continue
 
                         res = response.json()
@@ -354,7 +361,9 @@ class EMWebCrawlerUti:
                             or not res["data"].get("diff")
                         ):
                             last_error_msg = f"业务数据异常或被拦截: {res}"
-                            current_proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
+                            current_proxy = self.pm.get_working_proxy(
+                                enable_proxy=self.use_proxy
+                            )
                             continue
 
                         # 校验全部通过，成功跳出循环，不会触发后面的 else 块
@@ -362,8 +371,12 @@ class EMWebCrawlerUti:
 
                     except Exception as e:
                         last_error_msg = f"网络请求/解析异常: {str(e)}"
-                        print(f"请求第 {attempt} 次失败，正在更换代理重试... 错误原因: {e}")
-                        current_proxy = self.pm.get_working_proxy(enable_proxy=self.use_proxy)
+                        print(
+                            f"请求第 {attempt} 次失败，正在更换代理重试... 错误原因: {e}"
+                        )
+                        current_proxy = self.pm.get_working_proxy(
+                            enable_proxy=self.use_proxy
+                        )
 
                 else:
                     # 只有当 3 次重试全部失败（没有触发 break）时，才会走进这个 else 块
@@ -464,7 +477,9 @@ class EMWebCrawlerUti:
         # 2. 清理历史 gz_*.csv 数据文件（保留最近 10%，清理早期 90%）
         self._clean_old_gz_files(output_dir)
 
-    def _clean_old_gz_files(self, gz_dir: Path, min_keep: int = 10, clean_ratio: float = 0.9):
+    def _clean_old_gz_files(
+        self, gz_dir: Path, min_keep: int = 10, clean_ratio: float = 0.9
+    ):
         """
         扫描 gz_dir 目录下的 gz_*.csv 文件，按日期排序并安全清理历史文件
         :param gz_dir: 文件所在目录
@@ -481,7 +496,7 @@ class EMWebCrawlerUti:
         # 按照 90% 计算理论清理数，但绝不能突破 min_keep 的底线
         ratio_delete_count = int(total_files * clean_ratio)
         max_allow_delete = total_files - min_keep
-        
+
         # 取二者最小值，确保清理后至少保留 min_keep 个文件
         delete_count = min(ratio_delete_count, max_allow_delete)
 
@@ -872,12 +887,12 @@ class EMWebCrawlerUti:
         if pd.isna(symbol) or not symbol:
             print(f"[Warning] 捕获到无效的 symbol 输入: {symbol}，已跳过。")
             return []
-        
+
         # 强制转换为标准的干净字符串
         symbol = str(symbol).strip()
         if not symbol or symbol.lower() == "nan":
-            return []        
-        
+            return []
+
         os.environ.setdefault("CURL_CA_BUNDLE", "")
         os.environ.setdefault("SSL_CERT_FILE", "")
 
@@ -886,16 +901,16 @@ class EMWebCrawlerUti:
 
         df_hist = pd.DataFrame()
         found_symbol_yf = None  # 记录在 yfinance 上实际匹配成功的符号
-        matched_ticker = None   # 保存已成功获取数据的 ticker 句柄，避免重新实例化
-        company_name = None #默认symbol为company name
+        matched_ticker = None  # 保存已成功获取数据的 ticker 句柄，避免重新实例化
+        company_name = None  # 默认symbol为company name
 
         # 1. 构建 Yahoo Finance 的候选 Symbol 尝试顺序
         # 仅当包含 '_' 时构建多种替换规则；普通 symbol 只有其自身 1 个候选，避免无谓开销
         if "_" in symbol:
             yf_candidates = [
                 symbol.replace("_", "-P"),  # 优先股语法（最常见）：T_A -> T-PA
-                symbol.replace("_", "-"),   # 普通类股语法：T_A -> T-A
-                symbol.replace("_", "."),   # 点号语法：T_A -> T.A
+                symbol.replace("_", "-"),  # 普通类股语法：T_A -> T-A
+                symbol.replace("_", "."),  # 点号语法：T_A -> T.A
             ]
         else:
             yf_candidates = [symbol]
@@ -919,8 +934,13 @@ class EMWebCrawlerUti:
             # ============================================================
 
             raw_proxy = (
-                (proxy_dict.get("socks5") or proxy_dict.get("https") or proxy_dict.get("http"))
-                if isinstance(proxy_dict, dict) else None
+                (
+                    proxy_dict.get("socks5")
+                    or proxy_dict.get("https")
+                    or proxy_dict.get("http")
+                )
+                if isinstance(proxy_dict, dict)
+                else None
             )
             proxy_str = self.format_proxy_url(raw_proxy) if raw_proxy else None
 
@@ -940,8 +960,10 @@ class EMWebCrawlerUti:
                     )
                     if df_candidate is not None and not df_candidate.empty:
                         df_hist = df_candidate
-                        found_symbol_yf = candidate  # 标记匹配成功的 Yahoo 符号（如 T-PA）
-                        matched_ticker = ticker     # 直接保留成功的 ticker 对象
+                        found_symbol_yf = (
+                            candidate  # 标记匹配成功的 Yahoo 符号（如 T-PA）
+                        )
+                        matched_ticker = ticker  # 直接保留成功的 ticker 对象
                         break
 
                 # ==================== 4. 获取真实公司名称 (复用句柄 + 轻量读取) ====================
@@ -965,12 +987,16 @@ class EMWebCrawlerUti:
 
                 # 精准拦截 404 / 资源不存在：退出尝试，不重试，不杀代理
                 if "404" in err_str or "Not Found" in err_str or "delisted" in err_str:
-                    print(f"[{symbol}] 尝试候选名 {yf_candidates} 均未找到数据，确定为不存在/退市。")
+                    print(
+                        f"[{symbol}] 尝试候选名 {yf_candidates} 均未找到数据，确定为不存在/退市。"
+                    )
                     df_hist = None
                     break
 
                 # 真正的网络/超时问题才触发代理失效
-                print(f"[{symbol}] yfinance 第 {attempt} 次失败，标记 pm_us 代理失效... 错误: {e}")
+                print(
+                    f"[{symbol}] yfinance 第 {attempt} 次失败，标记 pm_us 代理失效... 错误: {e}"
+                )
                 with self.proxy_lock_us:
                     if self.current_working_proxy_us == proxy_dict:
                         self.current_working_proxy_us = None
@@ -1018,14 +1044,14 @@ class EMWebCrawlerUti:
         trade_date: str = None,
         market: str = None,
         history_file_path: str = None,
-        chunksize: int = 200000
+        chunksize: int = 200000,
     ):
         """
         根据固定的复权因子文件 (symbol, date, dividend, split_ratio)，
         通过流式 Batch 批次处理还原历史 K 线 CSV 中的拆股数据，无多余临时文件并原位覆盖。
         """
         # 1. 确定复权因子文件与历史 K 线文件路径
-        if hasattr(self, 'file_actions_history') and self.file_actions_history:
+        if hasattr(self, "file_actions_history") and self.file_actions_history:
             actions_file = self.file_actions_history
         else:
             file_info = FileInfo(trade_date, market)
@@ -1039,20 +1065,20 @@ class EMWebCrawlerUti:
             raise FileNotFoundError(f"未找到历史K线文件: {target_history_file}")
 
         # 2. 预载复权因子文件 (Schema: symbol, date, dividend, split_ratio)
-        df_actions = pd.read_csv(actions_file, dtype={'symbol': str, 'date': str})
-        df_actions['date'] = pd.to_datetime(df_actions['date']).dt.strftime('%Y-%m-%d')
-        
+        df_actions = pd.read_csv(actions_file, dtype={"symbol": str, "date": str})
+        df_actions["date"] = pd.to_datetime(df_actions["date"]).dt.strftime("%Y-%m-%d")
+
         # 仅筛选存在实际拆股的记录
         splits_df = df_actions[
-            (df_actions['split_ratio'].notnull()) & 
-            (df_actions['split_ratio'] != 0) & 
-            (df_actions['split_ratio'] != 1.0)
-        ][['symbol', 'date', 'split_ratio']]
-        
+            (df_actions["split_ratio"].notnull())
+            & (df_actions["split_ratio"] != 0)
+            & (df_actions["split_ratio"] != 1.0)
+        ][["symbol", "date", "split_ratio"]]
+
         # 构建 {symbol: {date_str: split_ratio}} 快速字典索引
         symbol_splits_map = {
-            sym: group.set_index('date')['split_ratio'].to_dict()
-            for sym, group in splits_df.groupby('symbol')
+            sym: group.set_index("date")["split_ratio"].to_dict()
+            for sym, group in splits_df.groupby("symbol")
         }
 
         # 3. 在 /tmp 下仅建立 1 个最终输出临时文件
@@ -1074,22 +1100,22 @@ class EMWebCrawlerUti:
 
                 # 1. 确保将 Date 列解析为 DatetimeIndex/Series 类型
                 date_series = pd.to_datetime(df_sym[date_col])
-                
+
                 # 2. 按日期正序重新排列
                 sort_idx = date_series.argsort()
                 df_sym = df_sym.iloc[sort_idx].reset_index(drop=True)
                 date_series = date_series.iloc[sort_idx].reset_index(drop=True)
 
                 current_symbol = str(df_sym[symbol_col].iloc[0])
-                
+
                 # 3. 格式化日期字符串（此时 date_series 必定为 datetime 格式，.dt 不会报错）
-                date_str_series = date_series.dt.strftime('%Y-%m-%d')
+                date_str_series = date_series.dt.strftime("%Y-%m-%d")
                 splits_dict = symbol_splits_map.get(current_symbol, {})
 
                 # 4. 若存在拆股记录，则执行向量化还原
                 if splits_dict:
                     splits = date_str_series.map(splits_dict).fillna(1.0).values
-                    
+
                     # 倒序累乘未来发生的所有拆股倍数
                     split_factors_rev = np.cumprod(splits[::-1])[::-1]
                     cum_factors = np.ones(len(splits), dtype=float)
@@ -1098,15 +1124,24 @@ class EMWebCrawlerUti:
                         cum_factors[:-1] = split_factors_rev[1:]
 
                     # 放大价格
-                    for p_col in ['Open', 'High', 'Low', 'Close', 'open', 'high', 'low', 'close']:
+                    for p_col in [
+                        "Open",
+                        "High",
+                        "Low",
+                        "Close",
+                        "open",
+                        "high",
+                        "low",
+                        "close",
+                    ]:
                         if p_col in df_sym.columns:
                             df_sym.loc[:, p_col] = df_sym[p_col] * cum_factors
 
                     # 缩小成交量
-                    for v_col in ['Volume', 'volume']:
+                    for v_col in ["Volume", "volume"]:
                         if v_col in df_sym.columns:
                             vol_series = df_sym[v_col] / cum_factors
-                            df_sym.loc[:, v_col] = vol_series.round().astype('int64')
+                            df_sym.loc[:, v_col] = vol_series.round().astype("int64")
 
                 # 5. 统一日期格式
                 df_sym.loc[:, date_col] = date_str_series
@@ -1117,22 +1152,26 @@ class EMWebCrawlerUti:
 
                 df_sym.to_csv(
                     output_temp_file,
-                    mode='a',
-                    index=True,           # 写出索引列作为无名的第一列
+                    mode="a",
+                    index=True,  # 写出索引列作为无名的第一列
                     header=is_first_write,
-                    columns=all_cols
+                    columns=all_cols,
                 )
                 is_first_write = False
 
             # -------------------------------------------------------------
             # 单线程流式 Chunk 分批读取与粘合
             # -------------------------------------------------------------
-            for chunk in pd.read_csv(target_history_file, chunksize=chunksize, low_memory=False):
+            for chunk in pd.read_csv(
+                target_history_file, chunksize=chunksize, low_memory=False
+            ):
                 if not all_cols:
                     # 过滤掉读取时自动产生的 Unnamed 索引列，仅保留业务字段
-                    all_cols = [c for c in chunk.columns if not str(c).startswith('Unnamed:')]
-                    symbol_col = next(c for c in all_cols if c.lower() == 'symbol')
-                    date_col = next(c for c in all_cols if c.lower() == 'date')
+                    all_cols = [
+                        c for c in chunk.columns if not str(c).startswith("Unnamed:")
+                    ]
+                    symbol_col = next(c for c in all_cols if c.lower() == "symbol")
+                    date_col = next(c for c in all_cols if c.lower() == "date")
 
                 # 若上一个 chunk 末尾有未处理完的 Symbol，拼接在当前 chunk 头部
                 if leftover_df is not None:
@@ -1164,4 +1203,4 @@ class EMWebCrawlerUti:
 
         finally:
             if os.path.exists(temp_dir):
-                shutil.rmtree(temp_dir) 
+                shutil.rmtree(temp_dir)

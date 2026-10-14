@@ -379,7 +379,6 @@ class TickerInfo:
             tickers.extend(combined_symbols)
 
         elif self.market == "cn":
-
             # 基础条件（不包含涨幅限制）
             base_cond = (
                 (df_recent["total_value"] > self.small_cap_threshold)
@@ -503,9 +502,7 @@ class TickerInfo:
             )
 
         df = pd.concat(list(dic.values()), ignore_index=True)
-        df.sort_values(
-            by=["symbol", "date"], ascending=[True, True], inplace=True
-        )
+        df.sort_values(by=["symbol", "date"], ascending=[True, True], inplace=True)
         return df
 
     """ 
@@ -523,7 +520,7 @@ class TickerInfo:
             trade_date=self.trade_date,
             market_str=self.market,  # 内部自动精确判定 1 或 2
             min_bars=61,
-            add_mock_bar=True
+            add_mock_bar=True,
         )
 
     """ 重构dataframe封装 """
@@ -535,11 +532,11 @@ class TickerInfo:
         trade_date: str,
         market_str: str,
         min_bars: int = 61,
-        add_mock_bar: bool = True
+        add_mock_bar: bool = True,
     ) -> list[pd.DataFrame]:
         """
         通用 Backtrader 数据结构转换与格式化函数 (零 Loop 高性能向量化版)
-        
+
         :param df_raw: 包含历史数据的 DataFrame (必须包含列: ['symbol', 'date', 'open', 'high', 'low', 'close', 'volume'])
         :param target_tickers: 需要筛选的目标标的列表
         :param trade_date: 必须包含的交易日期 (格式: 'YYYYMMDD' 或 'YYYY-MM-DD')
@@ -577,7 +574,9 @@ class TickerInfo:
         # 4. 全表向量化过滤无效 Symbol (条数 < min_bars 或 不含特定交易日)
         counts = df["symbol"].value_counts()
         valid_len_symbols = set(counts[counts >= min_bars].index)
-        valid_date_symbols = set(df[df["date"] == trade_date_formatted]["symbol"].unique())
+        valid_date_symbols = set(
+            df[df["date"] == trade_date_formatted]["symbol"].unique()
+        )
 
         valid_symbols = valid_len_symbols.intersection(valid_date_symbols)
         if not valid_symbols:
@@ -594,20 +593,35 @@ class TickerInfo:
         df["volume"] = df["volume"].fillna(0).astype("int64")
 
         # 保留标准列集合并组内升序
-        target_cols = ["datetime", "open", "high", "low", "close", "volume", "symbol", "market"]
-        df = df[target_cols].sort_values(by=["symbol", "datetime"]).reset_index(drop=True)
+        target_cols = [
+            "datetime",
+            "open",
+            "high",
+            "low",
+            "close",
+            "volume",
+            "symbol",
+            "market",
+        ]
+        df = (
+            df[target_cols]
+            .sort_values(by=["symbol", "datetime"])
+            .reset_index(drop=True)
+        )
 
         # 6. 向量化构造 Mock Bar (假数据追加)
         if add_mock_bar:
             mock_bars = df.groupby("symbol", as_index=False).last()
             mock_bars["datetime"] = mock_bars["datetime"] + pd.Timedelta(days=1)
             # mock_bars["volume"] = 0  # 可选：重置假数据的成交量
-            
+
             df = pd.concat([df, mock_bars], ignore_index=True)
             df.sort_values(by=["symbol", "datetime"], inplace=True)
 
         # 7. 切分为按 Symbol 独立且按起始日期排序的 List[DataFrame]
-        list_results = [group.reset_index(drop=True) for _, group in df.groupby("symbol")]
+        list_results = [
+            group.reset_index(drop=True) for _, group in df.groupby("symbol")
+        ]
         list_results.sort(key=lambda x: x["datetime"].min())
 
         # 强制清理局部临时数据源
@@ -626,7 +640,7 @@ class TickerInfo:
             trade_date=self.trade_date,
             market_str=self.market,  # 内部自动精确判定 1 或 2
             min_bars=61,
-            add_mock_bar=True
+            add_mock_bar=True,
         )
 
     def get_etf_list(self):
@@ -695,7 +709,7 @@ class TickerInfo:
             trade_date=self.trade_date,
             market_str=self.market,  # 内部自动精确判定 1 或 2
             min_bars=61,
-            add_mock_bar=True
+            add_mock_bar=True,
         )
 
     def get_special_us_stock_list_180d(self):
@@ -795,7 +809,7 @@ class TickerInfo:
             trade_date=self.trade_date,
             market_str=self.market,  # 内部自动精确判定 1 或 2
             min_bars=61,
-            add_mock_bar=True
+            add_mock_bar=True,
         )
 
     def get_dynamic_stock_list(self):
@@ -834,7 +848,7 @@ class TickerInfo:
             trade_date=self.trade_date,
             market_str=self.market,  # 内部自动精确判定 1 或 2
             min_bars=61,
-            add_mock_bar=True
+            add_mock_bar=True,
         )
 
     def get_recent_pe_data(self):
@@ -1014,7 +1028,9 @@ class TickerInfo:
                 # 判定基础条件
                 has_div = act_m["dividend"] > 0
                 has_split = (act_m["split_ratio"] != 1.0) & (act_m["split_ratio"] > 0)
-                can_shift = act_m["next_date"].notna() & (act_m["next_date"] != "")  # 有效的 T+1 交易日
+                can_shift = act_m["next_date"].notna() & (
+                    act_m["next_date"] != ""
+                )  # 有效的 T+1 交易日
 
                 # 切片处理逻辑：
                 # 1) 普通股票 OR 边界最新一天交易日 -> 保留原样（T 日）
@@ -1040,7 +1056,9 @@ class TickerInfo:
                     df_etf_split["dividend"] = 0.0
 
                 # 重新拼接组装
-                frames = [f for f in [df_no_shift, df_etf_div, df_etf_split] if not f.empty]
+                frames = [
+                    f for f in [df_no_shift, df_etf_div, df_etf_split] if not f.empty
+                ]
                 if frames:
                     df_actions = pd.concat(frames, ignore_index=True)
                     df_actions = df_actions.groupby(
@@ -1096,9 +1114,7 @@ class TickerInfo:
         div = df["dividend"].values
         prev_p = prev_adjusted_close.values
 
-        div_factor = np.where(
-            (div > 0) & (prev_p > 0), (prev_p - div) / prev_p, 1.0
-        )
+        div_factor = np.where((div > 0) & (prev_p > 0), (prev_p - div) / prev_p, 1.0)
         np.maximum(div_factor, 0.0001, out=div_factor)
 
         del prev_close, prev_adjusted_close, div, prev_p

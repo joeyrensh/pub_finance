@@ -218,7 +218,8 @@ class StockProposal:
         """
         临时视图，方便复用
         """
-        spark_transaction_logs = spark.sql("""
+        spark_transaction_logs = spark.sql(
+            """
             WITH tmp AS (
                 SELECT symbol
                     ,date
@@ -274,7 +275,8 @@ class StockProposal:
                 ,null AS adj_size
                 ,null AS sell_strategy
             FROM tmp WHERE trade_type = 'buy' AND l_date IS NULL          
-            """.format(start_date))
+            """.format(start_date)
+        )
         spark_transaction_logs.createOrReplaceTempView("temp_transaction_logs")
 
         """
@@ -1165,7 +1167,8 @@ class StockProposal:
         print("Strategy Chart生成完成...")
 
         # N天内交易明细分析
-        spark_trade_info_lstndays = spark.sql(""" 
+        spark_trade_info_lstndays = spark.sql(
+            """ 
             WITH tmp1 AS (
                 SELECT 
                     date
@@ -1205,7 +1208,8 @@ class StockProposal:
             FROM tmp11 t1 
             LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
             ORDER BY t1.buy_date
-        """.format(start_date, start_date))
+        """.format(start_date, start_date)
+        )
         pd_trade_info_lstndays = spark_trade_info_lstndays.toPandas()
 
         # 导出 CSV 供 Dash 使用 (duplicate section for other market blocks)
@@ -1220,7 +1224,8 @@ class StockProposal:
         print("Trade Trend生成完成...")
 
         # TOPN行业仓位变化趋势
-        spark_topn_industry_position_trend = spark.sql("""
+        spark_topn_industry_position_trend = spark.sql(
+            """
             WITH tmp AS ( 
                 SELECT industry
                     ,cnt 
@@ -1245,7 +1250,8 @@ class StockProposal:
                 ,SUM(IF(t2.symbol IS NOT NULL, 1, 0)) AS total_cnt
             FROM tmp1 t1 LEFT JOIN tmp2 t2 ON t1.industry = t2.industry AND t1.buy_date = t2.date
             GROUP BY t1.buy_date, t1.industry
-            """.format(start_date))
+            """.format(start_date)
+        )
         pd_topn_industry_position_trend = spark_topn_industry_position_trend.toPandas()
         pd_topn_industry_position_trend.sort_values(
             by=["buy_date", "total_cnt"], ascending=[False, False], inplace=True
@@ -1255,7 +1261,8 @@ class StockProposal:
         spark_industry_history_tracking_lstndays.createOrReplaceTempView(
             "temp_industry_history_tracking_lstndays"
         )
-        spark_topn_industry_profit_trend = spark.sql("""
+        spark_topn_industry_profit_trend = spark.sql(
+            """
             WITH tmp AS ( 
                 SELECT industry
                     ,pl 
@@ -1286,7 +1293,8 @@ class StockProposal:
             FROM (SELECT * FROM temp_industry_history_tracking_lstndays ORDER BY pnl_growth DESC LIMIT 5) t1
             LEFT JOIN tmp3 t2 ON t1.industry = t2.industry
             ORDER BY t2.buy_date ASC, t1.pnl_growth DESC
-            """.format(start_date))
+            """.format(start_date)
+        )
         pd_topn_industry_profit_trend = spark_topn_industry_profit_trend.toPandas()
         pd_topn_industry_profit_trend.sort_values(
             by=["buy_date", "pnl"], ascending=[False, False], inplace=True
@@ -1826,7 +1834,8 @@ class StockProposal:
             "temp_cur_position_with_latest_stock_info"
         )
 
-        spark_transaction_logs = spark.sql("""
+        spark_transaction_logs = spark.sql(
+            """
             WITH tmp AS (
                 SELECT symbol
                     ,date
@@ -1882,7 +1891,8 @@ class StockProposal:
                 ,null AS adj_size
                 ,null AS sell_strategy
             FROM tmp WHERE trade_type = 'buy' AND l_date IS NULL
-            """.format(start_date))
+            """.format(start_date)
+        )
         spark_transaction_logs.createOrReplaceTempView("temp_transaction_logs")
 
         """
@@ -1897,7 +1907,8 @@ class StockProposal:
             ) WHERE rn = {rank_num})
             """
 
-        spark_position_history = spark.sql(""" 
+        spark_position_history = spark.sql(
+            """ 
             WITH tmp2 AS (
                 SELECT symbol
                     ,COUNT(symbol) AS his_trade_cnt
@@ -1979,7 +1990,8 @@ class StockProposal:
                     ) t
                     WHERE rn = 1
                 ) t3 ON t1.symbol = t3.symbol
-            """.format(end_date))
+            """.format(end_date)
+        )
 
         pd_position_history = spark_position_history.toPandas()
 
@@ -2066,7 +2078,8 @@ class StockProposal:
         pd_position_reduction = spark_position_reduction.toPandas()
 
         # N天内交易明细分析
-        spark_trade_info_lstndays = spark.sql(""" 
+        spark_trade_info_lstndays = spark.sql(
+            """ 
             WITH tmp1 AS (
                 SELECT 
                     date
@@ -2104,7 +2117,8 @@ class StockProposal:
                 ,IFNULL(t2.sell_cnt, 0) AS sell_cnt
             FROM tmp11 t1 
             LEFT JOIN tmp5 t2 ON t1.buy_date = t2.date
-            """.format(start_date, start_date))
+            """.format(start_date, start_date)
+        )
         pd_trade_info_lstndays = spark_trade_info_lstndays.toPandas()
 
         spark.stop()

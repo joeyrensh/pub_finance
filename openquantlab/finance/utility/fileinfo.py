@@ -71,8 +71,10 @@ class FileInfo:
         )
         # 复权因子文件
         self._file_path_actions_history = (
-            FINANCE_ROOT / f"{decode_market}stockinfo" / f"{decode_market}_stock_actions_history.csv"
-        )        
+            FINANCE_ROOT
+            / f"{decode_market}stockinfo"
+            / f"{decode_market}_stock_actions_history.csv"
+        )
 
     """ 返回某日数据文件路径 """
 
@@ -112,7 +114,7 @@ class FileInfo:
             match = pattern.match(file)
             if match:
                 file_date = match.group(1)
-                
+
                 if file_date <= clean_trade_date:
                     file_list.append(self._file_path_dir / file)
 
@@ -176,4 +178,4 @@ class FileInfo:
 
     @property
     def get_file_path_actions_history(self):
-        return self._file_path_actions_history        
+        return self._file_path_actions_history

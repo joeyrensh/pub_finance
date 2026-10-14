@@ -33,7 +33,6 @@ from finance import FINANCE_ROOT
 
 
 class BacktraderExec:
-
     def __init__(self, market, trade_date, test=False, stocklist=[]):
         self.market = market
         self.trade_date = trade_date
@@ -114,7 +113,9 @@ class BacktraderExec:
                 market=self.market,
                 **dynamic_params,
             )
-            cerebro.addanalyzer(bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False)
+            cerebro.addanalyzer(
+                bt.analyzers.TimeReturn, _name="_TimeReturn", fund=False
+            )
 
             if self.market in ("cn", "cnetf", "cn_dynamic", "cn_backtest"):
                 cerebro.addsizer(cnFixedAmount, amount=10000)
@@ -137,7 +138,9 @@ class BacktraderExec:
                     data_feeds = ticker_info.get_dynamic_backtrader_data_feed()
             else:
                 if self.market in ("cn_backtest", "us_backtest"):
-                    data_feeds = ticker_info.get_backtrader_data_feed_testonly(stocklist=self.stocklist)
+                    data_feeds = ticker_info.get_backtrader_data_feed_testonly(
+                        stocklist=self.stocklist
+                    )
 
             # 计算初始资金
             total_cash_needed = 0
@@ -165,7 +168,7 @@ class BacktraderExec:
                 )
                 cerebro.adddata(data, name=h["symbol"][0])
 
-            #【关键内存优化 1】：加载完数据后立即释放外层 DataFrame 列表
+            # 【关键内存优化 1】：加载完数据后立即释放外层 DataFrame 列表
             data_feeds.clear()
             del data_feeds
             gc.collect()
@@ -184,7 +187,9 @@ class BacktraderExec:
             # 写入 Pickle 缓存
             cache_dir = FINANCE_ROOT / "cache"
             os.makedirs(cache_dir, exist_ok=True)
-            cache_path = os.path.join(cache_dir, f"pnl_{self.market}_{self.trade_date}.pkl")
+            cache_path = os.path.join(
+                cache_dir, f"pnl_{self.market}_{self.trade_date}.pkl"
+            )
             try:
                 with open(cache_path, "wb") as f:
                     pickle.dump((pnl, cash, total_value), f)
@@ -194,19 +199,20 @@ class BacktraderExec:
             return pnl, cash, total_value
 
         finally:
-            #【关键内存优化 2】：无论成功或失败，强制解绑和清空 Cerebro 内部所有对象
-            if 'cerebro' in locals():
+            # 【关键内存优化 2】：无论成功或失败，强制解绑和清空 Cerebro 内部所有对象
+            if "cerebro" in locals():
                 cerebro.datas.clear()
                 cerebro.strats.clear()
                 del cerebro
-            if 'results' in locals():
+            if "results" in locals():
                 del results
-            
+
             # 强制 GC 及 C 堆内存释放
             gc.collect()
             try:
                 import ctypes
-                ctypes.CDLL('libc.so.6').malloc_trim(0)
+
+                ctypes.CDLL("libc.so.6").malloc_trim(0)
             except Exception:
                 pass
 
@@ -329,7 +335,7 @@ class BacktraderExec:
                     return text
                 a = abs(v)
                 if a >= 1000:
-                    return f"{v/1_000:.2f}K%"
+                    return f"{v / 1_000:.2f}K%"
                 else:
                     return f"{v:.2f}%"
 
@@ -574,22 +580,23 @@ class BacktraderExec:
                 transparent=True,
                 pad_inches=0.2,
             )
-            
+
             # 【关键内存优化 3】：彻底销毁 Matplotlib 图形对象与子轴
             fig.clf()
             plt.close(fig)
-            plt.close('all')
-            
+            plt.close("all")
+
         # 生成两种主题图表
         plot_chart(theme="light")
         plot_chart(theme="dark")
 
         # 【关键内存优化 4】：绘图完成后彻底清理所有局部变量并强制回收内存
-        plt.close('all')
+        plt.close("all")
         gc.collect()
         try:
             import ctypes
-            ctypes.CDLL('libc.so.6').malloc_trim(0)
+
+            ctypes.CDLL("libc.so.6").malloc_trim(0)
         except Exception:
             pass
 

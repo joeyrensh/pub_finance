@@ -28,7 +28,7 @@ class AKUSWebCrawler:
                 ConnectionError,
                 TimeoutError,
             ) as e:
-                print(f"[AK retry {attempt}/{max_retry}] " f"{type(e).__name__}: {e}")
+                print(f"[AK retry {attempt}/{max_retry}] {type(e).__name__}: {e}")
 
                 if attempt >= max_retry:
                     raise RuntimeError("ak.stock_us_spot failed after retries") from e

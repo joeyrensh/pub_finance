@@ -80,13 +80,7 @@ class StockDataUpdater:
         col_name = next(c for c in df.columns if c.lower() == "symbol")
 
         unique_symbols = (
-            df[col_name]
-            .dropna()
-            .astype(str)
-            .str.strip()
-            .str.upper()
-            .unique()
-            .tolist()
+            df[col_name].dropna().astype(str).str.strip().str.upper().unique().tolist()
         )
 
         result = []
@@ -109,9 +103,7 @@ class StockDataUpdater:
 
                 result.append({"symbol": sym, "mkt_code": str(actual_mkt_code)})
 
-        print(
-            f"✅ 成功从 {latest_file.name} 提取并还原了 {len(result)} 个 Symbol 记录"
-        )
+        print(f"✅ 成功从 {latest_file.name} 提取并还原了 {len(result)} 个 Symbol 记录")
         return result
 
     def fetch_market_data(
@@ -175,9 +167,7 @@ class StockDataUpdater:
             )
             return
 
-        print(
-            f"🚀 开始抓取 [{market.upper()}] 历史数据 ({start_date} ~ {end_date})..."
-        )
+        print(f"🚀 开始抓取 [{market.upper()}] 历史数据 ({start_date} ~ {end_date})...")
 
         batch_buffer = []
         total_fetched_count = 0
@@ -231,9 +221,7 @@ class StockDataUpdater:
                     required_cols = set(self.key_cols + self.update_cols)
                     missing_cols = required_cols - set(df_batch.columns)
                     if missing_cols:
-                        raise ValueError(
-                            f"抓取的数据缺少以下必要字段: {missing_cols}"
-                        )
+                        raise ValueError(f"抓取的数据缺少以下必要字段: {missing_cols}")
 
                     df_batch.to_csv(
                         new_data_path,

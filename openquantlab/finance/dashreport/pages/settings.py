@@ -150,6 +150,7 @@ LABEL_MAPPING = {
     "us_actions_cron": "US Actions Cron",
 }
 
+
 def parse_bins_str(bins_str: str) -> list:
     if not bins_str or not isinstance(bins_str, str):
         return [2e9, 1e10, 5e10, 1e11, 2e11, np.inf]

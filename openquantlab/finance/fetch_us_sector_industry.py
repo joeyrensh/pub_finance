@@ -65,7 +65,11 @@ def get_industry_info(
                 proxy_dict = proxy_manager.get_next_proxy()
 
         raw_proxy = (
-            (proxy_dict.get("socks5") or proxy_dict.get("https") or proxy_dict.get("http"))
+            (
+                proxy_dict.get("socks5")
+                or proxy_dict.get("https")
+                or proxy_dict.get("http")
+            )
             if proxy_dict
             else None
         )
@@ -82,9 +86,7 @@ def get_industry_info(
             else:
                 os.environ.pop("HTTP_PROXY", None)
                 os.environ.pop("HTTPS_PROXY", None)
-                logger.info(
-                    f"[{symbol}] 尝试第 {attempt}/{max_retries} 次请求 | 直连"
-                )
+                logger.info(f"[{symbol}] 尝试第 {attempt}/{max_retries} 次请求 | 直连")
 
             # 3. 发起 yfinance 抓取
             ticker = yf.Ticker(symbol)
@@ -104,9 +106,7 @@ def get_industry_info(
             return industry, sector, proxy_dict
 
         except (ProxyError, ConnectionError, Timeout, HTTPError) as e:
-            logger.warning(
-                f"[{symbol}] 代理 [{proxy_str}] 网络错误: {str(e)}"
-            )
+            logger.warning(f"[{symbol}] 代理 [{proxy_str}] 网络错误: {str(e)}")
             # 标记代理失效并重置粘性代理
             CURRENT_WORKING_PROXY = None
             time.sleep(random.uniform(1, 2))
@@ -114,14 +114,10 @@ def get_industry_info(
         except Exception as e:
             error_msg = str(e)
             if "Rate limited" in error_msg or "Too Many Requests" in error_msg:
-                logger.warning(
-                    f"[{symbol}] 触发限流 ({error_msg})，等待后重试"
-                )
+                logger.warning(f"[{symbol}] 触发限流 ({error_msg})，等待后重试")
                 time.sleep(random.uniform(5, 8))
             else:
-                logger.warning(
-                    f"[{symbol}] 代理 [{proxy_str}] 处理错误: {error_msg}"
-                )
+                logger.warning(f"[{symbol}] 代理 [{proxy_str}] 处理错误: {error_msg}")
                 CURRENT_WORKING_PROXY = None
             time.sleep(random.uniform(1, 2))
 
@@ -149,12 +145,7 @@ def get_processed_symbols(output_file: Path) -> set:
         )
         # 精确读取 symbol 列，统一转为大写字符串集合
         processed = set(
-            df["symbol"]
-            .dropna()
-            .astype(str)
-            .str.strip()
-            .str.upper()
-            .tolist()
+            df["symbol"].dropna().astype(str).str.strip().str.upper().tolist()
         )
         logger.info(f"从 {output_file.name} 中成功解析出 {len(processed)} 个已处理代码")
         return processed
@@ -270,9 +261,7 @@ def main(proxy_manager: ProxyManager, cache_file: Path, output_file: Path):
             f.flush()
 
 
-def convert_industry(
-    source_file: Path, map_file: Path, target_file: Path
-) -> None:
+def convert_industry(source_file: Path, map_file: Path, target_file: Path) -> None:
     """转换行业 (industry) 与板块 (sector) 信息并生成新文件"""
     try:
         df_source = pd.read_csv(source_file)

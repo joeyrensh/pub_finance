@@ -1454,7 +1454,13 @@ class ChartBuilder:
         )
 
         common_xaxis_args = dict(
-            rangebreaks=[dict(values=pd.date_range(df["date"].min(), df["date"].max()).difference(pd.to_datetime(df["date"])).strftime("%Y-%m-%d").tolist())],
+            rangebreaks=[
+                dict(
+                    values=pd.date_range(df["date"].min(), df["date"].max(), freq="D")
+                    .strftime("%Y-%m-%d")
+                    .difference(df["date"].dt.strftime("%Y-%m-%d"))
+                )
+            ],
             mirror=False,
             automargin=False,
             tickangle=0,
@@ -1550,6 +1556,9 @@ class ChartBuilder:
             client_width, base_font=16, min_scale=0.65, max_scale=1.05
         )
 
+        if "buy_date" in df.columns:
+            df["buy_date"] = pd.to_datetime(df["buy_date"])
+
         # =========================
         # 3. Figure & traces（原逻辑）
         # =========================
@@ -1608,8 +1617,8 @@ class ChartBuilder:
             )
         )
 
-        xmin = pd.to_datetime(df["buy_date"].min())
-        xmax = pd.to_datetime(df["buy_date"].max())
+        xmin = df["buy_date"].min()
+        xmax = df["buy_date"].max()
         ymax = df["total_cnt"].max()
 
         fig.update_layout(
@@ -1629,7 +1638,15 @@ class ChartBuilder:
             # ),
             title="",
             xaxis=dict(
-                rangebreaks=[dict(values=pd.date_range(df["buy_date"].min(), df["buy_date"].max()).difference(pd.to_datetime(df["buy_date"])).strftime("%Y-%m-%d").tolist())],
+                rangebreaks=[
+                    dict(
+                        values=pd.date_range(
+                            df["buy_date"].min(), df["buy_date"].max(), freq="D"
+                        )
+                        .strftime("%Y-%m-%d")
+                        .difference(df["buy_date"].dt.strftime("%Y-%m-%d"))
+                    )
+                ],
                 mirror=False,
                 automargin=False,
                 tickangle=0,
@@ -1724,6 +1741,9 @@ class ChartBuilder:
             client_width, base_font=16, min_scale=0.65, max_scale=1.05
         )
 
+        if "buy_date" in df.columns:
+            df["buy_date"] = pd.to_datetime(df["buy_date"])
+
         # =========================
         # 1. 计算 Legend 动态排序逻辑
         # =========================
@@ -1767,13 +1787,21 @@ class ChartBuilder:
                 ),
             )
 
-        xmin = pd.to_datetime(df["buy_date"].min())
-        xmax = pd.to_datetime(df["buy_date"].max())
+        xmin = df["buy_date"].min()
+        xmax = df["buy_date"].max()
         ymax = df["pnl"].max()
 
         fig.update_xaxes(
             title=None,
-            rangebreaks=[dict(values=pd.date_range(df["buy_date"].min(), df["buy_date"].max()).difference(pd.to_datetime(df["buy_date"])).strftime("%Y-%m-%d").tolist())],
+            rangebreaks=[
+                dict(
+                    values=pd.date_range(
+                        df["buy_date"].min(), df["buy_date"].max(), freq="D"
+                    )
+                    .strftime("%Y-%m-%d")
+                    .difference(df["buy_date"].dt.strftime("%Y-%m-%d"))
+                )
+            ],
             mirror=False,
             automargin=False,
             tickangle=0,
@@ -2700,7 +2728,13 @@ class ChartBuilder:
             # X轴设置
             xaxis=dict(
                 # 动态提取缺失日期并应用 rangebreaks（兼容字符串/datetime，自动忽略非交易日）
-                rangebreaks=[dict(values=pd.date_range(pnl.index.min(), pnl.index.max()).difference(pd.to_datetime(pnl.index.date)).strftime("%Y-%m-%d").tolist())],
+                rangebreaks=[
+                    dict(
+                        values=pd.date_range(pnl.index.min(), pnl.index.max(), freq="D")
+                        .strftime("%Y-%m-%d")
+                        .difference(pnl.index.strftime("%Y-%m-%d"))
+                    )
+                ],
                 gridcolor=cfg["gridcolor"],
                 tickfont=dict(
                     size=base_font, color=text_color, family=self.font_family
@@ -2733,7 +2767,7 @@ class ChartBuilder:
         his,
         trades,
         pos_detail=None,
-        market='cn',
+        market="cn",
         actions=None,
         symbol=None,
         theme="light",
@@ -2796,20 +2830,12 @@ class ChartBuilder:
             t for t in trades if pd.to_datetime(t["date"]) >= df["datetime"].min()
         ]
         pos_detail = (
-            [
-                t
-                for t in pos_detail
-                if pd.to_datetime(t["date"]) >= df["datetime"].min()
-            ]
+            [t for t in pos_detail if pd.to_datetime(t["date"]) >= df["datetime"].min()]
             if pos_detail is not None
             else []
         )
         actions = (
-            [
-                a
-                for a in actions
-                if pd.to_datetime(a["date"]) >= df["datetime"].min()
-            ]
+            [a for a in actions if pd.to_datetime(a["date"]) >= df["datetime"].min()]
             if actions is not None
             else []
         )
@@ -2872,7 +2898,7 @@ class ChartBuilder:
         # 设定固定偏移步长（例如：悬浮高度恒定为全局视图高度的 2.5%）
         offset_base = price_range * 0.025
         offset_upgrade = price_range * 0.045  # 策略升级点错开更高高度
-        offset_action = price_range * 0.09   # 除权行为事件错开高度
+        offset_action = price_range * 0.09  # 除权行为事件错开高度
 
         # ----- 策略级别定义 -----
         STRATEGY_LEVELS = {
@@ -3087,10 +3113,10 @@ class ChartBuilder:
                 if div > 0:
                     if market == "cn":
                         cn_div = div * 10
-                        cn_div_str = f"{cn_div:.3f}".rstrip('0').rstrip('.')
+                        cn_div_str = f"{cn_div:.3f}".rstrip("0").rstrip(".")
                         hover_details.append(f"Div (10sh): ￥{cn_div_str}")
                     else:
-                        div_str = f"{div:.3f}".rstrip('0').rstrip('.')
+                        div_str = f"{div:.3f}".rstrip("0").rstrip(".")
                         hover_details.append(f"Dividend: ${div_str}")
 
                 if split != 1.0 and split > 0:
@@ -3113,7 +3139,7 @@ class ChartBuilder:
                 # 1. 绘制贯穿整个主图 (Row 1) 的垂直虚线
                 fig.add_vline(
                     x=ad,
-                    line_width= 1 * scale,
+                    line_width=1 * scale,
                     line_dash="dash",  # 设置为虚线
                     line_color=action_color,
                     opacity=0.6,
@@ -3124,7 +3150,9 @@ class ChartBuilder:
                 # 2. 计算图标标记在图表底部的纵坐标（在最低价下方留出一定间距）
                 chart_min_price = df["low"].min()
                 chart_price_range = df["high"].max() - chart_min_price
-                bottom_y = chart_min_price - (chart_price_range * 0.03)  # 在最低价下方 3% 处绘制
+                bottom_y = chart_min_price - (
+                    chart_price_range * 0.03
+                )  # 在最低价下方 3% 处绘制
 
                 # 3. 绘制底部的圆点与 F Label
                 fig.add_trace(
@@ -3509,7 +3537,15 @@ class ChartBuilder:
         xmax = df["datetime"].max()
         # 1. 蜡烛图 X轴
         fig.update_xaxes(
-            rangebreaks=[dict(values=pd.date_range(df["datetime"].min(), df["datetime"].max()).difference(pd.to_datetime(df["datetime"])).strftime("%Y-%m-%d").tolist())],
+            rangebreaks=[
+                dict(
+                    values=pd.date_range(
+                        df["datetime"].min(), df["datetime"].max(), freq="D"
+                    )
+                    .strftime("%Y-%m-%d")
+                    .difference(df["datetime"].dt.strftime("%Y-%m-%d"))
+                )
+            ],
             mirror=False,
             tickangle=0,
             rangeslider_visible=False,
@@ -3757,7 +3793,7 @@ class ChartBuilder:
             )
 
             sorted_ay = sorted(
-                Y_STEPS, key=lambda val: (0 if (val < 0) == prefer_up else 1)
+                Y_STEPS, key=lambda val: 0 if (val < 0) == prefer_up else 1
             )
 
             selected_ay = None
@@ -3906,7 +3942,15 @@ class ChartBuilder:
                 ),
             ),
             xaxis=dict(
-                rangebreaks=[dict(values=pd.date_range(df["date"].min(), df["date"].max()).difference(pd.to_datetime(df["date"])).strftime("%Y-%m-%d").tolist())],
+                rangebreaks=[
+                    dict(
+                        values=pd.date_range(
+                            df["date"].min(), df["date"].max(), freq="D"
+                        )
+                        .strftime("%Y-%m-%d")
+                        .difference(df["date"].dt.strftime("%Y-%m-%d"))
+                    )
+                ],
                 tickfont=dict(size=font_size, color=text_color),
                 mirror=False,
                 showline=False,

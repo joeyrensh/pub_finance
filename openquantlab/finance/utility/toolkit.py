@@ -739,7 +739,6 @@ class ToolKit:
     @staticmethod
     def get_config(path: str = None, default: Any = None) -> Any:
         try:
-
             config_path = FINANCE_ROOT / "utility" / "scoring_weights.json"
 
             if not config_path.exists():

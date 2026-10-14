@@ -125,9 +125,7 @@ class StockActionsFetcher:
             self.start_date = start_date
 
         if self.market == "us":
-            self.proxy_manager = (
-                proxy_manager or ProxyManager.create_overseas_manager()
-            )
+            self.proxy_manager = proxy_manager or ProxyManager.create_overseas_manager()
             self.current_working_proxy: Optional[Dict[str, str]] = None
 
         # 3. 映射表与断点记录
@@ -158,9 +156,13 @@ class StockActionsFetcher:
         if not files:
             if self.symbol_list is not None or self.incremental:
                 return self.target_dir / "stock_placeholder.csv"
-            raise FileNotFoundError(f"未在目录 '{self.target_dir}' 下找到任何 stock_*.csv 文件")
+            raise FileNotFoundError(
+                f"未在目录 '{self.target_dir}' 下找到任何 stock_*.csv 文件"
+            )
         latest_file = max(files, key=lambda f: f.stat().st_mtime)
-        logger.info(f"[{self.market.upper()}] 自动定位最新股票列表文件: {latest_file.name}")
+        logger.info(
+            f"[{self.market.upper()}] 自动定位最新股票列表文件: {latest_file.name}"
+        )
         return latest_file
 
     def _init_cn_symbol_mapping(self):
@@ -195,15 +197,21 @@ class StockActionsFetcher:
     def _load_checkpoint(self) -> Set[str]:
         if self.force_refresh or self.incremental:
             if self.incremental:
-                logger.info(f"⚡ [{self.market.upper()} 增量模式] 不加载历史 Checkpoint，直接执行增量刷新。")
+                logger.info(
+                    f"⚡ [{self.market.upper()} 增量模式] 不加载历史 Checkpoint，直接执行增量刷新。"
+                )
             else:
-                logger.info("⚡ [定时全量模式] 已开启 force_refresh，清空旧 Checkpoint。")
+                logger.info(
+                    "⚡ [定时全量模式] 已开启 force_refresh，清空旧 Checkpoint。"
+                )
             self._clear_checkpoint()
             return set()
 
         if self.checkpoint_path.exists():
             try:
-                mtime = datetime.datetime.fromtimestamp(self.checkpoint_path.stat().st_mtime)
+                mtime = datetime.datetime.fromtimestamp(
+                    self.checkpoint_path.stat().st_mtime
+                )
                 today = datetime.datetime.now().date()
 
                 if mtime.date() < today:
@@ -216,7 +224,9 @@ class StockActionsFetcher:
 
                 with open(self.checkpoint_path, "r", encoding="utf-8") as f:
                     symbols = set(json.load(f))
-                    logger.info(f"🔄 检测到当日 Checkpoint，成功载入 {len(symbols)} 条已处理记录")
+                    logger.info(
+                        f"🔄 检测到当日 Checkpoint，成功载入 {len(symbols)} 条已处理记录"
+                    )
                     return symbols
 
             except Exception as e:
@@ -246,7 +256,9 @@ class StockActionsFetcher:
         target_read_path = None
         if self.dated_csv_path.exists() and os.path.getsize(self.dated_csv_path) > 0:
             target_read_path = self.dated_csv_path
-        elif self.output_csv_path.exists() and os.path.getsize(self.output_csv_path) > 0:
+        elif (
+            self.output_csv_path.exists() and os.path.getsize(self.output_csv_path) > 0
+        ):
             target_read_path = self.output_csv_path
 
         if target_read_path:
@@ -258,8 +270,12 @@ class StockActionsFetcher:
                 logger.warning(f"读取原有数据文件失败，将全新创建: {e}")
 
         combined_df = pd.concat([existing_df, new_df], ignore_index=True)
-        combined_df.drop_duplicates(subset=["symbol", "date"], keep="last", inplace=True)
-        combined_df.sort_values(by=["symbol", "date"], ascending=[True, True], inplace=True)
+        combined_df.drop_duplicates(
+            subset=["symbol", "date"], keep="last", inplace=True
+        )
+        combined_df.sort_values(
+            by=["symbol", "date"], ascending=[True, True], inplace=True
+        )
 
         combined_df.to_csv(
             self.dated_csv_path,
@@ -284,11 +300,15 @@ class StockActionsFetcher:
             os.rename(self.bak_csv_path, self.dated_csv_path)
 
     # ==================== CN 动态/增量筛选与获取 ====================
-    def get_cn_stock_symbols_with_actions(self, start_date: str, end_date: str) -> Set[str]:
+    def get_cn_stock_symbols_with_actions(
+        self, start_date: str, end_date: str
+    ) -> Set[str]:
         """通过东财 API 快速查询指定区间内有除权事件的 A 股股票代码"""
         url = "https://datacenter-web.eastmoney.com/api/data/v1/get"
         headers = {"Referer": "https://data.eastmoney.com/"}
-        filter_str = f"(EX_DIVIDEND_DATE>='{start_date}')(EX_DIVIDEND_DATE<='{end_date}')"
+        filter_str = (
+            f"(EX_DIVIDEND_DATE>='{start_date}')(EX_DIVIDEND_DATE<='{end_date}')"
+        )
 
         page_size = 500
         page_number = 1
@@ -306,7 +326,9 @@ class StockActionsFetcher:
             }
 
             try:
-                res = curl_requests.get(url, params=params, headers=headers, timeout=10).json()
+                res = curl_requests.get(
+                    url, params=params, headers=headers, timeout=10
+                ).json()
                 if not res.get("success") or not res.get("result"):
                     break
 
@@ -338,7 +360,9 @@ class StockActionsFetcher:
             return sorted(list(set(stocks))), sorted(list(set(etfs)))
 
         if self.incremental:
-            inc_stocks = self.get_cn_stock_symbols_with_actions(self.start_date, self.end_date)
+            inc_stocks = self.get_cn_stock_symbols_with_actions(
+                self.start_date, self.end_date
+            )
 
             for clean_code in inc_stocks:
                 if clean_code not in self.cn_symbol_map:
@@ -348,7 +372,14 @@ class StockActionsFetcher:
             stocks, etfs = [], []
             if self.stock_list_path.exists():
                 df = pd.read_csv(self.stock_list_path, dtype=str)
-                target_col = next((c for c in ["symbol", "Symbol", "code", "Code"] if c in df.columns), None)
+                target_col = next(
+                    (
+                        c
+                        for c in ["symbol", "Symbol", "code", "Code"]
+                        if c in df.columns
+                    ),
+                    None,
+                )
                 if target_col:
                     for sym in df[target_col].dropna():
                         raw_sym = str(sym).strip()
@@ -378,12 +409,18 @@ class StockActionsFetcher:
         years_to_fetch = [str(y) for y in range(start_year, current_year + 1)]
         etf_set = set(etf_list)
 
-        logger.info(f"[CN ETF] 开始获取 {len(etf_list)} 只 ETF 在 {years_to_fetch} 年份内的数据...")
+        logger.info(
+            f"[CN ETF] 开始获取 {len(etf_list)} 只 ETF 在 {years_to_fetch} 年份内的数据..."
+        )
 
         for yr in years_to_fetch:
             try:
                 df_fh = ak.fund_fh_em(year=yr, page=-1)
-                if df_fh is not None and not df_fh.empty and "基金代码" in df_fh.columns:
+                if (
+                    df_fh is not None
+                    and not df_fh.empty
+                    and "基金代码" in df_fh.columns
+                ):
                     df_fh["基金代码"] = df_fh["基金代码"].astype(str).str.zfill(6)
                     df_target_fh = df_fh[df_fh["基金代码"].isin(etf_set)].copy()
 
@@ -392,7 +429,9 @@ class StockActionsFetcher:
                         ex_date = str(row["除息日期"]).strip()
 
                         try:
-                            div_val = float(row["分红"]) if pd.notna(row["分红"]) else 0.0
+                            div_val = (
+                                float(row["分红"]) if pd.notna(row["分红"]) else 0.0
+                            )
                         except (ValueError, TypeError):
                             div_val = 0.0
 
@@ -412,7 +451,11 @@ class StockActionsFetcher:
 
             try:
                 df_cf = ak.fund_cf_em(year=yr, page=-1)
-                if df_cf is not None and not df_cf.empty and "基金代码" in df_cf.columns:
+                if (
+                    df_cf is not None
+                    and not df_cf.empty
+                    and "基金代码" in df_cf.columns
+                ):
                     df_cf["基金代码"] = df_cf["基金代码"].astype(str).str.zfill(6)
                     df_target_cf = df_cf[df_cf["基金代码"].isin(etf_set)].copy()
 
@@ -421,11 +464,19 @@ class StockActionsFetcher:
                         ex_date = str(row["拆分折算日"]).strip()
 
                         try:
-                            ratio_val = float(row["拆分折算"]) if pd.notna(row["拆分折算"]) else 1.0
+                            ratio_val = (
+                                float(row["拆分折算"])
+                                if pd.notna(row["拆分折算"])
+                                else 1.0
+                            )
                         except (ValueError, TypeError):
                             ratio_val = 1.0
 
-                        if re.match(r"^\d{4}-\d{2}-\d{2}$", ex_date) and ratio_val != 1.0 and ratio_val > 0:
+                        if (
+                            re.match(r"^\d{4}-\d{2}-\d{2}$", ex_date)
+                            and ratio_val != 1.0
+                            and ratio_val > 0
+                        ):
                             if self.start_date and ex_date < self.start_date:
                                 continue
                             if self.end_date and ex_date > self.end_date:
@@ -441,12 +492,16 @@ class StockActionsFetcher:
 
         records = []
         for (sym, date_str), data in action_map.items():
-            records.append({
-                "symbol": sym,
-                "date": date_str,
-                "dividend": float(data["dividend"]),
-                "split_ratio": float(data["split_ratio"]) if data["split_ratio"] > 0 else 1.0,
-            })
+            records.append(
+                {
+                    "symbol": sym,
+                    "date": date_str,
+                    "dividend": float(data["dividend"]),
+                    "split_ratio": float(data["split_ratio"])
+                    if data["split_ratio"] > 0
+                    else 1.0,
+                }
+            )
 
         logger.info(f"[CN ETF] 抓取完成，保留 {len(records)} 条符合条件的记录")
         return records
@@ -456,7 +511,11 @@ class StockActionsFetcher:
         raw_sym = self.cn_symbol_map.get(symbol, symbol)
         try:
             df_stock = ak.stock_fhps_detail_em(symbol=symbol)
-            if df_stock is not None and not df_stock.empty and "除权除息日" in df_stock.columns:
+            if (
+                df_stock is not None
+                and not df_stock.empty
+                and "除权除息日" in df_stock.columns
+            ):
                 df_valid = df_stock.dropna(subset=["除权除息日"]).copy()
 
                 for _, row in df_valid.iterrows():
@@ -476,20 +535,41 @@ class StockActionsFetcher:
 
                     cash_raw = row.get("现金分红-现金分红比例", 0.0)
                     try:
-                        cash_10 = float(cash_raw) if (pd.notna(cash_raw) and str(cash_raw).strip() not in ["-", "nan", ""]) else 0.0
+                        cash_10 = (
+                            float(cash_raw)
+                            if (
+                                pd.notna(cash_raw)
+                                and str(cash_raw).strip() not in ["-", "nan", ""]
+                            )
+                            else 0.0
+                        )
                     except (ValueError, TypeError):
                         cash_10 = 0.0
                     div_val = cash_10 / 10.0
 
                     song_raw = row.get("送转股份-送股比例", 0.0)
                     try:
-                        song_10 = float(song_raw) if (pd.notna(song_raw) and str(song_raw).strip() not in ["-", "nan", ""]) else 0.0
+                        song_10 = (
+                            float(song_raw)
+                            if (
+                                pd.notna(song_raw)
+                                and str(song_raw).strip() not in ["-", "nan", ""]
+                            )
+                            else 0.0
+                        )
                     except (ValueError, TypeError):
                         song_10 = 0.0
 
                     zhuan_raw = row.get("送转股份-转股比例", 0.0)
                     try:
-                        zhuan_10 = float(zhuan_raw) if (pd.notna(zhuan_raw) and str(zhuan_raw).strip() not in ["-", "nan", ""]) else 0.0
+                        zhuan_10 = (
+                            float(zhuan_raw)
+                            if (
+                                pd.notna(zhuan_raw)
+                                and str(zhuan_raw).strip() not in ["-", "nan", ""]
+                            )
+                            else 0.0
+                        )
                     except (ValueError, TypeError):
                         zhuan_10 = 0.0
 
@@ -499,12 +579,14 @@ class StockActionsFetcher:
                         split_ratio_val = 1.0
 
                     if div_val > 0 or abs(split_ratio_val - 1.0) > 1e-6:
-                        records.append({
-                            "symbol": raw_sym,
-                            "date": date_str,
-                            "dividend": float(div_val),
-                            "split_ratio": float(split_ratio_val),
-                        })
+                        records.append(
+                            {
+                                "symbol": raw_sym,
+                                "date": date_str,
+                                "dividend": float(div_val),
+                                "split_ratio": float(split_ratio_val),
+                            }
+                        )
         except Exception as e:
             logger.debug(f"获取 CN 股票 [{raw_sym}] 数据失败: {e}")
 
@@ -518,7 +600,9 @@ class StockActionsFetcher:
             return None
 
         raw_proxy = (
-            proxy_dict.get("socks5") or proxy_dict.get("https") or proxy_dict.get("http")
+            proxy_dict.get("socks5")
+            or proxy_dict.get("https")
+            or proxy_dict.get("http")
         )
         proxy_str = format_proxy_url(raw_proxy) if raw_proxy else None
 
@@ -536,13 +620,15 @@ class StockActionsFetcher:
         # 1. 优先获取经过健康检测验证的有效代理
         new_proxy = None
         if self.proxy_manager:
-            new_proxy = self.proxy_manager.get_working_proxy(max_retries=2, enable_proxy=True)
+            new_proxy = self.proxy_manager.get_working_proxy(
+                max_retries=2, enable_proxy=True
+            )
             # 2. 保底兜底：若拿不到验证代理，退而求其次盲切下一个
             if not new_proxy:
                 new_proxy = self.proxy_manager.get_next_proxy()
 
         self.current_working_proxy = new_proxy
-        return self._apply_proxy_env(self.current_working_proxy)        
+        return self._apply_proxy_env(self.current_working_proxy)
 
     def _get_us_main_exchange_symbols_from_sec(self) -> Set[str]:
         """
@@ -555,9 +641,9 @@ class StockActionsFetcher:
         else:
             self._apply_proxy_env(self.current_working_proxy)
 
-        headers = {'User-Agent': 'QuantDataServices admin@quantdata.com'}
+        headers = {"User-Agent": "QuantDataServices admin@quantdata.com"}
         url = "https://www.sec.gov/files/company_tickers_exchange.json"
-        
+
         target_symbols = set()
         max_retries = 2
 
@@ -568,55 +654,67 @@ class StockActionsFetcher:
                 if res.status_code == 200:
                     data = res.json()
                     # 适配 JSON 格式: ['cik', 'name', 'ticker', 'exchange']
-                    df = pd.DataFrame(data['data'], columns=data['fields'])
-                    
-                    df['exchange_upper'] = df['exchange'].str.upper().str.strip()
-                    df['clean_ticker'] = df['ticker'].str.upper().str.strip()
+                    df = pd.DataFrame(data["data"], columns=data["fields"])
 
-                    main_exchanges = {'NYQ', 'NYSE', 'NMS', 'NGS', 'NCM', 'NASDAQ', 'ASE'}
-                    otc_exchanges = {'OTC', 'OTCBB', 'PINK'}
+                    df["exchange_upper"] = df["exchange"].str.upper().str.strip()
+                    df["clean_ticker"] = df["ticker"].str.upper().str.strip()
 
-                    df['is_main'] = df['exchange_upper'].isin(main_exchanges)
-                    df['is_otc'] = df['exchange_upper'].isin(otc_exchanges)
+                    main_exchanges = {
+                        "NYQ",
+                        "NYSE",
+                        "NMS",
+                        "NGS",
+                        "NCM",
+                        "NASDAQ",
+                        "ASE",
+                    }
+                    otc_exchanges = {"OTC", "OTCBB", "PINK"}
+
+                    df["is_main"] = df["exchange_upper"].isin(main_exchanges)
+                    df["is_otc"] = df["exchange_upper"].isin(otc_exchanges)
 
                     # ---------------------------------------------------------------------
                     # 规则 1 [跨市场结构]: 查找 CIK 同事跨越【主板】与【OTC/场外】市场的标的
                     # (精炼提取 BABA, TSM 等绝大多数通过多重挂牌备案的 ADR)
                     # ---------------------------------------------------------------------
-                    main_ciks = set(df[df['is_main']]['cik'])
-                    otc_ciks = set(df[df['is_otc']]['cik'])
+                    main_ciks = set(df[df["is_main"]]["cik"])
+                    otc_ciks = set(df[df["is_otc"]]["cik"])
                     cross_market_ciks = main_ciks.intersection(otc_ciks)
 
                     # ---------------------------------------------------------------------
                     # 规则 2 [CIK 频次特征]: 统计每个 CIK 出现的总记录数，超过 1 条（即 >= 2 条）即命中
                     # (精准补全像 BBD/BBDO 这种同一公司在 SEC 存在多条记录/多类股票的 ADR)
                     # ---------------------------------------------------------------------
-                    cik_counts = df['cik'].value_counts()
+                    cik_counts = df["cik"].value_counts()
                     multi_record_ciks = set(cik_counts[cik_counts >= 2].index)
 
                     # ---------------------------------------------------------------------
                     # [过滤]: 1. 过滤主板规范代码 (1~5位纯字母)
                     #         2. 正则排除以 W (Warrant 权证) 或 U (Unit 单位股) 结尾的 5 位衍生品代码 (如 SATLW)
                     # ---------------------------------------------------------------------
-                    valid_main_mask = df['is_main'] & df['clean_ticker'].str.match(r'^[A-Z]{1,5}$')
-                    is_derivative = df['clean_ticker'].str.match(r'^[A-Z]{4}[WU]$')
-                    
+                    valid_main_mask = df["is_main"] & df["clean_ticker"].str.match(
+                        r"^[A-Z]{1,5}$"
+                    )
+                    is_derivative = df["clean_ticker"].str.match(r"^[A-Z]{4}[WU]$")
+
                     # 显式 .copy() 避免后续衍生 SettingWithCopyWarning
                     df_main_valid = df[valid_main_mask & (~is_derivative)].copy()
 
                     # 判定条件：规则 1 (跨市场 CIK) OR 规则 2 (CIK 频次 >= 2)
-                    cond_cross_market = df_main_valid['cik'].isin(cross_market_ciks)
-                    cond_multi_record = df_main_valid['cik'].isin(multi_record_ciks)
+                    cond_cross_market = df_main_valid["cik"].isin(cross_market_ciks)
+                    cond_multi_record = df_main_valid["cik"].isin(multi_record_ciks)
 
                     # 重点修改 1：通过 .copy() 明确分配独立内存空间，彻底消灭 Warning
                     df_adr = df_main_valid[cond_cross_market | cond_multi_record].copy()
-                    
-                    # 重点修改 2：安全新增代码长度列并去重 (同 CIK 优先保留最简短的普通股主标的)
-                    df_adr.loc[:, 'ticker_len'] = df_adr['clean_ticker'].str.len()
-                    df_adr_sorted = df_adr.sort_values(by=['cik', 'ticker_len'])
-                    df_adr_unique = df_adr_sorted.drop_duplicates(subset=['cik'], keep='first')
 
-                    target_symbols = set(df_adr_unique['clean_ticker'].tolist())
+                    # 重点修改 2：安全新增代码长度列并去重 (同 CIK 优先保留最简短的普通股主标的)
+                    df_adr.loc[:, "ticker_len"] = df_adr["clean_ticker"].str.len()
+                    df_adr_sorted = df_adr.sort_values(by=["cik", "ticker_len"])
+                    df_adr_unique = df_adr_sorted.drop_duplicates(
+                        subset=["cik"], keep="first"
+                    )
+
+                    target_symbols = set(df_adr_unique["clean_ticker"].tolist())
 
                     logger.info(
                         f"✅ [SEC 精炼ADR池] 提取成功: {len(target_symbols)} 只 "
@@ -626,15 +724,15 @@ class StockActionsFetcher:
                 else:
                     logger.warning(f"⚠️ [SEC 主板] 响应异常 Status: {res.status_code}")
             except Exception as e:
-                logger.warning(f"⚠️ [SEC 主板] 第 {attempt}/{max_retries} 次请求失败: {e}，尝试轮换代理...")
+                logger.warning(
+                    f"⚠️ [SEC 主板] 第 {attempt}/{max_retries} 次请求失败: {e}，尝试轮换代理..."
+                )
                 self._rotate_to_working_proxy()
 
         return target_symbols
 
     def _get_us_recent_action_symbols_from_nasdaq(
-        self,
-        start_date: str,
-        end_date: str
+        self, start_date: str, end_date: str
     ) -> Set[str]:
         """
         通过 Nasdaq 官方 Calendar API 快捷拉取 [start_date ~ end_date] 范围内
@@ -659,7 +757,9 @@ class StockActionsFetcher:
         end_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
 
         curr_dt = start_dt
-        logger.info(f"🚀 [Nasdaq 日历] 开始提取除权/拆股日历数据，窗口: [{start_date} ~ {end_date}] | 📡 初始代理: {proxy_str or '直连'}")
+        logger.info(
+            f"🚀 [Nasdaq 日历] 开始提取除权/拆股日历数据，窗口: [{start_date} ~ {end_date}] | 📡 初始代理: {proxy_str or '直连'}"
+        )
 
         while curr_dt <= end_dt:
             if curr_dt.weekday() < 5:  # 跳过周末
@@ -676,7 +776,7 @@ class StockActionsFetcher:
                     if res_div.status_code == 200:
                         div_json = res_div.json()
                         div_data = div_json.get("data", {}) or {}
-                        
+
                         rows = []
                         if isinstance(div_data, dict):
                             calendar_obj = div_data.get("calendar", {}) or {}
@@ -691,15 +791,21 @@ class StockActionsFetcher:
                                     action_symbols.add(clean_sym)
                                     day_div_count += 1
                 except Exception as e:
-                    logger.warning(f"⚠️ [Nasdaq 分红] 请求 {date_str} 失败: {e}，尝试轮换代理...")
+                    logger.warning(
+                        f"⚠️ [Nasdaq 分红] 请求 {date_str} 失败: {e}，尝试轮换代理..."
+                    )
                     proxy_str = self._rotate_to_working_proxy()
 
                 # ------------------------------------------------------------------
                 # 2. 获取拆合股 (Stock Splits)
                 # ------------------------------------------------------------------
-                split_url = f"https://api.nasdaq.com/api/calendar/splits?date={date_str}"
+                split_url = (
+                    f"https://api.nasdaq.com/api/calendar/splits?date={date_str}"
+                )
                 try:
-                    res_split = curl_requests.get(split_url, headers=headers, timeout=12)
+                    res_split = curl_requests.get(
+                        split_url, headers=headers, timeout=12
+                    )
                     if res_split.status_code == 200:
                         split_json = res_split.json()
                         split_data = split_json.get("data", {}) or {}
@@ -716,7 +822,9 @@ class StockActionsFetcher:
                                     action_symbols.add(clean_sym)
                                     day_split_count += 1
                 except Exception as e:
-                    logger.warning(f"⚠️ [Nasdaq 拆股] 请求 {date_str} 失败: {e}，尝试轮换代理...")
+                    logger.warning(
+                        f"⚠️ [Nasdaq 拆股] 请求 {date_str} 失败: {e}，尝试轮换代理..."
+                    )
                     proxy_str = self._rotate_to_working_proxy()
 
                 logger.info(
@@ -727,60 +835,61 @@ class StockActionsFetcher:
 
             curr_dt += datetime.timedelta(days=1)
 
-        logger.info(f"🎯 [Nasdaq 日历完成] 共捕获除权/拆股美股标的: {len(action_symbols)} 只")
+        logger.info(
+            f"🎯 [Nasdaq 日历完成] 共捕获除权/拆股美股标的: {len(action_symbols)} 只"
+        )
         return action_symbols
 
-
     def _scan_us_symbols_with_actions(self, all_us_symbols: List[str]) -> Set[str]:
-            """
-            替代原有的 yf.download 批量下载矩阵扫描逻辑：
-            1. 利用 Nasdaq Calendar API 提取 [self.start_date ~ self.end_date] 范围内发生分红/拆股的本土美股。
-            2. 利用 SEC 官方 API 拉取三大主板 (NYSE/NASDAQ/AMEX) 的全量股票池 (保障 BBD 等 ADR / 存托凭证 100% 涵盖)。
-            3. 过滤并合并返回，解决批量 yf.download 导致的严重限流与拦截问题。
-            """
-            logger.info(
-                f"⚡ [US 增量扫描] 开始提取除权/拆股标的，传入候选总数: {len(all_us_symbols)} 只，"
-                f"窗口: [{self.start_date} ~ {self.end_date}]"
-            )
+        """
+        替代原有的 yf.download 批量下载矩阵扫描逻辑：
+        1. 利用 Nasdaq Calendar API 提取 [self.start_date ~ self.end_date] 范围内发生分红/拆股的本土美股。
+        2. 利用 SEC 官方 API 拉取三大主板 (NYSE/NASDAQ/AMEX) 的全量股票池 (保障 BBD 等 ADR / 存托凭证 100% 涵盖)。
+        3. 过滤并合并返回，解决批量 yf.download 导致的严重限流与拦截问题。
+        """
+        logger.info(
+            f"⚡ [US 增量扫描] 开始提取除权/拆股标的，传入候选总数: {len(all_us_symbols)} 只，"
+            f"窗口: [{self.start_date} ~ {self.end_date}]"
+        )
 
-            # 尝试获取当前可用代理字典（如果类内部配置了代理方法）
-            proxy_dict = None
-            if hasattr(self, "current_working_proxy") and self.current_working_proxy:
-                proxy_dict = {
-                    "http": self.current_working_proxy,
-                    "https": self.current_working_proxy,
-                }
+        # 尝试获取当前可用代理字典（如果类内部配置了代理方法）
+        proxy_dict = None
+        if hasattr(self, "current_working_proxy") and self.current_working_proxy:
+            proxy_dict = {
+                "http": self.current_working_proxy,
+                "https": self.current_working_proxy,
+            }
 
-            # 1. 从 Nasdaq 提取本土美股除权事件标的
-            nasdaq_action_symbols = self._get_us_recent_action_symbols_from_nasdaq(
-                start_date=self.start_date,
-                end_date=self.end_date,
-            )
+        # 1. 从 Nasdaq 提取本土美股除权事件标的
+        nasdaq_action_symbols = self._get_us_recent_action_symbols_from_nasdaq(
+            start_date=self.start_date,
+            end_date=self.end_date,
+        )
 
-            # 2. 从 SEC 提取三大主板全量标的 (作为全量 ADR / 存托凭证池)
-            sec_main_symbols = self._get_us_main_exchange_symbols_from_sec()
+        # 2. 从 SEC 提取三大主板全量标的 (作为全量 ADR / 存托凭证池)
+        sec_main_symbols = self._get_us_main_exchange_symbols_from_sec()
 
-            # 3. 本土除权标的 + SEC 主板 ADR 标的 合并
-            detected_symbols = nasdaq_action_symbols | sec_main_symbols
+        # 3. 本土除权标的 + SEC 主板 ADR 标的 合并
+        detected_symbols = nasdaq_action_symbols | sec_main_symbols
 
-            # 4. 与传入的 all_us_symbols 取交集，保证输出结果约束在系统已知的 US Symbol 列表中
-            if all_us_symbols:
-                candidate_set = set(str(s).upper().strip() for s in all_us_symbols)
-                # 交集：在 candidate_set 中出现的 detected_symbols
-                target_symbols = detected_symbols.intersection(candidate_set)
-                
-                # 容错补充：如果 Nasdaq 抓到了候选列表中没有的新除权 Symbol，也一并打入
-                target_symbols.update(nasdaq_action_symbols)
-            else:
-                target_symbols = detected_symbols
+        # 4. 与传入的 all_us_symbols 取交集，保证输出结果约束在系统已知的 US Symbol 列表中
+        if all_us_symbols:
+            candidate_set = set(str(s).upper().strip() for s in all_us_symbols)
+            # 交集：在 candidate_set 中出现的 detected_symbols
+            target_symbols = detected_symbols.intersection(candidate_set)
 
-            logger.info(
-                f"✨ [US 增量扫描完成] Nasdaq 日历命中: {len(nasdaq_action_symbols)} 只 | "
-                f"SEC 主板池: {len(sec_main_symbols)} 只 | "
-                f"最终筛选待处理标的: {len(target_symbols)} 只"
-            )
+            # 容错补充：如果 Nasdaq 抓到了候选列表中没有的新除权 Symbol，也一并打入
+            target_symbols.update(nasdaq_action_symbols)
+        else:
+            target_symbols = detected_symbols
 
-            return target_symbols
+        logger.info(
+            f"✨ [US 增量扫描完成] Nasdaq 日历命中: {len(nasdaq_action_symbols)} 只 | "
+            f"SEC 主板池: {len(sec_main_symbols)} 只 | "
+            f"最终筛选待处理标的: {len(target_symbols)} 只"
+        )
+
+        return target_symbols
 
     def fetch_actions_for_us_stock(self, symbol: str) -> List[Dict]:
         """请求筛选出的 symbol 的 ticker.actions，进行增量更新"""
@@ -813,12 +922,14 @@ class StockActionsFetcher:
                         split_ratio_val = raw_split if raw_split > 0.0 else 1.0
 
                         if div > 0 or split_ratio_val != 1.0:
-                            raw_records.append({
-                                "symbol": symbol,
-                                "date": date_str,
-                                "dividend": div,
-                                "split_ratio": split_ratio_val,
-                            })
+                            raw_records.append(
+                                {
+                                    "symbol": symbol,
+                                    "date": date_str,
+                                    "dividend": div,
+                                    "split_ratio": split_ratio_val,
+                                }
+                            )
 
                 records = []
                 if raw_records:
@@ -833,8 +944,13 @@ class StockActionsFetcher:
                             next_dt = pd.to_datetime(next_rec["date"])
                             day_diff = (next_dt - curr_dt).days
 
-                            same_div = abs(next_rec["dividend"] - curr["dividend"]) < 1e-4
-                            same_split = abs(next_rec["split_ratio"] - curr["split_ratio"]) < 1e-4
+                            same_div = (
+                                abs(next_rec["dividend"] - curr["dividend"]) < 1e-4
+                            )
+                            same_split = (
+                                abs(next_rec["split_ratio"] - curr["split_ratio"])
+                                < 1e-4
+                            )
 
                             if day_diff <= 3 and same_div and same_split:
                                 curr = next_rec
@@ -858,13 +974,15 @@ class StockActionsFetcher:
             finally:
                 self._apply_proxy_env(None)
 
-        return []      
+        return []
 
     def load_us_symbols(self) -> List[str]:
         """载入待处理的美股 Symbol 列表"""
         # 1. 从命令行参数或本地 stock_*.csv 获取全量 symbol list
         if self.symbol_list is not None:
-            all_symbols = sorted(list(set(str(s).strip().upper() for s in self.symbol_list)))
+            all_symbols = sorted(
+                list(set(str(s).strip().upper() for s in self.symbol_list))
+            )
         elif not self.stock_list_path.exists():
             all_symbols = []
         else:
@@ -886,13 +1004,14 @@ class StockActionsFetcher:
         # 2. 仅在增量模式 (incremental=True) 下，调用矩阵扫描过滤
         if self.incremental:
             target_symbols = self._scan_us_symbols_with_actions(all_symbols)
-            logger.info(f"🎯 [增量模式] 筛选出发生过除权/拆股的标的共: {len(target_symbols)} 只")
+            logger.info(
+                f"🎯 [增量模式] 筛选出发生过除权/拆股的标的共: {len(target_symbols)} 只"
+            )
             return sorted(list(target_symbols))
 
         # 3. 全量模式 (incremental=False) 下，直接返回全量列表，直接进行全量获取
         logger.info(f"🌐 [全量模式] 准备处理全量美股标的共: {len(all_symbols)} 只")
         return sorted(all_symbols)
-
 
     # ==================== 执行调度入口 ====================
     def run(self):
@@ -954,7 +1073,11 @@ class StockActionsFetcher:
             for idx_in_batch, symbol in enumerate(batch_symbols, 1):
                 current_global_idx = processed_count + idx_in_batch
                 progress_pct = (current_global_idx / total_count) * 100
-                display_symbol = self.cn_symbol_map.get(symbol, symbol) if self.market == "cn" else symbol
+                display_symbol = (
+                    self.cn_symbol_map.get(symbol, symbol)
+                    if self.market == "cn"
+                    else symbol
+                )
 
                 records = fetch_func(symbol)
                 if records:

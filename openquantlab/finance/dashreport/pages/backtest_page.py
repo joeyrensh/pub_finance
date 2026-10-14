@@ -54,15 +54,15 @@ def sort_symbols_by_sector_pe(symbol_list, market, date_str):
         try:
             cols_to_read = ["symbol"]
             temp_df = pd.read_csv(f_industry, nrows=1)
-            
+
             # 检查并添加需要读取的列
             if "sector" in temp_df.columns:
                 cols_to_read.append("sector")
             if "industry" in temp_df.columns:
                 cols_to_read.append("industry")
-                
+
             df_ind = pd.read_csv(f_industry, usecols=cols_to_read, dtype=str)
-            
+
             if "sector" in df_ind.columns:
                 sector_dict = df_ind.set_index("symbol")["sector"].to_dict()
             if "industry" in df_ind.columns:
@@ -72,7 +72,9 @@ def sort_symbols_by_sector_pe(symbol_list, market, date_str):
 
     # 2. 读取 PE 信息
     f_stock = FINANCE_ROOT / (
-        f"cnstockinfo/stock_{dt}.csv" if market == "cn" else f"usstockinfo/stock_{dt}.csv"
+        f"cnstockinfo/stock_{dt}.csv"
+        if market == "cn"
+        else f"usstockinfo/stock_{dt}.csv"
     )
     pe_dict = {}
     if dt and f_stock.exists():
@@ -99,16 +101,22 @@ def sort_symbols_by_sector_pe(symbol_list, market, date_str):
     def sort_key(sym):
         # 处理 Sector
         sector = sector_dict.get(sym)
-        sector_str = "zzz" if (not sector or pd.isna(sector) or sector == "-") else str(sector)
-        
+        sector_str = (
+            "zzz" if (not sector or pd.isna(sector) or sector == "-") else str(sector)
+        )
+
         # 处理 Industry
         industry = industry_dict.get(sym)
-        industry_str = "zzz" if (not industry or pd.isna(industry) or industry == "-") else str(industry)
-        
+        industry_str = (
+            "zzz"
+            if (not industry or pd.isna(industry) or industry == "-")
+            else str(industry)
+        )
+
         # 处理 PE
         pe = pe_dict.get(sym)
         pe_num = pe if pe is not None else float("inf")
-        
+
         return (sector_str, industry_str, pe_num)
 
     return sorted(symbol_list, key=sort_key)
@@ -276,6 +284,7 @@ def load_hist(stocks, dt, m):
         TickerInfo(dt, f"{m}_backtest").get_backtrader_data_feed_testonly(stocks) or []
     )
 
+
 def load_actions_history(stocks, dt, m):
     """
     加载并过滤除权分红、拆合股等复权行为历史数据
@@ -329,6 +338,7 @@ def load_actions_history(stocks, dt, m):
     except Exception as e:
         print(f"加载 actions history 异常: {e}")
         return []
+
 
 def get_end_date_from_prefix(prefix: str) -> str:
     data = ReportDataLoader.load(prefix=prefix, datasets=("overall",))
@@ -781,7 +791,7 @@ class BacktestPage:
                 )
             stocks = d.get("s", [])
             histories = d.get("h", [])
-            all_tr = d.get("tr", [])        # 所有交易记录
+            all_tr = d.get("tr", [])  # 所有交易记录
             all_pos = d.get("pos_detail", [])  # 所有持仓明细
             all_actions = d.get("actions", [])  # 所有除权行为（dividend/split_ratio）
             charts = []
@@ -799,9 +809,7 @@ class BacktestPage:
                     stock_data["datetime"] = pd.to_datetime(stock_data["datetime"])
                     stock_data = stock_data.sort_values("datetime")
                     cutoff = stock_data["datetime"].max() - pd.Timedelta(
-                        days=(
-                            kline_time_range if width < 550 else kline_time_range * 2
-                        )
+                        days=(kline_time_range if width < 550 else kline_time_range * 2)
                     )
                     stock_data = stock_data[stock_data["datetime"] >= cutoff]
 
@@ -926,7 +934,7 @@ class BacktestPage:
 
             try:
                 dt = datetime.strptime(date_str, "%Y-%m-%d").strftime("%Y%m%d")
-                
+
                 # 1. 读取行业及板块信息
                 f_industry = FINANCE_ROOT / (
                     "cnstockinfo/industry.csv"
@@ -939,8 +947,10 @@ class BacktestPage:
                     temp_df = pd.read_csv(f_industry, nrows=1)
                     if "sector" in temp_df.columns:
                         cols_to_read.append("sector")
-                    
-                    df_industry = pd.read_csv(f_industry, usecols=cols_to_read, dtype=str)
+
+                    df_industry = pd.read_csv(
+                        f_industry, usecols=cols_to_read, dtype=str
+                    )
                     df_industry = df_industry[df_industry["symbol"].isin(stock_list)]
 
                 # 2. 读取最新股票名称、市值与 PE
@@ -949,14 +959,16 @@ class BacktestPage:
                     if market == "cn"
                     else f"usstockinfo/stock_{dt}.csv"
                 )
-                df_latest = pd.DataFrame(columns=["symbol", "name", "total_value", "pe"])
+                df_latest = pd.DataFrame(
+                    columns=["symbol", "name", "total_value", "pe"]
+                )
                 if f_latest.exists():
                     cols_to_read = ["symbol", "name"]
                     temp_df = pd.read_csv(f_latest, nrows=1)
                     for col in ["total_value", "pe"]:
                         if col in temp_df.columns:
                             cols_to_read.append(col)
-                            
+
                     df_latest = pd.read_csv(f_latest, usecols=cols_to_read, dtype=str)
                     df_latest = df_latest[df_latest["symbol"].isin(stock_list)]
 
@@ -967,21 +979,28 @@ class BacktestPage:
                 # 补全缺失值方便排序
                 df["sector"] = df["sector"].fillna("-")
                 df["industry"] = df["industry"].fillna("-")
-                
+
                 # 转换 PE 为数值辅助排序 (把无法转为 float 的或 NaN 设置为无穷大 inf，排在最后)
                 def parse_pe_num(val):
                     try:
                         num = float(val)
-                        return num if not np.isnan(num) else float('inf')
+                        return num if not np.isnan(num) else float("inf")
                     except (ValueError, TypeError):
-                        return float('inf')
+                        return float("inf")
 
                 df["_pe_num"] = df["pe"].apply(parse_pe_num)
 
                 # ---------------- 先按 Sector 分组，组内按 PE 升序 ----------------
-                df["_sector_sort"] = df["sector"].apply(lambda x: "zzz" if x == "-" else x)
-                df["_industry_sort"] = df["industry"].apply(lambda x: "zzz" if x == "-" else x)
-                df = df.sort_values(by=["_sector_sort", "_industry_sort", "_pe_num"], ascending=[True, True, True])
+                df["_sector_sort"] = df["sector"].apply(
+                    lambda x: "zzz" if x == "-" else x
+                )
+                df["_industry_sort"] = df["industry"].apply(
+                    lambda x: "zzz" if x == "-" else x
+                )
+                df = df.sort_values(
+                    by=["_sector_sort", "_industry_sort", "_pe_num"],
+                    ascending=[True, True, True],
+                )
 
                 if df.empty:
                     return "No information found for the given symbols."
@@ -992,53 +1011,69 @@ class BacktestPage:
 
                 html_lines = [
                     '<table class="custom-symbol-table">',
-                    '  <thead>',
-                    '    <tr>',
-                    '      <th>Symbol/Name</th>',
-                    '      <th>Sector</th>',
-                    '      <th>MCap</th>',
-                    '      <th>PE</th>',
-                    '    </tr>',
-                    '  </thead>',
-                    '  <tbody>'
+                    "  <thead>",
+                    "    <tr>",
+                    "      <th>Symbol/Name</th>",
+                    "      <th>Sector</th>",
+                    "      <th>MCap</th>",
+                    "      <th>PE</th>",
+                    "    </tr>",
+                    "  </thead>",
+                    "  <tbody>",
                 ]
 
                 for i, row in enumerate(df_list):
                     sym = row["symbol"]
                     name = row.get("name", "-") if pd.notna(row.get("name")) else "-"
-                    industry = row.get("industry", "-") if pd.notna(row.get("industry")) else "-"
-                    sector = row.get("sector", "-") if pd.notna(row.get("sector")) else "-"
-                    
+                    industry = (
+                        row.get("industry", "-")
+                        if pd.notna(row.get("industry"))
+                        else "-"
+                    )
+                    sector = (
+                        row.get("sector", "-") if pd.notna(row.get("sector")) else "-"
+                    )
+
                     # PE 格式化
                     pe_num = row["_pe_num"]
-                    pe_str = f"{int(round(pe_num))}" if pe_num != float('inf') else "-"
+                    pe_str = f"{int(round(pe_num))}" if pe_num != float("inf") else "-"
 
                     # 市值格式化
                     val_raw = row.get("total_value")
                     try:
                         val_num = float(val_raw)
-                        val_str = f"{val_num / 1e8:.1f}亿" if val_num >= 1e8 else f"{val_num / 1e4:.0f}万"
+                        val_str = (
+                            f"{val_num / 1e8:.1f}亿"
+                            if val_num >= 1e8
+                            else f"{val_num / 1e4:.0f}万"
+                        )
                     except (ValueError, TypeError):
                         val_str = "-"
 
-                    cat_str = f"{sector}-<b>{industry}</b>" if sector != "-" else f"<b>{industry}</b>"
+                    cat_str = (
+                        f"{sector}-<b>{industry}</b>"
+                        if sector != "-"
+                        else f"<b>{industry}</b>"
+                    )
 
                     # 判断是否是当前 Sector 的最后一行，用来打标记画分割线
-                    is_group_end = (i == total_rows - 1) or (df_list[i + 1]["sector"] != sector)
-                    tr_class = ' class="sector-group-end"' if is_group_end else ''
+                    is_group_end = (i == total_rows - 1) or (
+                        df_list[i + 1]["sector"] != sector
+                    )
+                    tr_class = ' class="sector-group-end"' if is_group_end else ""
 
                     row_html = (
-                        f'    <tr{tr_class}>'
-                        f'<td>{sym}-<b>{name}</b></td>'
-                        f'<td>{cat_str}</td>'
-                        f'<td><b>{val_str}</b></td>'
-                        f'<td><b>{pe_str}</b></td>'
-                        f'</tr>'
+                        f"    <tr{tr_class}>"
+                        f"<td>{sym}-<b>{name}</b></td>"
+                        f"<td>{cat_str}</td>"
+                        f"<td><b>{val_str}</b></td>"
+                        f"<td><b>{pe_str}</b></td>"
+                        f"</tr>"
                     )
                     html_lines.append(row_html)
 
-                html_lines.append('  </tbody>')
-                html_lines.append('</table>')
+                html_lines.append("  </tbody>")
+                html_lines.append("</table>")
 
                 return "\n".join(html_lines)
 

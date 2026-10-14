@@ -224,9 +224,7 @@ class GlobalStrategy(bt.Strategy):
         self.sharpe_ratios = {}  # 每只股票当前夏普比率
         self.sortino_ratios = {}
         self.max_drawdowns = {}  # 每只股票最大回撤率
-        self.current_signal = (
-            {}
-        )  # 记录当前满足的最高级别买入信号（动态更新，用于卖出决策）
+        self.current_signal = {}  # 记录当前满足的最高级别买入信号（动态更新，用于卖出决策）
         self.peak_price = {}  # 持仓期间最高价（用于移动止盈）
         # 读取国债收益率
         self.rf_rate = self._load_rf_rate()

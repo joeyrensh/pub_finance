@@ -9,7 +9,7 @@ from finance import FINANCE_ROOT
 # 历史数据起始时间，结束时间
 # 文件名称定义
 start_date = "20250101"
-end_date = "20260922" # yfinance的start/end为左闭右开
+end_date = "20260922"  # yfinance的start/end为左闭右开
 market = "cn"
 file_path = FINANCE_ROOT / f"{market}stockinfo" / "new_stock_data_fqt.csv"
 # em = EMWebCrawlerUti(use_proxy=True)

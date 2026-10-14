@@ -14,8 +14,10 @@ from finance.utility.stock_actions_fetcher import StockActionsFetcher
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="中美股除权分红数据定时/增量抓取入口脚本")
-    
+    parser = argparse.ArgumentParser(
+        description="中美股除权分红数据定时/增量抓取入口脚本"
+    )
+
     # 命令行参数配置
     parser.add_argument(
         "--market",
@@ -67,7 +69,7 @@ def parse_symbol_list(raw_symbols: Optional[List[str]]) -> Optional[List[str]]:
     """解析命令行输入的 symbols 列表，兼容逗号与空格分隔"""
     if not raw_symbols:
         return None
-    
+
     symbol_set = set()
     for item in raw_symbols:
         clean_item = item.strip("[]'\"")
@@ -75,7 +77,7 @@ def parse_symbol_list(raw_symbols: Optional[List[str]]) -> Optional[List[str]]:
             sym_clean = sym.strip().upper()
             if sym_clean:
                 symbol_set.add(sym_clean)
-                
+
     return sorted(list(symbol_set)) if symbol_set else None
 
 

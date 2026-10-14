@@ -9,7 +9,7 @@ class CronManager:
         "fetch_cn_proxies.py": "cn_proxy_cron",
         "fetch_overseas_proxies.py": "oversea_proxy_cron",
         "fetch_symbol_actions.py --market cn": "cn_actions_cron",
-        "fetch_symbol_actions.py --market us": "us_actions_cron"
+        "fetch_symbol_actions.py --market us": "us_actions_cron",
     }
 
     @classmethod

@@ -89,9 +89,7 @@ class ProxyManager:
     def parse_cookie_string(self) -> Dict[str, str]:
         """读取 JSON 格式的 cookie 文件"""
         if not self.cookie_path.exists():
-            logger.warning(
-                f"Cookie 文件不存在: {self.cookie_path}，使用默认兜底配置"
-            )
+            logger.warning(f"Cookie 文件不存在: {self.cookie_path}，使用默认兜底配置")
             return self.DEFAULT_COOKIES.copy()
 
         try:
@@ -100,18 +98,14 @@ class ProxyManager:
                 logger.info("已成功加载 JSON cookie 信息")
                 return cookie_data
         except Exception as e:
-            logger.error(
-                f"读取 Cookie 文件异常: {e}，使用兜底配置", exc_info=True
-            )
+            logger.error(f"读取 Cookie 文件异常: {e}，使用兜底配置", exc_info=True)
             return self.DEFAULT_COOKIES.copy()
 
     def get_dynamic_cookies(self) -> Dict[str, str]:
         """动态生成包含最新时间戳与计数的 Cookie 字典"""
         cookies = self._cookie_base.copy()
         now = datetime.datetime.now()
-        timestamp_str = (
-            now.strftime("%Y%m%d%H%M%S") + f"{now.microsecond // 1000:03d}"
-        )
+        timestamp_str = now.strftime("%Y%m%d%H%M%S") + f"{now.microsecond // 1000:03d}"
 
         orig_psi = cookies.get("st_psi", "")
         suffix = (
@@ -206,14 +200,10 @@ class ProxyManager:
                 )
 
             res = response.json()
-            total_page_no = math.ceil(
-                res.get("data", {}).get("total", 0) / 100
-            )
+            total_page_no = math.ceil(res.get("data", {}).get("total", 0) / 100)
 
             return (
-                (True, total_page_no)
-                if total_page_no > 0
-                else (False, total_page_no)
+                (True, total_page_no) if total_page_no > 0 else (False, total_page_no)
             )
 
         except Exception as e:
@@ -274,9 +264,7 @@ class ProxyManager:
             os.environ.pop("HTTP_PROXY", None)
             os.environ.pop("HTTPS_PROXY", None)
 
-    def test_proxy(
-        self, proxy_dict: Dict[str, str], test_function=None
-    ) -> bool:
+    def test_proxy(self, proxy_dict: Dict[str, str], test_function=None) -> bool:
         """测试单个代理是否可用"""
         if test_function is None:
             # 根据 proxy_type 选择默认的验证函数
@@ -326,7 +314,5 @@ class ProxyManager:
                 print(f"✅ 代理可用：{proxy}")
                 return proxy
 
-        print(
-            f"[{self.proxy_type.upper()}] 所有代理测试失败（已达最大重试轮数）"
-        )
+        print(f"[{self.proxy_type.upper()}] 所有代理测试失败（已达最大重试轮数）")
         return None
