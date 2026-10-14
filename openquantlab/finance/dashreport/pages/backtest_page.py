@@ -800,7 +800,7 @@ class BacktestPage:
                     stock_data = stock_data.sort_values("datetime")
                     cutoff = stock_data["datetime"].max() - pd.Timedelta(
                         days=(
-                            kline_time_range if width < 550 else kline_time_range * 1.8
+                            kline_time_range if width < 550 else kline_time_range * 2
                         )
                     )
                     stock_data = stock_data[stock_data["datetime"] >= cutoff]
