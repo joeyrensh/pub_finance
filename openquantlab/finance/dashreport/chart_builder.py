@@ -3624,8 +3624,8 @@ class ChartBuilder:
             hovermode="x",
             dragmode=False,
             showlegend=True,
-            bargap=0.4 / scale,
-            bargroupgap=0.4 / scale,
+            bargap=0.4,
+            bargroupgap=0.4,
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
