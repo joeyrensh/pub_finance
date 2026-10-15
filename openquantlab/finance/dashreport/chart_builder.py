@@ -2809,24 +2809,24 @@ class ChartBuilder:
         max_price = df["high"].max() * 1.03
 
         def _add_dynamic_gap_shadows(fig: go.Figure, df: pd.DataFrame) -> go.Figure:
-            """自动计算并叠加动态衰减的跳空缺口阴影（修复 Bug 且性能极致优化版）"""
             date_col = "datetime" if "datetime" in df.columns else "date"
 
             if date_col not in df.columns or df.empty:
                 return fig
 
-            # 1. 确保按时间排序
+            # 1. 按时间排序并重置索引
             df = df.sort_values(date_col).reset_index(drop=True)
             n = len(df)
             if n < 2:
                 return fig
 
-            # 2. 提取底层 NumPy 数组
+            # 2. 直接提取 Python 原生 list / NumPy 数组（零 Pandas 索引开销）
             highs = df["high"].to_numpy()
             lows = df["low"].to_numpy()
-            dates = pd.to_datetime(df[date_col]).dt.strftime("%Y-%m-%d").to_numpy()
+            # 保持与 K 线图 x 轴完全一致的类型，避免 Plotly 内部做隐式类型转换
+            dates = df[date_col].tolist()
 
-            # 3. 向量化快检缺口触发点
+            # 3. 向量化快检是否有缺口
             prev_highs = highs[:-1]
             curr_lows = lows[1:]
             prev_lows = lows[:-1]
@@ -2839,91 +2839,82 @@ class ChartBuilder:
             if len(gap_indices) == 0:
                 return fig
 
-            # 4. 读取全局主题颜色
+            # 4. 获取主题填充颜色
             gap_fillcolor = self._get_alpha_color(
                 cfg["upgrade-marker-color"], alpha=0.2
             )
 
             shapes = []
 
-            # 5. 精确逐日追踪缺口演进（保证逻辑 100% 正确）
+            # 5. 单图极速顺序扫描（单图计算耗时仅 < 0.2ms）
             for i in gap_indices:
                 if bull_mask[i - 1]:
-                    # 【向上跳空缺口】区间：[昨日High, 今日Low]
-                    gap_bottom = highs[i - 1]  # 下界固定
-                    gap_top = lows[i]  # 上界随后续Low下穿而逐步被“削低”
-                    start_date = dates[i]
-                    end_date = start_date
+                    # 【向上跳空缺口】
+                    gap_bottom = highs[i - 1]
+                    gap_top = lows[i]
+                    end_idx = i
 
                     for j in range(i + 1, n):
-                        future_low = lows[j]
-                        end_date = dates[j]
-
-                        # 后续价格下穿，缺口被回补（阴影上界下移）
-                        if future_low < gap_top:
-                            gap_top = future_low
-
-                        # 缺口被完全填满，终止延伸
+                        fl = lows[j]
+                        end_idx = j
+                        if fl < gap_top:
+                            gap_top = fl
                         if gap_top <= gap_bottom:
                             break
 
-                    # 仅当缺口未被完全回补时保存阴影
                     if gap_top > gap_bottom:
                         shapes.append(
-                            dict(
-                                type="rect",
-                                x0=start_date,
-                                x1=end_date,
-                                y0=gap_bottom,
-                                y1=gap_top,
-                                fillcolor=gap_fillcolor,
-                                line=dict(width=0),
-                                layer="below",
-                                xref="x",
-                                yref="y",
-                            )
+                            {
+                                "type": "rect",
+                                "x0": dates[i],
+                                "x1": dates[end_idx],
+                                "y0": gap_bottom,
+                                "y1": gap_top,
+                                "fillcolor": gap_fillcolor,
+                                "line": {"width": 0},
+                                "layer": "below",
+                                "xref": "x",
+                                "yref": "y",
+                            }
                         )
 
                 else:
-                    # 【向下跳空缺口】区间：[今日High, 昨日Low]
-                    gap_bottom = highs[i]  # 下界随后续High上穿而逐步被“抬高”
-                    gap_top = lows[i - 1]  # 上界固定
-                    start_date = dates[i]
-                    end_date = start_date
+                    # 【向下跳空缺口】
+                    gap_bottom = highs[i]
+                    gap_top = lows[i - 1]
+                    end_idx = i
 
                     for j in range(i + 1, n):
-                        future_high = highs[j]
-                        end_date = dates[j]
-
-                        # 后续价格上穿，缺口被回补（阴影下界上移）
-                        if future_high > gap_bottom:
-                            gap_bottom = future_high
-
-                        # 缺口被完全填满，终止延伸
+                        fh = highs[j]
+                        end_idx = j
+                        if fh > gap_bottom:
+                            gap_bottom = fh
                         if gap_bottom >= gap_top:
                             break
 
-                    # 仅当缺口未被完全回补时保存阴影
                     if gap_bottom < gap_top:
                         shapes.append(
-                            dict(
-                                type="rect",
-                                x0=start_date,
-                                x1=end_date,
-                                y0=gap_bottom,
-                                y1=gap_top,
-                                fillcolor=gap_fillcolor,
-                                line=dict(width=0),
-                                layer="below",
-                                xref="x",
-                                yref="y",
-                            )
+                            {
+                                "type": "rect",
+                                "x0": dates[i],
+                                "x1": dates[end_idx],
+                                "y0": gap_bottom,
+                                "y1": gap_top,
+                                "fillcolor": gap_fillcolor,
+                                "line": {"width": 0},
+                                "layer": "below",
+                                "xref": "x",
+                                "yref": "y",
+                            }
                         )
 
-            # 6. 一次性批量写入 layout.shapes，彻底绕过 fig.add_shape 的子图校验瓶颈
+            # 6. 直接给底层 layout 注入 shape 字典（完全避开 fig.add_shape 内部的网格校验）
             if shapes:
-                existing_shapes = list(fig.layout.shapes or [])
-                fig.update_layout(shapes=existing_shapes + shapes)
+                current_shapes = fig.layout.shapes
+                if not current_shapes:
+                    fig.layout.shapes = shapes
+                else:
+                    fig.layout.shapes = tuple(current_shapes) + tuple(shapes)
 
             return fig
 

@@ -17,6 +17,7 @@ from finance.utility.tickerinfo import TickerInfo
 from finance import FINANCE_ROOT
 from finance.dashreport.data_loader import ReportDataLoader
 from threading import Lock
+from collections import defaultdict
 
 BACKTEST_LOCK = Lock()
 
@@ -789,45 +790,74 @@ class BacktestPage:
                     "Run backtest",
                     style={"color": "#999", "padding": "60px", "textAlign": "center"},
                 )
+
             stocks = d.get("s", [])
             histories = d.get("h", [])
-            all_tr = d.get("tr", [])  # 所有交易记录
-            all_pos = d.get("pos_detail", [])  # 所有持仓明细
-            all_actions = d.get("actions", [])  # 所有除权行为（dividend/split_ratio）
-            charts = []
+            all_tr = d.get("tr", [])
+            all_pos = d.get("pos_detail", [])
+            all_actions = d.get("actions", [])
+
             width = client_width or 1440
             kline_limit = ToolKit.get_config("chart_display.kline_limit", default=10)
             kline_time_range = ToolKit.get_config(
                 "chart_display.min_kline_time_range", default=200
             )
             market = d.get("market", "cn")
+            days_offset = kline_time_range if width < 550 else kline_time_range * 2
 
-            for i in range(min(kline_limit, len(histories))):
-                stock_data = pd.DataFrame(histories[i])
+            # -----------------------------------------------------------------
+            # 💡 核心优化 1：O(1) 哈希预分组（在循环外只扫一次列表，消除内部几千次迭代）
+            # -----------------------------------------------------------------
+            tr_map = defaultdict(list)
+            for t in all_tr:
+                sym = t.get("symbol")
+                if sym:
+                    tr_map[sym].append(t)
+
+            pos_map = defaultdict(list)
+            for p in all_pos:
+                sym = p.get("symbol")
+                if sym:
+                    pos_map[sym].append(p)
+
+            actions_map = defaultdict(list)
+            for a in all_actions:
+                sym = a.get("symbol")
+                if sym:
+                    actions_map[sym].append(a)
+
+            total_items = min(kline_limit, len(histories))
+            charts = []
+
+            # -----------------------------------------------------------------
+            # 💡 核心优化 2：单线程线性推导（消除多线程 GIL 锁竞争开销，100% 保持顺序）
+            # -----------------------------------------------------------------
+            for i in range(total_items):
                 symbol = stocks[i] if i < len(stocks) else f"S{i}"
+                stock_raw = histories[i]
+
+                stock_data = pd.DataFrame(stock_raw)
                 if not stock_data.empty and "datetime" in stock_data.columns:
                     stock_data["datetime"] = pd.to_datetime(stock_data["datetime"])
                     stock_data = stock_data.sort_values("datetime")
                     cutoff = stock_data["datetime"].max() - pd.Timedelta(
-                        days=(kline_time_range if width < 550 else kline_time_range * 2)
+                        days=days_offset
                     )
                     stock_data = stock_data[stock_data["datetime"] >= cutoff]
 
-                # 预先过滤当前股票的交易记录、持仓明细以及除权行为
-                filtered_tr = [t for t in all_tr if t.get("symbol") == symbol]
-                filtered_pos = [p for p in all_pos if p.get("symbol") == symbol]
-                filtered_actions = [a for a in all_actions if a.get("symbol") == symbol]
+                # 直接 O(1) 字典查找，不再使用 [t for t in all_tr if ...]
+                filtered_tr = tr_map.get(symbol, [])
+                filtered_pos = pos_map.get(symbol, [])
+                filtered_actions = actions_map.get(symbol, [])
 
-                # 判断是否是最后一张图表
-                is_last = i == min(kline_limit, len(histories)) - 1
+                is_last = i == total_items - 1
                 base_style = {
                     "margin": 0,
                     "padding": 0,
                     "width": "100%",
                     "height": "100%",
-                    "aspectRatio": 1.6 if client_width <= 550 else 2.2,
+                    "aspectRatio": 1.6 if width <= 550 else 2.2,
                 }
-                # 最后一个额外增加底部margin 5px
                 if is_last:
                     base_style["marginBottom"] = "5px"
 
@@ -836,11 +866,12 @@ class BacktestPage:
                     trades=filtered_tr,
                     pos_detail=filtered_pos,
                     market=market,
-                    actions=filtered_actions,  # 传入当前股票的 actions
+                    actions=filtered_actions,
                     symbol=symbol,
                     theme=theme,
                     client_width=width,
                 )
+
                 charts.append(
                     html.Div(
                         dcc.Graph(
@@ -855,6 +886,7 @@ class BacktestPage:
                         style=base_style,
                     )
                 )
+
             return html.Div(
                 charts, style={"display": "block", "width": "100%", "height": "auto"}
             )
