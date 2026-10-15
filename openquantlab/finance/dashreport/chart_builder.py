@@ -3774,7 +3774,7 @@ class ChartBuilder:
             df["date"] = pd.to_datetime(df["date"])
         # if "day_of_week" in df.columns:
         #     df = df[(df["day_of_week"] <= 4) & (df["week_order"] >= 1)].copy()
-        df = df.sort_values("date").reset_index(drop=True)
+        df = df.sort_values("date").tail(20).reset_index(drop=True)
 
         if df.empty:
             return go.Figure()
