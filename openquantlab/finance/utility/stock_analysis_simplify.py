@@ -123,6 +123,7 @@ class StockProposal:
             "sortino_ratio",
             "max_drawdown",
             "strategy",
+            "is_valid",
         ]
         spark_position_detail = spark.read.csv(
             str(file_path_position_detail), header=None, inferSchema=True
@@ -1319,7 +1320,7 @@ class StockProposal:
                     ,SUM(t1.pnl * t3.total_value) / SUM(t3.total_value) AS pnl --市值加权收益
                 FROM temp_position_detail t1 JOIN temp_industry_info t2 ON t1.symbol = t2.symbol
                 LEFT JOIN temp_latest_stock_info t3 ON t1.symbol = t3.symbol
-                WHERE t1.date >= {get_date_rank_subquery(26)}
+                WHERE t1.date >= {get_date_rank_subquery(26)} AND t1.is_valid = 'y'
                 GROUP BY t1.date, t2.industry
             ), tmp1 AS (
             SELECT t.date
@@ -1753,6 +1754,7 @@ class StockProposal:
             "sortino_ratio",
             "max_drawdown",
             "strategy",
+            "is_valid",
         ]
         spark_position_detail = spark.read.csv(
             str(file_path_position_detail), header=None, inferSchema=True

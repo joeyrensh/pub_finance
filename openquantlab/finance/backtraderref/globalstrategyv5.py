@@ -1134,7 +1134,7 @@ class GlobalStrategy(bt.Strategy):
                     self.execute_buy(d, "连续上涨", 3)
             else:
 
-                def _get_position_record(d, pos):
+                def _get_position_record(d, pos, is_valid="y"):
                     """
                     优雅子函数：获取单只股票的当日持仓明细字典
                     支持在 next() 任意位置多次调用
@@ -1166,6 +1166,7 @@ class GlobalStrategy(bt.Strategy):
                         "sortino_ratio": self.sortino_ratios[symbol],
                         "max_drawdown": self.max_drawdowns[symbol],
                         "strategy": self.myorder[symbol].get("strategy", None),
+                        "is_valid": is_valid,
                     }
 
                 # ===== 持仓期间：每日检查并更新当前满足的最高级别买入信号 =====
@@ -1252,7 +1253,10 @@ class GlobalStrategy(bt.Strategy):
                     self._apply_stop_profit_loss(d, pos)
 
                 # ===== 持仓数据状态记录 =====
-                record = _get_position_record(d, pos)
+                curr_order = self.order.get(symbol)
+                record = _get_position_record(
+                    d, pos, "n" if curr_order and curr_order.issell() else "y"
+                )
                 if record is not None and self.current_signal[symbol] is not None:
                     position_detail_record.append(record)
 
