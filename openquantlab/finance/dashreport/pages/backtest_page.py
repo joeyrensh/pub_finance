@@ -266,7 +266,7 @@ def load_logs(stocks, dt, m):
     )
     if pos_path.exists():
         df_pos = pd.read_csv(
-            pos_path, header=None, names=[f"col{i}" for i in range(1, 14)]
+            pos_path, header=None, names=[f"col{i}" for i in range(1, 15)]
         )
         df_pos = df_pos.rename(
             columns={"col2": "symbol", "col3": "date", "col13": "strategy"}
