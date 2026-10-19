@@ -743,6 +743,14 @@ legend {
   font-weight: bold !important;
 }
 
+#backtest-pnl-chart .table .y-column #cells1 .column-cell:nth-child(1) .cell-rect,
+.dash-graph[id*="annual_return"] .table .y-column #cells1 .column-cell:nth-child(1) .cell-rect {
+    stroke: var(--positive-int-bg-color) !important;
+    stroke-width: 0.5px !important;
+    stroke-opacity: 1 !important;
+    vector-effect: non-scaling-stroke !important;
+}
+
 #us-annual-return-light,
 #us-annual-return-dark,
 #cn-annual-return-light,
