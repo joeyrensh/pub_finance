@@ -2147,7 +2147,7 @@ class ChartBuilder:
                         "ANN.R": ep.annual_return(year_data),
                         "CUM.R": (1 + year_data).prod() - 1,
                         "MX.DD": ep.max_drawdown(year_data),
-                        "D.RISK": np.percentile(year_data, 5),
+                        "D.VAR 5%": np.percentile(year_data, 5),
                     }
                 )
 
