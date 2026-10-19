@@ -552,7 +552,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
     align-items: flex-start;
     justify-content: flex-start;
     text-align: flex-start;
-    padding: 16px 8px 16px 8px;
+    padding: 16px 10px 16px 10px;
     position: relative;
     border: medium;
     background-color: transparent;
