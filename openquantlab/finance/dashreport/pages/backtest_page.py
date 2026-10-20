@@ -1314,7 +1314,7 @@ class BacktestPage:
                             id="loading-backtest-pnl",
                             type="circle",
                             delay_hide=1000,
-                            color="#0d876c",
+                            color="#1E56A0",
                             fullscreen=False,
                             children=[
                                 html.Div(
@@ -1348,7 +1348,7 @@ class BacktestPage:
                             id="loading-backtest-kline",
                             type="circle",
                             delay_hide=1000,
-                            color="#0d876c",
+                            color="#1E56A0",
                             fullscreen=False,
                             children=[
                                 html.Div(
@@ -1384,7 +1384,7 @@ class BacktestPage:
                                     id="loading-backtest-table",
                                     type="circle",
                                     delay_hide=1000,
-                                    color="#0d876c",
+                                    color="#1E56A0",
                                     children=html.Div(id="backtest-trade-table"),
                                 )
                             ],
@@ -1428,7 +1428,7 @@ class BacktestPage:
                         dcc.Loading(
                             id="loading_ai_summary_wrapper",
                             type="circle",
-                            color="#0d876c",
+                            color="#1E56A0",
                             delay_hide=2000,
                             parent_style={"display": "contents"},
                             style={"position": "static", "transform": "none"},

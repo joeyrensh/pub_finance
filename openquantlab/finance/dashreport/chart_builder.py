@@ -27,20 +27,20 @@ class ChartBuilder:
                     "#0d876d",
                     "#0d876d",
                     "#0d876d",
-                    "#475A76",
-                    "#475A76",
-                    "#475A76",
+                    "#1E56A0",
+                    "#1E56A0",
+                    "#1E56A0",
                 ],
-                "upgrade-marker-color": "#475A76",
-                "total-cnt-color": "#475A76",
+                "upgrade-marker-color": "#1E56A0",
+                "total-cnt-color": "#1E56A0",
                 "long": "#ff4444",
                 "short": "#0d876d",
                 "pnl-colors": [
                     "#FF4444",
                     "#0d876d",
-                    "#475A76",
-                    "#475A76",
-                    "#475A76",
+                    "#1E56A0",
+                    "#1E56A0",
+                    "#1E56A0",
                 ],
                 "border-color": "rgba(209, 213, 219, 0.8)",
                 "outside-text-color": "#777777",
@@ -65,20 +65,20 @@ class ChartBuilder:
                     "#00875A",
                     "#00875A",
                     "#00875A",
-                    "#64748B",
-                    "#64748B",
-                    "#64748B",
+                    "#3B82F6",
+                    "#3B82F6",
+                    "#3B82F6",
                 ],
-                "upgrade-marker-color": "#64748B",
-                "total-cnt-color": "#64748B",
+                "upgrade-marker-color": "#3B82F6",
+                "total-cnt-color": "#3B82F6",
                 "long": "#ff4444",
                 "short": "#00875A",
                 "pnl-colors": [
                     "#FF4444",
                     "#00875A",
-                    "#64748B",
-                    "#64748B",
-                    "#64748B",
+                    "#3B82F6",
+                    "#3B82F6",
+                    "#3B82F6",
                 ],
                 "border-color": "rgba(45, 55, 72, 0.8)",
                 "outside-text-color": "#334155",
@@ -165,22 +165,33 @@ class ChartBuilder:
         # 3. 兜底处理 (若配置传的是特殊值)
         return color_str
 
-    def darken_color(self, color_str, theme="light"):
+    def darken_color(self, color_str, theme="light", factor=None):
         """物理底色混合算法：100% 保留原色纯度，通过与 CSS 背景色 Blend 生成高级沉淀色
 
         :param color_str: 输入折线颜色 (#HEX, rgb, rgba)
-        :param factor: 融合比例（原色占比）。例如 0.65 代表 65% 原色 + 35% 底色
         :param theme: "dark" 或 "light"
-        :param bg_color: 可选，自动匹配 CSS 定义的 --background-color
+        :param factor: 融合比例（原色占比）。默认 None（保持原有逻辑）；传入 1.0 时保持原色
         :return: 完美纯正的 HEX 颜色
         """
         if not color_str or not isinstance(color_str, str):
             return color_str
 
         color_str = color_str.strip()
+
+        # 1. 确定 Blend 融合比例
+        if factor is not None:
+            blend_ratio = float(factor)
+        else:
+            # 保持默认原有的混合比例逻辑
+            blend_ratio = 0.95 if theme == "light" else 0.7
+
+        # 如果比例为 1.0，直接原样透传返回原色，不改变任何调用侧和效果
+        if blend_ratio >= 1.0:
+            return color_str
+
         r, g, b = None, None, None
 
-        # 1. 解析 RGB / RGBA / HEX 格式
+        # 2. 解析 RGB / RGBA / HEX 格式
         rgba_match = re.match(
             r"^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*[\d.]+)?\s*\)$",
             color_str,
@@ -202,23 +213,19 @@ class ChartBuilder:
         if r is None:
             return color_str
 
-        # 2. 匹配 CSS 中定义的 --background-color
+        # 3. 匹配 CSS 中定义的 --background-color
         css_bg_map = {
             "light": "#F8F9FD",
             "dark": "#12151a",
         }
-        bg_color = css_bg_map.get(theme)
+        bg_color = css_bg_map.get(theme, "#F8F9FD")
 
         bg_hex = bg_color.lstrip("#")
         bg_r = int(bg_hex[0:2], 16) / 255.0
         bg_g = int(bg_hex[2:4], 16) / 255.0
         bg_b = int(bg_hex[4:6], 16) / 255.0
 
-        # 3. 确定 Blend 融合比例 (原色占比)
-        # Light Mode: 30% 原色 + 70% 淡底色，生成极浅的色调卡片，沉稳不沉重
-        blend_ratio = 0.95 if theme == "light" else 0.7
-
-        # 4. 直接做物理 Linear Interpolation (完全无需转换 HSL/HSV)
+        # 4. 直接做物理 Linear Interpolation
         final_r = r * blend_ratio + bg_r * (1.0 - blend_ratio)
         final_g = g * blend_ratio + bg_g * (1.0 - blend_ratio)
         final_b = b * blend_ratio + bg_b * (1.0 - blend_ratio)
@@ -4088,7 +4095,7 @@ class ChartBuilder:
                 gridwidth=0.5,
                 side="left",
                 zeroline=True,
-                zerolinecolor=cfg["short"],
+                zerolinecolor=cfg["total-cnt-color"],
                 zerolinewidth=1,
                 showline=False,
                 dtick=(ymax - ymin) / 3,
