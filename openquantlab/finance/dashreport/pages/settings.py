@@ -1287,7 +1287,7 @@ def create_layout(app: Dash):
 
     weight_title_section = html.Div(
         [
-            html.H6("WEIGHT CONFIGURATION", className="subtitle padded"),
+            html.H6("Weight Configuration", className="subtitle padded"),
             html.P(
                 "Drag and drop to adjust scoring weights freely. Click [SAVE to JSON] or [SAVE as DEFAULT].",
                 className="text-secondary text-center mb-4 small page-sub-desc",
@@ -1320,7 +1320,7 @@ def create_layout(app: Dash):
 
     strategy_title_section = html.Div(
         [
-            html.H6("STRATEGY CONFIGURATION", className="subtitle padded mt-5"),
+            html.H6("Strategy Configuration", className="subtitle padded mt-5"),
             html.P(
                 "Fine-tune strategy parameters, indicators, market grouping, and filtering criteria.",
                 className="text-secondary text-center mb-4 small page-sub-desc",
@@ -1394,7 +1394,7 @@ def create_layout(app: Dash):
 
     schedule_title_section = html.Div(
         [
-            html.H6("SCHEDULE CONFIGURATION", className="subtitle padded mt-5"),
+            html.H6("Schedule Configuration", className="subtitle padded mt-5"),
             html.P(
                 "Set crontab timings for strategy execution and proxy data collection.",
                 className="text-secondary text-center mb-4 small page-sub-desc",
@@ -1420,7 +1420,7 @@ def create_layout(app: Dash):
     button_section = html.Div(
         [
             dbc.Button(
-                "RESET to DEFAULT",
+                "Reset to Default",
                 id="btn-reset",
                 color="secondary",
                 outline=True,
@@ -1428,14 +1428,14 @@ def create_layout(app: Dash):
                 style={"flex": "1 1 0"},
             ),
             dbc.Button(
-                "SAVE as DEFAULT",
+                "Save as Default",
                 id="btn-save-default",
                 color="warning",
                 className="py-2 rounded-2 weight-btn-save-default",
                 style={"flex": "1 1 0"},
             ),
             dbc.Button(
-                "SAVE to JSON",
+                "Save to Json",
                 id="btn-save",
                 color="primary",
                 className="py-2 rounded-2 weight-btn-save",

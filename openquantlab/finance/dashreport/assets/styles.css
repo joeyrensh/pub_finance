@@ -199,7 +199,7 @@ h6 { font-size: 1.4rem; }
   padding-bottom: 1px;
   padding-left: 30px;
   padding-right: 60px;
-  text-transform: uppercase;
+  text-transform: capitalize;
   font-family: var(--font-family) !important;
   font-weight: 600;
 }
@@ -280,7 +280,7 @@ li::before {
   overflow-y: hidden !important;      /* 禁止纵向溢出 */
   white-space: nowrap !important;     /* 4. 强制不换行 */
   -webkit-overflow-scrolling: touch;  /* iOS 移动端流畅滑动 */
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .tab {
@@ -574,7 +574,7 @@ table.tiny-header tr:first-child { font-size: 8px; }
     color: var(--text-color);
     margin-bottom: 10px;
     font-size: 1.5rem;
-    font-weight: 300;
+    font-weight: 300; 
 }
 
 .kpi-value {
@@ -1002,6 +1002,7 @@ a:active { color: var(--text-color); text-decoration: underline; }
   cursor: pointer;
   transition: all 0.3s;
   font-weight: 400;
+  text-transform: capitalize;
 }
 
 .progress-btn:hover {
@@ -1400,6 +1401,7 @@ input[type="radio"]:checked::before {
     line-height: 30px;
     font-family: var(--font-family) !important;
     font-weight: 400;
+    text-transform: capitalize;
 }
 
 @media (hover: hover) {

@@ -124,11 +124,11 @@ class KpiCallback:
             # 3. 构建 KPI 列表
             kpis = [
                 ("S&W500", swdi_today, swdi_pct),
-                ("ASSETS", fmt_val, assets_pct),
-                ("CASH", fmt_cash, cash_pct),
-                ("SHARES", f"{stock_cnt_today}", shares_pct),
+                ("Assets", fmt_val, assets_pct),
+                ("Cash", fmt_cash, cash_pct),
+                ("Shares", f"{stock_cnt_today}", shares_pct),
                 (
-                    "DATE",
+                    "Date",
                     row_today.get("end_date", "")[-5:],
                     "Today",
                 ),
@@ -139,7 +139,7 @@ class KpiCallback:
             total = len(kpis)
 
             for idx, (label, value, pct) in enumerate(kpis):
-                extra_class = "kpi-date" if label == "DATE" else ""
+                extra_class = "kpi-date" if label == "Date" else ""
 
                 if pct.startswith("+"):
                     pct_class = "kpi-pct-up"

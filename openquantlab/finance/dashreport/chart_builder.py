@@ -2150,18 +2150,18 @@ class ChartBuilder:
             if len(year_data) >= 5:
                 stats.append(
                     {
-                        "YEAR": str(year),
-                        "ANN.R": ep.annual_return(year_data),
-                        "CUM.R": (1 + year_data).prod() - 1,
-                        "MX.DD": ep.max_drawdown(year_data),
-                        "D.VAR 5%": np.percentile(year_data, 5),
+                        "Year": str(year),
+                        "Ann.R": ep.annual_return(year_data),
+                        "Cum.R": (1 + year_data).prod() - 1,
+                        "Max.DD": ep.max_drawdown(year_data),
+                        "D.VaR 5%": np.percentile(year_data, 5),
                     }
                 )
 
         if not stats:
             raise ValueError("Not enough data to compute annual statistics")
 
-        perf_raw = pd.DataFrame(stats).set_index("YEAR")
+        perf_raw = pd.DataFrame(stats).set_index("Year")
 
         # 格式化百分比
         perf_fmt = perf_raw.copy()
@@ -2171,19 +2171,19 @@ class ChartBuilder:
         # =========================
         # 5. 表格数据（转置：年份为行，指标为列，并按年份降序排列）
         # =========================
-        df_transposed = perf_fmt.reset_index().rename(columns={"index": "YEAR"})
-        df_transposed = df_transposed.sort_values("YEAR", ascending=False).reset_index(
+        df_transposed = perf_fmt.reset_index().rename(columns={"index": "Year"})
+        df_transposed = df_transposed.sort_values("Year", ascending=False).reset_index(
             drop=True
         )
 
-        table_columns = ["YEAR"] + list(perf_fmt.columns)
+        table_columns = ["Year"] + list(perf_fmt.columns)
         table_data = df_transposed.values.tolist()
         table_df = pd.DataFrame(table_data, columns=table_columns)
 
         # =========================
         # 6. 表格颜色（仅最新年份行（第一行）的指标根据正负着色）
         # =========================
-        latest_year = table_df.iloc[0]["YEAR"]  # 最新年份
+        latest_year = table_df.iloc[0]["Year"]  # 最新年份
 
         font_colors = []
         for i, row in table_df.iterrows():
@@ -2196,7 +2196,7 @@ class ChartBuilder:
                     if val_str and val_str != "":
                         try:
                             num_val = float(val_str.replace("%", ""))
-                            if row["YEAR"] == latest_year:
+                            if row["Year"] == latest_year:
                                 color = (
                                     cfg["positive-int-color"]
                                     if num_val >= 0
