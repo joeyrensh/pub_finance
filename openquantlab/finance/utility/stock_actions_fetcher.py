@@ -726,9 +726,7 @@ class StockActionsFetcher:
         """
         通过 Nasdaq 官方 Calendar API 快捷拉取 [start_date ~ end_date] 范围内
         发生分红派息 (Dividends) 和拆合股 (Splits) 的美股 Symbol 集合
-        直接通过环境变量捕获代理 (curl_cffi 自动拾取 OS 环境变量)
         """
-        # 1. 确保环境变量已载入最新可用代理
         if not getattr(self, "current_working_proxy", None):
             proxy_str = self._rotate_to_working_proxy()
         else:
@@ -742,23 +740,52 @@ class StockActionsFetcher:
             "Referer": "https://www.nasdaq.com/",
         }
 
-        start_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
-        end_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
-
-        curr_dt = start_dt
         logger.info(
             f"🚀 [Nasdaq 日历] 开始提取除权/拆股日历数据，窗口: [{start_date} ~ {end_date}] | 📡 初始代理: {proxy_str or '直连'}"
         )
 
+        # ------------------------------------------------------------------
+        # 1. 拆合股 (Stock Splits) 一次性拉取 (接口特性：传入 start_date 返回 >= 该日期的所有拆股)
+        # ------------------------------------------------------------------
+        split_symbols: Set[str] = set()
+        split_url = f"https://api.nasdaq.com/api/calendar/splits?date={start_date}"
+        try:
+            res_split = curl_requests.get(split_url, headers=headers, timeout=12)
+            if res_split.status_code == 200:
+                split_json = res_split.json()
+                split_data = split_json.get("data", {}) or {}
+
+                rows = []
+                if isinstance(split_data, dict):
+                    rows = split_data.get("rows", []) or []
+
+                for row in rows:
+                    sym = row.get("symbol")
+                    if sym:
+                        clean_sym = str(sym).strip().upper()
+                        if clean_sym and not clean_sym.startswith("="):
+                            split_symbols.add(clean_sym)
+
+                action_symbols.update(split_symbols)
+                logger.info(
+                    f"✂️ [Nasdaq 拆股] 批量提取 [{start_date} 起] 拆合股标的共: {len(split_symbols)} 只"
+                )
+        except Exception as e:
+            logger.warning(f"⚠️ [Nasdaq 拆股] 批量请求失败: {e}，尝试轮换代理...")
+            proxy_str = self._rotate_to_working_proxy()
+
+        # ------------------------------------------------------------------
+        # 2. 分红派息 (Dividends) 按日轮询拉取 (接口特性：返回指定 date_str 当日分红)
+        # ------------------------------------------------------------------
+        start_dt = datetime.datetime.strptime(start_date, "%Y-%m-%d").date()
+        end_dt = datetime.datetime.strptime(end_date, "%Y-%m-%d").date()
+
+        curr_dt = start_dt
         while curr_dt <= end_dt:
             if curr_dt.weekday() < 5:  # 跳过周末
                 date_str = curr_dt.strftime("%Y-%m-%d")
                 day_div_count = 0
-                day_split_count = 0
 
-                # ------------------------------------------------------------------
-                # 1. 获取分红派息 (Dividends)
-                # ------------------------------------------------------------------
                 div_url = f"https://api.nasdaq.com/api/calendar/dividends?date={date_str}&limit=9999"
                 try:
                     res_div = curl_requests.get(div_url, headers=headers, timeout=12)
@@ -785,41 +812,10 @@ class StockActionsFetcher:
                     )
                     proxy_str = self._rotate_to_working_proxy()
 
-                # ------------------------------------------------------------------
-                # 2. 获取拆合股 (Stock Splits)
-                # ------------------------------------------------------------------
-                split_url = (
-                    f"https://api.nasdaq.com/api/calendar/splits?date={date_str}"
-                )
-                try:
-                    res_split = curl_requests.get(
-                        split_url, headers=headers, timeout=12
-                    )
-                    if res_split.status_code == 200:
-                        split_json = res_split.json()
-                        split_data = split_json.get("data", {}) or {}
-
-                        rows = []
-                        if isinstance(split_data, dict):
-                            rows = split_data.get("rows", []) or []
-
-                        for row in rows:
-                            sym = row.get("symbol")
-                            if sym:
-                                clean_sym = str(sym).strip().upper()
-                                if clean_sym and not clean_sym.startswith("="):
-                                    action_symbols.add(clean_sym)
-                                    day_split_count += 1
-                except Exception as e:
-                    logger.warning(
-                        f"⚠️ [Nasdaq 拆股] 请求 {date_str} 失败: {e}，尝试轮换代理..."
-                    )
-                    proxy_str = self._rotate_to_working_proxy()
-
                 logger.info(
                     f"📅 [Nasdaq 日历] 日期: {date_str} -> "
-                    f"命中分红: {day_div_count:3d} 只 | 命中拆股: {day_split_count:3d} 只 | "
-                    f"累计命中标的: {len(action_symbols)} 只"
+                    f"当日分红: {day_div_count:3d} 只 | "
+                    f"累计去重标的: {len(action_symbols)} 只"
                 )
 
             curr_dt += datetime.timedelta(days=1)
