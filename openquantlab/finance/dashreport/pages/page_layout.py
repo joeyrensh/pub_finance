@@ -374,7 +374,7 @@ class PageLayout:
                                 "display": "block",
                                 "position": "relative",
                             },
-                            children="Select a stock from the NAME column and click [AI Analysis] to view the summary.",
+                            children="Select a stock from the Name column and click [AI Analysis] to view the summary.",
                         ),
                     ],
                 ),
