@@ -1289,7 +1289,7 @@ def create_layout(app: Dash):
         [
             html.H6("Weight Configuration", className="subtitle padded"),
             html.P(
-                "Drag and drop to adjust scoring weights freely. Click [SAVE to JSON] or [SAVE as DEFAULT].",
+                "Drag and drop to adjust scoring weights freely. Click [Save to Json] or [Save as Default].",
                 className="text-secondary text-center mb-4 small page-sub-desc",
             ),
         ]
