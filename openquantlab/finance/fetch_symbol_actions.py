@@ -52,8 +52,8 @@ def parse_args():
         "--lookback",
         type=str,
         default="2w",
-        choices=["1w", "2w", "3w", "1m"],
-        help="增量模式下的回溯周期 (可选: 1w, 2w, 3w, 1m，默认: 2w 冗余设计)",
+        choices=["1w", "2w", "3w", "1m", "2m"],
+        help="增量模式下的回溯周期 (可选: 1w, 2w, 3w, 1m, 2m，默认: 2w 冗余设计)",
     )
     parser.add_argument(
         "--symbols",

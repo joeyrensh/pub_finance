@@ -146,6 +146,8 @@ class StockActionsFetcher:
             delta = datetime.timedelta(days=21)
         elif self.lookback_period == "1m":
             delta = datetime.timedelta(days=30)
+        elif self.lookback_period == "2m":
+            delta = datetime.timedelta(days=60)
         else:
             delta = datetime.timedelta(days=14)
         return (now - delta).strftime("%Y-%m-%d")
@@ -249,26 +251,24 @@ class StockActionsFetcher:
         if not records:
             return
 
-        new_df = pd.DataFrame(records)[self.CSV_HEADERS]
+        # 1. 首次写入前：如果主文件存在，且今天的备份文件还不存在，则先将更新前的旧文件备份一份
+        if self.output_csv_path.exists() and os.path.getsize(self.output_csv_path) > 0:
+            if not self.dated_csv_path.exists():
+                shutil.copy2(self.output_csv_path, self.dated_csv_path)
+                logger.info(f"📦 已将更新前的旧文件备份至: {self.dated_csv_path.name}")
 
+        # 2. 永远只以主文件 (output_csv_path) 为基准读取现有数据
         existing_df = pd.DataFrame(columns=self.CSV_HEADERS)
-
-        target_read_path = None
-        if self.dated_csv_path.exists() and os.path.getsize(self.dated_csv_path) > 0:
-            target_read_path = self.dated_csv_path
-        elif (
-            self.output_csv_path.exists() and os.path.getsize(self.output_csv_path) > 0
-        ):
-            target_read_path = self.output_csv_path
-
-        if target_read_path:
+        if self.output_csv_path.exists() and os.path.getsize(self.output_csv_path) > 0:
             try:
-                existing_df = pd.read_csv(target_read_path, dtype=str)
+                existing_df = pd.read_csv(self.output_csv_path, dtype=str)
                 existing_df["dividend"] = existing_df["dividend"].astype(float)
                 existing_df["split_ratio"] = existing_df["split_ratio"].astype(float)
             except Exception as e:
                 logger.warning(f"读取原有数据文件失败，将全新创建: {e}")
 
+        # 3. 合并新老数据并去重排序
+        new_df = pd.DataFrame(records)[self.CSV_HEADERS]
         combined_df = pd.concat([existing_df, new_df], ignore_index=True)
         combined_df.drop_duplicates(
             subset=["symbol", "date"], keep="last", inplace=True
@@ -277,8 +277,9 @@ class StockActionsFetcher:
             by=["symbol", "date"], ascending=[True, True], inplace=True
         )
 
+        # 4. 直接覆写更新最新的主文件 (cn_stock_actions_history.csv)
         combined_df.to_csv(
-            self.dated_csv_path,
+            self.output_csv_path,
             mode="w",
             index=False,
             header=True,
@@ -286,18 +287,6 @@ class StockActionsFetcher:
         )
 
         del combined_df, existing_df, new_df
-
-        if self.output_csv_path.exists():
-            if self.bak_csv_path.exists():
-                os.remove(self.bak_csv_path)
-            os.rename(self.output_csv_path, self.bak_csv_path)
-
-        shutil.copy2(self.dated_csv_path, self.output_csv_path)
-
-        if self.bak_csv_path.exists():
-            if self.dated_csv_path.exists():
-                os.remove(self.dated_csv_path)
-            os.rename(self.bak_csv_path, self.dated_csv_path)
 
     # ==================== CN 动态/增量筛选与获取 ====================
     def get_cn_stock_symbols_with_actions(
